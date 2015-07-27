@@ -1,6 +1,13 @@
 # Markdown.MAML
 Prototype to transform Markdown to MAML and vice verse
 
+# Contributing
+
+It's a hackathon and we have wild free for all party on this repo!
+Feel free to do direct checking in master, unless you want a codereview or some other specific goal.
+Keep updating **Hackathon status** section to reflect your porgress and communicate it to others.
+Include short demo / snippets in the source code and readme to quicky onboard others.
+
 # Hackathon status
 
 This section would contain the current status. Please add feature descriptions here.
