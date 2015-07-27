@@ -24,6 +24,7 @@ namespace Markdown.MAML.Parser
             _markdownLines =
                 _innerParser
                     .Normalize(markdownString)
+                    .Trim()
                     .Split('\n');
 
             // Move to the starting line
@@ -35,12 +36,17 @@ namespace Markdown.MAML.Parser
         private string MoveToNextLine()
         {
             _currentLineIndex++;
+
             if (_currentLineIndex >= _markdownLines.Length)
             {
-                return null;
+                _currentLineIndex = _markdownLines.Length;
+                _currentLine = null;
+            }
+            else
+            {
+                _currentLine = _markdownLines[_currentLineIndex];
             }
 
-            _currentLine = _markdownLines[_currentLineIndex];
             return _currentLine;
         }
 
@@ -61,16 +67,27 @@ namespace Markdown.MAML.Parser
             IEnumerable<Func<MarkdownNode>> parseActions =
                 new List<Func<MarkdownNode>>
                 {
-                    this.ParseHeading
+                    // The order of these parsers is important.  The
+                    // most greedy parsers should go at the end.
+                    this.ParseHeading,
+                    this.ParseCodeBlock,
+                    this.ParseParagraph
                 };
 
             while (_currentLine != null)
             {
+                // Skip over empty lines that aren't part of a node
+                if (string.IsNullOrWhiteSpace(_currentLine))
+                {
+                    this.MoveToNextLine();
+                    continue;
+                }
+
                 // Find the first parseable element
                 MarkdownNode foundNode =
                     parseActions
                         .Select(parser => (MarkdownNode)parser())
-                        .FirstOrDefault();
+                        .FirstOrDefault(node => node != null);
 
                 if (foundNode != null)
                 {
@@ -123,12 +140,66 @@ namespace Markdown.MAML.Parser
                         new HeadingNode(
                             _currentLine.Trim(),
                             nextLine[0] == '=' ? 1 : 2);
+
+                    // Move past the next line
+                    this.MoveToNextLine();
+                    this.MoveToNextLine();
                 }
             }
 
             // TODO: Look for children
 
             return headingNode;
+        }
+
+        private ParagraphNode ParseParagraph()
+        {
+            string paragraphText = string.Empty;
+
+            // Any line that starts with an alphanumeric character is valid
+            while (_currentLine != null && 
+                   (_currentLine.Length == 0 ||
+                    char.IsLetterOrDigit(_currentLine[0])))
+            {
+                paragraphText = 
+                    paragraphText +
+                    (string.IsNullOrEmpty(paragraphText) ? string.Empty : "\n") +
+                    _currentLine;
+
+                // Get the next line
+                this.MoveToNextLine();
+            }
+
+            return
+                !string.IsNullOrEmpty(paragraphText) ?
+                    new ParagraphNode(paragraphText) :
+                    null;
+        }
+
+        private CodeBlockNode ParseCodeBlock()
+        {
+            CodeBlockNode codeBlockNode = null;
+
+            if (_currentLine.StartsWith("```"))
+            {
+                // Gather the code block text until the final ```
+                string codeBlockText = _currentLine.Trim('`', ' ');
+
+                // TODO: Handle cases where more text comes before or after ```?
+                while (this.MoveToNextLine() != null &&
+                        _currentLine.Trim().Equals("```") == false)
+                {
+                    // If there's already text in the code block, add a newline
+                    codeBlockText =
+                        codeBlockText +
+                        (string.IsNullOrEmpty(codeBlockText) ? string.Empty : "\n") +
+                        _currentLine;
+                }
+
+                codeBlockNode = new CodeBlockNode(codeBlockText);
+            }
+
+            return codeBlockNode;
         }
     }
 }

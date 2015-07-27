@@ -14,6 +14,10 @@ To get the results of the command, use the Verbose and PassThru parameters.
 ###PARAMETERS
 
 ####ComputerName [\<String[]\>]
+``` 
+Boo stuff here
+Do more things
+```
 
 Specifies the computers to add to a domain or workgroup. The default is the local computer.
 Type the NetBIOS name, an Internet Protocol (IP) address, or a fully qualified domain name of each of the  remote computers. To specify the local computer, type the computer name, a dot (.), or "localhost".

@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\CodeBlockNode.cs" />
     <Compile Include="Model\DocumentNode.cs" />
     <Compile Include="Model\HeadingNode.cs" />
     <Compile Include="Model\MarkdownNode.cs" />

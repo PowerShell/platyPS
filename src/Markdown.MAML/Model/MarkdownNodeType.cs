@@ -6,6 +6,7 @@ namespace Markdown.MAML.Model
         Unknown = 0,
         Document,
         Paragraph,
-        Heading
+        Heading,
+        CodeBlock
     }
 }
