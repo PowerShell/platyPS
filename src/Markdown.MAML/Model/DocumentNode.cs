@@ -15,6 +15,8 @@ namespace Markdown.MAML.Model
             get { return MarkdownNodeType.Document; }
         }
 
+        public IEnumerable<MarkdownNode> Children { get; protected set; }
+
         public DocumentNode()
         {
             this.Children = this.childNodes;
