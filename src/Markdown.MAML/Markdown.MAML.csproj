@@ -50,6 +50,7 @@
     <Compile Include="Model\MarkdownNodeType.cs" />
     <Compile Include="Model\ParagraphNode.cs" />
     <Compile Include="Model\TextNode.cs" />
+    <Compile Include="Parser\MamlRenderer.cs" />
     <Compile Include="Parser\Markdown.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
