@@ -15,13 +15,27 @@ namespace Markdown.MAML.Transformer
         private const int COMMAND_NAME_HEADING_LEVEL = 2;
         private const int COMMAND_ENTRIES_HEADING_LEVEL = 3;
 
+        private MarkdownNode _ungotNode { get; set; }
+
         private MarkdownNode GetCurrentNode()
         {
+            if (_ungotNode != null)
+            {
+                var node = _ungotNode;
+                return node;
+            }
+
             return _rootEnumerator.Current;
         }
 
         private MarkdownNode GetNextNode()
         {
+            if (_ungotNode != null)
+            {
+                _ungotNode = null;
+                return _rootEnumerator.Current;
+            }
+
             if (_rootEnumerator.MoveNext())
             {
                 return _rootEnumerator.Current;
@@ -30,28 +44,19 @@ namespace Markdown.MAML.Transformer
             return null;
         }
 
-        private string GetSynopsis()
+        private void UngetNode(MarkdownNode node)
+        {
+            if (_ungotNode != null)
+            {
+                throw new ArgumentException("Cannot ungot token, already ungot one");
+            }
+
+            _ungotNode = node;
+        }
+
+        private string SynopsisRule()
         {
             var node = GetNextNode();
-
-            // check for appropriate header
-            if (node.NodeType != MarkdownNodeType.Heading)
-            {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
-            }
-
-            var headingNode = node as HeadingNode;
-            if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
-            {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
-            }
-
-            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "SYNOPSIS") != 0)
-            {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
-            }
-
-            node = GetNextNode();
             if (node.NodeType != MarkdownNodeType.Paragraph)
             {
                 throw new HelpSchemaException("Expect SYNOPSIS text");
@@ -60,39 +65,67 @@ namespace Markdown.MAML.Transformer
             return (node as ParagraphNode).Spans.First().Text;
         }
 
-        private string GetDescription()
+        private string DescriptionRule()
         {
             var node = GetNextNode();
+            // TODO: handle hyperlinks, code, etc
+            if (node.NodeType != MarkdownNodeType.Paragraph)
+            {
+                throw new HelpSchemaException("Expect DESCRIPTION text");
+            }
 
+            return ((node as ParagraphNode).Spans.First().Text);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>true if Section was found</returns>
+        private bool SectionDispatch(MamlCommand command)
+        {
+            var node = GetNextNode();
             if (node == null)
             {
-                return null;
+                return false;
             }
 
             // check for appropriate header
             if (node.NodeType != MarkdownNodeType.Heading)
             {
-                throw new HelpSchemaException("Expect ###DESCRIPTION");
+                throw new HelpSchemaException("Expect Heading");
             }
 
             var headingNode = node as HeadingNode;
+            if (headingNode.HeadingLevel == COMMAND_NAME_HEADING_LEVEL)
+            {
+                UngetNode(node);
+                return false;
+            }
+
             if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
             {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
+                throw new HelpSchemaException("Expect Heading level " + COMMAND_ENTRIES_HEADING_LEVEL);
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "SYNOPSIS") != 0)
+            switch (headingNode.Text.ToUpper())
             {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
+                case "DESCRIPTION":
+                {
+                    command.Description = DescriptionRule();
+                    break;
+                }
+                case "SYNOPSIS":
+                {
+                    command.Synopsis = SynopsisRule();
+                    break;
+                }
+                default:
+                {
+                    throw new HelpSchemaException("Unexpected header name " + headingNode.Text);
+                }
             }
-
-            node = GetNextNode();
-            if (node.NodeType != MarkdownNodeType.Paragraph)
-            {
-                throw new HelpSchemaException("Expect SYNOPSIS text");
-            }
-
-            return ((node as ParagraphNode).Spans.First().Text);
+            return true;
         }
 
         public IEnumerable<MamlCommand> NodeModelToMamlModel(DocumentNode node)
@@ -122,9 +155,10 @@ namespace Markdown.MAML.Transformer
                                 MamlCommand command = new MamlCommand()
                                 {
                                     Name = headingNode.Text,
-                                    Synopsis = GetSynopsis(),
-                                    Description = GetDescription()
                                 };
+                                // fill up command 
+                                while (SectionDispatch(command)) { }
+
                                 commands.Add(command);
                                 break;
                             }
