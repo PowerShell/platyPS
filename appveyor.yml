@@ -1,14 +1,14 @@
 version: 1.0.{build}
 
 init:
- 	- git config --global core.autocrlf true
+    - git config --global core.autocrlf true
 
 before_build:
-	- nuget restore
+    - nuget restore
 
 build:
-  	project: Markdown.MAML.sln
-  	verbosity: minimal
+    project: Markdown.MAML.sln
+    verbosity: minimal
 
 on_finish: 
     - ps: | 
