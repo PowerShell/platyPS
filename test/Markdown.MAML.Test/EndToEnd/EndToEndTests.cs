@@ -59,7 +59,7 @@ And this is my last line.
             Assert.Equal("And this is my last line.", description[2]);
         }
 
-        private string[] GetXmlContent(string xml, string xpath)
+        public string[] GetXmlContent(string xml, string xpath)
         {
             List<string> result = new List<string>(); 
             XmlDocument xmlDoc = new XmlDocument();
