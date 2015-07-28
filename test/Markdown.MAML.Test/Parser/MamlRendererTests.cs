@@ -15,7 +15,7 @@ namespace Markdown.MAML.Test.Parser
     public class MamlRendererTests
     {
         [Fact]
-        public void ProduceNameTag()
+        public void ProduceNameAndDescription()
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
