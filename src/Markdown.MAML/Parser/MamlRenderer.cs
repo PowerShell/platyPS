@@ -12,16 +12,9 @@ namespace Markdown.MAML.Parser
     /// </summary>
     public class MamlRenderer
     {
-        private enum State
-        {
-            None,
-            Command,
-            
-        }
 
         private StringBuilder _stringBuilder = new StringBuilder();
         private DocumentNode _root;
-        private State _state;
         private Stack<string> _tagStack;
         private IEnumerator<MarkdownNode> _rootEnumerator;
 
@@ -80,7 +73,6 @@ namespace Markdown.MAML.Parser
         public string ToMamlString()
         {
             _stringBuilder.Clear();
-            _state = State.None;
             _stringBuilder.AppendLine(XML_PREAMBULA);
              
             AddCommands();
@@ -118,12 +110,18 @@ namespace Markdown.MAML.Parser
                         case COMMAND_NAME_HEADING_LEVEL :
                         {
                             PopAllTags();
-                            _state = State.Command;
 
+                            // SYNOPSIS
                             PushTag("command:details");
                             _stringBuilder.AppendFormat("<command:name>{0}</command:name>", headingNode.Text);
-                            AddDescription();
+                            AddSynopsis();
                             PopTag("command:details");
+
+                            // DESCRIPTION
+                            PushTag("maml:description");
+                            AddDescription();
+                            PopTag("maml:description");
+
                             
                             break;
                         }
@@ -136,9 +134,47 @@ namespace Markdown.MAML.Parser
             _stringBuilder.AppendLine("</command:command>");
         }
 
+        private void AddSynopsis()
+        {
+            var node = GetNextNode();
+
+            // check for appropriate header
+            if (node.NodeType != MarkdownNodeType.Heading)
+            {
+                throw new HelpSchemaException("Expect ###SYNOPSIS");
+            }
+
+            var headingNode = node as HeadingNode;
+            if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
+            {
+                throw new HelpSchemaException("Expect ###SYNOPSIS");
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "SYNOPSIS") != 0)
+            {
+                throw new HelpSchemaException("Expect ###SYNOPSIS");
+            }
+
+            node = GetNextNode();
+            if (node.NodeType != MarkdownNodeType.Paragraph)
+            {
+                throw new HelpSchemaException("Expect SYNOPSIS text");
+            }
+
+            PushTag("maml:description");
+            PushTag("maml:para");
+            _stringBuilder.AppendLine((node as ParagraphNode).Text);
+            PopTag(2);
+        }
+
         private void AddDescription()
         {
             var node = GetNextNode();
+
+            if (node == null)
+            {
+                return;
+            }
 
             // check for appropriate header
             if (node.NodeType != MarkdownNodeType.Heading)
@@ -149,18 +185,18 @@ namespace Markdown.MAML.Parser
             var headingNode = node as HeadingNode;
             if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
             {
-                throw new HelpSchemaException("Expect ###DESCRIPTION");
+                throw new HelpSchemaException("Expect ###SYNOPSIS");
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "DESCRIPTION") != 0)
+            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "SYNOPSIS") != 0)
             {
-                throw new HelpSchemaException("Expect ###DESCRIPTION");
+                throw new HelpSchemaException("Expect ###SYNOPSIS");
             }
 
             node = GetNextNode();
             if (node.NodeType != MarkdownNodeType.Paragraph)
             {
-                throw new HelpSchemaException("Expect DESCRIPTION text");
+                throw new HelpSchemaException("Expect SYNOPSIS text");
             }
 
             PushTag("maml:description");
