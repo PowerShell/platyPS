@@ -53,7 +53,7 @@ And this is my last line.
                 NodeModelToMamlModel(doc));
 
             string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(1, description.Length);
+            Assert.Equal(5, description.Length);
         }
 
         public string[] GetXmlContent(string xml, string xpath)
