@@ -75,5 +75,51 @@ This is Synopsis, but it doesn't matter in this test
             Assert.NotNull(mamlCommand[1].Description);
             Assert.NotNull(mamlCommand[1].Synopsis);
         }
+
+        [Fact]
+        public void SingleParameter()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+### Parameters
+#### Bar
+This is bar parameter
+
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var param = mamlCommand[0].Parameters.ToArray();
+            Assert.Equal(param.Count(), 1);
+            Assert.Equal(param[0].Name, "Bar");
+            Assert.Equal(param[0].Description, "This is bar parameter");
+        }
+
+        [Fact]
+        public void InputAndOutput()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+### INPUTS
+#### System.String
+You can pipe computer names and new names to the Add-ComputerCmdlet.
+
+### OUTPUTS
+#### Microsoft.PowerShell.Commands.ComputerChangeInfo
+
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var inputs = mamlCommand[0].Inputs.ToArray();
+            var outputs = mamlCommand[0].Outputs.ToArray();
+            Assert.Equal(inputs.Count(), 1);
+            Assert.Equal(outputs.Count(), 1);
+            Assert.Equal(inputs[0].TypeName, "System.String");
+            Assert.Equal(outputs[0].TypeName, "Microsoft.PowerShell.Commands.ComputerChangeInfo");
+            Assert.Equal(inputs[0].Description, "You can pipe computer names and new names to the Add-ComputerCmdlet.");
+            Assert.Empty(outputs[0].Description);
+        }
+
     }
 }
