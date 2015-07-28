@@ -23,14 +23,14 @@ namespace Markdown.MAML.Parser
                 return null;
             }
 
+            // Trim the leading whitespace off of the string
             _remainingText = markdownString.TrimStart();
-            _currentDocument = new DocumentNode();
 
+            _currentDocument = new DocumentNode();
             this.ParseDocument();
 
             return _currentDocument;
         }
-
 
         private void StartParagraph()
         {
@@ -55,6 +55,11 @@ namespace Markdown.MAML.Parser
 
         private void ParseDocument()
         {
+            // TODO: Use a more data-driven approach to list all regexes
+            // along with their group names and functions that operate on
+            // the match results.  This will avoid the big if statement
+            // block later in the function.
+
             string[] regexParts =
                 new string[]
                 {
@@ -75,7 +80,9 @@ namespace Markdown.MAML.Parser
                     "^(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
                 };
 
-            string matchedGroupName = null;
+            // TODO: These patterns are old and should be converted into
+            // something more like the newer patterns which use non-greedy
+            // character groups like (.?+)
             string textPattern = @"a-zA-Z-\.,' ";
             string additionalTextPattern = "\\(\\)(\r\n){1}";
 
@@ -89,8 +96,13 @@ namespace Markdown.MAML.Parser
                     RegexOptions.ExplicitCapture |
                     RegexOptions.Compiled);
 
+            // This algorithm works by taking the current document string
+            // and using a regex to pull the first recognized substring beginning
+            // at character 0.  Once a substring has been matched, that substring
+            // is removed from the string and the loop starts over.
             while (_remainingText.Length > 0)
             {
+                string matchedGroupName = null;
                 Match regexMatch = markdownRegex.Match(_remainingText);
                 Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
 
@@ -140,6 +152,11 @@ namespace Markdown.MAML.Parser
                 else if (matchedGroupName == "normal")
                 {
                     this.StartParagraph();
+
+                    // TODO: Replace all newlines with spaces?  We
+                    // might want to add line breaks only when the
+                    // user has intentionally typed a hard break string
+                    // (  \r\n)
 
                     _currentParagraphSpans.Add(
                         new TextSpan(
