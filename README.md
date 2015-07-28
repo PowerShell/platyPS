@@ -26,7 +26,7 @@ https://github.com/PowerShell/Markdown.MAML/blob/master/SMA.Help.md
 
 The tag mapping document is here:
 
-https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.Md
+https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.md
 
 ## Transform maml to markdown
 
