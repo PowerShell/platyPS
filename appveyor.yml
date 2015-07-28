@@ -1,9 +1,22 @@
 version: 1.0.{build}
+
 init:
-  - git config --global core.autocrlf true
+ 	- git config --global core.autocrlf true
+
 before_build:
-- nuget restore
+	- nuget restore
+
 build:
-  project: Markdown.MAML.sln
-  verbosity: minimal
-  
+  	project: Markdown.MAML.sln
+  	verbosity: minimal
+
+on_finish: 
+    - ps: | 
+        $stagingDirectory = (Resolve-Path ..).Path 
+        $zipFile = Join-Path $stagingDirectory "$(Split-Path $pwd -Leaf).zip" 
+        Add-Type -assemblyname System.IO.Compression.FileSystem 
+        [System.IO.Compression.ZipFile]::CreateFromDirectory($pwd, $zipFile) 
+        @( 
+            # You can add other artifacts here 
+            (ls $zipFile) 
+        ) | % { Push-AppveyorArtifact $_.FullName } 
