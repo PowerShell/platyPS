@@ -24,12 +24,22 @@ namespace Markdown.MAML.Parser
             }
 
             // Trim the leading whitespace off of the string
-            _remainingText = markdownString.TrimStart();
+            _remainingText = this.PrepareDocumentString(markdownString);
 
             _currentDocument = new DocumentNode();
             this.ParseDocument();
 
             return _currentDocument;
+        }
+
+        private string PrepareDocumentString(string documentString)
+        {
+            // Trim any leading whitespace off of the string
+            documentString = documentString.TrimStart();
+
+            // Make sure all newlines are \r\n.  In some environments,
+            // verbatim string literals have \r instead of \r\n.
+            return Regex.Replace(documentString, "[^\r]\n", "\r\n");
         }
 
         private void StartParagraph()
