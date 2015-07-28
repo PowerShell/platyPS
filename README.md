@@ -24,6 +24,10 @@ https://github.com/PowerShell/Markdown.MAML/blob/master/Example.Short.md
 The whole `System.Management.Automation` help converted:
 https://github.com/PowerShell/Markdown.MAML/blob/master/SMA.Help.md
 
+The tag mapping document is here:
+
+https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.Md
+
 ## Transform maml to markdown
 
 ```powershell
