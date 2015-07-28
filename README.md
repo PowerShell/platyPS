@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/u65tnar0cfkmqywl/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/markdown-maml/branch/master)
+
 # Markdown.MAML
 Prototype to transform Markdown to MAML and vice verse
 
@@ -21,6 +23,10 @@ https://github.com/PowerShell/Markdown.MAML/blob/master/Example.Short.md
 
 The whole `System.Management.Automation` help converted:
 https://github.com/PowerShell/Markdown.MAML/blob/master/SMA.Help.md
+
+The tag mapping document is here:
+
+https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.md
 
 ## Transform maml to markdown
 

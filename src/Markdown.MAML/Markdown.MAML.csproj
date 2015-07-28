@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -44,15 +45,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\DocumentNode.cs" />
-    <Compile Include="Model\HeadingNode.cs" />
-    <Compile Include="Model\MarkdownNode.cs" />
-    <Compile Include="Model\MarkdownNodeType.cs" />
-    <Compile Include="Model\ParagraphNode.cs" />
-    <Compile Include="Model\TextNode.cs" />
+    <Compile Include="Model\MAML\MamlExample.cs" />
+    <Compile Include="Model\MAML\MamlInputOutput.cs" />
+    <Compile Include="Model\MAML\MamlParameter.cs" />
+    <Compile Include="Model\Markdown\CodeBlockNode.cs" />
+    <Compile Include="Model\Markdown\DocumentNode.cs" />
+    <Compile Include="Model\Markdown\HeadingNode.cs" />
+    <Compile Include="Model\Markdown\MarkdownNode.cs" />
+    <Compile Include="Model\Markdown\MarkdownNodeType.cs" />
+    <Compile Include="Model\Markdown\ParagraphNode.cs" />
+    <Compile Include="Model\Markdown\TextNode.cs" />
+    <Compile Include="Model\Markdown\HyperlinkSpan.cs" />
+    <Compile Include="Model\Markdown\ParagraphSpan.cs" />
+    <Compile Include="Model\Markdown\TextSpan.cs" />
+    <Compile Include="Model\Markdown\HardBreakSpan.cs" />
+    <Compile Include="Parser\MarkdownPattern.cs" />
+    <Compile Include="Parser\MarkdownPatternList.cs" />
+    <Compile Include="Transformer\HelpSchemaException.cs" />
+    <Compile Include="Model\MAML\MamlCommand.cs" />
+    <Compile Include="Renderer\MamlRenderer.cs" />
     <Compile Include="Parser\Markdown.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transformer\ModelTransformer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
