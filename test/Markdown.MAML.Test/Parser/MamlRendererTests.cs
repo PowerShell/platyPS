@@ -8,6 +8,7 @@ using System.Xml;
 using System.Xml.XPath;
 using Markdown.MAML.Model;
 using Markdown.MAML.Parser;
+using Markdown.MAML.Renderer;
 using Xunit;
 
 namespace Markdown.MAML.Test.Parser
@@ -23,9 +24,10 @@ namespace Markdown.MAML.Test.Parser
 ### Synopsis
 This is Synopsis
 ");
-            var renderer = new MamlRenderer(doc);
+            string maml = new MamlRenderer().
+                MamlModelToString((new ModelTransformer()).
+                NodeModelToMamlModel(doc));
             
-            string maml = renderer.ToMamlString();
             string[] name = GetXmlContent(maml, "/helpItems/command:command/command:details/command:name");
             Assert.Equal(1, name.Length);
             Assert.Equal("Get-Foo", name[0]);
@@ -51,9 +53,10 @@ I'm a multiline description.
 
 And this is my last line.
 ");
-            var renderer = new MamlRenderer(doc);
+            string maml = new MamlRenderer().
+                MamlModelToString((new ModelTransformer()).
+                NodeModelToMamlModel(doc));
 
-            string maml = renderer.ToMamlString();
             string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
             Assert.Equal(3, description.Length);
             Assert.Equal("Hello,", description[0]);

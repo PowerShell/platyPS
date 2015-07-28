@@ -53,10 +53,12 @@
     <Compile Include="Model\ParagraphNode.cs" />
     <Compile Include="Model\TextNode.cs" />
     <Compile Include="Parser\HelpSchemaException.cs" />
-    <Compile Include="Parser\MamlRenderer.cs" />
+    <Compile Include="Renderer\MamlCommand.cs" />
+    <Compile Include="Renderer\MamlRenderer.cs" />
     <Compile Include="Parser\Markdown.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Renderer\ModelTransformer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
