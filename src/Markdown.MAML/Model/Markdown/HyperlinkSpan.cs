@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Markdown.MAML.Model
+namespace Markdown.MAML.Model.Markdown
 {
     public class HyperlinkSpan : ParagraphSpan
     {

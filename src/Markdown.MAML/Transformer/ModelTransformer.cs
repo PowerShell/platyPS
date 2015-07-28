@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using Markdown.MAML.Model;
+using Markdown.MAML.Model.Markdown;
+using Markdown.MAML.Model.MAML;
 
 namespace Markdown.MAML.Transformer
 {

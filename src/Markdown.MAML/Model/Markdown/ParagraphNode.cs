@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Markdown.MAML.Model
+namespace Markdown.MAML.Model.Markdown
 {
     public class ParagraphNode : MarkdownNode
     {

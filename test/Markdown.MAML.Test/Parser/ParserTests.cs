@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Markdown.MAML.Model;
+using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Parser;
 using Xunit;
 

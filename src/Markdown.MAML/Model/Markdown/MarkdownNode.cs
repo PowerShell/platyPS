@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace Markdown.MAML.Model
+﻿namespace Markdown.MAML.Model.Markdown
 {
     public abstract class MarkdownNode
     {

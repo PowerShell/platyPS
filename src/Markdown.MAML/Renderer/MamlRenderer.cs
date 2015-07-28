@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using Markdown.MAML.Model;
+using Markdown.MAML.Model.Markdown;
+using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Parser;
 using Markdown.MAML.Transformer;
 
