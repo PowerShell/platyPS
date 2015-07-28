@@ -77,64 +77,6 @@ namespace Markdown.MAML.Transformer
             return ((node as ParagraphNode).Spans.First().Text);
         }
 
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="command"></param>
-        /// <returns>true if Parameter was found</returns>
-        private bool ParameterDispatch(MamlCommand command)
-        {
-            var node = GetNextNode();
-            if (node == null)
-            {
-                return false;
-            }
-
-            // check for appropriate header
-            if (node.NodeType != MarkdownNodeType.Heading)
-            {
-                throw new HelpSchemaException("Expect Heading");
-            }
-
-            var headingNode = node as HeadingNode;
-            if (headingNode.HeadingLevel == COMMAND_NAME_HEADING_LEVEL)
-            {
-                UngetNode(node);
-                return false;
-            }
-
-            if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
-            {
-                throw new HelpSchemaException("Expect Heading level " + COMMAND_ENTRIES_HEADING_LEVEL);
-            }
-
-            switch (headingNode.Text.ToUpper())
-            {
-                case "DESCRIPTION":
-                    {
-                        command.Description = DescriptionRule();
-                        break;
-                    }
-                case "SYNOPSIS":
-                    {
-                        command.Synopsis = SynopsisRule();
-                        break;
-                    }
-                case "PARAMETERS":
-                    {
-                        command.Synopsis = ParametersRule();
-                        break;
-                    }
-                default:
-                    {
-                        throw new HelpSchemaException("Unexpected header name " + headingNode.Text);
-                    }
-            }
-            return true;
-        }
-
-
         /// <summary>
         /// 
         /// </summary>
@@ -176,11 +118,6 @@ namespace Markdown.MAML.Transformer
                 case "SYNOPSIS":
                 {
                     command.Synopsis = SynopsisRule();
-                    break;
-                }
-                case "PARAMETERS":
-                {
-                    command.Synopsis = ParametersRule();
                     break;
                 }
                 default:
