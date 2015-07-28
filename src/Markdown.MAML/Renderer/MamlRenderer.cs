@@ -219,7 +219,7 @@ namespace Markdown.MAML.Renderer
 
                 //RELATED LINKS
                 PushTag("command:RelatedLinks");
-                foreach (MamlLinks Link in command.Links)
+                foreach (MamlLink Link in command.Links)
                 {
                     PushTag("maml:NavigationLink");
 

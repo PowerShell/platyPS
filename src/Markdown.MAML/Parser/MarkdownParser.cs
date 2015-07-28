@@ -90,6 +90,11 @@ namespace Markdown.MAML.Parser
 
                     {   "hyperlink",
                         "(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
+                        this.CreateHyperlinkSpan },
+
+                        // We allow hyperlinks with empty URI.
+                    {   "emptyHyperlink",
+                        "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
                         this.CreateHyperlinkSpan }
                 };
         }
@@ -130,6 +135,11 @@ namespace Markdown.MAML.Parser
             {
                 string matchedGroupName = null;
                 Match regexMatch = markdownRegex.Match(_remainingText);
+                if (!regexMatch.Success)
+                {
+                    throw new Exception("Failed to find a matching rule for text: " + _remainingText);
+                }
+
                 Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
 
                 // Try to run the match action for the matched group

@@ -9,7 +9,7 @@ namespace Markdown.MAML.Model.MAML
     /// <summary>
     /// This class represents the related links properties for MAML
     /// </summary>
-    public class MamlLinks
+    public class MamlLink
     {
         public string LinkName { get; set; }
         public string LinkUri { get; set; }

@@ -90,7 +90,7 @@ namespace Markdown.MAML.Test.Parser
                     paragraphNode.Spans.FirstOrDefault());
 
             Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
-            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri);
         }
 
         [Fact]
@@ -165,7 +165,7 @@ namespace Markdown.MAML.Test.Parser
                     paragraphNode.Spans.ElementAt(1));
 
             Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
-            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri);
         }
 
         private TNode ParseAndGetExpectedChild<TNode>(
