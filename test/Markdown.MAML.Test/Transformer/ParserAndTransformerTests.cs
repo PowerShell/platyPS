@@ -75,5 +75,26 @@ This is Synopsis, but it doesn't matter in this test
             Assert.NotNull(mamlCommand[1].Description);
             Assert.NotNull(mamlCommand[1].Synopsis);
         }
+
+        [Fact]
+        public void SingleParameter()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+### Parameters
+#### Bar
+This is bar parameter
+
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var param = mamlCommand[0].Parameters.ToArray();
+            Assert.Equal(param.Count(), 1);
+            Assert.Equal(param[0].Name, "Bar");
+            Assert.Equal(param[0].Description, "This is bar parameter");
+        }
+
+
     }
 }
