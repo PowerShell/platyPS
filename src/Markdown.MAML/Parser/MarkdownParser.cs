@@ -2,15 +2,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Parser
 {
     public class MarkdownParser
     {
         private Markdown _innerParser = new Markdown();
-        private string _currentLine;
-        private int _currentLineIndex = -1;
-        private string[] _markdownLines;
+
+        DocumentNode _currentDocument;
+        private string _remainingText;
+        List<ParagraphSpan> _currentParagraphSpans;
 
         public DocumentNode ParseString(string markdownString)
         {
@@ -20,186 +22,197 @@ namespace Markdown.MAML.Parser
                 return null;
             }
 
-            // Split the markdown string into lines
-            _markdownLines =
-                _innerParser
-                    .Normalize(markdownString)
-                    .Trim()
-                    .Split('\n');
+            _remainingText = markdownString.TrimStart();
+            _currentDocument = new DocumentNode();
 
-            // Move to the starting line
-            this.MoveToNextLine();
+            this.ParseDocument();
 
-            return this.ParseDocument();
+            return _currentDocument;
         }
 
-        private string MoveToNextLine()
+
+        private void StartParagraph()
         {
-            _currentLineIndex++;
-
-            if (_currentLineIndex >= _markdownLines.Length)
+            if (_currentParagraphSpans == null)
             {
-                _currentLineIndex = _markdownLines.Length;
-                _currentLine = null;
+                _currentParagraphSpans = new List<ParagraphSpan>();
             }
-            else
-            {
-                _currentLine = _markdownLines[_currentLineIndex];
-            }
-
-            return _currentLine;
         }
 
-        private string PeekNextLine()
+        private void FinishParagraph()
         {
-            if (_currentLineIndex + 1 < _markdownLines.Length)
+            if (_currentParagraphSpans != null && 
+                _currentParagraphSpans.Count > 0)
             {
-                return _markdownLines[_currentLineIndex + 1];
-            }
+                _currentDocument.AddChildNode(
+                    new ParagraphNode(
+                        _currentParagraphSpans));
 
-            return null;
+                _currentParagraphSpans = null;
+            }
         }
 
-        private DocumentNode ParseDocument()
+        private void ParseDocument()
         {
-            DocumentNode documentNode = new DocumentNode();
-
-            IEnumerable<Func<MarkdownNode>> parseActions =
-                new List<Func<MarkdownNode>>
+            string[] regexParts =
+                new string[]
                 {
-                    // The order of these parsers is important.  The
-                    // most greedy parsers should go at the end.
-                    this.ParseHeading,
-                    this.ParseCodeBlock,
-                    this.ParseParagraph
+                    // Header regexes
+                    @"^((?<hash_header>\#+[ ]*(.+?))[ ]*\#*(\r\n)+)",
+                    "^((?<underline_header>(.+?)[ ]*\r\n(=+|-+))[ ]*(\r\n)+)",
+
+                    // Code block regexes
+                    @"^((```)(\r\n)*(?<tick_codeblock>((.|\r\n)+?))(\r\n)*(```))(\r\n)*",
+
+                    // Paragraph span regexes
+                    "^(?<hardbreak>  \r\n)",
+                    "^(?<softbreak>(\r\n){{1}})",
+                    "^(?<new_paragraph>(\r\n){{2,}})",
+                    @"^\s*(?<normal>[{0}{1}]+)",
+                    @"^(\*(?<italic>[{0}]+)\*)",
+                    @"^(\*\*(?<bold>[{0}]+)\*\*)",
+                    "^(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
                 };
 
-            while (_currentLine != null)
+            string matchedGroupName = null;
+            string textPattern = @"a-zA-Z-\.,' ";
+            string additionalTextPattern = "\\(\\)(\r\n){1}";
+
+            // Create a combined regex with all of the defined patterns
+            Regex markdownRegex = 
+                new Regex(
+                    string.Format(
+                        string.Join("|", regexParts),
+                        textPattern,
+                        additionalTextPattern), 
+                    RegexOptions.ExplicitCapture |
+                    RegexOptions.Compiled);
+
+            while (_remainingText.Length > 0)
             {
-                // Skip over empty lines that aren't part of a node
-                if (string.IsNullOrWhiteSpace(_currentLine))
+                Match regexMatch = markdownRegex.Match(_remainingText);
+                Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
+
+                // Headers
+                if (matchedGroupName == "hash_header")
                 {
-                    this.MoveToNextLine();
-                    continue;
+                    this.FinishParagraph();
+
+                    _currentDocument.AddChildNode(
+                        new HeadingNode(
+                            matchGroup.Value.Trim('#', ' '),
+                            matchGroup.Value.LastIndexOf('#') + 1));
+                }
+                else if (matchedGroupName == "underline_header")
+                {
+                    this.FinishParagraph();
+
+                    string[] headerLines = matchGroup.Value.Split('\n');
+
+                    int headerLevel = 0;
+                    if (headerLines[1][0] == '=')
+                    {
+                        headerLevel = 1;
+                    }
+                    else
+                    {
+                        headerLevel = 2;
+                    }
+
+                    _currentDocument.AddChildNode(
+                        new HeadingNode(
+                            headerLines[0].Trim(),
+                            headerLevel));
                 }
 
-                // Find the first parseable element
-                MarkdownNode foundNode =
-                    parseActions
-                        .Select(parser => (MarkdownNode)parser())
-                        .FirstOrDefault(node => node != null);
+                // Code blocks
+                else if (matchedGroupName == "tick_codeblock")
+                {
+                    this.FinishParagraph();
 
-                if (foundNode != null)
-                {
-                    // Store the node and get the next line
-                    documentNode.AddChildNode(foundNode);
-                    this.MoveToNextLine();
+                    _currentDocument.AddChildNode(
+                        new CodeBlockNode(
+                            matchGroup.Value.Trim('`', '\r', '\n')));
                 }
-                else
+
+                // Paragraph spans
+                else if (matchedGroupName == "normal")
                 {
+                    this.StartParagraph();
+
+                    _currentParagraphSpans.Add(
+                        new TextSpan(
+                            matchGroup.Value.Trim()));
+                }
+                else if (matchedGroupName == "italic")
+                {
+                    this.StartParagraph();
+
+                    _currentParagraphSpans.Add(new TextSpan(matchGroup.Value, false, true));
+                }
+                else if (matchedGroupName == "bold")
+                {
+                    this.StartParagraph();
+
+                    _currentParagraphSpans.Add(new TextSpan(matchGroup.Value, true, false));
+                }
+                else if (matchedGroupName == "hyperlink")
+                {
+                    this.StartParagraph();
+
+                    string[] hyperlinkParts = matchGroup.Value.Split('(');
+
+                    _currentParagraphSpans.Add(
+                        new HyperlinkSpan(
+                            hyperlinkParts[0].Trim('[', ']'),
+                            hyperlinkParts[1].Trim(')')));
+                }
+                else if (matchedGroupName == "softbreak")
+                {
+                    // Don't create a span?
+                }
+                else if (matchedGroupName == "hardbreak")
+                {
+                    this.StartParagraph();
+
+                    _currentParagraphSpans.Add(new HardBreakSpan());
+                }
+                else if (matchedGroupName == "new_paragraph")
+                {
+                    this.FinishParagraph();
+                    this.StartParagraph();
+                }
+
+                // Get rid of the entire matched string
+                _remainingText = _remainingText.Substring(regexMatch.Length);
+
+                if (matchedGroupName == null)
+                {
+                    // Reached some unknown text, break out
                     break;
                 }
             }
 
-            return documentNode;
+            // Finish any remaining paragraph
+            this.FinishParagraph();
         }
 
-        private HeadingNode ParseHeading()
+        private Group GetMatchedGroup(Regex spanRegex, Match regexMatch, out string matchedGroupName)
         {
-            HeadingNode headingNode = null;
-            string nextLine = this.PeekNextLine();
+            matchedGroupName = null;
 
-            if (this._currentLine.StartsWith("#"))
+            foreach (string groupName in spanRegex.GetGroupNames())
             {
-                // Get the heading level and text
-                int i;
-                int headingLevel = 0;
-                for (i = 0; i < _currentLine.Length; i++)
+                Group matchGroup = regexMatch.Groups[groupName];
+
+                if (groupName != "0" && matchGroup.Success)
                 {
-                    if (_currentLine[i] != '#')
-                    {
-                        break;
-                    }
-
-                    headingLevel++;
-                }
-
-                headingNode =
-                    new HeadingNode(
-                        _currentLine.Substring(i).Trim(),
-                        headingLevel);
-            }
-            else if (nextLine != null && 
-                     (nextLine.StartsWith("--") ||
-                      nextLine.StartsWith("==")))
-            {
-                // Underline must be at least as long as heading string
-                if (nextLine.Length >= _currentLine.Length)
-                {
-                    headingNode =
-                        new HeadingNode(
-                            _currentLine.Trim(),
-                            nextLine[0] == '=' ? 1 : 2);
-
-                    // Move past the next line
-                    this.MoveToNextLine();
-                    this.MoveToNextLine();
+                    matchedGroupName = groupName;
+                    return matchGroup;
                 }
             }
 
-            // TODO: Look for children
-
-            return headingNode;
-        }
-
-        private ParagraphNode ParseParagraph()
-        {
-            string paragraphText = string.Empty;
-
-            // Any line that starts with an alphanumeric character is valid
-            while (_currentLine != null && 
-                   (_currentLine.Length == 0 ||
-                    char.IsLetterOrDigit(_currentLine[0])))
-            {
-                paragraphText = 
-                    paragraphText +
-                    (string.IsNullOrEmpty(paragraphText) ? string.Empty : "\n") +
-                    _currentLine;
-
-                // Get the next line
-                this.MoveToNextLine();
-            }
-
-            return
-                !string.IsNullOrEmpty(paragraphText) ?
-                    new ParagraphNode(paragraphText) :
-                    null;
-        }
-
-        private CodeBlockNode ParseCodeBlock()
-        {
-            CodeBlockNode codeBlockNode = null;
-
-            if (_currentLine.StartsWith("```"))
-            {
-                // Gather the code block text until the final ```
-                string codeBlockText = _currentLine.Trim('`', ' ');
-
-                // TODO: Handle cases where more text comes before or after ```?
-                while (this.MoveToNextLine() != null &&
-                        _currentLine.Trim().Equals("```") == false)
-                {
-                    // If there's already text in the code block, add a newline
-                    codeBlockText =
-                        codeBlockText +
-                        (string.IsNullOrEmpty(codeBlockText) ? string.Empty : "\n") +
-                        _currentLine;
-                }
-
-                codeBlockNode = new CodeBlockNode(codeBlockText);
-            }
-
-            return codeBlockNode;
+            return null;
         }
     }
 }

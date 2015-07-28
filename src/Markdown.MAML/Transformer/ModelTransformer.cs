@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Markdown.MAML.Model;
 
@@ -54,7 +55,7 @@ namespace Markdown.MAML.Transformer
                 throw new HelpSchemaException("Expect SYNOPSIS text");
             }
 
-            return (node as ParagraphNode).Text;
+            return (node as ParagraphNode).Spans.First().Text;
         }
 
         private string GetDescription()
@@ -89,7 +90,7 @@ namespace Markdown.MAML.Transformer
                 throw new HelpSchemaException("Expect SYNOPSIS text");
             }
 
-            return ((node as ParagraphNode).Text);
+            return ((node as ParagraphNode).Spans.First().Text);
         }
 
         public IEnumerable<MamlCommand> NodeModelToMamlModel(DocumentNode node)

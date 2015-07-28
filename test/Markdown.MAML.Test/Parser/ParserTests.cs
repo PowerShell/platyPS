@@ -9,8 +9,10 @@ namespace Markdown.MAML.Test.Parser
     public class ParserTests
     {
         const string headingText = "Heading Text";
-        const string codeBlockText = "Code block text\non multiple lines";
-        const string paragraphText = "Some text\non multiple\nlines";
+        const string codeBlockText = "Code block text\r\non multiple lines";
+        const string paragraphText = "Some text\r\non multiple\r\nlines";
+        const string hyperlinkText = "Microsoft Corporation";
+        const string hyperlinkUri = "https://www.microsoft.com/";
 
         [Fact]
         public void ParsesHeadingsWithHashPrefix()
@@ -20,7 +22,7 @@ namespace Markdown.MAML.Test.Parser
             {
                 HeadingNode headingNode =
                     this.ParseAndGetExpectedChild<HeadingNode>(
-                        new String('#', i) + headingText,
+                        new String('#', i) + headingText + "\r\n",
                         MarkdownNodeType.Heading);
 
                 Assert.Equal(i, headingNode.HeadingLevel);
@@ -41,7 +43,7 @@ namespace Markdown.MAML.Test.Parser
             {
                 HeadingNode headingNode =
                     this.ParseAndGetExpectedChild<HeadingNode>(
-                        headingText + "\n" + headingUnderlines[i - 1],
+                        headingText + "\r\n" + headingUnderlines[i - 1] + "\r\n",
                         MarkdownNodeType.Heading);
 
                 Assert.Equal(i, headingNode.HeadingLevel);
@@ -54,7 +56,7 @@ namespace Markdown.MAML.Test.Parser
         {
             CodeBlockNode codeBlockNode =
                 this.ParseAndGetExpectedChild<CodeBlockNode>(
-                    string.Format("```\n{0}\n```", codeBlockText),
+                    string.Format("```\r\n{0}\r\n```\r\n", codeBlockText),
                     MarkdownNodeType.CodeBlock);
 
             Assert.Equal(codeBlockText, codeBlockNode.Text);
@@ -68,8 +70,42 @@ namespace Markdown.MAML.Test.Parser
                     paragraphText,
                     MarkdownNodeType.Paragraph);
 
-            // Paragraph text will end with two newlines due to normalization
-            Assert.Equal(paragraphText, paragraphNode.Text);
+            Assert.Equal(paragraphText, paragraphNode.Spans.First().Text);
+        }
+
+        [Fact]
+        public void ParsesHyperlink()
+        {
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    string.Format(
+                        "[{0}]({1})",
+                        hyperlinkText,
+                        hyperlinkUri),
+                    MarkdownNodeType.Paragraph);
+
+            HyperlinkSpan hyperlinkSpan =
+                Assert.IsType<HyperlinkSpan>(
+                    paragraphNode.Spans.FirstOrDefault());
+
+            Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
+        }
+
+        [Fact]
+        public void ParsesParagraphWithFormattedSpans()
+        {
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    "Normal\r\nText *Italic*  \r\n**Bold**\r\n### New header!\r\nBoooo\r\n----\r\n",
+                    MarkdownNodeType.Paragraph);
+
+            ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
+
+            Assert.Equal("Normal\r\nText", spans[0].Text);
+            Assert.Equal("Italic", spans[1].Text);
+            Assert.IsType<HardBreakSpan>(spans[2]);
+            Assert.Equal("Bold", spans[3].Text);
         }
 
         [Fact]
@@ -84,8 +120,9 @@ namespace Markdown.MAML.Test.Parser
 {1}
 ```
 
-{2}
-", headingText, codeBlockText, paragraphText);
+## {0}
+{2} [{3}]({4})
+", headingText, codeBlockText, paragraphText, hyperlinkText, hyperlinkUri);
 
             MarkdownParser markdownParser = new MarkdownParser();
             DocumentNode documentNode =
@@ -98,6 +135,7 @@ namespace Markdown.MAML.Test.Parser
                     MarkdownNodeType.Heading);
 
             Assert.Equal(headingText, headingNode.Text);
+            Assert.Equal(1, headingNode.HeadingLevel);
 
             CodeBlockNode codeBlockNode =
                 this.AssertNodeType<CodeBlockNode>(
@@ -106,12 +144,27 @@ namespace Markdown.MAML.Test.Parser
 
             Assert.Equal(codeBlockText, codeBlockNode.Text);
 
+            headingNode =
+                this.AssertNodeType<HeadingNode>(
+                    documentNode.Children.ElementAtOrDefault(2),
+                    MarkdownNodeType.Heading);
+
+            Assert.Equal(headingText, headingNode.Text);
+            Assert.Equal(2, headingNode.HeadingLevel);
+
             ParagraphNode paragraphNode =
                 this.AssertNodeType<ParagraphNode>(
-                    documentNode.Children.ElementAtOrDefault(2),
+                    documentNode.Children.ElementAtOrDefault(3),
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(paragraphText, paragraphNode.Text);
+            Assert.Equal(paragraphText, paragraphNode.Spans.First().Text);
+
+            HyperlinkSpan hyperlinkSpan =
+                Assert.IsType<HyperlinkSpan>(
+                    paragraphNode.Spans.ElementAt(1));
+
+            Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
         }
 
         private TNode ParseAndGetExpectedChild<TNode>(

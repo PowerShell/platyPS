@@ -52,6 +52,10 @@
     <Compile Include="Model\Markdown\MarkdownNodeType.cs" />
     <Compile Include="Model\Markdown\ParagraphNode.cs" />
     <Compile Include="Model\Markdown\TextNode.cs" />
+    <Compile Include="Model\Markdown\HyperlinkSpan.cs" />
+    <Compile Include="Model\Markdown\ParagraphSpan.cs" />
+    <Compile Include="Model\Markdown\TextSpan.cs" />
+    <Compile Include="Model\Markdown\HardBreakSpan.cs" />
     <Compile Include="Transformer\HelpSchemaException.cs" />
     <Compile Include="Model\MAML\MamlCommand.cs" />
     <Compile Include="Renderer\MamlRenderer.cs" />
