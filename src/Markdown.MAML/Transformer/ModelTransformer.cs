@@ -14,6 +14,7 @@ namespace Markdown.MAML.Transformer
 
         private const int COMMAND_NAME_HEADING_LEVEL = 2;
         private const int COMMAND_ENTRIES_HEADING_LEVEL = 3;
+        private const int PARAMETER_NAME_HEADING_LEVEL = 4;
 
         private MarkdownNode _ungotNode { get; set; }
 
@@ -65,29 +66,39 @@ namespace Markdown.MAML.Transformer
             return (node as ParagraphNode).Spans.First().Text;
         }
 
+        private void ParametersRule(MamlCommand commmand)
+        {
+            while (ParameterRule(commmand))
+            {
+            }
+        }
+
         private string DescriptionRule()
         {
             var node = GetNextNode();
-            // TODO: handle hyperlinks, code, etc
             if (node.NodeType != MarkdownNodeType.Paragraph)
             {
                 throw new HelpSchemaException("Expect DESCRIPTION text");
             }
 
-            return ((node as ParagraphNode).Spans.First().Text);
+            return (GetTextFromParagraphNode(node as ParagraphNode));
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="command"></param>
-        /// <returns>true if Section was found</returns>
-        private bool SectionDispatch(MamlCommand command)
+        /// <param name="node"></param>
+        /// <param name="level"></param>
+        /// <returns>
+        /// return headingNode if expected heading level encounterd.
+        /// null, if higher level encountered.
+        /// throw exception, if unexpected node encountered.
+        /// </returns>
+        private HeadingNode GetHeadingWithExpectedLevel(MarkdownNode node, int level)
         {
-            var node = GetNextNode();
             if (node == null)
             {
-                return false;
+                return null;
             }
 
             // check for appropriate header
@@ -97,33 +108,138 @@ namespace Markdown.MAML.Transformer
             }
 
             var headingNode = node as HeadingNode;
-            if (headingNode.HeadingLevel == COMMAND_NAME_HEADING_LEVEL)
+            if (headingNode.HeadingLevel < level)
             {
                 UngetNode(node);
+                return null;
+            }
+
+            if (headingNode.HeadingLevel != level)
+            {
+                throw new HelpSchemaException("Expect Heading level " + level);
+            }
+            return headingNode;
+        }
+
+        private string GetTextFromParagraphNode(ParagraphNode node)
+        {
+            // TODO: make it handle hyperlinks, codesnippets, etc 
+            return node.Spans.First().Text;
+        }
+
+        private void FillParameterDetailsFromAttribute(MamlParameter parameter, CodeBlockNode node)
+        {
+            if (node == null)
+            {
+                return;
+            }
+            // TODO: add some parsing here
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>true if Parameter was found</returns>
+        private bool ParameterRule(MamlCommand command)
+        {
+            // grammar:
+            // #### Name `[Parameter(...)]`
+            // Description
+            var node = GetNextNode();
+            var headingNode = GetHeadingWithExpectedLevel(node, PARAMETER_NAME_HEADING_LEVEL);
+            if (headingNode == null)
+            {
                 return false;
             }
 
-            if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
+            MamlParameter parameter = new MamlParameter()
             {
-                throw new HelpSchemaException("Expect Heading level " + COMMAND_ENTRIES_HEADING_LEVEL);
+                Name = headingNode.Text
+            };
+
+            node = GetNextNode();
+
+            ParagraphNode descriptionNode = null;
+            CodeBlockNode attributesNode = null;
+
+            switch (node.NodeType)
+            {
+                case MarkdownNodeType.Unknown:
+                    break;
+                case MarkdownNodeType.Document:
+                    break;
+                case MarkdownNodeType.Paragraph:
+                    descriptionNode = node as ParagraphNode;
+                    break;
+                case MarkdownNodeType.Heading:
+                    break;
+                case MarkdownNodeType.CodeBlock:
+                    attributesNode = node as CodeBlockNode;
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
+
+            if (descriptionNode == null)
+            {
+                node = GetNextNode();
+                if (node.NodeType == MarkdownNodeType.Heading)
+                {
+                    UngetNode(node);
+                }
+                else
+                {
+                    if (node.NodeType != MarkdownNodeType.Paragraph)
+                    {
+                        throw new HelpSchemaException("Expect parameter " + parameter.Name + " description");
+                    }
+                    descriptionNode = node as ParagraphNode;
+                }
+            }
+
+            parameter.Description = descriptionNode != null ? GetTextFromParagraphNode(descriptionNode) : "";
+            FillParameterDetailsFromAttribute(parameter, attributesNode);
+            command.Parameters.Add(parameter);
+            return true;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="command"></param>
+        /// <returns>true if Section was found</returns>
+        private bool SectionDispatch(MamlCommand command)
+        {
+            var node = GetNextNode();
+            var headingNode = GetHeadingWithExpectedLevel(node, COMMAND_ENTRIES_HEADING_LEVEL);
+            if (headingNode == null)
+            {
+                return false;
             }
 
             switch (headingNode.Text.ToUpper())
             {
                 case "DESCRIPTION":
-                {
-                    command.Description = DescriptionRule();
-                    break;
-                }
+                    {
+                        command.Description = DescriptionRule();
+                        break;
+                    }
                 case "SYNOPSIS":
-                {
-                    command.Synopsis = SynopsisRule();
-                    break;
-                }
+                    {
+                        command.Synopsis = SynopsisRule();
+                        break;
+                    }
+                case "PARAMETERS":
+                    {
+                        ParametersRule(command);
+                        break;
+                    }
                 default:
-                {
-                    throw new HelpSchemaException("Unexpected header name " + headingNode.Text);
-                }
+                    {
+                        throw new HelpSchemaException("Unexpected header name " + headingNode.Text);
+                    }
             }
             return true;
         }
