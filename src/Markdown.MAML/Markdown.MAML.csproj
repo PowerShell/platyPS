@@ -59,6 +59,8 @@
     <Compile Include="Model\Markdown\ParagraphSpan.cs" />
     <Compile Include="Model\Markdown\TextSpan.cs" />
     <Compile Include="Model\Markdown\HardBreakSpan.cs" />
+    <Compile Include="Parser\MarkdownPattern.cs" />
+    <Compile Include="Parser\MarkdownPatternList.cs" />
     <Compile Include="Transformer\HelpSchemaException.cs" />
     <Compile Include="Model\MAML\MamlCommand.cs" />
     <Compile Include="Renderer\MamlRenderer.cs" />
