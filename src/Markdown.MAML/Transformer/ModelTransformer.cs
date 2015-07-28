@@ -15,6 +15,7 @@ namespace Markdown.MAML.Transformer
         private const int COMMAND_NAME_HEADING_LEVEL = 2;
         private const int COMMAND_ENTRIES_HEADING_LEVEL = 3;
         private const int PARAMETER_NAME_HEADING_LEVEL = 4;
+        private const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 4;
 
         private MarkdownNode _ungotNode { get; set; }
 
@@ -73,6 +74,46 @@ namespace Markdown.MAML.Transformer
             }
         }
 
+        private void InputsRule(MamlCommand commmand)
+        {
+            MamlInputOutput input;
+            while ((input = InputOutputRule()) != null)
+            {
+                commmand.Inputs.Add(input);
+            }
+        }
+
+        private void OutputsRule(MamlCommand commmand)
+        {
+            MamlInputOutput output;
+            while ((output = InputOutputRule()) != null)
+            {
+                commmand.Outputs.Add(output);
+            }
+        }
+
+        private MamlInputOutput InputOutputRule()
+        {
+            // grammar:
+            // #### TypeName
+            // Description
+            var node = GetNextNode();
+            var headingNode = GetHeadingWithExpectedLevel(node, INPUT_OUTPUT_TYPENAME_HEADING_LEVEL);
+            if (headingNode == null)
+            {
+                return null;
+            }
+
+            MamlInputOutput typeEntity = new MamlInputOutput()
+            {
+                TypeName = headingNode.Text
+            };
+
+            typeEntity.Description = GetTextFromParagraphNode(ParagraphNodeRule());
+
+            return typeEntity;
+        }
+
         private string DescriptionRule()
         {
             var node = GetNextNode();
@@ -121,8 +162,42 @@ namespace Markdown.MAML.Transformer
             return headingNode;
         }
 
+        /// <summary>
+        /// </summary>
+        /// <returns>
+        /// return paragraphNode if encounterd.
+        /// null, if any header level encountered.
+        /// throw exception, if other unexpected node encountered.
+        /// </returns>
+        private ParagraphNode ParagraphNodeRule()
+        {
+            var node = GetNextNode();
+            if (node == null)
+            {
+                return null;
+            }
+
+            switch (node.NodeType)
+            {
+                case MarkdownNodeType.Paragraph:
+                    break;
+                case MarkdownNodeType.Heading:
+                    UngetNode(node);
+                    return null;
+                default:
+                    throw new HelpSchemaException("Expect Paragraph");
+            }
+
+            return node as ParagraphNode;
+        }
+
         private string GetTextFromParagraphNode(ParagraphNode node)
         {
+            if (node == null)
+            {
+                return "";
+            }
+
             // TODO: make it handle hyperlinks, codesnippets, etc 
             return node.Spans.First().Text;
         }
@@ -183,27 +258,14 @@ namespace Markdown.MAML.Transformer
 
             if (descriptionNode == null)
             {
-                node = GetNextNode();
-                if (node.NodeType == MarkdownNodeType.Heading)
-                {
-                    UngetNode(node);
-                }
-                else
-                {
-                    if (node.NodeType != MarkdownNodeType.Paragraph)
-                    {
-                        throw new HelpSchemaException("Expect parameter " + parameter.Name + " description");
-                    }
-                    descriptionNode = node as ParagraphNode;
-                }
+                descriptionNode = ParagraphNodeRule();
             }
 
-            parameter.Description = descriptionNode != null ? GetTextFromParagraphNode(descriptionNode) : "";
+            parameter.Description = GetTextFromParagraphNode(descriptionNode);
             FillParameterDetailsFromAttribute(parameter, attributesNode);
             command.Parameters.Add(parameter);
             return true;
         }
-
 
         /// <summary>
         /// 
@@ -234,6 +296,16 @@ namespace Markdown.MAML.Transformer
                 case "PARAMETERS":
                     {
                         ParametersRule(command);
+                        break;
+                    }
+                case "INPUTS":
+                    {
+                        InputsRule(command);
+                        break;
+                    }
+                case "OUTPUTS":
+                    {
+                        OutputsRule(command);
                         break;
                     }
                 default:
