@@ -78,18 +78,18 @@ namespace Markdown.MAML.Transformer
             var headingNode = node as HeadingNode;
             if (headingNode.HeadingLevel != COMMAND_ENTRIES_HEADING_LEVEL)
             {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
+                throw new HelpSchemaException("Expect ###DESCRIPTION");
             }
 
-            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "SYNOPSIS") != 0)
+            if (StringComparer.OrdinalIgnoreCase.Compare(headingNode.Text, "DESCRIPTION") != 0)
             {
-                throw new HelpSchemaException("Expect ###SYNOPSIS");
+                throw new HelpSchemaException("Expect ###DESCRIPTION");
             }
 
             node = GetNextNode();
             if (node.NodeType != MarkdownNodeType.Paragraph)
             {
-                throw new HelpSchemaException("Expect SYNOPSIS text");
+                throw new HelpSchemaException("Expect DESCRIPTION text");
             }
 
             return ((node as ParagraphNode).Spans.First().Text);

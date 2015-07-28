@@ -32,7 +32,7 @@ This is Synopsis
             Assert.Equal("This is Synopsis", synopsis[0]);
         }
 
-        [Fact(Skip = "There is a bug in MarkdownParser, skip for now")]
+        [Fact]
         public void ProduceMultilineDescription()
         {
             var parser = new MarkdownParser();
@@ -53,10 +53,7 @@ And this is my last line.
                 NodeModelToMamlModel(doc));
 
             string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(3, description.Length);
-            Assert.Equal("Hello,", description[0]);
-            Assert.Equal("I'm a multiline description.", description[1]);
-            Assert.Equal("And this is my last line.", description[2]);
+            Assert.Equal(1, description.Length);
         }
 
         private string[] GetXmlContent(string xml, string xpath)

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
-using Markdown.MAML.Model;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
-using Markdown.MAML.Parser;
-using Markdown.MAML.Transformer;
 
 namespace Markdown.MAML.Renderer
 {
@@ -24,7 +21,7 @@ namespace Markdown.MAML.Renderer
 
         private void PushTag(string tag)
         {
-            _stringBuilder.AppendFormat("<{0}>\n", tag);
+            _stringBuilder.AppendFormat("<{0}>{1}", tag, Environment.NewLine);
             _tagStack.Push(tag);
         }
 
@@ -35,7 +32,7 @@ namespace Markdown.MAML.Renderer
             {
                 throw new FormatException("Expecting pop " + tag + ", but got " + poped);
             }
-            _stringBuilder.AppendFormat("</{0}>\n", tag);
+            _stringBuilder.AppendFormat("</{0}>{1}", tag, Environment.NewLine);
         }
 
         private void PopAllTags()
@@ -46,8 +43,8 @@ namespace Markdown.MAML.Renderer
         private void PopTag(int count)
         {
             for (int i = 0; i < count; i++) 
-            { 
-                _stringBuilder.AppendFormat("</{0}>\n", _tagStack.Pop());
+            {
+                _stringBuilder.AppendFormat("</{0}>{1}", _tagStack.Pop(), Environment.NewLine);
             }
         }
 
@@ -64,22 +61,20 @@ namespace Markdown.MAML.Renderer
 
         private void AddCommands(IEnumerable<MamlCommand> mamlCommands)
         {
-            MarkdownNode markdownNode;
             _stringBuilder.AppendLine(COMMAND_PREAMBULA);
             foreach (var command in mamlCommands)
             {
                 PopAllTags();
 
-                // SYNOPSIS
+                // NAME
                 PushTag("command:details");
                 _stringBuilder.AppendFormat("<command:name>{0}</command:name>", command.Name);
+                // SYNOPSIS
                 AddSynopsis(command);
                 PopTag("command:details");
 
                 // DESCRIPTION
-                PushTag("maml:description");
                 AddDescription(command);
-                PopTag("maml:description");
                 
                 break;
             }
