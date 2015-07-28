@@ -37,6 +37,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -51,6 +52,7 @@
     <Compile Include="Model\MarkdownNodeType.cs" />
     <Compile Include="Model\ParagraphNode.cs" />
     <Compile Include="Model\TextNode.cs" />
+    <Compile Include="Parser\HelpSchemaException.cs" />
     <Compile Include="Parser\MamlRenderer.cs" />
     <Compile Include="Parser\Markdown.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />

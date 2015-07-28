@@ -22,7 +22,7 @@ namespace Markdown.MAML.Model
             this.Children = this.childNodes;
         }
 
-        internal void AddChildNode(MarkdownNode childNode)
+        public void AddChildNode(MarkdownNode childNode)
         {
             this.childNodes.Add(childNode);
         }
