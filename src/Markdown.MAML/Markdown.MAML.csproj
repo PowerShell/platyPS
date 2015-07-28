@@ -45,6 +45,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\MAML\MamlExample.cs" />
+    <Compile Include="Model\MAML\MamlInputOutput.cs" />
     <Compile Include="Model\MAML\MamlParameter.cs" />
     <Compile Include="Model\Markdown\CodeBlockNode.cs" />
     <Compile Include="Model\Markdown\DocumentNode.cs" />
