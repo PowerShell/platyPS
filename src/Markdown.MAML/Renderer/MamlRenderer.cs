@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Markdown.MAML.Model;
 using Markdown.MAML.Parser;
+using Markdown.MAML.Transformer;
 
 namespace Markdown.MAML.Renderer
 {

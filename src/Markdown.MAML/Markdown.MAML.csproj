@@ -45,20 +45,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Model\CodeBlockNode.cs" />
-    <Compile Include="Model\DocumentNode.cs" />
-    <Compile Include="Model\HeadingNode.cs" />
-    <Compile Include="Model\MarkdownNode.cs" />
-    <Compile Include="Model\MarkdownNodeType.cs" />
-    <Compile Include="Model\ParagraphNode.cs" />
-    <Compile Include="Model\TextNode.cs" />
-    <Compile Include="Parser\HelpSchemaException.cs" />
-    <Compile Include="Renderer\MamlCommand.cs" />
+    <Compile Include="Model\Markdown\CodeBlockNode.cs" />
+    <Compile Include="Model\Markdown\DocumentNode.cs" />
+    <Compile Include="Model\Markdown\HeadingNode.cs" />
+    <Compile Include="Model\Markdown\MarkdownNode.cs" />
+    <Compile Include="Model\Markdown\MarkdownNodeType.cs" />
+    <Compile Include="Model\Markdown\ParagraphNode.cs" />
+    <Compile Include="Model\Markdown\TextNode.cs" />
+    <Compile Include="Transformer\HelpSchemaException.cs" />
+    <Compile Include="Model\MAML\MamlCommand.cs" />
     <Compile Include="Renderer\MamlRenderer.cs" />
     <Compile Include="Parser\Markdown.cs" />
     <Compile Include="Parser\MarkdownParser.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Renderer\ModelTransformer.cs" />
+    <Compile Include="Transformer\ModelTransformer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

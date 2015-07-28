@@ -1,10 +1,10 @@
-﻿using Markdown.MAML.Model;
-using Markdown.MAML.Parser;
-using System;
+﻿using System;
 using System.Linq;
+using Markdown.MAML.Model;
+using Markdown.MAML.Parser;
 using Xunit;
 
-namespace Markdown.MAML.Test
+namespace Markdown.MAML.Test.Parser
 {
     public class ParserTests
     {

@@ -1,19 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
-using Markdown.MAML.Model;
 using Markdown.MAML.Parser;
 using Markdown.MAML.Renderer;
+using Markdown.MAML.Transformer;
 using Xunit;
 
-namespace Markdown.MAML.Test.Parser
+namespace Markdown.MAML.Test.EndToEnd
 {
-    public class MamlRendererTests
+    public class EndToEndTests
     {
         [Fact]
         public void ProduceNameAndSynopsis()

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 
-namespace Markdown.MAML.Parser
+namespace Markdown.MAML.Transformer
 {
     public class HelpSchemaException : ArgumentException
     {
