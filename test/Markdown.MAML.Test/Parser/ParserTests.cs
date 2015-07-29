@@ -94,6 +94,23 @@ namespace Markdown.MAML.Test.Parser
         }
 
         [Fact]
+        public void TextSpansCanContainDoubleQuotes()
+        {
+            string documentText = @"
+# Foo
+This is a ""text"" with doublequotes
+";
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(
+                    documentText);
+            var children = documentNode.Children.ToArray();
+            Assert.Equal(2, children.Count());
+            var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
+            Assert.Equal(@"This is a ""text"" with doublequotes", spans[0].Text);
+        }
+
+        [Fact]
         public void ParsesParagraphWithFormattedSpans()
         {
             ParagraphNode paragraphNode =

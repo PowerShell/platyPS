@@ -53,7 +53,9 @@ $command.description.para | Convert-MamlLinksToMarkDownLinks
 
 function Get-ParameterMarkdown($parameter)
 {
-    $parameterType = "\<$($parameter.parameterValue.'#text')\>"
+    #$parameterType = "\<$($parameter.parameterValue.'#text')\>"
+    $parameterType = "$($parameter.parameterValue.'#text')"
+
     if ($parameter.required -eq 'false') {
         $parameterType = "[$parameterType]"
     }
@@ -106,7 +108,8 @@ $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks
 
 function Get-ExampleMarkdown($example)
 {
-    $example.title.Trim()
+    "#### $($example.title.Trim())"
+
     $example.introduction.para
     '```'
     $example.code
