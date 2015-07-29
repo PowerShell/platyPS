@@ -13,7 +13,7 @@ namespace Markdown.MAML.Test.Parser
         const string codeBlockText = "Code block text\r\non multiple lines";
         const string paragraphText = "Some text\r\non multiple\r\nlines";
         const string hyperlinkText = "Microsoft Corporation";
-        const string hyperlinkUri = "https://www.microsoft.com/";
+        const string hyperlinkUri = "https://go.microsoft.com/fwlink/?LinkID=135175&query=stuff";
 
         [Fact]
         public void ParsesHeadingsWithHashPrefix()
@@ -94,6 +94,24 @@ namespace Markdown.MAML.Test.Parser
         }
 
         [Fact]
+        public void ParsesHyperlinkWithoutLink()
+        {
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    string.Format(
+                        "[{0}]()",
+                        hyperlinkText),
+                    MarkdownNodeType.Paragraph);
+
+            HyperlinkSpan hyperlinkSpan =
+                Assert.IsType<HyperlinkSpan>(
+                    paragraphNode.Spans.FirstOrDefault());
+
+            Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
+            Assert.Equal("", hyperlinkSpan.Uri);
+        }
+
+        [Fact]
         public void TextSpansCanContainDoubleQuotes()
         {
             string documentText = @"
@@ -168,6 +186,8 @@ about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
 @"
 # {0}
 
+{2}
+
 ```
 {1}
 ```
@@ -191,14 +211,14 @@ about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
 
             CodeBlockNode codeBlockNode =
                 this.AssertNodeType<CodeBlockNode>(
-                    documentNode.Children.ElementAtOrDefault(1),
+                    documentNode.Children.ElementAtOrDefault(2),
                     MarkdownNodeType.CodeBlock);
 
             Assert.Equal(codeBlockText, codeBlockNode.Text);
 
             headingNode =
                 this.AssertNodeType<HeadingNode>(
-                    documentNode.Children.ElementAtOrDefault(2),
+                    documentNode.Children.ElementAtOrDefault(3),
                     MarkdownNodeType.Heading);
 
             Assert.Equal(headingText, headingNode.Text);
@@ -206,7 +226,7 @@ about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
 
             ParagraphNode paragraphNode =
                 this.AssertNodeType<ParagraphNode>(
-                    documentNode.Children.ElementAtOrDefault(3),
+                    documentNode.Children.ElementAtOrDefault(4),
                     MarkdownNodeType.Paragraph);
 
             Assert.Equal(paragraphText, paragraphNode.Spans.First().Text);

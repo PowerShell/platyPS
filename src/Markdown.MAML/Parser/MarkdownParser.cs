@@ -76,6 +76,15 @@ namespace Markdown.MAML.Parser
                         "(?<new_paragraph>(\r\n){{2,}})",
                         this.CreateParagraph },
 
+                    {   "hyperlink",
+                        "(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
+                        this.CreateHyperlinkSpan },
+
+                        // We allow hyperlinks with empty URI.
+                    {   "emptyHyperlink",
+                        "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
+                        this.CreateHyperlinkSpan },
+
                     {   "normal",
                         @"\s*(?<normal>[{0}{1}]+)",
                         this.CreateNormalSpan },
@@ -86,16 +95,7 @@ namespace Markdown.MAML.Parser
 
                     {   "bold",
                         @"(\*\*(?<bold>[{0}]+)\*\*)",
-                        this.CreateBoldSpan },
-
-                    {   "hyperlink",
-                        "(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
-                        this.CreateHyperlinkSpan },
-
-                        // We allow hyperlinks with empty URI.
-                    {   "emptyHyperlink",
-                        "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
-                        this.CreateHyperlinkSpan }
+                        this.CreateBoldSpan }
                 };
         }
 
@@ -108,7 +108,7 @@ namespace Markdown.MAML.Parser
             // TODO: These patterns are old and should be converted into
             // something more like the newer patterns which use non-greedy
             // character groups like (.?+)
-            string textPattern = "\\w\\s\\d\\-\\.,'\"!\\?\\:;";
+            string textPattern = @"\w\s\d\-\.,'\""!\?\\<>/=&:;\$\|@\{\}\+";
             string additionalTextPattern = "\\(\\)(\r\n){1}";
 
             // Create the list of regexes from the pattern list
@@ -137,12 +137,13 @@ namespace Markdown.MAML.Parser
                 Match regexMatch = markdownRegex.Match(_remainingText);
                 if (!regexMatch.Success)
                 {
-                    string remainingTextSnipet = _remainingText;
-                    if (remainingTextSnipet.Length > 40)
-                    {
-                        remainingTextSnipet = remainingTextSnipet.Substring(0, 40) + "...";
-                    }
-                    throw new Exception("Failed to find a matching rule for text: " + remainingTextSnipet);
+                    string textExcerpt =
+                        _remainingText.Length > 50 ?
+                            _remainingText.Substring(0, 50) + "..." :
+                            _remainingText;
+
+                    throw new Exception(
+                        "Failed to find a matching rule for text: " + textExcerpt);
                 }
 
                 Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
@@ -300,6 +301,10 @@ namespace Markdown.MAML.Parser
         {
             // Trim any leading whitespace off of the string
             documentString = documentString.TrimStart();
+
+            // Replace any invalid characters
+            // TODO: Find a better way to deal with this problem in a general way
+            documentString = documentString.Replace('–', '-');
 
             // Make sure all newlines are \r\n.  In some environments,
             // verbatim string literals have \r instead of \r\n.
