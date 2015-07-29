@@ -14,7 +14,7 @@ mkdir $outFolder -ErrorAction SilentlyContinue > $null
 $assemblyPath = (Resolve-Path "$root\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll").Path
 Add-Type -Path $assemblyPath
 
-Describe 'Fool loop' {
+Describe 'Full loop' {
     Context 'Add-Member cmdlet' {
 
         $testMamlFile = "$PSScriptRoot\Add-Member.help.xml"

@@ -1,17 +1,21 @@
 ﻿
 namespace Markdown.MAML.Model.Markdown
 {
+    public enum TextSpanStyle
+    {
+        Normal,
+        Bold,
+        Italic
+    }
+
     public class TextSpan : ParagraphSpan
     {
-        public bool IsBold { get; private set; }
+        public TextSpanStyle Style { get; private set; }
 
-        public bool IsItalic { get; private set; }
-
-        public TextSpan(string spanText, bool isBold = false, bool isItalic = false)
-            : base(spanText)
+        public TextSpan(string spanText, TextSpanStyle spanStyle = TextSpanStyle.Normal)
+            : base(spanText.Trim())
         {
-            this.IsBold = isBold;
-            this.IsItalic = isItalic;
+            this.Style = spanStyle;
         }
     }
 }

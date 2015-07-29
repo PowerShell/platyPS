@@ -1,43 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Markdown.MAML.Parser
 {
+    /// <summary>
+    /// This class provides a way to concisely define a list of
+    /// MarkdownPatterns using C# initializer syntax.  The Add
+    /// method here is what gets invoked when using the following
+    /// initializer syntax:
+    /// 
+    /// new MarkdownPatternList
+    /// {
+    ///     {
+    /// }
+    /// </summary>
     public class MarkdownPatternList : IEnumerable<MarkdownPattern>
     {
         private List<MarkdownPattern> _patternList = new List<MarkdownPattern>();
-        private Dictionary<string, Action<Match, Group>> _matchGroupActions = 
-            new Dictionary<string, Action<Match, Group>>();
+        private Dictionary<string, Action<Match>> _matchGroupActions = 
+            new Dictionary<string, Action<Match>>();
 
-        public void Add(string groupName, string regexPattern, Action<Match, Group> matchAction)
+        public void Add(string patternName, string regexPattern, Action<Match> matchAction)
         {
             _patternList.Add(
                 new MarkdownPattern(
-                    groupName,
+                    patternName,
                     regexPattern,
                     matchAction));
 
 
             _matchGroupActions.Add(
-                groupName,
+                patternName,
                 matchAction);
-        }
-
-        public bool TryExecuteMatchAction(string groupName, Match regexMatch, Group matchGroup)
-        {
-            Action<Match, Group> matchAction = null;
-
-            if (_matchGroupActions.TryGetValue(groupName, out matchAction))
-            {
-                matchAction(regexMatch, matchGroup);
-                return true;
-            }
-
-            return false;
         }
 
         public IEnumerator<MarkdownPattern> GetEnumerator()

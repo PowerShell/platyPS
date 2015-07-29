@@ -145,6 +145,22 @@ about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
             Assert.Equal(@"about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).", spans[0].Text);
         }
 
+        [Fact]
+        public void TextSpansCanContainSquareBrackets()
+        {
+            string documentText = @"
+# Foo
+Not a hyperlink [PSObject].
+";
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(
+                    documentText);
+            var children = documentNode.Children.ToArray();
+            Assert.Equal(2, children.Count());
+            var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
+            Assert.Equal(@"Not a hyperlink [PSObject].", spans[0].Text);
+        }
 
         [Fact]
         public void ParsesParagraphWithSupportedCharacters()

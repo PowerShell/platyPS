@@ -13,7 +13,7 @@ namespace Markdown.MAML.Parser
 
         DocumentNode _currentDocument;
         private string _remainingText;
-        MarkdownPatternList _markdownPatternList;
+        MarkdownPatternList _markdownPatterns;
         List<ParagraphSpan> _currentParagraphSpans;
 
         #endregion
@@ -46,56 +46,47 @@ namespace Markdown.MAML.Parser
 
         private void InitializePatternList()
         {
-            _markdownPatternList =
+            _markdownPatterns =
                 new MarkdownPatternList
                 {
                     // Headers
                     {   "hash_header", 
-                        @"((?<hash_header>\#+[ ]*(.+?))[ ]*\#*(\r\n)+)", 
+                        @"(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+", 
                         this.CreateHashHeader },
 
                     {   "underline_header", 
-                        "((?<underline_header>(.+?)[ ]*\r\n(=+|-+))[ ]*(\r\n)+)", 
+                        @"(.+?)[ ]*\r\n(==+|--+)[ ]*(\r\n)+", 
                         this.CreateUnderlineHeader },
 
                     // Code blocks
                     {   "tick_codeblock",
-                        @"((```)(\r\n)*(?<tick_codeblock>((.|\r\n)+?))(\r\n)*(```))(\r\n)*",
+                        @"```(\r\n)*((.|\r\n)+?)```(\r\n)*",
                         this.CreateTickCodeBlock },
 
                     // Paragraph spans
                     {   "hardbreak",
-                        "(?<hardbreak>  \r\n)",
+                        @"[ ]{2}\r\n",
                         this.CreateHardBreakSpan },
 
                     {   "softbreak",
-                        "(?<softbreak>(\r\n){{1}})",
+                        @"(\r\n){{1}}",
                         this.CreateSoftBreakSpan },
 
                     {   "new_paragraph",
-                        "(?<new_paragraph>(\r\n){{2,}})",
+                        @"(\r\n){{2,}}",
                         this.CreateParagraph },
 
                     {   "hyperlink",
-                        "(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
+                        @"\[(.+?)\]\((https?://[^'\"">\s]+)?\)",
                         this.CreateHyperlinkSpan },
-
-                        // We allow hyperlinks with empty URI.
-                    {   "emptyHyperlink",
-                        "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
-                        this.CreateHyperlinkSpan },
-
-                    {   "normal",
-                        @"\s*(?<normal>[{0}{1}]+)",
-                        this.CreateNormalSpan },
-
-                    {   "italic",
-                        @"(\*(?<italic>[{0}]+)\*)",
-                        this.CreateItalicSpan },
 
                     {   "bold",
-                        @"(\*\*(?<bold>[{0}]+)\*\*)",
-                        this.CreateBoldSpan }
+                        @"\*\*(.+?)\*\*",
+                        this.CreateBoldSpan },
+
+                    {   "italic",
+                        @"\*(.+?)\*",
+                        this.CreateItalicSpan }
                 };
         }
 
@@ -105,112 +96,99 @@ namespace Markdown.MAML.Parser
 
         private void ParseDocument()
         {
-            // TODO: These patterns are old and should be converted into
-            // something more like the newer patterns which use non-greedy
-            // character groups like (.?+)
-            string textPattern = @"\w\s\d\-\.,'\""!\?\\<>/=&:;\$\|@\{\}\+";
-            string additionalTextPattern = "\\(\\)(\r\n){1}";
-
-            // Create the list of regexes from the pattern list
-            string[] regexParts =
-                _markdownPatternList
-                    .Select(pattern => "^" + pattern.RegexPattern)
-                    .ToArray();
-
-            // Create a combined regex with all of the defined patterns
-            Regex markdownRegex = 
-                new Regex(
-                    string.Format(
-                        string.Join("|", regexParts),
-                        textPattern,
-                        additionalTextPattern), 
-                    RegexOptions.ExplicitCapture |
-                    RegexOptions.Compiled);
-
             // This algorithm works by taking the current document string
             // and using a regex to pull the first recognized substring beginning
             // at character 0.  Once a substring has been matched, that substring
             // is removed from the string and the loop starts over.
             while (_remainingText.Length > 0)
             {
-                string matchedGroupName = null;
-                Match regexMatch = markdownRegex.Match(_remainingText);
-                if (!regexMatch.Success)
+                // Try each of the patterns to find a match
+                Match firstMatch = null;
+                MarkdownPattern firstMatchedPattern = null;
+                foreach (MarkdownPattern markdownPattern in _markdownPatterns)
                 {
-                    string textExcerpt =
-                        _remainingText.Length > 50 ?
-                            _remainingText.Substring(0, 50) + "..." :
-                            _remainingText;
-
-                    throw new Exception(
-                        "Failed to find a matching rule for text: " + textExcerpt);
+                    Match regexMatch = null;
+                    if (markdownPattern.TryMatchString(_remainingText, out regexMatch))
+                    {
+                        if (firstMatch == null || firstMatch.Index > regexMatch.Index)
+                        {
+                            firstMatch = regexMatch;
+                            firstMatchedPattern = markdownPattern;
+                        }
+                    }
                 }
 
-                Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
-
-                // Try to run the match action for the matched group
-                bool executedAction =
-                    _markdownPatternList.TryExecuteMatchAction(
-                        matchedGroupName,
-                        regexMatch,
-                        matchGroup);
-
-                // Get rid of the entire matched string
-                _remainingText = _remainingText.Substring(regexMatch.Length);
-
-                if (!executedAction)
+                int newStartingPosition = -1;
+                if (firstMatch != null)
                 {
-                    // Reached some unknown text, break out
-                    break;
+                    // Gather all text before this point into a paragraph
+                    if (firstMatch.Index > 0)
+                    {
+                        this.StartParagraph();
+
+                        this.CreateNormalSpan(
+                            _remainingText.Substring(
+                                0,
+                                firstMatch.Index));
+                    }
+
+                    // Run the match action for the pattern
+                    firstMatchedPattern.MatchAction(firstMatch);
+
+                    // Execute the action for the match
+                    newStartingPosition = firstMatch.Index + firstMatch.Length;
                 }
+                else
+                {
+                    // If no match found, treat the rest of the text as a span
+                    this.CreateNormalSpan(_remainingText);
+                    newStartingPosition = _remainingText.Length;
+                }
+
+                // Trim the head of the string
+                _remainingText = 
+                    _remainingText.Substring(
+                        newStartingPosition);
             }
 
             // Finish any remaining paragraph
             this.FinishParagraph();
         }
 
-        private void CreateHashHeader(Match regexMatch, Group matchGroup)
+        private void CreateHashHeader(Match regexMatch)
         {
             this.FinishParagraph();
 
             _currentDocument.AddChildNode(
                 new HeadingNode(
-                    matchGroup.Value.Trim('#', ' '),
-                    matchGroup.Value.LastIndexOf('#') + 1));
+                    regexMatch.Groups[2].Value,
+                    regexMatch.Groups[1].Value.Length));
         }
 
-        private void CreateUnderlineHeader(Match regexMatch, Group matchGroup)
+        private void CreateUnderlineHeader(Match regexMatch)
         {
             this.FinishParagraph();
 
-            string[] headerLines = matchGroup.Value.Split('\n');
-
-            int headerLevel = 0;
-            if (headerLines[1][0] == '=')
-            {
-                headerLevel = 1;
-            }
-            else
-            {
-                headerLevel = 2;
-            }
+            int headerLevel =
+                regexMatch.Groups[2].Value[0] == '=' ?
+                    1 : 2;
 
             _currentDocument.AddChildNode(
                 new HeadingNode(
-                    headerLines[0].Trim(),
+                    regexMatch.Groups[1].Value,
                     headerLevel));
         }
 
-        private void CreateTickCodeBlock(Match regexMatch, Group matchGroup)
+        private void CreateTickCodeBlock(Match regexMatch)
         {
                 this.FinishParagraph();
 
                 _currentDocument.AddChildNode(
                     new CodeBlockNode(
-                           matchGroup.Value.Trim('`', '\r', '\n')));
+                        regexMatch.Groups[2].Value));
         }
 
-        private void CreateNormalSpan(Match regexMatch, Group matchGroup)
+        private void CreateNormalSpan(string spanText)
         {
             this.StartParagraph();
 
@@ -219,50 +197,56 @@ namespace Markdown.MAML.Parser
             // user has intentionally typed a hard break string
             // (  \r\n)
 
+            // If the span is merely whitespace, don't add it
+            if (!string.IsNullOrWhiteSpace(spanText))
+            {
+                _currentParagraphSpans.Add(new TextSpan(spanText));
+            }
+        }
+
+        private void CreateItalicSpan(Match regexMatch)
+        {
+            this.StartParagraph();
+
             _currentParagraphSpans.Add(
                 new TextSpan(
-                    matchGroup.Value.Trim()));
+                    regexMatch.Groups[1].Value,
+                    TextSpanStyle.Italic));
         }
 
-        private void CreateItalicSpan(Match regexMatch, Group matchGroup)
+        private void CreateBoldSpan(Match regexMatch)
         {
             this.StartParagraph();
 
-            _currentParagraphSpans.Add(new TextSpan(matchGroup.Value, false, true));
+            _currentParagraphSpans.Add(
+                new TextSpan(
+                    regexMatch.Groups[1].Value,
+                    TextSpanStyle.Bold));
         }
 
-        private void CreateBoldSpan(Match regexMatch, Group matchGroup)
+        private void CreateHyperlinkSpan(Match regexMatch)
         {
             this.StartParagraph();
-
-            _currentParagraphSpans.Add(new TextSpan(matchGroup.Value, true, false));
-        }
-
-        private void CreateHyperlinkSpan(Match regexMatch, Group matchGroup)
-        {
-            this.StartParagraph();
-
-            string[] hyperlinkParts = matchGroup.Value.Split('(');
 
             _currentParagraphSpans.Add(
                 new HyperlinkSpan(
-                    hyperlinkParts[0].Trim('[', ']'),
-                    hyperlinkParts[1].Trim(')')));
+                    regexMatch.Groups[1].Value,
+                    regexMatch.Groups[2].Value));
         }
 
-        private void CreateSoftBreakSpan(Match regexMatch, Group matchGroup)
+        private void CreateSoftBreakSpan(Match regexMatch)
         {
             // Don't create a span?
         }
 
-        private void CreateHardBreakSpan(Match regexMatch, Group matchGroup)
+        private void CreateHardBreakSpan(Match regexMatch)
         {
             this.StartParagraph();
 
             _currentParagraphSpans.Add(new HardBreakSpan());
         }
 
-        private void CreateParagraph(Match regexMatch, Group matchGroup)
+        private void CreateParagraph(Match regexMatch)
         {
             this.FinishParagraph();
             this.StartParagraph();
@@ -310,24 +294,6 @@ namespace Markdown.MAML.Parser
             // verbatim string literals have \r instead of \r\n.
             return Regex.Replace(documentString, "[^\r]\n", "\r\n");
 
-        }
-
-        private Group GetMatchedGroup(Regex spanRegex, Match regexMatch, out string matchedGroupName)
-        {
-            matchedGroupName = null;
-
-            foreach (string groupName in spanRegex.GetGroupNames())
-            {
-                Group matchGroup = regexMatch.Groups[groupName];
-
-                if (groupName != "0" && matchGroup.Success)
-                {
-                    matchedGroupName = groupName;
-                    return matchGroup;
-                }
-            }
-
-            return null;
         }
 
         #endregion

@@ -8,7 +8,7 @@
         }
 
         public CodeBlockNode(string codeBlockContents)
-            : base(codeBlockContents)
+            : base(codeBlockContents.Trim())
         {
         }
     }

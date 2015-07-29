@@ -9,21 +9,35 @@ namespace Markdown.MAML.Parser
 {
     public class MarkdownPattern
     {
-        public string GroupName { get; private set;}
+        private Regex patternRegex;
 
-        public string RegexPattern { get; private set; }
+        public string PatternName { get; private set;}
 
-        public Action<Match, Group> MatchAction { get; private set; }
+        public string PatternString { get; private set; }
+
+        public Action<Match> MatchAction { get; private set; }
 
         public MarkdownPattern(
-            string groupName, 
-            string regexPattern, 
-            Action<Match, Group> matchAction)
+            string patternName, 
+            string patternString, 
+            Action<Match> matchAction)
         {
-            this.GroupName = groupName;
-            this.RegexPattern = regexPattern;
+            this.PatternName = patternName;
+            this.PatternString = patternString;
             this.MatchAction = matchAction;
+
+            this.patternRegex =
+                new Regex(
+                    patternString,
+                    RegexOptions.IgnorePatternWhitespace |
+                    RegexOptions.Compiled);
+        }
+
+        public bool TryMatchString(string inputString, out Match regexMatch)
+        {
+            regexMatch = this.patternRegex.Match(inputString);
+
+            return regexMatch.Success;
         }
     }
-
 }
