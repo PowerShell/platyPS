@@ -56,7 +56,7 @@ And this is my last line.
             Assert.Equal(5, description.Length);
         }
 
-        public string[] GetXmlContent(string xml, string xpath)
+        public static string[] GetXmlContent(string xml, string xpath)
         {
             List<string> result = new List<string>(); 
             XmlDocument xmlDoc = new XmlDocument();

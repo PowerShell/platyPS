@@ -111,9 +111,6 @@ namespace Markdown.MAML.Renderer
                 foreach(MamlParameter Parameter in command.Parameters)
                 {
                     string Attributes;
-                    
-                    PushTag("command:parameter");
-                    
                     Attributes = "required=\"" + Parameter.Required.ToString() + "\" " +
                                                 "variableLength=\"" + Parameter.VariableLength.ToString() + "\" " +
                                                 "globbing=\"" + Parameter.Globbing.ToString() + "\" " +
@@ -128,7 +125,7 @@ namespace Markdown.MAML.Renderer
                     }
                     if(AliasCount > 0)
                     {
-                        Attributes = Attributes.Substring(Attributes.Length - 2);
+                        Attributes = Attributes.Substring(0,Attributes.Length - 2);
                     }
                     Attributes += "\"";
 
@@ -149,7 +146,7 @@ namespace Markdown.MAML.Renderer
 
                     PushTag("command:parameterValue", Attributes);
                     _stringBuilder.AppendLine(Parameter.Type);
-                    PopTag(2);
+                    PopTag(1);
                 }
                 PopTag(3);
 
