@@ -90,7 +90,58 @@ namespace Markdown.MAML.Test.Parser
                     paragraphNode.Spans.FirstOrDefault());
 
             Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
-            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri);
+        }
+
+        [Fact]
+        public void TextSpansCanContainDoubleQuotes()
+        {
+            string documentText = @"
+# Foo
+This is a :""text"" with doublequotes
+";
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(
+                    documentText);
+            var children = documentNode.Children.ToArray();
+            Assert.Equal(2, children.Count());
+            var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
+            Assert.Equal(@"This is a :""text"" with doublequotes", spans[0].Text);
+        }
+
+        [Fact]
+        public void TextSpansCanContainBrackets()
+        {
+            string documentText = @"
+# Foo
+about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
+";
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(
+                    documentText);
+            var children = documentNode.Children.ToArray();
+            Assert.Equal(2, children.Count());
+            var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
+            Assert.Equal(@"about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).", spans[0].Text);
+        }
+
+
+        [Fact]
+        public void ParsesParagraphWithSupportedCharacters()
+        {
+            const string allCharacterString = 
+                "This is a \"test\" string; it's very helpful.  Success: yes!?";
+
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    allCharacterString,
+                    MarkdownNodeType.Paragraph);
+
+            ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
+
+            Assert.Equal(allCharacterString, spans[0].Text);
         }
 
         [Fact]
@@ -165,7 +216,7 @@ namespace Markdown.MAML.Test.Parser
                     paragraphNode.Spans.ElementAt(1));
 
             Assert.Equal(hyperlinkText, hyperlinkSpan.Text);
-            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri.AbsoluteUri);
+            Assert.Equal(hyperlinkUri, hyperlinkSpan.Uri);
         }
 
         private TNode ParseAndGetExpectedChild<TNode>(

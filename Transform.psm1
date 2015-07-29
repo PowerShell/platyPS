@@ -43,14 +43,6 @@ $($command.details.description.para | Convert-MamlLinksToMarkDownLinks)
 "@
 }
 
-function Get-SyntaxMarkdown($command)
-{
-@"
-###SYNTAX
-TODO
-"@
-}
-
 function Get-DescriptionMarkdown($command)
 {
 @"
@@ -61,16 +53,18 @@ $command.description.para | Convert-MamlLinksToMarkDownLinks
 
 function Get-ParameterMarkdown($parameter)
 {
-    $parameterType = "\<$($parameter.parameterValue.'#text')\>"
+    #$parameterType = "\<$($parameter.parameterValue.'#text')\>"
+    $parameterType = "$($parameter.parameterValue.'#text')"
+
     if ($parameter.required -eq 'false') {
         $parameterType = "[$parameterType]"
     }
 @"
-####$($parameter.name) $parameterType
+####$($parameter.name) ``$parameterType``
 
 "@
-    $parameter.description.para
-    $parameter.parameters.parameter
+    $parameter.description.para | Convert-MamlLinksToMarkDownLinks
+    $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
 }
 
 function Get-ParametersMarkdown($command)
@@ -114,7 +108,8 @@ $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks
 
 function Get-ExampleMarkdown($example)
 {
-    $example.title.Trim()
+    "#### $($example.title.Trim())"
+
     $example.introduction.para
     '```'
     $example.code
@@ -151,8 +146,6 @@ function Convert-CommandToMarkdown
     Get-NameMarkdown $command
     ''
     Get-SynopsisMarkdown $command
-    ''
-    Get-SyntaxMarkdown $command
     ''
     Get-DescriptionMarkdown $command
     ''

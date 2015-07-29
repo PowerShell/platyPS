@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Text;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Parser;
+using Markdown.MAML.Transformer;
 
 namespace Markdown.MAML.Renderer
 {
@@ -57,6 +59,24 @@ namespace Markdown.MAML.Renderer
             {
                 _stringBuilder.AppendFormat("</{0}>{1}", _tagStack.Pop(), Environment.NewLine);
             }
+        }
+
+        /// <summary>
+        /// This is a helper method to do all 3 steps.
+        /// </summary>
+        /// <param name="markdown"></param>
+        /// <returns></returns>
+        public static string MarkdownStringToMamlString(string markdown)
+        {
+            var parser = new MarkdownParser();
+            var transformer = new ModelTransformer();
+            var renderer = new MamlRenderer();
+
+            var markdownModel = parser.ParseString(markdown);
+            var mamlModel = transformer.NodeModelToMamlModel(markdownModel);
+            string maml = renderer.MamlModelToString(mamlModel);
+
+            return maml;
         }
 
         public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
@@ -216,7 +236,7 @@ namespace Markdown.MAML.Renderer
 
                 //RELATED LINKS
                 PushTag("command:RelatedLinks");
-                foreach (MamlLinks Link in command.Links)
+                foreach (MamlLink Link in command.Links)
                 {
                     PushTag("maml:NavigationLink");
 

@@ -30,7 +30,7 @@ namespace Markdown.MAML.Model.MAML
             get { return _examples; }
         } 
 
-        public List<MamlLinks> Links
+        public List<MamlLink> Links
         {
             get { return _links; }
         }
@@ -43,6 +43,6 @@ namespace Markdown.MAML.Model.MAML
 
         private List<MamlExample> _examples = new List<MamlExample>();
 
-        private List<MamlLinks> _links = new List<MamlLinks>();
+        private List<MamlLink> _links = new List<MamlLink>();
     }
 }

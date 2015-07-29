@@ -121,5 +121,60 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
             Assert.Empty(outputs[0].Description);
         }
 
+        [Fact]
+        public void Produce2Examples()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+### EXAMPLES
+#### --EXAMPLE1--
+```
+# PS code here
+```
+Remarks
+
+#### --EXAMPLE2--
+```
+# PS code here
+```
+Remarks
+
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var examples = mamlCommand[0].Examples.ToArray();
+            Assert.Equal(examples.Count(), 2);
+            Assert.Equal(examples[0].Title, "--EXAMPLE1--");
+            Assert.Equal(examples[0].Code, "# PS code here");
+            Assert.Equal(examples[0].Remarks, "Remarks");
+        }
+
+        [Fact]
+        public void ProduceRelatedLinks()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+###RELATED LINKS
+[Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289795)
+[Checkpoint-Computer]()
+[Remove-Computer]()
+[Restart-Computer]()
+[Rename-Computer]()
+[Restore-Computer]()
+[Stop-Computer]()
+[Test-Connection]()
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var links = mamlCommand[0].Links.ToArray();
+            Assert.Equal(links.Count(), 8);
+            Assert.Equal(links[0].LinkName, "Online Version:");
+            Assert.Equal(links[0].LinkUri, "http://go.microsoft.com/fwlink/p/?linkid=289795");
+            Assert.Equal(links[1].LinkName, "Checkpoint-Computer");
+            Assert.Empty(links[1].LinkUri);
+        }
+
     }
 }

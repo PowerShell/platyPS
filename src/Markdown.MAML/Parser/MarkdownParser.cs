@@ -90,6 +90,11 @@ namespace Markdown.MAML.Parser
 
                     {   "hyperlink",
                         "(?<hyperlink>\\[(.+?)\\]\\(https?://[^'\">\\s]+\\))",
+                        this.CreateHyperlinkSpan },
+
+                        // We allow hyperlinks with empty URI.
+                    {   "emptyHyperlink",
+                        "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
                         this.CreateHyperlinkSpan }
                 };
         }
@@ -103,7 +108,7 @@ namespace Markdown.MAML.Parser
             // TODO: These patterns are old and should be converted into
             // something more like the newer patterns which use non-greedy
             // character groups like (.?+)
-            string textPattern = @"a-zA-Z-\.,' ";
+            string textPattern = "\\w\\s\\d\\-\\.,'\"!\\?\\:;";
             string additionalTextPattern = "\\(\\)(\r\n){1}";
 
             // Create the list of regexes from the pattern list
@@ -130,6 +135,16 @@ namespace Markdown.MAML.Parser
             {
                 string matchedGroupName = null;
                 Match regexMatch = markdownRegex.Match(_remainingText);
+                if (!regexMatch.Success)
+                {
+                    string remainingTextSnipet = _remainingText;
+                    if (remainingTextSnipet.Length > 40)
+                    {
+                        remainingTextSnipet = remainingTextSnipet.Substring(0, 40) + "...";
+                    }
+                    throw new Exception("Failed to find a matching rule for text: " + remainingTextSnipet);
+                }
+
                 Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
 
                 // Try to run the match action for the matched group
