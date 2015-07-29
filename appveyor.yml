@@ -1,5 +1,8 @@
 version: 1.0.{build}
 
+install:
+    - cinst pester
+
 init:
     - git config --global core.autocrlf true
 
