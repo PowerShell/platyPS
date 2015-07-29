@@ -111,6 +111,22 @@ This is a ""text"" with doublequotes
         }
 
         [Fact]
+        public void ParsesParagraphWithSupportedCharacters()
+        {
+            const string allCharacterString = 
+                "This is a \"test\" string, it's very helpful.  Success!?";
+
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    allCharacterString,
+                    MarkdownNodeType.Paragraph);
+
+            ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
+
+            Assert.Equal(allCharacterString, spans[0].Text);
+        }
+
+        [Fact]
         public void ParsesParagraphWithFormattedSpans()
         {
             ParagraphNode paragraphNode =
