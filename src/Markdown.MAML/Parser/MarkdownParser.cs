@@ -137,7 +137,12 @@ namespace Markdown.MAML.Parser
                 Match regexMatch = markdownRegex.Match(_remainingText);
                 if (!regexMatch.Success)
                 {
-                    throw new Exception("Failed to find a matching rule for text: " + _remainingText);
+                    string remainingTextSnipet = _remainingText;
+                    if (remainingTextSnipet.Length > 40)
+                    {
+                        remainingTextSnipet = remainingTextSnipet.Substring(0, 40) + "...";
+                    }
+                    throw new Exception("Failed to find a matching rule for text: " + remainingTextSnipet);
                 }
 
                 Group matchGroup = this.GetMatchedGroup(markdownRegex, regexMatch, out matchedGroupName);
