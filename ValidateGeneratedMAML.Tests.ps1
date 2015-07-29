@@ -116,7 +116,7 @@ function $cmdletName
 }
 
 $testMamlFile = "$pshome\en-us\Microsoft.PowerShell.Commands.Utility.dll-help.xml"
-$testMamlFile = ".\Microsoft.PowerShell.Utility.psm1-help.xml"
+$testMamlFile = "Examples\Microsoft.PowerShell.Utility.psm1-help.xml"
 #$testMamlFile = "C:\Francisco\MarkdownToMAML\SampleMAML\Microsoft.PowerShell.Utility3.psm1-help.xml"
 
 # Import Transform.psm1 
