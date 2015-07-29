@@ -115,8 +115,9 @@ function $cmdletName
     return $result
 }
 
-# $testMamlFile = "$pshome\en-us\Microsoft.PowerShell.Commands.Utility.dll-help.xml"
-$testMamlFile = "C:\Francisco\MarkdownToMAML\SampleMAML\Microsoft.PowerShell.Utility3.psm1-help.xml"
+$testMamlFile = "$pshome\en-us\Microsoft.PowerShell.Commands.Utility.dll-help.xml"
+$testMamlFile = ".\Microsoft.PowerShell.Utility.psm1-help.xml"
+#$testMamlFile = "C:\Francisco\MarkdownToMAML\SampleMAML\Microsoft.PowerShell.Utility3.psm1-help.xml"
 
 # Import Transform.psm1 
 Import-Module .\Transform.psm1 -Force
@@ -131,7 +132,7 @@ $markdown = Convert-MamlToMarkdown -maml $maml
 $markdown | Out-File generatedMarkdown.txt -Force
 
 # Load Markdown.MAML.dll
-$assemblyPath = "C:\Users\frangom.REDMOND\Documents\GitHub\Markdown.MAML\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll"
+$assemblyPath = (Resolve-Path ".\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll").Path
 Add-Type -Path $assemblyPath
 
 # Create the parser object
@@ -177,6 +178,6 @@ finally
     {
         Remove-Item $moduleDirectory -Force -Recurse
     }
-
+}
 
 

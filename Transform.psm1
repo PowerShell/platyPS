@@ -43,14 +43,6 @@ $($command.details.description.para | Convert-MamlLinksToMarkDownLinks)
 "@
 }
 
-function Get-SyntaxMarkdown($command)
-{
-@"
-###SYNTAX
-TODO
-"@
-}
-
 function Get-DescriptionMarkdown($command)
 {
 @"
@@ -69,8 +61,8 @@ function Get-ParameterMarkdown($parameter)
 ####$($parameter.name) $parameterType
 
 "@
-    $parameter.description.para
-    $parameter.parameters.parameter
+    $parameter.description.para | Convert-MamlLinksToMarkDownLinks
+    $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
 }
 
 function Get-ParametersMarkdown($command)
@@ -151,8 +143,6 @@ function Convert-CommandToMarkdown
     Get-NameMarkdown $command
     ''
     Get-SynopsisMarkdown $command
-    ''
-    Get-SyntaxMarkdown $command
     ''
     Get-DescriptionMarkdown $command
     ''
