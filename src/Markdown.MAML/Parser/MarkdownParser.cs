@@ -108,7 +108,7 @@ namespace Markdown.MAML.Parser
             // TODO: These patterns are old and should be converted into
             // something more like the newer patterns which use non-greedy
             // character groups like (.?+)
-            string textPattern = "\\w\\s\\d\\-\\.,'\"!\\?";
+            string textPattern = "\\w\\s\\d\\-\\.,'\"!\\?\\:;";
             string additionalTextPattern = "\\(\\)(\r\n){1}";
 
             // Create the list of regexes from the pattern list

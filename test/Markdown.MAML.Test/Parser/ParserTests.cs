@@ -114,7 +114,7 @@ This is a :""text"" with doublequotes
         public void ParsesParagraphWithSupportedCharacters()
         {
             const string allCharacterString = 
-                "This is a \"test\" string, it's very helpful.  Success!?";
+                "This is a \"test\" string; it's very helpful.  Success: yes!?";
 
             ParagraphNode paragraphNode =
                 this.ParseAndGetExpectedChild<ParagraphNode>(
