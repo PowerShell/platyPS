@@ -60,7 +60,7 @@ function Get-ParameterMarkdown($parameter)
         $parameterType = "[$parameterType]"
     }
 @"
-####$($parameter.name) $parameterType
+####$($parameter.name) ``$parameterType``
 
 "@
     $parameter.description.para | Convert-MamlLinksToMarkDownLinks
