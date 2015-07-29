@@ -58,7 +58,7 @@ function GeneratePSM1Module
     # The result object to be generated
     $result = @{
         Name = $null
-        Cmldets = @()
+        Cmdlets = @()
         Path = $null
     }
 
@@ -87,7 +87,7 @@ function $cmdletName
         $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.details.name)        
         $moduleDefintion += "`r`n" + $thisDefinition + "`r`n"
         $writeFile = $true
-        $result.Cmldets += $command.details.name
+        $result.Cmdlets += $command.details.name
     }
 
     if (-not $writeFile)
@@ -105,7 +105,7 @@ function $cmdletName
 
     # Rename the copied help file
     $filePath = Join-Path $helpFileFolder (Split-Path $MamlFilePath -Leaf)
-    Rename-Item -Path $filePath -NewName $helpFileNewName -Force -Verbose
+    Rename-Item -Path $filePath -NewName $helpFileNewName -Force
 
     # Create the module file
     Set-Content -Value $moduleDefintion -Path $moduleFilePath
@@ -115,41 +115,68 @@ function $cmdletName
     return $result
 }
 
+# $testMamlFile = "$pshome\en-us\Microsoft.PowerShell.Commands.Utility.dll-help.xml"
+$testMamlFile = "C:\Francisco\MarkdownToMAML\SampleMAML\Microsoft.PowerShell.Utility3.psm1-help.xml"
+
+# Import Transform.psm1 
+Import-Module .\Transform.psm1 -Force
+
+# get maml as a string
+$maml = Get-Content $testMamlFile -Raw
+
+# run convertion
+$markdown = Convert-MamlToMarkdown -maml $maml
+
+# Write the markdown to a file
+$markdown | Out-File generatedMarkdown.txt -Force
+
+# Load Markdown.MAML.dll
+$assemblyPath = "C:\Users\frangom.REDMOND\Documents\GitHub\Markdown.MAML\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll"
+Add-Type -Path $assemblyPath
+
+# Create the parser object
+$parser = [Markdown.MAML.Parser.MarkdownParser]::new()
+$doc = $parser.ParseString($markdown) 
+$mamlRenderer = [Markdown.MAML.Renderer.MamlRenderer]::new()
+$modelTransformer = [Markdown.MAML.Transformer.ModelTransformer]::new()
+
+$generatedMaml = $mamlRenderer.MamlModelToString($modelTransformer).NodeModelToMamlModel($doc)
+
 # Generate the module
-$testModule = GeneratePSM1Module -MamlFilePath C:\Francisco\MarkdownToMAML\SampleMAML\Microsoft.PowerShell.Utility2.psm1-help.xml
-$testModule
-
-<#
-#Describe "Validate PSMAML" {
-
-
+$generatedModule = GeneratePSM1Module -MamlFilePath $testMamlFile
 
 try 
 {
     # Import the module
-    Import-Module $testModule.Path -Force -ea Stop
+    Import-Module $generatedModule.Path -Force -ea Stop
 
-    
-    # get-help using get-help cmdletName
-    # get-help using get-help ModuleName\cmdletName
-    foreach ($cmdletName in $testModule.Cmldets)
+    $propertiesToValidate = @("Name","SYNOPSIS","INPUTS")
+
+    foreach ($cmdletName in $generatedModule.Cmdlets)
     {
-        $expectedHelpContent = Get-Help -Name $cmdletName
-        $actualHelpContent = Get-Help -Name "$($testModule.Name + "\" + $cmdletName)"
+        # get-help using get-help cmdletName
+        $expectedHelpContent = Get-Help Add-Member | ? {$_.modulename -ne $generatedModule.Name}
+        $actualHelpContent = Get-Help -Name "$($generatedModule.Name + "\" + $cmdletName)"
 
-        # Compare both object
+        # Validate the object properties
+        foreach ($property in $propertiesToValidate)
+        {
+            Write-Verbose "Validating property $property" -Verbose
+            if ($expectedHelpContent."$property" -ne $actualHelpContent."$property")
+            { 
+                write-host  "Expected: $($expectedHelpContent."$property") and got: $($actualHelpContent."$property")" -ForegroundColor Red
+            }
+        }
     }
 }
 finally
 {
-    Remove-Module $testModule.Path -Force -ea SilentlyContinue
-    $moduleDirectory = Split-Path $testModule.Path
-    if (Test-Path $moduleDirectory )
+    Remove-Module $generatedModule.Path -Force -ea SilentlyContinue
+    $moduleDirectory = Split-Path $generatedModule.Path
+    if (Test-Path $moduleDirectory)
     {
         Remove-Item $moduleDirectory -Force -Recurse
     }
-}
 
-#>
 
 
