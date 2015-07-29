@@ -85,8 +85,13 @@ namespace Markdown.MAML.Parser
                         "(?<emptyHyperlink>\\[(.+?)\\]\\(\\))",
                         this.CreateHyperlinkSpan },
 
+                        // Normal need a negative look-ahead for hyperlinks pattern.
+                    {   "normalWithHyperlink",
+                        @"\s*(?<normalWithHyperlink>[{0}{1}]+)\[.*\]\(.*\)",
+                        this.CreateNormalSpan },
+
                     {   "normal",
-                        @"\s*(?<normal>[{0}{1}]+)",
+                        @"\s*(?<normal>[{0}{1}\[\]]+)",
                         this.CreateNormalSpan },
 
                     {   "italic",
@@ -135,6 +140,7 @@ namespace Markdown.MAML.Parser
             {
                 string matchedGroupName = null;
                 Match regexMatch = markdownRegex.Match(_remainingText);
+                
                 if (!regexMatch.Success)
                 {
                     string textExcerpt =
@@ -155,8 +161,15 @@ namespace Markdown.MAML.Parser
                         regexMatch,
                         matchGroup);
 
+                // TODO: remove this special case hack
+                int groupLength = regexMatch.Length;
+                if (matchedGroupName == "normalWithHyperlink")
+                {
+                    groupLength = matchGroup.Length;
+                }
+
                 // Get rid of the entire matched string
-                _remainingText = _remainingText.Substring(regexMatch.Length);
+                _remainingText = _remainingText.Substring(groupLength);
 
                 if (!executedAction)
                 {
