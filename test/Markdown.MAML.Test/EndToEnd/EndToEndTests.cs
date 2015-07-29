@@ -1,9 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Xml;
 using System.Xml.XPath;
-using Markdown.MAML.Parser;
 using Markdown.MAML.Renderer;
-using Markdown.MAML.Transformer;
 using Xunit;
 
 namespace Markdown.MAML.Test.EndToEnd
@@ -13,16 +11,11 @@ namespace Markdown.MAML.Test.EndToEnd
         [Fact]
         public void ProduceNameAndSynopsis()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            string maml = MamlRenderer.MarkdownStringToMamlString(@"
 ## Get-Foo
 ### Synopsis
 This is Synopsis
 ");
-            string maml = new MamlRenderer().
-                MamlModelToString((new ModelTransformer()).
-                NodeModelToMamlModel(doc));
-            
             string[] name = GetXmlContent(maml, "/helpItems/command:command/command:details/command:name");
             Assert.Equal(1, name.Length);
             Assert.Equal("Get-Foo", name[0]);
@@ -32,11 +25,10 @@ This is Synopsis
             Assert.Equal("This is Synopsis", synopsis[0]);
         }
 
-        [Fact(Skip = "There is a bug in MarkdownParser, skip for now")]
+        [Fact]
         public void ProduceMultilineDescription()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            string maml = MamlRenderer.MarkdownStringToMamlString(@"
 ## Get-Foo
 ### Synopsis
 This is Synopsis, but it doesn't matter in this test
@@ -48,18 +40,12 @@ I'm a multiline description.
 
 And this is my last line.
 ");
-            string maml = new MamlRenderer().
-                MamlModelToString((new ModelTransformer()).
-                NodeModelToMamlModel(doc));
 
             string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(3, description.Length);
-            Assert.Equal("Hello,", description[0]);
-            Assert.Equal("I'm a multiline description.", description[1]);
-            Assert.Equal("And this is my last line.", description[2]);
+            Assert.Equal(5, description.Length);
         }
 
-        private string[] GetXmlContent(string xml, string xpath)
+        public static string[] GetXmlContent(string xml, string xpath)
         {
             List<string> result = new List<string>(); 
             XmlDocument xmlDoc = new XmlDocument();

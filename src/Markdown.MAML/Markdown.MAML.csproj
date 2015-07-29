@@ -45,6 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\MAML\MamlExample.cs" />
+    <Compile Include="Model\MAML\MamlInputOutput.cs" />
+    <Compile Include="Model\MAML\MamlLink.cs" />
     <Compile Include="Model\MAML\MamlParameter.cs" />
     <Compile Include="Model\Markdown\CodeBlockNode.cs" />
     <Compile Include="Model\Markdown\DocumentNode.cs" />
@@ -57,6 +60,8 @@
     <Compile Include="Model\Markdown\ParagraphSpan.cs" />
     <Compile Include="Model\Markdown\TextSpan.cs" />
     <Compile Include="Model\Markdown\HardBreakSpan.cs" />
+    <Compile Include="Parser\MarkdownPattern.cs" />
+    <Compile Include="Parser\MarkdownPatternList.cs" />
     <Compile Include="Transformer\HelpSchemaException.cs" />
     <Compile Include="Model\MAML\MamlCommand.cs" />
     <Compile Include="Renderer\MamlRenderer.cs" />

@@ -24,6 +24,10 @@ https://github.com/PowerShell/Markdown.MAML/blob/master/Example.Short.md
 The whole `System.Management.Automation` help converted:
 https://github.com/PowerShell/Markdown.MAML/blob/master/SMA.Help.md
 
+The tag mapping document is here:
+
+https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.md
+
 ## Transform maml to markdown
 
 ```powershell
@@ -35,4 +39,17 @@ Import-Module .\Transform.psm1
 $maml = cat .\SMA.help.xml -Raw
 # run convertion
 Convert-MamlToMarkdown -maml $maml
+```
+
+
+## Generate a PSM1 module from a MAML file. This test module will be used to validate that the generated MAML (from Markdown) has the correct form and structure.
+
+```powershell
+GeneratePSM1Module -MamlFilePath $pshome\en-us\Microsoft.PowerShell.Commands.Utility.dll-help.xml
+
+Name                           Value                                                                                                                        
+----                           -----                                                                                                                        
+Cmdlets                        {Add-Member, Add-Type, Clear-Variable, Compare-Object...}                                                                    
+Path                           C:\Users\frangom.REDMOND\AppData\Local\Temp\\Modules\Microsoft.PowerShell.Commands.Utility_1709114779\Microsoft.PowerShell...
+Name                           Microsoft.PowerShell.Commands.Utility_1709114779                                             
 ```
