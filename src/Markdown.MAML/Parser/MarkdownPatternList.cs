@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.MAML.Model.Markdown;
+using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
@@ -12,27 +13,20 @@ namespace Markdown.MAML.Parser
     /// 
     /// new MarkdownPatternList
     /// {
-    ///     {
+    ///     { "patternName", "regexPatternString", SomeFunctionName }
     /// }
     /// </summary>
     public class MarkdownPatternList : IEnumerable<MarkdownPattern>
     {
         private List<MarkdownPattern> _patternList = new List<MarkdownPattern>();
-        private Dictionary<string, Action<Match>> _matchGroupActions = 
-            new Dictionary<string, Action<Match>>();
 
-        public void Add(string patternName, string regexPattern, Action<Match> matchAction)
+        public void Add(string patternName, string regexPattern, Action<Match, SourceExtent> matchAction)
         {
             _patternList.Add(
                 new MarkdownPattern(
                     patternName,
                     regexPattern,
                     matchAction));
-
-
-            _matchGroupActions.Add(
-                patternName,
-                matchAction);
         }
 
         public IEnumerator<MarkdownPattern> GetEnumerator()

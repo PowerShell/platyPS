@@ -2,8 +2,8 @@
 {
     public class HardBreakSpan : ParagraphSpan
     {
-        public HardBreakSpan()
-            : base("\n")
+        public HardBreakSpan(SourceExtent sourceExtent)
+            : base("\n", sourceExtent)
         {
         }
     }

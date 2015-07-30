@@ -12,7 +12,7 @@ namespace Markdown.MAML.Parser
         #region Private Fields
 
         DocumentNode _currentDocument;
-        private string _remainingText;
+        private string _documentText;
         MarkdownPatternList _markdownPatterns;
         List<ParagraphSpan> _currentParagraphSpans;
 
@@ -32,7 +32,7 @@ namespace Markdown.MAML.Parser
             this.InitializePatternList();
 
             // Trim the leading whitespace off of the string
-            _remainingText = this.PrepareDocumentString(markdownString);
+            _documentText = this.PrepareDocumentString(markdownString);
 
             _currentDocument = new DocumentNode();
             this.ParseDocument();
@@ -96,11 +96,17 @@ namespace Markdown.MAML.Parser
 
         private void ParseDocument()
         {
-            // This algorithm works by taking the current document string
-            // and using a regex to pull the first recognized substring beginning
-            // at character 0.  Once a substring has been matched, that substring
-            // is removed from the string and the loop starts over.
-            while (_remainingText.Length > 0)
+            // This algorithm works by applying each Markdown pattern to the
+            // document string starting at startOffset and finding which match
+            // is nearest to the startOffset.  If the match is at a position
+            // greater than startOffset, the starting part of the string is
+            // then treated as a normal text span before the matched section is
+            // converted into its node type.
+            int startOffset = 0;
+            int currentLineNumber = 0;
+            int currentColumnNumber = 0;
+ 
+            while (startOffset < _documentText.Length)
             {
                 // Try each of the patterns to find a match
                 Match firstMatch = null;
@@ -108,7 +114,7 @@ namespace Markdown.MAML.Parser
                 foreach (MarkdownPattern markdownPattern in _markdownPatterns)
                 {
                     Match regexMatch = null;
-                    if (markdownPattern.TryMatchString(_remainingText, out regexMatch))
+                    if (markdownPattern.TryMatchString(_documentText, startOffset, out regexMatch))
                     {
                         if (firstMatch == null || firstMatch.Index > regexMatch.Index)
                         {
@@ -118,7 +124,6 @@ namespace Markdown.MAML.Parser
                     }
                 }
 
-                int newStartingPosition = -1;
                 if (firstMatch != null)
                 {
                     // Gather all text before this point into a paragraph
@@ -126,46 +131,78 @@ namespace Markdown.MAML.Parser
                     {
                         this.StartParagraph();
 
+                        // Get the extent of the span text
+                        SourceExtent spanExtent =
+                            new SourceExtent(
+                                _documentText,
+                                startOffset,
+                                firstMatch.Index,
+                                currentLineNumber,
+                                currentColumnNumber);
+
                         this.CreateNormalSpan(
-                            _remainingText.Substring(
-                                0,
-                                firstMatch.Index));
+                            spanExtent.OriginalText,
+                            spanExtent);
+
+                        // Make sure the line and column number are updated
+                        // before calculating the position of the match
+                        currentLineNumber = spanExtent.Line.End;
+                        currentColumnNumber = spanExtent.Column.End;
                     }
 
-                    // Run the match action for the pattern
-                    firstMatchedPattern.MatchAction(firstMatch);
+                    // Count the newlines in the entire span
+                    SourceExtent matchExtent =
+                        new SourceExtent(
+                            _documentText,
+                            firstMatch.Index,
+                            firstMatch.Index + firstMatch.Length,
+                            currentLineNumber,
+                            currentColumnNumber);
 
-                    // Execute the action for the match
-                    newStartingPosition = firstMatch.Index + firstMatch.Length;
+                    // Run the match action for the pattern
+                    firstMatchedPattern.MatchAction(firstMatch, matchExtent);
+
+                    // Calculate the next offset, line, and column
+                    startOffset = firstMatch.Index + firstMatch.Length;
+                    currentLineNumber = matchExtent.Line.End;
+                    currentColumnNumber = matchExtent.Column.End;
                 }
                 else
                 {
-                    // If no match found, treat the rest of the text as a span
-                    this.CreateNormalSpan(_remainingText);
-                    newStartingPosition = _remainingText.Length;
-                }
+                    // Get the extent containing the remaining text
+                    SourceExtent spanExtent =
+                        new SourceExtent(
+                            _documentText,
+                            startOffset,
+                            _documentText.Length,
+                            currentLineNumber,
+                            currentColumnNumber);
 
-                // Trim the head of the string
-                _remainingText = 
-                    _remainingText.Substring(
-                        newStartingPosition);
+                    // If no match found, treat the rest of the text as a span
+                    this.CreateNormalSpan(
+                        spanExtent.OriginalText,
+                        spanExtent);
+
+                    startOffset = _documentText.Length;
+                }
             }
 
             // Finish any remaining paragraph
             this.FinishParagraph();
         }
 
-        private void CreateHashHeader(Match regexMatch)
+        private void CreateHashHeader(Match regexMatch, SourceExtent sourceExtent)
         {
             this.FinishParagraph();
 
             _currentDocument.AddChildNode(
                 new HeadingNode(
                     regexMatch.Groups[2].Value,
-                    regexMatch.Groups[1].Value.Length));
+                    regexMatch.Groups[1].Value.Length,
+                    sourceExtent));
         }
 
-        private void CreateUnderlineHeader(Match regexMatch)
+        private void CreateUnderlineHeader(Match regexMatch, SourceExtent sourceExtent)
         {
             this.FinishParagraph();
 
@@ -176,19 +213,21 @@ namespace Markdown.MAML.Parser
             _currentDocument.AddChildNode(
                 new HeadingNode(
                     regexMatch.Groups[1].Value,
-                    headerLevel));
+                    headerLevel,
+                    sourceExtent));
         }
 
-        private void CreateTickCodeBlock(Match regexMatch)
+        private void CreateTickCodeBlock(Match regexMatch, SourceExtent sourceExtent)
         {
                 this.FinishParagraph();
 
                 _currentDocument.AddChildNode(
                     new CodeBlockNode(
-                        regexMatch.Groups[2].Value));
+                        regexMatch.Groups[2].Value,
+                        sourceExtent));
         }
 
-        private void CreateNormalSpan(string spanText)
+        private void CreateNormalSpan(string spanText, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
@@ -200,53 +239,61 @@ namespace Markdown.MAML.Parser
             // If the span is merely whitespace, don't add it
             if (!string.IsNullOrWhiteSpace(spanText))
             {
-                _currentParagraphSpans.Add(new TextSpan(spanText));
+                _currentParagraphSpans.Add(
+                    new TextSpan(
+                        spanText,
+                        sourceExtent));
             }
         }
 
-        private void CreateItalicSpan(Match regexMatch)
+        private void CreateItalicSpan(Match regexMatch, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
             _currentParagraphSpans.Add(
                 new TextSpan(
                     regexMatch.Groups[1].Value,
+                    sourceExtent,
                     TextSpanStyle.Italic));
         }
 
-        private void CreateBoldSpan(Match regexMatch)
+        private void CreateBoldSpan(Match regexMatch, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
             _currentParagraphSpans.Add(
                 new TextSpan(
                     regexMatch.Groups[1].Value,
+                    sourceExtent,
                     TextSpanStyle.Bold));
         }
 
-        private void CreateHyperlinkSpan(Match regexMatch)
+        private void CreateHyperlinkSpan(Match regexMatch, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
             _currentParagraphSpans.Add(
                 new HyperlinkSpan(
                     regexMatch.Groups[1].Value,
-                    regexMatch.Groups[2].Value));
+                    regexMatch.Groups[2].Value,
+                    sourceExtent));
         }
 
-        private void CreateSoftBreakSpan(Match regexMatch)
+        private void CreateSoftBreakSpan(Match regexMatch, SourceExtent sourceExtent)
         {
             // Don't create a span?
         }
 
-        private void CreateHardBreakSpan(Match regexMatch)
+        private void CreateHardBreakSpan(Match regexMatch, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
-            _currentParagraphSpans.Add(new HardBreakSpan());
+            _currentParagraphSpans.Add(
+                new HardBreakSpan(
+                    sourceExtent));
         }
 
-        private void CreateParagraph(Match regexMatch)
+        private void CreateParagraph(Match regexMatch, SourceExtent sourceExtent)
         {
             this.FinishParagraph();
             this.StartParagraph();
@@ -293,7 +340,6 @@ namespace Markdown.MAML.Parser
             // Make sure all newlines are \r\n.  In some environments,
             // verbatim string literals have \r instead of \r\n.
             return Regex.Replace(documentString, "[^\r]\n", "\r\n");
-
         }
 
         #endregion

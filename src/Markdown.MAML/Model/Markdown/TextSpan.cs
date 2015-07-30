@@ -12,8 +12,8 @@ namespace Markdown.MAML.Model.Markdown
     {
         public TextSpanStyle Style { get; private set; }
 
-        public TextSpan(string spanText, TextSpanStyle spanStyle = TextSpanStyle.Normal)
-            : base(spanText.Trim())
+        public TextSpan(string spanText, SourceExtent sourceExtent, TextSpanStyle spanStyle = TextSpanStyle.Normal)
+            : base(spanText.Trim(), sourceExtent)
         {
             this.Style = spanStyle;
         }

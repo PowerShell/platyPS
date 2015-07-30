@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.MAML.Model.Markdown;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,12 +16,12 @@ namespace Markdown.MAML.Parser
 
         public string PatternString { get; private set; }
 
-        public Action<Match> MatchAction { get; private set; }
+        public Action<Match, SourceExtent> MatchAction { get; private set; }
 
         public MarkdownPattern(
             string patternName, 
             string patternString, 
-            Action<Match> matchAction)
+            Action<Match, SourceExtent> matchAction)
         {
             this.PatternName = patternName;
             this.PatternString = patternString;
@@ -33,9 +34,9 @@ namespace Markdown.MAML.Parser
                     RegexOptions.Compiled);
         }
 
-        public bool TryMatchString(string inputString, out Match regexMatch)
+        public bool TryMatchString(string inputString, int startOffset, out Match regexMatch)
         {
-            regexMatch = this.patternRegex.Match(inputString);
+            regexMatch = this.patternRegex.Match(inputString, startOffset);
 
             return regexMatch.Success;
         }

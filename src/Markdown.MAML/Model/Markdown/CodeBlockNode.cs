@@ -7,8 +7,8 @@
             get { return MarkdownNodeType.CodeBlock; }
         }
 
-        public CodeBlockNode(string codeBlockContents)
-            : base(codeBlockContents.Trim())
+        public CodeBlockNode(string codeBlockContents, SourceExtent sourceExtent)
+            : base(codeBlockContents.Trim(), sourceExtent)
         {
         }
     }

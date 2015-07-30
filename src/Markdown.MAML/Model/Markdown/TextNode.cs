@@ -4,9 +4,12 @@
     {
         public string Text { get; private set; }
 
-        public TextNode(string textContents)
+        public SourceExtent SourceExtent { get; private set; }
+
+        public TextNode(string textContents, SourceExtent sourceExtent)
         {
             this.Text = textContents;
+            this.SourceExtent = sourceExtent;
         }
     }
 }

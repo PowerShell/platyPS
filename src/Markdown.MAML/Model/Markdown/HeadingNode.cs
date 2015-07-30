@@ -9,8 +9,8 @@
 
         public int HeadingLevel { get; private set; }
 
-        public HeadingNode(string headingText, int headingLevel) 
-            : base(headingText)
+        public HeadingNode(string headingText, int headingLevel, SourceExtent sourceExtent) 
+            : base(headingText, sourceExtent)
         {
             this.HeadingLevel = headingLevel;
         }

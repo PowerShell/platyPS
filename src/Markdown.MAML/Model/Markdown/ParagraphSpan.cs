@@ -5,9 +5,12 @@ namespace Markdown.MAML.Model.Markdown
     {
         public string Text { get; private set; }
 
-        public ParagraphSpan(string spanText)
+        public SourceExtent SourceExtent { get; private set; }
+
+        public ParagraphSpan(string spanText, SourceExtent sourceExtent)
         {
             this.Text = spanText;
+            this.SourceExtent = sourceExtent;
         }
     }
 }
