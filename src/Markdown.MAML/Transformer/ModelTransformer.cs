@@ -143,7 +143,7 @@ namespace Markdown.MAML.Transformer
                 }
                 else
                 {
-                    throw new HelpSchemaException("Expect hyperlink, but got " + paragraphSpan.Text);
+                    throw new HelpSchemaException(paragraphSpan.SourceExtent, "Expect hyperlink, but got " + paragraphSpan.Text);
                 }
             }
         }
@@ -170,6 +170,22 @@ namespace Markdown.MAML.Transformer
             return typeEntity;
         }
 
+        private SourceExtent GetExtent(MarkdownNode node)
+        {
+            TextNode textNode = node as TextNode;
+            if (textNode != null)
+            {
+                return textNode.SourceExtent;
+            }
+            ParagraphNode paragraphNode = node as ParagraphNode;
+            if (paragraphNode != null && paragraphNode.Spans.Any())
+            {
+                return paragraphNode.Spans.First().SourceExtent;
+            }
+
+            return new SourceExtent("", 0, 0, 0, 0);
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -190,7 +206,7 @@ namespace Markdown.MAML.Transformer
             // check for appropriate header
             if (node.NodeType != MarkdownNodeType.Heading)
             {
-                throw new HelpSchemaException("Expect Heading");
+                throw new HelpSchemaException(GetExtent(node), "Expect Heading");
             }
 
             var headingNode = node as HeadingNode;
@@ -202,7 +218,7 @@ namespace Markdown.MAML.Transformer
 
             if (headingNode.HeadingLevel != level)
             {
-                throw new HelpSchemaException("Expect Heading level " + level);
+                throw new HelpSchemaException(headingNode.SourceExtent, "Expect Heading level " + level);
             }
             return headingNode;
         }
@@ -230,7 +246,7 @@ namespace Markdown.MAML.Transformer
                     UngetNode(node);
                     return null;
                 default:
-                    throw new HelpSchemaException("Expect Paragraph");
+                    throw new HelpSchemaException(GetExtent(node), "Expect Paragraph");
             }
 
             return node as ParagraphNode;
@@ -259,7 +275,7 @@ namespace Markdown.MAML.Transformer
                     UngetNode(node);
                     return null;
                 default:
-                    throw new HelpSchemaException("Expect CodeBlock");
+                    throw new HelpSchemaException(GetExtent(node), "Expect CodeBlock");
             }
 
             return node as CodeBlockNode;
@@ -408,7 +424,7 @@ namespace Markdown.MAML.Transformer
                     }
                 default:
                     {
-                        throw new HelpSchemaException("Unexpected header name " + headingNode.Text);
+                        throw new HelpSchemaException(headingNode.SourceExtent, "Unexpected header name " + headingNode.Text);
                     }
             }
             return true;
@@ -448,7 +464,7 @@ namespace Markdown.MAML.Transformer
                                 commands.Add(command);
                                 break;
                             }
-                        default: throw new HelpSchemaException("Booo, I don't know what is the heading level " + headingNode.HeadingLevel);
+                        default: throw new HelpSchemaException(headingNode.SourceExtent, "Booo, I don't know what is the heading level " + headingNode.HeadingLevel);
                     }
                 }
             }
