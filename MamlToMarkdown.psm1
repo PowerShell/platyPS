@@ -101,7 +101,6 @@ function Get-NotesMarkdown($command)
 {
 @"
 ###NOTES
-####$($command.returnValues.returnValue.type.name)
 "@
 $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks
 }
@@ -197,7 +196,7 @@ function Convert-MamlToMarkdown
     $xmlMaml = [xml]$maml
     $commands = $xmlMaml.helpItems.command
 
-    $commands | %{ Convert-CommandToMarkdown $_ }
+    $commands | %{ Convert-CommandToMarkdown $_ } | Out-String
 }
 
 Export-ModuleMember -Function `
