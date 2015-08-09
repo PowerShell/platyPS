@@ -172,8 +172,8 @@ function Convert-XmlElementToString
 
     process
     {
-        $sw = [System.IO.StringWriter]::new()
-        $xmlSettings = [System.Xml.XmlWriterSettings]::new()
+        $sw = New-Object System.IO.StringWriter
+        $xmlSettings = New-Object System.Xml.XmlWriterSettings
         $xmlSettings.ConformanceLevel = [System.Xml.ConformanceLevel]::Fragment
         $xmlSettings.Indent = $true
         $xw = [System.Xml.XmlWriter]::Create($sw, $xmlSettings)
