@@ -7,7 +7,7 @@ Import-Module $root\MamlToMarkdown.psm1 -Force
 Import-Module $root\MamlUtils.psm1 -Force
 
 # create folder for test run artifacts (intermediate markdown)
-$outFolder = "$PSScriptRoot\out"
+$outFolder = "$PSScriptRoot\..\out"
 mkdir $outFolder -ErrorAction SilentlyContinue > $null
 
 # we assume dll is already built

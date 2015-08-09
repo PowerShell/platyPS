@@ -15,11 +15,16 @@ build:
 
 on_finish: 
     - ps: | 
+        # Pester tests produce artifacts in .\out directory
+        # TODO, we need to capture test results and push them as NUnit results.
+        Invoke-Pester
         $stagingDirectory = (Resolve-Path ..).Path 
         $zipFile = Join-Path $stagingDirectory "$(Split-Path $pwd -Leaf).zip" 
         Add-Type -assemblyname System.IO.Compression.FileSystem 
         [System.IO.Compression.ZipFile]::CreateFromDirectory($pwd, $zipFile) 
         @( 
             # You can add other artifacts here 
-            (ls $zipFile) 
-        ) | % { Push-AppveyorArtifact $_.FullName } 
+            (ls $zipFile),
+            (ls .\out)
+        # flattering            
+        ) | % {$_} | % { Push-AppveyorArtifact $_.FullName } 
