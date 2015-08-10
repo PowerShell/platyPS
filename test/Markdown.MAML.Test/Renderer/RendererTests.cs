@@ -13,7 +13,7 @@ namespace Markdown.MAML.Test.Renderer
     public class RendererTests
     {
         [Fact]
-        public void ProduceNameAndSynopsis()
+        public void RendererProduceNameAndSynopsis()
         {
             MamlRenderer renderer = new MamlRenderer();
             MamlCommand command = new MamlCommand()

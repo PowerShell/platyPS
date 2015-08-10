@@ -148,25 +148,25 @@ namespace Markdown.MAML.Renderer
         private void AddExamples(MamlCommand command)
         {
             PushTag("command:examples");
-            foreach (MamlExample Example in command.Examples)
+            foreach (MamlExample example in command.Examples)
             {
-                PushTag("command:examples");
+                PushTag("command:example");
 
-                PushTag("maml:Title");
-                _stringBuilder.AppendLine(Example.Title);
-                PopTag(1);
+                PushTag("maml:title");
+                _stringBuilder.AppendLine(example.Title);
+                PopTag("maml:title");
 
                 PushTag("dev:code");
-                _stringBuilder.AppendLine(Example.Code);
-                PopTag(1);
+                _stringBuilder.AppendLine(example.Code);
+                PopTag("dev:code");
 
                 PushTag("dev:remarks");
-                AddParas(Example.Remarks);
-                PopTag(1);
+                AddParas(example.Remarks);
+                PopTag("dev:remarks");
 
-                PopTag(1);
+                PopTag("command:example");
             }
-            PopTag(1);
+            PopTag("command:examples");
         }
 
         private void AddNotes(MamlCommand command)
@@ -174,7 +174,8 @@ namespace Markdown.MAML.Renderer
             PushTag("maml:alertSet");
             PushTag("maml:alert");
             AddParas(command.Notes);
-            PopTag(2);
+            PopTag("maml:alert");
+            PopTag("maml:alertSet");
         }
 
         private void AddOutputs(MamlCommand command)
