@@ -16,8 +16,9 @@ build:
 on_finish: 
     - ps: | 
         # Pester tests produce artifacts in .\out directory
-        # TODO, we need to capture test results and push them as NUnit results.
-        Invoke-Pester
+        $pesterTestResultsFile = ".\TestsResults.xml"
+        $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru
+        (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $pesterTestResultsFile))
         $stagingDirectory = (Resolve-Path ..).Path 
         $zipFile = Join-Path $stagingDirectory "$(Split-Path $pwd -Leaf).zip" 
         Add-Type -assemblyname System.IO.Compression.FileSystem 
@@ -28,3 +29,7 @@ on_finish:
             (ls .\out)
         # flattering            
         ) | % {$_} | % { Push-AppveyorArtifact $_.FullName } 
+        # Trying to fail the build
+        if ($res.FailedCount -gt 0) { 
+            throw "$($res.FailedCount) tests failed."
+        }
