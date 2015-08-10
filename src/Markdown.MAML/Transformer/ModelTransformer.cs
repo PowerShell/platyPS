@@ -327,9 +327,11 @@ namespace Markdown.MAML.Transformer
                 return false;
             }
 
+            var name = headingNode.Text.Split()[0];
+
             MamlParameter parameter = new MamlParameter()
             {
-                Name = headingNode.Text
+                Name = name
             };
 
             node = GetNextNode();

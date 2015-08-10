@@ -22,7 +22,7 @@ Describe 'Full loop' {
         $outOriginalHelp = "$outFolder\Add-Member.original.txt"
         $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
-        $testMamlFile = "$PSScriptRoot\Add-Member.help.xml"
+        $testMamlFile = "$PSScriptRoot\Add-Member.dll-help.xml"
 
         $maml = Get-Content $testMamlFile -Raw
 
@@ -41,45 +41,54 @@ Describe 'Full loop' {
         $generatedMaml = [Markdown.MAML.Renderer.MamlRenderer]::MarkdownStringToMamlString($markdown)
         $generatedMaml | Out-File $outMamlFilePath
 
-        # create a test module
-        try 
-        {
-            $generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
-            # Import the module
-            Import-Module $generatedModule.Path -Force -ea Stop
-
-            #$propertiesToValidate = @("Name","SYNOPSIS","INPUTS")
-            foreach ($cmdletName in $generatedModule.Cmdlets)
-            {
-                # get-help using get-help cmdletName
-                $originalHelpContent = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdletName" -Full | Out-String
-                $generatedHelpContent = Get-Help -Name "$($generatedModule.Name)\$cmdletName" -Full | Out-String
-                
-                Set-Content -Value $originalHelpContent -Path $outOriginalHelp
-                Set-Content -Value $generatedHelpContent -Path $outGeneratedHelp
-
-                $originalHelpContent | Should Be $generatedHelpContent
-                <#
-                # Validate the object properties
-                foreach ($property in $propertiesToValidate)
-                {
-                    Write-Verbose "Validating property $property" -Verbose
-                    if ($expectedHelpContent."$property" -ne $actualHelpContent."$property")
-                    { 
-                        write-host  "Expected: $($expectedHelpContent."$property") and got: $($actualHelpContent."$property")" -ForegroundColor Red
-                    }
-                }
-                #>
-            }
+        It 'generate maml as a valid xml' {
+            $generatedXml = [xml]$generatedMaml
+            $generatedXml | Should Not Be $null
         }
-        finally
-        {
-            Remove-Module $generatedModule.Name -Force -ea SilentlyContinue
-            $moduleDirectory = Split-Path $generatedModule.Path
-            if (Test-Path $moduleDirectory)
+
+        It 'generate maml that produce the same output when used in the help engine' {
+        
+            # create a test module
+            try 
             {
-                Remove-Item $moduleDirectory -Force -Recurse
+                $generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
+                # Import the module
+                Import-Module $generatedModule.Path -Force -ea Stop
+
+                #$propertiesToValidate = @("Name","SYNOPSIS","INPUTS")
+                foreach ($cmdletName in $generatedModule.Cmdlets)
+                {
+                    # get-help using get-help cmdletName
+                    $originalHelpContent = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdletName" -Full | Out-String
+                    $generatedHelpContent = Get-Help -Name "$($generatedModule.Name)\$cmdletName" -Full | Out-String
+                
+                    Set-Content -Value $originalHelpContent -Path $outOriginalHelp
+                    Set-Content -Value $generatedHelpContent -Path $outGeneratedHelp
+
+                    $originalHelpContent | Should Be $generatedHelpContent
+                    <#
+                    # Validate the object properties
+                    foreach ($property in $propertiesToValidate)
+                    {
+                        Write-Verbose "Validating property $property" -Verbose
+                        if ($expectedHelpContent."$property" -ne $actualHelpContent."$property")
+                        { 
+                            write-host  "Expected: $($expectedHelpContent."$property") and got: $($actualHelpContent."$property")" -ForegroundColor Red
+                        }
+                    }
+                    #>
+                }
             }
+            finally
+            {
+                Remove-Module $generatedModule.Name -Force -ea SilentlyContinue
+                $moduleDirectory = Split-Path $generatedModule.Path
+                if (Test-Path $moduleDirectory)
+                {
+                    Remove-Item $moduleDirectory -Force -Recurse
+                }
+            }
+
         }
     }
 }

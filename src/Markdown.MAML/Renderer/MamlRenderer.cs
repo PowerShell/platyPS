@@ -97,164 +97,179 @@ namespace Markdown.MAML.Renderer
             {
                 PopAllTags();
 
-                // NAME, VERB, NOUN
+                #region NAME, VERB, NOUN, + SYNOPSIS
                 PushTag("command:details");
                 _stringBuilder.AppendFormat("<command:name>{0}</command:name>{1}", command.Name, Environment.NewLine);
-                try
-                {
-                    string Verb, Noun;
-                    string [] Split;
-                    Split = command.Name.Split('-');
-                    Verb = Split[0];
-                    Noun = Split[1];
-                    _stringBuilder.AppendFormat("<command:verb>{0}</command:verb>{2}<command:noun>{1}</command:noun>{2}", Verb, Noun, Environment.NewLine);
-                }
-                //UPDATE THIS
-                catch
-                {
-                    Console.WriteLine("Whoops.....");
-                }
-                // SYNOPSIS
+                var splittedName = command.Name.Split('-');
+                var verb = splittedName[0];
+                var noun = command.Name.Substring(verb.Length);
+                _stringBuilder.AppendFormat("<command:verb>{0}</command:verb>{2}<command:noun>{1}</command:noun>{2}", verb, noun, Environment.NewLine);
                 AddSynopsis(command);
                 PopTag("command:details");
+                #endregion // NAME, VERB, NOUN, + SYNOPSIS
 
-                // DESCRIPTION
                 AddDescription(command);
-
-                // PARAMETERS
-                PushTag("command:syntax");
-                PushTag("command:syntaxItem");
-                PushTag("maml:Name");
-                _stringBuilder.AppendLine(command.Name);
-                PopTag(1);
-                PushTag("command:parameters");
-                foreach(MamlParameter Parameter in command.Parameters)
-                {
-                    string Attributes;
-                    Attributes = "required=\"" + Parameter.Required.ToString() + "\" " +
-                                                "variableLength=\"" + Parameter.VariableLength.ToString() + "\" " +
-                                                "globbing=\"" + Parameter.Globbing.ToString() + "\" " +
-                                                "pipelineInput=\"" + Parameter.PipelineInput.ToString() + "\" " +
-                                                "position=\"" + Parameter.Position + "\" " + 
-                                                "Aliases=\"";
-                    int AliasCount = 0;
-                    foreach(string Alias in Parameter.Aliases)
-                    {
-                        Attributes += Alias + ", ";
-                        AliasCount++;
-                    }
-                    if(AliasCount > 0)
-                    {
-                        Attributes = Attributes.Substring(0,Attributes.Length - 2);
-                    }
-                    Attributes += "\"";
-
-                    PushTag("command:parameter", Attributes);
-                    PopTag(1);
-
-                    PushTag("maml:Name");
-                    _stringBuilder.AppendLine(Parameter.Name);
-                    PopTag(1);
-
-                    PushTag("maml:Description");
-                    AddParas(Parameter.Description);
-                    PopTag(1);
-
-                    Attributes = "required=\"" + Parameter.ValueRequired.ToString() + "\" " +
-                                               "variableLength=\"" + Parameter.ValueVariableLength.ToString();
-                    Attributes += "\"";
-
-                    PushTag("command:parameterValue", Attributes);
-                    _stringBuilder.AppendLine(Parameter.Type);
-                    PopTag(1);
-                }
-                PopTag(3);
-
-                //INPUTS
-                PushTag("command:InputTypes");
-                foreach(MamlInputOutput Input in command.Inputs)
-                {
-                    PushTag("command:InputType");
-                    
-                    PushTag("dev:Type");
-                    _stringBuilder.AppendLine(Input.TypeName);
-                    PopTag(1);
-
-                    PushTag("maml:Description");
-                    AddParas(Input.Description);
-                    PopTag(1);
-
-                    PopTag(1);
-                }
-                PopTag(1);
-
-                //OUTPUTS
-                PushTag("command:returnValues");
-                foreach (MamlInputOutput Output in command.Outputs)
-                {
-                    PushTag("command:returnValue");
-
-                    PushTag("dev:Type");
-                    _stringBuilder.AppendLine(Output.TypeName);
-                    PopTag(1);
-
-                    PushTag("maml:Description");
-                    AddParas(Output.Description);
-                    PopTag(1);
-
-                    PopTag(1);
-                }
-                PopTag(1);
-
-                //NOTES
-                PushTag("maml:alertSet");
-                PushTag("maml:alert");
-                AddParas(command.Notes);
-                PopTag(2);
-
-                //EXAMPLES
-                PushTag("command:examples");
-                foreach (MamlExample Example in command.Examples)
-                {
-                    PushTag("command:examples");
-
-                    PushTag("maml:Title");
-                    _stringBuilder.AppendLine(Example.Title);
-                    PopTag(1);
-
-                    PushTag("dev:code");
-                    _stringBuilder.AppendLine(Example.Code);
-                    PopTag(1);
-
-                    PushTag("dev:remarks");
-                    AddParas(Example.Remarks);
-                    PopTag(1);
-
-                    PopTag(1);
-                }
-                PopTag(1);
-
-                //RELATED LINKS
-                PushTag("command:RelatedLinks");
-                foreach (MamlLink Link in command.Links)
-                {
-                    PushTag("maml:NavigationLink");
-
-                    PushTag("maml:LinkText");
-                    _stringBuilder.AppendLine(Link.LinkName);
-                    PopTag(1);
-
-                    PushTag("maml:URI");
-                    _stringBuilder.AppendLine(Link.LinkUri);
-                    PopTag(1);
-
-                    PopTag(1);
-                }
-                PopTag(1);
-
-                break;
+                AddSyntax(command);
+                AddParameters(command);
+                AddInputs(command);
+                AddOutputs(command);
+                AddNotes(command);
+                AddExamples(command);
+                AddLinks(command);
             }
             _stringBuilder.AppendLine("</command:command>");
+        }
+
+        private void AddSyntax(MamlCommand command)
+        {
+            // TODO
+        }
+
+        private void AddLinks(MamlCommand command)
+        {
+            PushTag("command:RelatedLinks");
+            foreach (MamlLink Link in command.Links)
+            {
+                PushTag("maml:NavigationLink");
+
+                PushTag("maml:LinkText");
+                _stringBuilder.AppendLine(Link.LinkName);
+                PopTag(1);
+
+                PushTag("maml:URI");
+                _stringBuilder.AppendLine(Link.LinkUri);
+                PopTag(1);
+
+                PopTag(1);
+            }
+            PopTag(1);
+        }
+
+        private void AddExamples(MamlCommand command)
+        {
+            PushTag("command:examples");
+            foreach (MamlExample Example in command.Examples)
+            {
+                PushTag("command:examples");
+
+                PushTag("maml:Title");
+                _stringBuilder.AppendLine(Example.Title);
+                PopTag(1);
+
+                PushTag("dev:code");
+                _stringBuilder.AppendLine(Example.Code);
+                PopTag(1);
+
+                PushTag("dev:remarks");
+                AddParas(Example.Remarks);
+                PopTag(1);
+
+                PopTag(1);
+            }
+            PopTag(1);
+        }
+
+        private void AddNotes(MamlCommand command)
+        {
+            PushTag("maml:alertSet");
+            PushTag("maml:alert");
+            AddParas(command.Notes);
+            PopTag(2);
+        }
+
+        private void AddOutputs(MamlCommand command)
+        {
+            PushTag("command:returnValues");
+            foreach (var output in command.Outputs)
+            {
+                PushTag("command:returnValue");
+
+                PushTag("dev:Type");
+                PushTag("maml:name");
+                _stringBuilder.AppendLine(output.TypeName);
+                PopTag("maml:name");
+                PopTag("dev:Type");
+
+                PushTag("maml:Description");
+                AddParas(output.Description);
+                PopTag("maml:Description");
+
+                PopTag("command:returnValue");
+            }
+            PopTag("command:returnValues");
+        }
+
+        private void AddInputs(MamlCommand command)
+        {
+            PushTag("command:inputTypes");
+            foreach (var input in command.Inputs)
+            {
+                PushTag("command:inputType");
+
+                PushTag("dev:Type");
+                PushTag("maml:name");
+                _stringBuilder.AppendLine(input.TypeName);
+                PopTag("maml:name");
+                PopTag("dev:Type");
+
+                PushTag("maml:Description");
+                AddParas(input.Description);
+                PopTag("maml:Description");
+
+                PopTag("command:inputType");
+            }
+            PopTag("command:inputTypes");
+        }
+
+        private void AddParameters(MamlCommand command)
+        {
+            PushTag("command:parameters");
+            foreach (MamlParameter parameter in command.Parameters)
+            {
+                AddParameter(command, parameter);
+            }
+            PopTag("command:parameters");
+        }
+
+        private void AddParameter(MamlCommand command, MamlParameter parameter)
+        {
+            var attributes = "required=\"" + parameter.Required.ToString() + "\" " +
+                             "variableLength=\"" + parameter.VariableLength.ToString() + "\" " +
+                             "globbing=\"" + parameter.Globbing.ToString() + "\" " +
+                             "pipelineInput=\"" + parameter.PipelineInput.ToString() + "\" " +
+                             "position=\"" + parameter.Position + "\" " +
+                             "Aliases=\"";
+            int aliasCount = 0;
+            foreach (string alias in parameter.Aliases)
+            {
+                attributes += alias + ", ";
+                aliasCount++;
+            }
+            if (aliasCount > 0)
+            {
+                attributes = attributes.Substring(0, attributes.Length - 2);
+            }
+            attributes += "\"";
+
+            PushTag("command:parameter", attributes);
+
+            PushTag("maml:Name");
+            _stringBuilder.AppendLine(parameter.Name);
+            PopTag("maml:Name");
+
+            PushTag("maml:Description");
+            AddParas(parameter.Description);
+            PopTag("maml:Description");
+
+            attributes = "required=\"" + parameter.ValueRequired.ToString() + "\" " +
+                         "variableLength=\"" + parameter.ValueVariableLength.ToString();
+            attributes += "\"";
+
+            PushTag("command:parameterValue", attributes);
+            _stringBuilder.AppendLine(parameter.Type);
+            PopTag("command:parameterValue");
+
+            PopTag("command:parameter");
         }
 
         private void AddSynopsis(MamlCommand command)
