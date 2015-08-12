@@ -192,7 +192,7 @@ The fourth command uses dot notation to call the new When method. The command pi
 
 #### -------------------------- EXAMPLE 6 --------------------------
 
-```
+```powershell
 PS C:\>function Copy-Property ($From, $To)
 {     foreach ($p in Get-Member -InputObject $From -MemberType Property)
   {     Add-Member -InputObject $To -MemberType NoteProperty -Name $p.Name
