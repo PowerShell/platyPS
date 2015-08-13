@@ -63,6 +63,18 @@ namespace Markdown.MAML.Test.Parser
             Assert.Equal(codeBlockText, codeBlockNode.Text);
         }
 
+
+        [Fact]
+        public void ParsesCodeBlockWithLanguageSpecified()
+        {
+            CodeBlockNode codeBlockNode =
+                this.ParseAndGetExpectedChild<CodeBlockNode>(
+                    string.Format("```powershell\r\n{0}\r\n```\r\n", codeBlockText),
+                    MarkdownNodeType.CodeBlock);
+
+            Assert.Equal(codeBlockText, codeBlockNode.Text);
+        }
+
         [Fact]
         public void ParsesParagraph()
         {

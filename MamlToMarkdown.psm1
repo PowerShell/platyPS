@@ -31,14 +31,14 @@
 function Get-NameMarkdown($command)
 {
 @"
-##$($command.details.name.Trim())
+## $($command.details.name.Trim())
 "@
 }
 
 function Get-SynopsisMarkdown($command)
 {
 @"
-###SYNOPSIS
+### SYNOPSIS
 $($command.details.description.para | Convert-MamlLinksToMarkDownLinks)
 "@
 }
@@ -46,7 +46,7 @@ $($command.details.description.para | Convert-MamlLinksToMarkDownLinks)
 function Get-DescriptionMarkdown($command)
 {
 @"
-###DESCRIPTION
+### DESCRIPTION
 "@
 $command.description.para | Convert-MamlLinksToMarkDownLinks
 }
@@ -60,7 +60,7 @@ function Get-ParameterMarkdown($parameter)
         $parameterType = "[$parameterType]"
     }
 @"
-####$($parameter.name) ``$parameterType``
+#### $($parameter.name) ``$parameterType``
 
 "@
     $parameter.description.para | Convert-MamlLinksToMarkDownLinks
@@ -70,7 +70,7 @@ function Get-ParameterMarkdown($parameter)
 function Get-ParametersMarkdown($command)
 {
 @"
-###PARAMETERS
+### PARAMETERS
 
 "@
     $command.parameters.parameter | % { 
@@ -81,18 +81,32 @@ function Get-ParametersMarkdown($command)
 
 function Get-InputMarkdown($command)
 {
+
 @"
-###INPUTS
-####$($command.inputTypes.inputType.type.name)
+### INPUTS
 "@
+
+if ($command.inputTypes.inputType.type.name)
+{
+@"
+#### $($command.inputTypes.inputType.type.name)
+"@
+} else 
+{
+@"
+#### None
+"@
+}
+
 $command.inputTypes.inputType.description.para | Convert-MamlLinksToMarkDownLinks
+
 }
 
 function Get-OutputMarkdown($command)
 {
 @"
-###OUTPUTS
-####$($command.returnValues.returnValue.type.name)
+### OUTPUTS
+#### $($command.returnValues.returnValue.type.name)
 "@
 $command.returnValues.returnValue.description.para | Convert-MamlLinksToMarkDownLinks
 }
@@ -100,17 +114,21 @@ $command.returnValues.returnValue.description.para | Convert-MamlLinksToMarkDown
 function Get-NotesMarkdown($command)
 {
 @"
-###NOTES
+### NOTES
 "@
 $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks
 }
 
 function Get-ExampleMarkdown($example)
 {
-    "#### $($example.title.Trim())"
+    if ($example.title) {
+        "#### $($example.title.Trim())"
+    } else {
+        "#### EXAMPLE"
+    }
 
     $example.introduction.para
-    '```'
+    '```powershell'
     $example.code
     '```'
     $example.remarks.para
@@ -119,7 +137,7 @@ function Get-ExampleMarkdown($example)
 function Get-ExamplesMarkdown($command)
 {
 @"
-###EXAMPLES
+### EXAMPLES
 "@
 $command.examples.example | % { Get-ExampleMarkdown $_ | Convert-MamlLinksToMarkDownLinks }
 }
@@ -127,7 +145,7 @@ $command.examples.example | % { Get-ExampleMarkdown $_ | Convert-MamlLinksToMark
 function Get-RelatedLinksMarkdown($command)
 {
 @"
-###RELATED LINKS
+### RELATED LINKS
 "@
     $command.relatedLinks.navigationLink | % {
         "[$($_.linkText)]($($_.uri))"
