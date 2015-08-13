@@ -28,6 +28,13 @@ Include functions that are unbound.
 #### PSConsoleUtilities.KeyHandler
 Returns one entry for each key binding (or chord) for bound functions and/or one entry for each unbound function
 
+### NOTES
+
+
+### EXAMPLES
+#### EXAMPLE
+```powershell
+```
 
 ### RELATED LINKS
 [about_PSReadline]()
@@ -41,6 +48,26 @@ Returns the values for the options that can be configured.
 Get-PSReadlineOption returns the current state of the settings that can be configured by Set-PSReadlineOption.
 
 The object returned can be used to change PSReadline options.  This provides a slightly simpler way of setting syntax coloring options for multiple kinds of tokens.
+
+### PARAMETERS
+
+####  ``
+
+
+
+### INPUTS
+#### None
+
+### OUTPUTS
+#### 
+
+### NOTES
+
+
+### EXAMPLES
+#### EXAMPLE
+```powershell
+```
 
 ### RELATED LINKS
 [about_PSReadline]()
@@ -92,14 +119,13 @@ Using the ScriptBlock parameter, one can achieve equivalent functionality by cal
 ### EXAMPLES
 #### --------------  Example 1  --------------
 
-```
+```powershell
 PS C:\> Set-PSReadlineKeyHandler -Key UpArrow -Function HistorySearchBackward
 ```
 This command binds the up arrow key to the function HistorySearchBackward which will use the currently entered command line as the beginning of the search string when searching through history.
-
 #### --------------  Example 2  --------------
 
-```
+```powershell
 PS C:\> Set-PSReadlineKeyHandler -Chord Shift+Ctrl+B -ScriptBlock {
     [PSConsoleUtilities.PSConsoleReadLine]::RevertLine()
     [PSConsoleUtilities.PSConsoleReadLine]::Insert('build')
@@ -243,6 +269,20 @@ Specifies the foreground color for the token kind specified by the parameter -To
 #### BackgroundColor `[ConsoleColor]`
 
 Specifies the background color for the token kind specified by the parameter -TokenKind.
+
+
+### INPUTS
+#### None
+
+### OUTPUTS
+#### None
+
+### NOTES
+
+### EXAMPLES
+#### EXAMPLE
+```powershell
+```
 
 ### RELATED LINKS
 [about_PSReadline]()
