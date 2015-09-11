@@ -24,7 +24,7 @@
             return $maml
         }
         $maml
-
+        '' # new line for <para>
     }
 }
 
