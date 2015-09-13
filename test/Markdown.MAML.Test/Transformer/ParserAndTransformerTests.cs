@@ -25,6 +25,22 @@ This is Synopsis
         }
 
         [Fact]
+        public void TransformCommandWithExtraLine()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+##Add-Member
+
+###SYNOPSIS
+Adds custom properties and methods to an instance of a Windows PowerShell object.
+
+");
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Add-Member");
+            Assert.Equal(mamlCommand.Synopsis, "Adds custom properties and methods to an instance of a Windows PowerShell object.");
+        }
+
+        [Fact]
         public void TransformMultilineDescription()
         {
             var parser = new MarkdownParser();
