@@ -1,0 +1,251 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=1024" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <title>impress.js | presentation tool based on the power of CSS3 transforms and transitions in modern browsers | by Bartek Szopka @bartaz</title>
+    
+    <meta name="description" content="impress.js is a presentation tool based on the power of CSS3 transforms and transitions in modern browsers and inspired by the idea behind prezi.com." />
+    <meta name="author" content="Bartek Szopka" />
+
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:regular,semibold,italic,italicsemibold|PT+Sans:400,700,400italic,700italic|PT+Serif:400,700,400italic,700italic" rel="stylesheet" />
+
+    <!--
+        
+        Impress.js doesn't depend on any external stylesheets. It adds all of the styles it needs for the
+        presentation to work.
+        
+        This style below contains styles only for demo presentation. Browse it to see how impress.js
+        classes are used to style presentation steps, or how to apply fallback styles, but I don't want
+        you to use them directly in your presentation.
+        
+        Be creative, build your own. We don't really want all impress.js presentations to look the same,
+        do we?
+        
+        When creating your own presentation get rid of this file. Start from scratch, it's fun!
+        
+    -->
+    <link href="css/impress-demo.css" rel="stylesheet" />
+    
+    <link rel="shortcut icon" href="favicon.png" />
+    <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+</head>
+
+<body class="impress-not-supported">
+
+<!--
+    For example this fallback message is only visible when there is `impress-not-supported` class on body.
+-->
+<div class="fallback-message">
+    <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+    <p>For the best experience please use the latest <b>Chrome</b>, <b>Safari</b> or <b>Firefox</b> browser.</p>
+</div>
+
+<div id="impress">
+
+    <!-- 
+
+        First part describes existing situation with PowerShell help documentation authoring in a visualy boring way. 
+
+    -->
+
+    <div id="bored" class="step slide" data-x="-8000" data-y="-1500">
+        <q><center>Microsoft OneWeek 2015 Hackthon: Markdown.MAML </center></q>
+    </div>
+
+    <div class="step slide" data-x="-6500" data-y="-1500">
+        <q>This is PowerShell help system</q>
+        <img src="images\get-help.png" />
+    </div>
+
+    <div class="step slide" data-x="-5000" data-y="-1500">
+        <p>This is the file that represent it</p>
+        <img src="images\psreadline-maml.png" style="width:80%;height:80%;"/>
+    </div>
+
+    <!-- <div class="step slide" data-x="-4000" data-y="-1500">
+        <q />
+        <img src="images\azure-maml.png" />
+    </div> -->
+
+    <div class="step slide" data-x="-3500" data-y="-1500">
+        <q>MAML is <strong>xml</strong>-based help format for PowerShell modules.</q>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-1500">
+        <div>To edit MAML file you use separate program.</div>
+        <div> </div>
+        <div> <img src="images\pscmdlethelpeditor.png" /> </div>
+        <div><center>PowerShell Command help editor</center></div>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-2500">
+        <q>You found an issue in Microsoft or 3rd party documentation.</q>
+        <q>What's your options?</q>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-3500">
+        <q>If it's Microsoft documentation</q> 
+        <ul>
+            <li>open connect bug</li> 
+            <li>shoot an email to MVP discussion list</li>
+            <li>complain on twitter</q>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-4500">
+        <q>If 3rd party</q>
+        <p>AND has project page</p> 
+        <p>AND open source</p>
+        <q>THEN you can <strong>CONTRIBUTE</strong>.</q>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-5500">
+        <q>You need to <b>EDIT MAML</b></q>
+        <div> <img src="images\FFFUUU.png" /> </div>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-6500">
+        <ul>
+            <li>One more program to install and learn.</li>
+            <li>Requires import-export.</li>
+            <li>You source control <strong>output</strong> of the program, not a source code.</li>
+            <li>Not simple.</li>
+            <li>Not scalable.</li>
+        </ul>
+    </div>
+
+    <div class="step slide" data-x="-2000" data-y="-7500">
+        <q>If you are the module developer, it's your duty: you <b>have</b> to edit your documentation.</q>
+    </div>
+  
+    <!--
+
+        This is a tipping point in the presentation.
+        We switch from describing how dull the existing expirience to describing our desired expirience. 
+
+    -->
+   
+    <div id="title" class="step" data-x="0" data-y="750" data-scale="4" data-rotate="90">
+        <q>We want to address it</q>
+    </div>
+
+    <!--
+
+        Here we are describing how we see the desired expirience and what it enables.
+
+    -->
+
+    <div class="step" data-x="-1000" data-y="1000" data-rotate="90">
+        <p>We want <strong>simple</strong> workflow</p>
+        <p>with 0 setup</p>
+    </div>
+
+    <div class="step" data-x="-2000" data-y="1000" data-rotate="90">
+        <p>To allow community easily contribute to <strong>ANY</strong> PowerShell documentation</p>
+    </div>
+
+    <!--
+
+        Here we are going to the details of implementation.
+
+    -->
+
+    <div class="step" data-x="-1000" data-y="900" data-rotate="90" data-scale="0.3">
+        <!-- come back to simple worflow -->
+    </div>
+
+    <div class="step" data-x="-1000" data-y="900" data-z="-500" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>We defined <strong>Markdown</strong> schema to author documentation</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="900" data-z="-1000" data-rotate="90" data-rotate-y="-90" data-scale="1">
+         <div> <center> <img src="images\markdown.png" style="width:70%;height:70%;" /> </center> </div>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="1500" data-z="-3000" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>Markdown is easy to read and edit</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="1500" data-z="-3300" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>It already renders  by collaborative services (GitHub.com, VisualStudio.com, BitBucket.com)</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="1500" data-z="-3500" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>and modern text editors (SublimeText, VSCode)</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="1500" data-z="-4000" data-rotate="90" data-rotate-y="-90" data-scale="1">
+         <div> <center> <img src="images\markdown-github.png" style="width:100%;height:100%;" /> </center> </div>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="2100" data-z="-5000" data-rotate="90" data-rotate-y="-90" data-scale="1">
+          <p>You <strong>generate</strong> MAML from Markdown as a build-step</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="2100" data-z="-5400" data-rotate="90" data-rotate-y="-90" data-scale="1">
+          <p>You add Markdown to the source control and remove MAML from it</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="2100" data-z="-5800" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>Build reports errors (if any) during Markdown -> MAML transformation</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="2100" data-z="-6200" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>You can edit such documentation on GitHub in minutes, right in the browser</p>
+    </div>
+
+    <!--
+
+        Conslusion
+
+    -->
+
+    <div class="step" data-x="-1000" data-y="10000" data-z="-6000" data-rotate="90" data-rotate-y="-90" data-scale="12">
+        <p>We dramatically simplify documentation story</p>
+    </div>
+
+    <div class="step" data-x="-1000" data-y="10000" data-z="-10000" data-rotate="90" data-rotate-y="-90" data-scale="12">
+        <p>To make PowerShell comunity more productive and vibrant</p>
+    </div>
+
+    <!--
+
+        Credits
+
+    -->
+
+    <div class="step" data-x="-1000" data-y="10000" data-z="-12000" data-rotate="90" data-rotate-y="-90" data-scale="1">
+        <p>Powered by <strong>Impress.js</strong></p>
+    </div>
+   
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+<script>
+if ("ontouchstart" in document.documentElement) { 
+    document.querySelector(".hint").innerHTML = "<p>Tap on the left or right to navigate</p>";
+}
+</script>
+
+<!--
+    
+    Last, but not least.
+    
+    To make all described above really work, you need to include impress.js in the page.
+    I strongly encourage to minify it first.
+    
+    In here I just include full source of the script to make it more readable.
+    
+    You also need to call a `impress().init()` function to initialize impress.js presentation.
+    And you should do it in the end of your document. Not only because it's a good practice, but also
+    because it should be done when the whole document is ready.
+    Of course you can wrap it in any kind of "DOM ready" event, but I was too lazy to do so ;)
+    
+-->
+<script src="js/impress.js"></script>
+<script>impress().init();</script>
+
+</body>
+</html>
