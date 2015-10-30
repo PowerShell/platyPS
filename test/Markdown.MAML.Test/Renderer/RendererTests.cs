@@ -76,6 +76,53 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is the synopsis", synopsis[0]);
         }
+
+        [Fact]
+        public void RendererProduceSyntaxAndParameter()
+        {
+            MamlRenderer renderer = new MamlRenderer();
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            var param1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Param1",
+            };
+
+            var param2 = new MamlParameter()
+            {
+                Type = "System.Int32",
+                Name = "Param2",
+            };
+
+            command.Parameters.Add(param1);
+            command.Parameters.Add(param2);
+
+            var syntax = new MamlSyntax();
+            syntax.Parameters.Add(param1);
+            syntax.Parameters.Add(param2);
+            command.Syntax.Add(syntax);
+
+            string maml = renderer.MamlModelToString(new[] { command });
+
+            string[] syntaxItemName = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:syntax/command:syntaxItem/maml:name");
+            Assert.Equal(1, syntaxItemName.Length);
+            Assert.Equal("Get-Foo", syntaxItemName[0]);
+
+            string[] nameSyntax = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:syntax/command:syntaxItem/command:parameter/maml:name");
+            Assert.Equal(2, nameSyntax.Length);
+            Assert.Equal("Param1", nameSyntax[0]);
+            Assert.Equal("Param2", nameSyntax[1]);
+
+            string[] nameParam = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:parameters/command:parameter/maml:name");
+            Assert.Equal(2, nameParam.Length);
+            Assert.Equal("Param1", nameParam[0]);
+            Assert.Equal("Param2", nameParam[1]);
+        }
+
     }
-   
+
 }
