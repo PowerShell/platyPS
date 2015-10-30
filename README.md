@@ -13,7 +13,8 @@ Include short demo / snippets in the source code and readme to quicky onboard ot
 # Repo structure
 
  -  **src, Markdown.MAML.sln**  - source code for C# markdown to MAML converter.
- -  **MamlToMarkdown.psm1** - powershell MAML to markdown converter
+ -  **XToMarkdown** - tools to generate Markdown from something (i.e. MAML, Get-Help object)
+ -  **XToMarkdown\MamlToMarkdown.psm1** - powershell MAML to markdown converter
  -  **Examples** - misc files, showcases, etc.
  -  **EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
 
