@@ -51,16 +51,57 @@ function Get-DescriptionMarkdown($command)
 $command.description.para | Convert-MamlLinksToMarkDownLinks
 }
 
+<#
+    .EXAMPLE 
+    'SwitchParameter' -> [switch]
+    'System.Int32' -> [int] # optional
+#>
+function Convert-ParameterTypeTextToType
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $typeText
+    )
+
+    if ($typeText -eq 'SwitchParameter') 
+    {
+        return '[switch]'
+    }
+
+    # default
+    return "[$typeText]"
+}
+
+function Get-ParamMetadata($parameter)
+{
+    $meta = @()
+    $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
+    if ($parameter.required -eq 'true')
+    {
+        $meta += 'Mandatory = $true'
+    }
+    if ($parameter.position -ne 'named')
+    {
+        $meta += 'Position = ' + ($parameter.position)
+    }
+
+    if ($meta) {
+        '[Parameter(' + ($meta -join ', ') + ")]`r`n" + $parameterType 
+    } else {
+        return $parameterType
+    } 
+}
+
 function Get-ParameterMarkdown($parameter)
 {
-    #$parameterType = "\<$($parameter.parameterValue.'#text')\>"
-    $parameterType = "$($parameter.parameterValue.'#text')"
-
-    if ($parameter.required -eq 'false') {
-        $parameterType = "[$parameterType]"
-    }
+    $parameterMetadata = Get-ParamMetadata $parameter
 @"
-#### $($parameter.name) ``$parameterType``
+#### $($parameter.name)
+``````powershell
+$parameterMetadata
+``````
 
 "@
     $parameter.description.para | Convert-MamlLinksToMarkDownLinks
@@ -217,8 +258,16 @@ function Convert-MamlToMarkdown
     $commands | %{ Convert-CommandToMarkdown $_ } | Out-String
 }
 
+
+##
+## export everything for test purposes
+## TODO: scope it to a simple public API.
+##
+
+<#
 Export-ModuleMember -Function `
     Convert-MamlToMarkdown, `
     Convert-XmlElementToString, `
     Convert-MamlLinksToMarkDownLinks, `
     Convert-CommandToMarkdown
+#>
