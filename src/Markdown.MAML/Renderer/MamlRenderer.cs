@@ -122,21 +122,32 @@ namespace Markdown.MAML.Renderer
 
         private void AddSyntax(MamlCommand command)
         {
-            // TODO
+            PushTag("command:syntax");
+            foreach (MamlSyntax syntaxItem in command.Syntax)
+            {
+                PushTag("command:syntaxItem");
+                _stringBuilder.AppendFormat("<maml:name>{0}</maml:name>{1}", command.Name, Environment.NewLine);
+                foreach (MamlParameter parameter in syntaxItem.Parameters)
+                {
+                    AddParameter(command, parameter);
+                }
+                PopTag("command:syntaxItem");
+            }
+            PopTag("command:syntax");
         }
 
         private void AddLinks(MamlCommand command)
         {
-            PushTag("command:RelatedLinks");
+            PushTag("command:relatedLinks");
             foreach (MamlLink Link in command.Links)
             {
-                PushTag("maml:NavigationLink");
+                PushTag("maml:navigationLink");
 
-                PushTag("maml:LinkText");
+                PushTag("maml:linkText");
                 _stringBuilder.AppendLine(Link.LinkName);
                 PopTag(1);
 
-                PushTag("maml:URI");
+                PushTag("maml:uri");
                 _stringBuilder.AppendLine(Link.LinkUri);
                 PopTag(1);
 
@@ -185,15 +196,15 @@ namespace Markdown.MAML.Renderer
             {
                 PushTag("command:returnValue");
 
-                PushTag("dev:Type");
+                PushTag("dev:type");
                 PushTag("maml:name");
                 _stringBuilder.AppendLine(output.TypeName);
                 PopTag("maml:name");
-                PopTag("dev:Type");
+                PopTag("dev:type");
 
-                PushTag("maml:Description");
+                PushTag("maml:description");
                 AddParas(output.Description);
-                PopTag("maml:Description");
+                PopTag("maml:description");
 
                 PopTag("command:returnValue");
             }
@@ -207,15 +218,15 @@ namespace Markdown.MAML.Renderer
             {
                 PushTag("command:inputType");
 
-                PushTag("dev:Type");
+                PushTag("dev:type");
                 PushTag("maml:name");
                 _stringBuilder.AppendLine(input.TypeName);
                 PopTag("maml:name");
-                PopTag("dev:Type");
+                PopTag("dev:type");
 
-                PushTag("maml:Description");
+                PushTag("maml:description");
                 AddParas(input.Description);
-                PopTag("maml:Description");
+                PopTag("maml:description");
 
                 PopTag("command:inputType");
             }
@@ -239,7 +250,7 @@ namespace Markdown.MAML.Renderer
                              "globbing=\"" + parameter.Globbing.ToString() + "\" " +
                              "pipelineInput=\"" + parameter.PipelineInput.ToString() + "\" " +
                              "position=\"" + parameter.Position + "\" " +
-                             "Aliases=\"";
+                             "aliases=\"";
             int aliasCount = 0;
             foreach (string alias in parameter.Aliases)
             {
@@ -254,9 +265,9 @@ namespace Markdown.MAML.Renderer
 
             PushTag("command:parameter", attributes);
 
-            PushTag("maml:Name");
+            PushTag("maml:name");
             _stringBuilder.AppendLine(parameter.Name);
-            PopTag("maml:Name");
+            PopTag("maml:name");
 
             PushTag("maml:Description");
             AddParas(parameter.Description);
