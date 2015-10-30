@@ -8,8 +8,8 @@ namespace Markdown.MAML.Model.MAML
 {
     public class MamlSyntax
     {
-        public string Name { get; set; }
+        public List<MamlParameter> Parameters { get { return _parameters; } }
 
-        public MamlParameter parameter { get; set; }
+        private List<MamlParameter> _parameters = new List<MamlParameter>();
     }
 }
