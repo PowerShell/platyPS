@@ -54,35 +54,6 @@ Contained in Command.Syntax
 
 There is a lot of data that needs to be provided to generate the proper maml, shown in the code snip below.
 
-**Tentitive Format:**
-
-**[Paramter Name] <Datatype>**
-
-**-Variable Length True/False**
-
-**-Globbing True/False**
-
-**-Pipeline Input True/False**
-
-**etc,etc,etc**
-
-***The brackets are presented if it is an optional parameter.***
-
-For the ```<Command:Paramter>``` element, a user must provide:
-Required, Bool
-Variable Length, Bool
-Globbing, Bool
-Accepts Pipeline Input, Bool
-Position in Parameter Set, String (position int, or named)
-Alias, String List comma delimited
-
-*For online help, an 'Accepts Wildcare' bool is listed. Still trying to find where in the MAML this is declared.*
-
-For the ```<Command:ParameterValue>``` element, a user must provide:
-Required, Bool <-- is it a switch param or not
-Variable Length, Bool
-Datatype, String (a datatype in all TechNet help, though possibly mis-documented in other places, as there are cases of the datatype value, not being a datatype, but instead some other string value.)
-
 
 ```
 <command:command>
@@ -117,6 +88,15 @@ Datatype, String (a datatype in all TechNet help, though possibly mis-documented
     </command:syntax>
 </command:command>
 ```
+
+Out current approach is a code snippet that containts `[Parameter(...)]` and `[type]` for the parameter.
+For example:
+
+```
+[Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+[switch]
+```
+
 ##Inputs
 Input Name = Command.InputTypes.InputType.Type.Name
 Contained in Command.InputTypes
