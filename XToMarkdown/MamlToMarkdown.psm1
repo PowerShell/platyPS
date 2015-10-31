@@ -82,9 +82,18 @@ function Get-ParamMetadata($parameter)
     {
         $meta += 'Mandatory = $true'
     }
+
     if ($parameter.position -ne 'named')
     {
         $meta += 'Position = ' + ($parameter.position)
+    }
+
+    if ($parameter.pipelineInput -eq 'True (ByValue)') {
+        $meta += 'ValueFromPipeline = $true'
+    }
+
+    if ($parameter.pipelineInput -eq 'True (ByPropertyName)') {
+        $meta += 'ValueFromPipelineByPropertyName = $true'
     }
 
     if ($meta) {
