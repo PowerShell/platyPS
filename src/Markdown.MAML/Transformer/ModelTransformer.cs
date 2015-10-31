@@ -5,11 +5,14 @@ using System.Text;
 using Markdown.MAML.Model;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 
 namespace Markdown.MAML.Transformer
 {
     public class ModelTransformer
     {
+        private Runspace runspace;
         private DocumentNode _root;
         private IEnumerator<MarkdownNode> _rootEnumerator;
 
@@ -70,6 +73,8 @@ namespace Markdown.MAML.Transformer
             while (ParameterRule(commmand))
             {
             }
+
+            this.GatherParameterDetails(commmand);
         }
 
         private void InputsRule(MamlCommand commmand)
@@ -301,13 +306,99 @@ namespace Markdown.MAML.Transformer
             return GetTextFromParagraphSpans(node.Spans);
         }
 
-        private void FillParameterDetailsFromAttribute(MamlParameter parameter, CodeBlockNode node)
+        private void GatherParameterDetails(MamlCommand command)
         {
-            if (node == null)
+            const string parameterFormatString = @"
+        {0}
+        ${1}";
+
+            const string docFunctionFormatString = @"
+function Get-AttributeDocFunction
+{{
+    param(
+        {0}
+    )
+
+}}
+
+$h = Get-Help Get-AttributeDocFunction
+$h.parameters.parameter
+";
+
+            // Create the Runspace on demand
+            if (this.runspace == null)
             {
-                return;
+                this.runspace = RunspaceFactory.CreateRunspace();
+                this.runspace.Open();
             }
-            // TODO: add some parsing here
+
+            using (PowerShell powerShell = PowerShell.Create())
+            {
+                var parameterBlocks =
+                    command
+                        .Parameters
+                        .Select(p => string.Format(parameterFormatString, p.AttributesText, p.Name));
+
+                var functionScript =
+                    string.Format(
+                        docFunctionFormatString,
+                        string.Join(",\r\n", parameterBlocks));
+
+                // TODO: There could be some security concerns with executing arbitrary
+                // text here, need to investigate safer ways to do it.  JEA?
+                powerShell.Runspace = this.runspace;
+                powerShell.AddScript(functionScript);
+
+                foreach (var parameterDetails in powerShell.Invoke<PSObject>())
+                {
+                    var parameter = 
+                        command.Parameters.FirstOrDefault(
+                            p => string.Equals(p.Name, (string)parameterDetails.Properties["name"].Value));
+
+                    // TODO: What about if null?
+
+                    parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
+                    parameter.Position = (string)parameterDetails.Properties["position"].Value;
+                    parameter.Required = ((string)parameterDetails.Properties["required"].Value).Equals("true");
+                    parameter.PipelineInput = ((string)parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
+
+                    // TODO: Still need to determine how to get these
+                    //parameter.Globbing = false;
+                    //parameter.ValueRequired = false;
+                    //parameter.ValueVariableLength = false;
+                    //parameter.VariableLength = false;
+
+                    // The 'aliases' property will contain either 'None' or a
+                    // comma-separated list of aliases.
+                    string aliasesString = ((string)parameterDetails.Properties["aliases"].Value);
+                    if (!string.Equals(aliasesString, "None"))
+                    {
+                        parameter.Aliases = 
+                            aliasesString.Split(
+                                new string[] { ", " }, 
+                                StringSplitOptions.RemoveEmptyEntries);
+                    }
+                }
+
+                powerShell.Commands.Clear();
+                powerShell.Commands.AddScript("$h.Syntax.syntaxItem");
+                foreach (var syntaxDetails in powerShell.Invoke<PSObject>())
+                {
+                    MamlSyntax syntax = new MamlSyntax();
+
+                    var syntaxParams = (object[])syntaxDetails.Properties["parameter"].Value;
+                    foreach (var syntaxParam in syntaxParams.OfType<PSObject>())
+                    {
+                        syntax.Parameters.Add(
+                            command.Parameters.FirstOrDefault(
+                                p => string.Equals(
+                                    p.Name,
+                                    (string)syntaxParam.Properties["name"].Value)));
+                    }
+
+                    command.Syntax.Add(syntax);
+                }
+            }
         }
 
         /// <summary>
@@ -363,7 +454,10 @@ namespace Markdown.MAML.Transformer
             }
 
             parameter.Description = GetTextFromParagraphNode(descriptionNode);
-            FillParameterDetailsFromAttribute(parameter, attributesNode);
+            parameter.AttributesText = 
+                attributesNode != null ?
+                    attributesNode.Text : string.Empty;
+
             command.Parameters.Add(parameter);
             return true;
         }

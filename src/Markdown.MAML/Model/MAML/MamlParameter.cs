@@ -3,8 +3,11 @@
     public class MamlParameter
     {
         public string Type { get; set; }
+
         public string Name { get; set; }
+
         public bool Required { get; set; }
+
         public string Description { get; set; }
 
         public bool VariableLength { get; set; }
@@ -21,6 +24,8 @@
 
         public bool ValueVariableLength { get; set; }
 
+        public string AttributesText { get; set; }
+
         public MamlParameter()
         {
             VariableLength = false;
@@ -28,7 +33,5 @@
             PipelineInput = false;
             Aliases = new string[] {};
         }
-
-        
     }
 }

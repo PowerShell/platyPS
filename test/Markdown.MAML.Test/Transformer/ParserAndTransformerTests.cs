@@ -192,5 +192,103 @@ Remarks
             Assert.Empty(links[1].LinkUri);
         }
 
+        [Fact]
+        public void ProducesParameterAndSyntaxEntries()
+        {
+            var parser = new MarkdownParser();
+
+            const string fooParamName = "FooParam";
+            const string fooAttributes = @"
+[Parameter(
+    Position = 0,
+    ParameterSetName = ""FooParamSet"",
+    Mandatory = $true,
+    ValueFromPipeline = $true,
+    ValueFromPipelineByPropertyName = $true)]
+[string]
+";
+
+            const string barParamName = "BarParam";
+            const string barAttributes = @"
+[Parameter(
+    Position = 0,
+    ParameterSetName = ""BarParamSet"",
+    Mandatory = $true,
+    ValueFromPipeline = $true,
+    ValueFromPipelineByPropertyName = $true)]
+[Alias(""br"")]
+[double]
+";
+
+            const string bazParamName = "BazParam";
+            const string bazAttributes = @"
+[Alias(""bz"")]
+[Alias(""z"")]
+[int]
+";
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+{0}
+{1}
+{2}
+";
+            var doc = 
+                parser.ParseString(
+                    string.Format(
+                        docFormatString,
+                        GetParameterText(fooParamName, fooAttributes),
+                        GetParameterText(barParamName, barAttributes),
+                        GetParameterText(bazParamName, bazAttributes)));
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(3, mamlCommand.Parameters.Count);
+
+            var fooParam = mamlCommand.Parameters[0];
+            Assert.Equal(fooParamName, fooParam.Name);
+            Assert.Equal("string", fooParam.Type);
+            Assert.True(fooParam.Required);
+            Assert.Equal(0, fooParam.Aliases.Length);
+
+            var barParam = mamlCommand.Parameters[1];
+            Assert.Equal(barParamName, barParam.Name);
+            Assert.Equal("double", barParam.Type);
+            Assert.True(barParam.Required);
+            Assert.Equal(1, barParam.Aliases.Length);
+            Assert.Contains("br", barParam.Aliases);
+
+            var bazParam = mamlCommand.Parameters[2];
+            Assert.Equal(bazParamName, bazParam.Name);
+            Assert.Equal("int", bazParam.Type);
+            Assert.False(bazParam.Required);
+            Assert.Equal(2, bazParam.Aliases.Length);
+            Assert.Contains("bz", bazParam.Aliases);
+            Assert.Contains("z", bazParam.Aliases);
+
+            Assert.Equal(2, mamlCommand.Syntax.Count);
+            Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
+            Assert.Equal("BazParam", mamlCommand.Syntax[0].Parameters[1].Name);
+            Assert.Equal("BarParam", mamlCommand.Syntax[1].Parameters[0].Name);
+            Assert.Equal("BazParam", mamlCommand.Syntax[1].Parameters[1].Name);
+        }
+
+        private static string GetParameterText(string paramName, string paramAttributes)
+        {
+            const string paramFormatString = @"
+#### {0}
+
+```powershell
+{1}
+```
+
+This is the documentation for {0}
+
+";
+            return string.Format(paramFormatString, paramName, paramAttributes);
+        }
     }
 }
