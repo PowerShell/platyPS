@@ -36,10 +36,10 @@ aliases="none"
       It 'we can generate [Parameter] attribute and [switch]' {
           $paramMarkdown = Get-ParameterMarkdown ($paramXml.root.parameter) | Out-String
           $paramMarkdown | Should Be @'
-#### Force
+#### Force [switch]
+
 ```powershell
 [Parameter(Mandatory = $true)]
-[switch]
 ```
 
 Adds a new member even the object has a custom member with the same name. You cannot use the Force parameter to replace a standard member of a type.

@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Model.MAML
 {
     public class MamlCommand
     {
+        public SourceExtent Extent { get; set; }
         public string Name { get; set; }
         public string Synopsis { get; set; }
         public string Description { get; set; }

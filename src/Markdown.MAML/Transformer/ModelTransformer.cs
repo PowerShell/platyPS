@@ -348,8 +348,13 @@ $h.parameters.parameter
                 // text here, need to investigate safer ways to do it.  JEA?
                 powerShell.Runspace = this.runspace;
                 powerShell.AddScript(functionScript);
+                var executionResults = powerShell.Invoke<PSObject>();
+                if (powerShell.Streams.Error.Any())
+                {
+                    throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));    
+                }
 
-                foreach (var parameterDetails in powerShell.Invoke<PSObject>())
+                foreach (var parameterDetails in executionResults)
                 {
                     var parameter = 
                         command.Parameters.FirstOrDefault(
@@ -357,7 +362,8 @@ $h.parameters.parameter
 
                     // TODO: What about if null?
 
-                    parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
+                    // parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
+                    
                     parameter.Position = (string)parameterDetails.Properties["position"].Value;
                     parameter.Required = ((string)parameterDetails.Properties["required"].Value).Equals("true");
                     parameter.PipelineInput = ((string)parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
@@ -409,7 +415,10 @@ $h.parameters.parameter
         private bool ParameterRule(MamlCommand command)
         {
             // grammar:
-            // #### Name `[Parameter(...)]`
+            // #### Name [TypeName]
+            // ```powershell
+            // [Parameter(...)]
+            // ```
             // Description
             var node = GetNextNode();
             var headingNode = GetHeadingWithExpectedLevel(node, PARAMETER_NAME_HEADING_LEVEL);
@@ -419,11 +428,19 @@ $h.parameters.parameter
             }
 
             var name = headingNode.Text.Split()[0];
-
+            
             MamlParameter parameter = new MamlParameter()
             {
-                Name = name
+                Name = name,
+                Extent = headingNode.SourceExtent
             };
+
+            int typeBeginIndex = headingNode.Text.IndexOf('[');
+            int typeEndIndex = headingNode.Text.IndexOf(']');
+            if (typeBeginIndex > 0 && typeEndIndex > 0)
+            {
+                parameter.Type = headingNode.Text.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);
+            }
 
             node = GetNextNode();
 
@@ -553,6 +570,7 @@ $h.parameters.parameter
                                 MamlCommand command = new MamlCommand()
                                 {
                                     Name = headingNode.Text,
+                                    Extent = headingNode.SourceExtent
                                 };
                                 // fill up command 
                                 while (SectionDispatch(command)) { }

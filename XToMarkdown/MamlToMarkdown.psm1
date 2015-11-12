@@ -77,7 +77,6 @@ function Convert-ParameterTypeTextToType
 function Get-ParamMetadata($parameter)
 {
     $meta = @()
-    $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
     if ($parameter.required -eq 'true')
     {
         $meta += 'Mandatory = $true'
@@ -97,22 +96,34 @@ function Get-ParamMetadata($parameter)
     }
 
     if ($meta) {
-        '[Parameter(' + ($meta -join ', ') + ")]`r`n" + $parameterType 
-    } else {
-        return $parameterType
-    } 
+        '[Parameter(' + ($meta -join ', ') + ')]'
+    }
 }
 
 function Get-ParameterMarkdown($parameter)
 {
-    $parameterMetadata = Get-ParamMetadata $parameter
+    if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
+    {
+        # ignoring common parameters
+        return
+    }
+
+    $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
 @"
-#### $($parameter.name)
+#### $($parameter.name) $parameterType
+
+"@
+    $parameterMetadata = Get-ParamMetadata $parameter
+    if ($parameterMetadata) 
+    {
+        @"
 ``````powershell
 $parameterMetadata
 ``````
 
 "@
+    }
+
     $parameter.description.para | Convert-MamlLinksToMarkDownLinks
     $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
 }

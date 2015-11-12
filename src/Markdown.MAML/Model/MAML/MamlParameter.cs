@@ -1,7 +1,11 @@
-﻿namespace Markdown.MAML.Model.MAML
+﻿using Markdown.MAML.Model.Markdown;
+
+namespace Markdown.MAML.Model.MAML
 {
     public class MamlParameter
     {
+        public SourceExtent Extent { get; set; }
+
         public string Type { get; set; }
 
         public string Name { get; set; }

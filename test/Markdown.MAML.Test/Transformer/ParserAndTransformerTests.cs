@@ -205,7 +205,6 @@ Remarks
     Mandatory = $true,
     ValueFromPipeline = $true,
     ValueFromPipelineByPropertyName = $true)]
-[string]
 ";
 
             const string barParamName = "BarParam";
@@ -217,14 +216,12 @@ Remarks
     ValueFromPipeline = $true,
     ValueFromPipelineByPropertyName = $true)]
 [Alias(""br"")]
-[double]
 ";
 
             const string bazParamName = "BazParam";
             const string bazAttributes = @"
 [Alias(""bz"")]
 [Alias(""z"")]
-[int]
 ";
 
             const string docFormatString = @"
@@ -239,9 +236,9 @@ Remarks
                 parser.ParseString(
                     string.Format(
                         docFormatString,
-                        GetParameterText(fooParamName, fooAttributes),
-                        GetParameterText(barParamName, barAttributes),
-                        GetParameterText(bazParamName, bazAttributes)));
+                        GetParameterText(fooParamName, "string", fooAttributes),
+                        GetParameterText(barParamName, "double", barAttributes),
+                        GetParameterText(bazParamName, "int", bazAttributes)));
 
             MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -276,19 +273,56 @@ Remarks
             Assert.Equal("BazParam", mamlCommand.Syntax[1].Parameters[1].Name);
         }
 
-        private static string GetParameterText(string paramName, string paramAttributes)
+        [Fact]
+        public void ProducesParameterAndSyntaxEntriesForNonExistingTypes()
         {
-            const string paramFormatString = @"
-#### {0}
+            var parser = new MarkdownParser();
+
+            const string fooParamName = "FooParam";
+            const string fooAttributes = @"
+
+";
+
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### FooParam [NonExistingType]
 
 ```powershell
-{1}
+```
+
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(1, mamlCommand.Parameters.Count);
+
+            var fooParam = mamlCommand.Parameters[0];
+            Assert.Equal(fooParamName, fooParam.Name);
+            Assert.Equal("NonExistingType", fooParam.Type);
+
+            Assert.Equal(1, mamlCommand.Syntax.Count);
+            Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
+            Assert.Equal("NonExistingType", mamlCommand.Syntax[0].Parameters[0].Type);
+        }
+
+        private static string GetParameterText(string paramName, string paramType, string paramAttributes)
+        {
+            const string paramFormatString = @"
+#### {0} [{1}]
+
+```powershell
+{2}
 ```
 
 This is the documentation for {0}
 
 ";
-            return string.Format(paramFormatString, paramName, paramAttributes);
+            return string.Format(paramFormatString, paramName, paramType, paramAttributes);
         }
     }
 }
