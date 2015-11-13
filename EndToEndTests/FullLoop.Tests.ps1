@@ -103,13 +103,27 @@ Describe 'Full loop for Add-Member cmdlet' {
                     }
                 }
 
-                
-                $generatedHelpObject.examples.example.Count | Should Be $originalHelpObject.examples.example.Count
+                It 'generate correct example count' {
+                    $generatedHelpObject.examples.example.Count | Should Be $originalHelpObject.examples.example.Count
+                }
+
                 0..($generatedHelpObject.examples.example.Count - 1) | % {
                     It ('generate correct example ' + ($generatedHelpObject.examples.example[$_].title)) {
                         ($generatedHelpObject.examples.example[$_] | Out-String).TrimEnd() | Should Be ($originalHelpObject.examples.example[$_] | Out-String).TrimEnd()
                     }
                     #($generatedHelpObject.examples | Out-String) | Should Be ($originalHelpObject.examples | Out-String)
+                }
+
+                It 'generate correct example count' {
+                    $generatedHelpObject.parameters.parameter.Count | Should Be $originalHelpObject.parameters.parameter.Count
+                }
+
+                0..($generatedHelpObject.parameters.parameter.Count - 1) | % {
+                    $name = $generatedHelpObject.parameters.parameter[$_].name
+                    # skip TypeName, because of unclearaty of -required
+                    It ('generate correct parameter ' + ($name)) -Skip:($name -eq 'TypeName') {
+                        ($generatedHelpObject.parameters.parameter[$_] | Out-String).TrimEnd() | Should Be ($originalHelpObject.parameters.parameter[$_] | Out-String).TrimEnd()
+                    }
                 }
 
                 It 'generate correct relatedLinks' {
