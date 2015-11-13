@@ -5,32 +5,26 @@ Prototype to transform Markdown to MAML and vice verse
 
 # Contributing
 
-It's a hackathon and we have wild free for all party on this repo!
-Feel free to do direct checking in master, unless you want a codereview or some other specific goal.
-Keep updating **Hackathon status** section to reflect your porgress and communicate it to others.
-Include short demo / snippets in the source code and readme to quicky onboard others.
+Please include short demo / snippets in README.md to quicky onboard others.
 
 # Repo structure
 
  -  **src, Markdown.MAML.sln**  - source code for C# markdown to MAML converter.
- -  **MamlToMarkdown.psm1** - powershell MAML to markdown converter
+ -  **XToMarkdown** - tools to generate Markdown from something (i.e. MAML, Get-Help object)
+ -  **XToMarkdown\MamlToMarkdown.psm1** - powershell MAML to markdown converter
  -  **Examples** - misc files, showcases, etc.
  -  **EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
-
-# Hackathon status
-
-This section would contain the current status. Please add feature descriptions here.
+ -  **TagsMapping.md** - markdown schema description.
 
 ## Markdown schema
 
-The tag mapping document is here:
-
-https://github.com/PowerShell/Markdown.MAML/blob/master/TagsMapping.md
+The best way to figure out up-to-date schema is grab an `*.md` files from build server artifacts.
+We need to capture a formal schema, when everything is settled.
 
 ## Transform maml to markdown
 
 ```powershell
-Import-Module .\Transform.psm1
+Import-Module XToMarkdown\MamlToMarkdown.psm1
 # get maml as a string
 $maml = cat Examples\SMA.help.xml -Raw
 # run convertion

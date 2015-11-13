@@ -51,30 +51,141 @@ function Get-DescriptionMarkdown($command)
 $command.description.para | Convert-MamlLinksToMarkDownLinks
 }
 
-function Get-ParameterMarkdown($parameter)
+<#
+    .EXAMPLE 
+    'SwitchParameter' -> [switch]
+    'System.Int32' -> [int] # optional
+#>
+function Convert-ParameterTypeTextToType
 {
-    #$parameterType = "\<$($parameter.parameterValue.'#text')\>"
-    $parameterType = "$($parameter.parameterValue.'#text')"
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
+        [string]
+        $typeText
+    )
 
-    if ($parameter.required -eq 'false') {
-        $parameterType = "[$parameterType]"
+    if ($typeText -eq 'SwitchParameter') 
+    {
+        return '[switch]'
     }
+
+    # default
+    return "[$typeText]"
+}
+
+function Get-ParamMetadata
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $parameter,
+        [Parameter(Mandatory=$false)]
+        $paramSet
+    )
+
+    $meta = @()
+    if ($parameter.required -eq 'true')
+    {
+        $meta += 'Mandatory = $true'
+    }
+
+    if ($parameter.position -ne 'named')
+    {
+        $meta += 'Position = ' + ($parameter.position)
+    }
+
+    if ($parameter.pipelineInput -eq 'True (ByValue)') {
+        $meta += 'ValueFromPipeline = $true'
+    }
+
+    if ($parameter.pipelineInput -eq 'True (ByPropertyName)') {
+        $meta += 'ValueFromPipelineByPropertyName = $true'
+    }
+
+    if ($paramSet) {
+        $meta += "ParameterSetName = '$($paramSet[0])'"
+        $paramSet[1..($paramSet.Count)] | % {
+            "[Parameter(ParameterSetName = '$_')]"
+        }
+    }
+
+    if ($meta) {
+        '[Parameter(' + ($meta -join ', ') + ')]'
+    }
+}
+
+function Get-ParameterMarkdown
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $parameter,
+        [Parameter(Mandatory=$true)]
+        [hashtable]$paramSets
+    )
+
+    if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
+    {
+        # ignoring common parameters
+        return
+    }
+
+    $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
 @"
-#### $($parameter.name) ``$parameterType``
+#### $($parameter.name) $parameterType
 
 "@
+    $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
+    if ($parameterMetadata) 
+    {
+        @"
+``````powershell
+$parameterMetadata``````
+
+"@
+    }
+
     $parameter.description.para | Convert-MamlLinksToMarkDownLinks
     $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
 }
 
+<#
+.SYNOPSIS Get map 'parameterName' -> [string[]] 'Parameter sets that it belongs to'. $null, if it belongs to all of them.
+#>
+function Get-ParameterSetMapping($syntax)
+{
+    $result = @{}
+    $syntaxCount = $syntax.syntaxItem.Count
+    $i = 0
+    $syntax.syntaxItem | % {
+        $i++
+        $paramSetName = "Set $i"
+        $_.parameter | % {
+            $p = $_
+            if ($result[$p.name]) {
+                $result[$p.name] += $paramSetName
+            } else {
+                $result[$p.name] = @(,$paramSetName)
+            }
+
+            if ($result[$p.name].Count -eq $syntaxCount) {
+                # belongs to all of them
+                $result[$p.name] = $null
+            }
+        }
+    }
+
+    return $result
+}
+
 function Get-ParametersMarkdown($command)
 {
+    $paramSets = Get-ParameterSetMapping $command.syntax
 @"
 ### PARAMETERS
 
 "@
     $command.parameters.parameter | % { 
-        Get-ParameterMarkdown $_ 
+        Get-ParameterMarkdown $_ -paramSets $paramSets
         ''
     }
 }
@@ -217,8 +328,16 @@ function Convert-MamlToMarkdown
     $commands | %{ Convert-CommandToMarkdown $_ } | Out-String
 }
 
+
+##
+## export everything for test purposes
+## TODO: scope it to a simple public API.
+##
+
+<#
 Export-ModuleMember -Function `
     Convert-MamlToMarkdown, `
     Convert-XmlElementToString, `
     Convert-MamlLinksToMarkDownLinks, `
     Convert-CommandToMarkdown
+#>

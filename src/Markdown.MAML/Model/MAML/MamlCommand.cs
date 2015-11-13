@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Model.MAML
 {
     public class MamlCommand
     {
+        public SourceExtent Extent { get; set; }
         public string Name { get; set; }
         public string Synopsis { get; set; }
         public string Description { get; set; }
@@ -35,6 +37,11 @@ namespace Markdown.MAML.Model.MAML
             get { return _links; }
         }
 
+        public List<MamlSyntax> Syntax
+        {
+            get { return _syntax; }
+        }
+
         private List<MamlParameter> _parameters = new List<MamlParameter>();
 
         private List<MamlInputOutput> _outputs = new List<MamlInputOutput>();
@@ -44,5 +51,7 @@ namespace Markdown.MAML.Model.MAML
         private List<MamlExample> _examples = new List<MamlExample>();
 
         private List<MamlLink> _links = new List<MamlLink>();
+
+        private List<MamlSyntax> _syntax = new List<MamlSyntax>();
     }
 }

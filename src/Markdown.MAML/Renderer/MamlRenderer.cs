@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
@@ -23,7 +24,7 @@ namespace Markdown.MAML.Renderer
 
         private void PushTag(string tag)
         {
-            _stringBuilder.AppendFormat("<{0}>{1}", tag, Environment.NewLine);
+            _stringBuilder.AppendFormat("<{0}>", tag);
             _tagStack.Push(tag);
         }
 
@@ -122,22 +123,33 @@ namespace Markdown.MAML.Renderer
 
         private void AddSyntax(MamlCommand command)
         {
-            // TODO
+            PushTag("command:syntax");
+            foreach (MamlSyntax syntaxItem in command.Syntax)
+            {
+                PushTag("command:syntaxItem");
+                _stringBuilder.AppendFormat("<maml:name>{0}</maml:name>{1}", command.Name, Environment.NewLine);
+                foreach (MamlParameter parameter in syntaxItem.Parameters)
+                {
+                    AddParameter(command, parameter, inSyntax: true);
+                }
+                PopTag("command:syntaxItem");
+            }
+            PopTag("command:syntax");
         }
 
         private void AddLinks(MamlCommand command)
         {
-            PushTag("command:RelatedLinks");
+            PushTag("command:relatedLinks");
             foreach (MamlLink Link in command.Links)
             {
-                PushTag("maml:NavigationLink");
+                PushTag("maml:navigationLink");
 
-                PushTag("maml:LinkText");
-                _stringBuilder.AppendLine(Link.LinkName);
+                PushTag("maml:linkText");
+                _stringBuilder.Append(Link.LinkName);
                 PopTag(1);
 
-                PushTag("maml:URI");
-                _stringBuilder.AppendLine(Link.LinkUri);
+                PushTag("maml:uri");
+                _stringBuilder.Append(Link.LinkUri);
                 PopTag(1);
 
                 PopTag(1);
@@ -153,11 +165,11 @@ namespace Markdown.MAML.Renderer
                 PushTag("command:example");
 
                 PushTag("maml:title");
-                _stringBuilder.AppendLine(example.Title);
+                _stringBuilder.Append(example.Title);
                 PopTag("maml:title");
 
                 PushTag("dev:code");
-                _stringBuilder.AppendLine(example.Code);
+                _stringBuilder.Append(example.Code);
                 PopTag("dev:code");
 
                 PushTag("dev:remarks");
@@ -185,15 +197,15 @@ namespace Markdown.MAML.Renderer
             {
                 PushTag("command:returnValue");
 
-                PushTag("dev:Type");
+                PushTag("dev:type");
                 PushTag("maml:name");
-                _stringBuilder.AppendLine(output.TypeName);
+                _stringBuilder.Append(output.TypeName);
                 PopTag("maml:name");
-                PopTag("dev:Type");
+                PopTag("dev:type");
 
-                PushTag("maml:Description");
+                PushTag("maml:description");
                 AddParas(output.Description);
-                PopTag("maml:Description");
+                PopTag("maml:description");
 
                 PopTag("command:returnValue");
             }
@@ -207,15 +219,15 @@ namespace Markdown.MAML.Renderer
             {
                 PushTag("command:inputType");
 
-                PushTag("dev:Type");
+                PushTag("dev:type");
                 PushTag("maml:name");
-                _stringBuilder.AppendLine(input.TypeName);
+                _stringBuilder.Append(input.TypeName);
                 PopTag("maml:name");
-                PopTag("dev:Type");
+                PopTag("dev:type");
 
-                PushTag("maml:Description");
+                PushTag("maml:description");
                 AddParas(input.Description);
-                PopTag("maml:Description");
+                PopTag("maml:description");
 
                 PopTag("command:inputType");
             }
@@ -227,48 +239,72 @@ namespace Markdown.MAML.Renderer
             PushTag("command:parameters");
             foreach (MamlParameter parameter in command.Parameters)
             {
-                AddParameter(command, parameter);
+                AddParameter(command, parameter, inSyntax:false);
             }
             PopTag("command:parameters");
         }
 
-        private void AddParameter(MamlCommand command, MamlParameter parameter)
+        /// <summary>
+        /// This function is reverse of Convert-ParameterTypeTextToType from MamlToMarkdown.psm1
+        /// </summary>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        private string ConvertPSTypeToMamlType(string typeName)
         {
-            var attributes = "required=\"" + parameter.Required.ToString() + "\" " +
-                             "variableLength=\"" + parameter.VariableLength.ToString() + "\" " +
-                             "globbing=\"" + parameter.Globbing.ToString() + "\" " +
-                             "pipelineInput=\"" + parameter.PipelineInput.ToString() + "\" " +
+            if (typeName.ToLower().Equals("switch"))
+            {
+                return "SwitchParameter";
+            }
+
+            return typeName;
+        }
+
+        private void AddParameter(MamlCommand command, MamlParameter parameter, bool inSyntax)
+        {
+            var attributes = "required=\"" + parameter.Required.ToString().ToLower() + "\" " +
+                             "variableLength=\"" + parameter.VariableLength.ToString().ToLower() + "\" " +
+                             "globbing=\"" + parameter.Globbing.ToString().ToLower() + "\" " +
+                             "pipelineInput=\"" + parameter.PipelineInput.ToString().ToLower() + "\" " +
                              "position=\"" + parameter.Position + "\" " +
-                             "Aliases=\"";
-            int aliasCount = 0;
-            foreach (string alias in parameter.Aliases)
-            {
-                attributes += alias + ", ";
-                aliasCount++;
-            }
-            if (aliasCount > 0)
-            {
-                attributes = attributes.Substring(0, attributes.Length - 2);
-            }
+                             "aliases=\"";
+            attributes += parameter.Aliases.Length > 0 ? string.Join(", ", parameter.Aliases) : "none";
             attributes += "\"";
 
             PushTag("command:parameter", attributes);
 
-            PushTag("maml:Name");
-            _stringBuilder.AppendLine(parameter.Name);
-            PopTag("maml:Name");
+            PushTag("maml:name");
+            _stringBuilder.Append(parameter.Name);
+            PopTag("maml:name");
 
             PushTag("maml:Description");
             AddParas(parameter.Description);
             PopTag("maml:Description");
 
-            attributes = "required=\"" + parameter.ValueRequired.ToString() + "\" " +
-                         "variableLength=\"" + parameter.ValueVariableLength.ToString();
+            attributes = "required=\"" + parameter.ValueRequired.ToString().ToLower() + "\" " +
+                         "variableLength=\"" + parameter.ValueVariableLength.ToString().ToLower();
             attributes += "\"";
 
-            PushTag("command:parameterValue", attributes);
-            _stringBuilder.AppendLine(parameter.Type);
-            PopTag("command:parameterValue");
+            string mamlType = ConvertPSTypeToMamlType(parameter.Type);
+
+            // this is weired quirk inside <syntax>:
+            // we don't add [switch] info to make it appear good.
+            if (!inSyntax || mamlType != "SwitchParameter")
+            {
+                PushTag("command:parameterValue", attributes);
+                _stringBuilder.Append(mamlType);
+                PopTag("command:parameterValue");
+            }
+
+            if (inSyntax)
+            {
+                PushTag("dev:type");
+                PushTag("maml:name");
+                _stringBuilder.Append(mamlType);
+                PopTag("maml:name");
+                _stringBuilder.Append("<maml:uri />");
+                PopTag("dev:type");
+                _stringBuilder.AppendLine("<dev:defaultValue>none</dev:defaultValue>");
+            }
 
             PopTag("command:parameter");
         }
