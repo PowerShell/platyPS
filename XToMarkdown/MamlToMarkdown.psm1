@@ -103,7 +103,8 @@ function Get-ParamMetadata
     }
 
     if ($paramSet) {
-        $paramSet | % {
+        $meta += "ParameterSetName = '$($paramSet[0])'"
+        $paramSet[1..($paramSet.Count)] | % {
             "[Parameter(ParameterSetName = '$_')]"
         }
     }

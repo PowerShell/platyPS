@@ -348,13 +348,13 @@ $h.parameters.parameter
                 // text here, need to investigate safer ways to do it.  JEA?
                 powerShell.Runspace = this.runspace;
                 powerShell.AddScript(functionScript);
-                var executionResults = powerShell.Invoke<PSObject>();
+                var parameterDetailses = powerShell.Invoke<PSObject>();
                 if (powerShell.Streams.Error.Any())
                 {
                     throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));    
                 }
 
-                foreach (var parameterDetails in executionResults)
+                foreach (var parameterDetails in parameterDetailses)
                 {
                     var parameter = 
                         command.Parameters.FirstOrDefault(
@@ -367,12 +367,13 @@ $h.parameters.parameter
                     parameter.Position = (string)parameterDetails.Properties["position"].Value;
                     parameter.Required = ((string)parameterDetails.Properties["required"].Value).Equals("true");
                     parameter.PipelineInput = ((string)parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
-
+                    
                     // TODO: Still need to determine how to get these
-                    //parameter.Globbing = false;
+                    //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
+                    //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
+                    
                     //parameter.ValueRequired = false;
                     //parameter.ValueVariableLength = false;
-                    //parameter.VariableLength = false;
 
                     // The 'aliases' property will contain either 'None' or a
                     // comma-separated list of aliases.
@@ -388,7 +389,13 @@ $h.parameters.parameter
 
                 powerShell.Commands.Clear();
                 powerShell.Commands.AddScript("$h.Syntax.syntaxItem");
-                foreach (var syntaxDetails in powerShell.Invoke<PSObject>())
+                var syntaxDetailses = powerShell.Invoke<PSObject>();
+                if (powerShell.Streams.Error.Any())
+                {
+                    throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));
+                }
+
+                foreach (var syntaxDetails in syntaxDetailses)
                 {
                     MamlSyntax syntax = new MamlSyntax();
 

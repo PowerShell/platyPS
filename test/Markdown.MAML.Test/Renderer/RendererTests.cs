@@ -34,8 +34,6 @@ namespace Markdown.MAML.Test.Renderer
                 PipelineInput = true,
                 Position = "1",
                 Aliases = new string []{"GF","Foos","Do"},
-                ValueRequired = false,
-                ValueVariableLength = false
             }
             );
             command.Inputs.Add(new MamlInputOutput()

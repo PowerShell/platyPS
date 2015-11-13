@@ -279,11 +279,6 @@ Remarks
             var parser = new MarkdownParser();
 
             const string fooParamName = "FooParam";
-            const string fooAttributes = @"
-
-";
-
-
             const string docFormatString = @"
 ## Get-Foo
 ### PARAMETERS

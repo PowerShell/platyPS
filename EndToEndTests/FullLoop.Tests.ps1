@@ -74,6 +74,22 @@ Describe 'Full loop for Add-Member cmdlet' {
                     $generatedHelpObject.Synopsis | Should Be $originalHelpObject.Synopsis
                 }
 
+                # originalHelpObject has a redundent entry in syntax: adjustment
+                $originalSyntax = $originalHelpObject.syntax.syntaxItem[1..-1]
+                $generatedSyntax = $generatedHelpObject.Syntax.SyntaxItem
+
+                It 'generate correct Syntax count' {
+                    $generatedSyntax.Count | Should Be $originalSyntax.Count
+                    # this check is too strict, we will do it one-by-one
+                    #($generatedHelpObject.syntax | Out-String) | Should Be ($originalHelpObject.syntax | Out-String)
+                }
+
+                It 'generate correct InputObject in syntax' {
+                    $originalInputObject = $originalSyntax[0].parameter | ? {$_.name -eq 'InputObject'}
+                    $generatedInputObject = $originalSyntax[0].parameter | ? {$_.name -eq 'InputObject'}
+                    ($originalInputObject | Out-String) | Should Be ($generatedInputObject | Out-String)
+                }
+
                 It 'generate correct description' {
                     $generatedHelpObject.description.Count | Should Be $originalHelpObject.description.Count
                     0..($generatedHelpObject.description.Count - 1) | % {
