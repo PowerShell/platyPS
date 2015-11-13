@@ -74,8 +74,15 @@ function Convert-ParameterTypeTextToType
     return "[$typeText]"
 }
 
-function Get-ParamMetadata($parameter)
+function Get-ParamMetadata
 {
+    param(
+        [Parameter(Mandatory=$true)]
+        $parameter,
+        [Parameter(Mandatory=$false)]
+        $paramSet
+    )
+
     $meta = @()
     if ($parameter.required -eq 'true')
     {
@@ -95,13 +102,26 @@ function Get-ParamMetadata($parameter)
         $meta += 'ValueFromPipelineByPropertyName = $true'
     }
 
+    if ($paramSet) {
+        $paramSet | % {
+            "[Parameter(ParameterSetName = '$_')]"
+        }
+    }
+
     if ($meta) {
         '[Parameter(' + ($meta -join ', ') + ')]'
     }
 }
 
-function Get-ParameterMarkdown($parameter)
+function Get-ParameterMarkdown
 {
+    param(
+        [Parameter(Mandatory=$true)]
+        $parameter,
+        [Parameter(Mandatory=$true)]
+        [hashtable]$paramSets
+    )
+
     if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
     {
         # ignoring common parameters
@@ -113,13 +133,12 @@ function Get-ParameterMarkdown($parameter)
 #### $($parameter.name) $parameterType
 
 "@
-    $parameterMetadata = Get-ParamMetadata $parameter
+    $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
     if ($parameterMetadata) 
     {
         @"
 ``````powershell
-$parameterMetadata
-``````
+$parameterMetadata``````
 
 "@
     }
@@ -128,14 +147,44 @@ $parameterMetadata
     $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
 }
 
+<#
+.SYNOPSIS Get map 'parameterName' -> [string[]] 'Parameter sets that it belongs to'. $null, if it belongs to all of them.
+#>
+function Get-ParameterSetMapping($syntax)
+{
+    $result = @{}
+    $syntaxCount = $syntax.syntaxItem.Count
+    $i = 0
+    $syntax.syntaxItem | % {
+        $i++
+        $paramSetName = "Set $i"
+        $_.parameter | % {
+            $p = $_
+            if ($result[$p.name]) {
+                $result[$p.name] += $paramSetName
+            } else {
+                $result[$p.name] = @(,$paramSetName)
+            }
+
+            if ($result[$p.name].Count -eq $syntaxCount) {
+                # belongs to all of them
+                $result[$p.name] = $null
+            }
+        }
+    }
+
+    return $result
+}
+
 function Get-ParametersMarkdown($command)
 {
+    $paramSets = Get-ParameterSetMapping $command.syntax
 @"
 ### PARAMETERS
 
 "@
     $command.parameters.parameter | % { 
-        Get-ParameterMarkdown $_ 
+        Get-ParameterMarkdown $_ -paramSets $paramSets
         ''
     }
 }
