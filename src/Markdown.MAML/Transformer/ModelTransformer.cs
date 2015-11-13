@@ -374,37 +374,13 @@ $h.parameters.parameter
                     throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));    
                 }
 
-                foreach (var parameterDetails in parameterDetailses)
+                foreach (PSObject parameterDetailsPsObject in parameterDetailses)
                 {
                     var parameter = 
                         command.Parameters.FirstOrDefault(
-                            p => string.Equals(p.Name, UndoShiftName((string)parameterDetails.Properties["name"].Value)));
+                            p => string.Equals(p.Name, UndoShiftName((string)parameterDetailsPsObject.Properties["name"].Value)));
 
-                    // TODO: What about if null?
-
-                    // parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
-                    
-                    parameter.Position = (string)parameterDetails.Properties["position"].Value;
-                    parameter.Required = ((string)parameterDetails.Properties["required"].Value).Equals("true");
-                    parameter.PipelineInput = ((string)parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
-                    
-                    // TODO: Still need to determine how to get these
-                    //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
-                    //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
-                    
-                    //parameter.ValueRequired = false;
-                    //parameter.ValueVariableLength = false;
-
-                    // The 'aliases' property will contain either 'None' or a
-                    // comma-separated list of aliases.
-                    string aliasesString = ((string)parameterDetails.Properties["aliases"].Value);
-                    if (!string.Equals(aliasesString, "None"))
-                    {
-                        parameter.Aliases = 
-                            aliasesString.Split(
-                                new string[] { ", " }, 
-                                StringSplitOptions.RemoveEmptyEntries);
-                    }
+                    FillUpParameterFromPSObject(parameter, parameterDetailsPsObject);
                 }
 
                 powerShell.Commands.Clear();
@@ -420,17 +396,56 @@ $h.parameters.parameter
                     MamlSyntax syntax = new MamlSyntax();
 
                     var syntaxParams = (object[])syntaxDetails.Properties["parameter"].Value;
-                    foreach (var syntaxParam in syntaxParams.OfType<PSObject>())
+                    foreach (PSObject syntaxParamPsObject in syntaxParams.OfType<PSObject>())
                     {
-                        syntax.Parameters.Add(
-                            command.Parameters.FirstOrDefault(
-                                p => string.Equals(
-                                    p.Name,
-                                    UndoShiftName((string)syntaxParam.Properties["name"].Value))));
+                        string paramName = UndoShiftName((string) syntaxParamPsObject.Properties["name"].Value);
+                        MamlParameter parametersParameter = command.Parameters.FirstOrDefault(p => string.Equals(p.Name, paramName));
+                        if (parametersParameter == null)
+                        {
+                            throw new HelpSchemaException(command.Extent, "Cannot find corresponding parameter for syntax item " + paramName);
+                        }
+
+                        MamlParameter syntaxParameter = new MamlParameter()
+                        {
+                            Name = parametersParameter.Name,
+                            Type = parametersParameter.Type
+                        };
+
+                        FillUpParameterFromPSObject(syntaxParameter, syntaxParamPsObject);
+                        syntax.Parameters.Add(syntaxParameter);
                     }
 
                     command.Syntax.Add(syntax);
                 }
+            }
+        }
+
+        private static void FillUpParameterFromPSObject(MamlParameter parameter, PSObject parameterDetails)
+        {
+            // TODO: What about if null?
+
+            // parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
+
+            parameter.Position = (string) parameterDetails.Properties["position"].Value;
+            parameter.Required = ((string) parameterDetails.Properties["required"].Value).Equals("true");
+            parameter.PipelineInput = ((string) parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
+
+            // TODO: Still need to determine how to get these
+            //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
+            //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
+
+            //parameter.ValueRequired = false;
+            //parameter.ValueVariableLength = false;
+
+            // The 'aliases' property will contain either 'None' or a
+            // comma-separated list of aliases.
+            string aliasesString = ((string) parameterDetails.Properties["aliases"].Value);
+            if (!string.Equals(aliasesString, "None"))
+            {
+                parameter.Aliases =
+                    aliasesString.Split(
+                        new string[] {", "},
+                        StringSplitOptions.RemoveEmptyEntries);
             }
         }
 

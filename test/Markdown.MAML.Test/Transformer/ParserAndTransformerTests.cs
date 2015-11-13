@@ -346,6 +346,45 @@ NoTypeParam description.
             Assert.Equal(null, fooParam.Type);
         }
 
+        [Fact]
+        public void ProducesSyntaxForTwoSets()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### TypeName [String]
+
+```powershell
+[Parameter(Mandatory = $true, ParameterSetName = 'Set 1')]
+[Parameter(ParameterSetName = 'Set 2')]
+```
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(2, mamlCommand.Syntax.Count);
+            var syntax1 = mamlCommand.Syntax[0];
+            var syntax2 = mamlCommand.Syntax[1];
+
+            Assert.Equal(syntax1.Parameters.Count, 1);
+            Assert.Equal(syntax2.Parameters.Count, 1);
+
+            Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
+            Assert.Equal(syntax2.Parameters[0].Name, "TypeName");
+
+            Assert.Equal(syntax1.Parameters[0].Type, "String");
+            Assert.Equal(syntax2.Parameters[0].Type, "String");
+
+            Assert.Equal(syntax1.Parameters[0].Required, false);
+            Assert.Equal(syntax2.Parameters[0].Required, true);
+        }
+
+
         private static string GetParameterText(string paramName, string paramType, string paramAttributes)
         {
             const string paramFormatString = @"

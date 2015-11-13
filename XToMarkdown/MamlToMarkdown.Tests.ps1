@@ -34,7 +34,11 @@ aliases="none"
 '@
 
       It 'we can generate [Parameter] attribute and [switch]' {
-          $paramMarkdown = Get-ParameterMarkdown -parameter ($paramXml.root.parameter) -paramSets @{'nonexitsting' = 'Set 0'} | Out-String
+          $paramMarkdown = Get-ParameterMarkdown -parameter ($paramXml.root.parameter) -paramSets @{
+              $paramXml.root.parameter.name = @{
+                  '*' = $paramXml.root.parameter
+              }
+          } | Out-String
           $paramMarkdown | Should Be @'
 #### Force [switch]
 
@@ -353,13 +357,10 @@ Adds a new member even the object has a custom member with the same name. You ca
         It 'create the right paramsets mapping' {
             $paramSets = Get-ParameterSetMapping ($syntaxXml.root.syntax)
             $paramSets.Count | Should Be 13
-            $paramSets['MemberType'] | Should Be 'Set 4'
-            $paramSets['InputObject'] | Should Be $null
-            $paramSets['NotePropertyName'] | Should Be 'Set 2'
-            $paramSets['Force'].Count | Should Be 3
-            $paramSets['Force'][0] | Should Be 'Set 2'
-            $paramSets['Force'][1] | Should Be 'Set 3'
-            $paramSets['Force'][2] | Should Be 'Set 4'
+            $paramSets['MemberType'].Keys | Should Be 'Set 4'
+            $paramSets['InputObject'].Keys | Should Be '*'
+            $paramSets['NotePropertyName'].Keys | Should Be 'Set 2'
+            $paramSets['Force'].Keys.Count | Should Be 3
         }
     }
 }

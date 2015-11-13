@@ -74,9 +74,8 @@ Describe 'Full loop for Add-Member cmdlet' {
                     $generatedHelpObject.Synopsis | Should Be $originalHelpObject.Synopsis
                 }
 
-                # originalHelpObject has a redundent entry in syntax: adjustment
-                $originalSyntax = $originalHelpObject.syntax.syntaxItem[1..-1]
-                $generatedSyntax = $generatedHelpObject.Syntax.SyntaxItem
+                $originalSyntax = $originalHelpObject.syntax.syntaxItem
+                $generatedSyntax = $generatedHelpObject.Syntax.syntaxItem
 
                 It 'generate correct Syntax count' {
                     $generatedSyntax.Count | Should Be $originalSyntax.Count
