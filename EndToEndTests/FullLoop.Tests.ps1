@@ -16,7 +16,7 @@ Add-Type -Path $assemblyPath
 
 function normalize([string]$text)
 {
-    $text -replace ([char](65533)),'-'
+    $text -replace '–','-'
 }
 
 Describe 'Full loop for Add-Member cmdlet' {

@@ -10,6 +10,7 @@ init:
 
 before_build:
     - nuget restore
+    - ps: Update-Help
 
 build:
     project: Markdown.MAML.sln
