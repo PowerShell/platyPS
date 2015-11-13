@@ -123,11 +123,11 @@ function Get-ParameterMarkdown
         [hashtable]$paramSets
     )
 
-    if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
-    {
+    #if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
+    #{
         # ignoring common parameters
-        return
-    }
+    #    return
+    #}
 
     $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
 @"

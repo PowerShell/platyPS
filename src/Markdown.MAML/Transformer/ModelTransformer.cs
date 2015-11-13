@@ -306,6 +306,26 @@ namespace Markdown.MAML.Transformer
             return GetTextFromParagraphSpans(node.Spans);
         }
 
+        /// <summary>
+        /// We do this shift to avoid collisions with default parameter names, like informationVariable.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string ShiftName(string name)
+        {
+            return name + "__";
+        }
+
+        /// <summary>
+        /// We do this shift to avoid collisions with default parameter names, like informationVariable.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string UndoShiftName(string name)
+        {
+            return name.Substring(0, name.Length-2);
+        }
+
         private void GatherParameterDetails(MamlCommand command)
         {
             const string parameterFormatString = @"
@@ -337,7 +357,7 @@ $h.parameters.parameter
                 var parameterBlocks =
                     command
                         .Parameters
-                        .Select(p => string.Format(parameterFormatString, p.AttributesText, p.Name));
+                        .Select(p => string.Format(parameterFormatString, p.AttributesText, ShiftName(p.Name)));
 
                 var functionScript =
                     string.Format(
@@ -358,7 +378,7 @@ $h.parameters.parameter
                 {
                     var parameter = 
                         command.Parameters.FirstOrDefault(
-                            p => string.Equals(p.Name, (string)parameterDetails.Properties["name"].Value));
+                            p => string.Equals(p.Name, UndoShiftName((string)parameterDetails.Properties["name"].Value)));
 
                     // TODO: What about if null?
 
@@ -406,7 +426,7 @@ $h.parameters.parameter
                             command.Parameters.FirstOrDefault(
                                 p => string.Equals(
                                     p.Name,
-                                    (string)syntaxParam.Properties["name"].Value)));
+                                    UndoShiftName((string)syntaxParam.Properties["name"].Value))));
                     }
 
                     command.Syntax.Add(syntax);
@@ -422,11 +442,11 @@ $h.parameters.parameter
         private bool ParameterRule(MamlCommand command)
         {
             // grammar:
-            // #### Name [TypeName]
-            // ```powershell
+            // #### Name [TypeName]     -   mandatory
+            // ```powershell            -   optional
             // [Parameter(...)]
             // ```
-            // Description
+            // Description              -   optional
             var node = GetNextNode();
             var headingNode = GetHeadingWithExpectedLevel(node, PARAMETER_NAME_HEADING_LEVEL);
             if (headingNode == null)
@@ -464,6 +484,8 @@ $h.parameters.parameter
                     descriptionNode = node as ParagraphNode;
                     break;
                 case MarkdownNodeType.Heading:
+                    // next parameter started
+                    UngetNode(node);
                     break;
                 case MarkdownNodeType.CodeBlock:
                     attributesNode = node as CodeBlockNode;
