@@ -339,6 +339,12 @@ function Convert-XmlElementToString
     }
 }
 
+function Get-NormalizedText([string]$text)
+{
+    # just normize some commmon typos
+    $text -replace '–','-'
+}
+
 function Convert-MamlToMarkdown
 {
     [CmdletBinding()]
@@ -347,7 +353,7 @@ function Convert-MamlToMarkdown
         [string]$maml
     )
 
-    $xmlMaml = [xml]$maml
+    $xmlMaml = [xml](Get-NormalizedText $maml)
     $commands = $xmlMaml.helpItems.command
 
     $commands | %{ Convert-CommandToMarkdown $_ } | Out-String

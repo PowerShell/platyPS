@@ -264,8 +264,8 @@ namespace Markdown.MAML.Renderer
             var attributes = "required=\"" + parameter.Required.ToString().ToLower() + "\" " +
                              "variableLength=\"" + parameter.VariableLength.ToString().ToLower() + "\" " +
                              "globbing=\"" + parameter.Globbing.ToString().ToLower() + "\" " +
-                             "pipelineInput=\"" + parameter.PipelineInput.ToString().ToLower() + "\" " +
-                             "position=\"" + parameter.Position + "\" " +
+                             "pipelineInput=\"" + parameter.PipelineInput + "\" " +
+                             "position=\"" + parameter.Position.ToLower() + "\" " +
                              "aliases=\"";
             attributes += parameter.Aliases.Length > 0 ? string.Join(", ", parameter.Aliases) : "none";
             attributes += "\"";
@@ -295,7 +295,7 @@ namespace Markdown.MAML.Renderer
                 PopTag("command:parameterValue");
             }
 
-            if (inSyntax)
+            //if (inSyntax)
             {
                 PushTag("dev:type");
                 PushTag("maml:name");

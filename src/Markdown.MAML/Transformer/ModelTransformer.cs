@@ -289,10 +289,19 @@ namespace Markdown.MAML.Transformer
         private string GetTextFromParagraphSpans(IEnumerable<ParagraphSpan> spans)
         {
             StringBuilder sb = new StringBuilder();
+            bool first = true;
             foreach (var paragraphSpan in spans)
             {
-                // TODO: make it handle hyperlinks, codesnippets, etc 
+                // TODO: make it handle hyperlinks, codesnippets, etc more wisely
+                
+                if (!first && paragraphSpan is HyperlinkSpan)
+                {
+                    sb.Append(" ");
+                }
+
                 sb.Append(paragraphSpan.Text);
+
+                first = false;
             }
             return sb.ToString();
         }
@@ -428,14 +437,26 @@ $h.parameters.parameter
 
             parameter.Position = (string) parameterDetails.Properties["position"].Value;
             parameter.Required = ((string) parameterDetails.Properties["required"].Value).Equals("true");
-            parameter.PipelineInput = ((string) parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
+            string pipelineInput = (string) parameterDetails.Properties["pipelineInput"].Value;
+            if (pipelineInput.StartsWith("t"))
+            {
+                // for some reason convention is:
+                // false
+                // True (ByValue)
+                // True (ByPropertyName)
+                pipelineInput = 'T' + pipelineInput.Substring(1);
+            }
+
+            parameter.PipelineInput = pipelineInput;
 
             // TODO: Still need to determine how to get these
             //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
             //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
-
-            //parameter.ValueRequired = false;
             //parameter.ValueVariableLength = false;
+
+            // TODO: we need to find out, what ValueRequired really mean
+            parameter.ValueRequired = parameter.Type == "switch" ? false : parameter.Required;
+            
 
             // The 'aliases' property will contain either 'None' or a
             // comma-separated list of aliases.

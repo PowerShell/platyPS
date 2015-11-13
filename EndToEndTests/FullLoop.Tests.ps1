@@ -14,6 +14,11 @@ mkdir $outFolder -ErrorAction SilentlyContinue > $null
 $assemblyPath = (Resolve-Path "$root\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll").Path
 Add-Type -Path $assemblyPath
 
+function normalize([string]$text)
+{
+    $text -replace ([char](65533)),'-'
+}
+
 Describe 'Full loop for Add-Member cmdlet' {
 
     $outMdFilePath = "$outFolder\Add-Member.md"
@@ -53,7 +58,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
             foreach ($cmdletName in $generatedModule.Cmdlets)
             {
-                $originalHelpContent = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdletName" -Full | Out-String
+                $originalHelpContent = normalize (Get-Help -Name "Microsoft.PowerShell.Utility\$cmdletName" -Full | Out-String)
                 $generatedHelpContent = Get-Help -Name "$($generatedModule.Name)\$cmdletName" -Full | Out-String
             
                 Set-Content -Value $originalHelpContent -Path $outOriginalHelp
@@ -64,6 +69,8 @@ Describe 'Full loop for Add-Member cmdlet' {
                 }
 
                 $originalHelpObject = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdletName"
+                # normalize fixes unredable character in EXAMPLE 6 in Add-Member
+                $originalHelpObject.examples.example | % {$_.code = normalize $_.code}
                 $generatedHelpObject = Get-Help -Name "$($generatedModule.Name)\$cmdletName"
 
                 It 'generate correct Name' {
@@ -94,6 +101,19 @@ Describe 'Full loop for Add-Member cmdlet' {
                     0..($generatedHelpObject.description.Count - 1) | % {
                         $generatedHelpObject.description[$_].ToString() | Should Be $originalHelpObject.description[$_].ToString()
                     }
+                }
+
+                
+                $generatedHelpObject.examples.example.Count | Should Be $originalHelpObject.examples.example.Count
+                0..($generatedHelpObject.examples.example.Count - 1) | % {
+                    It ('generate correct example ' + ($generatedHelpObject.examples.example[$_].title)) {
+                        ($generatedHelpObject.examples.example[$_] | Out-String).TrimEnd() | Should Be ($originalHelpObject.examples.example[$_] | Out-String).TrimEnd()
+                    }
+                    #($generatedHelpObject.examples | Out-String) | Should Be ($originalHelpObject.examples | Out-String)
+                }
+
+                It 'generate correct relatedLinks' {
+                    ($generatedHelpObject.relatedLinks | Out-String) | Should Be ($originalHelpObject.relatedLinks | Out-String)
                 }
 
                 # TODO: rest of properties!!
