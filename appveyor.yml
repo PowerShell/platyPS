@@ -1,5 +1,7 @@
 version: 1.0.{build}
 
+os: wmf5
+
 install:
     - cinst pester
 
