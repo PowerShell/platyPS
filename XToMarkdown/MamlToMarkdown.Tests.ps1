@@ -355,7 +355,7 @@ Adds a new member even the object has a custom member with the same name. You ca
 </root>
 '@
         It 'create the right paramsets mapping' {
-            $paramSets = Get-ParameterSetMapping ($syntaxXml.root.syntax)
+            $paramSets = Get-ParameterSetMapping ($syntaxXml.root)
             $paramSets.Count | Should Be 13
             $paramSets['MemberType'].Keys | Should Be 'Set 4'
             $paramSets['InputObject'].Keys | Should Be '*'

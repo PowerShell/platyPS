@@ -172,7 +172,7 @@ $parameterMetadata``````
 .SYNOPSIS Get map 'parameterName' -> ('setName' -> parameterXml) 'Parameter sets that it belongs to -> '. 
     '*' for setName mean it belongs to default set.
 #>
-function Get-ParameterSetMapping($syntax)
+function Get-ParameterSetMapping($command)
 {
     function Simplify($set) 
     {
@@ -190,29 +190,53 @@ function Get-ParameterSetMapping($syntax)
         return [ordered]@{'*' = $set[0]}
     }
 
+    $syntax = $command.syntax
     $result = @{}
-    $syntaxCount = $syntax.syntaxItem.Count
-    $i = 0
-    $syntax.syntaxItem | % {
-        $i++
-        $paramSetName = "Set $i"
-        $_.parameter | % {
-            $p = $_
-            if ($result[$p.name]) {
-                $result[$p.name][$paramSetName] = $p
-            } else {
-                $result[$p.name] = [ordered]@{$paramSetName = $p}
-            }
-        }
+    $collection = $syntax.syntaxItem
+    
+    # If syntax entries are not properly filled up,
+    # we are assuming that there is only one parameterSet
+    # and take all values for it from parameters section.
+    if (-not $collection.parameter) 
+    {
+        $collection = $command.parameters
     }
 
-    # at this point, if parameter belongs to all parameter sets, 
-    # we should try to remove any notation for parameter sets, if metadata is the same for all of them.
-    @($result.Keys) | % {
-        if ($i -eq ($result[$_].Count))
-        {
-            $result[$_] = Simplify $result[$_]
+    if (-not $collection.parameter) 
+    {
+        Write-Warning ("No syntax and no parameters entries are found for command " + $command.details.name.Trim())
+        return $result
+    }
+
+    try 
+    {
+        $i = 0
+        $collection | % {
+            $i++
+            $paramSetName = "Set $i"
+            $_.parameter | % {
+                $p = $_
+                if ($result[$p.name]) {
+                    $result[$p.name][$paramSetName] = $p
+                } else {
+                    $result[$p.name] = [ordered]@{$paramSetName = $p}
+                }
+            }
         }
+
+        # at this point, if parameter belongs to all parameter sets, 
+        # we should try to remove any notation for parameter sets, if metadata is the same for all of them.
+        @($result.Keys) | % {
+            if ($i -eq ($result[$_].Count))
+            {
+                $result[$_] = Simplify $result[$_]
+            }
+        }
+    } 
+    catch 
+    {
+        Write-Warning ("Error processing syntax entries for " + $command.details.name.Trim())
+        Write-Error $_
     }
 
     return $result
@@ -220,14 +244,17 @@ function Get-ParameterSetMapping($syntax)
 
 function Get-ParametersMarkdown($command)
 {
-    $paramSets = Get-ParameterSetMapping $command.syntax
+    $paramSets = Get-ParameterSetMapping $command
 @"
 ### PARAMETERS
 
 "@
     $command.parameters.parameter | % { 
-        Get-ParameterMarkdown $_ -paramSets $paramSets
-        ''
+        # can be null, if parameters are not populated
+        if ($_) {
+            Get-ParameterMarkdown $_ -paramSets $paramSets
+            ''
+        }
     }
 }
 
