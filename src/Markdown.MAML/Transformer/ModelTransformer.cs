@@ -645,6 +645,9 @@ $h.parameters.parameter
                                     Name = headingNode.Text,
                                     Extent = headingNode.SourceExtent
                                 };
+                                
+                                Console.WriteLine("Start processing command " + command.Name);
+
                                 // fill up command 
                                 while (SectionDispatch(command)) { }
 

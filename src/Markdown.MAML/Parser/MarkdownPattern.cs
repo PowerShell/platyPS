@@ -36,8 +36,11 @@ namespace Markdown.MAML.Parser
 
         public bool TryMatchString(string inputString, int startOffset, out Match regexMatch)
         {
-            regexMatch = this.patternRegex.Match(inputString, startOffset);
-
+            // the intention is to speed-up match process for the long strings.
+            // This number is completely orbitrary
+            // TODO: remove this perf hack
+            const int longestExpectedParagraphSpan = 10000;
+            regexMatch = this.patternRegex.Match(inputString, startOffset, Math.Min(inputString.Length - startOffset, longestExpectedParagraphSpan));
             return regexMatch.Success;
         }
     }

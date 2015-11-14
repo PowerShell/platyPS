@@ -105,9 +105,19 @@ namespace Markdown.MAML.Parser
             int startOffset = 0;
             int currentLineNumber = 0;
             int currentColumnNumber = 0;
+
+            const int reportCharCount = 3000;
+            int lastOffset = 0;
  
             while (startOffset < _documentText.Length)
             {
+                // progress reporting
+                if (lastOffset + reportCharCount < startOffset)
+                {
+                    Console.WriteLine(string.Format("Process {0} / {1} chars", startOffset, _documentText.Length));
+                    lastOffset = startOffset;
+                }
+
                 // Try each of the patterns to find a match
                 Match firstMatch = null;
                 MarkdownPattern firstMatchedPattern = null;
@@ -120,6 +130,11 @@ namespace Markdown.MAML.Parser
                         {
                             firstMatch = regexMatch;
                             firstMatchedPattern = markdownPattern;
+                            if (regexMatch.Index == startOffset)
+                            {
+                                // no reason to continue
+                                break;
+                            }
                         }
                     }
                 }
@@ -339,7 +354,7 @@ namespace Markdown.MAML.Parser
 
             // Make sure all newlines are \r\n.  In some environments,
             // verbatim string literals have \r instead of \r\n.
-            return Regex.Replace(documentString, "[^\r]\n", "\r\n");
+            return Regex.Replace(documentString, "([^\r])\n", "$1\r\n");
         }
 
         #endregion
