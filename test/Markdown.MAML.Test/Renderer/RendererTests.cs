@@ -31,7 +31,7 @@ namespace Markdown.MAML.Test.Renderer
                 Description = "Parameter Description.",
                 VariableLength = true,
                 Globbing = true,
-                PipelineInput = true,
+                PipelineInput = "True (ByValue)",
                 Position = "1",
                 Aliases = new string []{"GF","Foos","Do"},
             }
@@ -88,12 +88,14 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Type = "String",
                 Name = "Param1",
+                Position = "Named"
             };
 
             var param2 = new MamlParameter()
             {
                 Type = "System.Int32",
                 Name = "Param2",
+                Position = "Named"
             };
 
             command.Parameters.Add(param1);

@@ -18,7 +18,7 @@ namespace Markdown.MAML.Model.MAML
 
         public bool Globbing { get; set; }
 
-        public bool PipelineInput { get; set; }
+        public string PipelineInput { get; set; }
 
         public string Position { get; set; }
 
@@ -34,7 +34,7 @@ namespace Markdown.MAML.Model.MAML
         {
             VariableLength = false;
             Globbing = false;
-            PipelineInput = false;
+            PipelineInput = "false";
             Aliases = new string[] {};
         }
     }

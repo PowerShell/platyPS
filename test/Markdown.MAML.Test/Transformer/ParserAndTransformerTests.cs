@@ -274,36 +274,116 @@ Remarks
         }
 
         [Fact]
-        public void ProducesParameterAndSyntaxEntriesForNonExistingTypes()
+        public void ProducesParameterEntriesForCornerCases()
         {
             var parser = new MarkdownParser();
 
-            const string fooParamName = "FooParam";
             const string docFormatString = @"
 ## Get-Foo
 ### PARAMETERS
 
-#### FooParam [NonExistingType]
+#### NonExistingTypeParam [NonExistingType]
 
 ```powershell
 ```
 
+This is NonExistingTypeParam description.
+
+#### NoDescriptionParam [string]
+
+#### NoTypeParam
+
+NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
             MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
-            Assert.Equal(1, mamlCommand.Parameters.Count);
+            Assert.Equal(3, mamlCommand.Parameters.Count);
+
+            var nonExistinTypeParam = mamlCommand.Parameters[0];
+            Assert.Equal("NonExistingTypeParam", nonExistinTypeParam.Name);
+            Assert.Equal("NonExistingType", nonExistinTypeParam.Type);
+            Assert.Equal("This is NonExistingTypeParam description.", nonExistinTypeParam.Description);
+
+            var noDescriptionParam = mamlCommand.Parameters[1];
+            Assert.Equal("NoDescriptionParam", noDescriptionParam.Name);
+            Assert.Equal("string", noDescriptionParam.Type);
+            Assert.Equal("", noDescriptionParam.Description);
+
+            var noTypeParam = mamlCommand.Parameters[2];
+            Assert.Equal("NoTypeParam", noTypeParam.Name);
+            Assert.Equal(null, noTypeParam.Type);
+            Assert.Equal("NoTypeParam description.", noTypeParam.Description);
+        }
+
+        [Fact]
+        public void ProducesParameterForDefaultParameterName()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### informationVariable
+
+#### force [switch]
+```powershell
+[Parameter(Mandatory=$false)]
+```
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(2, mamlCommand.Parameters.Count);
 
             var fooParam = mamlCommand.Parameters[0];
-            Assert.Equal(fooParamName, fooParam.Name);
-            Assert.Equal("NonExistingType", fooParam.Type);
-
-            Assert.Equal(1, mamlCommand.Syntax.Count);
-            Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
-            Assert.Equal("NonExistingType", mamlCommand.Syntax[0].Parameters[0].Type);
+            Assert.Equal("informationVariable", fooParam.Name);
+            Assert.Equal(null, fooParam.Type);
         }
+
+        [Fact]
+        public void ProducesSyntaxForTwoSets()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### TypeName [String]
+
+```powershell
+[Parameter(Mandatory = $true, ParameterSetName = 'Set 1')]
+[Parameter(ParameterSetName = 'Set 2')]
+```
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(2, mamlCommand.Syntax.Count);
+            var syntax1 = mamlCommand.Syntax[0];
+            var syntax2 = mamlCommand.Syntax[1];
+
+            Assert.Equal(syntax1.Parameters.Count, 1);
+            Assert.Equal(syntax2.Parameters.Count, 1);
+
+            Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
+            Assert.Equal(syntax2.Parameters[0].Name, "TypeName");
+
+            Assert.Equal(syntax1.Parameters[0].Type, "String");
+            Assert.Equal(syntax2.Parameters[0].Type, "String");
+
+            Assert.Equal(syntax1.Parameters[0].Required, false);
+            Assert.Equal(syntax2.Parameters[0].Required, true);
+        }
+
 
         private static string GetParameterText(string paramName, string paramType, string paramAttributes)
         {

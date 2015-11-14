@@ -289,10 +289,19 @@ namespace Markdown.MAML.Transformer
         private string GetTextFromParagraphSpans(IEnumerable<ParagraphSpan> spans)
         {
             StringBuilder sb = new StringBuilder();
+            bool first = true;
             foreach (var paragraphSpan in spans)
             {
-                // TODO: make it handle hyperlinks, codesnippets, etc 
+                // TODO: make it handle hyperlinks, codesnippets, etc more wisely
+                
+                if (!first && paragraphSpan is HyperlinkSpan)
+                {
+                    sb.Append(" ");
+                }
+
                 sb.Append(paragraphSpan.Text);
+
+                first = false;
             }
             return sb.ToString();
         }
@@ -304,6 +313,26 @@ namespace Markdown.MAML.Transformer
                 return "";
             }
             return GetTextFromParagraphSpans(node.Spans);
+        }
+
+        /// <summary>
+        /// We do this shift to avoid collisions with default parameter names, like informationVariable.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string ShiftName(string name)
+        {
+            return name + "__";
+        }
+
+        /// <summary>
+        /// We do this shift to avoid collisions with default parameter names, like informationVariable.
+        /// </summary>
+        /// <param name="name"></param>
+        /// <returns></returns>
+        private string UndoShiftName(string name)
+        {
+            return name.Substring(0, name.Length-2);
         }
 
         private void GatherParameterDetails(MamlCommand command)
@@ -337,7 +366,7 @@ $h.parameters.parameter
                 var parameterBlocks =
                     command
                         .Parameters
-                        .Select(p => string.Format(parameterFormatString, p.AttributesText, p.Name));
+                        .Select(p => string.Format(parameterFormatString, p.AttributesText, ShiftName(p.Name)));
 
                 var functionScript =
                     string.Format(
@@ -354,37 +383,13 @@ $h.parameters.parameter
                     throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));    
                 }
 
-                foreach (var parameterDetails in parameterDetailses)
+                foreach (PSObject parameterDetailsPsObject in parameterDetailses)
                 {
                     var parameter = 
                         command.Parameters.FirstOrDefault(
-                            p => string.Equals(p.Name, (string)parameterDetails.Properties["name"].Value));
+                            p => string.Equals(p.Name, UndoShiftName((string)parameterDetailsPsObject.Properties["name"].Value)));
 
-                    // TODO: What about if null?
-
-                    // parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
-                    
-                    parameter.Position = (string)parameterDetails.Properties["position"].Value;
-                    parameter.Required = ((string)parameterDetails.Properties["required"].Value).Equals("true");
-                    parameter.PipelineInput = ((string)parameterDetails.Properties["pipelineInput"].Value).StartsWith("true");
-                    
-                    // TODO: Still need to determine how to get these
-                    //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
-                    //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
-                    
-                    //parameter.ValueRequired = false;
-                    //parameter.ValueVariableLength = false;
-
-                    // The 'aliases' property will contain either 'None' or a
-                    // comma-separated list of aliases.
-                    string aliasesString = ((string)parameterDetails.Properties["aliases"].Value);
-                    if (!string.Equals(aliasesString, "None"))
-                    {
-                        parameter.Aliases = 
-                            aliasesString.Split(
-                                new string[] { ", " }, 
-                                StringSplitOptions.RemoveEmptyEntries);
-                    }
+                    FillUpParameterFromPSObject(parameter, parameterDetailsPsObject);
                 }
 
                 powerShell.Commands.Clear();
@@ -400,17 +405,68 @@ $h.parameters.parameter
                     MamlSyntax syntax = new MamlSyntax();
 
                     var syntaxParams = (object[])syntaxDetails.Properties["parameter"].Value;
-                    foreach (var syntaxParam in syntaxParams.OfType<PSObject>())
+                    foreach (PSObject syntaxParamPsObject in syntaxParams.OfType<PSObject>())
                     {
-                        syntax.Parameters.Add(
-                            command.Parameters.FirstOrDefault(
-                                p => string.Equals(
-                                    p.Name,
-                                    (string)syntaxParam.Properties["name"].Value)));
+                        string paramName = UndoShiftName((string) syntaxParamPsObject.Properties["name"].Value);
+                        MamlParameter parametersParameter = command.Parameters.FirstOrDefault(p => string.Equals(p.Name, paramName));
+                        if (parametersParameter == null)
+                        {
+                            throw new HelpSchemaException(command.Extent, "Cannot find corresponding parameter for syntax item " + paramName);
+                        }
+
+                        MamlParameter syntaxParameter = new MamlParameter()
+                        {
+                            Name = parametersParameter.Name,
+                            Type = parametersParameter.Type
+                        };
+
+                        FillUpParameterFromPSObject(syntaxParameter, syntaxParamPsObject);
+                        syntax.Parameters.Add(syntaxParameter);
                     }
 
                     command.Syntax.Add(syntax);
                 }
+            }
+        }
+
+        private static void FillUpParameterFromPSObject(MamlParameter parameter, PSObject parameterDetails)
+        {
+            // TODO: What about if null?
+
+            // parameter.Type = (string)((PSObject)parameterDetails.Properties["type"].Value).Properties["name"].Value;
+
+            parameter.Position = (string) parameterDetails.Properties["position"].Value;
+            parameter.Required = ((string) parameterDetails.Properties["required"].Value).Equals("true");
+            string pipelineInput = (string) parameterDetails.Properties["pipelineInput"].Value;
+            if (pipelineInput.StartsWith("t"))
+            {
+                // for some reason convention is:
+                // false
+                // True (ByValue)
+                // True (ByPropertyName)
+                pipelineInput = 'T' + pipelineInput.Substring(1);
+            }
+
+            parameter.PipelineInput = pipelineInput;
+
+            // TODO: Still need to determine how to get these
+            //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
+            //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
+            //parameter.ValueVariableLength = false;
+
+            // TODO: we need to find out, what ValueRequired really mean
+            parameter.ValueRequired = parameter.Type == "switch" ? false : parameter.Required;
+            
+
+            // The 'aliases' property will contain either 'None' or a
+            // comma-separated list of aliases.
+            string aliasesString = ((string) parameterDetails.Properties["aliases"].Value);
+            if (!string.Equals(aliasesString, "None"))
+            {
+                parameter.Aliases =
+                    aliasesString.Split(
+                        new string[] {", "},
+                        StringSplitOptions.RemoveEmptyEntries);
             }
         }
 
@@ -422,11 +478,11 @@ $h.parameters.parameter
         private bool ParameterRule(MamlCommand command)
         {
             // grammar:
-            // #### Name [TypeName]
-            // ```powershell
+            // #### Name [TypeName]     -   mandatory
+            // ```powershell            -   optional
             // [Parameter(...)]
             // ```
-            // Description
+            // Description              -   optional
             var node = GetNextNode();
             var headingNode = GetHeadingWithExpectedLevel(node, PARAMETER_NAME_HEADING_LEVEL);
             if (headingNode == null)
@@ -464,6 +520,8 @@ $h.parameters.parameter
                     descriptionNode = node as ParagraphNode;
                     break;
                 case MarkdownNodeType.Heading:
+                    // next parameter started
+                    UngetNode(node);
                     break;
                 case MarkdownNodeType.CodeBlock:
                     attributesNode = node as CodeBlockNode;

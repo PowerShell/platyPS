@@ -83,34 +83,38 @@ function Get-ParamMetadata
         $paramSet
     )
 
-    $meta = @()
-    if ($parameter.required -eq 'true')
-    {
-        $meta += 'Mandatory = $true'
-    }
+    foreach ($setPair in $paramSet.GetEnumerator()) {
 
-    if ($parameter.position -ne 'named')
-    {
-        $meta += 'Position = ' + ($parameter.position)
-    }
+        $paramSetName = $setPair.Key
+        $syntaxParam = $setPair.Value
 
-    if ($parameter.pipelineInput -eq 'True (ByValue)') {
-        $meta += 'ValueFromPipeline = $true'
-    }
+        $meta = @()
 
-    if ($parameter.pipelineInput -eq 'True (ByPropertyName)') {
-        $meta += 'ValueFromPipelineByPropertyName = $true'
-    }
-
-    if ($paramSet) {
-        $meta += "ParameterSetName = '$($paramSet[0])'"
-        $paramSet[1..($paramSet.Count)] | % {
-            "[Parameter(ParameterSetName = '$_')]"
+        if ($syntaxParam.required -eq 'true')
+        {
+            $meta += 'Mandatory = $true'
         }
-    }
 
-    if ($meta) {
-        '[Parameter(' + ($meta -join ', ') + ')]'
+        if ($syntaxParam.position -ne 'named')
+        {
+            $meta += 'Position = ' + ($syntaxParam.position)
+        }
+
+        if ($syntaxParam.pipelineInput -eq 'True (ByValue)') {
+            $meta += 'ValueFromPipeline = $true'
+        }
+
+        if ($syntaxParam.pipelineInput -eq 'True (ByPropertyName)') {
+            $meta += 'ValueFromPipelineByPropertyName = $true'
+        }
+
+        if ($paramSetName -ne '*') {
+            $meta += "ParameterSetName = '$paramSetName'"
+        }
+
+        if ($meta) {
+            '[Parameter(' + ($meta -join ', ') + ')]'
+        }
     }
 }
 
@@ -123,11 +127,11 @@ function Get-ParameterMarkdown
         [hashtable]$paramSets
     )
 
-    if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
-    {
+    #if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
+    #{
         # ignoring common parameters
-        return
-    }
+    #    return
+    #}
 
     $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
 @"
@@ -149,10 +153,27 @@ $parameterMetadata``````
 }
 
 <#
-.SYNOPSIS Get map 'parameterName' -> [string[]] 'Parameter sets that it belongs to'. $null, if it belongs to all of them.
+.SYNOPSIS Get map 'parameterName' -> ('setName' -> parameterXml) 'Parameter sets that it belongs to -> '. 
+    '*' for setName mean it belongs to default set.
 #>
 function Get-ParameterSetMapping($syntax)
 {
+    function Simplify($set) 
+    {
+        foreach ($i in 1..($set.Count-1))
+        {
+            if (($set[0].required -ne $set[$i].required) -or
+                ($set[0].pipelineInput -ne $set[$i].pipelineInput) -or
+                ($set[0].position -ne $set[$i].position) -or
+                ($set[0].variableLength -ne $set[$i].variableLength))
+            {
+                return $set
+            }
+        }
+
+        return [ordered]@{'*' = $set[0]}
+    }
+
     $result = @{}
     $syntaxCount = $syntax.syntaxItem.Count
     $i = 0
@@ -162,15 +183,19 @@ function Get-ParameterSetMapping($syntax)
         $_.parameter | % {
             $p = $_
             if ($result[$p.name]) {
-                $result[$p.name] += $paramSetName
+                $result[$p.name][$paramSetName] = $p
             } else {
-                $result[$p.name] = @(,$paramSetName)
+                $result[$p.name] = [ordered]@{$paramSetName = $p}
             }
+        }
+    }
 
-            if ($result[$p.name].Count -eq $syntaxCount) {
-                # belongs to all of them
-                $result[$p.name] = $null
-            }
+    # at this point, if parameter belongs to all parameter sets, 
+    # we should try to remove any notation for parameter sets, if metadata is the same for all of them.
+    @($result.Keys) | % {
+        if ($i -eq ($result[$_].Count))
+        {
+            $result[$_] = Simplify $result[$_]
         }
     }
 
@@ -314,6 +339,12 @@ function Convert-XmlElementToString
     }
 }
 
+function Get-NormalizedText([string]$text)
+{
+    # just normize some commmon typos
+    $text -replace '–','-'
+}
+
 function Convert-MamlToMarkdown
 {
     [CmdletBinding()]
@@ -322,7 +353,7 @@ function Convert-MamlToMarkdown
         [string]$maml
     )
 
-    $xmlMaml = [xml]$maml
+    $xmlMaml = [xml](Get-NormalizedText $maml)
     $commands = $xmlMaml.helpItems.command
 
     $commands | %{ Convert-CommandToMarkdown $_ } | Out-String
