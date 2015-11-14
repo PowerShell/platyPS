@@ -456,7 +456,15 @@ $h.parameters.parameter
 
             // TODO: we need to find out, what ValueRequired really mean
             parameter.ValueRequired = parameter.Type == "switch" ? false : parameter.Required;
+
+            var parameterValueGroup = parameterDetails.Properties["parameterValueGroup"];
+            if (parameterValueGroup != null)
+            {
+                var validateSet = (parameterValueGroup.Value as PSObject).Properties["parameterValue"].Value as object[];
+                parameter.ParameterValueGroup.AddRange(validateSet.Select(x => x.ToString()));
+            }
             
+            // $h.Syntax.syntaxItem[0].parameter[0].parameterValueGroup.parameterValue
 
             // The 'aliases' property will contain either 'None' or a
             // comma-separated list of aliases.

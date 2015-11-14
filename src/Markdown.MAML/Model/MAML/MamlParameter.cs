@@ -1,4 +1,5 @@
-﻿using Markdown.MAML.Model.Markdown;
+﻿using System.Collections.Generic;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Model.MAML
 {
@@ -29,6 +30,14 @@ namespace Markdown.MAML.Model.MAML
         public bool ValueVariableLength { get; set; }
 
         public string AttributesText { get; set; }
+
+        public List<string> ParameterValueGroup
+        {
+            get { return _parameterValueGroup; }
+        }
+
+        private readonly List<string> _parameterValueGroup = new List<string>();
+ 
 
         public MamlParameter()
         {

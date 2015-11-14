@@ -259,6 +259,16 @@ namespace Markdown.MAML.Renderer
             return typeName;
         }
 
+        private void AddParameterValueGroup(List<string> parameterValueGroup)
+        {
+            PushTag("command:parameterValueGroup");
+            foreach (string val in parameterValueGroup)
+            {
+                _stringBuilder.AppendLine("<command:parameterValue required=\"false\" variableLength=\"false\">" + val + "</command:parameterValue>");
+            }
+            PopTag("command:parameterValueGroup");   
+        }
+
         private void AddParameter(MamlCommand command, MamlParameter parameter, bool inSyntax)
         {
             var attributes = "required=\"" + parameter.Required.ToString().ToLower() + "\" " +
@@ -279,6 +289,11 @@ namespace Markdown.MAML.Renderer
             PushTag("maml:Description");
             AddParas(parameter.Description);
             PopTag("maml:Description");
+
+            if (inSyntax && parameter.ParameterValueGroup.Count > 0)
+            {
+                AddParameterValueGroup(parameter.ParameterValueGroup);
+            }
 
             attributes = "required=\"" + parameter.ValueRequired.ToString().ToLower() + "\" " +
                          "variableLength=\"" + parameter.ValueVariableLength.ToString().ToLower();

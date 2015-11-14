@@ -347,6 +347,37 @@ NoTypeParam description.
         }
 
         [Fact]
+        public void ProducesParameterValueGroup()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### foo [string]
+```powershell
+[ValidateSet('a', 'b', 'c')]
+```
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(1, mamlCommand.Syntax.Count);
+            Assert.Equal(1, mamlCommand.Syntax[0].Parameters.Count);
+
+            var fooParam = mamlCommand.Syntax[0].Parameters[0];
+            Assert.Equal("foo", fooParam.Name);
+            Assert.Equal("string", fooParam.Type);
+            Assert.Equal(3, fooParam.ParameterValueGroup.Count);
+            Assert.Equal("a", fooParam.ParameterValueGroup[0]);
+            Assert.Equal("b", fooParam.ParameterValueGroup[1]);
+            Assert.Equal("c", fooParam.ParameterValueGroup[2]);
+        }
+
+        [Fact]
         public void ProducesSyntaxForTwoSets()
         {
             var parser = new MarkdownParser();

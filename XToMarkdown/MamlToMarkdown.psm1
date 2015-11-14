@@ -83,6 +83,7 @@ function Get-ParamMetadata
         $paramSet
     )
 
+    $ValidateSetGenerated = $false
     foreach ($setPair in $paramSet.GetEnumerator()) {
 
         $paramSetName = $setPair.Key
@@ -113,7 +114,22 @@ function Get-ParamMetadata
         }
 
         if ($meta) {
-            '[Parameter(' + ($meta -join ', ') + ')]'
+            # formatting hustle
+            if ($meta.Count -eq 1) {
+                "[Parameter($meta)]"    
+            } else {
+                "[Parameter(`n  " + ($meta -join ",`n  ") + ")]"
+            }
+        }
+
+        if (-not $ValidateSetGenerated) {
+            # [ValidateSet()] is a separate attribute from [Parameter()].
+            # That means, we cannot specify ValidateSet per parameterSet.
+            $validateSet = $syntaxParam.parameterValueGroup.parameterValue.'#text'
+            if ($validateSet) {
+                "[ValidateSet(`n  '" + ($validateSet -join "',`n  '") + "')]"
+                $ValidateSetGenerated = $true
+            }
         }
     }
 }
