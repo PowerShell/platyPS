@@ -355,7 +355,7 @@ namespace Markdown.MAML.Renderer
 
         private string XmlEscape(string s)
         {
-            return s.Replace("<", "&lt;").Replace(">", "&gt;");
+            return s.Replace("&", "&amp;").Replace("<", "&lt;").Replace(">", "&gt;");
         }
     }
 }

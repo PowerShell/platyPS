@@ -130,7 +130,7 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "<port-number>" // < and > should be properly escaped
+                Synopsis = "<port&number>" // < and > should be properly escaped
             };
             
             string maml = renderer.MamlModelToString(new[] { command });
