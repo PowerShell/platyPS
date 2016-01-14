@@ -53,6 +53,11 @@ namespace Markdown.MAML.Parser
                     {   "hash_header", 
                         @"(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+", 
                         this.CreateHashHeader },
+                    
+                    // This is a dirty hack to tell avoid hash_headers, if it's not a beginning of a line
+                    {   "hash_header2", 
+                        @"(\r\n)+(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+", 
+                        this.CreateHashHeader2 },
 
                     {   "underline_header", 
                         @"(.+?)[ ]*\r\n(==+|--+)[ ]*(\r\n)+", 
@@ -124,6 +129,15 @@ namespace Markdown.MAML.Parser
                 foreach (MarkdownPattern markdownPattern in _markdownPatterns)
                 {
                     Match regexMatch = null;
+                    // This is a dirty hack to tell avoid hash_headers, if it's not a beginning of a line
+                    if (markdownPattern.PatternName == "hash_header")
+                    {
+                        if (_documentText[startOffset] != '#')
+                        {
+                            continue;
+                        }
+                    }
+
                     if (markdownPattern.TryMatchString(_documentText, startOffset, out regexMatch))
                     {
                         if (firstMatch == null || firstMatch.Index > regexMatch.Index)
@@ -134,7 +148,7 @@ namespace Markdown.MAML.Parser
                             {
                                 // no reason to continue
                                 break;
-                            }
+                            } 
                         }
                     }
                 }
@@ -214,6 +228,17 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[2].Value,
                     regexMatch.Groups[1].Value.Length,
+                    sourceExtent));
+        }
+
+        private void CreateHashHeader2(Match regexMatch, SourceExtent sourceExtent)
+        {
+            this.FinishParagraph();
+
+            _currentDocument.AddChildNode(
+                new HeadingNode(
+                    regexMatch.Groups[3].Value,
+                    regexMatch.Groups[2].Value.Length,
                     sourceExtent));
         }
 
@@ -354,7 +379,8 @@ namespace Markdown.MAML.Parser
 
             // Make sure all newlines are \r\n.  In some environments,
             // verbatim string literals have \r instead of \r\n.
-            return Regex.Replace(documentString, "([^\r])\n", "$1\r\n");
+            // regex source: http://stackoverflow.com/questions/3219014/what-is-a-cross-platform-regex-for-removal-of-line-breaks
+            return Regex.Replace(documentString, "\r\n?|\n", "\r\n");
         }
 
         #endregion
