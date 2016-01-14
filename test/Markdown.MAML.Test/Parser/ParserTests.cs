@@ -268,6 +268,37 @@ Not a hyperlink [PSObject].
         }
 
         [Fact]
+        public void CanPaserEmptySourceBlock()
+        {
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(@"#### 1:
+
+```powershell
+```
+
+```powershell
+[Parameter(
+  ValueFromPipeline = $true,
+  ParameterSetName = 'Set 1')]
+```
+");
+            HeadingNode headingNode =
+                this.AssertNodeType<HeadingNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Heading);
+
+            Assert.Equal(4, headingNode.HeadingLevel);
+
+            CodeBlockNode codeBlockNode =
+                this.AssertNodeType<CodeBlockNode>(
+                    documentNode.Children.ElementAtOrDefault(1),
+                    MarkdownNodeType.CodeBlock);
+
+            Assert.Equal("", codeBlockNode.Text);
+        }
+
+        [Fact]
         public void ParsesExample3FromGetPSSnapin()
         {
             string codeblockText = 

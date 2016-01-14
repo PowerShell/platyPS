@@ -65,7 +65,7 @@ namespace Markdown.MAML.Parser
 
                     // Code blocks
                     {   "tick_codeblock",
-                        @"```\w*(\r\n)*((.|\r\n)+?)```(\r\n)*",
+                        @"```\w*(\r\n)*((.|\r\n)*?)```(\r\n)*",
                         this.CreateTickCodeBlock },
 
                     // Paragraph spans
