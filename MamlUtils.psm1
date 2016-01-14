@@ -80,14 +80,14 @@ function $cmdletName
 }
 '@
 
-    foreach ($command in $xml.helpItems.command)
+    foreach ($command in $xml.helpItems.command.details)
     {
         $thisDefinition = $template
         $thisDefinition = $thisDefinition.Replace("`$helpFileName", $helpFileNewName)
-        $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.details.name)        
+        $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.name)        
         $moduleDefintion += "`r`n" + $thisDefinition + "`r`n"
         $writeFile = $true
-        $result.Cmdlets += $command.details.name
+        $result.Cmdlets += $command.name
     }
 
     if (-not $writeFile)
