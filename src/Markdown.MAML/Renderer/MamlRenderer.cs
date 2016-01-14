@@ -100,11 +100,11 @@ namespace Markdown.MAML.Renderer
 
                 #region NAME, VERB, NOUN, + SYNOPSIS
                 PushTag("command:details");
-                _stringBuilder.AppendFormat("<command:name>{0}</command:name>{1}", command.Name, Environment.NewLine);
+                _stringBuilder.AppendFormat("<command:name>{0}</command:name>{1}", XmlEscape(command.Name), Environment.NewLine);
                 var splittedName = command.Name.Split('-');
                 var verb = splittedName[0];
                 var noun = command.Name.Substring(verb.Length);
-                _stringBuilder.AppendFormat("<command:verb>{0}</command:verb>{2}<command:noun>{1}</command:noun>{2}", verb, noun, Environment.NewLine);
+                _stringBuilder.AppendFormat("<command:verb>{0}</command:verb>{2}<command:noun>{1}</command:noun>{2}", XmlEscape(verb), XmlEscape(noun), Environment.NewLine);
                 AddSynopsis(command);
                 PopTag("command:details");
                 #endregion // NAME, VERB, NOUN, + SYNOPSIS
@@ -127,7 +127,7 @@ namespace Markdown.MAML.Renderer
             foreach (MamlSyntax syntaxItem in command.Syntax)
             {
                 PushTag("command:syntaxItem");
-                _stringBuilder.AppendFormat("<maml:name>{0}</maml:name>{1}", command.Name, Environment.NewLine);
+                _stringBuilder.AppendFormat("<maml:name>{0}</maml:name>{1}", XmlEscape(command.Name), Environment.NewLine);
                 foreach (MamlParameter parameter in syntaxItem.Parameters)
                 {
                     AddParameter(command, parameter, inSyntax: true);
@@ -145,11 +145,11 @@ namespace Markdown.MAML.Renderer
                 PushTag("maml:navigationLink");
 
                 PushTag("maml:linkText");
-                _stringBuilder.Append(Link.LinkName);
+                _stringBuilder.Append(XmlEscape(Link.LinkName));
                 PopTag(1);
 
                 PushTag("maml:uri");
-                _stringBuilder.Append(Link.LinkUri);
+                _stringBuilder.Append(XmlEscape(Link.LinkUri));
                 PopTag(1);
 
                 PopTag(1);
@@ -165,11 +165,11 @@ namespace Markdown.MAML.Renderer
                 PushTag("command:example");
 
                 PushTag("maml:title");
-                _stringBuilder.Append(example.Title);
+                _stringBuilder.Append(XmlEscape(example.Title));
                 PopTag("maml:title");
 
                 PushTag("dev:code");
-                _stringBuilder.Append(example.Code);
+                _stringBuilder.Append(XmlEscape(example.Code));
                 PopTag("dev:code");
 
                 PushTag("dev:remarks");
@@ -199,7 +199,7 @@ namespace Markdown.MAML.Renderer
 
                 PushTag("dev:type");
                 PushTag("maml:name");
-                _stringBuilder.Append(output.TypeName);
+                _stringBuilder.Append(XmlEscape(output.TypeName));
                 PopTag("maml:name");
                 PopTag("dev:type");
 
@@ -221,7 +221,7 @@ namespace Markdown.MAML.Renderer
 
                 PushTag("dev:type");
                 PushTag("maml:name");
-                _stringBuilder.Append(input.TypeName);
+                _stringBuilder.Append(XmlEscape(input.TypeName));
                 PopTag("maml:name");
                 PopTag("dev:type");
 
@@ -264,7 +264,7 @@ namespace Markdown.MAML.Renderer
             PushTag("command:parameterValueGroup");
             foreach (string val in parameterValueGroup)
             {
-                _stringBuilder.AppendLine("<command:parameterValue required=\"false\" variableLength=\"false\">" + val + "</command:parameterValue>");
+                _stringBuilder.AppendLine("<command:parameterValue required=\"false\" variableLength=\"false\">" + XmlEscape(val) + "</command:parameterValue>");
             }
             PopTag("command:parameterValueGroup");   
         }
@@ -283,7 +283,7 @@ namespace Markdown.MAML.Renderer
             PushTag("command:parameter", attributes);
 
             PushTag("maml:name");
-            _stringBuilder.Append(parameter.Name);
+            _stringBuilder.Append(XmlEscape(parameter.Name));
             PopTag("maml:name");
 
             PushTag("maml:Description");
@@ -306,7 +306,7 @@ namespace Markdown.MAML.Renderer
             if (!inSyntax || mamlType != "SwitchParameter")
             {
                 PushTag("command:parameterValue", attributes);
-                _stringBuilder.Append(mamlType);
+                _stringBuilder.Append(XmlEscape(mamlType));
                 PopTag("command:parameterValue");
             }
 
@@ -314,7 +314,7 @@ namespace Markdown.MAML.Renderer
             {
                 PushTag("dev:type");
                 PushTag("maml:name");
-                _stringBuilder.Append(mamlType);
+                _stringBuilder.Append(XmlEscape(mamlType));
                 PopTag("maml:name");
                 _stringBuilder.Append("<maml:uri />");
                 PopTag("dev:type");
@@ -347,10 +347,15 @@ namespace Markdown.MAML.Renderer
                 foreach (string para in paragraphs)
                 {
                     PushTag("maml:para");
-                    _stringBuilder.AppendLine(para);
+                    _stringBuilder.AppendLine(XmlEscape(para));
                     PopTag(1);
                 }
             }
+        }
+
+        private string XmlEscape(string s)
+        {
+            return s.Replace("<", "&lt;").Replace(">", "&gt;");
         }
     }
 }

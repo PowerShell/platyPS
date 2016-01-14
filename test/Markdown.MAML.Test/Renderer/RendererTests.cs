@@ -123,6 +123,23 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Equal("Param2", nameParam[1]);
         }
 
+        [Fact]
+        public void RendererProduceEscapeXmlSpecialChars()
+        {
+            MamlRenderer renderer = new MamlRenderer();
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                Synopsis = "<port-number>" // < and > should be properly escaped
+            };
+            
+            string maml = renderer.MamlModelToString(new[] { command });
+
+            string[] synopsis = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:details/maml:description/maml:para");
+            Assert.Equal(1, synopsis.Length);
+            Assert.Equal(synopsis[0], command.Synopsis);
+        }
+
     }
 
 }
