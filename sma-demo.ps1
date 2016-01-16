@@ -20,6 +20,7 @@ try
 {
     Import-Module $g.Path -Force -ea Stop
     $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$_" -Full }
+    $allHelp > .\SMA.generated.txt
 }
 finally
 {

@@ -93,10 +93,9 @@ namespace Markdown.MAML.Renderer
 
         private void AddCommands(IEnumerable<MamlCommand> mamlCommands)
         {
-            _stringBuilder.AppendLine(COMMAND_PREAMBULA);
             foreach (var command in mamlCommands)
             {
-                PopAllTags();
+                _stringBuilder.AppendLine(COMMAND_PREAMBULA);
 
                 #region NAME, VERB, NOUN, + SYNOPSIS
                 PushTag("command:details");
@@ -117,8 +116,9 @@ namespace Markdown.MAML.Renderer
                 AddNotes(command);
                 AddExamples(command);
                 AddLinks(command);
+
+                _stringBuilder.AppendLine("</command:command>");
             }
-            _stringBuilder.AppendLine("</command:command>");
         }
 
         private void AddSyntax(MamlCommand command)
