@@ -15,6 +15,8 @@ namespace Markdown.MAML.Model.MAML
 
         public string Description { get; set; }
 
+        public string DefaultValue { get; set; }
+
         public bool VariableLength { get; set; }
 
         public bool Globbing { get; set; }
@@ -41,7 +43,8 @@ namespace Markdown.MAML.Model.MAML
 
         public MamlParameter()
         {
-            VariableLength = false;
+            VariableLength = true;
+            ValueVariableLength = false;
             Globbing = false;
             PipelineInput = "false";
             Aliases = new string[] {};

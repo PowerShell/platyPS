@@ -507,7 +507,7 @@ $h.parameters.parameter
             };
 
             int typeBeginIndex = headingNode.Text.IndexOf('[');
-            int typeEndIndex = headingNode.Text.IndexOf(']');
+            int typeEndIndex = headingNode.Text.LastIndexOf(']');
             if (typeBeginIndex > 0 && typeEndIndex > 0)
             {
                 parameter.Type = headingNode.Text.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);

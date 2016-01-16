@@ -1,11 +1,10 @@
 ﻿cd $PSScriptRoot\EndToEndTests
-invoke-pester
 
 $r = [Markdown.MAML.Renderer.MamlRenderer]::new()
 $p = [Markdown.MAML.Parser.MarkdownParser]::new()
 $t = [Markdown.MAML.Transformer.ModelTransformer]::new()
 
-$markdown = cat -Raw ..\Examples\SMA.Help.md
+$markdown = cat -Raw .\SMA.Help.md
 
 $model = $p.ParseString($markdown)
 $maml = $t.NodeModelToMamlModel($model)

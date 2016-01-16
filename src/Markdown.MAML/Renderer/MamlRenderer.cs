@@ -102,7 +102,7 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.AppendFormat("<command:name>{0}</command:name>{1}", XmlEscape(command.Name), Environment.NewLine);
                 var splittedName = command.Name.Split('-');
                 var verb = splittedName[0];
-                var noun = command.Name.Substring(verb.Length);
+                var noun = command.Name.Substring(Math.Min(verb.Length + 1, command.Name.Length));
                 _stringBuilder.AppendFormat("<command:verb>{0}</command:verb>{2}<command:noun>{1}</command:noun>{2}", XmlEscape(verb), XmlEscape(noun), Environment.NewLine);
                 AddSynopsis(command);
                 PopTag("command:details");
@@ -310,17 +310,33 @@ namespace Markdown.MAML.Renderer
                 PopTag("command:parameterValue");
             }
 
-            //if (inSyntax)
+            PushTag("dev:type");
+            PushTag("maml:name");
+            _stringBuilder.Append(XmlEscape(mamlType));
+            PopTag("maml:name");
+            _stringBuilder.Append("<maml:uri />");
+            PopTag("dev:type");
+
+            // Region defaultValue
+
+            PushTag("dev:defaultValue");
+            // TODO: False is often default for Switch
+            // if (mamlType == "SwitchParameter" && parameter.DefaultValue == null)
+            //{
+            //   _stringBuilder.Append("False");   
+            //}
+
+            if (parameter.DefaultValue != null)
             {
-                PushTag("dev:type");
-                PushTag("maml:name");
-                _stringBuilder.Append(XmlEscape(mamlType));
-                PopTag("maml:name");
-                _stringBuilder.Append("<maml:uri />");
-                PopTag("dev:type");
-                _stringBuilder.AppendLine("<dev:defaultValue>none</dev:defaultValue>");
+                _stringBuilder.Append(parameter.DefaultValue);
+            }
+            else
+            {
+                _stringBuilder.Append("none");
             }
 
+            PopTag("dev:defaultValue");
+            // closing tag
             PopTag("command:parameter");
         }
 
