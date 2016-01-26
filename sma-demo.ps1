@@ -46,7 +46,15 @@ try
     }
 
     $originalHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
-        Microsoft.PowerShell.Core\Get-Help "$_" -Full
+        $c = $_
+        try 
+        {
+            Microsoft.PowerShell.Core\Get-Help "$_" -Full
+        } 
+        catch 
+        {
+            Write-Warning "Unknown comand $c"
+        }
     }
     $originalHelp > .\SMA.original.txt    
 

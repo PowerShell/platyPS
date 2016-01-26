@@ -15,9 +15,6 @@ Add-Type -Path $assemblyPath
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    # populate output
-    cp $PSScriptRoot\SMA.help.txt $outFolder\SMA.original.txt
-
     $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
     It 'transform without errors' {
         $generatedMaml = [Markdown.MAML.Renderer.MamlRenderer]::MarkdownStringToMamlString($markdown)
@@ -42,4 +39,17 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             Remove-Item $moduleDirectory -Force -Recurse
         }
     }
+
+    $originalHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
+        $c = $_
+        try 
+        {
+            Microsoft.PowerShell.Core\Get-Help "$_" -Full
+        } 
+        catch 
+        {
+            Write-Warning "Unknown comand $c"
+        }
+    }
+    $originalHelp > $outFolder\SMA.original.txt 
 }
