@@ -335,6 +335,39 @@ namespace Markdown.MAML.Transformer
             return name.Substring(0, name.Length-2);
         }
 
+        /// <summary>
+        /// PowerShell doesn't provide an easy way to retrive parameterSetName from syntaxItem, so we do this quirky heuristic.
+        /// </summary>
+        /// <param name="syntaxItem"></param>
+        /// <returns></returns>
+        private string GetParameterSetNameFromSyntaxItem(PSObject syntaxItem)
+        {
+            var syntaxParams = (object[])syntaxItem.Properties["parameter"].Value;
+            Dictionary<string, int> counts = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+            int paramCount = 0;
+            foreach (PSObject syntaxParamPsObject in syntaxParams.OfType<PSObject>())
+            {
+                paramCount++;
+                var parameterSetString = (string) syntaxParamPsObject.Properties["parameterSetName"].Value;
+                string[] sets = parameterSetString.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
+                foreach (string setName in sets)
+                {
+                    int oldCount = counts.ContainsKey(setName) ? counts[setName] : 0;
+                    counts[setName] = oldCount + 1;
+                }
+            }
+
+            foreach (var countPair in counts)
+            {
+                if (countPair.Value == paramCount)
+                {
+                    return countPair.Key;
+                }
+            }
+
+            return "";
+        }
+
         private void GatherParameterDetails(MamlCommand command)
         {
             const string parameterFormatString = @"
@@ -400,7 +433,10 @@ $h.parameters.parameter
                     throw new HelpSchemaException(command.Extent, "Errors when processing command " + command.Name + ":\n" + string.Join(";\n", powerShell.Streams.Error));
                 }
 
-                foreach (var syntaxDetails in syntaxDetailses)
+                var sortedSyntaxItems = syntaxDetailses.ToList();
+                sortedSyntaxItems.Sort((si1, si2) => String.CompareOrdinal(GetParameterSetNameFromSyntaxItem(si1), GetParameterSetNameFromSyntaxItem(si2)));
+
+                foreach (var syntaxDetails in sortedSyntaxItems)
                 {
                     MamlSyntax syntax = new MamlSyntax();
 
