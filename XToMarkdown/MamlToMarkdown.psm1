@@ -28,6 +28,20 @@
     }
 }
 
+function Get-EscapedMarkdownText
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [string]$text
+    )
+
+    process 
+    {
+        ($text -replace '<','\<') -replace '>','\>'
+    }
+}
+
 function Get-NameMarkdown($command)
 {
 @"
@@ -39,7 +53,7 @@ function Get-SynopsisMarkdown($command)
 {
 @"
 ### SYNOPSIS
-$($command.details.description.para | Convert-MamlLinksToMarkDownLinks)
+$($command.details.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText)
 "@
 }
 
@@ -48,7 +62,7 @@ function Get-DescriptionMarkdown($command)
 @"
 ### DESCRIPTION
 "@
-$command.description.para | Convert-MamlLinksToMarkDownLinks
+$command.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 <#
@@ -150,8 +164,13 @@ function Get-ParameterMarkdown
     #}
 
     $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
+    $defaultValue = '' 
+    if ($parameter.defaultValue -and $parameter.defaultValue -ne 'none' -and ($parameterType -ne '[switch]' -or $parameter.defaultValue -ne 'false')) {
+        $defaultValue = " = $($parameter.defaultValue)"
+    }
+
 @"
-#### $($parameter.name) $parameterType
+#### $($parameter.name) $parameterType$defaultValue
 
 "@
     $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
@@ -164,8 +183,8 @@ $parameterMetadata``````
 "@
     }
 
-    $parameter.description.para | Convert-MamlLinksToMarkDownLinks
-    $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks
+    $parameter.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 <#
@@ -277,7 +296,7 @@ if ($command.inputTypes.inputType.type.name)
 "@
 }
 
-$command.inputTypes.inputType.description.para | Convert-MamlLinksToMarkDownLinks
+$command.inputTypes.inputType.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 
 }
 
@@ -287,7 +306,7 @@ function Get-OutputMarkdown($command)
 ### OUTPUTS
 #### $($command.returnValues.returnValue.type.name)
 "@
-$command.returnValues.returnValue.description.para | Convert-MamlLinksToMarkDownLinks
+$command.returnValues.returnValue.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 function Get-NotesMarkdown($command)
@@ -295,7 +314,7 @@ function Get-NotesMarkdown($command)
 @"
 ### NOTES
 "@
-$command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks
+$command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 function Get-ExampleMarkdown($example)
@@ -306,11 +325,11 @@ function Get-ExampleMarkdown($example)
         "#### EXAMPLE"
     }
 
-    $example.introduction.para
+    $example.introduction.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
     '```powershell'
     $example.code
     '```'
-    $example.remarks.para
+    $example.remarks.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 function Get-ExamplesMarkdown($command)
@@ -318,7 +337,7 @@ function Get-ExamplesMarkdown($command)
 @"
 ### EXAMPLES
 "@
-$command.examples.example | % { Get-ExampleMarkdown $_ | Convert-MamlLinksToMarkDownLinks }
+$command.examples.example | % { Get-ExampleMarkdown $_ }
 }
 
 function Get-RelatedLinksMarkdown($command)
