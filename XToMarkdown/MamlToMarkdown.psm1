@@ -134,9 +134,10 @@ function Get-ParamMetadata
 
         if ($syntaxParam.pipelineInput -eq 'True (ByValue)') {
             $meta += 'ValueFromPipeline = $true'
-        }
-
-        if ($syntaxParam.pipelineInput -eq 'True (ByPropertyName)') {
+        } elseif ($syntaxParam.pipelineInput -eq 'True (ByPropertyName)') {
+            $meta += 'ValueFromPipelineByPropertyName = $true'
+        } elseif ($syntaxParam.pipelineInput -eq 'True (ByPropertyName, ByValue)') {
+            $meta += 'ValueFromPipeline = $true'
             $meta += 'ValueFromPipelineByPropertyName = $true'
         }
 

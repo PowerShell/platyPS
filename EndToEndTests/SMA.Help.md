@@ -527,6 +527,8 @@ Do not use the Port parameter unless you must. The port that is set in the comma
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 8')]
 ```
 
@@ -839,6 +841,8 @@ Specifies the InstanceId GUID of a running job. To get the InstanceId of a job, 
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
 ```
 
@@ -854,7 +858,7 @@ Specifies a running job object. The simplest way to use this parameter is to sav
   ParameterSetName = 'Set 4')]
 ```
 
-Specifies a job by the job’s friendly name. When you start a job, you can specify a job name by adding the JobName parameter, in cmdlets such as Invoke-Command and Start-Job.
+Specifies a job by the job's friendly name. When you start a job, you can specify a job name by adding the JobName parameter, in cmdlets such as Invoke-Command and Start-Job.
 
 
 #### Confirm [switch]
@@ -1414,6 +1418,8 @@ To get the friendly name of a session, use the Get-PSSession cmdlet. The friendl
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
 ```
 
@@ -2058,7 +2064,7 @@ Id    Name          InstanceId                               State           Ava
 4     MyRunspace    771356e9-8c44-4b70-9de5-dd17cb41e48e     Opened          Busy
 5     Runspace8     3e517382-a97a-49ba-9c3c-fd21f6664288     Broken          None
 
-The runspace objects returned by Get-Runspace also have a NoteProperty called ScriptStackTrace of the running command stack, if available.Next, debug runspace ID 4, that is running another user’s long-running script. From the list returned from Get-Runspace, note that the runspace state is Opened, and Availability is Busy, meaning that the runspace is still running the long-running script.
+The runspace objects returned by Get-Runspace also have a NoteProperty called ScriptStackTrace of the running command stack, if available.Next, debug runspace ID 4, that is running another user's long-running script. From the list returned from Get-Runspace, note that the runspace state is Opened, and Availability is Busy, meaning that the runspace is still running the long-running script.
 PS C:\>[Process:1520]: PS C:\> (Get-Runspace -Id 4).ScriptStackTrace
 Command                    Arguments                           Location
 -------                    ---------                           --------
@@ -2297,6 +2303,8 @@ Do not use the Port parameter unless you must. The port setting in the command a
 ```powershell
 [Parameter(
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 6')]
 ```
 
@@ -4794,7 +4802,7 @@ Name                                                                            
 Microsoft.PowerShell.Management                                                      3.1.0.0  
 
 ```
-This command gets the Microsoft.PowerShell.Management module by specifying the module’s fully qualified name, with the FullyQualifiedName parameter. The command then pipes the results into Format-Table, to format the results as a table with Name and Version as the column headings.
+This command gets the Microsoft.PowerShell.Management module by specifying the module's fully qualified name, with the FullyQualifiedName parameter. The command then pipes the results into Format-Table, to format the results as a table with Name and Version as the column headings.
 
 
 
@@ -8396,6 +8404,8 @@ Do not use the Port parameter unless you must. The port setting in the command a
 ```powershell
 [Parameter(
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 3')]
 ```
 
@@ -10463,6 +10473,8 @@ Type a user name, such as "User01" or "Domain01\User01". Or, enter a PSCredentia
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 6')]
 ```
 
@@ -10482,6 +10494,8 @@ This parameter is valid, but not effective, when the session is stored on the lo
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 7')]
 ```
 
@@ -10511,6 +10525,8 @@ If the default value or explicit value of  the OutTarget parameter is not Job, t
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 8')]
 ```
 
@@ -10547,6 +10563,8 @@ Do not use the Port parameter unless you must. The port that is set in the comma
 [Parameter(
   Mandatory = $true,
   Position = 1,
+  ValueFromPipeline = $true,
+  ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
 ```
 
@@ -15629,7 +15647,7 @@ The following two examples show Where() object behavior that is no longer suppor
 The following three examples show Where() object behavior that is supported in Windows PowerShell 4.0 and forward.
 (Get-Process).Where({$_.ProcessName -match "PowerShell"})
 (Get-Process).Where{$_.ProcessName -match "PowerShell"}
-(Get-Process).Where({$_.ProcessName -match "PowerShell"}, ‘Last’, 1)
+(Get-Process).Where({$_.ProcessName -match "PowerShell"}, ‘Last', 1)
 
 ### EXAMPLES
 #### -------------------------- EXAMPLE 1 --------------------------
