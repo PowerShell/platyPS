@@ -7,6 +7,11 @@ namespace Markdown.MAML.Model.Markdown
 
         public SourceExtent SourceExtent { get; private set; }
 
+        public static string UnwindMarkdownCharsEscaping(string spanText)
+        {
+            return spanText.Replace(@"\<", "<").Replace(@"\>", ">");
+        }
+
         public ParagraphSpan(string spanText, SourceExtent sourceExtent)
         {
             this.Text = spanText;

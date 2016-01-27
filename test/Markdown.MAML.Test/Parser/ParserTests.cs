@@ -191,6 +191,22 @@ Not a hyperlink [PSObject].
         }
 
         [Fact]
+        public void ParsesEscapedLessAndMoreCorrectly()
+        {
+            const string allCharacterString =
+                @"\<port-number\>";
+
+            ParagraphNode paragraphNode =
+                this.ParseAndGetExpectedChild<ParagraphNode>(
+                    allCharacterString,
+                    MarkdownNodeType.Paragraph);
+
+            ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
+
+            Assert.Equal("<port-number>", spans[0].Text);
+        }
+
+        [Fact]
         public void ParsesParagraphWithFormattedSpans()
         {
             ParagraphNode paragraphNode =

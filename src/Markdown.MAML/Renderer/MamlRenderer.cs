@@ -320,19 +320,21 @@ namespace Markdown.MAML.Renderer
             // Region defaultValue
 
             PushTag("dev:defaultValue");
-            // TODO: False is often default for Switch
-            // if (mamlType == "SwitchParameter" && parameter.DefaultValue == null)
-            //{
-            //   _stringBuilder.Append("False");   
-            //}
 
-            if (parameter.DefaultValue != null)
+            if (mamlType == "SwitchParameter" && parameter.DefaultValue == null)
             {
-                _stringBuilder.Append(parameter.DefaultValue);
+                _stringBuilder.Append("False");
             }
             else
             {
-                _stringBuilder.Append("none");
+                if (parameter.DefaultValue != null)
+                {
+                    _stringBuilder.Append(XmlEscape(parameter.DefaultValue));
+                }
+                else
+                {
+                    _stringBuilder.Append("none");
+                }
             }
 
             PopTag("dev:defaultValue");

@@ -15234,7 +15234,7 @@ This parameter is introduced in Windows PowerShell 3.0.
   Mandatory = $true,
   Position = 1,
   ParameterSetName = 'Set 9')]
-[Parameter(吊楨⁳潣浭湡⁤敧獴愠汬愠灰潲敶⁤敶扲⹳
+[Parameter(
   Mandatory = $true,
   Position = 1,
   ParameterSetName = 'Set 10')]
@@ -15270,7 +15270,7 @@ This parameter is introduced in Windows PowerShell 3.0.
   Mandatory = $true,
   Position = 1,
   ParameterSetName = 'Set 18')]
-[Parameter(吊楨⁳潣浭湡⁤楦摮⁳污⁬潣浭湡獤椠⁮⁡潭畤敬琠慨⁴慨敶甠慮灰潲敶⁤敶扲⹳
+[Parameter(
   Mandatory = $true,
   Position = 1,
   ParameterSetName = 'Set 19')]

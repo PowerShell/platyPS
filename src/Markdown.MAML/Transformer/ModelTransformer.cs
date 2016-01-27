@@ -549,9 +549,15 @@ $h.parameters.parameter
 
             int typeBeginIndex = headingNode.Text.IndexOf('[');
             int typeEndIndex = headingNode.Text.LastIndexOf(']');
-            if (typeBeginIndex > 0 && typeEndIndex > 0)
+            if (typeBeginIndex >= 0 && typeEndIndex >= 0)
             {
                 parameter.Type = headingNode.Text.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);
+            }
+
+            int equalIndex = headingNode.Text.IndexOf('=');
+            if (equalIndex >= 0)
+            {
+                parameter.DefaultValue = headingNode.Text.Substring(equalIndex + 1).Trim();
             }
 
             node = GetNextNode();
