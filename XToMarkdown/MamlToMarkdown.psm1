@@ -309,17 +309,18 @@ function Get-InputMarkdown($command)
 
 if ($command.inputTypes.inputType.type.name)
 {
-@"
-#### $($command.inputTypes.inputType.type.name)
-"@
-} else 
+    $command.inputTypes.inputType | % { 
+        "#### $($_.type.name)"
+        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText    
+    }
+} 
+else 
 {
 @"
 #### None
 "@
-}
-
 $command.inputTypes.inputType.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+}
 
 }
 
@@ -327,9 +328,12 @@ function Get-OutputMarkdown($command)
 {
 @"
 ### OUTPUTS
-#### $($command.returnValues.returnValue.type.name)
 "@
-$command.returnValues.returnValue.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+$command.returnValues.returnValue | % { 
+    "#### $($_.type.name)"    
+    $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+}
+
 }
 
 function Get-NotesMarkdown($command)
