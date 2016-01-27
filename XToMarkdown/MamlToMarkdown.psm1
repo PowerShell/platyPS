@@ -75,13 +75,30 @@ function Convert-ParameterTypeTextToType
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        [string]
-        $typeText
+        $parameter
     )
 
+    $typeText = $parameter.parameterValue.'#text'
     if ($typeText -eq 'SwitchParameter') 
     {
         return '[switch]'
+    }
+
+    if ($parameter.globbing -eq 'true')
+    {
+        # Accept wildcard characters?  true
+        if ($typeText -eq 'string')
+        {
+            return '[string*]'
+        }
+
+        if ($typeText -eq 'string[]')
+        {
+            return '[string[]*]'
+        }
+
+        Write-Warning "Parameter with type $typeText listed with globbing = True"
+        return "[$($typeText)*]"    
     }
 
     # default
@@ -163,7 +180,7 @@ function Get-ParameterMarkdown
     #    return
     #}
 
-    $parameterType = "$($parameter.parameterValue.'#text')" | Convert-ParameterTypeTextToType
+    $parameterType = Convert-ParameterTypeTextToType $parameter
     $defaultValue = '' 
     if ($parameter.defaultValue -and $parameter.defaultValue -ne 'none' -and ($parameterType -ne '[switch]' -or $parameter.defaultValue -ne 'false')) {
         $defaultValue = " = $($parameter.defaultValue)"

@@ -137,7 +137,7 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
 
 ### PARAMETERS
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -255,7 +255,7 @@ Without parameters, Clear-History deletes all commands from the session history,
 
 ### PARAMETERS
 
-#### CommandLine [String[]]
+#### CommandLine [string[]*]
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 2')]
@@ -1194,7 +1194,7 @@ To disable all session configurations on the computer, use Disable-PSRemoting.
 Suppresses all user prompts. By default, you are prompted to confirm each operation.
 
 
-#### Name [String[]] = Microsoft.PowerShell
+#### Name [string[]*] = Microsoft.PowerShell
 
 ```powershell
 [Parameter(
@@ -1822,7 +1822,7 @@ Suppresses all user prompts, and restarts the WinRM service without prompting. R
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -2758,7 +2758,7 @@ An Export-ModuleMember command is optional, but it is a best practice. Even if t
 
 ### PARAMETERS
 
-#### Alias [String[]]
+#### Alias [string[]*]
 
 ```powershell
 [Parameter(
@@ -2769,7 +2769,7 @@ An Export-ModuleMember command is optional, but it is a best practice. Even if t
 Specifies the aliases that are exported from the script module file. Enter the alias names. Wildcards are permitted.
 
 
-#### Cmdlet [String[]]
+#### Cmdlet [string[]*]
 
 ```powershell
 [Parameter(
@@ -2781,7 +2781,7 @@ Specifies the cmdlets that are exported from the script module file. Enter the c
 You cannot create cmdlets in a script module file, but you can import cmdlets from a binary module into a script module and re-export them from the script module.
 
 
-#### Function [String[]]
+#### Function [string[]*]
 
 ```powershell
 [Parameter(
@@ -2792,7 +2792,7 @@ You cannot create cmdlets in a script module file, but you can import cmdlets fr
 Specifies the functions that are exported from the script module file. Enter the function names. Wildcards are permitted. You can also pipe function name strings to Export-ModuleMember.
 
 
-#### Variable [String[]]
+#### Variable [string[]*]
 
 ```powershell
 [Parameter(
@@ -3038,7 +3038,7 @@ Specifies the arguments to a method call.
 This parameter is introduced in Windows PowerShell 3.0.
 
 
-#### MemberName [String]
+#### MemberName [string*]
 
 ```powershell
 [Parameter(
@@ -3626,7 +3626,7 @@ TROUBLESHOOTING NOTE: In Windows PowerShell 3.0 and 4.0, Get-Help cannot find Ab
 Displays help only for items in the specified category and their aliases. Valid values are Alias, Cmdlet, Function, Provider, Workflow, and HelpFile. Conceptual topics are in the HelpFile category.
 
 
-#### Component [String[]] = All components
+#### Component [string[]*] = All components
 
 Displays commands with the specified component value, such as "Exchange." Enter a component name. Wildcards are permitted.
 This parameter has no effect on displays of conceptual ("About_") help.
@@ -3666,13 +3666,13 @@ Displays the entire help topic for a cmdlet, including parameter descriptions an
 This parameter is effective only when help files are for the command are installed on the computer. It has no effect on displays of conceptual ("About_") help.
 
 
-#### Functionality [String[]] = All functionality values
+#### Functionality [string[]*] = All functionality values
 
 Displays help for items with the specified functionality. Enter the functionality. Wildcards are permitted.
 This parameter has no effect on displays of conceptual ("About_") help.
 
 
-#### Name [String]
+#### Name [string*]
 
 ```powershell
 [Parameter(
@@ -3698,7 +3698,7 @@ Displays the online version of a help topic in the default Internet browser. Thi
 For information about supporting this feature in help topics that you write, see about_Comment_Based_Help (http://go.microsoft.com/fwlink/?LinkID=144309), and "Supporting Online Help" (http://go.microsoft.com/fwlink/?LinkID=242132), and "How to Write Cmdlet Help" (http://go.microsoft.com/fwlink/?LinkID=123415) in the MSDN (Microsoft Developer Network) library.
 
 
-#### Parameter [String] = All parameters
+#### Parameter [string*] = All parameters
 
 ```powershell
 [Parameter(
@@ -3718,7 +3718,7 @@ To see the custom cmdlet help for a provider path, go to the provider path locat
 For more information about Windows PowerShell providers, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
 
 
-#### Role [String[]] = All roles
+#### Role [string[]*] = All roles
 
 Displays help customized for the specified user role. Enter a role. Wildcards are permitted.
 Enter the role that the user plays in an organization. Some cmdlets display different text in their help files based on the value of this parameter. This parameter has no effect on help for the core cmdlets.
@@ -4649,7 +4649,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets all installed modules. Get-Module gets modules in paths listed in the PSModulePath environment variable. Without this parameter, Get-Module gets only the modules that are both listed in the PSModulePath environment variable, and that are loaded in the current session. ListAvailable does not return information about modules that are not found in the PSModulePath environment variable, even if those modules are loaded in the current session.
 
 
-#### FullyQualifiedName [String[]] = All imported or available modules.
+#### FullyQualifiedName [string[]*] = All imported or available modules.
 
 ```powershell
 [Parameter(
@@ -4670,7 +4670,7 @@ Gets modules with names that are specified in the form of ModuleSpecification ob
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
-#### Name [String[]] = All imported or available modules.
+#### Name [string[]*] = All imported or available modules.
 
 ```powershell
 [Parameter(
@@ -5550,7 +5550,7 @@ To create and register a session configuration, use the Register-PSSessionConfig
 
 ### PARAMETERS
 
-#### Name [String[]] = All session configurations on the local computer
+#### Name [string[]*] = All session configurations on the local computer
 
 ```powershell
 [Parameter(
@@ -5907,7 +5907,7 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
 
 ### PARAMETERS
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -6008,7 +6008,7 @@ Begin by creating a "CIM session" on the remote computer; a connection to Window
 
 ### PARAMETERS
 
-#### Alias [String[]]
+#### Alias [string[]*]
 
 Imports only the specified aliases from the module into the current session. Enter a comma-separated list of aliases. Wildcard characters are permitted.
 Some modules automatically export selected aliases into your session when you import the module. This parameter lets you select from among the exported aliases.
@@ -6062,7 +6062,7 @@ Use this parameter to import CIM modules from computers and devices that are not
 This parameter is introduced in Windows PowerShell 3.0.
 
 
-#### Cmdlet [String[]]
+#### Cmdlet [string[]*]
 
 Imports only the specified cmdlets from the module into the current session. Enter a list of cmdlets. Wildcard characters are permitted.
 Some modules automatically export selected cmdlets into your session when you import the module. This parameter lets you select from among the exported cmdlets.
@@ -6105,7 +6105,7 @@ Imports modules with names that are specified in the form of ModuleSpecification
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
-#### Function [String[]]
+#### Function [string[]*]
 
 Imports only the specified functions from the module into the current session. Enter a list of functions. Wildcard characters are permitted.
 Some modules automatically export selected functions into your session when you import the module. This parameter lets you select from among the exported functions.
@@ -6131,7 +6131,7 @@ The Global parameter is equivalent to the Scope parameter with a value of Global
 Specifies module objects to import. Enter a variable that contains the module objects, or a command that gets the module objects, such as a "Get-Module -ListAvailable" command. You can also pipe module objects to Import-Module.
 
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -6177,7 +6177,7 @@ For example, if you specify the prefix "UTC" and then import a Get-Date cmdlet, 
 The value of this parameter takes precedence over the DefaultCommandPrefix property of the module, which specifies the default prefix.
 
 
-#### Variable [String[]] = All variables
+#### Variable [string[]*] = All variables
 
 Imports only the specified variables from the module into the current session. Enter a list of variables. Wildcard characters are permitted.
 Some modules automatically export selected variables into your session when you import the module. This parameter lets you select from among the exported variables.
@@ -7457,13 +7457,13 @@ Returns a custom object that represents the dynamic module. The module members a
 If the module has multiple members with the same name, such as a function and a variable that are both named "A," only one member with each name is accessible from the custom object.
 
 
-#### Cmdlet [String[]]
+#### Cmdlet [string[]*]
 
 Exports only the specified cmdlets from the module into the current session. Enter a comma-separated list of cmdlets. Wildcard characters are permitted. By default, all cmdlets in the module are exported.
 You cannot define cmdlets in a script block, but a dynamic module can include cmdlets if it imports the cmdlets from a binary module.
 
 
-#### Function [String[]]
+#### Function [string[]*]
 
 Exports only the specified functions from the module into the current session. Enter a comma-separated list of functions. Wildcard characters are permitted. By default, all functions defined in a module are exported.
 
@@ -7713,7 +7713,7 @@ In Windows PowerShell 2.0, New-ModuleManifest prompts you for the values of comm
 
 ### PARAMETERS
 
-#### AliasesToExport [String[]] = * (all)
+#### AliasesToExport [string[]*] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -7743,7 +7743,7 @@ If you omit this parameter, New-ModuleManifest creates an Author key with the na
 Specifies the minimum version of the Common Language Runtime (CLR) of the Microsoft .NET Framework that the module requires.
 
 
-#### CmdletsToExport [String[]] = * (all)
+#### CmdletsToExport [string[]*] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -7812,7 +7812,7 @@ Specifies the formatting files (.ps1xml) that run when the module is imported.
 When you import a module, Windows PowerShell runs the Update-FormatData cmdlet with the specified files. Because formatting files are not scoped, they affect all session states in the session.
 
 
-#### FunctionsToExport [String[]] = * (all)
+#### FunctionsToExport [string[]*] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -7990,7 +7990,7 @@ Specifies the type files (.ps1xml) that run when the module is imported.
 When you import the module, Windows PowerShell runs the Update-TypeData cmdlet with the specified files. Because type files are not scoped, they affect all session states in the session.
 
 
-#### VariablesToExport [String[]] = * (all)
+#### VariablesToExport [string[]*] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -10129,7 +10129,7 @@ Beginning in Windows PowerShell 3.0, Receive-Job also gets the results of custom
 
 ### PARAMETERS
 
-#### ComputerName [String[]] = All jobs
+#### ComputerName [string[]*] = All jobs
 
 ```powershell
 [Parameter(
@@ -10207,7 +10207,7 @@ To delete the results, use Receive-Job to receive them again without the Keep pa
 Gets only the results of jobs with the specified location. The default is all jobs in the current session.
 
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -11582,7 +11582,7 @@ You cannot specify the FullyQualifiedName parameter in the same command as a Nam
 Specifies the module objects to remove. Enter a variable that contains a module object (PSModuleInfo) or a command that gets a module object, such as a Get-Module command. You can also pipe module objects to Remove-Module.
 
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -11708,7 +11708,7 @@ If you have saved the PSSession in a variable, the session object remains in the
 
 ### PARAMETERS
 
-#### ComputerName [String[]] = Local computer
+#### ComputerName [string[]*] = Local computer
 
 ```powershell
 [Parameter(
@@ -11750,7 +11750,7 @@ The instance ID is a GUID that uniquely identifies a PSSession in the current se
 The InstanceID is stored in the InstanceID property of the object that represents a PSSession. To find the InstanceID of the PSSessions in the current session, type "get-pssession | format-table Name, ComputerName, InstanceId".
 
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -11927,7 +11927,7 @@ After a snap-in is removed from the current session, it is still loaded, but the
 
 ### PARAMETERS
 
-#### Name [String[]]
+#### Name [string[]*]
 
 ```powershell
 [Parameter(
@@ -12357,7 +12357,7 @@ Specifies modules with names that are specified in the form of ModuleSpecificati
 You cannot specify the FullyQualifiedModule parameter in the same command as a Module parameter; the two parameters are mutually exclusive.
 
 
-#### Module [String[]] = All (*)
+#### Module [string[]*] = All (*)
 
 ```powershell
 [Parameter(
@@ -13989,7 +13989,7 @@ The Test-ModuleManifest cmdlet returns an object that represents the module (the
 
 ### PARAMETERS
 
-#### Path [String]
+#### Path [string*]
 
 ```powershell
 [Parameter(
@@ -14105,7 +14105,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
 
-#### Path [String]
+#### Path [string*]
 
 ```powershell
 [Parameter(
@@ -14209,7 +14209,7 @@ Suppresses all user prompts, and restarts the WinRM service without prompting. R
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
-#### Name [String]
+#### Name [string*]
 
 ```powershell
 [Parameter(
@@ -14414,7 +14414,7 @@ You can also pipe a directory object, such as one from the Get-Item or Get-Child
 Unlike the value of the SourcePath parameter, the value of the LiteralPath parameter is used exactly as it is typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose it in single quotation marks. Single quotation marks tell Windows PowerShell not to interpret any characters as escape sequences.
 
 
-#### Module [String[]] = All modules in the current session
+#### Module [string[]*] = All modules in the current session
 
 ```powershell
 [Parameter(
@@ -15775,7 +15775,7 @@ The Get-Verb function gets verbs that are approved for use in Windows PowerShell
 
 ### PARAMETERS
 
-#### Verb [string[]] = All verbs
+#### Verb [string[]*] = All verbs
 
 ```powershell
 [Parameter(

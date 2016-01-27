@@ -549,8 +549,15 @@ $h.parameters.parameter
 
             int typeBeginIndex = headingNode.Text.IndexOf('[');
             int typeEndIndex = headingNode.Text.LastIndexOf(']');
-            if (typeBeginIndex >= 0 && typeEndIndex >= 0)
+            if (typeBeginIndex >= 0 && typeEndIndex > 0)
             {
+                // this is our notation for globbing
+                if (headingNode.Text[typeEndIndex - 1] == '*')
+                {
+                    typeEndIndex = typeEndIndex - 1;
+                    parameter.Globbing = true;
+                }
+
                 parameter.Type = headingNode.Text.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);
             }
 
@@ -565,29 +572,33 @@ $h.parameters.parameter
             ParagraphNode descriptionNode = null;
             CodeBlockNode attributesNode = null;
 
-            switch (node.NodeType)
+            // it can be the end
+            if (node != null)
             {
-                case MarkdownNodeType.Unknown:
-                    break;
-                case MarkdownNodeType.Document:
-                    break;
-                case MarkdownNodeType.Paragraph:
-                    descriptionNode = node as ParagraphNode;
-                    break;
-                case MarkdownNodeType.Heading:
-                    // next parameter started
-                    UngetNode(node);
-                    break;
-                case MarkdownNodeType.CodeBlock:
-                    attributesNode = node as CodeBlockNode;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
+                switch (node.NodeType)
+                {
+                    case MarkdownNodeType.Unknown:
+                        break;
+                    case MarkdownNodeType.Document:
+                        break;
+                    case MarkdownNodeType.Paragraph:
+                        descriptionNode = node as ParagraphNode;
+                        break;
+                    case MarkdownNodeType.Heading:
+                        // next parameter started
+                        UngetNode(node);
+                        break;
+                    case MarkdownNodeType.CodeBlock:
+                        attributesNode = node as CodeBlockNode;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
 
-            if (descriptionNode == null)
-            {
-                descriptionNode = ParagraphNodeRule();
+                if (descriptionNode == null)
+                {
+                    descriptionNode = ParagraphNodeRule();
+                }
             }
 
             parameter.Description = GetTextFromParagraphNode(descriptionNode);

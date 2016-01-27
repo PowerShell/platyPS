@@ -480,6 +480,30 @@ NoTypeParam description.
             Assert.Equal(parameter.DefaultValue, "PowerShell");
         }
 
+        [Fact]
+        public void UsesAstericsToMarkGlobbing()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+## Get-Foo
+### PARAMETERS
+
+#### Name [String*]
+
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(1, mamlCommand.Parameters.Count);
+            var parameter = mamlCommand.Parameters[0];
+
+            Assert.True(parameter.Globbing);
+            Assert.Equal(parameter.Type, "String");
+        }
+
 
         private static string GetParameterText(string paramName, string paramType, string paramAttributes)
         {
