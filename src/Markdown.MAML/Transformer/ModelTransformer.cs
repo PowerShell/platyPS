@@ -347,13 +347,18 @@ namespace Markdown.MAML.Transformer
             int paramCount = 0;
             foreach (PSObject syntaxParamPsObject in syntaxParams.OfType<PSObject>())
             {
-                paramCount++;
                 var parameterSetString = (string) syntaxParamPsObject.Properties["parameterSetName"].Value;
                 string[] sets = parameterSetString.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (string setName in sets)
+                if (sets.Length > 0)
                 {
-                    int oldCount = counts.ContainsKey(setName) ? counts[setName] : 0;
-                    counts[setName] = oldCount + 1;
+                    // Count only parameters with explicit parameter sets.
+                    paramCount++;
+
+                    foreach (string setName in sets)
+                    {
+                        int oldCount = counts.ContainsKey(setName) ? counts[setName] : 0;
+                        counts[setName] = oldCount + 1;
+                    }
                 }
             }
 
@@ -491,7 +496,7 @@ $h.parameters.parameter
             //parameter.ValueVariableLength = false;
 
             // TODO: we need to find out, what ValueRequired really mean
-            parameter.ValueRequired = parameter.Type == "switch" ? false : parameter.Required;
+            parameter.ValueRequired = parameter.Type == "switch" ? false : true;
 
             var parameterValueGroup = parameterDetails.Properties["parameterValueGroup"];
             if (parameterValueGroup != null)
