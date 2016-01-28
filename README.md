@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/u65tnar0cfkmqywl/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/markdown-maml/branch/master)
 
-# Markdown.MAML
-Prototype to transform Markdown to MAML and vice verse
+# PlatyPS
+Generate PowerShell External Help files (aka maml) from Markdown.
 
 # Contributing
 
