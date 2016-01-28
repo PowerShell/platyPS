@@ -14,7 +14,7 @@ Please include short demo / snippets in README.md to quicky onboard others.
  -  **XToMarkdown\MamlToMarkdown.psm1** - powershell MAML to markdown converter
  -  **Examples** - misc files, showcases, etc.
  -  **EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
- -  **TagsMapping.md** - markdown schema description.
+ -  **TagsMapping.md** - maml schema description.
 
 ## Markdown schema
 
