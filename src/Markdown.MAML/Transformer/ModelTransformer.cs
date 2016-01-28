@@ -349,7 +349,7 @@ namespace Markdown.MAML.Transformer
             {
                 var parameterSetString = (string) syntaxParamPsObject.Properties["parameterSetName"].Value;
                 string[] sets = parameterSetString.Split(new string[] { ", " }, StringSplitOptions.RemoveEmptyEntries);
-                if (sets.Length > 0)
+                if (sets.Length > 0 && !string.Equals(parameterSetString, "(All)", StringComparison.OrdinalIgnoreCase))
                 {
                     // Count only parameters with explicit parameter sets.
                     paramCount++;

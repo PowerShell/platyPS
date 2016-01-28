@@ -267,10 +267,10 @@ Remarks
             Assert.Contains("z", bazParam.Aliases);
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
-            Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
-            Assert.Equal("BazParam", mamlCommand.Syntax[0].Parameters[1].Name);
-            Assert.Equal("BarParam", mamlCommand.Syntax[1].Parameters[0].Name);
+            Assert.Equal("FooParam", mamlCommand.Syntax[1].Parameters[0].Name);
             Assert.Equal("BazParam", mamlCommand.Syntax[1].Parameters[1].Name);
+            Assert.Equal("BarParam", mamlCommand.Syntax[0].Parameters[0].Name);
+            Assert.Equal("BazParam", mamlCommand.Syntax[0].Parameters[1].Name);
         }
 
         [Fact]
@@ -508,6 +508,89 @@ NoTypeParam description.
             Assert.Equal(parameter.Type, "String");
         }
 
+        [Fact]
+        public void ParseClearHistorySyntaxInTheRightOrder()
+        {
+            var parser = new MarkdownParser();
+
+            const string docFormatString = @"
+
+## Clear-History
+
+### SYNOPSIS
+Deletes entries from the command history.
+
+### DESCRIPTION
+The Clear-History cmdlet deletes commands from the command history, that is, the list of commands entered during the current session.
+Without parameters, Clear-History deletes all commands from the session history, but you can use the parameters of Clear-History to delete selected commands.
+
+### PARAMETERS
+
+#### CommandLine [String[]]
+
+```powershell
+[Parameter(ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
+```
+
+Deletes commands with the specified text strings. If you enter more than one string, Clear-History deletes commands with any of the strings.
+
+
+#### Count [Int32]
+
+```powershell
+[Parameter(Position = 2)]
+```
+
+Clears the specified number of  history entries, beginning with the oldest entry in the history.
+If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.
+For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
+If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
+
+
+#### Id [Int32[]]
+
+```powershell
+[Parameter(
+  Position = 1,
+  ParameterSetName = 'Set 1')]
+```
+
+Deletes commands with the specified history IDs.
+To find the history ID of a command, use Get-History.
+
+
+#### Newest [switch]
+
+Deletes the newest entries in the history. By default, Clear-History deletes the oldest entries in the history.
+
+
+#### Confirm [switch]
+
+Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
+
+
+#### WhatIf [switch]
+
+Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what would happen if the cmdlet runs. The cmdlet is not run.
+
+
+";
+            var doc = parser.ParseString(docFormatString);
+
+            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            Assert.Equal(mamlCommand.Name, "Clear-History");
+
+            Assert.Equal(2, mamlCommand.Syntax.Count);
+            var syntax1 = mamlCommand.Syntax[0];
+            var syntax2 = mamlCommand.Syntax[1];
+
+            Assert.Equal(syntax1.Parameters.Count, 5);
+            Assert.Equal(syntax2.Parameters.Count, 5);
+
+            Assert.Equal(syntax1.Parameters[0].Name, "Id");
+            Assert.Equal(syntax2.Parameters[1].Name, "CommandLine");
+        }
 
         private static string GetParameterText(string paramName, string paramType, string paramAttributes)
         {
