@@ -173,13 +173,21 @@ Remarks
             var doc = parser.ParseString(@"
 ## Get-Foo
 ###RELATED LINKS
+
 [Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289795)
+
 [Checkpoint-Computer]()
+
 [Remove-Computer]()
+
 [Restart-Computer]()
+
 [Rename-Computer]()
+
 [Restore-Computer]()
+
 [Stop-Computer]()
+
 [Test-Connection]()
 ");
             var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
@@ -190,6 +198,22 @@ Remarks
             Assert.Equal(links[0].LinkUri, "http://go.microsoft.com/fwlink/p/?linkid=289795");
             Assert.Equal(links[1].LinkName, "Checkpoint-Computer");
             Assert.Empty(links[1].LinkUri);
+        }
+
+        [Fact]
+        public void HandlesHyperLinksInsideText()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+## Get-Foo
+### SYNOPSIS
+
+Runs the [Set-WSManQuickConfig]() cmdlet
+
+");
+            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
         }
 
         [Fact]

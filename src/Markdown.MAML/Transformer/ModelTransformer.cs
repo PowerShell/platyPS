@@ -290,6 +290,7 @@ namespace Markdown.MAML.Transformer
         {
             StringBuilder sb = new StringBuilder();
             bool first = true;
+            bool previousIsHyperLink = false;
             foreach (var paragraphSpan in spans)
             {
                 // TODO: make it handle hyperlinks, codesnippets, etc more wisely
@@ -298,10 +299,15 @@ namespace Markdown.MAML.Transformer
                 {
                     sb.Append(" ");
                 }
-
+                else if (previousIsHyperLink)
+                {
+                    sb.Append(" ");
+                }
+                
                 sb.Append(paragraphSpan.Text);
 
                 first = false;
+                previousIsHyperLink = paragraphSpan is HyperlinkSpan;
             }
             return sb.ToString();
         }

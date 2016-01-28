@@ -380,7 +380,7 @@ function Get-RelatedLinksMarkdown($command)
 ### RELATED LINKS
 "@
     $command.relatedLinks.navigationLink | % {
-        "[$($_.linkText)]($($_.uri))"
+        "`n[$($_.linkText)]($($_.uri))"
     }
 }
 
