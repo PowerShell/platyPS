@@ -5,6 +5,7 @@ Appends entries to the session history.
 
 ### DESCRIPTION
 The Add-History cmdlet adds entries to the end of the session history, that is, the list of commands entered during the current session.
+
 You can use the Get-History cmdlet to get the commands and pass them to Add-History, or you can export the commands to a CSV or XML file, then import the commands, and pass the imported file to Add-History.
 You can use this cmdlet to add specific commands to the history or to create a single history file that includes commands from more than one session.
 
@@ -49,17 +50,20 @@ Otherwise, this cmdlet does not generate any output.
 The session history is a list of the commands entered during the session along with the ID.
 The session history represents the order of execution, the status, and the start and end times of the command.
 As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.
-
 For more information about the session history, see about_History.
+
 To specify the commands to add to the history, use the InputObject parameter.
 The Add-History command accepts only HistoryInfo objects, such as those returned for each command by the Get-History cmdlet.
 You cannot pass it a path and file name or a list of commands.
+
 You can use the InputObject parameter to pass a file of HistoryInfo objects to Add-History.
 To do so, export the results of a Get-History command to a file by using the Export-Csv or Export-Clixml cmdlet and then import the file by using the Import-Csv or Import-Clixml cmdlets.
 You can then pass the file of imported HistoryInfo objects to Add-History through a pipeline or in a variable.
 For more information, see the examples.
+
 The file of HistoryInfo objects that you pass to the Add-History cmdlet must include the type information, column headings, and all of the properties of the HistoryInfo objects.
 If you intend to pass the objects back to Add-History, do not use the NoTypeInformation parameter of the Export-Csv cmdlet and do not delete the type information, column headings, or any fields in the file.
+
 To edit the session history, export the session to a CSV or XML file, edit the file, import the file, and use Add-History to append it to the current session history.
 
 
@@ -89,9 +93,11 @@ PS C:\>import-clixml c:\temp\history.xml | add-history -passthru | foreach-objec
 
 ```
 This command imports commands from the History.xml file, adds them to the current session history, and then executes the commands in the combined history.
+
 The first command uses the Import-Clixml cmdlet to import a command history that was exported to the History.xml file.
 The pipeline operator (|) passes the commands to the Add-History parameter, which adds the commands to the current session history.
 The PassThru parameter passes the objects representing the added commands down the pipeline.
+
 The command then uses the ForEach-Object cmdlet to apply the Invoke-History command to each of the commands in the combined history.
 The Invoke-History command is formatted as a script block (enclosed in braces) as required by the Process parameter of the ForEach-Object cmdlet.
 
@@ -171,8 +177,10 @@ Adds one or more Windows PowerShell snap-ins to the current session.
 ### DESCRIPTION
 The Add-PSSnapin cmdlet adds registered Windows PowerShell snap-ins to the current session.
 After the snap-ins are added, you can use the cmdlets and providers that the snap-ins support in the current session.
+
 To add the snap-in to all future Windows PowerShell sessions, add an Add-PSSnapin command to your Windows PowerShell profile.
 For more information, see about_Profiles.
+
 Beginning in Windows PowerShell 3.0, the core commands that are included in Windows PowerShell are packaged in modules.
 The exception is Microsoft.PowerShell.Core, which is a snap-in (PSSnapin).
 By default, only the Microsoft.PowerShell.Core snap-in is added to the session.
@@ -191,8 +199,8 @@ Modules are imported automatically on first use and you can use the Import-Modul
 [SupportsWildCards()]
 ```
 
-Specifies the name of the snap-in.
-(This is the Name, not the AssemblyName or ModuleName.) Wildcards are permitted.
+Specifies the name of the snap-in. (This is the Name, not the AssemblyName or ModuleName.) Wildcards are permitted.
+
 To find the names of the registered snap-ins on your system, type: "get-pssnapin -registered".
 
 
@@ -223,15 +231,21 @@ Beginning in Windows PowerShell 3.0, the core commands that are installed with W
 In Windows PowerShell 2.0, and in host programs that create older-style sessions in later versions of Windows PowerShell, the core commands are packaged in snap-ins ("PSSnapins").
 The exception is Microsoft.PowerShell.Core, which is always a snap-in.
 Also, remote sessions, such as those started by the New-PSSession cmdlet, are older-style sessions that include core snap-ins.
+
 For information about the CreateDefault2 method that creates newer-style sessions with core modules, see "CreateDefault2 Method" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.initialsessionstate.createdefault2(v=VS.85).aspx]().
+
 For detailed information about snap-ins in Windows PowerShell, see about_Pssnapins.
 For information about how to create a Windows PowerShell snap-in, see "How to Create a Windows PowerShell Snap-in" in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkId=144762http://go.microsoft.com/fwlink/?LinkId=144762.
+
 Add-PSSnapin adds the snap-in only to the current session.
 To add the snap-in to all Windows PowerShell sessions, add it to your Windows PowerShell profile.
 For more information, see about_Profiles.
+
 You can add any Windows PowerShell snap-in that has been registered by using the Microsoft .NET Framework install utility.
 For more information, see "How to Register Cmdlets, Providers, and Host Applications" in the MSDN library at http://go.microsoft.com/fwlink/?LinkID=143619http://go.microsoft.com/fwlink/?LinkID=143619.
+
 To get a list of snap-ins that are registered on your computer, type get-pssnapin -registered.
+
 Before adding a snap-in, Add-PSSnapin checks the version of the snap-in to verify that it is compatible with the current version of Windows PowerShell.
 If the snap-in fails the version check, Windows PowerShell reports an error.
 
@@ -317,6 +331,7 @@ Deletes entries from the command history.
 
 ### DESCRIPTION
 The Clear-History cmdlet deletes commands from the command history, that is, the list of commands entered during the current session.
+
 Without parameters, Clear-History deletes all commands from the session history, but you can use the parameters of Clear-History to delete selected commands.
 
 ### PARAMETERS
@@ -339,9 +354,10 @@ If you enter more than one string, Clear-History deletes commands with any of th
 ```
 
 Clears the specified number of  history entries, beginning with the oldest entry in the history.
-If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.
 
+If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.
 For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
+
 If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
 
 
@@ -354,6 +370,7 @@ If you use the Count and CommandLine parameters in the same command, Clear-Histo
 ```
 
 Deletes commands with the specified history IDs.
+
 To find the history ID of a command, use Get-History.
 
 
@@ -390,6 +407,7 @@ This cmdlet does not generate any output.
 The session history is a list of the commands entered during the session.
 You can view the history, add and delete commands, and run commands from the history.
 For more information, see about_History.
+
 Deleting a command from the history does not change the history IDs of the remaining items in the command history.
 
 
@@ -480,10 +498,14 @@ Reconnects to disconnected sessions
 ### DESCRIPTION
 The Connect-PSSession cmdlet reconnects to user-managed Windows PowerShell sessions ("PSSessions") that were disconnected.
 It works on sessions that are disconnected intentionally, such as by using the Disconnect-PSSession cmdlet or the InDisconnectedSession parameter of the Invoke-Command cmdlet, and those that were disconnected unintentionally, such as by a temporary network outage.
+
 Connect-PSSession can connect to any disconnected session that was started by the same user, including those that were started by or disconnected from other sessions on other computers.
+
 However, Connect-PSSession cannot connect to broken or closed sessions, or interactive sessions started by using the Enter-PSSession cmdlet.
 Also you cannot connect sessions to sessions started by other users, unless you can provide the credentials of the user who created the session.
+
 For more information about the Disconnected Sessions feature, see about_Remote_Disconnected_Sessions.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -499,9 +521,10 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session.
 Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
-
 The default value is Default.
+
 For information about the values of this parameter, see "AuthenticationMechanism enumeration" in MSDN.
+
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -518,8 +541,10 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies the digital public key certificate (X509) of a user account that has permission to connect to the disconnected session.
 Enter the certificate thumbprint of the certificate.
+
 Certificates are used in client certificate-based authentication.
 They can be mapped only to local user accounts; they do not work with domain accounts.
+
 To get a certificate thumbprint, use a Get-Item or Get-ChildItem command in the Windows PowerShell Cert: drive.
 
 
@@ -538,6 +563,7 @@ To get a certificate thumbprint, use a Get-Item or Get-ChildItem command in the 
 Specifies the computers on which the disconnected sessions are stored.
 Sessions are stored on the computer that is at the "server-side" or receiving end of a connection.
 The default is the local computer.
+
 Type the NetBIOS name, an IP address, or a fully qualified domain name of one computer.
 Wildcards are not permitted.
 To specify the local computer, type the computer name, "localhost", or a dot (.)
@@ -554,6 +580,7 @@ To specify the local computer, type the computer name, "localhost", or a dot (.)
 
 Specifies a user account that has permission to connect to the disconnected session.
 The default is the current user.
+
 Type a user name, such as "User01" or "Domain01\User01".
 Or, enter a PSCredential object, such as one generated by the Get-Credential cmdlet.
 If you type a user name, you will be prompted for a password.
@@ -571,6 +598,7 @@ If you type a user name, you will be prompted for a password.
 
 Specifies the IDs of the disconnected sessions.
 The ID parameter works only when the disconnected session was previously connected to the current session.
+
 This parameter is valid, but not effective, when the session is stored on the local computer, but was not connected to the current session.
 
 
@@ -589,7 +617,9 @@ This parameter is valid, but not effective, when the session is stored on the lo
 ```
 
 Specifies the instance IDs of the disconnected sessions.
+
 The instance ID is a GUID that uniquely identifies a PSSession on a local or remote computer.
+
 The instance ID is stored in the InstanceID property of the PSSession.
 
 
@@ -614,14 +644,16 @@ Specifies the friendly names of the disconnected sessions.
 ```
 
 Specifies the network port on the remote computer that is used to reconnect to the session.
-
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port.
 To configure the listener, type the following two commands at the Windows PowerShell prompt:
+
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
+
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
+
 Do not use the Port parameter unless you must.
 The port that is set in the command applies to all computers or sessions on which the command runs.
 An alternate port setting might prevent the command from running on all computers.
@@ -652,10 +684,11 @@ Enter a variable that contains the PSSessions or a command that creates or gets 
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -668,6 +701,7 @@ For more information about session configurations, see about_Session_Configurati
 
 Specifies the maximum number of concurrent connections that can be established to run this command.
 If you omit this parameter or enter a value of 0, the default value, 32, is used.
+
 The throttle limit applies only to the current command, not to the session or to the computer.
 
 
@@ -680,8 +714,10 @@ The throttle limit applies only to the current command, not to the session or to
 
 Uses the Secure Sockets Layer (SSL) protocol to connect to the disconnected session.
 By default, SSL is not used.
+
 WS-Management encrypts all Windows PowerShell content transmitted over the network.
 UseSSL is an additional protection that sends the data across an HTTPS connection instead of an HTTP connection.
+
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
 
 
@@ -693,8 +729,10 @@ If you use this parameter, but SSL is not available on the port used for the com
 ```
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
+
 When you use the ConnectionURI parameter, the remote destination can return an instruction to redirect to a different URI.
 By default, Windows PowerShell does not redirect connections, but you can use this parameter to allow it to redirect the connection.
+
 You can also limit the number of times the connection is redirected by changing the MaximumConnectionRedirectionCount session option value.
 Use the  MaximumRedirection parameter of the New-PSSessionOption cmdlet or set the MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable.
 The default value is 5.
@@ -712,9 +750,11 @@ The default value is 5.
 ```
 
 Connects only to sessions that use the specified application.
+
 Enter the application name segment of the connection URI.
 For example, in the following connection URI, the application name is WSMan: http://localhost:5985/WSMAN.
 The application name of a session is stored in the Runspace.ConnectionInfo.AppName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the application that the session uses.
 
@@ -737,11 +777,14 @@ It does not change the application that the session uses.
 ```
 
 Connects only to sessions that use the specified session configuration.
+
 Enter a configuration name or the fully qualified resource URI for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/powershell.
 The configuration name of a session is stored in the ConfigurationName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the session configuration that the session uses.
+
 For more information about session configurations, see about_Session_Configurations .
 
 
@@ -761,8 +804,8 @@ For more information about session configurations, see about_Session_Configurati
 ```
 
 Specifies the Uniform Resource Identifiers (URIs) of the connection endpoints for the disconnected sessions.
-The URI must be fully qualified.
 
+The URI must be fully qualified.
 The format of this string is as follows:
 
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
@@ -770,10 +813,13 @@ The format of this string is as follows:
 The default value is as follows:
 
 http://localhost:5985/WSMAN
+
 If you do not specify a connection URI, you can use the UseSSL and Port  parameters to specify the connection URI values.
+
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
 
 
@@ -803,22 +849,31 @@ Connect-PSSession returns an object that represents the session to which it reco
 ### NOTES
 Connect-PSSession reconnects only to sessions that are disconnected, that is, sessions that have a value of Disconnected for  the State property.
 Only sessions that are connected to (terminate at) computers running Windows PowerShell 3.0 or later can be disconnected and reconnected.
+
 If you use the Connect-PSSession cmdlet on a session that is not disconnected, the command has no effect on the session and it does not generate errors.
+
 Disconnected loopback sessions with interactive tokens (those created with the EnableNetworkAccess parameter) can be reconnected only from the computer on which the session was created.
 This restriction protects the computer from malicious access.
+
 The value of the State property of a PSSession is relative to the current session.
 Therefore, a value of Disconnected means that the PSSession is not connected to the current session.
 However, it does not mean that the PSSession is disconnected from all sessions.
 It might be connected to a different session.
 To determine whether you can connect or reconnect to the session, use the Availability property.
+
 An Availability value of None indicates that you can connect to the session.
 A value of Busy indicates that you cannot connect to the PSSession because it is connected to another session.
+
 For more information about the values of the State property of sessions, see "RunspaceState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspacestate(v=VS.85).aspx]().
+
 For more information about the values of the Availability property of sessions, see RunspaceAvailability Enumeration at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspaceavailability(v=vs.85).aspx]().
+
 You cannot change the idle timeout value of a PSSession when you connect to the PSSession.
 The SessionOption parameter of Connect-PSSession takes a SessionOption object that has an IdleTimeout value.
 However, the IdleTimeout value of the SessionOption object and the IdleTimeout value of the $PSSessionOption variable are ignored when connecting to a PSSession.
+
 You can set and change the idle timeout of a PSSession when you create the PSSession (by using the New-PSSession or Invoke-Command cmdlets) and when you disconnect from the PSSession.
+
 The IdleTimeout property of  a PSSession is critical to disconnected sessions, because it determines how long a disconnected session is maintained on the remote computer.
 Disconnected sessions are considered to be idle from the moment that they are disconnected, even if commands are running in the disconnected session.
 
@@ -833,6 +888,7 @@ Id Name            ComputerName    State         ConfigurationName     Availabil
 
 ```
 This command reconnects to the ITTask session on the Server01 computer.
+
 The output shows that the command was successful.
 The State of the session is Opened and the Availability is Available, indicating that you can run commands in the session.
 
@@ -863,16 +919,21 @@ Id Name            ComputerName    State         ConfigurationName     Availabil
 
 ```
 This example shows the effect of disconnecting and then reconnecting to a session.
+
 The first command uses the Get-PSSession cmdlet.
 Without the ComputerName parameter, the command gets only sessions that were created in the current session.
+
 The output shows that the command gets the Backups session on the local computer.
 The State of the session is Opened and the Availability is Available.
+
 The second command uses the Get-PSSession cmdlet to get the PSSessions that were created in the current session and the Disconnect-PSSession cmdlet to disconnect the sessions.
 The output shows that the Backups session was disconnected.
 The State of the session is Disconnected and the Availability is None.
+
 The third command uses the Get-PSSession cmdlet to get the PSSessions that were created in the current session and the Connect-PSSession cmdlet to reconnect the sessions.
 The output shows that the Backups session was reconnected.
 The State of the session is Opened and the Availability is Available.
+
 If you use the Connect-PSSession cmdlet on a session that is not disconnected, the command has no effect on the session and it does not generate any errors.
 
 
@@ -1138,19 +1199,23 @@ In this example, the debugger breaks into a running job with an ID of 3.
 ### SYNOPSIS
 Prevents remote users from running commands on the local computer.
 
-
 ### DESCRIPTION
 The Disable-PSRemoting cmdlet prevents users on other computers from running commands on the local computer.
+
 Disable-PSRemoting blocks remote access to all session configurations on the local computer.
 This prevents remote users from creating temporary or persistent sessions to the local computer.
 Disable-PSRemoting does not prevent users of the local computer from creating sessions ("PSSessions") on the local computer or remote computers.
+
 To re-enable remote access to all session configurations, use the Enable-PSRemoting cmdlet.
 To enable remote access to selected session configurations, use the AccessMode parameter of the Set-PSSessionConfiguration cmdlet.
 You can also use the Enable-PSSessionConfiguration and Disable-PSSessionConfiguration cmdlets to enable and disable session configurations for all users.
 For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
+
 In Windows PowerShell 2.0, Disable-PSRemoting prevents all users from creating user-managed sessions ("PSSessions") to the local computer.
 In Windows PowerShell 3.0, Disable-PSRemoting prevents users on other computers from creating user-managed sessions on the local computer, but allows users of the local computer to create user-managed "loopback" sessions.
+
 To run this cmdlet, start Windows PowerShell with the "Run as administrator" option.
+
 CAUTION: On systems that have both Windows PowerShell 3.0 and the Windows PowerShell 2.0 engine, do not use Windows PowerShell 2.0 to run the Enable-PSRemoting and Disable-PSRemoting cmdlets.
 The commands might appear to succeed, but the remoting is not configured correctly.
 Remote commands, and later attempts to enable and disable remoting, are likely to fail.
@@ -1201,23 +1266,31 @@ This cmdlet does not return any object.
 ### NOTES
 Disabling the session configurations does not undo all the changes made by the Enable-PSRemoting or Enable-PSSessionConfiguration cmdlets.
 You might have to undo the following changes manually.
+
 1.
 Stop and disable the WinRM service.
+
 2.
 Delete the listener that accepts requests on any IP address.
+
 3.
 Disable the firewall exceptions for WS-Management communications.
+
 4.
 Restore the value of the LocalAccountTokenFilterPolicy to 0, which restricts remote access to members of the Administrators group on the computer.
+
 A session configuration is a group of settings that define the environment for a session.
 Every session that connects to the computer must use one of the session configurations that are registered on the computer.
 By denying remote access to all session configurations, you effectively prevent remote users from establishing sessions that connect to the computer.
+
 In Windows PowerShell 2.0, Disable-PSRemoting adds a "Deny_All" entry to the security descriptors of all session configurations.
 This setting prevents all users from creating user-managed sessions ("PSSessions") to the local computer.
 In Windows PowerShell 3.0, Disable-PSRemoting adds a "Network_Deny_All" entry to the security descriptors of all session configurations.
 This setting prevents users on other computers from creating user-managed sessions on the local computer, but allows users of the local computer to create user-managed "loopback" sessions.
+
 In Windows PowerShell 2.0, Disable-PSRemoting is the equivalent of "Disable-PSSessionConfiguration -name *".
 In Windows PowerShell 3.0 and later releases, Disable-PSRemoting is the equivalent of "Set-PSSessionConfiguration -Name \<Configuration name\> -AccessMode Local"
+
 In Windows PowerShell 2.0, Disable-PSRemoting is a function.
 Beginning in Windows PowerShell 3.0, it is a cmdlet.
 
@@ -1264,9 +1337,12 @@ message : Access is denied. For more information, see the about_Remote_Troublesh
 ```
 This example shows the effect of using the Disable-PSRemoting cmdlet.
 To run this command sequence, start Windows PowerShell with the "Run as administrator" option.
+
 The first command uses the Disable-PSRemoting cmdlet to disable all registered session configurations on the Server01 computer.
+
 The second command uses the New-PSSession cmdlet to create a remote session to the local computer (also known as a "loopback").
 The command succeeds.
+
 The third command is run on the Server02 remote computer.
 The command uses the New-PSSession cmdlet to create a session to the Server01 remote computer.
 Because remote access is disabled, the command fails.
@@ -1304,15 +1380,20 @@ WithProfile                   BUILTIN\Administrators AccessAllowed
 
 ```
 This example shows the effect on the session configurations of using the Disable-PSRemoting and Enable-PSRemoting cmdlets.
+
 The first command uses the Disable-PSRemoting cmdlet to disable remote access to all session configurations.
 The Force parameter suppresses all user prompts.
+
 The second command uses the Get-PSSessionConfiguration cmdlet to display the session configurations on the computer.
 The command uses a pipeline operator to send the results to a Format-Table command, which displays only the Name and Permission properties of the configurations in a table.
+
 The output shows that only remote users are denied access to the configurations.
 Members of the Administrators group on the local computer are allowed to use the session configurations.
 The output also shows that the command affects all session configurations, including the user-created "WithProfile" session configuration.
+
 The third command uses the Enable-PSRemoting cmdlet to re-enable remote access to all session configurations on the computer.
 The command uses the Force parameter to suppress all user prompts and to restart the WinRM service without prompting.
+
 The fourth command uses the Get-PSSessionConfiguration and Format-Table cmdlets to display the names and permissions of the session configurations.
 The results show that the "AccessDenied" security descriptors have been removed from all session configurations.
 
@@ -1358,12 +1439,14 @@ In the Permissions dialog box, we create custom full-access permissions for the 
 
 The second command uses the Get-PSSessionConfiguration and Format-Table cmdlets to display the session configurations and their properties.
 The output shows that the Test session configuration allows interactive access and special permissions for the Domain01\User01 user.
+
 The third command uses the Disable-PSRemoting cmdlet to disable remote access to all session configurations.
+
 The fourth command uses the Get-PSSessionConfiguration and Format-Table cmdlets to display the session configurations and their properties.
 The output shows that an AccessDenied security descriptor for all network users is added to all session configurations, including the Test session configuration.
 Although the other security desriptors are not changed, the "network_deny_all" security descriptor takes precedence.
-The fifth command shows that the Disable-PSRemoting command prevents even the Domain01\User01 user with special permissions to the Test session configuration from using the Test session configuration to connect to the computer remotely.
 
+The fifth command shows that the Disable-PSRemoting command prevents even the Domain01\User01 user with special permissions to the Test session configuration from using the Test session configuration to connect to the computer remotely.
 
 
 #### -------------------------- EXAMPLE 6 --------------------------
@@ -1411,7 +1494,6 @@ The output shows that the AccessDenied security descriptor for all network users
 
 
 
-
 ### RELATED LINKS
 
 [Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289573)
@@ -1438,8 +1520,11 @@ Disables session configurations on the local computer.
 ### DESCRIPTION
 The Disable-PSSessionConfiguration cmdlet disables session configurations on the local computer, thereby preventing all users from using the session configurations to create a user-managed sessions ("PSSessions") on the local computer.
 This is an advanced cmdlet that is designed to be used by system administrators to manage customized session configurations for their users.
+
 Beginning in Windows PowerShell 3.0, the Disable-PSSessionConfiguration cmdlet sets the Enabled setting of the session configuration (WSMan:\localhost\Plugins\\<SessionConfiguration\>\Enabled) to "False".
+
 In Windows PowerShell 2.0, the Disable-PSSessionConfiguration cmdlet adds a "Deny_All" entry to the security descriptor of one or more registered session configurations.
+
 Without parameters, Disable-PSSessionConfiguration disables the Microsoft.PowerShell configuration, which is the default configuration that is used for sessions.
 Unless the user specifies a different configuration, both local and remote users are effectively prevented from creating any sessions that connect to the computer.
 
@@ -1472,6 +1557,7 @@ Specifies the names of session configurations to disable.
 Enter one or more configuration names.
 Wildcards are permitted.
 You can also pipe a string that contains a configuration name or a session configuration object to Disable-PSSessionConfiguration.
+
 If you omit this parameter, Disable-PSSessionConfiguration disables the Microsoft.PowerShell session configuration.
 
 
@@ -1546,6 +1632,7 @@ PS C:\>Get-PSSessionConfiguration -Name MaintenanceShell, AdminShell | Disable-P
 
 ```
 This command disables the MaintenanceShell and AdminShell session configurations.
+
 The command uses a pipeline operator (|) to send the results of a Get-PSSessionConfiguration command to Disable-PSSessionConfiguration.
 
 
@@ -1639,13 +1726,18 @@ Disconnects from a session.
 The Disconnect-PSSession cmdlet disconnects a Windows PowerShell session ("PSSession"), such as one started by using the New-PSSession cmdlet, from the current session.
 As a result, the PSSession is in a disconnected state.
 You can connect to the disconnected PSSession from the current session or from another session on the local computer or a different computer.
+
 The Disconnect-PSSession cmdlet disconnects only open PSSessions that are connected to the current session.
 Disconnect-PSSession cannot disconnect broken or closed PSSessions, or interactive PSSessions started by using the Enter-PSSession cmdlet,  and it cannot disconnect PSSessions that are connected to other sessions.
+
 To reconnect to a disconnected PSSession, use the Connect-PSSession or Receive-PSSession cmdlets.
+
 When a PSSession is disconnected, the commands in the PSSession continue to run until they complete, unless the PSSession times out or the commands in the PSSession are blocked by a full output buffer.
 To change the idle timeout, use the IdleTimeoutSec parameter.
 To change the output buffering mode, use the OutputBufferingMode parameter You can also use the InDisconnectedSession parameter of the Invoke-Command cmdlet to run a command in a disconnected session.
+
 For more information about the Disconnected Sessions feature, see about_Remote_Disconnected_Sessions.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -1662,6 +1754,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Disconnects from sessions with the specified session ID.
 Type one or more IDs (separated by commas), or use the range operator (..) to specify a range of IDs.
+
 To get the ID of a session, use the Get-PSSession cmdlet.
 The instance ID is stored in the ID property of the session.
 
@@ -1671,12 +1764,15 @@ The instance ID is stored in the ID property of the session.
 Changes the idle timeout value of the disconnected PSSession.
 Enter a value in seconds.
 The minimum value is 60 (1 minute).
+
 The idle timeout determines how long the disconnected PSSession is maintained on the remote computer.
 When the timeout expires, the PSSession is deleted.
+
 Disconnected PSSessions are considered to be idle from the moment that they are disconnected, even if commands are running in the disconnected session.
 
 The default value for the idle timeout of a session is set by the value of the IdleTimeoutMs property of the session configuration.
 The default value is 7200000 milliseconds (2 hours).
+
 The value of this parameter takes precedence over the value of the IdleTimeout property of the $PSSessionOption preference variable and the default idle timeout value in the session configuration.
 However, this value cannot exceed the value of the MaxIdleTimeoutMs property of the session configuration.
 The default value of MaxIdleTimeoutMs is 12 hours (43200000 milliseconds).
@@ -1692,8 +1788,10 @@ The default value of MaxIdleTimeoutMs is 12 hours (43200000 milliseconds).
 ```
 
 Disconnects from sessions with the specified instance IDs.
+
 The instance ID is a GUID that uniquely identifies a session on a local or remote computer.
 The instance ID is unique, even across multiple sessions on multiple computers.
+
 To get the instance ID of a session, use the Get-PSSession cmdlet.
 The instance ID is stored in the InstanceID property of the session.
 
@@ -1709,6 +1807,7 @@ The instance ID is stored in the InstanceID property of the session.
 
 Disconnects from sessions with the specified friendly names.
 Wildcards are permitted.
+
 To get the friendly name of a session, use the Get-PSSession cmdlet.
 The friendly name is stored in the Name property of the session.
 
@@ -1727,6 +1826,7 @@ The friendly name is stored in the Name property of the session.
 Disconnects from the specified PSSessions.
 Enter PSSession objects, such as those that the New-PSSession cmdlet returns.
 You can also pipe a PSSession object to Disconnect-PSSession.
+
 The Get-PSSession cmdlet can get all PSSessions that terminate at a remote computer, including PSSessions that are disconnected and PSSessions that are connected to other sessions on other computers.
 Disconnect-PSSession disconnects only PSSession that are connected to the current session.
 If you pipe other PSSessions to Disconnect-PSSession, the Disconnect-PSSession command fails.
@@ -1735,8 +1835,10 @@ If you pipe other PSSessions to Disconnect-PSSession, the Disconnect-PSSession c
 #### ThrottleLimit [Int32] = 32
 
 Sets the throttle limit for the Disconnect-PSSession command.
+
 The throttle limit is the maximum number of concurrent connections that can be established to run this command.
 If you omit this parameter or enter a value of 0, the default value, 32, is used.
+
 The throttle limit applies only to the current command, not to the session or to the computer.
 
 
@@ -1744,13 +1846,15 @@ The throttle limit applies only to the current command, not to the session or to
 
 Determines how command output is managed in the disconnected session when the output buffer is full.
 The default value is Block.
+
 If the command in the disconnected session is returning output and the output buffer fills, the value of this parameter effectively determines whether the command continues to run while the session is disconnected.
 A value of Block suspends the command until the session is reconnected.
 A value of Drop allows the command to complete, although data might be lost.
 When using the Drop value, redirect the command output to a file on disk.
-Valid values are:
--- Block: When the output buffer is full, execution is suspended until the buffer is clear.
 
+Valid values are:
+
+-- Block: When the output buffer is full, execution is suspended until the buffer is clear. 
 -- Drop: When the output buffer is full, execution continues.
 As new output is saved, the oldest output is discarded.
 -- None: No output buffering mode is specified.
@@ -1782,9 +1886,12 @@ Disconnect-PSSession returns an object that represents the session that it disco
 
 ### NOTES
 The Disconnect-PSSession cmdlet works only when the local and remote computers are running Windows PowerShell 3.0 or later versions of Windows PowerShell.
+
 If you use the Disconnect-PSSession cmdlet on a disconnected session, the command has no effect on the session and it does not generate errors.
+
 Disconnected loopback sessions with interactive security tokens (those created with the EnableNetworkAccess parameter) can be reconnected only from the computer on which the session was created.
 This restriction protects the computer from malicious access.
+
 When you disconnect a PSSession, the session state is Disconnected and the availability is None.
 
 The value of the State property is relative to the current session.
@@ -1792,9 +1899,12 @@ Therefore, a value of Disconnected means that the PSSession is not connected to 
 However, it does not mean that the PSSession is disconnected from all sessions.
 It might be connected to a different session.
 To determine whether you can connect or reconnect to the session, use the Availability property.
+
 An Availability value of None indicates that you can connect to the session.
 A value of Busy indicates that you cannot connect to the PSSession because it is connected to another session.
+
 For more information about the values of the State property of sessions, see "RunspaceState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspacestate(v=VS.85).aspx]().
+
 For more information about the values of the Availability property of sessions, see RunspaceAvailability Enumeration at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspaceavailability(v=vs.85).aspx]().
 
 ### EXAMPLES
@@ -1809,6 +1919,7 @@ Id Name            ComputerName    State         ConfigurationName     Availabil
 ```
 This command disconnects the UpdateSession PSSession on the Server01 computer from the current session.
 The command uses the Name parameter to identify the PSSession.
+
 The output shows that the attempt to disconnect was successful.
 The session state is Disconnected and the Availability is None, which indicates that the session is not busy and can be reconnected.
 
@@ -1979,6 +2090,7 @@ PS C:\>$s.Runspace.ConnectionInfo.IdleTimeout
 
 ```
 This example shows how to correct the value of the IdleTimeout property of a session so that it can be disconnected.
+
 The idle timeout property of a session is critical to disconnected sessions, because it determines how long a disconnected session is maintained before it is deleted.
 You can set the idle timeout option when you create a session and when you disconnect it.
 The default values for the idle timeout of a session are set in the $PSSessionOption preference variable on the local computer and in the session configuration on the remote computer.
@@ -2025,25 +2137,41 @@ Configures the computer to receive remote commands.
 
 ### DESCRIPTION
 The Enable-PSRemoting cmdlet configures the computer to receive Windows PowerShell remote commands that are sent by using the WS-Management technology.
+
 On Windows Server® 2012, Windows PowerShell remoting is enabled by default.
 You can use Enable-PSRemoting to enable Windows PowerShell remoting on other supported versions of Windows and to re-enable remoting on Windows Server 2012 if it becomes disabled.
+
 You need to run this command only once on each computer that will receive commands.
 You do not need to run it on computers that only send commands.
 Because the configuration activates listeners, it is prudent to run it only where it is needed.
+
 Beginning in Windows PowerShell 3.0, the Enable-PSRemoting cmdlet can enable Windows PowerShell remoting on client versions of Windows when the computer is on a public network.
 For more information, see the description of the SkipNetworkProfileCheck parameter.
+
 The Enable-PSRemoting cmdlet performs the following operations:
+
 -- Runs the [Set-WSManQuickConfig]() cmdlet, which performs the following tasks:
+
 ----- Starts the WinRM service.
+
 ----- Sets the startup type on the WinRM service to Automatic.
+
 ----- Creates a listener to accept requests on any IP address.
+
 ----- Enables a firewall exception for WS-Management communications.
+
 ----- Registers the Microsoft.PowerShell and Microsoft.PowerShell.Workflow session configurations, if it they are not already registered.
+
 ----- Registers the Microsoft.PowerShell32 session configuration on 64-bit computers, if it is not already registered.
+
 ----- Enables all session configurations.
+
 ----- Changes the security descriptor of all session configurations to allow remote access.
+
 ----- Restarts the WinRM service to make the preceding changes effective.
+
 To run this cmdlet, start Windows PowerShell with the "Run as administrator" option.
+
 CAUTION: On systems that have both Windows PowerShell 3.0 and the Windows PowerShell 2.0 engine, do not use Windows PowerShell 2.0 to run the Enable-PSRemoting and Disable-PSRemoting cmdlets.
 The commands might appear to succeed, but the remoting is not configured correctly.
 Remote commands, and later attempts to enable and disable remoting, are likely to fail.
@@ -2068,10 +2196,13 @@ By default, you are prompted to confirm each operation.
 
 Enables remoting on client versions of Windows when the computer is on a public network.
 This parameter enables a firewall rule for public networks that allows remote access only from computers in the same local subnet.
+
 This parameter has no effect on server versions of Windows, which, by default, have a local subnet firewall rule for public networks.
 If the local subnet firewall rule is disabled on a server version of Windows, Enable-PSRemoting re-enables it, regardless of the value of this parameter.
+
 To remove the local subnet restriction and enable remote access from all locations on public networks, use the Set-NetFirewallRule cmdlet in the NetSecurity module.
 For more information, see Notes and Examples.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -2108,17 +2239,24 @@ Enable-PSRemoting returns strings that describe its results.
 
 ### NOTES
 In Windows PowerShell 3.0, Enable-PSRemoting creates the following firewall exceptions for WS-Management communications.
+
 On server versions of Windows, Enable-PSRemoting creates firewall rules  for private and domain networks that allow remote access, and creates a firewall rule for public networks that allows remote access only from computers in the same local subnet.
- On client versions of Windows, Enable-PSRemoting in Windows PowerShell 3.0 creates firewall rules for private and domain networks that allow unrestricted remote access.
+
+On client versions of Windows, Enable-PSRemoting in Windows PowerShell 3.0 creates firewall rules for private and domain networks that allow unrestricted remote access.
 To create a firewall rule for public networks that allows remote access from the same local subnet, use the SkipNetworkProfileCheck parameter.
+
 On client or server versions of Windows, to create a firewall rule for public networks that removes the local subnet restriction and allows remote access , use the Set-NetFirewallRule cmdlet in the NetSecurity module to run the following command: Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
+
 In Windows PowerShell 2.0, Enable-PSRemoting creates the following firewall exceptions for WS-Management communications.
 
 On server versions of Windows, it creates firewall rules for all networks that allow remote access.
- On client versions of Windows, Enable-PSRemoting in Windows PowerShell 2.0 creates a firewall exception only for domain and private network locations.
+
+On client versions of Windows, Enable-PSRemoting in Windows PowerShell 2.0 creates a firewall exception only for domain and private network locations.
 To minimize security risks, Enable-PSRemoting does not create a firewall rule for public networks on client versions of Windows.
 When the current network location is public, Enable-PSRemoting returns the following message: "Unable to check the status of the firewall."
+
 Beginning in Windows PowerShell 3.0, Enable-PSRemoting enables all session configurations by setting the value of the Enabled property of all session configurations (WSMan:\\<ComputerName\>\Plugin\\<SessionConfigurationName\>\Enabled) to True ($true).
+
 In Windows PowerShell 2.0, Enable-PSRemoting removes the Deny_All setting from the security descriptor of session configurations.
 In Windows PowerShell 3.0, Enable-PSRemoting removes the Deny_All and Network_Deny_All settings, thereby providing remote access to session configurations that were reserved for local use.
 
@@ -2161,11 +2299,14 @@ PS C:\>Set-NetFirewallRule -Name "WINRM-HTTP-In-TCP-PUBLIC" -RemoteAddress Any
 ```
 This example shows how to allow remote access from public networks on client versions of Windows.
 Before using these commands, analyze the security setting and verify that the computer network will be safe from harm.
+
 The first command enables remoting in Windows PowerShell.
 By default, this creates network rules that allow remote access from private and domain networks.
 The command uses the SkipNetworkProfileCheck parameter to allow remote access from public networks in the same local subnet.
 The command uses the Force parameter to suppress confirmation messages.
+
 The SkipNetworkProfileCheck parameter has no effect on server version of Windows, which allow remote access from public networks in the same local subnet by default.
+
 The second command eliminates the subnet restriction.
 The command uses the Set-NetFirewallRule cmdlet in the NetSecurity module to add a firewall rule that allows remote access from public networks from any remote location, including locations in different subnets.
 
@@ -2201,14 +2342,16 @@ Enables the session configurations on the local computer.
 ### DESCRIPTION
 The Enable-PSSessionConfiguration cmdlet enables registered session configurations that have been disabled, such as by using the Disable-PSSessionConfiguration or Disable-PSRemoting cmdlets, or the AccessMode parameter of Register-PSSessionConfiguration.
 This is an advanced cmdlet that is designed to be used by system administrators to manage customized session configurations for their users.
+
 Without parameters, Enable-PSSessionConfiguration enables the Microsoft.PowerShell configuration, which is the default configuration that is used for sessions.
+
 Enable-PSSessionConfiguration removes the "Deny_All" setting from the security descriptor of the affected session configurations, turns on the listener that accepts requests on any IP address, and restarts the WinRM service.
 Beginning in Windows PowerShell 3.0, Enable-PSSessionConfiguration also sets the value of the Enabled property of the session configuration (WSMan:\\<computer\>\PlugIn\\<SessionConfigurationName\>\Enabled) to "True".
 However,  Enable-PSSessionConfiguration does not remove or change the "Network_Deny_All" (AccessMode=Local) security descriptor setting that allows only users of the local computer to use to the session configuration.
+
 The Enable-PSSessionConfiguration cmdlet calls the Set-WSManQuickConfig cmdlet.
 However, it should not be used to enable remoting on the computer.
 Instead, use the more comprehensive cmdlet, Enable-PSRemoting.
-
 
 ### PARAMETERS
 
@@ -2220,6 +2363,7 @@ Instead, use the more comprehensive cmdlet, Enable-PSRemoting.
 
 Suppresses all user prompts, and restarts the WinRM service without prompting.
 Restarting the service makes the configuration change effective.
+
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
@@ -2237,7 +2381,9 @@ To prevent a restart and suppress the restart prompt, use the NoServiceRestart p
 Specifies the names of session configurations to enable.
 Enter one or more configuration names.
 Wildcards are permitted.
+
 You can also pipe a string that contains a configuration name or a session configuration object to Enable-PSSessionConfiguration.
+
 If you omit this parameter, Enable-PSSessionConfiguration enables the Microsoft.PowerShell session configuration.
 
 
@@ -2248,6 +2394,7 @@ If you omit this parameter, Enable-PSSessionConfiguration enables the Microsoft.
 ```
 
 Replaces the security descriptor on the session configuration with the specified security descriptor.
+
 If you omit this parameter, Enable-PSSessionConfiguration just deletes the "deny all" item from the security descriptor.
 
 
@@ -2260,11 +2407,14 @@ If you omit this parameter, Enable-PSSessionConfiguration just deletes the "deny
 Enables the session configuration when the computer is on a public network.
 This parameter enables a firewall rule for public networks that allows remote access only from computers in the same local subnet.
 By default, Enable-PSSessionConfiguration fails on a public network.
+
 This parameter is designed for client versions of Windows.
 Server versions of Windows have a local subnet firewall rule for public networks by default.
 However, if the local subnet firewall rule is disabled on a server version of Windows, this parameter re-enables it.
+
 To remove the local subnet restriction and enable remote access from all locations on public networks, use the Set-NetFirewallRule cmdlet in the NetSecurity module.
 For more information, see Enable-PSRemoting.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -2335,6 +2485,7 @@ PS C:\>Get-PSSessionConfiguration | Enable-PSSessionConfiguration
 ```
 These commands re-enable all session configurations on the computer.
 The commands are equivalent, so you can use either one.
+
 Enable-PSSessionConfiguration does not generate an error if you enable a session configuration that is already enabled.
 
 
@@ -2387,16 +2538,21 @@ Connects to and enters into an interactive session with a local process.
 
 ### DESCRIPTION
 Enter-PSHostProcess connects to and enters into an interactive session with a local process.
+
 Instead of creating a new process to host Windows PowerShell and run a remote session, the remote, interactive session is run in an existing process that is already running Windows PowerShell.
 When you are interacting with a remote session on a specified process, you can enumerate running runspaces, and then select a runspace to debug by running either Debug-Runspace or Enable-RunspaceDebug.
+
 The process that you want to enter must be hosting Windows PowerShell (System.Management.Automation.dll).
 You must be either a member of the Administrators group on the computer on which the process is found, or you must be the user who is running the script that started the process.
+
 After you have selected a runspace to debug, a remote debug session is opened for the runspace if it is either currently running a command or is stopped in the debugger.
 You can then debug the runspace script in the same way you would debug other remote session scripts.
 
 Detach from a debugging session, and then the interactive session with the process, by running exit twice, or stop script execution by running the existing debugger quit command.
+
 If you specify a process by using the Name parameter, and there is only one process found with the specified name, the process is entered.
 If more than one process with the specified name is found, Windows PowerShell returns an error, and lists all processes found with the specified name.
+
 To support attaching to processes on remote computers, the Enter-PSHostProcess cmdlet is enabled in a specified remote computer, so that you can attach to a local process within a remote Windows PowerShell session.
 
 ### PARAMETERS
@@ -2478,7 +2634,9 @@ The simplest way to use this parameter is to save the results of a Get-Process c
 ### NOTES
 Enter-PSHostProcess cannot enter the process of the Windows PowerShell session in which you are running the command.
 You can, however, enter the process of another Windows PowerShell session, or a Windows PowerShell ISE session that is running at the same time as the session in which you are running Enter-PSHostProcess.
+
 Enter-PSHostProcess can enter only those processes that are hosting Windows PowerShell; that is, they have loaded the Windows PowerShell engine.
+
 To exit a process from within the process, type exit, and then press Enter.
 
 ### EXAMPLES
@@ -2554,9 +2712,11 @@ Starts an interactive session with a remote computer.
 The Enter-PSSession cmdlet starts an interactive session with a single remote computer.
 During the session, the commands that you type run on the remote computer, just as though you were typing directly on the remote computer.
 You can have only one interactive session at a time.
+
 Typically, you use the ComputerName parameter to specify the name of the remote computer.
 However, you can also use a session that you create by using the New-PSSession cmdlet for the interactive session.
 However, you cannot use the Disconnect-PSSession, Connect-PSSession, or Receive-PSSession cmdlets to disconnect from or re-connect to an interactive session.
+
 To end the interactive session and disconnect from the remote computer, use the Exit-PSSession cmdlet, or type "exit".
 
 ### PARAMETERS
@@ -2569,8 +2729,10 @@ To end the interactive session and disconnect from the remote computer, use the 
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
 By default, redirection is not allowed.
+
 When you use the ConnectionURI parameter, the remote destination can return an instruction to redirect to a different URI.
 By default, Windows PowerShell does not redirect connections, but you can use this parameter to allow it to redirect the connection.
+
 You can also limit the number of times the connection is redirected by changing the MaximumConnectionRedirectionCount session option value.
 Use the  MaximumRedirection parameter of the New-PSSessionOption cmdlet or set the MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable.
 The default value is 5.
@@ -2586,10 +2748,12 @@ The default value is 5.
 
 Specifies the application name segment of the connection URI.
 Use this parameter to specify the application name when you are not using the ConnectionURI parameter in the command.
+
 The default value is the value of the $PSSessionApplicationName preference variable on the local computer.
 If this preference variable is not defined, the default value is WSMAN.
 This value is appropriate for most uses.
 For more information, see about_Preference_Variables.
+
 The WinRM service uses the application name to select a listener to service the connection request.
 The value of this parameter should match the value of the URLPrefix property of a listener on the remote computer.
 
@@ -2602,12 +2766,13 @@ The value of this parameter should match the value of the URLPrefix property of 
 ```
 
 Specifies the mechanism that is used to authenticate the user's credentials.
-
- Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
-
+Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
 The default value is "Default".
+
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkId=144382.
+
 Caution: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -2622,8 +2787,10 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies the digital public key certificate (X509) of a user account that has permission to perform this action.
 Enter the certificate thumbprint of the certificate.
+
 Certificates are used in client certificate-based authentication.
 They can be mapped only to local user accounts; they do not work with domain accounts.
+
 To get a certificate, use the Get-Item or Get-ChildItem command in the Windows PowerShell Cert: drive.
 
 
@@ -2641,11 +2808,14 @@ To get a certificate, use the Get-Item or Get-ChildItem command in the Windows P
 Starts an interactive session with the specified remote computer.
 Enter only one computer name.
 The default is the local computer.
+
 Type the NetBIOS name, the IP address, or the fully qualified domain name of the computer.
 You can also pipe a computer name to Enter-PSSession.
+
 To use an IP address in the value of the ComputerName parameter, the command must include the Credential parameter.
 Also, the computer must be configured for HTTPS transport or the IP address of the remote computer must be included in the WinRM TrustedHosts list on the local computer.
 For instructions for adding a computer name to the TrustedHosts list, see "How to Add  a Computer to the Trusted Host List" in about_Remote_Troubleshooting.
+
 Note:  In Windows Vista and later versions of Windows, to include the local computer in the value of the ComputerName parameter, you must start Windows PowerShell with the "Run as administrator" option.
 
 
@@ -2661,10 +2831,13 @@ Note:  In Windows Vista and later versions of Windows, to include the local comp
 ```
 
 Specifies the session configuration that is used for the interactive session.
+
 Enter a configuration name or the fully qualified resource URI for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/powershell.
+
 The session configuration for a session is located on the remote computer.
 If the specified session configuration does not exist on the remote computer, the command fails.
+
 The default value is the value of the $PSSessionConfigurationName preference variable on the local computer.
 If this preference variable is not set, the default is Microsoft.PowerShell.
 For more information, see about_Preference_Variables.
@@ -2681,15 +2854,20 @@ For more information, see about_Preference_Variables.
 
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session.
 The URI must be fully qualified.
-
 The format of this string is as follows:
+
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
+
 The default value is as follows:
+
 http://localhost:5985/WSMAN
+
 If you do not specify a ConnectionURI, you can use the UseSSL, ComputerName, Port, and ApplicationName parameters to specify the ConnectionURI values.
+
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
 
 
@@ -2706,7 +2884,9 @@ If the destination computer redirects the connection to a different URI, Windows
 
 Specifies a user account that has permission to perform this action.
 The default is the current user.
+
 Type a user name, such as "User01", "Domain01\User01", or "User@Domain.com", or enter a PSCredential object, such as one returned by the Get-Credential cmdlet.
+
 When you type a user name, you will be prompted for a password.
 
 
@@ -2720,12 +2900,17 @@ When you type a user name, you will be prompted for a password.
 Adds an interactive security token to loopback sessions.
 The interactive token lets you run commands in the loopback session that get data from other computers.
 For example, you can run a command in the session that copies XML files from a remote computer to the local computer.
+
 A "loopback session" is a PSSession that originates and terminates on the same computer.
 To create a loopback session, omit the ComputerName parameter or set its value to ".", "localhost", or the name of the local computer.
+
 By default, loopback sessions are created with a network token, which might not provide sufficient permission to authenticate to remote computers.
+
 The EnableNetworkAccess parameter is effective only in loopback sessions.
 If you use the EnableNetworkAccess parameter when creating a session on a remote computer, the command succeeds, but the parameter is ignored.
+
 You can also allow remote access in a loopback session by using the CredSSP value of the Authentication parameter, which delegates the session credentials to other computers.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -2740,6 +2925,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the ID of an existing session.
 Enter-PSSession uses the specified session for the interactive session.
+
 To find the ID of a session, use the Get-PSSession cmdlet.
 
 
@@ -2753,10 +2939,10 @@ To find the ID of a session, use the Get-PSSession cmdlet.
 
 Specifies the instance ID of an existing session.
 Enter-PSSession uses the specified session for the interactive session.
+
 The instance ID is a GUID.
 To find the instance ID of a session, use the Get-PSSession cmdlet.
 You can also use the Session, Name, or ID parameters to specify an existing session.
-
 Or, you can use the ComputerName parameter to start a temporary session.
 
 
@@ -2770,9 +2956,11 @@ Or, you can use the ComputerName parameter to start a temporary session.
 
 Specifies the friendly name of an existing session.
 Enter-PSSession uses the specified session for the interactive session.
+
 If the name that you specify matches more than one session, the command fails.
 You can also use the Session, InstanceID, or ID parameters to specify an existing session.
 Or, you can use the ComputerName parameter to start a temporary session.
+
 To establish a friendly name for a session, use the Name parameter of the New-PSSession cmdlet.
 
 
@@ -2784,14 +2972,17 @@ To establish a friendly name for a session, use the Name parameter of the New-PS
 
 Specifies the network port  on the remote computer used for this command.
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port.
 Use the following commands to configure the listener:
+
 1.
 winrm delete winrm/config/listener?Address=*+Transport=HTTP
+
 2.
 winrm create winrm/config/listener?Address=*+Transport=HTTP @{Port="\<port-number\>"}
+
 
 Do not use the Port parameter unless you must.
 The port setting in the command applies to all computers or sessions on which the command runs.
@@ -2811,10 +3002,12 @@ An alternate port setting might prevent the command from running on all computer
 Specifies a Windows PowerShell session (PSSession) to use for the interactive session.
 This parameter takes a session object.
 You can also use the Name, InstanceID, or ID parameters to specify a PSSession.
+
 Enter a variable that contains a session object or a command that creates or gets a session object, such as a New-PSSession or Get-PSSession command.
 You can also pipe a session object to Enter-PSSession.
 You can submit only one PSSession with this parameter.
 If you enter a variable that contains more than one PSSession, the command fails.
+
 When you use Exit-PSSession or the EXIT keyword, the interactive session ends, but the PSSession that you created remains open and available for use.
 
 
@@ -2826,10 +3019,11 @@ When you use Exit-PSSession or the EXIT keyword, the interactive session ends, b
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -2846,8 +3040,10 @@ For more information about session configurations, see about_Session_Configurati
 
 Uses the Secure Sockets Layer (SSL) protocol to establish a connection to the remote computer.
 By default, SSL is not used.
+
 WS-Management encrypts all Windows PowerShell content transmitted over the network.
 UseSSL is an additional protection that sends the data across an HTTPS connection instead of an HTTP connection.
+
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
 
 
@@ -2864,14 +3060,20 @@ The cmdlet does not return any output.
 
 ### NOTES
 To connect to a remote computer, you must be a member of the Administrators group on the remote computer.
+
 In Windows Vista and later versions of Windows, to start an interactive session on the local computer, you must start Windows PowerShell with the "Run as administrator" option.
+
 When you use Enter-PSSession, your user profile on the remote computer is used for the interactive session.
 The commands in the remote user profile, including commands to add Windows PowerShell snap-ins and to change the command prompt, run before the remote prompt is displayed.
+
 Enter-PSSession uses the UI culture setting on the local computer for the interactive session.
 To find the local UI culture, use the $UICulture automatic variable.
+
 Enter-PSSession requires the Get-Command, Out-Default, and Exit-PSSession cmdlets.
 If these cmdlets are not included in the session configuration on the remote computer, the Enter-PSSession commands fails.
+
 Unlike Invoke-Command, which parses and interprets the commands before sending them to the remote computer, Enter-PSSession sends the commands directly to the remote computer without interpretation.
+
 If the session that you want to enter is busy processing a command, there might be a delay before Windows PowerShell responds to the Enter-PSSession command.
 You will be connected as soon as the session is available.
 To cancel the Enter-PSSession command, press CTRL+C.
@@ -2886,6 +3088,7 @@ PS C:\>Enter-PSSession
 ```
 This command starts an interactive session on the local computer.
 The command prompt changes to indicate that you are now running commands in a different session.
+
 The commands that you enter run in the new session, and the results are returned to the default session as text.
 
 
@@ -2951,6 +3154,7 @@ PS C:\>
 ```
 This example shows how to start and stop an interactive session.
 The first command uses the Enter-PSSession cmdlet to start an interactive session with the Server01 computer.
+
 The second command uses the Exit-PSSession cmdlet to end the session.
 You can also use the Exit keyword to end the interactive session.
 Exit-PSSession and Exit have the same effect.
@@ -3040,6 +3244,7 @@ Ends an interactive session with a remote computer.
 
 ### DESCRIPTION
 The Exit-PSSession cmdlet ends interactive sessions that you started by using Enter-PSSession.
+
 You can also use the Exit keyword to end an interactive session.
 The effect is the same as using Exit-PSSession.
 
@@ -3087,12 +3292,17 @@ Id Name            ComputerName    State    ConfigurationName
 
 ```
 These commands start and stop an interactive session with the Server01 computer that uses a Windows PowerShell session (PSSession).
+
 Because the interactive session was started by using a Windows PowerShell session (PSSession), the PSSession is still available when the interactive session ends.
 If you use the ComputerName parameter, Enter-PSSession creates a temporary session that it closes when the interactive session ends.
+
 The first command uses the New-PSSession cmdlet to create a PSSession on the Server01 computer.
 The command saves the PSSession in the $s variable.
+
 The second command uses the Enter-PSSession cmdlet to start an interactive session using the PSSession in $s.
+
 The third command uses the Exit-PSSession cmdlet to stop the interactive session.
+
 The final command displays the PSSession in the $s variable.
 The State property shows the PSSession is still open and available for use.
 
@@ -3148,7 +3358,9 @@ Exports the names of snap-ins in the current session to a console file.
 ### DESCRIPTION
 The Export-Console cmdlet exports the names of the Windows PowerShell snap-ins in the current session to a Windows PowerShell console file (.psc1).
 You can use this cmdlet to save the snap-ins for use in future sessions.
+
 To add the snap-ins in the .psc1 console file to a session, start Windows PowerShell (Powershell.exe) at the command line by using Cmd.exe or another Windows PowerShell session, and then use the PSConsoleFile parameter of Powershell.exe to specify the console file.
+
 For more information about Windows PowerShell snap-ins, see about_PSSnapins.
 
 ### PARAMETERS
@@ -3186,9 +3398,12 @@ By default, if a file exists in the specified path, Export-Console overwrites th
 Specifies a path and file name for the console file (*.psc1).
 Enter a path (optional) and name.
 Wildcards are not permitted.
+
 If you type only a file name, Export-Console creates a file with that name and the ".psc1" file name extension in the current directory.
+
 This parameter is required unless you have opened Windows PowerShell with the PSConsoleFile parameter or exported a console file during the current session.
 It is also required when you use the NoClobber parameter to prevent the current console file from being overwritten.
+
 If you omit this parameter, Export-Console overwrites (replaces the content of) the console file that was used most recently in this session.
 The path to the most recently used console file is stored in the value of the $ConsoleFileName automatic variable.
 For more information, see about_Automatic_Variables.
@@ -3227,11 +3442,13 @@ Export-Console creates a file that contains the exported aliases.
 
 ### NOTES
 When a console file (.psc1) is used to start the session, the name of the console file is automatically stored in the $ConsoleFileName automatic variable.
-
 The value of $ConsoleFileName is updated when you use the Path parameter of Export-Console to specify a new console file.
 When no console file is used, $ConsoleFileName has no value ($null).
+
 To use a Windows PowerShell console file in a new session, use the following syntax to start Windows PowerShell:
+
 "powershell.exe -PsConsoleFile \<ConsoleFile\>.psc1".
+
 You can also save Windows PowerShell snap-ins for future sessions by adding an Add-PSSnapin command to your Windows PowerShell profile.
 For more information, see about_Profiles.
 
@@ -3258,6 +3475,7 @@ PS C:\>export-console
 ```
 This command exports the names of Windows PowerShell snap-ins from current session to the Windows PowerShell console file that was most recently used in the current session.
 It overwrites the previous file contents.
+
 If you have not exported a console file during the current session, you are prompted for permission to continue and then prompted for a file name.
 
 
@@ -3274,9 +3492,12 @@ PS C:\>powershell.exe -PsConsoleFile NewPsSnapinConsole.psc1
 
 ```
 These commands add the NewPSSnapin Windows PowerShell snap-in to the current session, export the names of Windows PowerShell snap-ins in the current session to a console file, and then start a Windows PowerShell session with the console file.
+
 The first command uses the Add-PSSnapin cmdlet to add the NewPSSnapin snap-in to the current session.
 You can only add Windows PowerShell snap-ins that are registered on your system.
+
 The second command exports the Windows PowerShell snap-in names to the NewPSSnapinConsole.psc1 file.
+
 The third command starts Windows PowerShell with the NewPSSnapinConsole.psc1 file.
 Because the console file includes the Windows PowerShell snap-in name, the cmdlets and providers in the snap-in are available in the current session.
 
@@ -3300,6 +3521,7 @@ PS C:\>notepad console01.psc1
 
 ```
 This command exports the names of the Windows PowerShell snap-ins in the current session to the Console01.psc1 file in the current directory.
+
 The second command displays the contents of the Console01.psc1 file in Notepad.
 
 
@@ -3319,12 +3541,18 @@ PS C:\>export-console
 
 ```
 This example shows how to use the $ConsoleFileName automatic variable to determine the console file that will be updated if you use Export-Console without a Path parameter value.
+
 The first command uses the PSConsoleFile parameter of PowerShell.exe to open Windows PowerShell with the Console01.psc1 file.
+
 The second command uses the Add-PSSnapin cmdlet to add the MySnapin Windows PowerShell snap-in to the current session.
+
 The third command uses the Export-Console cmdlet to export the names of all the Windows PowerShell snap-ins in the session to the NewConsole.psc1 file.
+
 The fourth command uses the $ConsoleFileName parameter to display the most recently used console file.
 The sample output shows that NewConsole.ps1 is the most recently used file.
+
 The fifth command adds SnapIn03 to the current console.
+
 The sixth command uses the ExportConsole cmdlet without a Path parameter.
 This command exports the names of all the Windows PowerShell snap-ins in the current session to the most recently used file, NewConsole.psc1.
 
@@ -3352,9 +3580,11 @@ Specifies the module members that are exported.
 ### DESCRIPTION
 The Export-ModuleMember cmdlet specifies the module members (such as cmdlets, functions, variables, and aliases) that are exported from a script module (.psm1) file, or from a dynamic module created by using the New-Module cmdlet.
 This cmdlet can be used only in a script module file or a dynamic module.
+
 If a script module does not include an Export-ModuleMember command, the functions in the script module are exported, but the variables and aliases are not.
 When a script module includes Export-ModuleMember commands, only the members specified in the Export-ModuleMember commands are exported.
 You can also use Export-ModuleMember to suppress or export members that the script module imports from other modules.
+
 An Export-ModuleMember command is optional, but it is a best practice.
 Even if the command confirms the default values, it demonstrates the intention of the module author.
 
@@ -3386,6 +3616,7 @@ Wildcards are permitted.
 Specifies the cmdlets that are exported from the script module file.
 Enter the cmdlet names.
 Wildcards are permitted.
+
 You cannot create cmdlets in a script module file, but you can import cmdlets from a binary module into a script module and re-export them from the script module.
 
 
@@ -3443,6 +3674,7 @@ PS C:\>Export-ModuleMember -function * -alias *
 
 ```
 This command exports the aliases defined in the script module, along with the functions defined in the script module.
+
 To export the aliases, which are not exported by default, you must also explicitly specify the functions.
 Otherwise, only the aliases will be exported.
 
@@ -3458,6 +3690,7 @@ PS C:\>Export-ModuleMember -function Get-Test, New-Test, Start-Test -alias gtt, 
 
 ```
 This command exports three aliases and three functions defined in the script module.
+
 You can use this command format to specify the names of module members.
 
 
@@ -3472,6 +3705,7 @@ PS C:\>Export-ModuleMember
 
 ```
 This command specifies that no members defined in the script module are exported.
+
 This command prevents the module members from being exported, but it does not hide the members.
 Users can read and copy module members or use the call operator (&) to invoke module members that are not exported.
 
@@ -3488,6 +3722,7 @@ PS C:\>Export-ModuleMember -variable increment
 ```
 This command exports only the $increment variable from the script module.
 No other members are exported.
+
 If you want to export a variable, in addition to exporting the functions in a module, the Export-ModuleMember command must include the names of all of the functions and the name of the variable.
 
 
@@ -3511,7 +3746,9 @@ export-modulemember -function *-test -alias stt
 
 ```
 These commands show how multiple Export-ModuleMember commands are interpreted in a script module (.psm1) file.
+
 These commands create three functions and one alias, and then they export two of the functions and the alias.
+
 Without the Export-ModuleMember commands, all three of the functions would be exported, but the alias would not be exported.
 With the Export-ModuleMember commands, only the Get-Test and Start-Test functions and the STT alias are exported.
 
@@ -3527,6 +3764,7 @@ PS C:\>new-module -script {function SayHello {"Hello!"}; set-alias Hi SayHello; 
 
 ```
 This command shows how to use Export-ModuleMember in a dynamic module that is created by using the New-Module cmdlet.
+
 In this example, Export-ModuleMember is used to export both the "Hi" alias and the "SayHello" function in the dynamic module.
 
 
@@ -3567,10 +3805,14 @@ $interval = 2
 ```
 This example includes a function named Export that declares a function or creates a variable, and then writes an Export-ModuleMember command for the function or variable.
 This lets you declare and export a function or variable in a single command.
+
 To use the Export function, include it in your script module.
 To export a function, type "Export" before the Function keyword.
+
 To export a variable, use the following format to declare the variable and set its value:
+
 export variable \<variable-name\> \<value\>
+
 The commands in the example show the correct format.
 In this example, only the New-Test function and the $Interval variable are exported.
 
@@ -3600,20 +3842,28 @@ Performs an operation against each item in a collection of input objects.
 ### DESCRIPTION
 The ForEach-Object cmdlet performs an operation on each item in a collection of input objects.
 The input objects can be piped to the cmdlet or specified by using the InputObject parameter.
+
 Beginning in Windows PowerShell 3.0, there are two different ways to construct a ForEach-Object command.
+
 Script block.
 You can use a script block to specify the operation.
 Within the script block, use the $_ variable to represent the current object.
 The script block is the value of the Process parameter.
 The script block can contain any Windows PowerShell script.
+
 For example, the following command gets the value of the ProcessName property of each process on the computer.
+
 Get-Process | ForEach-Object {$_.ProcessName}
+
 Operation statement.
 You can also write a operation statement, which is much more like natural language.
 You can use the operation statement to specify a property value or call a method.
 Operation statements were introduced in Windows PowerShell 3.0.
+
 For example, the following command also gets the value of the ProcessName property of each process on the computer.
+
 Get-Process | ForEach-Object ProcessName
+
 When using the script block format, in addition to using the script block that describes the operations that are performed on each input object, you can provide two additional script blocks.
 The Begin script block, which is the value of the Begin parameter, runs before the first input object is processed.
 The End script block, which is the value of the End parameter, runs after the last input object is processed.
@@ -3671,6 +3921,7 @@ Enter a script block that describes the operation.
 ```
 
 Takes all script blocks that are not taken by the Process parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -3681,6 +3932,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the arguments to a method call.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -3697,6 +3949,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies the property to get or the method to call.
 Wildcard characters are permitted, but work only if the resulting string resolves to a unique value.
 If, for example, you run Get-Process | ForEach -MemberName *Name, and more than one member exists with a name that contains the string Name--such as the ProcessName and Name properties--the command fails.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -3750,8 +4003,6 @@ PS C:\>Get-ChildItem $pshome | ForEach-Object -Process {if (!$_.PSIsContainer) {
 This command gets the files and directories in the Windows PowerShell installation directory ($pshome) and passes them to the ForEach-Object cmdlet.
 If the object is not a directory (the value of the PSISContainer property is false), the script block gets the name of the file, divides the value of its Length property by 1024, and adds a space ("") to separate it from the next entry.
 
- 
-
 
 #### -------------------------- EXAMPLE 3 --------------------------
 
@@ -3780,13 +4031,14 @@ PS C:\>Get-ItemProperty -Path HKCU:\Network\* | ForEach-Object {Set-ItemProperty
 ```
 This command changes the value of the RemotePath registry entry in all of the subkeys under the HKCU:\Network key to uppercase text.
 You can use this format to change the form or content of a registry entry value.
+
 Each subkey in the Network key represents a mapped network drive that will reconnect at logon.
 The RemotePath entry contains the UNC path of the connected drive.
 For example, if you map the E: drive to \\\\Server\Share, there will be an E subkey of HKCU:\Network and the value of the RemotePath registry entry in the E subkey will be \\\\Server\Share.
 
 The command uses the Get-ItemProperty cmdlet to get all of the subkeys of the Network key and the Set-ItemProperty cmdlet to change the value of the RemotePath registry entry in each key.
-In the Set-ItemProperty command, the path is the value of the PSPath property of the registry key.
-(This is a property of the Microsoft .NET Framework object that represents the registry key; it is not a registry entry.) The command uses the ToUpper() method of the RemotePath value, which is a string (REG_SZ).
+In the Set-ItemProperty command, the path is the value of the PSPath property of the registry key. (This is a property of the Microsoft .NET Framework object that represents the registry key; it is not a registry entry.) The command uses the ToUpper() method of the RemotePath value, which is a string (REG_SZ).
+
 Because Set-ItemProperty is changing the property of each key, the ForEach-Object cmdlet is required to access the property.
 
 
@@ -3805,7 +4057,9 @@ Hello
 
 ```
 This example shows the effect of piping the $null automatic variable to the ForEach-Object cmdlet.
+
 Because Windows PowerShell treats null as an explicit placeholder, the ForEach-Object cmdlet generates a value for $null, just as it does for other objects that you pipe to it.
+
 For more information about the $null automatic variable, see about_Automatic_Variables.
 
 
@@ -3822,8 +4076,10 @@ PS C:\>Get-Module -List | Foreach Path
 ```
 These commands gets the value of the Path property of all installed Windows PowerShell modules.
 They use the MemberName parameter to specify the Path property of modules.
+
 The second command is equivalent to the first.
 It uses the Foreach alias of the Foreach-Object cmdlet and omits the name of the MemberName parameter, which is optional.
+
 The ForEach-Object cmdlet is very useful for getting property values, because it gets the value without changing the type, unlike the Format cmdlets or the Select-Object cmdlet, which change the property value type.
 
 
@@ -3844,11 +4100,16 @@ Host
 These commands split two dot-separated module names into their component names.
 The commands call the Split method of strings.
 The three commands use different syntax, but they are equivalent and interchangeable.
+
 The first command uses the traditional syntax, which includes a script block and the current object operator ($_).
 It uses the dot syntax to specify the method and parentheses to enclose the delimiter argument.
+
 The second command uses the MemberName parameter to specify the Split method and the ArgumentName parameter to identify the dot (".") as the split delimiter.
+
 The third command  uses the Foreach alias of the Foreach-Object cmdlet and omits the names of the MemberName and ArgumentList parameters, which are optional.
+
 The output of these three commands, shown below, is identical.
+
 Split is just one of many useful methods of strings.
 To see all of the properties and methods of strings, pipe a string to the Get-Member cmdlet.
 
@@ -3926,16 +4187,20 @@ Gets all commands.
 The Get-Command cmdlet gets all commands that are installed on the computer, including cmdlets, aliases, functions, workflows, filters, scripts, and applications.
 Get-Command gets the commands from Windows PowerShell modules and snap-ins and commands that were imported from other sessions.
 To get only commands that have been imported into the current session, use the ListImported parameter.
+
 Without parameters, a "Get-Command" command gets all of the cmdlets, functions, workflows and aliases installed on the computer.
 A "Get-Command *" command gets all types of commands, including all of the non-Windows-PowerShell files in the Path environment variable ($env:path), which it lists in the "Application" command type.
 
 A Get-Command command that uses the exact name of the command (without wildcard characters) automatically imports the module that contains the command so you can use the command immediately.
 To enable, disable, and configure automatic importing of modules, use the $PSModuleAutoLoadingPreference preference variable.
 For more information, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 Get-Command gets its data directly from the command code, unlike Get-Help, which gets its information from help topics.
+
 In Windows PowerShell 2.0, Get-Command gets only commands in current session.
 It does not get commands from modules that are installed, but not imported.
 To limit Get-Command in Windows PowerShell 3.0 and later to commands in the current session, use the ListImported parameter.
+
 Starting in Windows PowerShell 5.0, results of the Get-Command cmdlet display a Version column by default; a new Version property has been added to the CommandInfo class.
 
 ### PARAMETERS
@@ -3948,9 +4213,12 @@ Starting in Windows PowerShell 5.0, results of the Get-Command cmdlet display a 
 
 Gets all commands, including commands of the same type that have the same name.
 By default, Get-Command gets only the commands that run when you type the command name.
+
 For more information about the method that Windows PowerShell uses to select the command to run when multiple commands have the same name, see about_Command_Precedence (http://go.microsoft.com/fwlink/?LinkID=113214).
 For information about module-qualified command names and running commands that do not run by default because of a name conflict, see about_Modules (http://go.microsoft.com/fwlink/?LinkID=144311).
+
 This parameter is introduced in Windows PowerShell 3.0.
+
 In Windows PowerShell 2.0, Get-Command gets all commands by default.
 
 
@@ -3962,11 +4230,11 @@ In Windows PowerShell 2.0, Get-Command gets all commands by default.
 
 
 Gets information about a cmdlet or function when it is used with the specified  parameters ("arguments").
-
 The alias for ArgumentList is Args.
-To detect dynamic parameters that are available only when certain other parameters are used, set the value of ArgumentList to the parameters that trigger the dynamic parameters.
-To detect the dynamic parameters that a provider adds to a cmdlet, set the value of the ArgumentList parameter to a path in the provider drive, such as "WSMan:", "HKLM:" or "Cert:".
 
+To detect dynamic parameters that are available only when certain other parameters are used, set the value of ArgumentList to the parameters that trigger the dynamic parameters.
+
+To detect the dynamic parameters that a provider adds to a cmdlet, set the value of the ArgumentList parameter to a path in the provider drive, such as "WSMan:", "HKLM:" or "Cert:".
 When the command is a Windows PowerShell provider cmdlet, enter only one path in each command; the provider cmdlets return only the dynamic parameters for the first path the value of ArgumentList.
 For information about the provider cmdlets, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
 
@@ -3983,18 +4251,27 @@ Gets only the specified types of commands.
 Enter one or more command types.
 Use CommandType or its alias, Type.
 By default, Get-Command gets all cmdlets, functions, and workflows, and aliases.
+
 Valid values are:
+
 -- Alias: Gets the aliases of all Windows PowerShell commands.
 For more information, see about_Aliases.
+
 -- All: Gets all command types.
 This parameter value is the equivalent of "Get-Command *".
+
 -- Application: Gets non-Windows-PowerShell files in paths listed in the Path environment variable ($env:path), including .txt, .exe, and .dll files.
 For more information about the Path environment variable, see about_Environment_Variables.
+
 -- Cmdlet: Gets all cmdlets.
+
 -- ExternalScript: Gets all .ps1 files in the paths listed in the Path environment variable ($env:path).
+
 -- Filter and Function: Gets all Windows PowerShell advanced and simple functions and filters.
+
 -- Script: Gets all script blocks.
 To get Windows PowerShell scripts (.ps1 files), use the ExternalScript value.
+
 -- Workflow: Gets all workflows.
 For more information about workflows, see Introducing Windows PowerShell Workflow.
 
@@ -4008,6 +4285,7 @@ For more information about workflows, see Introducing Windows PowerShell Workflo
 Specifies modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [Module Specification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedModule parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedModule parameter in the same command as a Module parameter; the two parameters are mutually exclusive.
 
 
@@ -4019,7 +4297,9 @@ You cannot specify the FullyQualifiedModule parameter in the same command as a M
 
 Gets the commands that came from the specified modules or snap-ins.
 Enter the names of modules or snap-ins, or enter snap-in or module objects.
+
 This parameter takes string values, but the value of this parameter can also be a PSModuleInfo or PSSnapinInfo object, such as the objects that the Get-Module, Get-PSSnapin, and Import-PSSession cmdlets return.
+
 You can refer to this parameter by its name, Module, or by its alias, PSSnapin.
 The parameter name that you choose has no effect on the command output.
 
@@ -4037,6 +4317,7 @@ The parameter name that you choose has no effect on the command output.
 Gets only commands with the specified name.
 Enter a name or name pattern.
 Wildcards are permitted.
+
 To get commands that have the same name, use the All parameter.
 When two commands have the same name, by default, Get-Command gets the command that runs when you type the command name.
 
@@ -4061,9 +4342,13 @@ Wildcards are permitted.
 ```
 
 Gets only specified data about the command.
+
 * For aliases, gets the standard name.
+
 * For cmdlets, gets the syntax.
+
 * For functions and filters, gets the function definition.
+
 * For scripts and applications (files), gets the path and filename.
 
 
@@ -4097,8 +4382,10 @@ Wildcards are permitted.
 ```
 
 Gets only commands in the current session.
+
 Beginning in Windows PowerShell 3.0, by default, Get-Command gets all installed commands, including, but not limited to, the commands in the current session.
 In Windows PowerShell 2.0, it gets only commands in the current session.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -4107,7 +4394,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets commands in the session that have the specified parameters.
 Enter parameter names and/or parameter aliases.
 Wildcard are supported.
+
 The ParameterName and ParameterType parameters search only commands in the current session.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -4116,7 +4405,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets commands in the session that have parameters of the specified type.
 Enter the full name or partial name of a parameter type.
 Wildcards are supported.
+
 The ParameterName and ParameterType parameters search only commands in the current session.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -4151,6 +4442,7 @@ Represents functions and filters
 When more than one command with the same name is available to the session, Get-Command returns the command that runs when you type the command name.
 To get commands with the same name (listed in execution order), use the All parameter.
 For more information, see about_Command_Precedence.
+
 When a module is imported automatically, the effect is the same as using the Import-Module cmdlet.
 The module can add commands, types and formatting files, and run scripts in the session.
 To enable, disable, and configuration automatic importing of modules, use the $PSModuleAutoLoadingPreference preference variable.
@@ -4202,6 +4494,7 @@ PS C:\>Get-Command Get-AppLockerPolicy
 ```
 This command gets information about the Get-AppLockerPolicy cmdlet.
 It also imports the AppLocker module, which adds all of the commands in the AppLocker module to the current session.
+
 When a module is imported automatically, the effect is the same as using the Import-Module cmdlet.
 The module can add commands, types and formatting files, and run scripts in the session.
 To enable, disable, and configuration automatic importing of modules, use the $PSModuleAutoLoadingPreference preference variable.
@@ -4216,7 +4509,9 @@ PS C:\>Get-Command Get-Childitem -Args Cert: -Syntax
 ```
 This command uses the ArgumentList and Syntax parameters to get the syntax of the Get-ChildItem cmdlet when it is used in the Cert: drive.
 The Cert: drive is a Windows PowerShell drive that the Certificate Provider adds to the session.
+
 When you compare the syntax displayed in the output with the syntax that is displayed when you omit the Args (ArgumentList) parameter, you'll see that the Certificate provider adds a dynamic parameter, CodeSigningCert, to the Get-ChildItem cmdlet.
+
 For more information about the Certificate provider, see Certificate Provider.
 
 
@@ -4238,6 +4533,7 @@ CodeSigningCert
 The Get-DynamicParameters function in this example gets the dynamic parameters of a cmdlet.
 This is an alternative to the method used in the previous example.
 Dynamic parameter can be added to a cmdlet by another cmdlet or a provider.
+
 The command in the example uses the Get-DynamicParameters function to get the dynamic parameters that the Certificate provider adds to the Get-ChildItem cmdlet when it is used in the Cert: drive.
 
 
@@ -4278,6 +4574,7 @@ Alias           dir -> Get-ChildItem
 ```
 This example shows how to use the Get-Command cmdlet with an alias.
 Although it is typically used on cmdlets and functions, Get-Command also gets scripts, functions, aliases, workflows, and executable files.
+
 The output of the command shows the special view of the Name property value for aliases.
 The view shows the alias and the full command name.
 
@@ -4295,9 +4592,11 @@ Application     NOTEPAD.EXE    C:\WINDOWS\NOTEPAD.EXE
 ```
 This example uses the All parameter of the Get-Command cmdlet to show all instances of the "Notepad" command on the local computer.
 The All parameter is useful when there is more than one command with the same name in the session.
+
 Beginning in Windows PowerShell 3.0, by default, when the session includes multiple commands with the same name, Get-Command gets only the command that runs when you type the command name.
 With the All parameter, Get-Command gets all commands with the specified name and returns them in execution precedence order.
 To run a command other than the first one in the list, type the fully qualified path to the command.
+
 For more information about command precedence, see about_Command_Precedence (http://go.microsoft.com/fwlink/?LinkID=113214).
 
 
@@ -4310,6 +4609,7 @@ Microsoft.PowerShell.Utility
 ```
 This command gets the name of the snap-in or module in which the Get-Date cmdlet originated.
 The command uses the ModuleName property of all commands.
+
 This command format works on commands in Windows PowerShell modules and snap-ins, even if they are not imported into the session.
 
 
@@ -4320,9 +4620,11 @@ PS C:\>Get-Command -Type Cmdlet | Where-Object OutputType | Format-List -Propert
 
 ```
 This command gets the cmdlets and functions that have an output type and the type of objects that they return.
+
 The first part of the command gets all cmdlets.
 A pipeline operator (|) sends the cmdlets to the Where-Object cmdlet, which selects only the ones in which the OutputType property is populated.
 Another pipeline operator sends the selected cmdlet objects to the Format-List cmdlet, which displays the name and output type of each cmdlet in a list.
+
 The OutputType property of a CommandInfo object has a non-null value only when the cmdlet code defines the OutputType attribute for the cmdlet.
 
 
@@ -4341,6 +4643,7 @@ Function        Set-NetAdapter                                     NetAdapter
 ```
 This command finds cmdlets that take net adapter objects as input.
 You can use this command format to find the cmdlets that accept the type of objects that any command returns.
+
 The command uses the PSTypeNames intrinsic property of all objects, which gets the types that describe the object.
 To get the PSTypeNames property of a net adapter, and not the PSTypeNames property of a collection of net adapters, the command uses array notation to get the first net adapter that the cmdlet returns.
 
@@ -4369,15 +4672,20 @@ Displays information about Windows PowerShell commands and concepts.
 
 ### DESCRIPTION
 The Get-Help cmdlet displays information about Windows PowerShell concepts and commands, including cmdlets, functions, CIM commands, workflows, providers, aliases and scripts.
+
 To get help for a Windows PowerShell command, type "Get-Help" followed by the command name, such as: Get-Help Get-Process.
 To get a list of all help topics on your system, type: Get-Help *.
 You can display the entire help topic or use the parameters of the Get-Help cmdlet to get selected parts of the topic, such as the syntax, parameters, or examples.
+
 Conceptual help topics in Windows PowerShell begin with "about_", such as "about_Comparison_Operators".
 To see all "about_" topics, type: Get-Help about_*.
 To see a particular topic, type: Get-Help about_\<topic-name\>, such as Get-Help about_Comparison_Operators.
+
 To get help for a Windows PowerShell provider, type "Get-Help" followed by the provider name.
 For example, to get help for the Certificate provider, type: Get-Help Certificate.
+
 In addition to "Get-Help", you can also type "help" or "man", which displays one screen of text at a time, or "\<cmdlet-name\> -?", which is identical to Get-Help but works only for commands.
+
 Get-Help gets the help content that it displays from help files on your computer.
 Without the help files, Get-Help displays only basic information about commands.
 Some Windows PowerShell modules come with help files.
@@ -4387,6 +4695,7 @@ To download or update the help files for a module in Windows PowerShell 3.0, use
 You can also view the help topics for Windows PowerShell online in the TechNet Library.
 To get the online version of a help topic, use the Online parameter, such as: Get-Help Get-Process -Online.
 You can read all of the help topics beginning at: [http://go.microsoft.com/fwlink/?LinkID=107116]().
+
 If you type "Get-Help" followed by the exact name of a help topic, or by a word unique to a help topic, Get-Help displays the topic contents.
 If you enter a word or word pattern that appears in several help topic titles, Get-Help displays a list of the matching titles.
 If you enter a word that does not appear in any help topic titles, Get-Help displays a list of topics that include that word in their contents.
@@ -4394,8 +4703,10 @@ If you enter a word that does not appear in any help topic titles, Get-Help disp
 Get-Help can get help topics for all supported languages and locales.
 Get-Help first looks for help files in the locale set for Windows, then in the parent locale (such as "pt" for "pt-BR"), and then in a fallback locale.
 Beginning in Windows PowerShell 3.0, if Get-Help does not find help in the fallback locale, it looks for help topics in English ("en-US") before returning an error message or displaying auto-generated help.
+
 For information about the symbols that Get-Help displays in the command syntax diagram, see [about_Command_Syntax]().
 For information about parameter attributes, such as Required and Position, see [about_Parameters]().
+
 TROUBLESHOOTING NOTE: In Windows PowerShell 3.0 and 4.0, Get-Help cannot find About topics in modules unless the module is imported into the current session.
 This is a known issue.
 To get About topics in a module, import the module, either by using the Import-Module cmdlet or by running a cmdlet in the module.
@@ -4417,6 +4728,7 @@ Conceptual topics are in the HelpFile category.
 
 Displays commands with the specified component value, such as "Exchange." Enter a component name.
 Wildcards are permitted.
+
 This parameter has no effect on displays of conceptual ("About_") help.
 
 
@@ -4429,6 +4741,7 @@ This parameter has no effect on displays of conceptual ("About_") help.
 ```
 
 Adds parameter descriptions and examples to the basic help display.
+
 This parameter is effective only when help files are for the command are installed on the computer.
 It has no effect on displays of conceptual ("About_") help.
 
@@ -4443,9 +4756,9 @@ It has no effect on displays of conceptual ("About_") help.
 
 Displays only the name, synopsis, and examples.
 To display only the examples, type "(Get-Help \<cmdlet-name\>).Examples".
+
 This parameter is effective only when help files are for the command are installed on the computer.
 It has no effect on displays of conceptual ("About_") help.
-
 
 
 #### Full [switch]
@@ -4469,6 +4782,7 @@ It has no effect on displays of conceptual ("About_") help.
 Displays help for items with the specified functionality.
 Enter the functionality.
 Wildcards are permitted.
+
 This parameter has no effect on displays of conceptual ("About_") help.
 
 
@@ -4484,7 +4798,9 @@ This parameter has no effect on displays of conceptual ("About_") help.
 Gets help about the specified command or concept.
 Enter the name of a cmdlet, function, provider, script, or workflow, such as "Get-Member", a conceptual topic name, such as "about_Objects", or an alias, such as "ls".
 Wildcards are permitted in cmdlet and provider names, but you cannot use wildcards to find the names of function help and script help topics.
+
 To get help for a script that is not located in a path that is listed in the Path environment variable, type the path and file name of the script .
+
 If you enter the exact name of a help topic, Get-Help displays the topic contents.
 If you enter a word or word pattern that appears in several help topic titles, Get-Help displays a list of the matching titles.
 If you enter a word that does not match any help topic titles, Get-Help displays a list of topics that include that word in their contents.
@@ -4503,6 +4819,7 @@ The names of conceptual topics, such as "about_Objects", must be entered in Engl
 Displays the online version of a help topic in the default Internet browser.
 This parameter is valid only for cmdlet, function, workflow and script help topics.
 You cannot use the Online parameter in Get-Help commands in a remote session.
+
 For information about supporting this feature in help topics that you write, see about_Comment_Based_Help (http://go.microsoft.com/fwlink/?LinkID=144309), and "Supporting Online Help" (http://go.microsoft.com/fwlink/?LinkID=242132), and "How to Write Cmdlet Help" (http://go.microsoft.com/fwlink/?LinkID=123415) in the MSDN (Microsoft Developer Network) library.
 
 
@@ -4517,6 +4834,7 @@ For information about supporting this feature in help topics that you write, see
 
 Displays only the detailed descriptions of the specified parameters.
 Wildcards are permitted.
+
 This parameter has no effect on displays of conceptual ("About_") help.
 
 
@@ -4524,12 +4842,15 @@ This parameter has no effect on displays of conceptual ("About_") help.
 
 Gets help that explains how the cmdlet works in the specified provider path.
 Enter a Windows PowerShell provider path.
+
 This parameter gets a customized version of a cmdlet help topic that explains how the cmdlet works in the specified Windows PowerShell provider path.
 This parameter is effective only for help about a provider cmdlet and only when the provider includes a custom version of the provider cmdlet help topic  in its help file.
 To use this parameter, install the help file for the module that includes the provider.
+
 To see the custom cmdlet help for a provider path, go to the provider path location and enter a Get-Help command or, from any path location, use the Path parameter of Get-Help to specify the provider path.
 You can also find custom cmdlet help online in the provider help section of the help topics.
 For example, you can find help for the New-Item cmdlet in the Wsman:\*\ClientCertificate path (http://go.microsoft.com/fwlink/?LinkID=158676).
+
 For more information about Windows PowerShell providers, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
 
 
@@ -4542,6 +4863,7 @@ For more information about Windows PowerShell providers, see about_Providers (ht
 Displays help customized for the specified user role.
 Enter a role.
 Wildcards are permitted.
+
 Enter the role that the user plays in an organization.
 Some cmdlets display different text in their help files based on the value of this parameter.
 This parameter has no effect on help for the core cmdlets.
@@ -4560,6 +4882,7 @@ The window includes a "Find" search feature and a "Settings" box that lets you s
 
 The ShowWindow parameter supports help topics for commands (cmdlets, functions, CIM commands, workflows, scripts) and conceptual "About" topics.
 It does not support provider help.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -4582,26 +4905,36 @@ If you get a command that has a help file, Get-Help returns a MamlCommandHelpInf
 
 ### NOTES
 Without parameters, "Get-Help" displays information about the Windows PowerShell help system.
+
 Windows PowerShell 3.0 does not come with help files.
 To download and install the help files that Get-Help reads, use the Update-Help cmdlet.
 You can use the Update-Help cmdlet to download and install help files for the core commands that come with Windows PowerShell  and for any modules that you install.
 You can also use it to update the help files so that the help on your computer is never outdated.
+
 You can also read the help topics about the commands that come with Windows PowerShell online beginning at http://go.microsoft.com/fwlink/?LinkID=107116.
+
 Get-Help displays help in the locale set for Windows or in the fallback language for that locale.
 If you do not have help files for the primary or fallback locale, Get-Help behaves as though there are no help files on the computer.
 To get help for a different locale, use Region and Language in Control Panel to change the settings for Windows.
+
 The full view of help (-Full) includes a table of information about the parameters.
 The table includes the following fields:
+
 -- Required:  Indicates whether the parameter is required (true) or optional (false).
+
 -- Position:  Indicates whether the parameter is named or positional (numbered).
 Positional parameters must appear in a specified place in the command.
+
 -- "Named" indicates that the parameter name is required, but that the parameter can appear anywhere in the command.
+
 -- \<Number\> indicates that the parameter name is optional, but when the name is omitted, the parameter must be in the place specified by the number.
 For example, "2" indicates that when the parameter name is omitted, the parameter must be the second (2) or only unnamed parameter in the command.
 When the parameter name is used, the parameter can appear anywhere in the command.
+
 -- Default value: The parameter value that Windows PowerShell uses if you do not include the parameter in the command.
--- Accepts pipeline input: Indicates whether you can (true) or cannot (false) send objects to the parameter through a pipeline.
-"By Property Name" means that the pipelined object must have a property with the same name as the parameter name.
+
+-- Accepts pipeline input: Indicates whether you can (true) or cannot (false) send objects to the parameter through a pipeline. "By Property Name" means that the pipelined object must have a property with the same name as the parameter name.
+
 -- Accepts wildcard characters: Indicates whether the value of a parameter can include wildcard characters, such as * and ?.
 
 ### EXAMPLES
@@ -4645,6 +4978,7 @@ PS C:\>Get-Help about_*
 This command displays a list of the conceptual topics included in Windows PowerShell help.
 All of these topics begin with the characters "about_".
 To display a particular help file, type "get-help \<topic-name\>, for example, "Get-Help about_Signing".
+
 This command displays the conceptual topics only when the help files for those topics are installed on the computer.
 For information about downloading and installing help files in Windows PowerShell 3.0, see Update-Help.
 
@@ -4693,6 +5027,7 @@ It uses features that were introduced in Windows PowerShell 3.0.
 
 The example compares the help that Get-Help displays for commands when you do not have help files installed on your computer and when you do have help files.
 You can use the same command sequence to update the help files on your computer so that your local help content is never obsolete.
+
 To download and install the help files for the commands that come with Windows PowerShell, and for any modules in the $pshome\Modules directory, open Windows PowerShell with the "Run as administrator" option.
 If you are not a member of the Administrators group on the computer, you cannot download help for these modules.
 However, you can use the Online parameter to open the online version of help for a command, and you can read the help for Windows PowerShell in the TechNet Library beginning at [http://go.microsoft.com/fwlink/?LinkID=107116]().
@@ -4706,6 +5041,7 @@ PS C:\>Get-Help ls -Detailed
 ```
 This command displays detailed help for the Get-ChildItem cmdlet by specifying one of its aliases, "ls." The Detailed parameter of Get-Help gets the detailed view of the help topic, which includes parameter descriptions and examples.
 To see the complete help topic for a cmdlet, use the Full parameter.
+
 The Full and Detailed parameters are effective only when help files for the command are installed on the computer.
 
 
@@ -4717,6 +5053,7 @@ PS C:\>Get-Help Format-Table -Full
 ```
 This command uses the Full parameter of Get-Help to display the full view help for the Format-Table cmdlet.
 The full view of help includes parameter descriptions, examples, and a table of technical details about the parameters.
+
 The Full parameter is effective only when help files for the command are installed on the computer.
 
 
@@ -4728,6 +5065,7 @@ PS C:\>Get-Help Start-Service -Examples
 ```
 This command displays examples of using the Start-Service cmdlet.
 It uses the Examples parameter of Get-Help to display only the Examples section of the cmdlet help topics.
+
 The Examples parameter is effective only when help files for the command are installed on the computer.
 
 
@@ -4749,6 +5087,7 @@ PS C:\>Get-Help Add-Member -Full | Out-String -Stream | Select-String -Pattern C
 ```
 This example shows how to search for a word in particular cmdlet help topic.
 This command searches for the word "Clixml" in the full version of the help topic for the Add-Member cmdlet.
+
 Because the Get-Help cmdlet generates a MamlCommandHelpInfo object, not a string, you need to use a cmdlet that transforms the help topic content into a string, such as Out-String or Out-File.
 
 
@@ -4768,6 +5107,7 @@ PS C:\>Get-Help remoting
 
 ```
 This command displays a list of topics that include the word "remoting."
+
 When you enter a word that does not appear in any topic title, Get-Help displays a list of topics that include that word.
 
 
@@ -4824,6 +5164,7 @@ SYNOPSIS
 ```
 This example shows how to get help that explains how to use the Get-Item cmdlet in the DataCollection node of the Windows PowerShell SQL Server provider.
 The example shows two ways of getting the provider-specific help for Get-Item.
+
 You can also get provider-specific help for cmdlets online in the section that describes the provider.
 For example, for provider-specific online help for the New-Item cmdlet in each WSMan provider path, see [http://go.microsoft.com/fwlink/?LinkID=158676]().
 
@@ -4867,6 +5208,7 @@ Beginning in Windows PowerShell 3.0, the default value is 4096.
 
 You can save the session history in XML or CSV format.
 By default, history files are saved in the home directory, but you can save the file in any location.
+
 For more information about the history features in Windows PowerShell, see about_History (http://go.microsoft.com/fwlink/?LinkID=113233).
 
 ### PARAMETERS
@@ -4882,6 +5224,7 @@ For more information about the history features in Windows PowerShell, see about
 Displays the specified number of the most recent history entries.
 By, default, Get-History gets all entries in the session history.
 If you use both the Count and Id parameters in a command, the display ends with the command that is specified by the Id parameter.
+
 In Windows PowerShell 2.0, by default, Get-History gets the 32 most recent entries.
 
 
@@ -4915,6 +5258,7 @@ The session history is a list of the commands entered during the session.
 The session history represents the order of execution, the status, and the start and end times of the command.
 As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.
 For more information about the command history, see about_History (http://go.microsoft.com/fwlink/?LinkID=113233).
+
 Beginning in Windows PowerShell 3.0, the default value of the $MaximumHistoryCount preference variable is 4096.
 In Windows PowerShell 2.0, the default value is 64.
 For more information about the $MaximumHistoryCount variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
@@ -5015,13 +5359,17 @@ Gets Windows PowerShell background jobs that are running in the current session.
 ### DESCRIPTION
 The Get-Job cmdlet gets objects that represent the background jobs that were started in the current session.
 You can use Get-Job to get jobs that were started by using the Start-Job cmdlet, or by using the AsJob parameter of any cmdlet.
+
 Without parameters, a "Get-Job" command gets all jobs in the current session.
 You can use the parameters of Get-Job to get particular jobs.
+
 The job object that Get-Job returns contains useful information about the job, but it does not contain the job results.
 To get the results, use the Receive-Job cmdlet.
+
 A Windows PowerShell background job is a command that runs "in the background" without interacting with the current session.
 Typically, you use a background job to run a complex command that takes a long time to complete.
 For more information about background jobs in Windows PowerShell, see about_Jobs.
+
 Beginning in Windows PowerShell 3.0, the Get-Job cmdlet also gets custom job types, such as workflow jobs and instances of scheduled jobs.
 To find the job type of a job, use the PSJobTypeName property of the job.
 
@@ -5056,9 +5404,11 @@ You can use wildcards to specify a command pattern.
 
 Gets jobs that satisfy all of the conditions established in the associated hash table.
 Enter a hash table where the keys are job properties and the values are job property values.
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5072,6 +5422,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Gets only jobs with the specified IDs.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and to type than the instance ID, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -5089,7 +5440,9 @@ To find the ID of a job, type "Get-Job" without parameters.
 ```
 
 Returns child jobs, in addition to parent jobs.
+
 This parameter is particularly useful for investigating workflow jobs, for which Get-Job returns a container parent job, and job failures, because the reason for the failure is saved in a property of the child job.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5105,6 +5458,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Gets jobs with the specified instance IDs.
 The default is all jobs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use Get-Job.
 
@@ -5137,6 +5491,7 @@ By default, Get-Job gets all jobs in the current session.
 Gets only jobs in the specified state.
 Valid values are NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, Stopping.
 By default, Get-Job gets all the jobs in the current session.
+
 For more information about job states, see "JobState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.jobstate(v=vs.85).aspx]()
 
 
@@ -5152,9 +5507,11 @@ For more information about job states, see "JobState Enumeration" in MSDN at [ht
 
 Gets completed jobs that ended after the specified date and time.
 Enter a DateTime object, such as one returned by the Get-Date cmdlet or a string that can be converted to a DateTime object, such as "Dec 1, 2012 2:00 AM" or "11/06".
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs, that have an EndTime property.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5170,9 +5527,11 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Gets completed jobs that ended before the specified date and time.
 Enter a DateTime object, such as one returned by the Get-Date cmdlet or a string that can be converted to a DateTime object, such as "Dec 1, 2012 2:00 AM" or "11/06".
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs, that have an EndTime property.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5188,9 +5547,11 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Gets only the child jobs that have the specified state.
 Valid values are: NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, and Stopping.
+
 By default, Get-Job does not get child jobs.
 With the IncludeChildJob parameter, Get-Job gets all child jobs.
 If you use the ChildJobState parameter, the IncludeChildJob parameter has no effect.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5208,14 +5569,18 @@ Gets only jobs with the specified HasMoreData property value.
 The HasMoreData property indicates whether all job results have been received in the current session.
 To get jobs that have more results, type -HaveMoreData:true.
 To get jobs that do not have more results, type -HaveMoreData:$false.
+
 To get the results of a job, use the Receive-Job cmdlet.
+
 When you use the Receive-Job cmdlet, it deletes from its in-memory (session-specific) storage the results that it returned.
 When it has returned all results of the job in the current session, it sets the value of the HasMoreData property of the job to False ($false) to indicate that it has no more results for the job in the current session.
 Use the Keep parameter of Receive-Job to prevent Receive-Job from deleting results and changing the value of the HasMoreData property.
 For more information, type "Get-Help Receive-Job".
+
 The HasMoreData property is specific to the current session.
 If results for a custom job type are saved outside of the session, such as the scheduled job type, which saves job results on disk, you can use the Receive-Job cmdlet in a different session to get the job results again, even if the value of HasMoreData is false.
 For more information, see the help topics for the custom job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5231,8 +5596,10 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Gets the jobs that ended most recently.
 Enter the number of jobs to return.
+
 The Newest parameter does not sort or return the newest jobs in end-time order.
 To sort the output, use the Sort-Object cmdlet.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5251,8 +5618,11 @@ Get-Job returns objects that represent the jobs in the session.
 The PSJobTypeName property of jobs indicates the job type of the job.
 The property value is determined by the job type author.
 The following list shows common job types.
+
 --  BackgroundJob: Local job started by using the Start-Job cmdlet.
+
 -- RemoteJob: Job started in a PSSession by using the AsJob parameter of the Invoke-Command cmdlet.
+
 -- PSWorkflowJob: Job started by using the AsJob common parameter of workflows.
 
 ### EXAMPLES
@@ -5557,13 +5927,14 @@ This example shows the effect of using the IncludeChildJob and ChildJobState par
 ### SYNOPSIS
 Gets the modules that have been imported or that can be imported into the current session.
 
-
 ### DESCRIPTION
 The Get-Module cmdlet gets the Windows PowerShell modules that have been imported, or that can be imported, into a Windows PowerShell session.
 The module object that Get-Module returns contains valuable information about the module.
 You can also pipe the module objects to other cmdlets, such as the Import-Module and Remove-Module cmdlets.
+
 Without parameters, Get-Module gets modules that have been imported into the current session.
 To get all installed modules, use the ListAvailable parameter.
+
 Get-Module gets modules, but it does not import them.
 Beginning in Windows PowerShell 3.0, modules are automatically imported when you use a command in the module, but a Get-Module command does not trigger an automatic import.
 You can also import the modules into your session by using the Import-Module cmdlet.
@@ -5571,14 +5942,18 @@ You can also import the modules into your session by using the Import-Module cmd
 Beginning in Windows PowerShell 3.0, you can get (and then, import) modules from remote sessions into the local session.
 This strategy uses the Implicit Remoting feature of Windows PowerShell and is equivalent to using the Import-PSSession cmdlet.
 When you use commands in modules imported from another session, the commands run implicitly in the remote session, allowing you to manage the remote computer from the local session.
+
 Also, beginning in Windows PowerShell 3.0, you can use Get-Module and Import-Module to get and import Common Information Model (CIM) modules, in which the cmdlets are defined in Cmdlet Definition XML (CDXML) files.
 This feature allows you to use cmdlets that are implemented in non-managed code assemblies, such as those written in C++.
+
 With these new features, the Get-Module and Import-Module cmdlets become primary tools for managing heterogeneous enterprises that include Windows computers and computers that are running other operating systems.
 
 To manage remote Windows computers that have Windows PowerShell and Windows PowerShell remoting enabled, create a PSSession on the remote computer and then use the PSSession parameter of Get-Module to get the Windows PowerShell modules in the PSSession.
 When you import the modules, and then use the imported commands in the current session, the commands run implicitly in the PSSession on the remote computer.
 You can use this strategy to manage the remote computer.
+
 You can use a similar strategy to manage computers that do not have Windows PowerShell remoting enabled, including computers that are not running a Windows operating system, and Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 Begin by creating a "CIM session" on the remote computer; a connection to Windows Management Instrumentation (WMI) on the remote computer.
 Then use the CIMSession parameter of Get-Module to get CIM modules from the CIM session.
 When you import a CIM module (by using the Import-Module cmdlet) and then run the imported commands, the commands run implicitly on the remote computer.
@@ -5605,7 +5980,9 @@ Without the All parameter, Get-Module gets only the default module in each modul
 
 Specifies the namespace of an alternate CIM provider that exposes CIM modules.
 The default value is the namespace of the Module Discovery WMI provider.
+
 Use this parameter to get CIM modules from computers and devices that are not running a Windows operating system.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5617,7 +5994,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies an alternate location for CIM modules.
 The default value is the resource URI of the Module Discovery WMI provider on the remote computer.
+
 Use this parameter to get CIM modules from computers and devices that are not running a Windows operating system.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5658,6 +6037,7 @@ ListAvailable does not return information about modules that are not found in th
 Gets modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [ModuleSpecification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedName parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
@@ -5687,9 +6067,12 @@ The Name parameter cannot accept a module GUID as a value; to return modules by 
 
 Specifies a CIM session on the remote computer.
 Enter a variable that contains the CIM session or a command that gets the CIM session, such as a [Get-CIMSession]() command.
+
 Get-Module uses the CIM session connection to get modules from the remote computer.
 When you import the module (by using the Import-Module cmdlet) and use the commands from the imported module in the current session, the commands actually run on the remote computer.
+
 You can use this parameter to get modules from computers and devices that are not running a Windows operating system, and Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 The CimSession parameter gets all modules in the CIMSession.
 However, you can import only CIM-based and Cmdlet Definition XML (CDXML)-based modules.
 
@@ -5704,8 +6087,11 @@ However, you can import only CIM-based and Cmdlet Definition XML (CDXML)-based m
 
 Gets the modules in the specified user-managed Windows PowerShell session (PSSession).
 Enter a variable that contains the session, a command that gets the session, such as a Get-PSSession command, or a command that creates the session, such as a New-PSSession command.
+
 When the session is connected to a remote computer, the ListAvailable parameter is required.
+
 A Get-Module command with the PSSession parameter is equivalent to using the Invoke-Command cmdlet to run a Get-Module -ListAvailable command in a PSSession.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5720,8 +6106,11 @@ This parameter is introduced in Windows PowerShell 3.0.
 Refreshes the cache of installed commands.
 The command cache is created when the session starts.
 It enables the Get-Command cmdlet to get commands from modules that are not imported into the session.
+
 This parameter is designed for development and testing scenarios in which the contents of modules have changed since the session started.
+
 When the Refresh parameter is used in a command, the ListAvailable parameter is required.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -5742,21 +6131,30 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
 The exception is Microsoft.PowerShell.Core, which is a snap-in (PSSnapin).
 By default, only the Microsoft.PowerShell.Core snap-in is added to the session by default.
 Modules are imported automatically on first use and you can use the Import-Module cmdlet to import them.
+
 Beginning in Windows PowerShell 3.0, the core commands that are installed with Windows PowerShell are packaged in modules.
 In Windows PowerShell 2.0, and in host programs that create older-style sessions in later versions of Windows PowerShell, the core commands are packaged in snap-ins ("PSSnapins").
 The exception is Microsoft.PowerShell.Core, which is always a snap-in.
 Also, remote sessions, such as those started by the New-PSSession cmdlet, are older-style sessions that include core snap-ins.
+
 For information about the CreateDefault2 method that creates newer-style sessions with core modules, see "CreateDefault2 Method" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.initialsessionstate.createdefault2(v=VS.85).aspx]().
+
 Get-Module only gets modules in locations that are stored in the value of the PSModulePath environment variable ($env:PSModulePath).
 You can use the Path parameter of the Import-Module cmdlet to import modules in other locations, but you cannot use the Get-Module cmdlet to get them.
+
 Also, beginning in Windows PowerShell 3.0, new properties have been added to the object that Get-Module returns that make it easier to learn about modules even before they are imported.
 All properties are populated before importing, including the ExportedCommands, ExportedCmdlets and ExportedFunctions properties that list the commands that the module exports.
+
 The ListAvailable parameter gets only well-formed modules, that is, folders that contain at least one file whose base name (the name without the file name extension) is the same as the name of the module folder.
 Folders that contain files with different names are considered to be containers, but not modules.
+
 To get modules that are implemented as .dll files, but are not enclosed in a module folder, use both the ListAvailable and All parameters.
+
 To use the CIM session feature, the remote computer must have WS-Management remoting and Windows Management Instrumentation (WMI), which is the Microsoft implementation of the Common Information Model (CIM) standard.
 The computer must also have the Module Discovery WMI provider or an alternate WMI provider that has the same basic features.
+
 You can use the CIM session feature on computers that are not running a Windows operating system and on Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 You can also use the CIM parameters to get CIM modules from computers that have Windows PowerShell remoting enabled, including the local computer.
 When you create a CIM session on the local computer, Windows PowerShell uses DCOM, instead of WMI, to create the session.
 
@@ -5781,6 +6179,7 @@ PS C:\>Get-Module -ListAvailable
 
 ```
 This command gets the modules that are installed on the computer and can be imported into the current session.
+
 Get-Module looks for available modules in the path specified by the $env:PSModulePath environment variable.
 For more information about PSModulePath, see about_Modules and about_Environment_Variables.
 
@@ -5910,6 +6309,7 @@ There is one object for each module file.
 
 You can use the properties to format and filter the module objects.
 For more information about the properties, see "PSModule Properties" in the MSDN (Microsoft Developer Network) library at [http://go.microsoft.com/fwlink/?LinkId=143624]().
+
 The output includes the new properties, such as Author and CompanyName, that were introduced in Windows PowerShell 3.0
 
 
@@ -6027,9 +6427,12 @@ PS C:\>Get-Module -PSSession $s -ListAvailable
 
 ```
 These commands get the modules that are installed on the Server01 computer.
+
 The first command uses the New-PSSession cmdlet to create a PSSession on the Server01 computer.
 The command saves the PSSession in the $s variable.
+
 The second command uses the PSSession and ListAvailable parameters of Get-Module to get the modules in the PSSession in the $s variable.
+
 If you pipe modules from other sessions to the Import-Module cmdlet, Import-Module imports the module into the current session by using the implicit remoting feature.
 This is equivalent to using the  Import-PSSession cmdlet.
 You can use the cmdlets from the module in the current session, but commands that use these cmdlets actually run the remote session.
@@ -6178,13 +6581,19 @@ Gets the Windows PowerShell sessions on local and remote computers.
 
 ### DESCRIPTION
 The Get-PSSession cmdlet gets the user-managed Windows PowerShell sessions ("PSSessions") on local and remote computers.
+
 Beginning in Windows PowerShell 3.0, sessions are stored on the computers at the remote end of each connection.
 You can use the ComputerName or ConnectionUri parameters of Get-PSSession to get the sessions that connect to the local computer or remote computers, even if they were not created in the current session.
+
 Without parameters, Get-PSSession gets all sessions that were created in the current session.
+
 Use the filtering parameters, including Name, ID, InstanceID,  State, ApplicationName, and ConfigurationName to select from among the sessions that Get-PSSession returns.
+
 Use the remaining parameters to configure the temporary connection in which the Get-PSSession command runs when you use the ComputerName or ConnectionUri parameters.
+
 NOTE: In Windows PowerShell 2.0, without parameters, Get-PSSession gets all sessions that were created in the current session.
 The ComputerName  parameter gets sessions that were created in the current session and connect to the specified computer.
+
 For more information about Windows PowerShell sessions, see about_PSSessions (http://go.microsoft.com/fwlink/?LinkID=135181).
 
 ### PARAMETERS
@@ -6199,14 +6608,18 @@ For more information about Windows PowerShell sessions, see about_PSSessions (ht
 ```
 
 Specifies the mechanism that is used to authenticate credentials for the session in which the Get-PSSession command runs.
-This parameter configures the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
-Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
 
+This parameter configures the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
+
+Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
 The default value is Default.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
+
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6221,10 +6634,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the digital public key certificate (X509) of a user account that has permission to create the session in which the Get-PSSession command runs.
 Enter the certificate thumbprint of the certificate.
+
 This parameter configures the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
+
 Certificates are used in client certificate-based authentication.
 They can be mapped only to local user accounts; they do not work with domain accounts.
+
 To get a certificate thumbprint, use a Get-Item or Get-ChildItem command in the Windows PowerShell Cert: drive.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6246,10 +6663,13 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets the sessions that connect to the specified computers.
 Wildcards are not permitted.
 There is no default value.
+
 Beginning in Windows PowerShell 3.0, PSSessions are stored on the computers at the remote end of each connection.
 To get the sessions on the specified computers, Windows PowerShell creates a temporary connection to each computer and runs a Get-PSSession command.
+
 Type the NetBIOS name, an IP address, or a fully-qualified domain name of one or more computers.
 To specify the local computer, type the computer name, "localhost", or a dot (.).
+
 Note: This parameter gets sessions only from computers running Windows PowerShell 3.0 or later versions of Windows PowerShell.
 Earlier versions do not store sessions.
 
@@ -6268,7 +6688,9 @@ Specify a user account that has permission to connect to the remote computer and
 The default is the current user.
 Type a user name, such as "User01", "Domain01\User01", or "User@Domain.com", or enter a PSCredential object, such as one returned by the Get-Credential cmdlet.
 When you type a user name, you will be prompted for a password.
+
 This parameter configures to the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6285,9 +6707,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets only the sessions with the specified IDs.
 Type one or more IDs (separated by commas), or use the range operator (..) to specify a range of IDs.
 You cannot use the ID parameter with the ComputerName parameter.
+
 An ID is an integer that uniquely identifies the user-managed sessions (PSSessions) in the current session.
 It is easier to remember and type than the InstanceId, but it is unique only within the current session.
-
 The ID of a session is stored in the ID property of the session.
 
 
@@ -6307,8 +6729,10 @@ The ID of a session is stored in the ID property of the session.
 ```
 
 Gets only the sessions with the specified instance IDs.
+
 The instance ID is a GUID that uniquely identifies a session on a local or remote computer.
 The InstanceID is unique, even when you have multiple sessions running in Windows PowerShell.
+
 The instance ID of a session is stored in the InstanceID property of the session.
 
 
@@ -6324,6 +6748,7 @@ The instance ID of a session is stored in the InstanceID property of the session
 
 Gets only the sessions with the specified friendly names.
 Wildcards are permitted.
+
 The friendly name of a session is stored in the Name property of the session.
 
 
@@ -6336,17 +6761,22 @@ The friendly name of a session is stored in the Name property of the session.
 
 Specifies the specified network port that is used for the temporary connection in which the Get-PSSession command runs.
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port.
 To configure the listener, type the following two commands at the Windows PowerShell prompt:
+
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
+
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
+
 This parameter configures to the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
+
 Do not use the Port parameter unless you must.
 The Port set in the command applies to all computers or sessions on which the command runs.
 An alternate port setting might prevent the command from running on all computers.
 Uses the specified port to run the Get-PSSession command.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6362,9 +6792,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets only sessions  in the specified state.
 Valid values are: All, Opened, Disconnected, Closed, and Broken.
 The default value is All.
+
 The session state value is relative to the current sessions.
 Sessions that were not created in the current sessions and are not connected to the current session have a state of Disconnected even when they are connected to a different session.
+
 The state of a session is stored in the State property of the session.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6380,6 +6813,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies the maximum number of concurrent connections that can be established to run the Get-PSSession command.
 If you omit this parameter or enter a value of 0 (zero), the default value, 32, is used.
 The throttle limit applies only to the current command, not to the session or to the computer.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6393,7 +6827,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 Uses the Secure Sockets Layer (SSL) protocol to establish the connection in which the Get-PSSession command runs.
 By default, SSL is not used.
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
+
 This parameter configures the temporary connection that is created to run a Get-PSSession command with the ComputerName parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6406,7 +6842,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
 By default, Windows PowerShell does not redirect connections.
+
 This  parameter configures the temporary connection that is created to run a Get-PSSession command with the ConnectionUri parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -6422,9 +6860,11 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Connects only to sessions that use the specified application.
+
 Enter the application name segment of the connection URI.
 For example, in the following connection URI, the application name is WSMan: http://localhost:5985/WSMAN.
 The application name of a session is stored in the Runspace.ConnectionInfo.AppName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the application that the session uses.
 
@@ -6447,11 +6887,14 @@ It does not change the application that the session uses.
 ```
 
 Gets only to sessions that use the specified session configuration.
+
 Enter a configuration name or the fully qualified resource URI for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/powershell.
 The configuration name of a session is stored in the ConfigurationName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the session configuration that the session uses.
+
 For more information about session configurations, see about_Session_Configurations .
 
 
@@ -6472,15 +6915,22 @@ For more information about session configurations, see about_Session_Configurati
 
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the temporary session in which the Get-PSSession command runs.
 The URI must be fully qualified.
+
 This  parameter configures the temporary connection that is created to run a Get-PSSession command with the ConnectionUri parameter.
+
 The format of this string is:
+
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>The default value is "http://localhost:5985/WSMAN".
+
 If you do not specify a ConnectionUri, you can use the UseSSL, ComputerName, Port, and ApplicationName parameters to specify the ConnectionURI values.
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
+
 This parameter is introduced in Windows PowerShell 3.0.
+
 Note: This parameter gets sessions only from computers running Windows PowerShell 3.0 or later versions of Windows PowerShell.
 Earlier versions do not store sessions.
 
@@ -6495,10 +6945,11 @@ Earlier versions do not store sessions.
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -6521,20 +6972,27 @@ You cannot pipe input to this cmdlet.
 ### NOTES
 Get-PSSession gets user-managed sessions "PSSessions," such as those that are created by using the New-PSSession, Enter-PSSession, and Invoke-Command cmdlets.
 It does not get the system-managed session that is created when you start Windows PowerShell.
+
 Beginning in Windows PowerShell 3.0, PSSessions are stored on the computer that is at the "server-side" or receiving end of a connection.
 To get the sessions that are stored on the local computer or a remote computer, Windows PowerShell establishes a temporary session to the specified computer and runs query commands in the  session.
+
 To get sessions that connect to a remote computer, use the ComputerName or ConnectionUri parameters to specify the remote computer.
 To filter the sessions that Get-PSSession gets, use the Name, ID, InstanceID, and State parameters.
 Use the remaining parameters to configure the temporary session that Get-PSSession uses.
+
 When you use the ComputerName or ConnectionUri parameters, Get-PSSession gets only sessions from computers running Windows PowerShell 3.0 and later versions of Windows PowerShell.
+
 The value of the State property of a PSSession is relative to the current session.
 Therefore, a value of Disconnected means that the PSSession is not connected to the current session.
 However, it does not mean that the PSSession is disconnected from all sessions.
 It might be connected to a different session.
 To determine whether you can connect or reconnect to the PSSession from the current session, use the Availability property.
+
 An Availability value of None indicates that you can connect to the session.
 A value of Busy indicates that you cannot connect to the PSSession because it is connected to another session.
+
 For more information about the values of the State property of sessions, see "RunspaceState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspacestate(v=VS.85).aspx]().
+
 For more information about the values of the Availability property of sessions, see RunspaceAvailability Enumeration at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspaceavailability(v=vs.85).aspx]().
 
 ### EXAMPLES
@@ -6556,6 +7014,7 @@ PS C:\>Get-PSSession -ComputerName localhost
 ```
 This command gets the PSSessions that are connected to the local computer.
 To indicate the local computer, type the computer name, "localhost" or a dot (.)
+
 The command returns all of the sessions on the local computer, even if they were created in different sessions or on different computers.
 
 
@@ -6571,7 +7030,9 @@ PS C:\>Get-PSSession -ComputerName Server02
 
 ```
 This command gets the PSSessions that are connected to the Server02 computer.
+
 The command returns all of the sessions on Server02, even if they were created in different sessions or on different computers.
+
 The output shows that two of the sessions have a Disconnected state and a Busy availability.
 They were created in different sessions and are currently in use.
 The "ScheduledJobs" session, which is Opened and Available, was created in the current session.
@@ -6585,9 +7046,12 @@ PS C:\>$s1, $s2, $s3 = Get-PSSession
 
 ```
 This example shows how to save the results of a Get-PSSession command in multiple variables.
+
 The first command uses the New-PSSession cmdlet to create PSSessions on three remote computers.
+
 The second command uses a Get-PSSession cmdlet to get the three PSSessions.
 It then saves each of the PSSessions in a separate variable.
+
 When Windows PowerShell assigns an array of objects to an array of variables, it assigns the first object to the first variable, the second object to the second variable, and so on.
 If there are more objects than variables, it assigns all remaining objects to the last variable in the array.
 If there are more variables than objects, the extra variables are not used.
@@ -6602,10 +7066,13 @@ PS C:\>Remove-PSSession -Session $s
 
 ```
 This example shows how to get a PSSession by using its instance ID, and then to delete the PSSession.
+
 The first command gets all of the PSSessions that were created in the current session.
 It sends the PSSessions to the Format-Table cmdlet, which displays the ComputerName and InstanceID properties of each PSSession.
+
 The second command uses the Get-PSSession cmdlet to get a particular PSSession and to save it in the $s variable.
 The command uses the InstanceID parameter to identify the PSSession.
+
 The third command uses the Remove-PSSession cmdlet to delete the PSSession in the $s variable.
 
 
@@ -6672,15 +7139,17 @@ Because the value of the ID property is unique only in the current session, the 
 ### SYNOPSIS
 Gets the registered session configurations on the computer.
 
-
 ### DESCRIPTION
 The Get-PSSessionConfiguration cmdlet gets the session configurations that have been registered on the local computer.
 This is an advanced cmdlet that is designed to be used by system administrators to manage customized session configurations for their users.
+
 Beginning in Windows PowerShell 3.0, you can define the properties of a session configuration by using a session configuration (.pssc) file.
 This feature lets you create customized and restricted sessions without writing a computer program.
 For more information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
+
 Also, beginning in Windows PowerShell 3.0, new note properties have been added to the session configuration object that Get-PSSessionConfiguration returns.
 These properties make it easier for users and session configuration authors to examine and compare session configurations.
+
 To create and register a session configuration, use the Register-PSSessionConfiguration cmdlet.
 For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
 
@@ -6722,13 +7191,18 @@ You cannot pipe input to this cmdlet.
 
 ### NOTES
 To run this cmdlet, start Windows PowerShell with the "Run as administrator" option.
+
 To view the session configurations on the computer, you must be a member of the Administrators group on the computer.
+
 To run a Get-PSSessionConfiguration command on a remote computer, Credential Security Service Provider (CredSSP) authentication must be enabled in the client settings on the local computer (by using the Enable-WSManCredSSP cmdlet) and in the service settings on the remote computer, and you must use the CredSSP value of the Authentication parameter when establishing the remote session.
 Otherwise, access is denied.
+
 The note properties of the object that Get-PSSessionConfiguration returns appear on the object only when they have a value.
 Only session configurations that were created by using a session configuration file have all of the defined properties.
+
 The properties of a session configuration object vary with the options set for the session configuration and the values of those options.
 Also, session configurations that use a session configuration file have additional properties.
+
 You can use commands in the WSMan: drive to change the properties of session configurations.
 However, you cannot use the WSMan: drive in Windows PowerShell 2.0 to change session configuration properties that are introduced in Windows PowerShell 3.0, such as OutputBufferingMode.
 Windows PowerShell 2.0 commands do not generate an error, but they are ineffective.
@@ -6810,7 +7284,9 @@ This example shows the properties and property values of a session configuration
 The command uses the Get-PSSessionConfiguration command to get the Full session configuration.
 A pipeline operator sends the Full session configuration to the Format-List cmdlet.
 The Property parameter with a value of * (all) directs Format-List to display all of the properties and property values of the object in a list.
+
 The output of this command has very useful information, including the author of the session configuration, the session type, language mode, and execution policy of sessions that are created with this session configuration, session quotas, and the full path to the session configuration file.
+
 This view of a session configuration is used for sessions that include a session configuration file.
 For more information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
 
@@ -6929,6 +7405,7 @@ XmlRenderingType                                                                
 ```
 This command gets the properties of the Microsoft.PowerShell.Worfklow session configuration and sorts them into alphabetical order for easy reading.
 You can use this command format in a function to get this display for any session configuration.
+
 This example was contributed by Shay Levy, a Windows PowerShell MVP from Sderot, Israel.
 
 
@@ -6949,6 +7426,7 @@ Container       {Name=WMI Provider}                 WMI Provider
 ```
 This command uses the Get-ChildItem cmdlet (alias = dir) in the WSMan: provider drive to look at the content of the Plugin node.
 This is another way to look at the session configurations on the computer.
+
 The PlugIn node contains ContainerElement objects (Microsoft.WSMan.Management.WSManConfigContainerElement) that represent the registered Windows PowerShell session configurations, along with other plug-ins for WS-Management.
 
 
@@ -7032,7 +7510,9 @@ http://schemas.microsoft.com/powershell/microsoft.CustomShell
 
 ```
 This command uses the Get-PSSessionConfiguration cmdlet to get the resource URI of a session configuration.
+
 This command is useful when setting the value of the $PSSessionConfigurationName preference variable, which takes a resource URI.
+
 The $PSSessionConfiguationName variable specifies the default configuration that is used when you create a session.
 This variable is set on the local computer, but it specifies a configuration on the remote computer.
 For more information about the $PSSessionConfiguration variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
@@ -7075,9 +7555,11 @@ Gets the Windows PowerShell snap-ins on the computer.
 ### DESCRIPTION
 The Get-PSSnapin cmdlet gets the Windows PowerShell snap-ins that have been added to the current session or that have been registered on the system.
 The snap-ins are listed in the order in which they are detected.
+
 Get-PSSnapin gets only registered snap-ins.
 To register a Windows PowerShell snap-in, use the InstallUtil tool included with the Microsoft .NET Framework 2.0.
 For more information, see "How to Register Cmdlets, Providers, and Host Applications" in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkId=143619.
+
 Beginning in Windows PowerShell 3.0, the core commands that are included in Windows PowerShell are packaged in modules.
 The exception is Microsoft.PowerShell.Core, which is a snap-in (PSSnapin).
 Only the Microsoft.PowerShell.Core snap-in is added to the session by default.
@@ -7097,6 +7579,7 @@ Modules are imported automatically on first use and you can use the Import-Modul
 Gets only the specified Windows PowerShell snap-ins.
 Enter the names of one or more Windows PowerShell snap-ins.
 Wildcards are permitted.
+
 The parameter name ("Name") is optional.
 
 
@@ -7107,7 +7590,9 @@ The parameter name ("Name") is optional.
 ```
 
 Gets the Windows PowerShell snap-ins that have been registered on the system (even if they have not yet been added to the session).
+
 The snap-ins that are installed with Windows PowerShell do not appear in this list.
+
 Without this parameter, Get-PSSnapin gets the Windows PowerShell snap-ins that have been added to the session.
 
 
@@ -7127,6 +7612,7 @@ Beginning in Windows PowerShell 3.0, the core commands that are installed with W
 In Windows PowerShell 2.0, and in host programs that create older-style sessions in later versions of Windows PowerShell, the core commands are packaged in snap-ins ("PSSnapins").
 The exception is Microsoft.PowerShell.Core, which is always a snap-in.
 Also, remote sessions, such as those started by the New-PSSession cmdlet, are older-style sessions that include core snap-ins.
+
 For information about the CreateDefault2 method that creates newer-style sessions with core modules, see "CreateDefault2 Method" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.initialsessionstate.createdefault2(v=VS.85).aspx]().
 
 ### EXAMPLES
@@ -7188,26 +7674,34 @@ Adds modules to the current session.
 ### DESCRIPTION
 The Import-Module cmdlet adds one or more modules to the current session.
 The modules that you import must be installed on the local computer or a remote computer.
+
 Beginning in Windows PowerShell 3.0, installed modules are automatically imported to the session when you use any commands or providers in the module.
 However, you can still use the Import-Module command to import a module and you can enable and disable automatic module importing by using the $PSModuleAutoloadingPreference preference variable.
 For more information about modules, see about_Modules (http://go.microsoft.com/fwlink/?LinkID=144311).
 For more information about the $PSModuleAutoloadingPreference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 A module is a package that contains members (such as cmdlets, providers, scripts, functions, variables, and other tools and files) that can be used in Windows PowerShell.
 After a module is imported, you can use the module members in your session.
+
 To import a module, use the Name, Assembly,  ModuleInfo, MinimumVersion and RequiredVersion parameters to identify the module to import.
 By default, Import-Module imports all members that the module exports, but you can use the Alias, Function, Cmdlet, and Variable parameters to restrict the members that are imported.
 You can also use the NoClobber parameter to prevent Import-Module from importing members that have the same names as members in the current session.
+
 Import-Module imports a module only into the current session.
 To import the module into all sessions, add an Import-Module command to your Windows PowerShell profile.
 For more information about profiles, see about_Profiles (http://go.microsoft.com/fwlink/?LinkID=113729).
+
 Also, beginning in Windows PowerShell 3.0, you can use Import-Module to import Common Information Model (CIM) modules, in which the cmdlets are defined in Cmdlet Definition XML (CDXML) files.
 This feature allows you to use cmdlets that are implemented in non-managed code assemblies, such as those written in C++.
+
 With these new features, Import-Module cmdlet becomes a primary tool for managing heterogeneous enterprises that include Windows computers and computers that are running other operating systems.
 
 To manage remote Windows computers that have Windows PowerShell and Windows PowerShell remoting enabled, create a PSSession on the remote computer and then use the PSSession parameter of Get-Module to get the Windows PowerShell modules in the PSSession.
 When you import the modules, and then use the imported commands in the current session, the commands run implicitly in the PSSession on the remote computer.
 You can use this strategy to manage the remote computer.
+
 You can use a similar strategy to manage computers that do not have Windows PowerShell remoting enabled, including computers that are not running a Windows operating system, and Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 Begin by creating a "CIM session" on the remote computer; a connection to Windows Management Instrumentation (WMI) on the remote computer.
 Then use the CIMSession parameter of Import-Module to import CIM modules from the remote computer.
 When you import a CIM module and then run the imported commands, the commands run implicitly on the remote computer.
@@ -7224,6 +7718,7 @@ You can use this WMI and CIM strategy to manage the remote computer.
 Imports only the specified aliases from the module into the current session.
 Enter a comma-separated list of aliases.
 Wildcard characters are permitted.
+
 Some modules automatically export selected aliases into your session when you import the module.
 This parameter lets you select from among the exported aliases.
 
@@ -7231,8 +7726,8 @@ This parameter lets you select from among the exported aliases.
 #### ArgumentList [Object[]]
 
 Specifies arguments (parameter values) that are passed to a script module during the Import-Module command.
-
 This parameter is valid only when you are importing a script module.
+
 You can also refer to ArgumentList by its alias, "args".
 For more information, see about_Aliases.
 
@@ -7241,6 +7736,7 @@ For more information, see about_Aliases.
 
 Returns a custom object with members that represent the imported module members.
 This parameter is valid only for script modules.
+
 When you use the AsCustomObject parameter, Import-Module imports the module members into the session and then returns a PSCustomObject object instead of a PSModuleInfo object.
 You can save the custom object in a variable and use dot notation to invoke the members.
 
@@ -7258,6 +7754,7 @@ You can save the custom object in a variable and use dot notation to invoke the 
 Imports the cmdlets and providers implemented in the specified assembly objects.
 Enter a variable that contains assembly objects or a command that creates assembly objects.
 You can also pipe an assembly object to Import-Module.
+
 When you use this parameter, only the cmdlets and providers implemented by the specified assemblies are imported.
 If the module contains other files, they are not imported, and you might be missing important members of the module.
 Use this parameter for debugging and testing the module, or when you are instructed to use it by the module author.
@@ -7271,7 +7768,9 @@ Use this parameter for debugging and testing the module, or when you are instruc
 
 Specifies the namespace of an alternate CIM provider that exposes CIM modules.
 The default value is the namespace of the Module Discovery WMI provider.
+
 Use this parameter to import CIM modules from computers and devices that are not running a Windows operating system.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7283,7 +7782,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies an alternate location for CIM modules.
 The default value is the  resource URI of the Module Discovery WMI provider on the remote computer.
+
 Use this parameter to import CIM modules from computers and devices that are not running a Windows operating system.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7296,6 +7797,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Imports only the specified cmdlets from the module into the current session.
 Enter a list of cmdlets.
 Wildcard characters are permitted.
+
 Some modules automatically export selected cmdlets into your session when you import the module.
 This parameter lets you select from among the exported cmdlets.
 
@@ -7303,10 +7805,12 @@ This parameter lets you select from among the exported cmdlets.
 #### DisableNameChecking [switch]
 
 Suppresses the message that warns you when you import a cmdlet or function whose name includes an unapproved verb or a prohibited character.
-By default,  when a module that you import exports cmdlets or functions that have unapproved verbs in their names, the Windows PowerShell displays the following warning message:
-"WARNING: Some imported command names include unapproved verbs which might make them less discoverable.
 
+By default,  when a module that you import exports cmdlets or functions that have unapproved verbs in their names, the Windows PowerShell displays the following warning message:
+
+"WARNING: Some imported command names include unapproved verbs which might make them less discoverable.
 Use the Verbose parameter for more detail or type Get-Verb to see the list of approved verbs."
+
 This message is only a warning.
 The complete module is still imported, including the non-conforming commands.
 Although the message is displayed to module users, the naming problem should be fixed by the module author.
@@ -7340,6 +7844,7 @@ Re-imports a module and its members, even if the module or its members have an a
 Imports modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [Module Specification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedName parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
@@ -7352,6 +7857,7 @@ You cannot specify the FullyQualifiedName parameter in the same command as a Nam
 Imports only the specified functions from the module into the current session.
 Enter a list of functions.
 Wildcard characters are permitted.
+
 Some modules automatically export selected functions into your session when you import the module.
 This parameter lets you select from among the exported functions.
 
@@ -7361,6 +7867,7 @@ This parameter lets you select from among the exported functions.
 Imports modules into the global session state so they are available to all commands in the session.
 By default, the commands in a module, including commands from nested modules, are imported into the caller's session state.
 To restrict the commands that a module exports, use an Export-ModuleMember command in the script module.
+
 The Global parameter is equivalent to the Scope parameter with a value of Global.
 
 
@@ -7406,7 +7913,9 @@ Enter the name of the module or the name of a file in the module, such as a .psd
 File paths are optional.
 Wildcards are not permitted.
 You can also pipe module names and file names to Import-Module.
+
 If you omit a path, Import-Module looks for the module in the paths saved in the PSModulePath environment variable ($env:PSModulePath).
+
 Specify only the module name whenever possible.
 When you specify a file name, only the members that are implemented in that file are imported.
 If the module contains other files, they are not imported, and you might be missing important members of the module.
@@ -7416,9 +7925,11 @@ If the module contains other files, they are not imported, and you might be miss
 
 Does not import commands that have the same names as existing commands in the current session.
 By default, Import-Module imports all exported module commands.
+
 Commands with the same names can hide or replace commands in the session.
 To avoid command name conflicts in a session, use the Prefix or NoClobber parameters.
 For more information about name conflicts and command precedence, see "Modules and Name Conflicts" in about_Modules and about_Command_Precedence.
+
 
 This parameter was added in Windows PowerShell 3.0.
 
@@ -7432,10 +7943,13 @@ By default, this cmdlet does not generate any output.
 #### Prefix [String]
 
 Adds the specified prefix to the nouns in the names of imported module members.
+
 Use this parameter to avoid name conflicts that might occur when different members in the session have the same name.
 This parameter does not change the module, and it does not affect files that the module imports for its own use (known as "nested modules").
 It affects only the names of members in the current session.
+
 For example, if you specify the prefix "UTC" and then import a Get-Date cmdlet, the cmdlet is known in the session as Get-UTCDate, and it is not confused with the original Get-Date cmdlet.
+
 The value of this parameter takes precedence over the DefaultCommandPrefix property of the module, which specifies the default prefix.
 
 
@@ -7448,6 +7962,7 @@ The value of this parameter takes precedence over the DefaultCommandPrefix prope
 Imports only the specified variables from the module into the current session.
 Enter a list of variables.
 Wildcard characters are permitted.
+
 Some modules automatically export selected variables into your session when you import the module.
 This parameter lets you select from among the exported variables.
 
@@ -7462,9 +7977,12 @@ This parameter lets you select from among the exported variables.
 
 Specifies a CIM session on the remote computer.
 Enter a variable that contains the CIM session or a command that gets the CIM session, such as a [Get-CIMSession]() command.
+
 Import-Module uses the CIM session connection to import modules from the remote computer into the current session.
 When you use the commands from the imported module in the current session, the commands actually run on the remote computer.
+
 You can use this parameter to import modules from computers and devices that are not running a Windows operating system, and Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7478,10 +7996,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Imports only a version of the module that is greater than or equal to the specified value.
 If no version qualifies, Import-Module generates an error.
+
 By default, Import-Module imports the module without checking the version number.
+
 Use the MinimumVersion parameter name or its alias, Version.
+
 To specify an exact version, use the RequiredVersion parameter.
 You can also use the Module and Version parameters of the #Requires keyword to require a specific version of a module in a script.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7495,13 +8017,16 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Imports modules from the specified Windows PowerShell user-managed session ("PSSession") into the current session.
 Enter a variable that contains a PSSession or a command that gets a PSSession, such as a Get-PSSession command.
+
 When you import a module from a different session into the current session, you can use the cmdlets from the module in the current session, just as you would use cmdlets from a local module.
 Commands that use the remote cmdlets actually run in the remote session, but the remoting details are managed in the background by Windows PowerShell.
 
 This parameter uses the Implicit Remoting feature of Windows PowerShell.
 It is equivalent to using the Import-PSSession cmdlet to import particular modules from a session.
+
 Import-Module cannot import Windows PowerShell Core modules from another session.
 The Windows PowerShell Core modules have names that begin with Microsoft.PowerShell.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7515,10 +8040,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Imports only the specified version of the module.
 If the version is not installed, Import-Module generates an error.
+
 By default, Import-Module imports the module without checking the version number.
+
 To specify a minimum version, use the MinimumVersion parameter.
 You can also use the Module and Version parameters of the #Requires keyword to require a specific version of a module in a script.
+
 This parameter is introduced in Windows PowerShell 3.0.
+
 Scripts that use the RequiredVersion parameter to import modules that are included with existing releases of the Windows operating system do not automatically run in future releases of the Windows operating system.
 This is because Windows PowerShell module version numbers in future releases of the Windows operating system are higher than module version numbers in existing releases of the Windows operating system.
 
@@ -7526,12 +8055,16 @@ This is because Windows PowerShell module version numbers in future releases of 
 #### Scope [String] = Current scope
 
 Imports the module only into the specified scope.
- Valid values are:
+
+Valid values are:
+
 -- Global: Available to all commands in the session.
 Equivalent to the Global parameter.
-                         
+
 -- Local: Available only in the current scope.
+
 By default, the module is imported into the current scope, which could be a script or module.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -7551,32 +8084,47 @@ If you use the AsCustomObject parameter, it generates a PSCustomObject object.
 ### NOTES
 Before you can import a module, the module must be installed on the local computer, that is, the module directory must be copied to a directory that is accessible to your local computer.
 For more information, see about_Modules (http://go.microsoft.com/fwlink/?LinkID=144311).
+
 You can also use the PSSession and CIMSession parameters to import modules that are installed on remote computers.
 However, commands that use the cmdlets in these modules actually run in the remote session on the remote computer.
+
 If you import members with the same name and the same type into your session, Windows PowerShell uses the member imported last by default.
 Variables and aliases are replaced, and the originals are not accessible.
 Functions, cmdlets and providers are merely "shadowed" by the new members, and they can be accessed by qualifying the command name with the name of its snap-in, module, or function path.
+
 To update the formatting data for commands that have been imported from a module, use the Update-FormatData cmdlet.
 Update-FormatData also updates the formatting data for commands in the session that were imported from modules.
 If the formatting file for a module changes, you can run an Update-FormatData command to update the formatting data for imported commands.
 You do not need to import the module again.
+
 Beginning in Windows PowerShell 3.0, the core commands that are installed with Windows PowerShell are packaged in modules.
 In Windows PowerShell 2.0, and in host programs that create older-style sessions in later versions of Windows PowerShell, the core commands are packaged in snap-ins ("PSSnapins").
 The exception is Microsoft.PowerShell.Core, which is always a snap-in.
 Also, remote sessions, such as those started by the New-PSSession cmdlet, are older-style sessions that include core snap-ins.
+
 For information about the CreateDefault2 method that creates newer-style sessions with core modules, see "CreateDefault2 Method" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.initialsessionstate.createdefault2(v=VS.85).aspx]().
+
 Import-Module cannot import Windows PowerShell Core modules from another session.
 The Windows PowerShell Core modules have names that begin with Microsoft.PowerShell.
+
 In Windows PowerShell 2.0, some of the property values of the module object, such as the ExportedCmdlets and NestedModules property values, were not populated until the module was imported and were not available on the module object that the PassThru parameter returns.
 In Windows PowerShell 3.0, all module property values are populated.
+
 If you attempt to import a module that contains mixed-mode assemblies that are not compatible with Windows PowerShell 3.0, Import-Module returns an error message like the following one.
+
 Import-Module : Mixed mode assembly is built against version 'v2.0.50727' of the runtime and cannot be loaded in the 4.0 runtime without additional configuration information.
+
 This error occurs when a module that is designed for Windows PowerShell 2.0 contains at least one mixed-module assembly, that is, an assembly that includes both managed and non-managed code, such as C++ and C#.
+
 To import a module that contains mixed-mode assemblies, start Windows PowerShell 2.0 by using the following command, and then try the Import-Module command again.
+
 PowerShell.exe -Version 2.0
+
 To use the CIM session feature, the remote computer must have WS-Management remoting and Windows Management Instrumentation (WMI), which is the Microsoft implementation of the Common Information Model (CIM) standard.
 The computer must also have the Module Discovery WMI provider or an alternate CIM provider that has the same basic features.
+
 You can use the CIM session feature on computers that are not running a Windows operating system and on Windows computers that have Windows PowerShell, but do not have Windows PowerShell remoting enabled.
+
 You can also use the CIM parameters to get CIM modules from computers that have Windows PowerShell remoting enabled, including the local computer.
 When you create a CIM session on the local computer, Windows PowerShell uses DCOM, instead of WMI, to create the session.
 
@@ -7588,7 +8136,9 @@ PS C:\>Import-Module -Name BitsTransfer
 
 ```
 This command imports the members of the BitsTransfer module into the current session.
+
 The Name parameter name (-Name) is optional and can be omitted.
+
 By default, Import-Module does not generate any output when it imports a module.
 To request output, use the PassThru or AsCustomObject parameter, or the Verbose common parameter.
 
@@ -7614,10 +8164,13 @@ PS C:\>Import-Module -ModuleInfo $m
 
 ```
 These commands import the members of the BitsTransfer and ServerManager modules into the current session.
+
 The first command uses the Get-Module-Module cmdlet to get the BitsTransfer and ServerManager modules.
 It saves the objects in the $m variable.
 The ListAvailable parameter is required when you are getting modules that are not yet imported into the session.
+
 The second command uses the ModuleInfo parameter of Import-Module to import the modules into the current session.
+
 These commands are equivalent to using a pipeline operator (|) to send the output of a Get-Module command to Import-Module.
 
 
@@ -7633,6 +8186,7 @@ VERBOSE: Exporting function 'Get-SpecDetails'.
 
 ```
 This command uses an explicit path to identify the module to import.
+
 It also uses the Verbose common parameter to get a list of the items imported from the module.
 Without the Verbose, PassThru, or AsCustomObject parameter, Import-Module does not generate any output when it imports a module.
 
@@ -7674,11 +8228,14 @@ Cmdlet          Suspend-BitsTransfer                               bitstransfer
 
 ```
 This example shows how to restrict the module members that are imported into the session and the effect of this command on the session.
+
 The first command imports only the Add-BitsTransfer and Get-BitsTransfer cmdlets from the BitsTransfer module.
 The command uses the Cmdlet parameter to restrict the cmdlets that the module imports.
 You can also use the Alias, Variable, and Function parameters to restrict other members that a module imports.
+
 The second command uses the Get-Module cmdlet to get the object that represents the BitsTransfer module.
 The ExportedCmdlets property lists all of the cmdlets that the module exports, even when they were not all imported.
+
 The third command uses the Module parameter of the Get-Command cmdlet to get the commands that were imported from the BitsTransfer module.
 The results confirm that only the Add-BitsTransfer and Get-BitsTransfer cmdlets were imported.
 
@@ -7715,11 +8272,14 @@ Cmdlet          Suspend-PSBitsTransfer                             bitstransfer
 
 ```
 These commands import the BitsTransfer module into the current session, add a prefix to the member names, and then display the prefixed member names.
+
 The first command uses the Import-Module cmdlet to import the BitsTransfer module.
 It uses the Prefix parameter to add the PS prefix to all members that are imported from the module and the PassThru parameter to return a module object that represents the imported module.
+
 The second command uses the Get-Command cmdlet to get the members that have been imported from the module.
 It uses the Module parameter to specify the module.
 The output shows that the module members were correctly prefixed.
+
 The prefix that you use applies only to the members in the current session.
 It does not change the module.
 
@@ -7753,19 +8313,26 @@ PS C:\>$a."Show-Calendar"()
 
 ```
 These commands demonstrate how to get and use the custom object that Import-Module returns.
+
 Custom objects include synthetic members that represent each of the imported module members.
 For example, the cmdlets and functions in a module are converted to script methods of the custom object.
+
 Custom objects are very useful in scripting.
 They are also useful when several imported objects have the same names.
 Using the script method of an object is equivalent to specifying the fully qualified name of an imported member, including its module name.
+
 The AsCustomObject parameter can be used only when importing a script module, so the first task is to determine which of the available modules is a script module.
+
 The first command uses the Get-Module cmdlet to get the available modules.
 The command uses a pipeline operator (|) to pass the module objects to the Format-Tablee cmdlet, which lists the Name and ModuleType of each module in a table.
+
 The second command uses the Import-Module cmdlet to import the PSDiagnostics script module.
 The command uses the AsCustomObject parameter to request a custom object and the PassThru parameter to return the  object.
 The command saves the resulting custom object in the $a variable.
+
 The third command uses a pipeline operator to send the $a variable to the Get-Member cmdlet, which gets the properties and methods of the PSCustomObject in $a.
 The output shows a Show-Calendar script method.
+
 The last command uses the Show-Calendar script method.
 The method name must be enclosed in quotation marks, because it includes a hyphen.
 
@@ -7782,8 +8349,10 @@ PS C:\>Import-Module BitsTransfer -force -Prefix PS
 
 ```
 This example shows how to use the Force parameter of Import-Module when you are re-importing a module into the same session.
+
 The first command imports the BitsTransfer module.
 The second command imports the module again, this time using the Prefix parameter.
+
 The second command also includes the Force parameter, which removes the module and then imports it again.
 Without this parameter, the session would include two copies of each BitsTransfer cmdlet, one with the standard name and one with the prefixed name.
 
@@ -7811,15 +8380,21 @@ Saturday, September 12, 2009 6:33:23 PM
 
 ```
 This example shows how to run commands that have been hidden by imported commands.
+
 The first command run the Get-Date cmdlet.
 It returns a DateTime object with the current date.
+
 The second command imports the TestModule module.
 This module includes a function named Get-Date that returns the year and day of the year.
+
 The third command runs the Get-Date command again.
 Because functions take precedence over cmdlets, the Get-Date function from the TestModule module runs, instead of the Get-Date cmdlet.
+
 The fourth command uses the All parameter of the Get-Command to get all of the Get-Date commands in the session.
 The results show that there are two Get-Date commands in the session, a function from the TestModule module and a cmdlet from the Microsoft.PowerShell.Utility module.
+
 The fifth command runs the hidden cmdlet by qualifying the command name with the module name.
+
 For more information about command precedence in Windows PowerShell, see about_Command_Precedence (http://go.microsoft.com/fwlink/?LinkID=113214).
 
 
@@ -7831,6 +8406,7 @@ PS C:\>Import-Module -Name PSWorkflow -MinimumVersion 3.0.0.0
 ```
 This command imports the PSWorkflow module.
 It uses the MinimumVersion (alias=Version) parameter of Import-Module to import only version 3.0.0.0 or greater of the module.
+
 You can also use the RequiredVersion parameter to import a particular version of a module, or use the Module and Version parameters of the #Requires keyword to require a particular version of a module in a script.
 
 
@@ -7875,6 +8451,7 @@ Windows Remote Management - Compatibility Mode (HTTP-In) WINRM-HTTP-Compat-In-TC
 ```
 This example shows how to use the Import-Module cmdlet to import a module from a remote computer.
 This command uses the Implicit Remoting feature of Windows PowerShell.
+
 When you import modules from another session, you can use the cmdlets in the current session.
 However, commands that use the cmdlets actually run in the remote session.
 
@@ -7930,14 +8507,18 @@ Runs commands on local and remote computers.
 ### DESCRIPTION
 The Invoke-Command cmdlet runs commands on a local or remote computer and returns all output from the commands, including errors.
 With a single Invoke-Command command, you can run commands on multiple computers.
+
 To run a single command on a remote computer, use the ComputerName parameter.
 To run a series of related commands that share data, use the New-PSSession cmdlet to create a PSSession (a persistent connection) on the remote computer, and then use the Session parameter of Invoke-Command to run the command in the PSSession.
 To run a command in a disconnected session, use the InDisconnectedSession parameter.
 To run a command in a background job, use the AsJob parameter.
+
 You can also use Invoke-Command on a local computer to evaluate or run a string in a script block as a command.
 Windows PowerShell converts the script block to a command and runs the command immediately in the current scope, instead of just echoing the string at the command line.
+
 To start an interactive session with a remote computer, use the Enter-PSSession cmdlet.
 To establish a persistent connection to a remote computer, use the New-PSSession cmdlet.
+
 Before using Invoke-Command to run commands on a remote computer, read about_Remote (http://go.microsoft.com/fwlink/?LinkID=135182).
 
 ### PARAMETERS
@@ -7950,8 +8531,10 @@ Before using Invoke-Command to run commands on a remote computer, read about_Rem
 ```
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
+
 When you use the ConnectionURI parameter, the remote destination can return an instruction to redirect to a different URI.
 By default, Windows PowerShell does not redirect connections, but you can use this parameter to allow it to redirect the connection.
+
 You can also limit the number of times the connection is redirected by changing the MaximumConnectionRedirectionCount session option value.
 Use the  MaximumRedirection parameter of the New-PSSessionOption cmdlet or set the MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable.
 The default value is 5.
@@ -7970,10 +8553,12 @@ The default value is 5.
 
 Specifies the application name segment of the connection URI.
 Use this parameter to specify the application name when you are not using the ConnectionURI parameter in the command.
+
 The default value is the value of the $PSSessionApplicationName preference variable on the local computer.
 If this preference variable is not defined, the default value is WSMAN.
 This value is appropriate for most uses.
 For more information, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 The WinRM service uses the application name to select a listener to service the connection request.
 The value of this parameter should match the value of the URLPrefix property of a listener on the remote computer.
 
@@ -7985,9 +8570,13 @@ The variables in the command are replaced by these values before the command is 
 Enter the values in a comma-separated list.
 Values are associated with variables in the order that they are listed.
 The alias for ArgumentList is "Args".
+
 The values in ArgumentList can be actual values, such as "1024", or they can be references to local variables, such as "$max".
+
 To use local variables in a command, use the following command format:
+
 {param($\<name1\>[, $\<name2\>]...) \<command-with-local-variables\>} -ArgumentList \<value\> -or- \<local-variable\>
+
 The "param" keyword lists the local variables that are used in the command.
 The ArgumentList parameter supplies the values of the variables, in the order that they are listed.
 
@@ -8005,13 +8594,15 @@ The ArgumentList parameter supplies the values of the variables, in the order th
 
 Runs the command as a background job on a remote computer.
 Use this parameter to run commands that take an extensive time to complete.
+
 When you use AsJob, the command returns an object that represents the job, and then displays the command prompt.
 You can continue to work in the session while the job completes.
-
 To manage the job, use the Job cmdlets.
 To get the job results, use the Receive-Job cmdlet.
+
 The AsJob parameter is similar to using the Invoke-Command cmdlet to run a Start-Job command remotely.
 However, with AsJob, the job is created on the local computer, even though the job runs on a remote computer, and the results of the remote job are automatically returned to the local computer.
+
 For more information about Windows PowerShell background jobs, see about_Jobs (http://go.microsoft.com/fwlink/?LinkID=113251) and about_Remote_Jobs (http://go.microsoft.com/fwlink/?LinkID=135184).
 
 
@@ -8025,12 +8616,13 @@ For more information about Windows PowerShell background jobs, see about_Jobs (h
 ```
 
 Specifies the mechanism that is used to authenticate the user's credentials.
-
- Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
-
+Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
 The default value is Default.
+
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
+
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -8045,8 +8637,10 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies the digital public key certificate (X509) of a user account that has permission to perform this action.
 Enter the certificate thumbprint of the certificate.
+
 Certificates are used in client certificate-based authentication.
 They can only be mapped to local user accounts; they do not work with domain accounts.
+
 To get a certificate, use the Get-Item or Get-ChildItem commands in the Windows PowerShell Cert: drive.
 
 
@@ -8063,13 +8657,17 @@ To get a certificate, use the Get-Item or Get-ChildItem commands in the Windows 
 
 Specifies the computers on which the command runs.
 The default is the local computer.
+
 When you use the ComputerName parameter, Windows PowerShell creates a temporary connection that is used only to run the specified command and is then closed.
 If you need a persistent connection, use the Session parameter.
+
 Type the NETBIOS name, IP address, or fully-qualified domain name of one or more computers in a comma-separated list.
 To specify the local computer, type the computer name, "localhost", or a dot (.).
+
 To use an IP address in the value of the ComputerName parameter, the command must include the Credential parameter.
 Also, the computer must be configured for HTTPS transport or the IP address of the remote computer must be included in the WinRM TrustedHosts list on the local computer.
 For instructions for adding a computer name to the TrustedHosts list, see "How to Add  a Computer to the Trusted Host List" in about_Remote_Troubleshooting.
+
 Note:  On Windows Vista, and later versions of Windows, to include the local computer in the value of the ComputerName parameter, you must open Windows PowerShell with the "Run as administrator" option.
 
 
@@ -8091,10 +8689,13 @@ Note:  On Windows Vista, and later versions of Windows, to include the local com
 ```
 
 Specifies the session configuration that is used for the new PSSession.
+
 Enter a configuration name or the fully qualified resource URI for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/PowerShell.
+
 The session configuration for a session is located on the remote computer.
 If the specified session configuration does not exist on the remote computer, the command fails.
+
 The default value is the value of the $PSSessionConfigurationName preference variable on the local computer.
 If this preference variable is not set, the default is Microsoft.PowerShell.
 For more information, see about_preference_variables.
@@ -8113,6 +8714,7 @@ For more information, see about_preference_variables.
 
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint of the session.
 The URI must be fully qualified.
+
 The format of this string is as follows:
 
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
@@ -8120,10 +8722,13 @@ The format of this string is as follows:
 The default value is as follows:
 
 http://localhost:5985/WSMAN
+
 If you do not specify a connection URI, you can use the UseSSL and Port  parameters to specify the connection URI values.
+
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
 
 
@@ -8146,6 +8751,7 @@ If the destination computer redirects the connection to a different URI, Windows
 
 Specifies a user account that has permission to perform this action.
 The default is the current user.
+
 Type a user name, such as "User01" or "Domain01\User01", or enter a variable that contains a PSCredential object, such as one generated by the Get-Credential cmdlet.
 When you type a user name, you will be prompted for a password.
 
@@ -8162,15 +8768,21 @@ When you type a user name, you will be prompted for a password.
 Adds an interactive security token to loopback sessions.
 The interactive token lets you run commands in the loopback session that get data from other computers.
 For example, you can run a command in the session that copies XML files from a remote computer to the local computer.
+
 A "loopback session" is a PSSession that originates and terminates on the same computer.
 To create a loopback session, omit the ComputerName parameter or set its value to ".", "localhost", or the name of the local computer.
+
 By default, loopback sessions are created with a network token, which might not provide sufficient permission to authenticate to remote computers.
+
 The EnableNetworkAccess parameter is effective only in loopback sessions.
 If you use the EnableNetworkAccess parameter when creating a session on a remote computer, the command succeeds, but the parameter is ignored.
+
 You can also allow remote access in a loopback session by using the CredSSP value of the Authentication parameter, which delegates the session credentials to other computers.
+
 To protect the computer from malicious access, disconnected loopback sessions that have interactive tokens (those created with the EnableNetworkAccess parameter) can be reconnected only from the computer on which the session was created.
 Disconnected sessions that use CredSSP authentication can be reconnected from other computers.
 For more information, see Disconnect-PSSession.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -8195,6 +8807,7 @@ Runs the specified local script on one or more remote computers.
 Enter the path and file name of the script, or pipe a script path to Invoke-Command.
 The script must reside on the local computer or in a directory that the local computer can access.
 Use the ArgumentList parameter to specify the values of parameters in the script.
+
 When you use this parameter, Windows PowerShell converts the contents of the specified script file to a script block, transmits the script block to the remote computer, and runs it on the remote computer.
 
 
@@ -8211,6 +8824,7 @@ When you use this parameter, Windows PowerShell converts the contents of the spe
 
 Omits the computer name of each object from the output display.
 By default, the name of the computer that generated the object appears in the display.
+
 This parameter affects only the output display.
 It does not change the object.
 
@@ -8225,18 +8839,24 @@ It does not change the object.
 ```
 
 Runs a command or script in a disconnected session.
+
 When you use the InDisconnectedSession parameter, Invoke-Command creates a persistent session on each remote computer, starts the command specified by the ScriptBlock or FilePath parameter, and then disconnects from the session.
 The commands continue to run in the disconnected sessions.The InDisconnectedSession parameter enables you to run commands without maintaining a connection to the remote sessions.
 Also, because the session is disconnected before any results are returned, the InDisconnectedSession parameter assures that all command results are returned to the reconnected session, instead of being split between sessions.
+
 You cannot use the InDisconnectedSession parameter with the Session parameter or the AsJob parameter.
+
 Commands that use the InDisconnectedSession parameter return a PSSession object that represents the disconnected session.
 They do not return the command output.
 To connect to the disconnected session, use the Connect-PSSession or Receive-PSSession cmdlets.
 To get the results of commands that ran in the session, use the Receive-PSSession cmdlet.To run commands that generate output in a disconnected session, set the value of the OutputBufferingMode session option to Drop.
 If you intend to connect to the disconnected session, set the idle timeout in the session so that it provides sufficient time for you to connect before deleting the session.
+
 You can set the output buffering mode and idle timeout in the SessionOption parameter or in the $PSSessionOption preference variable.
 For more information about session options, see New-PSSessionOption and about_Preference_Variables.
+
 For more information about the Disconnected Sessions feature, see about_Remote_Disconnected_Sessions.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -8248,6 +8868,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies input to the command.
 Enter a variable that contains the objects or type a command or expression that gets the objects.
+
 When using InputObject, use the $input automatic variable in the value of the ScriptBlock parameter to represent the input objects.
 
 
@@ -8264,7 +8885,9 @@ When using InputObject, use the $input automatic variable in the value of the Sc
 
 Specifies a friendly name for the background job.
 By default, jobs are named "Job\<n\>", where \<n\> is an ordinal number.
+
 If you use the JobName parameter in a command, the command is run as a job, and Invoke-Command returns a job object, even if you do not include the AsJob parameter in the command.
+
 For more information about Windows PowerShell background jobs, see about_Jobs (http://go.microsoft.com/fwlink/?LinkID=113251).
 
 
@@ -8277,12 +8900,15 @@ For more information about Windows PowerShell background jobs, see about_Jobs (h
 
 Specifies the network port  on the remote computer used for this command.
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, configure the WinRM listener on the remote computer to listen at that port.
 To configure the listener, type the following two commands at the Windows PowerShell prompt:
+
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
+
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
+
 Do not use the Port parameter unless you must.
 The port that is set in the command applies to all computers or sessions on which the command runs.
 An alternate port setting might prevent the command from running on all computers.
@@ -8312,6 +8938,7 @@ An alternate port setting might prevent the command from running on all computer
 Specifies the commands to run.
 Enclose the commands in braces ( { } ) to create a script block.
 This parameter is required.
+
 By default, any variables in the command are evaluated on the remote computer.
 To include local variables in the command, use the ArgumentList parameter.
 
@@ -8329,11 +8956,14 @@ To include local variables in the command, use the ArgumentList parameter.
 
 Runs the command in the specified Windows PowerShell sessions (PSSessions).
 Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command.
+
 Runs the command in the specified Windows PowerShell sessions (PSSessions).
 Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command.
+
 When you create a PSSession, Windows PowerShell establishes a persistent connection to the remote computer.
 Use a PSSession to run a series of related commands that share data.
 To run a single command or a series of unrelated commands, use the ComputerName parameter.
+
 To create a PSSession, use the New-PSSession cmdlet.
 For more information, see about_PSSessions.
 
@@ -8348,10 +8978,11 @@ For more information, see about_PSSessions.
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -8373,6 +9004,7 @@ For more information about session configurations, see about_Session_Configurati
 
 Specifies the maximum number of concurrent connections that can be established to run this command.
 If you omit this parameter or enter a value of 0, the default value, 32, is used.
+
 The throttle limit applies only to the current command, not to the session or to the computer.
 
 
@@ -8385,8 +9017,10 @@ The throttle limit applies only to the current command, not to the session or to
 
 Uses the Secure Sockets Layer (SSL) protocol to establish a connection to the remote computer.
 By default, SSL is not used.
+
 WS-Management encrypts all Windows PowerShell content transmitted over the network.
 UseSSL is an additional protection that sends the data across an HTTPS, instead of HTTP.
+
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
 
 
@@ -8398,7 +9032,9 @@ If you use this parameter, but SSL is not available on the port used for the com
 
 Runs the specified command in the current scope.
 By default, Invoke-Command runs commands in their own scope.
+
 This parameter is valid only in commands that are run in the current session, that is, commands that omit both the ComputerName and Session parameters.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -8412,6 +9048,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies a friendly name for a disconnected session.
 You can use the name to refer to the session in subsequent commands, such as a Get-PSSession command.
 This parameter is valid only with the InDisconnectedSession parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -8431,18 +9068,25 @@ Otherwise, it returns the output of the invoked command (the value of the Script
 
 ### NOTES
 On Windows Vista, and later versions of Windows, to use the ComputerName parameter of Invoke-Command to run a command on the local computer, you must open Windows PowerShell with the "Run as administrator" option.
+
 When you run commands on multiple computers, Windows PowerShell connects to the computers in the order in which they appear in the list.
 However, the command output is displayed in the order that it is received from the remote computers, which might be different.
+
 Errors that result from the command that Invoke-Command runs are included in the command results.
 Errors that would be terminating errors in a local command are treated as non-terminating errors in a remote command.
 This strategy ensures that terminating errors on one computer do not terminate the command on all computers on which it is run.
 This practice is used even when a remote command is run on a single computer.
+
 If the remote computer is not in a domain that the local computer trusts, the computer might not be able to authenticate the user's credentials.
 To add the remote computer to the list of "trusted hosts" in WS-Management, use the following command in the WSMAN provider, where \<Remote-Computer-Name\> is the name of the remote computer:
+
 Set-Item -Path WSMan:\Localhost\Client\TrustedHosts -Value \<Remote-Computer-Name\>
+
 In Windows PowerShell 2.0, you cannot use the Select-Object cmdlet to select the PSComputerName property of the object that Invoke-Command returns.
 Instead, to display the value of the PSComputerName property, use the dot method to get the PSComputerName property value ($result.PSComputerName), use a Format cmdlet, such as the Format-Table cmdlet, to display the value of the PSComputerName property, or use a Select-Object command where the value of the property parameter is a calculated property that has a label other than "PSComputerName".
+
 This limitation does not apply to Windows PowerShell 3.0 or later versions of Windows PowerShell.
+
 When you disconnect a PSSession, such as by using the InDisconnectedSession parameter, the session state is Disconnected and the availability is None.
 
 The value of the State property is relative to the current session.
@@ -8450,9 +9094,12 @@ Therefore, a value of Disconnected means that the PSSession is not connected to 
 However, it does not mean that the PSSession is disconnected from all sessions.
 It might be connected to a different session.
 To determine whether you can connect or reconnect to the session, use the Availability property.
+
 An Availability value of None indicates that you can connect to the session.
 A value of Busy indicates that you cannot connect to the PSSession because it is connected to another session.
+
 For more information about the values of the State property of sessions, see "RunspaceState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspacestate(v=VS.85).aspx]().
+
 For more information about the values of the Availability property of sessions, see RunspaceAvailability Enumeration at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspaceavailability(v=vs.85).aspx]().
 
 ### EXAMPLES
@@ -8463,6 +9110,7 @@ PS C:\>Invoke-Command -FilePath c:\scripts\test.ps1 -ComputerName Server01
 
 ```
 This command runs the Test.ps1 script on the Server01 computer.
+
 The command uses the FilePath parameter to specify a script that is located on the local computer.
 The script runs on the remote computer and the results are returned to the local computer.
 
@@ -8474,8 +9122,10 @@ PS C:\>Invoke-Command -ComputerName server01 -Credential domain01\user01 -Script
 
 ```
 This command runs a Get-Culture command on the Server01 remote computer.
+
 It uses the ComputerName parameter to specify the computer name and the Credential parameter to run the command in the security context of "Domain01\User01," a user with permission to run commands.
 It uses the ScriptBlock parameter to specify the command to be run on the remote computer.
+
 In response, Windows PowerShell displays a dialog box that requests the password and an authentication method for the User01 account.
 It then runs the command on the Server01 computer and returns the result.
 
@@ -8489,10 +9139,13 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock {Get-Culture}
 ```
 This example runs the same "Get-Culture" command in a session (a persistent connection) on the Server02 remote computer.
 Typically, you create a session only when you are running a series of commands on the remote computer.
+
 The first command uses the New-PSSession cmdlet to create a session on the Server02 remote computer.
 Then, it saves the session in the $s variable.
+
 The second command uses the Invoke-Command cmdlet to run the Get-Culture command on Server02.
 It uses the Session parameter to specify the session  saved in the $s variable.
+
 In response, Windows PowerShell runs the command in the session on the Server02 computer.
 
 
@@ -8510,17 +9163,22 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock {$p.VirtualMemorySize}
 ```
 This example compares the effects of using ComputerName and Session parameters of Invoke-Command.
 It shows how to use a session to run a series of commands that share the same data.
+
 The first two commands use the ComputerName parameter of Invoke-Command to run commands on the Server02 remote computer.
 The first command uses the Get-Process cmdlet to get the PowerShell process on the remote computer and to save it in the $p variable.
 The second command gets the value of the VirtualMemorySize property of the PowerShell process.
+
 The first command succeeds.
 But the second command fails, because when you use the ComputerName parameter, Windows PowerShell creates a connection just to run the command.
 Then, it closes the connection when the command is complete.
 The $p variable was created in one connection, but it does not exist in the connection created for the second command.
+
 The problem is solved by creating a session (a persistent connection) on the remote computer and by running both of the related commands in the same session.
+
 The third command uses the New-PSSession cmdlet to create a session on the Server02 computer.
 Then it saves the session in the $s variable.
 The fourth and fifth commands repeat the series of commands used in the first set, but in this case, the Invoke-Command command uses the Session parameter to run both of the commands in the same session.
+
 In this case, because both commands run in the same session, the commands succeed, and the $p value remains active in the $s session for later use.
 
 
@@ -8532,10 +9190,13 @@ PS C:\>Invoke-Command -ComputerName S1, S2 -ScriptBlock $command
 
 ```
 This example shows how to enter a command that is saved in a local variable.
+
 When the entire command is saved in a local variable, you can specify the variable as the value of the ScriptBlock parameter.
 You do not have to use the "param" keyword or the ArgumentList variable to submit the value of the local variable.
+
 The first command saves a Get-EventLog command in the $command variable.
 The command is formatted as a script block.
+
 The second command uses the Invoke-Command cmdlet to run the command in $command on the S1 and S2 remote computers.
 
 
@@ -8550,10 +9211,13 @@ PS C:\>Invoke-Command -ComputerName Server01, Server02, TST-0143, localhost -Con
 
 ```
 This example demonstrates how to use the Invoke-Command cmdlet to run a single command on multiple computers.
+
 The command uses the ComputerName parameter to specify the computers.
 The computer names are presented in a comma-separated list.
 The list of computers includes the "localhost" value, which represents the local computer.
+
 The command uses the ConfigurationName parameter to specify an alternate session configuration for Windows PowerShell and the ScriptBlock parameter to specify the command.
+
 In this example, the command in the script block gets the events in the Windows PowerShell event log on each remote computer.
 
 
@@ -8568,11 +9232,15 @@ PS C:\>$version = Invoke-Command -ComputerName (Get-Content Machines.txt) -Scrip
 
 ```
 This command gets the version of the Windows PowerShell host program running on 200 remote computers.
+
 Because only one command is run, it is not necessary to create persistent connections (sessions) to each of the computers.
 Instead, the command uses the ComputerName parameter to indicate the computers.
+
 The command uses the Invoke-Command cmdlet to run a Get-Host command.
 It uses dot notation to get the Version property of the Windows PowerShell host.
+
 To specify the computers, it uses the Get-Content cmdlet to get the contents of the Machine.txt file, a file of computer names.
+
 These commands run synchronously (one at a time).
 When the commands complete, the output of the commands from all of the computers is saved in the $version variable.
 The output includes the name of the computer from which the data originated.
@@ -8619,12 +9287,17 @@ PS C:\>$results = $j | Receive-Job
 ```
 These commands run a background job on two remote computers.
 Because the Invoke-Command command uses the AsJob parameter, the commands run on the remote computers, but the job actually resides on the local computer and the results are transmitted to the local computer.
+
 The first command uses the New-PSSession cmdlet to create sessions on the Server01 and Server02 remote computers.
+
 The second command uses the Invoke-Command cmdlet to run a background job in each of the sessions.
 The command uses the AsJob parameter to run the command as a background job.
 This command returns a job object that contains two child job objects, one for each of the jobs run on the two remote computers.
+
 The third command uses a Get-Job command to save the job object in the $j variable.
+
 The fourth command uses a pipeline operator (|) to send the value of the $j variable to the Format-List cmdlet, which displays all properties of the job object in a list.
+
 The fifth command gets the results of the jobs.
 It pipes the job object in $j to the Receive-Job cmdlet and stores the results in the $results variable.
 
@@ -8645,7 +9318,9 @@ The command uses the Using scope modifier to identify a local variable in a remo
 By default, all variables are assumed to be defined in the remote session.
 The Using scope modifier was introduced in Windows PowerShell 3.0.
 For more information about the Using scope modifier, see about_Remote_Variables http://go.microsoft.com/fwlink/?LinkID=252653.
+
 The first command saves the name of the Microsoft-Windows-Forwarding/Operational event log in the $MWFO_Log variable.
+
 The second command uses the Invoke-Command cmdlet to run a Get-EventLog command on the Server01 remote computer that gets the 10 newest events from the Microsoft-Windows-Forwarding/Operational event log on Server01.
 The value of the LogName parameter is the $MWFO_Log variable, which is prefixed by the Using scope modifier to indicate that it was created in the local session, not in the remote session.
 
@@ -8669,9 +9344,11 @@ Handles  NPM(K)    PM(K)      WS(K) VM(M)   CPU(s)     Id   ProcessName
 
 ```
 This example shows the effect of using the HideComputerName parameter of Invoke-Command.
+
 The first two commands use the Invoke-Command cmdlet to run a Get-Process command for the PowerShell process.
 The output of the first command includes the PsComputerName property, which contains the name of the computer on which the command ran.
 The output of the second command, which uses the HideComputerName parameter, does not include the PsComputerName column.
+
 Using the HideComputerName parameter does not change the object; it just changes the display.
 You can still use the Format cmdlets to display the PsComputerName property of any of the affected objects.
 
@@ -8689,6 +9366,7 @@ PS C:\>Invoke-Command -ComputerName (Get-Content Servers.txt) -FilePath C:\Scrip
 This example uses the Invoke-Command cmdlet to run the Sample.ps1 script on all of the computers listed in the Servers.txt file.
 The command uses the FilePath parameter to specify the script file.
 This command allows you to run the script on the remote computers, even if the script file is not accessible to the remote computers.
+
 When you submit the command, the content of the Sample.ps1 file is copied into a script block and the script block is run on each of the remote computers.
 This procedure is equivalent to using the ScriptBlock parameter to submit the contents of the script.
 
@@ -8708,11 +9386,14 @@ PS C:\>Invoke-Command -ConfigurationName Microsoft.Exchange -ConnectionUri https
 This example shows how to run a command on a remote computer that is identified by a URI (Internet address).
 This particular example runs a Set-Mailbox command on a remote Exchange server.
 The backtick (`) in the command is the Windows PowerShell continuation character.
+
 The first command uses the Get-Credential cmdlet to store Windows Live ID credentials in the $LiveCred variable.
 A credentials dialog box prompts the user to enter Windows Live ID credentials.
+
 The second command uses the Invoke-Command cmdlet to run a Set-Mailbox command.
 The command uses the ConfigurationName parameter to specify that the command should run in a session that uses the Microsoft.Exchange session configuration.
 The ConnectionURI parameter specifies the URL of the Exchange server endpoint.
+
 The Credential parameter specifies the Windows Live credentials stored in the $LiveCred variable.
 The AuthenticationMechanism parameter specifies the use of basic authentication.
 The ScriptBlock parameter specifies a script block that contains the command.
@@ -8727,11 +9408,14 @@ PS C:\>Invoke-Command -ConnectionUri https://ps.exchangelabs.com/PowerShell -Scr
 
 ```
 This command shows how to use the AllowRedirection and SessionOption parameters to manage URI redirection in a remote command.
+
 The first command uses the New-PSSessionOption cmdlet to create a PSSessionOpption object that it saves in the $Max variable.
 The command uses the MaximumRedirection parameter to set the MaximumConnectionRedirectionCount property of the PSSessionOption object to 1.
+
 The second command uses the Invoke-Command cmdlet to run a Get-Mailbox command on a remote server running Microsoft Exchange Server.
 The command uses the AllowRedirection parameter to provide explicit permission to redirect the connection to an alternate endpoint.
 It also uses the SessionOption parameter to specify the session object in the $max variable.
+
 As a result, if the remote computer specified by the ConnectionURI parameter returns a redirection message, Windows PowerShell will redirect the connection, but if the new destination returns another redirection message, the redirection count value of 1 is exceeded, and Invoke-Command returns a non-terminating error.
 
 
@@ -8743,8 +9427,10 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock { Get-Hotfix } -SessionOption $so
 
 ```
 This example shows how to create and use a SessionOption parameter.
+
 The first command uses the New-PSSessionOption cmdlet to create a session option.
 It saves the resulting SessionOption object in the $so parameter.
+
 The second command uses the Invoke-Command cmdlet to run a Get-HotFix command remotely.
 The value of the SessionOption parameter is the SessionOption object in the $so variable.
 
@@ -8760,16 +9446,22 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock {Get-Item \\Net03\Scripts\LogFile
 
 ```
 This example shows how to access a network share from within a remote session.
+
 The command requires that CredSSP delegation be enabled in the client settings on the local computer and in the service settings on the remote computer.
 To run the commands in this example, you must be a member of the Administrators group on the local computer and the remote computer.
+
 The first command uses the Enable-WSManCredSSP cmdlet to enable CredSSP delegation from the Server01 local computer to the Server02 remote computer.
 This configures the CredSSP client setting on the local computer.
+
 The second command uses the Connect-WSMan cmdlet to connect to the Server02 computer.
 This action adds a node for the Server02 computer to the WSMan: drive on the local computer, allowing you to view and change the WS-Management settings on the Server02 computer.
+
 The third command uses the Set-Item cmdlet to change the value of the CredSSP item in the Service node of the Server02 computer to True.
 This action enables CredSSP in the service settings on the remote computer.
+
 The fourth command uses the New-PSSession cmdlet to create a PSSession on the Server02 computer.
 It saves the PSSession in the $s variable.
+
 The fifth command uses the Invoke-Command cmdlet to run a Get-Item command in the session in $s that gets a script from the Net03\Scripts network share.
 The command uses the Credential parameter and it uses the Authentication parameter with a value of CredSSP.
 
@@ -8787,11 +9479,14 @@ PS C:\>Invoke-Command -ComputerName (Get-Content Servers.txt) -InDisconnectedSes
 This command runs a script on more than a hundred computers.
 To minimize the impact on the local computer, it connects to each computer, starts the script, and then disconnects from each computer.
 The script continues to run in the disconnected sessions.
+
 The command uses the Invoke-Command cmdlet to run the script.
 The value of the ComputerName parameter is a Get-Content command that gets the names of the remote computers from a text file.
 The InDisconnectedSession parameter disconnects the sessions as soon as it starts the command.
 The value of the FilePath parameter is the script that Invoke-Command runs on each computer that is named in the Servers.txt file.
+
 The value of the SessionOption parameter is a hash table that sets the value of the OutputBufferingMode option to Drop and the value of the IdleTimeout option to 43200000 milliseconds (12 hours).
+
 To get the results of commands and scripts that run in disconnected sessions, use the Receive-PSSession cmdlet.
 
 
@@ -8847,6 +9542,7 @@ To find the identification number of a command, use the Get-History cmdlet.
 
 Identifies a command in the history.
 You can type the ID number of the command or the first few characters of the command.
+
 If you type characters, Invoke-History matches the most recent commands first.
 If you omit this parameter, Invoke-History runs the last (most recent) command.
 The parameter name ("id") is optional.
@@ -8888,8 +9584,8 @@ Invoke-History does not generate any output, but output might be generated by th
 The session history is a list of the commands entered during the session along with the ID.
 The session history represents the order of execution, the status, and the start and end times of the command.
 As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.
-
 For more information about the session history, see about_History (http://go.microsoft.com/fwlink/?LinkID=113233).
+
 You can also refer to Invoke-History by its built-in aliases, "r" and "ihy".
 For more information, see about_Aliases (http://go.microsoft.com/fwlink/?LinkID=113207).
 
@@ -8988,13 +9684,17 @@ Creates a new dynamic module that exists only in memory.
 ### DESCRIPTION
 The New-Module cmdlet creates a dynamic module from a script block.
 The members of the dynamic module, such as functions and variables, are immediately available in the session and remain available until you close the session.
+
 Like static modules, by default, the cmdlets and functions in a dynamic module are exported and the variables and aliases are not.
 However, you can use the Export-ModuleMember cmdlet and the parameters of New-Module to override the defaults.
+
 You can also use the AsCustomObject parameter of the New-Module cmdlet to return the dynamic module as a custom object.
 The members of the modules, such as functions, are implemented as script methods of the custom object instead of being imported into the session.
+
 Dynamic modules  exist only in memory, not on disk.
 Like all modules, the members of dynamic modules run in a private module scope that is a child of the global scope.
 Get-Module cannot get a dynamic module, but Get-Command can get the exported members.
+
 To make a dynamic module available to Get-Module, pipe a New-Module command to Import-Module, or pipe the module object that New-Module returns to Import-Module.
 This action adds the dynamic module to the Get-Module list, but it does not save the module to disk or make it persistent.
 
@@ -9010,6 +9710,7 @@ Specifies arguments (parameter values) that are passed to the script block.
 Returns a custom object that represents the dynamic module.
 The module members are implemented as script methods of the custom object, but they are not imported into the session.
 You can save the custom object in a variable and use dot notation to invoke the members.
+
 If the module has multiple members with the same name, such as a function and a variable that are both named "A," only one member with each name is accessible from the custom object.
 
 
@@ -9023,6 +9724,7 @@ Exports only the specified cmdlets from the module into the current session.
 Enter a comma-separated list of cmdlets.
 Wildcard characters are permitted.
 By default, all cmdlets in the module are exported.
+
 You cannot define cmdlets in a script block, but a dynamic module can include cmdlets if it imports the cmdlets from a binary module.
 
 
@@ -9050,6 +9752,7 @@ By default, all functions defined in a module are exported.
 
 Specifies a name for the new module.
 You can also pipe a module name to New-Module.
+
 The default value is an autogenerated name that begins with "__DynamicModule_" and is followed by a GUID that specifies the path to the dynamic module.
 
 
@@ -9174,6 +9877,7 @@ Hello, Jeffrey
 ```
 This command uses the Export-ModuleMember cmdlet to export a variable into the current session.
 Without the Export-ModuleMember command, only the function is exported.
+
 The output shows that both the variable and the function were exported into the session.
 
 
@@ -9210,11 +9914,14 @@ Function        Hello                                                           
 
 ```
 This command demonstrates that you can make a dynamic module available to the Get-Module cmdlet by piping the dynamic module to the Import-Module cmdlet.
+
 The first command uses a pipeline operator (|) to send the module object that New-Module generates to the Import-Module cmdlet.
 The command uses the Name parameter of New-Module to assign a friendly name to the module.
 Because Import-Module does not return any objects by default, there is no output from this command.
+
 The second command uses the Get-Module cmdlet to get the modules in the session.
 The result shows that Get-Module can get the new dynamic module.
+
 The third command uses the Get-Command cmdlet to get the Hello function that the dynamic module exports.
 
 
@@ -9248,13 +9955,17 @@ Hello, Manoj
 ```
 
 This example shows how to use the AsCustomObject parameter of New-Module to generate a custom object with script methods that represent the exported functions.
+
 The first command uses the New-Module cmdlet to generate a dynamic module with two functions, Hello and Goodbye.
 The command uses the AsCustomObject parameter to generate a custom object instead of the PSModuleInfo object that New-Module generates by default.
 The command saves the custom object in the $m variable.
+
 The second command attempts to display the value of the $m variable.
 No content appears.
+
 The third command uses a pipeline operator (|) to send the custom object to the Get-Member cmdlet, which displays the properties and methods of the custom object.
 The output shows that the object has script methods that represent the Hello and Goodbye functions.
+
 The fourth and fifth commands use the script method format to call the Hello and Goodbye functions.
 
 
@@ -9270,6 +9981,7 @@ Hello, World!
 
 ```
 This command uses the ReturnResult parameter to request the results of running the script block instead of requesting a module object.
+
 The script block in the new module defines the SayHello function and then calls the function.
 
 
@@ -9299,16 +10011,19 @@ Creates a new module manifest.
 
 ### DESCRIPTION
 The New-ModuleManifest cmdlet creates a new module manifest (.psd1) file, populates its values, and saves the manifest file in the specified path.
+
 Module authors can use this cmdlet to create a manifest for their module.
 A module manifest is a .psd1 file that contains a hash table.
 The keys and values in the hash table describe the contents and attributes of the module, define the prerequisites, and determine how the components are processed.
-
 Manifests are not required for a module.
+
 New-ModuleManifest creates a manifest that includes all of the commonly used manifest keys, so you can use the default output as a manifest template.
 To add or change values, or to add module keys that this cmdlet does not add, open the resulting file in a text editor.
+
 Each parameter of this cmdlet (except for Path and PassThru) creates a module manifest key and its value.
 In a module manifest, only the ModuleVersion key is required.
 Unless specified in the parameter description, if you omit a parameter from the command, New-ModuleManifest creates a comment string for the associated value that has no effect.
+
 In Windows PowerShell 2.0, New-ModuleManifest prompts you for the values of commonly used parameters that are not specified in the command, in addition to required parameter values.
 Beginning in Windows PowerShell 3.0, it prompts only when required parameter values are not specified.
 
@@ -9323,8 +10038,10 @@ Beginning in Windows PowerShell 3.0, it prompts only when required parameter val
 
 Specifies the aliases that the module exports.
 Wildcards are permitted.
+
 You can use this parameter to restrict the aliases that are exported by the module.
 It can remove aliases from the list of exported aliases, but it cannot add aliases to the list.
+
 If you omit this parameter, New-ModuleManifest creates an AliasesToExport key with a value of * (all), meaning that all aliases that are exported by the module are exported by the manifest.
 
 
@@ -9335,6 +10052,7 @@ If you omit this parameter, New-ModuleManifest creates an AliasesToExport key wi
 ```
 
 Specifies the module author.
+
 If you omit this parameter, New-ModuleManifest creates an Author key with the name of the current user.
 
 
@@ -9356,8 +10074,10 @@ Specifies the minimum version of the Common Language Runtime (CLR) of the Micros
 
 Specifies the cmdlets that the module exports.
 Wildcards are permitted.
+
 You can use this parameter to restrict the cmdlets that are exported by the module.
 It can remove cmdlets from the list of exported cmdlets, but it cannot add cmdlets to the list.
+
 If you omit this parameter, New-ModuleManifest creates a CmdletsToExport key with a value of * (all), meaning that all cmdlets that are exported by the module are exported by the manifest.
 
 
@@ -9368,6 +10088,7 @@ If you omit this parameter, New-ModuleManifest creates a CmdletsToExport key wit
 ```
 
 Identifies the company or vendor who created the module.
+
 If you omit this parameter, New-ModuleManifest creates a CompanyName key with a value of "Unknown".
 
 
@@ -9378,6 +10099,7 @@ If you omit this parameter, New-ModuleManifest creates a CompanyName key with a 
 ```
 
 Specifies a copyright statement for the module.
+
 If you omit this parameter, New-ModuleManifest creates a Copyright key with a value of  "(c) \<year\> \<username\>.
 All rights reserved." where \<year\> is the current year and \<username\> is the value of the Author key (if one is specified) or the name of the current user.
 
@@ -9407,6 +10129,7 @@ Specifies the minimum version of the Microsoft .NET Framework that the module re
 ```
 
 Specifies all items that are included in the module.
+
 This key is designed to act as a module inventory.
 The files listed in the key are not automatically exported with the module.
 
@@ -9418,6 +10141,7 @@ The files listed in the key are not automatically exported with the module.
 ```
 
 Specifies the formatting files (.ps1xml) that run when the module is imported.
+
 When you import a module, Windows PowerShell runs the Update-FormatData cmdlet with the specified files.
 Because formatting files are not scoped, they affect all session states in the session.
 
@@ -9431,8 +10155,10 @@ Because formatting files are not scoped, they affect all session states in the s
 
 Specifies the functions that the module exports.
 Wildcards are permitted.
+
 You can use this parameter to restrict the functions that are exported by the module.
 It can remove functions from the list of exported aliases, but it cannot add functions to the list.
+
 If you omit this parameter, New-ModuleManifest creates an FunctionsToExport key with a value of * (all), meaning that all functions that are exported by the module are exported by the manifest.
 
 
@@ -9444,7 +10170,9 @@ If you omit this parameter, New-ModuleManifest creates an FunctionsToExport key 
 
 Specifies a unique identifier for the module.
 The GUID can be used to distinguish among modules with the same name.
+
 If you omit this parameter, New-ModuleManifest creates a GUID key in the manifest and generates a GUID for the value.
+
 To create a new GUID in Windows PowerShell, type "[guid]::NewGuid()".
 
 
@@ -9456,10 +10184,12 @@ To create a new GUID in Windows PowerShell, type "[guid]::NewGuid()".
 
 Specifies the Internet address of the HelpInfo XML file for the module.
 Enter an Uniform Resource Identifier (URI) that begins with "http" or "https".
+
 The   HelpInfo XML file supports the Updatable Help feature that was introduced in Windows PowerShell 3.0.
 It contains information about the location of downloadable help files for the module and the version numbers of the newest help files for each supported locale.
 For information about Updatable Help, see about_Updatable_Help (http://go.microsoft.com/fwlink/?LinkID=235801).
 For information about the HelpInfo XML file, see "Supporting Updatable Help" in MSDN.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -9470,10 +10200,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Lists all modules that are included in this module.
+
 Enter each module name as a string or as a hash table with ModuleName and ModuleVersion keys.
 The hash table can also have an optional GUID key.
 You can combine strings and hash tables in the parameter value.
 For more information, see the examples.
+
 This key is designed to act as a module inventory.
 The modules that are listed in the value of this key are not automatically processed.
 
@@ -9485,6 +10217,7 @@ The modules that are listed in the value of this key are not automatically proce
 ```
 
 Specifies the version of the module.
+
 This parameter is not required by the cmdlet, but a ModuleVersion key is required in the manifest.
 If you omit this parameter, New-ModuleManifest creates a ModuleVersion key with a value of "1.0".
 
@@ -9497,13 +10230,17 @@ If you omit this parameter, New-ModuleManifest creates a ModuleVersion key with 
 
 Specifies script modules (.psm1) and binary modules (.dll) that are imported into the module's session state.
 The files in the NestedModules key run in the order in which they are listed in the value.
+
 Enter each module name as a string or as a hash table with ModuleName and ModuleVersion keys.
 The hash table can also have an optional GUID key.
 You can combine strings and hash tables in the parameter value.
 For more information, see the examples.
+
 Typically, nested modules contain commands that the root module needs for its internal processing.
 By default, the commands in nested modules are exported from the module's session state into the caller's session state, but the root module can restrict the commands that it exports (for example, by using an Export-ModuleMembercommand).
+
 Nested modules in the module session state are available to the root module, but they are not returned by a Get-Module command in the caller's session state.
+
 Scripts (.ps1) that are listed in the NestedModules key are run in the module's session state, not in the caller's session state.
 To run a script in the caller's session state, list the script file name in the value of the ScriptsToProcess key in the manifest.
 
@@ -9530,10 +10267,12 @@ By default, this cmdlet does not generate any output.
 Specifies the path and file name of the new module manifest.
 Enter a path and file name with a .psd1 file name extension, such as "$pshome\Modules\MyModule\MyModule.psd1".
 This parameter is required.
-If you specify the path to an existing file, New-ModuleManifest replaces the file without warning unless the file has the read-only attribute.
-The manifest should be located in the module's directory, and the manifest file name should be the same as the module directory name, but with a .psd1 file name extension.
-Note: You cannot use variables, such as $pshome or $home, in response to a prompt for a Path parameter value.
 
+If you specify the path to an existing file, New-ModuleManifest replaces the file without warning unless the file has the read-only attribute.
+
+The manifest should be located in the module's directory, and the manifest file name should be the same as the module directory name, but with a .psd1 file name extension.
+
+Note: You cannot use variables, such as $pshome or $home, in response to a prompt for a Path parameter value.
 To use a variable, include the Path parameter in the command.
 
 
@@ -9546,6 +10285,7 @@ To use a variable, include the Path parameter in the command.
 Specifies the name of the Windows PowerShell host program that the module requires.
 Enter the name of the host program, such as "Windows PowerShell ISE Host" or "ConsoleHost".
 Wildcards are not permitted.
+
 To find the name of a host program, in the program, type "$host.name".
 
 
@@ -9597,6 +10337,7 @@ Valid values are x86, AMD64, IA64, and None (unknown or unspecified).
 Specifies the assembly (.dll) files that the module requires.
 Enter the assembly file names.
 Windows PowerShell loads the specified assemblies before updating types or formats, importing nested modules, or importing the module file that is specified in the value of the RootModule key.
+
 Use this parameter to list all the assemblies that the module requires, including assemblies that must be loaded to update any formatting or type files that are listed in the FormatsToProcess or TypesToProcess keys, even if those assemblies are also listed as binary modules in the NestedModules key.
 
 
@@ -9607,13 +10348,14 @@ Use this parameter to list all the assemblies that the module requires, includin
 ```
 
 Specifies modules that must be in the global session state.
-
 If the required modules are not in the global session state, Windows PowerShell imports them.
 If the required modules are not available, the Import-Module command fails.
+
 Enter each module name as a string or as a hash table with ModuleName and ModuleVersion keys.
 The hash table can also have an optional GUID key.
 You can combine strings and hash tables in the parameter value.
 For more information, see the examples.
+
 In Windows PowerShell 2.0, Import-Module does not import required modules automatically.
 It just verifies that the required modules are in the global session state.
 
@@ -9626,6 +10368,7 @@ It just verifies that the required modules are in the global session state.
 
 Specifies script (.ps1) files that run in the caller's session state when the module is imported.
 You can use these scripts to prepare an environment, just as you might use a login script.
+
 To specify scripts that run in the module's session state, use the NestedModules key.
 
 
@@ -9636,6 +10379,7 @@ To specify scripts that run in the module's session state, use the NestedModules
 ```
 
 Specifies the type files (.ps1xml) that run when the module is imported.
+
 When you import the module, Windows PowerShell runs the Update-TypeData cmdlet with the specified files.
 Because type files are not scoped, they affect all session states in the session.
 
@@ -9649,8 +10393,10 @@ Because type files are not scoped, they affect all session states in the session
 
 Specifies the variables that the module exports.
 Wildcards are permitted.
+
 You can use this parameter to restrict the variables that are exported by the module.
 It can remove variables from the list of exported variables, but it cannot add variables to the list.
+
 If you omit this parameter, New-ModuleManifest creates a VariablesToExport key with a value of * (all), meaning that all variables that are exported by the module are exported by the manifest.
 
 
@@ -9663,7 +10409,9 @@ If you omit this parameter, New-ModuleManifest creates a VariablesToExport key w
 Specifies a prefix that is prepended to the nouns of all commands in the module when they are imported into a session.
 Enter a prefix string.
 Prefixes prevent command name conflicts in a user's session.
+
 Module users can override this prefix by specifying the Prefix parameter of the Import-Module cmdlet.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -9678,8 +10426,10 @@ Enter the file name of a script (.ps1), a script module (.psm1), a module manife
 When the module is imported, the members that are exported from the root module file are imported into the caller's session state.
 
 If a module has a manifest file and no root file has been designated in the RootModule key, the manifest becomes the primary file for the module, and the module becomes a "manifest module" (ModuleType = Manifest).
+
 To export members from .psm1 or .dll files in a module that has a manifest, the names of those files must be specified in the values of the RootModule or NestedModules keys in the manifest.
 Otherwise, their members are not exported.
+
 Note: In Windows PowerShell 2.0, this key was called "ModuleToProcess." You can use the "RootModule" parameter name or its "ModuleToProcess" alias.
 
 
@@ -9718,13 +10468,17 @@ However, if you use the PassThru parameter, it generates a System.String object 
 ### NOTES
 Module manifests are usually optional.
 However, a module manifest is required to export an assembly that is installed in the global assembly cache.
+
 To add or change files in the $pshome\Modules directory (%Windir%\System32\WindowsPowerShell\v1.0\Modules), start Windows PowerShell with the "Run as administrator" option.
+
 In Windows PowerShell 2.0, many parameters of New-ModuleManifest are mandatory, even though they are not required in a module manifest.
 In Windows PowerShell 3.0, only the Path parameter is  mandatory.
+
 A "session" is an instance of the Windows PowerShell execution environment.
 A session can have one or more session states.
 By default, a session has only a global session state, but each imported module has its own session state.
 Session states allow the commands in a module to run without affecting the global session state.
+
 The "caller's session state" is the session state into which a module is imported.
 Typically, it refers to the global session state, but when a module imports nested modules, the "caller" is the module and the "caller's session state" is the module's session state.
 
@@ -9789,6 +10543,7 @@ PS C:\>New-ModuleManifest -Path C:\Users\User01\Documents\WindowsPowerShell\Modu
 ```
 This command creates a new module manifest in the file that is specified by the Path parameter.
 The PassThru parameter sends the output to the pipeline as well as to the file.
+
 The output shows the default values of all keys in the manifest.
 
 
@@ -9810,7 +10565,9 @@ PS C:\>New-ModuleManifest -RequiredModules BitsTransfer,@{ModuleName="PSSchedule
 ```
 This example shows how to use the string and hash table formats of the  ModuleList, RequiredModules, and NestedModules parameter.
 You can combine strings and hash tables in the same parameter value.
+
 This command commands creates a module manifest for a module that requires the BitsTransfer  and PSScheduledJob modules.
+
 The command uses a string format to specify the name of the BitsTransfer module and the hash table format to specify the name, a GUID, and a version of the PSScheduledJob module.
 
 
@@ -9822,9 +10579,11 @@ PS C:\>New-ModuleManifest -HelpInfoUri "http://http://go.microsoft.com/fwlink/?L
 ```
 This example shows creates a module manifest for a module that supports the Updatable Help feature.
 This feature allows users to use the Update-Help and Save-Help cmdlets, which download help files for the module from the Internet and install them in the module.
+
 The command uses the HelpInfoUri parameter to create a HelpInfoUri key in the module manifest.
 The value of the parameter and the key must begin with "http" or "https".
 This value tells the Updatable Help system where to find the HelpInfo XML updatable help information file for the module.
+
 For information about Updatable Help, see about_Updatable_Help (http://go.microsoft.com/fwlink/?LinkID=235801).
 For information about the HelpInfo XML file, see "Supporting Updatable Help" in MSDN.
 
@@ -9898,9 +10657,11 @@ Microsoft.PowerShell.Management                             4.0…
 ```
 This example shows how to get the module manifest values of a module -- essentially a "Get-ModuleManifest" command.
 Because the values in the module manifest are reflected in the values of properties of the module object, you can get the module manifest values by displaying the module object properties.
+
 The first command uses the Get-Module cmdlet to get the PSScheduledJob module.
 The command uses the List parameter, because the module is installed, but not imported into the session.
 The command sends the module to the Format-List cmdlet, which displays all properties and values of the module object in a list.
+
 The second command uses the Format-Table cmdlet to display the PowerShellVersion property of all installed modules in a table.
 The PowerShellVersion property is defined in the module manifest.
 
@@ -9931,12 +10692,13 @@ Creates a persistent connection to a local or remote computer.
 
 ### DESCRIPTION
 The New-PSSession cmdlet creates a Windows PowerShell session (PSSession) on a local or remote computer.
-
 When you create a PSSession, Windows PowerShell establishes a persistent connection to the remote computer.
+
 Use a PSSession to run multiple commands that share data, such as a function or the value of a variable.
 To run commands in a PSSession, use the Invoke-Command cmdlet.
 To use the PSSession to interact directly with a remote computer, use the Enter-PSSession cmdlet.
 For more information, see about_PSSessions (http://go.microsoft.com/fwlink/?LinkID=135181).
+
 You can run commands on a remote computer without creating a PSSession by using the ComputerName parameters of Enter-PSSession or Invoke-Command.
 When you use the ComputerName parameter, Windows PowerShell creates a temporary connection that is used for the command and is then closed.
 
@@ -9949,8 +10711,10 @@ When you use the ComputerName parameter, Windows PowerShell creates a temporary 
 ```
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
+
 When you use the ConnectionURI parameter, the remote destination can return an instruction to redirect to a different URI.
 By default, Windows PowerShell does not redirect connections, but you can use this parameter to allow it to redirect the connection.
+
 You can also limit the number of times the connection is redirected by changing the MaximumConnectionRedirectionCount session option value.
 Use the  MaximumRedirection parameter of the New-PSSessionOption cmdlet or set the MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable.
 The default value is 5.
@@ -9966,10 +10730,12 @@ The default value is 5.
 
 Specifies the application name segment of the connection URI.
 Use this parameter to specify the application name when you are not using the ConnectionURI parameter in the command.
+
 The default value is the value of the $PSSessionApplicationName preference variable on the local computer.
 If this preference variable is not defined, the default value is "WSMAN".
 This value is appropriate for most uses.
 For more information, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 The WinRM service uses the application name to select a listener to service the connection request.
 The value of this parameter should match the value of the URLPrefix property of a listener on the remote computer.
 
@@ -9982,11 +10748,11 @@ The value of this parameter should match the value of the URLPrefix property of 
 ```
 
 Specifies the mechanism that is used to authenticate the user's credentials.
-
- Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
-
+Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
 The default value is "Default".
+
 For more information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkID=144382.
+
 Caution: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -10001,8 +10767,10 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies the digital public key certificate (X509) of a user account that has permission to perform this action.
 Enter the certificate thumbprint of the certificate.
+
 Certificates are used in client certificate-based authentication.
 They can be mapped only to local user accounts; they do not work with domain accounts.
+
 To get a certificate, use the Get-Item or Get-ChildItem command in the Windows PowerShell Cert: drive.
 
 
@@ -10019,13 +10787,16 @@ To get a certificate, use the Get-Item or Get-ChildItem command in the Windows P
 Creates a persistent connection (PSSession) to the specified computer.
 If you enter multiple computer names, New-PSSession creates multiple PSSessions, one for each computer.
 The default is the local computer.
+
 Type the NetBIOS name, an IP address, or a fully qualified domain name of one or more remote computers.
 To specify the local computer, type the computer name, "localhost", or a dot (.).
 When the computer is in a different domain than the user, the fully qualified domain name is required.
 You can also pipe a computer name (in quotes) to New-PSSession.
+
 To use an IP address in the value of the ComputerName parameter, the command must include the Credential parameter.
 Also, the computer must be configured for HTTPS transport or the IP address of the remote computer must be included in the WinRM TrustedHosts list on the local computer.
 For instructions for adding a computer name to the TrustedHosts list, see "How to Add  a Computer to the Trusted Host List" in about_Remote_Troubleshooting (http://go.microsoft.com/fwlink/?LinkID=135188).
+
 Note:  To include the local computer in the value of the ComputerName parameter, start Windows PowerShell with the "Run as administrator" option.
 
 
@@ -10041,10 +10812,13 @@ Note:  To include the local computer in the value of the ComputerName parameter,
 ```
 
 Specifies the session configuration that is used for the new PSSession.
+
 Enter a configuration name or the fully qualified resource Uniform Resource Identifier (URI) for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/PowerShell.
+
 The session configuration for a session is located on the remote computer.
 If the specified session configuration does not exist on the remote computer, the command fails.
+
 The default value is the value of the $PSSessionConfigurationName preference variable on the local computer.
 If this preference variable is not set, the default is Microsoft.PowerShell.
 For more information, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
@@ -10062,15 +10836,20 @@ For more information, see about_Preference_Variables (http://go.microsoft.com/fw
 
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session.
 The URI must be fully qualified.
-
 The format of this string is as follows:
+
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
+
 The default value is as follows:
+
 http://localhost:5985/WSMAN
+
 If you do not specify a ConnectionURI, you can use the UseSSL, ComputerName, Port, and ApplicationName parameters to specify the ConnectionURI values.
+
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
 
 
@@ -10087,7 +10866,9 @@ If the destination computer redirects the connection to a different URI, Windows
 
 Specifies a user account that has permission to perform this action.
 The default is the current user.
+
 Type a user name, such as "User01", "Domain01\User01", or "User@Domain.com", or enter a PSCredential object, such as one returned by the Get-Credentiall cmdlet.
+
 When you type a user name, you will be prompted for a password.
 
 
@@ -10096,21 +10877,28 @@ When you type a user name, you will be prompted for a password.
 Adds an interactive security token to loopback sessions.
 The interactive token lets you run commands in the loopback session that get data from other computers.
 For example, you can run a command in the session that copies XML files from a remote computer to the local computer.
+
 A "loopback session" is a PSSession that originates and terminates on the same computer.
 To create a loopback session, omit the ComputerName parameter or set its value to ".", "localhost", or the name of the local computer.
+
 By default, loopback sessions are created with a network token, which might not provide sufficient permission to authenticate to remote computers.
+
 The EnableNetworkAccess parameter is effective only in loopback sessions.
 If you use the EnableNetworkAccess parameter when creating a session on a remote computer, the command succeeds, but the parameter is ignored.
+
 You can also allow remote access in a loopback session by using the CredSSP value of the Authentication parameter, which delegates the session credentials to other computers.
+
 To protect the computer from malicious access, disconnected loopback sessions that have interactive tokens (those created with the EnableNetworkAccess parameter) can be reconnected only from the computer on which the session was created.
 Disconnected sessions that use CredSSP authentication can be reconnected from other computers.
 For more information, see Disconnect-PSSession.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### Name [String[]] = Session<n>
 
 Specifies a friendly name for the PSSession.
+
 You can use the name to refer to the PSSession when using other cmdlets, such as Get-PSSession and Enter-PSSession.
 The name is not required to be unique to the computer or the current session.
 
@@ -10122,16 +10910,18 @@ The name is not required to be unique to the computer or the current session.
 ```
 
 Specifies the network port on the remote computer that is used for this connection.
-
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port.
 Use the following commands to configure the listener:
+
 1.
 winrm delete winrm/config/listener?Address=*+Transport=HTTP
+
 2.
 winrm create winrm/config/listener?Address=*+Transport=HTTP @{Port="\<port-number\>"}
+
 Do not use the Port parameter unless you must.
 The port setting in the command applies to all computers or sessions on which the command runs.
 An alternate port setting might prevent the command from running on all computers.
@@ -10149,7 +10939,9 @@ An alternate port setting might prevent the command from running on all computer
 
 Uses the specified PSSession as a model for the new PSSession.
 This parameter creates new PSSessions with the same properties as the specified PSSessions.
+
 Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command.
+
 The resulting PSSessions have the same computer name, application name, connection URI, port, configuration name, throttle limit, and Secure Sockets Layer (SSL) value as the originals, but they have a different display name, ID, and instance ID (GUID).
 
 
@@ -10161,10 +10953,11 @@ The resulting PSSessions have the same computer name, application name, connecti
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -10177,6 +10970,7 @@ For more information about session configurations, see about_Session_Configurati
 
 Specifies the maximum number of concurrent connections that can be established to run this command.
 If you omit this parameter or enter a value of 0  (zero), the default value, 32, is used.
+
 The throttle limit applies only to the current command, not to the session or to the computer.
 
 
@@ -10188,8 +10982,10 @@ The throttle limit applies only to the current command, not to the session or to
 
 Uses the Secure Sockets Layer (SSL) protocol to establish a connection to the remote computer.
 By default, SSL is not used.
+
 WS-Management encrypts all Windows PowerShell content transmitted over the network.
 UseSSL is an additional protection that sends the data across an HTTPS connection instead of an HTTP connection.
+
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
 
 
@@ -10208,7 +11004,9 @@ You can pipe a computer name (string), ConnectionURI (URI), or session (PSSessio
 This cmdlet uses the Windows PowerShell remoting infrastructure.
 To use this cmdlet, the local computer and any remote computers must be configured for Windows PowerShell remoting.
 For more information, see about_Remote_Requirements (http://go.microsoft.com/fwlink/?LinkID=135187).
+
 To create a PSSession on the local computer, start Windows PowerShell with the "Run as administrator" option.
+
 When you are finished with the PSSession, use the Remove-PSSession cmdlet to delete the PSSession and release its resources.
 
 
@@ -10220,6 +11018,7 @@ PS C:\>$s = New-PSSession
 
 ```
 This command creates a new PSSession on the local computer and saves the PSSession in the $s variable.
+
 You can now use this PSSession to run commands on the local computer.
 
 
@@ -10234,6 +11033,7 @@ PS C:\>$Server01 = New-PSSession -ComputerName Server01
 
 ```
 This command creates a new PSSession on the Server01 computer and saves it in the $Server01 variable.
+
 When creating multiple PSSessions, assign them to variables with useful names.
 This will help you manage the PSSessions in subsequent commands.
 
@@ -10249,8 +11049,10 @@ PS C:\>$s1, $s2, $s3 = New-PSSession -ComputerName Server1,Server2,Server3
 
 ```
 This command creates three new PSSessions, one on each of the computers specified by the ComputerName parameter.
+
 The command uses the assignment operator (=) to assign the new PSSessions to an array of variables: $s1, $s2, $s3.
 It assigns the Server01 PSSession to $s1, the Server02 PSSession to $s2, and the Server03 PSSession to $s3.
+
 When you assign multiple objects to an array of variables, Windows PowerShell assigns each object to a variable in the array respectively.
 If there are more objects than variables, all remaining objects are assigned to the last variable.
 If there are more variables than objects, the remaining variables are empty (null).
@@ -10268,6 +11070,7 @@ PS C:\>New-PSSession -ComputerName Server01 -Port 8081 -UseSSL -ConfigurationNam
 ```
 This command creates a new PSSession on the Server01 computer that connects to server port 8081 and uses the SSL protocol.
 The new PSSession uses an alternate session configuration called "E12".
+
 Before setting the port, you must configure the WinRM listener on the remote computer to listen on port 8081.
 For more information, see the description of the Port parameter.
 
@@ -10284,6 +11087,7 @@ PS C:\>New-PSSession -Session $s -Credential Domain01\User01
 ```
 This command creates a new PSSession with the same properties as an existing PSSession.
 You can use this command format when the resources of an existing PSSession are exhausted and a new PSSession is needed to offload some of the demand.
+
 The command uses the Session parameter of New-PSSession to specify the PSSession saved in the $s variable.
 It uses the credentials of the Domain1\Admin01 user to complete the command.
 
@@ -10299,9 +11103,12 @@ PS C:\>$global:s = New-PSSession -ComputerName Server1.Domain44.Corpnet.Fabrikam
 
 ```
 This example shows how to create a PSSession with a global scope on a computer in a different domain.
+
 By default, PSSessions created at the command line are created with local scope and PSSessions created in a script have script scope.
+
 To create a PSSession with global scope, create a new PSSession and then store the PSSession in a variable that is cast to a global scope.
 In this case, the $s variable is cast to a global scope.
+
 The command uses the ComputerName parameter to specify the remote computer.
 Because the computer is in a different domain than the user account, the full name of the computer is specified along with the credentials of the user.
 
@@ -10318,6 +11125,7 @@ PS C:\>$rs = Get-Content C:\Test\Servers.txt | New-PSSession -ThrottleLimit 50
 ```
 This command creates a PSSession on each of the 200 computers listed in the Servers.txt file and it stores the resulting PSSession in the $rs variable.
 The PSSessions have a throttle limit of 50.
+
 You can use this command format when the names of computers are stored in a database, spreadsheet, text file, or other text-convertible format.
 
 
@@ -10348,12 +11156,16 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock {Get-Process PowerShell} -AsJob
 
 ```
 These commands create a set of PSSessions and then run a background job in each of the PSSessions.
+
 The first command creates a new PSSession on each of the computers listed in the Servers.txt file.
 It uses the New-PSSession cmdlet to create the PSSession.
 The value of the ComputerName parameter is a command that uses the Get-Content cmdlet to get the list of computer names the Servers.txt file.
+
 The command uses the Credential parameter to create the PSSessions with the permission of a domain administrator, and it uses the ThrottleLimit parameter to limit the command to 16 concurrent connections.
 The command saves the PSSessions in the $s variable.
+
 The second command uses the AsJob parameter of the Invoke-Command cmdlet to start a background job that runs a "Get-Process PowerShell" command in each of the PSSessions in $s.
+
 For more information about background jobs, see about_Jobs (http://go.microsoft.com/fwlink/?LinkID=113251) and about_Remote_Jobs (http://go.microsoft.com/fwlink/?LinkID=135184).
 
 
@@ -10382,8 +11194,10 @@ PS C:\>New-PSSession -ConnectionUri https://management.exchangelabs.com/Manageme
 
 ```
 This example shows how to create a session option object and use the  SessionOption parameter.
+
 The first command uses the New-PSSessionOption cmdlet to create a session option.
 It saves the resulting SessionOption object in the $so parameter.
+
 The second command uses the option in a new session.
 The command uses the New-PSSession cmdlet to create a new session.
 The value of the SessionOption parameter is the SessionOption object in the $so variable.
@@ -10426,18 +11240,22 @@ Creates a file that defines a session configuration.
 ### DESCRIPTION
 The New-PSSessionConfigurationFile cmdlet creates a file of settings that define a session configuration and the environment of sessions that are created by using the session configuration.
 To use the file in a session configuration, use the Path parameters of the Register-PSSessionConfiguration or Set-PSSessionConfiguration cmdlets.
+
 The session configuration file that New-PSSessionConfigurationFile creates is a human-readable text file that contains a hash table of the session configuration properties and values.
 The file has a .pssc file name extension.
 
 All parameters of New-PSSessionConfigurationFile are optional, except for the Path parameter.
 If you omit a parameter, the corresponding key in the session configuration file is commented-out, except where noted in the parameter description.
+
 A "session configuration" also known as an "endpoint" is a collection of settings on the local computer that define the environment for Windows PowerShell sessions (PSSessions) that connect to (terminate at) the computer.
 All PSSessions use a session configuration.
 To specify a particular session configuration, use the ConfigurationName parameter of cmdlets that create a session, such as the New-PSSession cmdlet.
 
 A session configuration file makes it easy to define a session configuration without complex scripts or code assemblies.
 The settings in the file are used in addition to the optional startup script and any assemblies in the session configuration.
+
 For more information about session configurations and session configuration files, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152) and about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -10450,16 +11268,21 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Adds the specified aliases to sessions that use the session configuration.
 Enter a hash table with the following keys:
+
 -- Name: Name of the alias.
 This key is required.
+
 -- Value: The command that the alias represents.
 This key is required.
+
 -- Description: A text string that describes the alias.
 This key is optional.
+
 -- Options: Alias options.
 This key is optional.
 The default value is None.
 Valid values are None, ReadOnly, Constant, Private, or AllScope.
+
 For example: @{Name="hlp";Value="Get-Help";Description="Gets help";Options="ReadOnly"}
 
 
@@ -10502,6 +11325,7 @@ The value of this parameter is visible in the session configuration file, but it
 
 Adds a copyright to the session configuration file.
 The value of this parameter is visible in the session configuration file, but it is not a property of the session configuration object.
+
 If you omit this parameter, New-PSSessionConfigurationFile generates a copyright statement by using the value of the Author parameter.
 
 
@@ -10523,6 +11347,7 @@ The value of this parameter is visible in the session configuration file, but it
 
 Adds environment variables to the session.
 Enter a hash table in which the keys are the environment variable names and the values are the environment variable values.
+
 For example: EnvironmentVariables=@{TestShare="\\\\Server01\TestShare"}
 
 
@@ -10555,15 +11380,19 @@ The value of this parameter must be a full or absolute path to the formatting fi
 
 Adds the specified functions to sessions that use the session configuration.
 Enter a hash table with the following keys:
+
 -- Name: Name of the function.
 This key is required.
+
 -- ScriptBlock: Function body.
 Enter a script block.
 This key is required.
+
 -- Options: Function options.
 This key is optional.
 The default value is None.
 Valid values are None, ReadOnly, Constant, Private, or AllScope.
+
 For example: @{Name="Get-PowerShellProcess";ScriptBlock={Get-Process PowerShell};Options="AllScope"}
 
 
@@ -10586,18 +11415,23 @@ To create a new GUID in Windows PowerShell, type "[guid]::NewGuid()".
 
 Determines which elements of the Windows PowerShell language are permitted in sessions that use this session configuration.
 You can use this parameter to restrict the commands that particular users can run on the computer.
+
 Valid values are:
+
 -- FullLanguage: All language elements are permitted.
+
 -- ConstrainedLanguage: Commands that contain scripts to be evaluated are not allowed.
 The ConstrainedLanguage mode restricts user access to Microsoft .NET Framework types, objects, or methods.
+
 -- NoLanguage: Users may run cmdlets and functions, but are not permitted to use any language elements, such as script blocks, variables, or operators.
+
 
 -- RestrictedLanguage: Users may run cmdlets and functions, but are not permitted to use script blocks or variables except for the following permitted variables: $PSCulture, $PSUICulture, $True, $False, and  $Null.
 Users may use only the basic comparison operators (-eq, -gt, -lt).
 Assignment statements, property references, and method calls are not permitted.
+
 The default value of the LanguageMode parameter depends on the value of the SessionType parameter.
- 
-                        
+
 -- Empty                            :  NoLanguage
 -- RestrictedRemoteServer  :  NoLanguage
 -- Default                          :  FullLanguage
@@ -10612,13 +11446,17 @@ The default value of the LanguageMode parameter depends on the value of the Sess
 Specifies the modules and snap-ins that are automatically imported into sessions that use the session configuration.
 
 By default, only the Microsoft.PowerShell.Core snap-in is imported into remote sessions, but unless the cmdlets are excluded, users can use the Import-Module and Add-PSSnapin cmdlets to add modules and snap-ins to the session.
+
 Each module or snap-in in the value of this parameter can be represented by a string or as a hash table.
 A module string consists only of the name of the module or snap-in.
 A module hash table can include ModuleName, ModuleVersion, and GUID keys.
 Only the ModuleName key is required.
+
 For example, the following value consists of a string and a hash table.
 Any combination of strings and hash tables, in any order, is valid.
+
 "TroubleshootingPack", @{ModuleName="PSDiagnostics"; ModuleVersion="1.0.0.0";GUID="c61d6278-02a3-4618-ae37-a524d40a7f44"},
+
 The value of the ModulesToImport parameter of the Register-PSSessionConfiguration cmdlet takes precedence over the value of the ModulesToImport key in the session configuration file.
 
 
@@ -10644,6 +11482,7 @@ The file must have a .pssc file name extension.
 Specifies the version of the Windows PowerShell engine in sessions that use the session configuration.
 Valid values are 2.0 and 3.0.
 If you omit this parameter, the PowerShellVersion key is commented-out and newest version of Windows PowerShell runs in the session.
+
 The value of the PSVersion parameter of the Register-PSSessionConfiguration cmdlet takes precedence over the value of the PowerShellVersion key in the session configuration file.
 
 
@@ -10655,7 +11494,6 @@ The value of the PSVersion parameter of the Register-PSSessionConfiguration cmdl
 
 Specifies the version of the session configuration file schema.
 The default value is "1.0.0.0".
-
 
 
 #### ScriptsToProcess [String[]]
@@ -10678,12 +11516,15 @@ The value of this parameter must be a full or absolute path to script file names
 Specifies the type of session that is created by using the session configuration.
 The default value is Default.
 Valid values are:
+
 -- Empty: No modules or snap-ins are added to session by default.
 Use the parameters of this cmdlet to add modules, functions, scripts, and other features to the session.
 This option is designed for you to create custom sessions by adding selected command.
 If you do not add commands to an empty session, the session is limited to expressions and might not be usable.
+
 -- Default: Adds the Microsoft.PowerShell.Core snap-in to the session.
 This snap-in includes the Import-Module and Add-PSSnapin cmdlets that users can use to import other modules and snap-ins unless you explicitly prohibit the use of the cmdlets.
+
 -- RestrictedRemoteServer: Includes only the following proxy functions:  Exit-PSSession,Get-Command, Get-FormatData, Get-Help, Measure-Object, Out-Default, and Select-Object.
 Use the parameters of this cmdlet to add modules, functions, scripts, and other features to the session.
 
@@ -10707,15 +11548,18 @@ The value of this parameter must be a full or absolute path to type file names.
 
 Adds the specified variables to sessions that use the session configuration.
 Enter a hash table with the following keys:
+
 -- Name: Name of the variable.
 This key is required.
+
 -- Value: Variable value.
 This key is required.
- 
+
 -- Options: Variable options.
 This key is optional.
 The default value is None.
 Valid values are None, ReadOnly, Constant, Private, or AllScope.
+
 For example: @{Name="WarningPreference";Value="SilentlyContinue";Options="AllScope"}
 
 
@@ -10728,7 +11572,9 @@ For example: @{Name="WarningPreference";Value="SilentlyContinue";Options="AllSco
 Limits the aliases in the session to those specified in the value of this parameter, plus any aliases that you define in the AliasDefinition parameter.
 Wildcards are supported.
 By default, all aliases that are defined by the Windows PowerShell engine and all aliases that modules export are visible in the session.
+
 For example: VisibleAliases="gcm", "gp"
+
 When any Visible parameter is included in the session configuration file, Windows PowerShell removes the Import-Module cmdlet and its "ipmo" alias from the session.
 
 
@@ -10740,8 +11586,10 @@ When any Visible parameter is included in the session configuration file, Window
 
 Limits the cmdlets in the session to those specified in the value of this parameter.
 Wildcards are supported.
+
 By default, all cmdlets that modules in the session export are visible in the session.
 Use the SessionType and ModulesToImport parameters to determine which modules and snap-ins are imported into the session.
+
 When any Visible parameter is included in the session configuration file, Windows PowerShell removes the Import-Module cmdlet and its "ipmo" alias from the session.
 
 
@@ -10753,8 +11601,10 @@ When any Visible parameter is included in the session configuration file, Window
 
 Limits the functions in the session to those specified in the value of this parameter, plus any functions that you define in the FunctionDefinition parameter.
 Wildcards are supported.
+
 By default, all functions that modules in the session export are visible in the session.
 Use the SessionType and ModulesToImport parameters to determine which modules and snap-ins are imported into the session.
+
 When any Visible parameter is included in the session configuration file, Windows PowerShell removes the Import-Module cmdlet and its "ipmo" alias from the session.
 
 
@@ -10766,8 +11616,10 @@ When any Visible parameter is included in the session configuration file, Window
 
 Limits the Windows PowerShell providers in the session to those specified in the value of this parameter.
 Wildcards are supported.
+
 By default, all providers that modules in the session export are visible in the session.
 Use the SessionType and ModulesToImport parameters to determine which modules and snap-ins are imported into the session.
+
 When any Visible parameter is included in the session configuration file, Windows PowerShell removes the Import-Module cmdlet and its "ipmo" alias from the session.
 
 
@@ -10786,11 +11638,14 @@ This cmdlet does not generate any output.
 The Visible parameters, such as VisibleCmdlets and VisibleProviders, do not import items into the session.
 Instead, they select from among the items imported into the session.
 For example, if the value of the VisibleProviders parameter is the Certificate provider, but the ModulesToImport parameter doesn't specify the Microsoft.PowerShell.Security module that contains the Certificate provider, the Certificate provider is not visible in the session.
+
 New-PSSessionConfigurationFile creates a session configuration file with a .pssc file name extension in the path that you specify in the Path parameter.
 When you use the session configuration file to create a session configuration, the Register-PSSessionConfiguration cmdlet copies the configuration file and saves an active copy of the file in the SessionConfig subdirectory of the $pshome directory.
+
 The ConfigFilePath property of the session configuration contains the fully qualified path to the active session configuration file.
 You can edit the active configuration file in the $pshome directory at any time, either by using Windows PowerShell ISE or any text editor.
 The changes that you make affect all new sessions that use the session configuration, but not existing sessions.
+
 Before using an edited session configuration file, use the Test-PSSessionConfigurationFile cmdlet to verify that the configuration file entries are valid.
 
 ### EXAMPLES
@@ -10801,6 +11656,7 @@ PS C:\>New-PSSessionConfigurationFile -ModulesToImport DMSCmdlets, *Microsoft* -
 
 ```
 The following command creates a session configuration file for IT technical sessions on a cloud-based document management server.
+
 You can use the resulting file to create a customized session configuration on the server.
 The ACLs on the session configuration determine who can use the session configuration to create a session on the server.
 
@@ -11012,6 +11868,7 @@ ScriptsToProcess = 'C:\WINDOWS\System32\WindowsPowerShell\v1.0\SessionConfig\Get
 ```
 This example displays a New-PSSessionConfigurationFile command that uses all of the cmdlet parameters.
 It is included to show the correct input format for each parameter.
+
 The resulting SampleFile.pssc is displayed in the output.
 
 
@@ -11049,16 +11906,18 @@ The resulting SampleFile.pssc is displayed in the output.
 ### SYNOPSIS
 Creates an object that contains advanced options for a PSSession.
 
-
 ### DESCRIPTION
 The New-PSSessionOption cmdlet creates an object that contains advanced options for a user-managed session ("PSSession").
 You can use the object as the value of the SessionOption parameter of cmdlets that create a PSSession, such as New-PSSession, Enter-PSSession, and Invoke-Command.
+
 Without parameters, New-PSSessionOption generates an object that contains the default values for all of the options.
 Because all of the properties can be edited, you can use the resulting object as a template, and create standard option objects for your enterprise.
+
 You can also save a session option object in the $PSSessionOption preference variable.
 The values of this variable establish new default values for the session options.
 They effective when no session options are set for the session and they take precedence over options set in the session configuration, but you can override them by specifying session options or a session option object in a cmdlet that creates a session.
 For more information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 When you use a session option object in a cmdlet that creates a session, the session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -11074,8 +11933,10 @@ For more information about session configurations, see about_Session_Configurati
 Specifies a primitive dictionary that is sent to the remote session.
 Commands and scripts in the remote session, including startup scripts in the session configuration, can find this dictionary in the ApplicationArguments property of the $PSSenderInfo automatic variable.
 You can use this parameter to send data to the remote session.
+
 A primitive dictionary is like a hash table, but it contains keys that are case-insensitive strings and values that can be serialized and deserialized during Windows PowerShell remoting handshakes.
 If you enter a hash table for the value of this parameter, Windows PowerShell converts it to a primitive dictionary.
+
 For more information, see about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175), about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152), and about_Automatic_Variables (http://go.microsoft.com/fwlink/?LinkID=113212).
 
 
@@ -11087,6 +11948,7 @@ For more information, see about_Hash_Tables (http://go.microsoft.com/fwlink/?Lin
 
 Determines how long Windows PowerShell waits for a cancel operation (CTRL + C)  to complete before terminating it.
 Enter a value in milliseconds.
+
 The default value is 60000 (one minute).
 A value of 0 (zero) means no timeout; the command continues indefinitely.
 
@@ -11099,6 +11961,7 @@ A value of 0 (zero) means no timeout; the command continues indefinitely.
 
 Specifies the culture to use for the session.
 Enter a culture name in \<languagecode2\>-\<country/regioncode2\> format, such as "ja-jP",  a variable that contains a CultureInfo object, or a command that gets a CultureInfo object, such as "get-culture".
+
 The default value is $null, and the culture that is set in the operating system  is used in the session.
 
 
@@ -11110,20 +11973,27 @@ The default value is $null, and the culture that is set in the operating system 
 
 Determines how long the session stays open if the remote computer does not receive any communication from the local computer, including the heartbeat signal.
 When the interval expires, the session closes.
+
 The idle timeout value is of significant importance if you intend to disconnect and reconnect to a session.
 You can reconnect only if the session has not timed out.
+
 Enter a value in milliseconds.
 The minimum value is 60000 (1 minute).
 The maximum is the value of the MaxIdleTimeoutms property of the session configuration.
 The default value, -1, does not set an idle timeout.
+
 The session uses the idle timeout that is set in the session options, if any.
 If none is set (-1), the session uses the value of the IdleTimeoutMs property of the session configuration or the WSMan shell timeout value (WSMan:\\<ComputerName\>\Shell\IdleTimeout), whichever is shortest.
+
 If the idle timeout set in the session options exceeds the value of the MaxIdleTimeoutMs property of the session configuration, the command to create a session fails.
+
 The IdleTimeoutMs value of the default Microsoft.PowerShell session configuration is 7200000 milliseconds (2 hours).
 Its MaxIdleTimeoutMs value is 2147483647 milliseconds (\>24 days).
 The default value of the WSMan shell idle timeout (WSMan:\\<ComputerName\>\Shell\IdleTimeout) is 7200000 milliseconds (2 hours).
+
 The idle timeout value of a session can also be changed when disconnecting from a session or reconnecting to a session.
 For more information, see Disconnect-PSSession and Connect-PSSession.
+
 In Windows PowerShell 2.0, the default value of the IdleTimeout parameter is 240000 (4 minutes).
 
 
@@ -11136,6 +12006,7 @@ In Windows PowerShell 2.0, the default value of the IdleTimeout parameter is 240
 Specifies the maximum number of bytes that the local computer can receive from the remote computer in a single command.
 Enter a value in bytes.
 By default, there is no data size limit.
+
 This option is designed to protect the resources on the client computer.
 
 
@@ -11148,6 +12019,7 @@ This option is designed to protect the resources on the client computer.
 Specifies the maximum size of an object that the local computer can receive from the remote computer.
 This option is designed to protect the resources on the client computer.
 Enter a value in bytes.
+
 In Windows PowerShell 2.0, if you omit this parameter, there is no object size limit.
 Beginning in Windows PowerShell 3.0, if you omit this parameter, the default value is 200 MB.
 
@@ -11162,6 +12034,7 @@ Beginning in Windows PowerShell 3.0, if you omit this parameter, the default val
 Determines how many times Windows PowerShell redirects a connection to an alternate Uniform Resource Identifier (URI) before the connection fails.
 The default value is 5.
 A value of 0 (zero) prevents all redirection.
+
 This option is used in the session only when the AllowRedirection parameter is used in the command that creates the session.
 
 
@@ -11203,6 +12076,7 @@ As a result, the session might be created faster, but user-specific registry set
 Determines how long the client computer waits for the session connection to be established.
 When the interval expires, the command to establish the connection fails.
 Enter a value in milliseconds.
+
 The default value is 180000 (3 minutes).
 A value of 0 (zero) means no time-out; the command continues indefinitely.
 
@@ -11216,6 +12090,7 @@ A value of 0 (zero) means no time-out; the command continues indefinitely.
 Determines the maximum time that any operation in the session can run.
 When the interval expires, the operation fails.
 Enter a value in milliseconds.
+
 The default value is 180000 (3 minutes).
 A value of 0 (zero) means no time-out; the operation continues indefinitely.
 
@@ -11227,17 +12102,24 @@ A value of 0 (zero) means no time-out; the operation continues indefinitely.
 ```
 
 Determines how command output is managed in disconnected sessions when the output buffer becomes full.
+
 If the output buffering mode is not set in the session or in the session configuration, the default value is Block.
 Users can also change the output buffering mode when disconnecting the session.
+
 If you omit this parameter, the value of the OutputBufferingMode of the session option object is None.
 A value of Block or Drop overrides the output buffering mode transport option set in the session configuration.
-Valid values are: 
+
+Valid values are:
+
 -- Block: When the output buffer is full, execution is suspended until the buffer is clear.
 
 -- Drop: When the output buffer is full, execution continues.
 As new output is saved, the oldest output is discarded.
+
 -- None: No output buffering mode is specified.
+
 For more information about the output buffering mode transport option, see New-PSTransportOption.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -11250,6 +12132,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Determines which mechanism is used to resolve the host name.
 Valid values are IEConfig, WinHttpConfig, AutoDetect, NoProxyServer and None.
 The default value is None.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Remoting.ProxyAccessType enumeration in the MSDN (Microsoft Developer Network) Library at http://go.microsoft.com/fwlink/?LinkId=144756.
 
 
@@ -11262,6 +12145,7 @@ For information about the values of this parameter, see the description of the S
 Specifies the authentication method that is used for proxy resolution.
 Valid values are Basic, Digest, and Negotiate.
 The default value is Negotiate.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in the MSDN library at http://go.microsoft.com/fwlink/?LinkID=144382.
 
 
@@ -11283,6 +12167,7 @@ If this option is not set, no credentials are specified.
 ```
 
 Specifies that when connecting over HTTPS, the client does not validate that the server certificate is signed by a trusted certification authority (CA).
+
 Use this option only when the remote computer is trusted by using another mechanism, such as when the remote computer is part of a network that is physically secure and isolated or when the remote computer is listed as a trusted host in a WinRM configuration.
 
 
@@ -11294,6 +12179,7 @@ Use this option only when the remote computer is trusted by using another mechan
 
 Specifies that the certificate common name (CN) of the server does not need to match the hostname of the server.
 This option is used only in remote operations that use the HTTPS protocol.
+
 Use this option only for trusted computers.
 
 
@@ -11313,7 +12199,9 @@ Does not validate the revocation status of the server certificate.
 ```
 
 Specifies the UI culture to use for the session.
+
 Enter a culture name in \<languagecode2\>-\<country/regioncode2\> format, such as "ja-jP",  a variable that contains a CultureInfo object, or a command that gets a CultureInfo object, such as a Get-Culture command.
+
 The default value is $null, and the UI culture that is set in the operating system when the session is created is used in the session.
 
 
@@ -11334,11 +12222,14 @@ Encode the request in UTF16 format rather than UTF8 format.
 
 Includes the port number in the Service Principal Name (SPN) used for Kerberos authentication, for example, “HTTP/\<ComputerName\>:5985”.
 This option allows a client that uses a non-default SPN to authenticate against a remote computer that uses Kerberos authentication.
+
 The option is designed for enterprises where multiple services that support Kerberos authentication are running under different user accounts.
 For example, an IIS application that allows Kerberos authentication can require the default SPN to be registered to a user account that is different from the computer account.
 In such cases, Windows PowerShell remoting cannot use Kerberos to authenticate because it requires an SPN that is registered to the computer account.
 To resolve this problem, administrators can create different SPNs (such as by using Setspn.exe) that are registered to different user accounts and can distinguish between them by including the port number in the SPN.
+
 For more information about SetSPN.exe, see "SetSPN Overview" at http://go.microsoft.com/fwlink/?LinkID=189413.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -11356,6 +12247,7 @@ You cannot pipe input to this cmdlet.
 ### NOTES
 If the SessionOption parameter is not used in a command to create a PSSession, the session options are determined by the property values of the $PSSessionOption preference variable, if it is set.
 For more information about the $PSSessionOption variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
+
 The properties of a session configuration object vary with the options set for the session configuration and the values of those options.
 Also, session configurations that use a session configuration file have additional properties.
 
@@ -11402,7 +12294,9 @@ PS C:\>New-PSSession -ComputerName Server01 -SessionOption $pso
 
 ```
 This example shows how to use a session option object to configure a session.
+
 The first command creates a new session option object and saves it in the value of the $pso variable.
+
 The second command uses the New-PSSession cmdlet to create a session on the Server01 remote computer.
 The command uses the session option object in the value of the $pso variable as the value of the SessionOption parameter of the command.
 
@@ -11419,6 +12313,7 @@ PS C:\>Enter-PSSession -ComputerName Server01 -SessionOption (New-PSSessionOptio
 ```
 This command uses the Enter-PSSession cmdlet to start an interactive session with the Server01 computer.
 The value of the SessionOption parameter is a New-PSSessionOption command with the NoEncryption and NoCompression switch parameters.
+
 The New-PSSessionOption command is enclosed in parentheses to make sure that it runs before the Enter-PSSession command.
 
 
@@ -11481,6 +12376,7 @@ IdleTimeout                       : 00:04:00
 ```
 This example demonstrates that you can edit the session option object.
 All properties have read/write values.
+
 Use this method to create a standard session object for your enterprise, and then create customized versions of it for particular uses.
 
 
@@ -11495,8 +12391,11 @@ PS C:\>$PSSessionOption = New-PSSessionOption -OpenTimeOut 120000
 
 ```
 This command creates a $PSSessionOption preference variable.
+
 When the $PSSessionOption preference variable exists in the session, it establishes default values for options in the sessions that are created by using the New-PSSession, Enter-PSSession, and Invoke-Command cmdlets.
+
 To make the $PSSessionOption variable available in all sessions, add it to your Windows PowerShell session and to your Windows PowerShell profile.
+
 For more information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248).
 For more information about profiles, see about_Profiles (http://go.microsoft.com/fwlink/?LinkID=113729).
 
@@ -11513,10 +12412,13 @@ PS C:\>New-PSSession -ComputerName 171.09.21.207 -UseSSL -Credential Domain01\Us
 
 ```
 This example shows how to use a SessionOption object to fulfill the requirements for a remote session configuration.
+
 The first command uses the New-PSSessionOption cmdlet to create a session option object with the SkipCNCheck property.
 The command saves the resulting session object in the $skipCN variable.
+
 The second command uses the New-PSSession cmdlet to create a new session on a remote computer.
 The $skipCN check variable is used in the value of the SessionOption parameter.
+
 Because the computer is identified by its IP address, the value of the ComputerName parameter does not match any of the common names in the certificate used for Secure Sockets Layer (SSL).
 As a result, the SkipCNCheck option is required.
 
@@ -11544,16 +12446,21 @@ Just testing.
 
 ```
 This example shows how to use the ApplicationArguments parameter of the New-PSSessionOption cmdlet to make additional data available to the remote session.
+
 The first command creates a hash table with two keys, Team and Use.
-The command saves the hash table in the $team variable.
-(For more information about hash tables, see about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).)
+The command saves the hash table in the $team variable. (For more information about hash tables, see about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).)
+
 The second command uses the ApplicationArguments parameter of the New-PSSessionOption cmdlet to create a session option object that contains the data in the $team variable.
 The command saves the session option object in the $teamOption variable.
+
 When New-PSSessionOption creates the session option object, it automatically converts the hash table in the value of the ApplicationArguments parameter to a primitive dictionary so the data can be reliably transmitted to the remote session.
+
 The third command uses the New-PSSession cmdlet to start a session on the Server01 computer.
 It uses the SessionOption parameter to include the options in the $teamOption variable.
+
 The fourth command demonstrates that the data in the $team variable is available to commands in the remote session.
 The data appears in the ApplicationArguments property of the $PSSenderInfo automatic variable.
+
 The fifth command shows how the data might be used.
 The command uses the Invoke-Command cmdlet to run a script only when the value of the Use property is not "Testing".
 When the value of Use is "Testing", the command returns "Just testing."
@@ -11582,15 +12489,19 @@ Creates an object that contains advanced options for a session configuration.
 ### DESCRIPTION
 The New-PSTransportOption cmdlet creates an object that contains transport options for session configurations.
 You can use the object as the value of the TransportOption parameter of cmdlets that create or change a session configuration, such as the Register-PSSessionConfiguration and Set-PSSessionConfiguration cmdlets.
+
 You can also change the transport option settings by editing the values of the session configuration properties in the WSMan: drive.
 For more information, see WSMan Provider.
+
 The session configuration options represent the session values set on the "server-side," or receiving end of a remote connection.
 The "client-side," or sending end of the connection, can set session option values when the session is created, or when the client disconnects from or reconnects to the session.
 Unless stated otherwise, when the setting values conflict, the client-side values take precedence.
 However, the client-side values cannot violate maximum values and quotas set in the session configuration.
+
 Without parameters, New-PSTransportOption generates a transport option object with null values for all of the options.
 If you omit a parameter, the object has a null value for the property that the parameter represents.
 A null value has no effect on the session configuration.
+
 For more information about session options, see New-PSSessionOption.
 For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
 
@@ -11608,14 +12519,18 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Determines how long each session stays open if the remote computer does not receive any communication from the local computer, including the heartbeat signal.
 When the interval expires, the session closes.
+
 The idle timeout value is of significant importance when the user intends to disconnect and reconnect to a session.
 The user can reconnect only if the session has not timed out.
+
 The IdleTimeoutSec parameter corresponds to the IdleTimeoutMs property of a session configuration.
+
 Enter a value in seconds.
 The default value is 7200 (2 hours).
 The minimum value is 60 (1 minute).
 The maximum is the value of the IdleTimeout property of Shell objects in the WSMan configuration (WSMan:\\<ComputerName\>\Shell\IdleTimeout).
 The default value is 7200000 milliseconds (2 hours).
+
 If an idle timeout value is set in the session options and in the session configuration, value set in the session options takes precedence, but it cannot exceed the value of the MaxIdleTimeoutMs property of the session configuration.
 To set the value of the MaxIdleTimeoutMs property, use the MaxIdleTimeoutSec parameter.
 
@@ -11630,6 +12545,7 @@ To set the value of the MaxIdleTimeoutMs property, use the MaxIdleTimeoutSec par
 
 Limits the number of commands that can run concurrently in each session to the specified value.
 The default value is 1000.
+
 The MaxConcurrentCommandsPerSession parameter corresponds to the MaxConcurrentCommandsPerShell property of a session configuration.
 
 
@@ -11655,8 +12571,10 @@ The default value is 5.
 
 Limits the idle timeout set for each session to the specified value.
 The default value is [Int]::MaxValue (~25 days).
+
 The idle timeout value is of significant importance when the user intends to disconnect and reconnect to a session.
 The user can reconnect only if the session has not timed out.
+
 The MaxIdleTimeoutSec parameter corresponds to the MaxIdleTimeoutMs property of a session configuration.
 
 
@@ -11671,6 +12589,7 @@ The MaxIdleTimeoutSec parameter corresponds to the MaxIdleTimeoutMs property of 
 Limits the memory used by each session to the specified value.
 Enter a value in megabytes.
 The default value is 1024 megabytes (1 GB).
+
 The MaxMemoryPerSessionMB parameter corresponds to the MaxMemoryPerShellMB property of a session configuration.
 
 
@@ -11684,6 +12603,7 @@ The MaxMemoryPerSessionMB parameter corresponds to the MaxMemoryPerShellMB prope
 
 Limits the number of processes running in each session to the specified value.
 The default value is 15.
+
 The MaxProcessesPerSession parameter corresponds to the MaxProcessesPerShell property of a session configuration.
 
 
@@ -11697,6 +12617,7 @@ The MaxProcessesPerSession parameter corresponds to the MaxProcessesPerShell pro
 
 Limits the number of sessions that use the session configuration.
 The default value is 25.
+
 The MaxSessions parameter corresponds to the MaxShells property of a session configuration.
 
 
@@ -11710,7 +12631,9 @@ The MaxSessions parameter corresponds to the MaxShells property of a session con
 
 Limits the number of sessions that use the session configuration and run with the credentials of a given user to the specified value.
 The default value is 25.
+
 When setting this value, consider that many users might be using the credentials of a "run as" user.
+
 The MaxSessionsPerUser parameter corresponds to the MaxShellsPerUser property of a session configuration.
 
 
@@ -11723,12 +12646,16 @@ The MaxSessionsPerUser parameter corresponds to the MaxShellsPerUser property of
 ```
 
 Determines how command output is managed in disconnected sessions when the output buffer becomes full.
+
 The default value of the OutputBufferingMode property of sessions is Block.
-Valid values are: 
+
+Valid values are:
+
 -- Block: When the output buffer is full, execution is suspended until the buffer is clear.
 
 -- Drop: When the output buffer is full, execution continues.
 As new output is saved, the oldest output is discarded.
+
 -- None: No output buffering mode is specified.
 
 
@@ -11742,6 +12669,7 @@ As new output is saved, the oldest output is discarded.
 
 Limits the timeout for each host process to the specified value.
 The default value, 0, means that there is no timeout value for the process.
+
 Other session configurations have per-process timeout values.
 For example, the Microsoft.PowerShell.Workflow session configuration has a per-process timeout value of 28800 seconds (8 hours).
 
@@ -11875,7 +12803,6 @@ This command shows the effect of setting a transport option in a session configu
 ### SYNOPSIS
 Sends the output to the default formatter and to the default output cmdlet.
 
-
 ### DESCRIPTION
 The Out-Default cmdlet sends output to the default formatter and the default output cmdlet.
 This cmdlet has no effect on the formatting or output of Windows PowerShell commands.
@@ -11977,10 +12904,12 @@ However, the host might display the objects that Out-Host sends to it.
 ### NOTES
 The cmdlets that contain the Out verb (the Out cmdlets) do not format objects; they just render them and send them to the specified display destination.
 If you send an unformatted object to an Out cmdlet, the cmdlet sends it to a formatting cmdlet before rendering it.
+
 The Out cmdlets do not have parameters for names or file paths.
 To send data to an Out cmdlet, use a pipeline operator (|) to send the output of a Windows PowerShell command to the cmdlet.
 You can also store data in a variable and use the InputObject parameter to pass the data to the cmdlet.
 For help, see the examples.
+
 Out-Host sends data, but it does not emit any output objects.
 If you pipe the output of Out-Host to the Get-Member cmdlet, Get-Member reports that no objects have been specified.
 
@@ -11996,6 +12925,7 @@ This command displays the processes on the system one page at a time.
 It uses the Get-Process cmdlet to get the processes on the system.
 The pipeline operator (|) sends the results to Out-Host, which displays them at the console.
 The Paging parameter displays one page of data at a time.
+
 The same command format is used for the Help function that is built into Windows PowerShell.
 That function gets data from the Get-Help cmdlet and then uses the Paging parameter of Out-Host to display the data one page at a time by using this command format: Get-Help $Args[0] | Out-Host -Paging.
 
@@ -12141,6 +13071,7 @@ To send data to an Out cmdlet, use a pipeline operator (|) to send the output of
 You can also store data in a variable and use the InputObject parameter to pass the data to the cmdlet.
 For more information, see the examples.
 
+
 Out-Null does not return any output objects.
 If you pipe the output of Out-Null to the Get-Member cmdlet, Get-Member reports that no objects have been specified.
 
@@ -12175,20 +13106,22 @@ This is useful for deleting output that you do not need.
 ### SYNOPSIS
 Gets the results of the Windows PowerShell background jobs in the current session.
 
-
 ### DESCRIPTION
 The Receive-Job cmdlet gets the results of Windows PowerShell background jobs, such as those started by using the Start-Job cmdlet or the AsJob parameter of any cmdlet.
 You can get the results of all jobs or identify jobs by their name, ID, instance ID, computer name, location, or session, or by submitting a job object.
+
 When you start a Windows PowerShell background job, the job starts, but the results do not appear immediately.
 Instead, the command returns an object that represents the background job.
 The job object contains useful information about the job, but it does not contain the results.
 This method allows you to continue working in the session while the job runs.
-
 For more information about background jobs in Windows PowerShell, see about_Jobs.
+
 The Receive-Job cmdlet gets the results that have been generated by the time that the Receive-Job command is submitted.
 If the results are not yet complete, you can run additional Receive-Job commands to get the remaining results.
+
 By default, job results are deleted from the system when you receive them, but you can use the Keep parameter to save the results so that you can receive them again.
 To delete the job results, run the Receive-Job command again (without the Keep parameter), close the session, or use the Remove-Job cmdlet to delete the job from the session.
+
 Beginning in Windows PowerShell 3.0, Receive-Job also gets the results of custom job types, such as workflow jobs and instances of scheduled jobs.
 To enable Receive-Job to get the results a custom job type, import the module that supports the custom job type into the session before running a Receive-Job command, either by using the Import-Module cmdlet or by using or getting a cmdlet in the module.
 For information about a particular custom job type, see the documentation of the custom job type feature.
@@ -12209,6 +13142,7 @@ Gets the results of jobs that were run on the specified computers.
 Enter the computer names.
 Wildcards are supported.
 The default is all jobs in the current session.
+
 This parameter selects from among the job results that are stored on the local computer.
 It does not get data from remote computers.
 To get job results that are stored on remote computers, use the Invoke-Command cmdlet to run a Receive-Job command remotely.
@@ -12226,6 +13160,7 @@ To get job results that are stored on remote computers, use the Invoke-Command c
 
 Gets the results of jobs with the specified IDs.
 The default is all jobs in the current session.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and type than the instance ID, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -12244,6 +13179,7 @@ To find the ID of a job, type "Get-Job" without parameters.
 
 Gets the results of jobs with the specified instance IDs.
 The default is all jobs in the current session.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use the Get-Job cmdlet.
 
@@ -12281,6 +13217,7 @@ You can also pipe a job object to Receive-Job.
 
 Saves the job results in the system, even after you have received them.
 By default, the job results are deleted when they are retrieved.
+
 To delete the results, use Receive-Job to receive them again without the Keep parameter, close the session, or use the Remove-Job cmdlet to delete the job from the session.
 
 
@@ -12336,8 +13273,10 @@ The default is all jobs in the current session.
 
 Suppresses the command prompt until all job results are received.
 By default, Receive-Job immediately returns the available results.
+
 By default, the Wait parameter waits until the job is in one of the following states:  Completed, Failed, Stopped, Suspended, or Disconnected.
 To direct the Wait parameter to continue waiting if the job state is Suspended or Disconnected, use the Force parameter with the Wait parameter.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -12345,22 +13284,28 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Deletes the job after returning the job results.
 If the job has more results, the job is still deleted, but Receive-Job displays a message.
+
 This parameter works only on custom job types.
 It is designed for instances of job types that save the job or the type outside of the session, such as instances of scheduled jobs.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### WriteEvents [switch]
 
 Reports changes in the job state while waiting for the job to complete.
+
 This parameter is valid only when the Wait parameter is used in the command and the Keep parameter is omitted.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### WriteJobInResults [switch]
 
 Returns the job object followed by the results.
+
 This parameter is valid only when the Wait parameter is used in the command and the Keep parameter is omitted.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -12368,7 +13313,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Continues waiting if jobs are in the Suspended or Disconnected state.
 By default, the Wait parameter of Receive-Job returns (terminates the wait) when jobs are in one of the following states: Completed, Failed, Stopped, Suspended, or Disconnected.
+
 The Force parameter is valid only when the Wait parameter is also used in the command.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -12396,6 +13343,7 @@ These commands use the Job parameter of Receive-Job to get the results of a part
 
 The first command uses the Start-Job cmdlet to start a job that runs a Get-Process command.
 The command uses the assignment operator (=) to save the resulting job object in the $job variable.
+
 The second command uses the Receive-Job cmdlet to get the results of the job.
 It uses the Job parameter to specify the job.
 
@@ -12509,13 +13457,16 @@ Gets results of commands in disconnected sessions
 The Receive-PSSession cmdlet gets the results of commands running in Windows PowerShell sessions ("PSSession") that were disconnected.
 If the session is currently connected, Receive-PSSession gets the results of commands that were running when the session was disconnected.
 If the session is still disconnected, Receive-PSSession connects to the session, resumes any commands that were suspended, and gets the results of commands running in the session.
+
 You can use a Receive-PSSession in addition to or in place of a Connect-PSSession command.
 Receive-PSSession can connect to any disconnected or reconnected session, including those that were started in other sessions or on other computers.
 
 Receive-PSSession works on PSSessions that were disconnected intentionally, such as by using the Disconnect-PSSession cmdlet or the InDisconnectedSession parameter of the Invoke-Command cmdlet, or unintentionally, such as by a network interruption.
 
 If you use the Receive-PSSession cmdlet to connect to a session in which no commands are running or suspended, Receive-PSSession connects to the session, but returns no output or errors.
+
 For more information about the Disconnected Sessions feature, see about_Remote_Disconnected_Sessions.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -12530,11 +13481,11 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session.
-
- Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
-
+Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
 The default value is Default.
+
 For information about the values of this parameter, see "AuthenticationMechanism enumeration" in MSDN.
+
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -12551,8 +13502,10 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies the digital public key certificate (X509) of a user account that has permission to connect to the disconnected session.
 Enter the certificate thumbprint of the certificate.
+
 Certificates are used in client certificate-based authentication.
 They can be mapped only to local user accounts; they do not work with domain accounts.
+
 To get a certificate thumbprint, use a Get-Item or Get-ChildItem command in the Windows PowerShell Cert: drive.
 
 
@@ -12574,6 +13527,7 @@ To get a certificate thumbprint, use a Get-Item or Get-ChildItem command in the 
 Specifies the computer on which the disconnected session is stored.
 Sessions are stored on the computer that is at the "server-side" or receiving end of a connection.
 The default is the local computer.
+
 Type the NetBIOS name, an IP address, or a fully qualified domain name of one computer.
 Wildcards are not permitted.
 To specify the local computer, type the computer name, "localhost", or a dot (.)
@@ -12590,6 +13544,7 @@ To specify the local computer, type the computer name, "localhost", or a dot (.)
 
 Specifies a user account that has permission to connect to the disconnected session.
 The default is the current user.
+
 Type a user name, such as "User01" or "Domain01\User01".
 Or, enter a PSCredential object, such as one generated by the Get-Credential cmdlet.
 If you type a user name, you will be prompted for a password.
@@ -12608,6 +13563,7 @@ If you type a user name, you will be prompted for a password.
 
 Specifies the ID of the disconnected session.
 The ID parameter works only when the disconnected session was previously connected to the current session.
+
 This parameter is valid, but not effective, when the session is stored on the local computer, but was not connected to the current session.
 
 
@@ -12629,17 +13585,23 @@ This parameter is valid, but not effective, when the session is stored on the lo
 ```
 
 Specifies the instance ID of the disconnected session.
+
 The instance ID is a GUID that uniquely identifies a PSSession on a local or remote computer.
+
 The instance ID is stored in the InstanceID property of the PSSession.
 
 
 #### JobName [String] = Job<n>
 
 Specifies a friendly name for the job that Receive-PSSession returns.
+
 Receive-PSSession returns a job when the value of the OutTarget parameter is Job or the job that is running in the disconnected session was started in the current session.
+
 If the job that is running in the disconnected session was started in the current session, Windows PowerShell reuses the original job object in the session and ignores the value of the JobName parameter.
+
 If the job that is running in the disconnected session was started in a different session, Windows PowerShell creates a new job object.
 It uses a default name, but you can use this parameter to change the name.
+
 If the default value or explicit value of  the OutTarget parameter is not Job, the command succeeds, but the JobName parameter has no effect.
 
 
@@ -12666,15 +13628,20 @@ Specifies the friendly name of the disconnected session.
 #### OutTarget [OutTarget] = Host
 
 Determines how the session results are returned.
+
 Valid values are:
+
 -- Job: Returns the results asynchronously in a job object.
 You can use the JobName parameter to specify a name or new name for the job.
+
 -- Host: Returns the results to the command line (synchronously).
 If the command is being resumed or the results consist of a large number of objects, the response might be delayed.
+
 The default value of the OutTarget parameter is Host.
 However, if the command that is being received in disconnected session was started in the current session, the default value of the OutTarget parameter is the form in which the command was started.
 If the command was started as a job, it is returned as a job by default.
 Otherwise, it is returned to the host program by default.
+
 Typically, the host program displays returned objects at the command line without delay, but this behavior can vary.
 
 
@@ -12686,14 +13653,16 @@ Typically, the host program displays returned objects at the command line withou
 ```
 
 Specifies the network port on the remote computer that is used to reconnect to the session.
-
 To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
-
 The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port.
 To configure the listener, type the following two commands at the Windows PowerShell prompt:
+
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
+
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
+
 Do not use the Port parameter unless you must.
 The port that is set in the command applies to all computers or sessions on which the command runs.
 An alternate port setting might prevent the command from running on all computers.
@@ -12723,8 +13692,10 @@ Enter a variable that contains the PSSession or a command that creates or gets t
 
 Uses the Secure Sockets Layer (SSL) protocol to connect to the disconnected session.
 By default, SSL is not used.
+
 WS-Management encrypts all Windows PowerShell content transmitted over the network.
 UseSSL is an additional protection that sends the data across an HTTPS connection instead of an HTTP connection.
+
 If you use this parameter, but SSL is not available on the port used for the command, the command fails.
 
 
@@ -12736,8 +13707,10 @@ If you use this parameter, but SSL is not available on the port used for the com
 ```
 
 Allows redirection of this connection to an alternate Uniform Resource Identifier (URI).
+
 When you use the ConnectionURI parameter, the remote destination can return an instruction to redirect to a different URI.
 By default, Windows PowerShell does not redirect connections, but you can use this parameter to allow it to redirect the connection.
+
 You can also limit the number of times the connection is redirected by changing the MaximumConnectionRedirectionCount session option value.
 Use the  MaximumRedirection parameter of the New-PSSessionOption cmdlet or set the MaximumConnectionRedirectionCount property of the $PSSessionOption preference variable.
 The default value is 5.
@@ -12755,9 +13728,11 @@ The default value is 5.
 ```
 
 Connects only to sessions that use the specified application.
+
 Enter the application name segment of the connection URI.
 For example, in the following connection URI, the application name is WSMan: http://localhost:5985/WSMAN.
 The application name of a session is stored in the Runspace.ConnectionInfo.AppName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the application that the session uses.
 
@@ -12780,11 +13755,14 @@ It does not change the application that the session uses.
 ```
 
 Connects only to sessions that use the specified session configuration.
+
 Enter a configuration name or the fully qualified resource URI for a session configuration.
 If you specify only the configuration name, the following schema URI is prepended:  http://schemas.microsoft.com/powershell.
 The configuration name of a session is stored in the ConfigurationName property of the session.
+
 The value of this parameter is used to select and filter sessions.
 It does not change the session configuration that the session uses.
+
 For more information about session configurations, see about_Session_Configurations .
 
 
@@ -12806,18 +13784,23 @@ For more information about session configurations, see about_Session_Configurati
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint that is used to reconnect to the disconnected session.
 
 The URI must be fully qualified.
-
 The format of this string is as follows:
+
 
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
 
+
 The default value is as follows:
 
+
 http://localhost:5985/WSMAN
+
 If you do not specify a connection URI, you can use the UseSSL, ComputerName, Port, and ApplicationName parameters to specify the connection URI values.
+
 Valid values for the Transport segment of the URI are HTTP and HTTPS.
 If you specify a connection URI with a Transport segment, but do not specify a port, the session is created with standards ports: 80 for HTTP and 443 for HTTPS.
 To use the default ports for Windows PowerShell remoting, specify port 5985 for HTTP or 5986 for HTTPS.
+
 If the destination computer redirects the connection to a different URI, Windows PowerShell prevents the redirection unless you use the AllowRedirection parameter in the command.
 
 
@@ -12831,10 +13814,11 @@ If the destination computer redirects the connection to a different URI, Windows
 ```
 
 Sets advanced options for the session.
-
 Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set.
 Otherwise, the default values are established by options set in the session configuration.
+
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration.
 However, they do not take precedence over maximum values, quotas or limits set in the session configuration.
 
@@ -12880,31 +13864,43 @@ Otherwise, it returns objects that represent that command results.
 ### NOTES
 Receive-PSSession gets results only from sessions that were disconnected.
 Only sessions that are connected to (terminate at) computers running Windows PowerShell 3.0 or later can be disconnected and reconnected.
+
 If the commands that were running in the disconnected session did not generate results or if the results were already returned to another session, Receive-PSSession does not generate any output.
+
 The output buffering mode of a session determines how commands in the session manage output when the session is disconnected.
 When the value of the OutputBufferingMode option of the session is Drop and the output buffer is full, the command begins to delete output.
 Receive-PSSession cannot recover this output.
 For more information about the output buffering mode option, see the help topics for the New-PSSessionOption and New-PSTransportOption cmdlets.
+
 You cannot change the idle timeout value of a PSSession when you connect to the PSSession or receive results.
 The SessionOption parameter of Receive-PSSession takes a SessionOption object that has an IdleTimeout value.
 However, the IdleTimeout value of the SessionOption object and the IdleTimeout value of the $PSSessionOption variable are ignored when connecting to a PSSession or receiving results.
+
 You can set and change the idle timeout of a PSSession when you create the PSSession (by using the New-PSSession or Invoke-Command cmdlets) and when you disconnect from the PSSession.
+
 The IdleTimeout property of  a PSSession is critical to disconnected sessions, because it determines how long a disconnected session is maintained on the remote computer.
 Disconnected sessions are considered to be idle from the moment that they are disconnected, even if commands are running in the disconnected session.
+
 If you start a start a job in a remote session by using the AsJob parameter of the Invoke-Command cmdlet, the job object is created in the current session, even though the job runs in the remote session.
 If you disconnect the remote session, the job object in the current session is now disconnected from the job.
 The job object still contains any results that were returned to it, but it does not receive new results from the job in the disconnected session.
+
 If a different client connects to the session that contains the running job, the results that were delivered to the original job object in the original session are not available in the newly connected session.
 Only results that were not delivered to the original job object are available in the reconnected session.
+
 Similarly, if you start a script in a session and then disconnect from the session, any results that the script delivers to the session before disconnecting are not available to another client that connects to the session.
+
 To prevent data loss in sessions that you intend to disconnect, use the InDisconnectedSession parameter of the  Invoke-Command cmdlet.
 Because this parameter prevents results from being returned to the current session, all results are available when the session is reconnected.
+
 You can also prevent data loss by using the Invoke-Command cmdlet to run a Start-Job command in the remote session.
 In this case, the job object is created in the remote session.
 You cannot use the Receive-PSSession cmdlet to get the job results.
 Instead, use the Connect-PSSession cmdlet to connect to the session and then use the Invoke-Command cmdlet to run a Receive-Job command in the session.
+
 When a session that contains a running job is disconnected and then reconnected, the original job object is reused only if the job is disconnected and reconnected to the same session, and the command to reconnect does not specify a new job name.
 If the session is reconnected to a different client session or a new job name is specified, Windows PowerShell creates a new job object for the new session.
+
 When you disconnect a PSSession, the session state is Disconnected and the availability is None.
 
 The value of the State property is relative to the current session.
@@ -12912,9 +13908,12 @@ Therefore, a value of Disconnected means that the PSSession is not connected to 
 However, it does not mean that the PSSession is disconnected from all sessions.
 It might be connected to a different session.
 To determine whether you can connect or reconnect to the session, use the Availability property.
+
 An Availability value of None indicates that you can connect to the session.
 A value of Busy indicates that you cannot connect to the PSSession because it is connected to another session.
+
 For more information about the values of the State property of sessions, see "RunspaceState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspacestate(v=VS.85).aspx]().
+
 For more information about the values of the Availability property of sessions, see RunspaceAvailability Enumeration at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.runspaceavailability(v=vs.85).aspx]().
 
 ### EXAMPLES
@@ -12925,6 +13924,7 @@ PS C:\>Receive-PSSession -ComputerName Server01 -Name ITTask
 
 ```
 This command uses the Receive-PSSession cmdlet to connect to the ITTask session on the Server01 computer and get the results of commands that were running in the session.
+
 Because the command does not use the OutTarget parameter, the results appear at the command line.
 
 
@@ -12935,6 +13935,7 @@ PS C:\>Get-PSSession -ComputerName  Server01, Server02 | Receive-PSSession
 
 ```
 This command gets the results of all commands running in all disconnected sessions on the Server01 and Server02 computers.
+
 If any session was not disconnected or is not running commands, Receive-PSSession does not connect to the session and does not return any output or errors.
 
 
@@ -12948,9 +13949,12 @@ Id     Name            State         HasMoreData     Location
 
 ```
 This command uses the Receive-PSSession cmdlet to get the results of a script that was running in the ITTask session on the Server01 computer.
+
 The command uses the ComputerName and Name parameters to identify the disconnected session.
 It uses the OutTarget parameter with a value of Job to direct Receive-PSSession to return the results as a job and the JobName parameter to specify a name for the job in the reconnected session.
+
 The command uses the Credential parameter to run the Receive-PSSession command with the permissions of a domain administrator.
+
 The output shows that Receive-PSSession returned the results as a job in the current session.
 To get the job results, use a Receive-Job command
 
@@ -13125,14 +14129,17 @@ Creates and registers a new session configuration.
 ### DESCRIPTION
 The Register-PSSessionConfiguration cmdlet creates and registers a  new session configuration on the local computer.
 This is an advanced cmdlet that is designed to be used by system administrators to create custom sessions for remote users.
+
 Every Windows PowerShell session (PSSession) uses a session configuration, also known as an "endpoint." When users create a session that connects to the computer, they can select a session configuration or use the default session configuration that is registered when you enable Windows PowerShell remoting.
 Users can also set the $PSSessionConfigurationName preference variable, which specifies a default configuration for remote sessions created in the current session.
+
 The session configuration defines the environment for the remote session.
 The configuration can determine which commands and language elements are available in the session, and it can include settings that protect the computer, such as those that limit the amount of data that the session can receive remotely in a single object or command.
-
 The security descriptor (ACL) of the session configuration determines which users have permission to use the session configuration.
+
 You can define the elements of configuration by using an assembly that implements a new configuration class and by using a script that runs in the session.
 Beginning in Windows PowerShell 3.0, you can also use a session configuration file to define the session configuration.
+
 For information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
 For information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
 
@@ -13142,18 +14149,22 @@ For information about session configuration files, see about_Session_Configurati
 
 Enables and disables the session configuration and determines whether it can be used for remote or local sessions on the computer.
 Remote is the default.
+
 Valid values are:
+
 
 --  Disabled: Disables the session configuration.
 It cannot be used for remote or local access to the computer.
 
+
 --  Local: Allows users of the local computer to use the session configuration to create a local "loopback" session on the same computer, but denies access to remote users.
 
- 
-                        
+
 --  Remote: Allows local and remote users to use the session configuration to create sessions and run commands on this computer.
+
 The value of this parameter can be overridden at a later time by the actions of other cmdlets.
 For example, the Enable-PSRemoting cmdlet allows remote access to all session configurations, the Enable-PSSessionConfiguration cmdlet enables session configurations, and the Disable-PSRemoting cmdlet prevents remote access to all session configurations.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13180,6 +14191,7 @@ The default is the current directory.
 
 Specifies the name of an assembly file (*.dll) in which the configuration type is defined.
 You can specify the path to the .dll in this parameter or in the value of the ApplicationBase parameter.
+
 This parameter is required when the ConfigurationTypeName parameter is specified.
 
 
@@ -13194,8 +14206,11 @@ This parameter is required when the ConfigurationTypeName parameter is specified
 
 Specifies the fully qualified name of the Microsoft .NET Framework type that is used for this configuration.
 The type that you specify must implement the System.Management.Automation.Remoting.PSSessionConfiguration class.
+
 To specify the assembly file (.dll) that implements the configuration type, use the AssemblyName and ApplicationBase parameters.
+
 Creating a type allows you to control more aspects of the session configuration, such as exposing or hiding certain parameters of cmdlets, or setting data size and object size limits that users cannot override.
+
 If you omit this parameter, the DefaultRemotePowerShellConfiguration class is used for the session configuration.
 
 
@@ -13203,6 +14218,7 @@ If you omit this parameter, the DefaultRemotePowerShellConfiguration class is us
 
 Suppresses all users prompts and restarts the WinRM service without prompting.
 Restarting the service makes the configuration change effective.
+
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
@@ -13211,6 +14227,7 @@ To prevent a restart and suppress the restart prompt, use the NoServiceRestart p
 Limits the amount of data that can be sent to this computer in any single remote command.
 Enter the data size in megabytes (MB).
 The default is 50 MB.
+
 If a data size limit is defined in the configuration type that is specified in the ConfigurationTypeName parameter, the limit in the configuration type is used and the value of this parameter is ignored.
 
 
@@ -13219,6 +14236,7 @@ If a data size limit is defined in the configuration type that is specified in t
 Limits the amount of data that can be sent to this computer in any single object.
 Enter the data size in megabytes (MB).
 The default is 10 MB.
+
 If an object size limit is defined in the configuration type that is specified in the ConfigurationTypeName parameter, the limit in the configuration type is used and the value of this parameter is ignored.
 
 
@@ -13238,9 +14256,10 @@ This parameter is required.
 #### NoServiceRestart [switch]
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter a Register-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
 
+By default, when you enter a Register-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
 Until the WinRM service is restarted, the new session configuration is not effective.
+
 To restart the WinRM service without prompting, use the Force parameter.
 To restart the WinRM service manually, use the Restart-Service cmdlet.
 
@@ -13255,6 +14274,7 @@ To restart the WinRM service manually, use the Restart-Service cmdlet.
 
 Specifies the path and file name of a session configuration file (.pssc), such as one created by the New-PSSessionConfigurationFile cmdlet.
 If you omit the path, the default is the current directory.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13263,6 +14283,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Determines whether a 32-bit or 64-bit version of the Windows PowerShell process is started in sessions that use this session configuration.
 Valid values are x86 (32-bit) and AMD64 (64-bit).
 The default value is determined by the processor architecture of the computer that hosts the session configuration.
+
 You can use this parameter to create a 32-bit session on a 64-bit computer.
 Attempts to create a 64-bit process on a 32-bit computer fail.
 
@@ -13275,7 +14296,9 @@ Attempts to create a 64-bit process on a 32-bit computer fail.
 ```
 
 Specifies the version of Windows PowerShell in sessions that use this session configuration.
- The value of this parameter takes precedence over the value of the PowerShellVersion key in the session configuration file.
+
+The value of this parameter takes precedence over the value of the PowerShellVersion key in the session configuration file.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13283,16 +14306,20 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Runs commands in the session with the permissions of the specified user.
 By default, commands run with the permissions of the current user.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### SecurityDescriptorSddl [String] = The value of the root SDDL
 
 Specifies a Security Descriptor Definition Language (SDDL) string for the configuration.
+
 This string determines the permissions that are required to use the new session configuration.
 To use a session configuration in a session, users must have at least "Execute(Invoke)" permission for the configuration.
+
 If the security descriptor is complex, consider using the ShowSecurityDescriptorUI parameter instead of this parameter.
 You cannot use both parameters in the same command.
+
 If you omit this parameter, the root SDDL for the WinRM service is used for this configuration.
 To view or change the root SDDL, use the WSMan provider.
 For example "get-item wsman:\localhost\service\rootSDDL".
@@ -13308,14 +14335,18 @@ For more information about the WSMan provider, type "get-help wsman".
 Specifies the type of session that is created by using the session configuration.
 The default value is Default.
 Valid values are:
+
 -- Empty: No modules or snap-ins are added to session by default.
 Use the parameters of this cmdlet to add modules, functions, scripts, and other features to the session.
+
 -- Default: Adds the Microsoft.PowerShell.Core snap-in to the session.
 This module includes the Import-Module and Add-PSSnapin cmdlets that users can use to import other modules and snap-ins unless you explicitly prohibit the use of the cmdlets.
--- RestrictedRemoteServer: Includes only the following cmdlets:  Exit-PSSession,Get-Command, Get-FormatData, Get-Help, Measure-Object, Out-Default, and Select-Object.
 
+-- RestrictedRemoteServer: Includes only the following cmdlets:  Exit-PSSession,Get-Command, Get-FormatData, Get-Help, Measure-Object, Out-Default, and Select-Object.
 Use a script or assembly, or the keys in the session configuration file, to add modules, functions, scripts, and other features to the session.
+
 The value of this parameter takes precedence over the value of the  SessionType key in the session configuration file.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13327,11 +14358,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Sets type-specific options for the session configuration.
-
 Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
+
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options.
 Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration.
 However, session option values cannot exceed maximum values set in the session configuration.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13339,7 +14371,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Displays a property sheet that helps you to create the SDDL for the session configuration.
 The property sheet appears after you enter the Register-PSSessionConfiguration command and then restart the WinRM service.
+
 When setting the permissions for the configuration, remember that users must have at least "Execute(Invoke)" permission to use the session configuration in a session.
+
 You cannot use the SecurityDescriptorSDDL parameter and this parameter in the same command.
 
 
@@ -13347,6 +14381,7 @@ You cannot use the SecurityDescriptorSDDL parameter and this parameter in the sa
 
 Specifies the fully qualified path to a Windows PowerShell script.
 The specified script runs in the new session that uses the session configuration.
+
 You can use the script to further configure the session.
 If the script generates an error (even a non-terminating error), the session is not created and the user's New-PSSession command fails.
 
@@ -13363,6 +14398,7 @@ Unknown is the default.
 Defines how threads are created and used when a command is executed in the session.
 Valid values are Default, ReuseThread, UseCurrentThread, and UseNewThread.
 UseCurrentThread is the default.
+
 For more information, see "PSThreadOptions Enumeration" in MSDN.
 
 
@@ -13376,6 +14412,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Use only one process to host all sessions that are started by the same user  and use the same session configuration.
 By default, each session is hosted in its own process.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13387,9 +14424,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the modules and snap-ins that are automatically imported into sessions that use the session configuration.
+
 By default, only the Microsoft.PowerShell.Core snap-in is imported into sessions, but unless the cmdlets are excluded, users can use the Import-Module and Add-PSSnapin cmdlets to add modules and snap-ins to the session.
+
 The modules specified in this parameter value are imported in additions to modules that are specified by the SessionType parameter and those listed in the ModulesToImport key in the session configuration file (New-PSSessionConfigurationFile).
 However, settings in the session configuration file can hide the commands exported by modules or prevent users from using them.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13418,7 +14458,9 @@ You cannot pipe input to this cmdlet.
 
 ### NOTES
 To run this cmdlet on Windows Vista, Windows Server 2008, and later versions of Windows, start Windows PowerShell with the "Run as administrator" option.
+
 This cmdlet generates XML that represents a Web Services for Management (WS-Management) plug-in configuration and sends the XML to WS-Management, which registers the plug-in on the local computer ("new-item wsman:\localhost\plugin").
+
 The properties of a session configuration object vary with the options set for the session configuration and the values of those options.
 Also, session configurations that use a session configuration file have additional properties.
 
@@ -13432,6 +14474,7 @@ PS C:\>Register-PSSessionConfiguration -Name NewShell -ApplicationBase c:\MyShel
 This command registers the NewShell session configuration.
 It uses the AssemblyName and ApplicationBase parameters to specify the location of the MyShell.dll file, which specifies the cmdlets and providers in the session configuration.
 It also uses the ConfigurationTypeName parameter to specify a new class that further configures the session.
+
 To use this configuration, type "new-pssession -configurationname newshell".
 
 
@@ -13443,6 +14486,7 @@ PS C:\>Register-PSSessionConfiguration -name MaintenanceShell -StartupScript C:\
 ```
 This command registers the MaintenanceShell configuration on the local computer.
 The command uses the StartupScript parameter to specify the Maintenance.ps1 script.
+
 When a user uses a New-PSSession command and selects the MaintenanceShell configuration, the Maintenance.ps1 script runs in the new session.
 The script can configure the session, including importing modules, adding Windows PowerShell snap-ins, and setting the execution policy for the session.
 If the script generates any errors, including non-terminating errors, the New-PSSession command fails.
@@ -13456,10 +14500,13 @@ PS C:\>Register-PSSessionConfiguration -name AdminShell -SecurityDescriptorSDDL 
 
 ```
 This example registers the AdminShell session configuration.
+
 The first command saves a custom SDDL in the $sddl variable.
+
 The second command registers the new shell.
 The command uses the SecurityDescritorSDDL parameter to specify the SDDL in the value of the $sddl variable and the MaximumReceivedObjectSizeMB parameter to increase the object size limit.
 It also uses the StartupScript parameter to specify a script that configures the session.
+
 As an alternative to using the SecurityDescriptorSDDL parameter, you can use the ShowSecurityDescriptorUI parameter, which displays a property sheet that you can use to set permissions for the session configuration.
 When you click "OK" in the property sheet, the tool generates an SDDL for the session configuration.
 
@@ -13524,8 +14571,10 @@ PS C:\>Register-PSSessionConfiguration -Name WithProfile -StartupScript Add-Prof
 ```
 This command creates and registers the WithProfile session configuration on the local computer.
 The command uses the StartupScript parameter to direct Windows PowerShell to run the specified script in any session that uses the session configuration.
+
 The content of the specified script, Add-Profile.ps1, is also displayed.
 The script contains a single command that uses dot sourcing to run the user's CurrentUserAllHosts profile in the current scope of the session.
+
 For more information about profiles, see about_Profiles.
 For more information about dot sourcing, see about_Scopes.
 
@@ -13601,13 +14650,17 @@ Deletes a Windows PowerShell background job.
 
 ### DESCRIPTION
 The Remove-Job cmdlet deletes Windows PowerShell background jobs that were started by using the Start-Job or the AsJob parameter of any cmdlet.
+
 You can use this cmdlet to delete all jobs or delete selected jobs based on their name, ID, instance ID, command, or state, or by passing a job object to Remove-Job.
 Without parameters or parameter values, Remove-Job has no effect.
+
 Beginning in Windows PowerShell 3.0, you can use the Remove-Job cmdlet to delete custom job types, such as scheduled jobs and workflow jobs.
 If you use Remove-Job to delete a scheduled job, it deletes the scheduled job and deletes all instances of the scheduled job on disk, including the results of all triggered job instances.
+
 Before deleting a running job, use the Stop-Job cmdlet to stop the job.
 If you try to delete a running job, the command fails.
 You can use the Force parameter of Remove-Job to delete a running job.
+
 If you do not delete a background job, the job remains in the global job cache until you close the session in which the job was created.
 
 ### PARAMETERS
@@ -13635,9 +14688,11 @@ Deletes jobs that include the specified words in the command.
 
 Deletes jobs that satisfy all of the conditions established in the associated hash table.
 Enter a hash table where the keys are job properties and the values are job property values.
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -13666,6 +14721,7 @@ Without the Force parameter, Remove-Job does not delete running jobs.
 ```
 
 Deletes background jobs with the specified IDs.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and type than the instance ID, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -13683,6 +14739,7 @@ To find the ID of a job, type "Get-Job" without parameters.
 ```
 
 Deletes jobs with the specified instance IDs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use Get-Job or display the job object.
 
@@ -13715,6 +14772,7 @@ You can also use a pipeline operator to submit jobs to the Remove-Job cmdlet.
 
 Deletes only the jobs with the specified friendly names.
 Wildcards are permitted.
+
 Because the friendly name is not guaranteed to be unique, even within the session, use the WhatIf and Confirm parameters when deleting jobs by name.
 
 
@@ -13768,6 +14826,7 @@ PS C:\>$batch | Remove-Job
 These commands delete a background job named BatchJob from the current session.
 The first command uses the Get-Job cmdlet to get an object representing the job, and then it saves the job in the $batch variable.
 The second command uses a pipeline operator (|) to send the job to the Remove-Job cmdlet.
+
 This command is equivalent to using the Job parameter of Remove-Job, for example, "remove-job -job $batch".
 
 
@@ -13796,6 +14855,7 @@ PS C:\>Remove-Job -Name *batch -Force
 
 ```
 This command deletes all jobs with friendly names that end with "batch" from the current session, including jobs that are running.
+
 It uses the Name parameter of Remove-Job to specify a job name pattern, and it uses the Force parameter to ensure that all jobs are removed, even those that might be in progress.
 
 
@@ -13807,10 +14867,13 @@ PS C:\>$j | Remove-Job
 
 ```
 This example shows how to use the Remove-Job cmdlet to remove a job that was started on a remote computer by using the AsJob parameter of the Invoke-Command cmdlet.
+
 The first command uses the Invoke-Command cmdlet to run a job on the Server01 computer.
 It uses the AsJob parameter to run the command as a background job, and it saves the resulting job object in the $j variable.
+
 Because the command used the AsJob parameter, the job object is created on the local computer, even though the job runs on a remote computer.
 As a result, you use local commands to manage the job.
+
 The second command uses the Remove-Job cmdlet to remove the job.
 It uses a pipeline operator (|) to send the job in $j to Remove-Job.
 Note that this is a local command.
@@ -13902,7 +14965,9 @@ Removes modules from the current session.
 
 ### DESCRIPTION
 The Remove-Module cmdlet removes the members of a module, such as cmdlets and functions, from the current session.
+
 If the module includes an assembly (.dll), all members that are implemented by the assembly are removed, but the assembly is not unloaded.
+
 This cmdlet does not uninstall the module or delete it from the computer.
 It affects only the current Windows PowerShell session.
 
@@ -13917,6 +14982,7 @@ It affects only the current Windows PowerShell session.
 
 Removes read-only modules.
 By default, Remove-Module removes only read-write modules.
+
 The ReadOnly and ReadWrite values are stored in AccessMode property of a module.
 
 
@@ -13930,6 +14996,7 @@ The ReadOnly and ReadWrite values are stored in AccessMode property of a module.
 Removes modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [Module Specification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedName parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
@@ -14037,8 +15104,10 @@ VERBOSE: Performing operation "Remove-Module" on Target "PSDiagnostics (Path: 'C
 
 ```
 This command removes the BitsTransfer and PSDiagnostics modules from the current session.
+
 The command uses a pipeline operator (|) to send the module names to Remove-Module.
 It uses the Verbose common parameter to get detailed information about the members that are removed.
+
 The Verbose messages show the items that are removed.
 The messages differ because the BitsTransfer module includes an assembly that implements its cmdlets and a nested module with its own assembly.
 The PSDiagnostics module includes a module script file (.psm1) that exports functions.
@@ -14084,7 +15153,9 @@ Closes one or more Windows PowerShell sessions (PSSessions).
 The Remove-PSSession cmdlet closes Windows PowerShell sessions (PSSessions) in the current session.
 It stops any commands that are running in the PSSessions, ends the PSSession, and releases the resources that the PSSession was using.
 If the PSSession is connected to a remote computer, Remove-PSSession also closes the connection between the local and remote computers.
+
 To remove a PSSession, enter the Name, ComputerName, ID, or InstanceID of the session.
+
 If you have saved the PSSession in a variable, the session object remains in the variable, but the state of the PSSession is "Closed."
 
 ### PARAMETERS
@@ -14102,6 +15173,7 @@ If you have saved the PSSession in a variable, the session object remains in the
 
 Closes the PSSessions that are connected to the specified computers.
 Wildcards are permitted.
+
 Type the NetBIOS name, an IP address, or a fully qualified domain name of one or more remote computers.
 To specify the local computer, type the computer name, "localhost", or a dot (.).
 
@@ -14118,9 +15190,9 @@ To specify the local computer, type the computer name, "localhost", or a dot (.)
 
 Closes the PSSessions with the specified IDs.
 Type one or more IDs (separated by commas) or use the range operator (..) to specify a range of IDs
+
 An ID is an integer that uniquely identifies the PSSession in the current session.
 It is easier to remember and type than the InstanceId, but it is unique only within the current session.
-
 To find the ID of a PSSession, use Get-PSSession without parameters.
 
 
@@ -14134,8 +15206,10 @@ To find the ID of a PSSession, use Get-PSSession without parameters.
 ```
 
 Closes the PSSessions with the specified instance IDs.
+
 The instance ID is a GUID that uniquely identifies a PSSession in the current session.
 The InstanceID is unique, even when you have multiple sessions running on a single computer.
+
 The InstanceID is stored in the InstanceID property of the object that represents a PSSession.
 To find the InstanceID of the PSSessions in the current session, type "get-pssession | format-table Name, ComputerName, InstanceId".
 
@@ -14152,6 +15226,7 @@ To find the InstanceID of the PSSessions in the current session, type "get-psses
 
 Closes the PSSessions with the specified friendly names.
 Wildcards are permitted.
+
 Because the friendly name of a PSSession might not be unique, when using the Name parameter, consider also using the WhatIf  or Confirm parameter in the Remove-PSSession command.
 
 
@@ -14167,7 +15242,6 @@ Because the friendly name of a PSSession might not be unique, when using the Nam
 ```
 
 Specifies the session objects of the PSSessions to close.
-
 Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command.
 You can also pipe one or more session objects to Remove-PSSession.
 
@@ -14199,9 +15273,11 @@ Remove-PSSession does not return any objects.
 The ID parameter is mandatory.
 You cannot type "remove-pssession" without parameters.
 To delete all the PSSessions in the current session, type "get-pssession | remove-pssession".
+
 A PSSession uses a persistent connection to a remote computer.
 Create a PSSession to run a series of commands that share data.
 For more information, see about_PSSessions.
+
 PSSessions are specific to the current session.
 When you end a session, the PSSessions that you created in that session are forcibly closed.
 
@@ -14288,10 +15364,13 @@ PS C:\>remove-pssession -InstanceID fc4e9dfa-f246-452d-9fa3-1adbdd64ae85
 
 ```
 These commands show how to close a PSSession based on its instance ID (RemoteRunspaceID).
+
 The first command uses the Get-PSsession cmdlet to get the PSSessions in the current session.
 It uses a pipeline operator (|) to send the PSSessions to the Format-Table cmdlet (alias: ft), which formats their ComputerName and InstanceID properties in a table.
 The AutoSize parameter ("auto") compresses the columns for display.
+
 From the resulting display, the administrator can identify the PSSession to be closed, and copy and paste the InstanceID of that PSSession into the second command.
+
 The second command uses the Remove-PSSession cmdlet to remove the PSSession with the specified instance ID.
 
 
@@ -14346,6 +15425,7 @@ Removes Windows PowerShell snap-ins from the current session.
 ### DESCRIPTION
 The Remove-PSSnapin cmdlet removes a Windows PowerShell snap-in from the current session.
 You can use it to remove snap-ins that you have added to Windows PowerShell, but you cannot use it to remove the snap-ins that are installed with Windows PowerShell.
+
 After a snap-in is removed from the current session, it is still loaded, but the cmdlets and providers in the snap-in are no longer available in the session.
 
 ### PARAMETERS
@@ -14410,8 +15490,10 @@ However, if you use the PassThru parameter, it generates a System.Management.Aut
 ### NOTES
 You can also refer to Remove-PSSnapin by its built-in alias, "rsnp".
 For more information, see about_Aliases.
+
 Remove-PSSnapin does not check the version of Windows PowerShell before removing a snap-in from the session.
 If a snap-in cannot be removed, a warning appears and the command fails.
+
 Remove-PSSnapin affects only the current session.
 If you have added an Add-PSSnapin command to your Windows PowerShell profile, you should delete the command to remove the snap-in from future sessions.
 For instructions, see about_Profiles.
@@ -14439,9 +15521,11 @@ PS C:\>get-PSSnapIn smp* | remove-PSSnapIn
 
 ```
 This command removes the Windows PowerShell snap-ins that have names beginning with "smp" from the current session.
+
 The command uses the Get-PSSnapin cmdlet to get objects representing the snap-ins.
 The pipeline operator (|) sends the results to the Remove-PSSnapin cmdlet, which removes them from the session.
 The providers and cmdlets that this snap-in supports are no longer available in the session.
+
 When you pipe objects to Remove-PSSnapin, the names of the objects are associated with the Name parameter, which accepts objects from the pipeline that have a Name property.
 
 
@@ -14483,18 +15567,22 @@ Restarts a suspended job
 The Resume-Job cmdlet resumes a workflow job that was suspended, such as by using the Suspend-Job cmdlet or the about_Suspend-Workflow activity.
 When a workflow job is resumed, the job engine reconstructs the state, metadata, and output from saved resources, such as checkpoints, so the job is restarted without any loss of state or data.
 The job state is changed from Suspended to Running.
+
 Use the parameters of Resume-Job to select jobs by name, ID, instance ID or pipe a job object, such as one returned by the Get-Job cmdlet, to Resume-Job.
 You can also use a property filter to select a job to be resumed.
 
 By default, Resume-Job returns immediately, even though all jobs might not yet be resumed.
 To suppress the command prompt until all specified jobs are resumed, use the Wait parameter.
+
 The Resume-Job cmdlet works only on custom job types, such as workflow jobs.
 It does not work on standard background jobs, such as those that are started by using the Start-Job cmdlet.
 If you submit a job of an unsupported type, Resume-Job generates a terminating error and stops running.
 
 To identify a workflow job, look for a value of PSWorkflowJob in the PSJobTypeName property of the job.
 To determine whether a particular custom job type supports the Resume-Job cmdlet, see the help topics for the custom job type.
+
 NOTE: Before using a Job cmdlet on a custom job type, import the module that supports the custom job type, either by using the Import-Module cmdlet or getting or using a cmdlet in the module.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 
@@ -14525,6 +15613,7 @@ Enter a hash table where the keys are job properties and the values are job prop
 ```
 
 Resumes the jobs with the specified IDs.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and to type than the instance ID, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -14543,6 +15632,7 @@ To find the ID of a job, use the Get-Job cmdlet.
 
 Resumes jobs with the specified instance IDs.
 The default is all jobs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use the Get-Job cmdlet.
 
@@ -14590,6 +15680,7 @@ Wildcards are supported.
 
 Resumes only those jobs in the specified state.
 Valid values are NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, and Stopping, but Resume-Job resumes only jobs in the Suspended state.
+
 For more information about job states, see "JobState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.jobstate(v=vs.85).aspx]()
 
 
@@ -14632,11 +15723,15 @@ Otherwise, this cmdlet does not generate any output.
 Resume-Job can only resume jobs that are suspended.
 If you submit a job in a different state, Resume-Job runs the resume operation on the job, but generates a warning to notify you that the job could not be resumed.
 To suppress the warning, use the WarningAction common parameter with a value of SilentlyContinue.
+
 If a job is not of a type that supports resuming, such as a workflow job (PSWorkflowJob), Resume-Job throws a terminating error.
+
 The mechanism and location for saving a suspended job might vary depending on the job type.
 For example, suspended workflow jobs are saved in a flat file store by default, but can also be saved in a SQL database.
+
 When you resume a job, the job state changes from Suspended to Running.
 To find the jobs that are running, including those that were resumed by this cmdlet, use the State parameter of the Get-Job cmdlet to get jobs in the Running state.
+
 Some job types have options or properties that prevent Windows PowerShell from suspending the job.
 If attempts to suspend the job fail, verify that the job options and properties allow suspending.
 
@@ -14685,6 +15780,7 @@ PS C:\>Invoke-Command -ComputerName Srv01 -ScriptBlock {Get-Job -State Suspended
 
 ```
 This command resumes all suspended jobs on the Srv01 remote computer.
+
 The command uses the Invoke-Command cmdlet to run a command on the Srv01 computer.
 The remote command uses the State parameter of the Get-Job cmdlet to get all suspended jobs on the computer.
 A pipeline operator (|) sends the suspended jobs to the Resume-Job cmdlet, which resumes them.
@@ -14759,6 +15855,7 @@ PS C:\>Receive-Job -Name Job8
 The Resume-Job cmdlet lets you resume a workflow job that was suspend by using the Suspend-Workflow activity.
 This activity suspends a workflow from within a workflow.
 It is valid only in workflows.
+
 For information about the Suspend-Workflow, see about_Suspend-Workflow.
 
 
@@ -14799,17 +15896,23 @@ In Windows PowerShell 4.0, the HelpInfoUri property is preserved over Windows Po
 It is also possible to save a PSModuleInfo object to disk or removable media by running Export-CliXml on a computer that does not have Internet access, import the object on a computer that does have Internet access, and then run Save-Help on the PSModuleInfo object.
 The saved help can be transported to the remote computer by using removable storage media (such as a USB drive), and then the help can be installed on the remote computer by running Update-Help.
 This process can be used to install help on computers that do not have any kind of network access.
+
 To install saved help files, run the Update-Help cmdlet.
 Add its SourcePath parameter to specify the directory in which you saved the Help files.
+
 Without parameters, a Save-Help command downloads the newest help for all modules in the session and for modules that are installed on the computer in a location listed in the PSModulePath environment variable.
 Modules that do not support Updatable Help are skipped without warning.
+
 The Save-Help cmdlet checks the version of any help files in the destination directory and, if newer help files are available, it downloads the newest help files from the Internet and saves them in the directory.
 The Save-Help cmdlet works just like the Update-Help cmdlet, except that it saves the downloaded cabinet (.cab) files in a directory, instead of extracting the help files from the cabinet files and installing them on the computer.
+
 The saved help for each module consists of one help information (HelpInfo XML) file and one cabinet (.cab) file for the help files each UI culture.
 You do not need to extract the help files from the cabinet file.
 The Update-Help cmdlet extracts the help files, validates the XML for safety, and then installs the help files and the help information file in a language-specific subdirectory of the module directory.
+
 To save the help files for modules in the Windows PowerShell installation directory ($pshome\Modules), start Windows PowerShell with the "Run as administrator" option.
 You must be a member of the Administrators group on the computer to download the help files for these modules.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -14818,6 +15921,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Runs the command with credentials of a user who has permission to access the file system location specified by the DestinationPath parameter.
 This parameter is valid only when the DestinationPath or LiteralPath parameter is used in the command.
+
 This parameter enables you to run Save-Help commands with the DestinationPath parameter on remote computers.
 By providing explicit credentials, you can run the command on a remote computer and access a file share on a third computer without encountering an "access denied" error or using CredSSP authentication to delegate credentials.
 
@@ -14839,8 +15943,11 @@ Do not specify a file name or file name extension.
 #### Force [switch]
 
 Overrides the once-per-day limitation, circumvents version checking, and downloads files that exceed the 1 GB limit
+
 Without this parameter, only one Save-Help command for each module is permitted in each 24-hour period, downloads are limited to 1 GB of uncompressed content per module, and help files for a module are installed only when they are newer than the files on the computer.
+
 The once-per-day limit protects the servers that host the help files, and makes it practical for you to add a Save-Help command to your Windows PowerShell profile.
+
 To save help for a module in multiple UI cultures without the Force parameter, include all UI cultures in the same command, such as: Save-Help -Module PSScheduledJobs -UICulture en-US, fr-FR, pt-BR
 
 
@@ -14870,6 +15977,7 @@ Single quotation marks tell Windows PowerShell not to interpret any characters a
 Specifies modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [Module Specification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedModule parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedModule parameter in the same command as a Module parameter; the two parameters are mutually exclusive.
 
 
@@ -14888,12 +15996,16 @@ Wildcard characters are permitted.
 You can also pipe module objects from the Get-Module cmdlet to Save-Help.
 
 By default, Save-Help downloads help for all modules that support Updatable Help and are installed on the local computer in a location listed in the PSModulePath environment variable.
+
 To save help for modules that are not installed on the computer, run a Get-Module command on a remote computer.
 Then pipe the resulting module objects to the Save-Help cmdlet or submit the module objects as the value of the Module or InputObject parameters.
+
 If the module that you specify is installed on the computer, you can enter the module name or a module object.
 If the module is not installed on the computer, you must enter a module object, such as one returned by the Get-Module cmdlet.
+
 The Module parameter of the Save-Help cmdlet does not accept the full path to a module file or module manifest file.
 To save help for a module that is not in a PSModulePath location, import the module into the current session before running the Save-Help command.
+
 A value of "*" (all) attempts to update help for all modules that are installed on the computer, including modules that do not support Updatable Help.
 This value might generate errors as the command encounters modules that do not support Updatable Help.
 
@@ -14906,7 +16018,9 @@ This value might generate errors as the command encounters modules that do not s
 
 Gets updated help files for the specified UI culture.
 Enter one or more language codes, such as "es-ES", a variable that contains culture objects, or a command that gets culture objects, such as a Get-Culture or Get-UICulture command.
+
 Wildcards are not permitted and you cannot submit a partial language code, such as "de".
+
 By default, Save-Help gets help files in the UI culture set for Windows or its fallback culture.
 If you use the UICulture parameter, Save-Help looks for help only for the specified UI culture, not in any fallback culture.
 
@@ -14915,6 +16029,7 @@ If you use the UICulture parameter, Save-Help looks for help only for the specif
 
 Runs the command, including the web download, with the credentials of the current user.
 By default, the command runs without explicit credentials.
+
 This parameter is effective only when the web download uses NTLM, negotiate, or Kerberos-based authentication.
 
 
@@ -14932,19 +16047,26 @@ Save-Help does not generate any output.
 ### NOTES
 To save help for modules in the $pshome\Modules directory, start Windows PowerShell with the "Run as administrator" option.
 Only  members of the Administrators group on the computer can download help for the for modules in the $pshome\Modules directory.
+
 The saved help for each module consists of  one help information (HelpInfo XML) file and one cabinet (.cab) file for the help files each UI culture.
 You do not need to extract the help files from the cabinet file.
 The Update-Help cmdlet extracts the help files, validates the XML, and then installs the help files and the help information file in a language-specific subdirectory of the module directory.
+
 The Save-Help cmdlet can save help for modules that are not installed on the computer.
 However, because help files are installed in the module directory, the Update-Help cmdlet can install updated help file only for modules that are installed on the computer.
+
 If Save-Help cannot find updated help files for a module, or cannot find updated help files in the specified language, it continues silently without displaying an error message.
 To see which files were saved by the command, use the Verbose parameter.
+
 Modules are the smallest unit of updatable help.
 You cannot save help for a particular cmdlet; only for all cmdlets in module.
 To find the module that contains a particular cmdlet, use the ModuleName property of the Get-Command cmdlet, for example, (Get-Command \<cmdlet-name\>).ModuleName
+
 Save-Help supports all modules and the Windows PowerShell Core snap-ins.
 It does not support any other snap-ins.
+
 The Update-Help and Save-Help cmdlets use the following ports to download help files: Port 80 for HTTP and port 443 for HTTPS.
+
 The Update-Help and Save-Help cmdlets are not supported on Windows Preinstallation Environment (Windows PE).
 
 ### EXAMPLES
@@ -15011,7 +16133,9 @@ PS C:\>Save-Help -Module ServerManager -DestinationPath \\Server01\FileShare01 -
 
 ```
 This command downloads the newest help files for the ServerManager module and saves them in the \\\\Server01\Fileshare01 directory.
+
 When a module is installed on the computer, you can type the module name as the value of the Module parameter, even if the module is not imported into the current session.
+
 The command uses the Credential parameter to supply the credentials of a user who has permission to write to the file share.
 
 
@@ -15036,6 +16160,7 @@ PS C:\>Save-Help -Module Microsoft.PowerShell* -UICulture de-DE, en-US, fr-FR, j
 ```
 This command saves help for the Windows PowerShell Core modules in four different UI cultures.
 The language packs for these locales do not need to be installed on the computer.
+
 Save-Help can download help files for modules in different UI cultures only when the module owner makes the translated files available on the Internet.
 
 
@@ -15047,10 +16172,11 @@ PS C:\>Save-Help -Force -DestinationPath \\Server3\AdminShare\Help
 ```
 This command saves help for all modules that are installed on the computer.
 The command uses It uses the Force parameter to override the rule that prevents the Save-Help cmdlet from downloading help more than once in each 24-hour period.
+
 The Force parameter also overrides the 1 GB restriction and circumvents version checking, so you can download files even if the version is not greater than the version in the destination directory.
+
 The command uses the Save-Help cmdlet to download and save the help files to the specified directory.
 The Force parameter is required when you need to run a Save-Help command more than once each day.
-
 
 
 
@@ -15077,6 +16203,7 @@ Turns script debugging features on and off, sets the trace level, and toggles st
 
 ### DESCRIPTION
 The Set-PSDebug cmdlet turns script debugging features on and off, sets the trace level, and toggles strict mode.
+
 When the Trace parameter is set to 1, each line of script is traced as it is executed.
 When the parameter is set to 2, variable assignments, function calls, and script calls are also traced.
 If the Step parameter is specified, you are prompted before each line of the script is executed.
@@ -15090,6 +16217,7 @@ If the Step parameter is specified, you are prompted before each line of the scr
 ```
 
 Turns off all script debugging features.
+
 Note: A "set-strictmode -off" command disables the verification set by a "set-psdebug -strict" command.
 For more information, see Set-StrictMode.
 
@@ -15102,6 +16230,7 @@ For more information, see Set-StrictMode.
 
 Turns on script stepping.
 Before each line is run, the user is prompted to stop, continue, or enter a new interpreter level to inspect the state of the script.
+
 Note: Specifying the Step parameter automatically sets a Trace level of 1.
 
 
@@ -15112,6 +16241,7 @@ Note: Specifying the Step parameter automatically sets a Trace level of 1.
 ```
 
 Specifies that the interpreter should throw an exception if a variable is referenced before a value is assigned to the variable.
+
 Note: A "set-strictmode -off" command disables the verification set by a "set-psdebug -strict" command.
 For more information, see Set-StrictMode.
 
@@ -15123,8 +16253,11 @@ For more information, see Set-StrictMode.
 ```
 
 Specifies the trace level:
+
 0 - Turn script tracing off
+
 1 - Trace script lines as they are executed
+
 2 - Trace script lines, variable assignments, function calls, and scripts.
 
 
@@ -15179,6 +16312,7 @@ DEBUG:    1+ Set-PsDebug -step; foreach ($i in 1..3) {$i}
 
 ```
 This command turns on stepping and then
+
 runs a script that displays the numbers 1, 2, and 3.
 
 
@@ -15240,19 +16374,23 @@ Changes the properties of a registered session configuration.
 
 ### DESCRIPTION
 The Set-PSSessionConfiguration cmdlet changes the properties of the session configurations on the local computer.
+
 Use the Name parameter to identify the session configuration that you want to change.
 Use the other parameters to specify new values for the properties of the session configuration.
 To delete a property value from the configuration (and use the default value), enter an empty string ("") or a value of $null for the corresponding parameter.
+
 Beginning in Windows PowerShell 3.0, you can use a session configuration file to define a session configuration.
 This feature provides a simple and discoverable method for setting and changing the properties of sessions that use the session configuration.
 To specify a session configuration file, use the Path parameter of Set-PSSessionConfiguration.
 For information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
 For information about creating and editing a session configuration file, see New-PSSessionConfigurationFile.
+
 Session configurations define the environment of remote sessions (PSSessions) that connect to the local computer.
 Every PSSession uses a session configuration.
 The session configuration determines the features of the PSSession, such as the modules that are available in the session, the cmdlets that are permitted to run, the language mode, quotas, and timeouts.
 The security descriptor (SDDL) of the session configuration determines who can use the session configuration to connect to the local computer.
 For more information about session configurations, see about_Session_Configurations.
+
 To see the properties of a session configuration, use the Get-PSSessionConfiguration cmdlet or the WSMan Provider.
 For more information about the WSMan Provider, type "Get-Help WSMan".
 
@@ -15278,6 +16416,7 @@ Specifies the path to the assembly file (*.dll) that is specified in the value o
 ```
 
 Creates a session configuration based on a class that is defined in an assembly.
+
 Enter the path (optional) and file name of an assembly (a .dll file) that defines a session configuration.
 If you enter only the name, you can enter the path in the value of the ApplicationBase parameter.
 
@@ -15293,6 +16432,7 @@ If you enter only the name, you can enter the path in the value of the Applicati
 
 Specifies the type of the session configuration that is defined in the assembly in the AssemblyName parameter.
 The type that you specify must implement the System.Management.Automation.Remoting.PSSessionConfiguration class.
+
 This parameter is required when you specify an assembly name.
 
 
@@ -15300,6 +16440,7 @@ This parameter is required when you specify an assembly name.
 
 Suppresses all user prompts, and restarts the WinRM service without prompting.
 Restarting the service makes the configuration change effective.
+
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
@@ -15308,6 +16449,7 @@ To prevent a restart and suppress the restart prompt, use the NoServiceRestart p
 Changes the limit on the amount of data that can be sent to this computer in any single remote command.
 Enter the data size in megabytes (MB).
 The default is 50 MB.
+
 If a data size limit is defined in the configuration type that is specified in the ConfigurationTypeName parameter, the limit in the configuration type is used and the value of this parameter is ignored.
 
 
@@ -15316,6 +16458,7 @@ If a data size limit is defined in the configuration type that is specified in t
 Changes the limits on the amount of data that can be sent to this computer in any single object.
 Enter the data size in megabytes (MB).
 The default is 10 MB.
+
 If an object size limit is defined in the configuration type that is specified in the ConfigurationTypeName parameter, the limit in the configuration type is used and the value of this parameter is ignored.
 
 
@@ -15329,15 +16472,17 @@ If an object size limit is defined in the configuration type that is specified i
 ```
 
 Specifies the name of the session configuration that you want to change.
+
 You cannot use this parameter to change the name of the session configuration.
 
 
 #### NoServiceRestart [switch]
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter a Set-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
 
+By default, when you enter a Set-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
 Until the WinRM service is restarted, the new session configuration is not effective.
+
 To restart the WinRM service without prompting, use the Force parameter.
 To restart the WinRM service manually, use the Restart-Service cmdlet.
 
@@ -15350,7 +16495,9 @@ To restart the WinRM service manually, use the Restart-Service cmdlet.
 ```
 
 Specifies the version of Windows PowerShell in sessions that use this session configuration.
- The value of this parameter takes precedence over the value of the PowerShellVersion key in the session configuration file.
+
+The value of this parameter takes precedence over the value of the PowerShellVersion key in the session configuration file.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15358,16 +16505,20 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Runs commands in the session with the permissions of the specified user.
 By default, commands run with the permissions of the current user.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### SecurityDescriptorSddl [String]
 
 Specifies a different Security Descriptor Definition Language (SDDL) string for the configuration.
+
 This string determines the permissions that are required to use the new session configuration.
 To use a session configuration in a session, users must have at least "Execute(Invoke)" permission for the configuration.
+
 To use the default security descriptor for the configuration, enter an empty string ("") or a value of $null.
 The default is the root SDDL in the WSMan: drive.
+
 If the security descriptor is complex, consider using the ShowSecurityDescriptorUI parameter instead of this one.
 You cannot use both parameters in the same command.
 
@@ -15376,7 +16527,9 @@ You cannot use both parameters in the same command.
 
 Displays a property sheet that helps you to create a new SDDL for the session configuration.
 The property sheet appears after you enter the Set-PSSessionConfiguration command and then restart the WinRM service.
+
 When setting the permissions to the configuration, remember that users must have at least "Execute(Invoke)" permission to use the session configuration in a session.
+
 You cannot use the SecurityDescriptorSDDL parameter and this parameter in the same command.
 
 
@@ -15385,7 +16538,9 @@ You cannot use the SecurityDescriptorSDDL parameter and this parameter in the sa
 Adds or changes the startup script for the configuration.
 Enter the fully qualified path to a Windows PowerShell script.
 The specified script runs in the new session that uses the session configuration.
+
 To delete a startup script from a session configuration, enter an empty string ("") or a value of $null.
+
 You can use a startup script to further configure the user's session.
 If the script generates an error (even a non-terminating error), the session is not created and the user's New-PSSession command fails.
 
@@ -15403,6 +16558,7 @@ Changes the thread options setting in the configuration.
 This setting defines how threads are created and used when a command is executed in the session.
 Valid values are Default, ReuseThread, UseCurrentThread, and UseNewThread.
 UseCurrentThread is the default.
+
 For more information, see "PSThreadOptions Enumeration" in MSDN.
 
 
@@ -15410,6 +16566,7 @@ For more information, see "PSThreadOptions Enumeration" in MSDN.
 
 Use only one process to host all sessions that are started by the same user  and use the same session configuration.
 By default, each session is hosted in its own process.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15417,21 +16574,25 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Enables and disables the session configuration and determines whether it can be used for remote or local sessions on the computer.
 Remote is the default.
+
 Valid values are:
+
 
 --  Disabled: Disables the session configuration.
 It cannot be used for remote or local access to the computer.
 This value sets the Enabled property of the session configuration (WSMan:\\<ComputerName\>\PlugIn\\<SessionConfigurationName\>\Enabled) to False.
 
+
 --  Local: Adds a Network_Deny_All entry to security descriptor of the session configuration.
 Users of the local computer can use the session configuration to create a local "loopback" session on the same computer, but remote users are denied access.
 
- 
-                        
+
 --  Remote: Removes Deny_All and Network_Deny_All entries from the security descriptors of the session configuration.
 Users of local and remote computers can use the session configuration to create sessions and run commands on this computer.
+
 The value of this parameter can be overridden by the actions of other cmdlets.
 For example, the Enable-PSRemoting cmdlet enables all session configurations on the computer and permits remote access to them, and the Disable-PSRemoting cmdlet permits only local access to all session configurations on the computer.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15443,22 +16604,24 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Sets type-specific options for the session configuration.
-
 Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
+
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options.
 Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration.
 However, session option values cannot exceed maximum values set in the session configuration.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### TransportOption [PSTransportOption]
 
 Sets transport options for the session configuration.
-
 Enter a transport options object, such as the WSManConfigurationOption object that the New-PSTransportOption cmdlet returns.
+
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options.
 Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration.
 However, session option values cannot exceed maximum values set in the session configuration.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15472,7 +16635,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Adds or replaces a session configuration file (.pssc), such as one created by the New-PSSessionConfigurationFile cmdlet.
 If you omit the path, the default is the current directory.
+
 For information about editing a session configuration file, see the help topic for the New-PSSessionConfigurationFile cmdlet.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15485,10 +16650,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the modules and snap-ins that are automatically imported into sessions that use the session configuration.
 Enter the module and snap-in names.
+
 By default, only the Microsoft.PowerShell.Core snap-in is imported into sessions, but unless the cmdlets are excluded, users can use the Import-Module and Add-PSSnapin cmdlets to add modules and snap-ins to the session.
+
 The modules specified in this parameter value are imported in additions to modules specified in the session configuration file (New-PSSessionConfigurationFile).
 However, settings in the session configuration file can hide the commands exported by modules or prevent users from using them.
+
 The modules specified in this parameter value replace the list of modules specified by using the ModulesToImport parameter of the Register-PSSessionConfiguration cmdlet.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15517,13 +16686,17 @@ You cannot pipe input to this cmdlet.
 
 ### NOTES
 To run this cmdlet, start Windows PowerShell with the "Run as administrator" option.
+
 The Set-PSSessionConfiguration cmdlet does not change the configuration name and the WSMan provider does not support the Rename-Item cmdlet.
 To change the name of a session configuration, use the Unregister-PSSessionConfiguration cmdlet to delete the configuration and then use the Register-PSSessionConfiguration cmdlet to create and register a new session configuration.
+
 You can use the Set-PSSessionConfiguration cmdlet to change the default Microsoft.PowerShell and Microsoft.PowerShell32 session configurations.
 They are not protected.
 To revert to the original version of a default session configuration, use the Unregister-PSSessionConfiguration cmdlet to delete the default session configuration and then use the Enable-PSRemoting cmdlet to restore it.
+
 The properties of a session configuration object vary with the options set for the session configuration and the values of those options.
 Also, session configurations that use a session configuration file have additional properties.
+
 You can use commands in the WSMan: drive to change the properties of session configurations.
 However, you cannot use the WSMan: drive in Windows PowerShell 2.0 to change session configuration properties that are introduced in Windows PowerShell 3.0, such as OutputBufferingMode.
 Windows PowerShell 2.0 commands do not generate an error, but they are ineffective.
@@ -15575,8 +16748,11 @@ WinRM service need to be restarted to make the changes effective. Do you want to
 
 ```
 This example shows sample output from the Set-PSSessionConfiguration cmdlet.
+
 The Set-PSSessionConfiguration command in this example increases the value of the MaximumReceivedObjectSizeMB property to 20.
+
 The Set-PSSessionConfiguration command returns a Microsoft.WSMan.Management.WSManConfigLeafElement object that shows the parameter name and new value.
+
 It also prompts you to restart the WinRM service.
 The Set-PSSessionConfiguration change is not effective until the WinRM service is restarted.
 
@@ -15668,13 +16844,14 @@ This example shows different ways of viewing the results of a Set-PSSessionConfi
 ### SYNOPSIS
 Establishes and enforces coding rules in expressions, scripts, and script blocks.
 
-
-
 ### DESCRIPTION
 The Set-StrictMode cmdlet configures strict mode for the current scope (and all child scopes) and turns it on and off.
 When strict mode is on, Windows PowerShell generates a terminating error when the content of an expression, script, or script block violates basic best-practice coding rules.
+
 Use the Version parameter to determine which coding rules are enforced.
+
 Unlike the Set-PSDebug cmdlet, Set-StrictMode affects only the current scope and its child scopes, so you can use it in a script or function without affecting the global scope.
+
 When Set-StrictMode is off, uninitialized variables (Version 1) are assumed to have a value of 0 (zero) or $null, depending on type.
 References to non-existent properties return $null, and the results of function syntax that is not valid vary with the error.
 Unnamed variables are not permitted.
@@ -15703,18 +16880,27 @@ This parameter also turns off "Set-PSDebug -Strict".
 
 Specifies the conditions that cause an error in strict mode.
 This parameter is required.
+
 The valid values are "1.0", "2.0", and "Latest".
 The following list shows the effect of each value.
-1.0
--- Prohibits references to uninitialized variables, except for uninitialized variables in strings.
-2.0
--- Prohibits references to uninitialized variables (including uninitialized variables in strings).
--- Prohibits references to non-existent properties of an object.
--- Prohibits function calls that use the syntax for calling methods.
--- Prohibits a variable without a name (${}).
-Latest:
---Selects the latest (most strict) version available.
 
+1.0
+
+-- Prohibits references to uninitialized variables, except for uninitialized variables in strings.
+
+2.0
+
+-- Prohibits references to uninitialized variables (including uninitialized variables in strings).
+
+-- Prohibits references to non-existent properties of an object.
+
+-- Prohibits function calls that use the syntax for calling methods.
+
+-- Prohibits a variable without a name (${}).
+
+Latest:
+
+--Selects the latest (most strict) version available.
 Use this value to assure that scripts use the strictest available version, even when new versions are added to Windows PowerShell.
 
 
@@ -15730,8 +16916,7 @@ You cannot pipe input to this cmdlet.
 This cmdlet does not return any output.
 
 ### NOTES
-Set-StrictMode is similar to the Strict parameter of Set-PSDebug.
-"Set-Strictmode -version 1" is equivalent to "Set-PSDebug -strict", except that Set-PSDebug is effective in all scopes.
+Set-StrictMode is similar to the Strict parameter of Set-PSDebug. "Set-Strictmode -version 1" is equivalent to "Set-PSDebug -strict", except that Set-PSDebug is effective in all scopes.
 Set-StrictMode is effective only in the scope in which it is set and in its child scopes.
 For more information about scopes in Windows PowerShell, see about_Scopes.
 
@@ -15752,6 +16937,7 @@ At line:1 char:3
 ```
 This command turns strict mode on and sets it to version 1.0.
 As a result, attempts to reference variables that are not initialized will fail.
+
 The sample output shows the effect of version 1.0 strict mode.
 
 
@@ -15797,9 +16983,12 @@ At line:1 char:9
 ```
 This command turns strict mode on and sets it to version 2.0.
 As a result, Windows PowerShell throws an error if you use method syntax (parentheses and commas) for a function call or reference uninitialized variables or non-existent properties.
+
 The sample output shows the effect of version 2.0 strict mode.
+
 Without version 2.0 strict mode, the "(3,4)" value is interpreted as a single array object to which nothing is added.
 With version 2.0 strict mode, it is correctly interpreted as faulty syntax for submitting two values.
+
 Without version 2.0, the reference to the non-existent Month property of a string returns only null.
 With version 2.0, it is interpreted correctly as a reference error.
 
@@ -15826,15 +17015,18 @@ Starts a Windows PowerShell background job.
 
 ### DESCRIPTION
 The Start-Job cmdlet starts a Windows PowerShell background job on the local computer.
+
 A Windows PowerShell background job runs a command "in the background" without interacting with the current session.
 When you start a background job, a job object is returned immediately, even if the job takes an extended time to complete.
 You can continue to work in the session without interruption while the job runs.
+
 The job object contains useful information about the job, but it does not contain the job results.
 When the job completes, use the Receive-Job cmdlet to get the results of the job.
 For more information about background jobs, see about_Jobs.
-To run a background job on a remote computer, use the AsJob parameter that is available on many cmdlets, or use the Invoke-Command cmdlet to run a Start-Job command on the remote computer.
 
+To run a background job on a remote computer, use the AsJob parameter that is available on many cmdlets, or use the Invoke-Command cmdlet to run a Start-Job command on the remote computer.
 For more information, see about_Remote_Jobs.
+
 Beginning in Windows PowerShell 3.0, Start-Job can start instances of custom job types, such as scheduled jobs.
 For information about using Start-Job to start jobs with custom types, see the help topics for the job type feature.
 
@@ -15849,6 +17041,7 @@ For information about using Start-Job to start jobs with custom types, see the h
 ```
 
 Specifies the arguments (parameter values) for the script that is specified by the FilePath parameter.
+
 Because all of the values that follow the ArgumentList parameter name are interpreted as being values of ArgumentList, the ArgumentList parameter should be the last parameter in the command.
 
 
@@ -15861,12 +17054,13 @@ Because all of the values that follow the ArgumentList parameter name are interp
 ```
 
 Specifies the mechanism that is used to authenticate the user's credentials.
-
- Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
-
+Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
 The default value is Default.
+
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
+
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
+
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share.
 This mechanism increases the security risk of the remote operation.
 If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -15882,6 +17076,7 @@ If the remote computer is compromised, the credentials that are passed to it can
 
 Specifies a user account that has permission to perform this action.
 The default is the current user.
+
 Type a user name, such as "User01" or "Domain01\User01", or enter a PSCredential object, such as one from the Get-Credential cmdlet.
 
 
@@ -15897,6 +17092,7 @@ Type a user name, such as "User01" or "Domain01\User01", or enter a PSCredential
 Runs the specified local script as a background job.
 Enter the path and file name of the script or pipe a script path to Start-Job.
 The script must reside on the local computer or in a directory that the local computer can access.
+
 When you use this parameter, Windows PowerShell converts the contents of the specified script file to a script block and runs the script block as a background job.
 
 
@@ -15916,6 +17112,7 @@ When you use this parameter, Windows PowerShell converts the contents of the spe
 
 Specifies commands that run before the job starts.
 Enclose the commands in braces ( { } ) to create a script block.
+
 Use this parameter to prepare the session in which the job runs.
 For example, you can use it to add functions, snap-ins, and modules to the session.
 
@@ -15936,6 +17133,7 @@ For example, you can use it to add functions, snap-ins, and modules to the sessi
 
 Specifies input to the command.
 Enter a variable that contains the objects, or type a command or expression that generates the objects.
+
 In the value of the ScriptBlock parameter, use the $input automatic variable to represent the input objects.
 
 
@@ -15949,6 +17147,7 @@ In the value of the ScriptBlock parameter, use the $input automatic variable to 
 
 Runs the specified local script as a background job.
 Enter the path to a script on the local computer.
+
 Unlike the FilePath parameter, the value of LiteralPath is used exactly as it is typed.
 No characters are interpreted as wildcards.
 If the path includes escape characters, enclose it in single quotation marks.
@@ -15971,6 +17170,7 @@ Single quotation marks tell Windows PowerShell not to interpret any characters a
 
 Specifies a friendly name for the new job.
 You can use the name to identify the job to other job cmdlets, such as Stop-Job.
+
 The default friendly name is Job#, where "#" is an ordinal number that is incremented for each job.
 
 
@@ -15984,6 +17184,7 @@ The default friendly name is Job#, where "#" is an ordinal number that is increm
 
 Runs the job with the specified version of Windows PowerShell.
 Valid values are 2.0 and 3.0.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15996,8 +17197,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Runs the job in a 32-bit process.
-
 Use this parameter to force the job to run in a 32-bit process on a 64-bit operating system.
+
 NOTE: On 64-bit versions of Windows 7 and Windows Server 2008 R2, when the Start-Job command includes the RunAs32 parameter, you cannot use the Credential parameter to specify the credentials of another user.
 
 
@@ -16026,10 +17227,12 @@ This parameter is required.
 
 Starts the job with the specified job definition name.
 Use this parameter to start custom job types that have a definition name, such as scheduled jobs.
+
 When you use Start-Job to start an instance of a scheduled job, the job starts immediately, regardless of job triggers or job options.
 The resulting job instance is a scheduled job, but it is not saved to disk like triggered scheduled jobs.
 Also, you cannot use the ArgumentList parameter of Start-Job to provide values for parameters of scripts that run in a scheduled job.
 For more information, see about_Scheduled_Jobs.
+
 
 This parameter is introduced in Windows PowerShell 3.0.
 
@@ -16046,7 +17249,9 @@ Starts the job at the specified path location.
 Enter the definition path.
 The concatenation of the values of the DefinitionPath and DefinitionName parameters should be the fully-qualified path to the job definition.
 Use this parameter to start custom job types that have a definition path, such as scheduled jobs.
+
 For scheduled jobs, the value of the DefinitionPath parameter is "$home\AppData\Local\Windows\PowerShell\ScheduledJob".
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -16061,6 +17266,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Starts only jobs of the specified custom type.
 Enter a custom job type name, such as PSScheduledJob for scheduled jobs or PSWorkflowJob for workflows jobs.
 This parameter is not valid for standard background jobs.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -16109,8 +17315,10 @@ PS C:\>$jobWRM = invoke-command -computerName (get-content servers.txt) -scriptb
 ```
 This command uses the Invoke-Command cmdlet and its AsJob parameter to start a background job that runs a "get-service winrm" command on numerous computers.
 Because the command is running on a server with substantial network traffic, the command uses the ThrottleLimit parameter of Invoke-Command to limit the number of concurrent commands to 16.
+
 The command uses the ComputerName parameter to specify the computers on which the job runs.
 The value of the ComputerName parameter is a Get-Content command that gets the text in the Servers.txt file, a file of computer names in a domain.
+
 The command uses the ScriptBlock parameter to specify the command and the JobName parameter to specify a friendly name for the job.
 
 
@@ -16157,16 +17365,22 @@ Index Time          Type        Source                EventID Message
 ```
 These commands manage a background job that gets all of the events from the System log in Event Viewer.
 The job runs on the local computer.
+
 The first command uses the Start-Job cmdlet to start the job.
 It uses the Credential parameter to specify the user account of a user who has permission to run the job on the computer.
 Then it saves the job object that Start-Job returns in the $j variable.
+
 At this point, you can resume your other work while the job completes.
+
 The second command uses a pipeline operator (|) to pass the job object in $j to the Format-List cmdlet.
 The Format-List command uses the Property parameter with a value of all (*) to display all of the properties of the job object in a list.
+
 The third command displays the value of the JobStateInfo property.
 This contains the status of the job.
+
 The fourth command uses the Receive-Job cmdlet to get the results of the job.
 It stores the results in the $results variable.
+
 The final command displays the contents of the $results variable.
 
 
@@ -16254,11 +17468,14 @@ Stops a Windows PowerShell background job.
 ### DESCRIPTION
 The Stop-Job cmdlet stops Windows PowerShell background jobs that are in progress.
 You can use this cmdlet to stop all jobs or stop selected jobs based on their name, ID, instance ID, or state, or by passing a job object to Stop-Job.
+
 You can use Stop-Job to stop background jobs, such as those that were started by using the Start-Job cmdlet or the AsJob parameter of any cmdlet.
 When you stop a background job, Windows PowerShell completes all tasks that are pending in that job queue and then ends the job.
 No new tasks are added to the queue after this command is submitted.
+
 This cmdlet does not delete background jobs.
 To delete a job, use the Remove-Job cmdlet.
+
 Beginning in Windows PowerShell 3.0, Stop-Job also stops custom job types, such as workflow jobs and instances of scheduled jobs.
 To enable Stop-Job to stop a job with custom job type, import the module that supports the custom job type into the session before running a Stop-Job command, either by using the Import-Module cmdlet or by using or getting a cmdlet in the module.
 For information about a particular custom job type, see the documentation of the custom job type feature.
@@ -16277,9 +17494,11 @@ For information about a particular custom job type, see the documentation of the
 
 Stops jobs that satisfy all of the conditions established in the associated hash table.
 Enter a hash table where the keys are job properties and the values are job property values.
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -16295,6 +17514,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Stops jobs with the specified IDs.
 The default is all jobs in the current session.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and type than the InstanceId, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -16313,6 +17533,7 @@ To find the ID of a job, type "Get-Job" without parameters.
 
 Stops only jobs with the specified instance IDs.
 The default is all jobs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use Get-Job.
 
@@ -16347,6 +17568,7 @@ By default, Stop-Job deletes all jobs that were started in the current session.
 Stops only the jobs with the specified friendly names.
 Enter the job names in a comma-separated list or use wildcard characters (*) to enter a job name pattern.
 By default, Stop-Job stops all jobs created in the current session.
+
 Because the friendly name is not guaranteed to be unique, use the WhatIf and Confirm parameters when stopping jobs by name.
 
 
@@ -16368,6 +17590,7 @@ By default, this cmdlet does not generate any output.
 
 Stops only jobs in the specified state.
 Valid values are NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, Stopping.
+
 For more information about job states, see "JobState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.jobstate(v=vs.85).aspx]()
 
 
@@ -16406,17 +17629,22 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock { Stop-job -Job $Using:j }
 
 ```
 This example shows how to use the Stop-Job cmdlet to stop a job that is running on a remote computer.
+
 Because the job was started by using the Invoke-Command cmdlet to run a Start-Job command remotely, the job object is stored on the remote computer, and you must use another Invoke-Command command to run a Stop-Job command remotely.
 For more information about remote background jobs, see about_Remote_Jobs.
+
 The first command creates a Windows PowerShell session (PSSession) on the Server01 computer and saves the session object in the $s variable.
 The command uses the credentials of a domain administrator.
+
 The second command uses the Invoke-Command cmdlet to run a Start-Job command in the session.
 The command in the job gets all of the events in the System event log.
 The resulting job object is stored in the $j variable.
+
 The third command stops the job.
 It uses the Invoke-Command cmdlet to run a Stop-Job command in the PSSession on Server01.
 Because the job objects are stored in $j, which is a variable on the local computer, the command uses the Using scope modifier to identify $j as a local variable.
 For more information about the Using scope modifier, see about_Remote_Variables (http://go.microsoft.com/fwlink/?LinkID=252653).
+
 When the command completes, the job is stopped and the PSSession in $s is available for use.
 
 
@@ -16473,10 +17701,12 @@ PS C:\>Stop-Job -InstanceId e3bbfed1-9c53-401a-a2c3-a8db34336adf
 
 ```
 These commands show how to stop a job based on its instance ID.
+
 The first command uses the Get-Job cmdlet to get the jobs in the current session.
 The command uses a pipeline operator (|) to send the jobs to a Format-Table command, which displays a table of the specified properties of each job.
 The table includes the Instance ID of each job.
 It uses a calculated property to display the job state.
+
 The second command uses a Stop-Job command with the InstanceID parameter to stop a selected job.
 
 
@@ -16492,15 +17722,20 @@ Id    Name    State      HasMoreData     Location         Command
 
 ```
 This example shows how to use the Stop-Job cmdlet to stop a job that is running on a remote computer.
+
 Because the job was started by using the AsJob parameter of the Invoke-Command cmdlet, the job object is located on the local computer, even though the job runs on the remote computer.
 As such, you can use a local Stop-Job command to stop the job.
+
 The first command uses the Invoke-Command cmdlet to start a background job on the Server01 computer.
 The command uses the AsJob parameter to run the remote command as a background job.
+
 This command returns a job object, which is the same job object that the Start-Job cmdlet returns.
 The command saves the job object in the $j variable.
+
 The second command uses a pipeline operator to send the job in the $j variable to Stop-Job.
 The command uses the PassThru parameter to direct Stop-Job to return a job object.
 The job object display confirms that the State of the job is "Stopped".
+
 For more information about remote background jobs, see about_Remote_Jobs.
 
 
@@ -16546,20 +17781,25 @@ Temporarily stops workflow jobs.
 The Suspend-Job cmdlet suspends (temporarily interrupts or pauses) workflow jobs.
 This cmdlet allows users who are running workflows to suspend the workflow.
 It complements the [Suspend-Workflow]() activity, which is a command in the workflow that suspends the workflow.
+
 The Suspend-Job cmdlet works only on workflow jobs.
 It does not work on standard background jobs, such as those that are started by using the Start-Job cmdlet.
 
 To identify a workflow job, look for a value of PSWorkflowJob in the PSJobTypeName property of the job.
 To determine whether a particular custom job type supports the Suspend-Job cmdlet, see the help topics for the custom job type.
+
 When you suspend a workflow job, the workflow job runs to the next checkpoint, suspends, and immediately returns a workflow job object.
 To wait for the suspension to complete before getting the job, use the Wait parameter of Suspend-Job or the Wait-Job cmdlet.
 When the workflow job is suspended, the value of the State property of the job is Suspended.
+
 Suspending correctly relies on checkpoints.
 The current job state, metadata, and output are saved in the checkpoint so the workflow job can be resumed without any loss of state or data.
 If the workflow job does not have checkpoints, it cannot be suspended properly.
 To add checkpoints to a workflow that you are running, use the PSPersist workflow common parameter.
 You can use the Force parameter to suspend any workflow job immediately and to suspend a workflow job that does not have checkpoints, but the action might cause loss of state and data.
+
 NOTE: Before using a Job cmdlet on a custom job type, such as a workflow job (PSWorkflowJob) import the module that supports the custom job type, either by using the Import-Module cmdlet or using or using a cmdlet in the module.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -16582,6 +17822,7 @@ Enter a hash table where the keys are workflow job properties and the values are
 
 Suspends the workflow job immediately.
 This action might cause a loss of state and data.
+
 By default, Suspend-Job lets the workflow job run until the next checkpoint and then suspends it.
 You can also use this parameter to suspend workflow jobs that do not have checkpoints.
 
@@ -16597,6 +17838,7 @@ You can also use this parameter to suspend workflow jobs that do not have checkp
 ```
 
 Suspends the workflow jobs with the specified IDs.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and to type than the instance ID, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -16615,6 +17857,7 @@ To find the ID of a job, use the Get-Job cmdlet.
 
 Suspends workflow jobs with the specified instance IDs.
 The default is all jobs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use the Get-Job cmdlet.
 
@@ -16662,6 +17905,7 @@ Wildcards are supported.
 
 Suspends only those workflow jobs in the specified state.
 Valid values are NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, Stopping but Suspend-Job suspends only workflow jobs in the Running state.
+
 For more information about job states, see "JobState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.jobstate(v=vs.85).aspx]()
 
 
@@ -16669,6 +17913,7 @@ For more information about job states, see "JobState Enumeration" in MSDN at [ht
 
 Returns only after the workflow job is in the suspended state.
 By default, Suspend-Job suspends immediately, even if the workflow job is not yet in the suspended state.
+
 The Wait parameter is equivalent to piping a Suspend-Job command to the Wait-Job cmdlet.
 
 
@@ -16699,10 +17944,14 @@ Suspend-Job returns the jobs that it suspended.
 ### NOTES
 The mechanism and location for saving a suspended job might vary depending on the job type.
 For example, suspended workflow jobs are saved in a flat file store by default, but can also be saved in a database.
+
 If you submit a workflow job that is not in the Running state, Suspend-Job displays a warning message.
 To suppress the warning, use the WarningAction common parameter with a value of SilentlyContinue.
+
 If a job is not of a type that supports suspending, Suspend-Job throw a terminating error.
+
 To find the workflow jobs that are suspended, including those that were suspended by this cmdlet, use the State parameter of the Get-Job cmdlet to get workflow jobs in the Suspended state.
+
 Some job types have options or properties that prevent Windows PowerShell from suspending the job.
 If attempts to suspend the job fail, verify that the job options and properties allow suspending.
 
@@ -16826,8 +18075,10 @@ Verifies that a module manifest file accurately describes the contents of a modu
 
 ### DESCRIPTION
 The Test-ModuleManifest cmdlet verifies that the files that are listed in the module manifest (.psd1) file actually exist in the specified paths.
+
 This cmdlet is designed to help module authors test their manifest files.
 Module users can also use this cmdlet in scripts and commands to detect errors before running scripts that depend on the module.
+
 The Test-ModuleManifest cmdlet returns an object that represents the module (the same type of object that Get-Module returns).
 If any files are not in the locations specified in the manifest, the cmdlet also generates an error for each missing file.
 
@@ -16846,7 +18097,6 @@ If any files are not in the locations specified in the manifest, the cmdlet also
 ```
 
 Specifies the path to the module manifest file.
-
 Enter a path (optional) and the name of the module manifest file with the .psd1 file name extension.
 The default location is the current directory.
 Wildcards are supported, but must resolve to a single module manifest file.
@@ -16911,6 +18161,7 @@ NestedModules     : {}
 
 ```
 This command uses a pipeline operator (|) to send a path string to Test-ModuleManifest.
+
 The command output shows that the test failed, because the TestTypes.ps1xml file, which was listed in the manifest, was not found.
 
 
@@ -16926,11 +18177,15 @@ PS C:\>function Test-ManifestBool ($path)
 
 ```
 This function is like Test-ModuleManifest, but it returns a Boolean value;  it returns "True" if the manifest passed the test and "False" otherwise.
+
 The function uses the Get-ChildItem cmdlet (alias = dir) to get the module manifest specified by the $path variable.
 It uses a pipeline operator (|) to pass the file object to the Test-ModuleManifest cmdlet.
+
 The Test-ModuleManifest command uses the ErrorAction common parameter with a value of SilentlyContinue to suppress the display of any errors that the command generates.
 It also saves the PSModuleInfo object that Test-ModuleManifest returns in the $a variable, so the object is not displayed.
+
 Then, in a separate command (the semi-colon [;] is the command separator), it displays the value of the $? automatic variable, which returns "True" if the previous command generated no error and "False" otherwise.
+
 You can use this function in conditional statements, such as those that might precede an Import-Module command or a command that uses the module.
 
 
@@ -16965,11 +18220,14 @@ Verifies the keys and values in a session configuration file.
 ### DESCRIPTION
 The Test-PSSessionConfigurationFile cmdlet verifies that a session configuration file contains valid keys and the values are of the correct type.
 For enumerated values, the cmdlet verifies that the specified values are valid.
+
 By default, Test-PSSessionConfigurationFile returns "True" ($true) if the file passes all tests and "False" ($false) if it does not.
 To find any errors, use the Verbose common parameter.
+
 Test-PSSessionConfigurationFile verifies the session configuration files, such as those created by the New-PSSessionConfigurationFile cmdlet.
 For information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
 For information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -17043,9 +18301,12 @@ C:\WINDOWS\System32\WindowsPowerShell\v1.0\SessionConfig\Empty_6fd77bf6-e084-437
 
 ```
 This function tests all session configuration files that are used in all session configurations on the local computer.
+
 The function uses the Get-PSSessionConfiguration cmdlet to get all session configurations on the local computer.
 The command pipes the session configuration to the ForEach-Object cmdlet, which runs a command on each of the session configurations.
+
 The ConfigFilePath property of a session configuration contains the path to the session configuration file that is used in the session configuration, if any.
+
 If the value of the ConfigFilePath property is populated (is true), the command gets (prints) the ConfigFilePath property value.
 Then it uses the Test-PSSessionConfigurationFile cmdlet to test the file in the ConfigFilePath value.
 The Verbose parameter returns the file error when the file fails the test.
@@ -17088,8 +18349,10 @@ Deletes registered session configurations from the computer.
 ### DESCRIPTION
 The Unregister-PSSessionConfiguration cmdlet deletes registered session configurations from the computer.
 This is an advanced cmdlet that is designed to be used by system administrators to manage customized session configurations for their users.
+
 To make the change effective, Unregister-PSSessionConfiguration restarts the WinRM service.
 To prevent the restart, use the NoServiceRestart parameter.
+
 If you accidentally delete the default Microsoft.PowerShell or Microsoft.PowerShell32 session configurations, use the Enable-PSRemoting function to restore them.
 For more information, see about_Session_Configurations.
 
@@ -17103,6 +18366,7 @@ For more information, see about_Session_Configurations.
 
 Suppresses all user prompts, and restarts the WinRM service without prompting.
 Restarting the service makes the configuration change effective.
+
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
@@ -17121,6 +18385,7 @@ Specifies the names of the session configurations to delete.
 Enter one session configuration name or a configuration name pattern.
 Wildcards are permitted.
 This parameter is required.
+
 You can also pipe a session configurations to Unregister-PSSessionConfiguration.
 
 
@@ -17131,9 +18396,10 @@ You can also pipe a session configurations to Unregister-PSSessionConfiguration.
 ```
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter an Unregister-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the change effective.
 
+By default, when you enter an Unregister-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the change effective.
 Until the WinRM service is restarted, users can still use the unregistered session configuration, even though Get-PSSessionConfiguration does not find it.
+
 To restart the WinRM service without prompting, use the Force parameter.
 To restart the WinRM service manually, use the Restart-Service cmdlet.
 
@@ -17242,13 +18508,18 @@ PS C:\>new-pssession -configurationName MaintenanceShell
 ```
 This example shows the effect of using the NoServiceRestart parameter of Unregister-PSSessionConfiguration.
 This parameter is designed to prevent a service restart, which would disrupt any sessions on the computer.
+
 The first command uses the Unregister-PSSessionConfiguration cmdlet to deletes the MaintenanceShell session configuration.
 However, because the command uses the NoServiceRestart parameter, the WinRM service is not restarted and the change is not yet completely effective.
+
 The second command uses the Get-PSSessionConfiguration cmdlet to get the MaintenanceShell session.
 Because the session has been removed from the WS-Management resource table, Get-PSSession cannot return it.
+
 The third command uses the New-PSSession cmdlet to create a session on the local computer that uses the MaintenanceShell configuration.
 The command succeeds.
+
 The fourth command uses the Restart-Service cmdlet to restart the WinRM service.
+
 The fifth command again uses the New-PSSession cmdlet to create a session that uses the MaintenanceShell configuration.
 This time, the session fails because the MaintenanceShell configuration has been deleted.
 
@@ -17295,21 +18566,28 @@ Downloads and installs the newest help files on your computer.
 The Update-Help cmdlet downloads the newest help files for Windows PowerShell modules and installs them on your computer.
 You can use the Get-Help cmdlet to view the new help files immediately; you do not need to restart Windows PowerShell to make the change effective.
 This feature enables you to install help files for modules that do not include them and to update help files on your computer so that they never become obsolete.
+
 The Update-Help cmdlet checks the version of the help files on your computer.
 If you do not have help files for a module or do not have the newest help files for a module, Update-Help downloads the newest help files from the Internet or a file share and installs them on your computer in the correct module folder.
+
 Without parameters, Update-Help updates the help for modules in the session and for all installed  modules (in a PSModulePath location) that support Updatable Help, even if the module is not in the current session.
 You can also use the Module parameter to update help for a particular module and use the UICulture parameter to download help files in multiple languages and locales.
+
 You can use Update-Help even on computers that are not connected to the Internet.
 Use the Save-Help cmdlet to download help files from the Internet and save them in a file system location, such as a shared folder or file system directory.
 Then use the SourcePath parameter of Update-Help to get the updated help files from a file system location and install them on the computer.
+
 You can even automate the running of Update-Help by adding an Update-Help command to your Windows PowerShell profile.
 By default, Update-Help runs only once per day on each computer.
 To override the once-per-day limit, use the Force parameter.
+
 To download or update the help files for modules in the Windows PowerShell installation directory ($pshome\Modules), including the Windows PowerShell Core modules, start Windows PowerShell with the "Run as administrator" option.
 You must be a member of the Administrators group on the computer to update the help files for these modules.
+
 You can also update help files by using the "Update Windows PowerShell Help" menu item in the Help menu in Windows PowerShell Integrated Scripting Environment (ISE).
 The "Update Windows PowerShell Help" item runs an Update-Help command without parameters.
 To update help for modules in the $PSHome directory, start Windows PowerShell ISE with the "Run as administrator" option.
+
 This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
@@ -17318,6 +18596,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 Runs the command with credentials of a user who has permission to access the file system location specified by the SourcePath parameter.
 This parameter is valid only when the SourcePath or LiteralPath parameter is used in the command.
+
 This parameter enables you to run Update-Help commands with the SourcePath parameter on remote computers.
 By providing explicit credentials, you can run the command on a remote computer and access a file share on a third computer without encountering an "access denied" error or using CredSSP authentication to delegate credentials.
 
@@ -17325,8 +18604,11 @@ By providing explicit credentials, you can run the command on a remote computer 
 #### Force [switch]
 
 Overrides the once-per-day limitation, version checking, and the 1 GB per module limit.
+
 Without this parameter, Update-Help runs only once in each 24-hour period, downloads are limited to 1 GB of uncompressed content per module and help files are installed only when they are newer than the files on the computer.
+
 The once-per-day limit protects the servers that host the help files and makes it practical for you to add an Update-Help command to your Windows PowerShell profile without incurring the resource cost of repeated connections or downloads.
+
 To update help for a module in multiple UI cultures without the Force parameter, include all UI cultures in the same command, such as: Update-Help -Module PSScheduledJobs -UICulture en-US, fr-FR, pt-BR
 
 
@@ -17341,6 +18623,7 @@ To update help for a module in multiple UI cultures without the Force parameter,
 Specifies modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [Module Specification Constructor (Hashtable)]() on MSDN).
 For example, the FullyQualifiedModule parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}.
 ModuleName and ModuleVersion are required, but Guid is optional.
+
 You cannot specify the FullyQualifiedModule parameter in the same command as a Module parameter; the two parameters are mutually exclusive.
 
 
@@ -17356,6 +18639,7 @@ Gets updated help files from the specified directory instead of downloading them
 Use this parameter or the SourcePath parameter if you have used the Save-Help cmdlet to download help files to a directory.
 
 You can also pipe a directory object, such as one from the Get-Item or Get-ChildItem cmdlets, to Update-Help.
+
 Unlike the value of the SourcePath parameter, the value of the LiteralPath parameter is used exactly as it is typed.
 No characters are interpreted as wildcards.
 If the path includes escape characters, enclose it in single quotation marks.
@@ -17375,11 +18659,14 @@ Updates help for the specified modules.
 Enter one or more module names or name patters in a comma-separated list, or specify a file that lists one module name on each line.
 Wildcard characters are permitted.
 You can also pipe modules from the Get-Module cmdlet, to the Update-Help cmdlet.
+
 The modules that you specify must be installed on the computer, but they do not need to be imported into the current session.
 You can specify any module in the session or any module that is installed in a location listed in the PSModulePath environment variable.
+
 A value of "*" (all) attempts to update help for all modules that are installed on the computer, including modules that do not support Updatable Help.
 This value might generate errors as the command encounters modules that do not support Updatable Help.
 Instead, run an Update-Help command without parameters.
+
 The Module parameter of the Update-Help cmdlet does not accept the full path to a module file or module manifest file.
 To update help for a module that is not in a PSModulePath location, import the module into the current session before running the Update-Help command.
 
@@ -17402,8 +18689,10 @@ Gets updated help files from the specified file system directory, instead of dow
 Enter the path to a directory.
 Do not specify a file name or file name extension.
 You can also pipe a directory object, such as one from the Get-Item or Get-ChildItem cmdlets, to Update-Help.
+
 By default, Update-Help downloads updated help files from the Internet.
 Use this parameter when you have used the Save-Help cmdlet to download  updated help files to a directory.
+
 Administrators can use the "Set the default source path for Update-Help" Group Policy setting under Computer Configuration to specify a default value for the SourcePath parameter.
 This Group Policy setting prevents users from using Update-Help to download help files from the Internet.
 For more information, see about_Group_Policy_Settings (http://go.microsoft.com/fwlink/?LinkId=251696).
@@ -17418,8 +18707,10 @@ For more information, see about_Group_Policy_Settings (http://go.microsoft.com/f
 Gets updated help files for the specified UI culture.
 Enter one or more language codes, such as "es-ES", a variable that contains culture objects, or a command that gets culture objects, such as a Get-Culture or Get-UICulture command.
 Wildcards are not permitted and you cannot submit a partial language code, such as "de".
+
 By default, Update-Help gets help files in the UI culture set for Windows or its fallback culture.
 If you use the UICulture parameter, Update-Help looks for help only for the specified UI culture, not in any fallback culture.
+
 Commands that use the UICulture parameter succeed only when the module provides help files for the specified UI culture.
 If the command fails because the specified UI culture is not supported, the error message includes a list of UI cultures that the module supports.
 
@@ -17428,6 +18719,7 @@ If the command fails because the specified UI culture is not supported, the erro
 
 Runs the command, including the Internet download, with the credentials of the current user.
 By default, the command runs without explicit credentials.
+
 This parameter is effective only when the web download uses NTLM, negotiate, or Kerberos-based authentication.
 
 
@@ -17447,29 +18739,38 @@ Update-Help does not generate any output.
 
 ### NOTES
 To update help for the Windows PowerShell Core modules (which contain the commands that are installed with Windows PowerShell) or any module in the $pshome\Modules directory, start Windows PowerShell with the "Run as administrator" option.
+
 Only  members of the Administrators group on the computer can update help for the for the Windows PowerShell Core modules (the commands that are installed with Windows PowerShell) and for modules in the $pshome\Modules directory.
 If you do not have permission to update help files, you might be able to read the help topics online.
-
 To open the online version of any cmdlet help topic, type "Get-Help \<cmdlet-name\> -Online ".
+
 Modules are the smallest unit of updatable help.
 You cannot update help for a particular cmdlet; only for all cmdlets in module.
 To find the module that contains a particular cmdlet, use the ModuleName property of the Get-Command cmdlet, for example, (Get-Command \<cmdlet-name\>).ModuleName
+
 Because help files are installed in the module directory, the Update-Help cmdlet can install updated help file only for modules that are installed on the computer.
 However, the Save-Help cmdlet can save help for modules that are not installed on the computer.
+
 If Update-Help cannot find updated help files for a module, or cannot find updated help in the specified language, it continues silently without displaying an error message.
 To see status and progress details, use the Verbose parameter.
+
 The Update-Help cmdlet was introduced in Windows PowerShell 3.0.
 It does not work in earlier versions of Windows PowerShell.
 On computers that have both the Windows PowerShell 2.0 engine and Windows PowerShell 3.0, use the Update-Help cmdlet in a Windows PowerShell 3.0 session to download and update help files.
 The help files are accessible to both Windows PowerShell 2.0 and Windows PowerShell 3.0.
+
 The Update-Help and Save-Help cmdlets use the following ports to download help files: Port 80 for HTTP and port 443 for HTTPS.
+
 Update-Help supports all modules and the Windows PowerShell Core snap-ins.
 It does not support any other snap-ins.
+
 To update help for a module in a location that is not listed in the PSModulePath environment variable, import the module into the current session and then run an Update-Help command.
 Run the Update-Help command without parameters or use the Module parameter to specify the module name.
 The Module parameter of the Update-Help and Save-Help cmdlets does not accept the full path to a module file or module manifest file.
+
 Any module can support Updatable Help.
 For instructions for supporting Updatable Help in the modules that you author, see "Supporting Updatable Help" in the MSDN Library at http://go.microsoft.com/fwlink/?LinkID=242129.
+
 The Update-Help and Save-Help cmdlets are not supported on Windows Preinstallation Environment (Windows PE).
 
 ### EXAMPLES
@@ -17480,6 +18781,7 @@ PS C:\>Update-Help
 
 ```
 This command updates help for all installed modules that support Updatable Help in the language specified by the UI culture that is set for Windows.
+
 To run this command, start Windows PowerShell with the "Run as administrator" option (Start-Process PowerShell -Verb RunAs).
 
 
@@ -17490,6 +18792,7 @@ PS C:\>Update-Help -Module ServerManager, Microsoft.PowerShell*
 
 ```
 This command updates help only for the ServerManager module and for modules that have names that begin with "Microsoft.PowerShell".
+
 Because these modules are in the $pshome\Modules directory, to run this command, start Windows PowerShell with the "Run as administrator" option.
 
 
@@ -17502,9 +18805,9 @@ The specified culture is not supported: ja-JP. Specify a culture from the follow
 
 ```
 This command updates the Japanese and English help files for all modules.
+
 If a module currently does not provide help files for the specified UI culture, the error message lists the UI cultures that the module supports.
 In this example, the error message indicates that the ServerManager module currently provides help files only in en-US.
-
 
 
 #### Example 4: Update help automatically
@@ -17517,12 +18820,15 @@ Id         Name            JobTriggers     Command                              
 
 ```
 This command creates a scheduled job that updates help for all modules on the computer every day at 3:00 in the morning.
+
 The command uses the Register-ScheduledJob cmdlet to create a scheduled job that runs an Update-Help command.
 The command uses the Credential parameter to run the Update-Help cmdlet with the credentials of a member of the Administrators group on the computer.
 The value of the Trigger parameter is a New-JobTrigger command that creates a job trigger that starts the job every day at 3:00 AM.
+
 To run the Register-ScheduledJob command, start Windows PowerShell with the "Run as administrator" option.
 When you run the command, Windows PowerShell prompts you for the password of the user specified in the value of the Credential parameter.
 The credentials are stored with the scheduled job; you are not prompted when the job runs.
+
 You can use the Get-ScheduledJob cmdlet to view the scheduled job, use the Set-ScheduledJob cmdlet to change it, and use the Unregister-ScheduledJob cmdlet to delete it.
 You can also view and manage the scheduled job in Task Scheduler in the following path: Task Scheduler Library\Microsoft\Windows\PowerShell\ScheduledJobs.
 
@@ -17540,6 +18846,7 @@ PS C:\>Invoke-Command -ComputerName (Get-Content Servers.txt) -ScriptBlock {Upda
 These commands download updated help files for system modules from the Internet and save them in file share.
 Then the commands install the updated help files from the file share on multiple computers.
 You can use a strategy like the one shown here to update the help files on numerous computers, even those that are behind firewalls or are not connected to the Internet.
+
 All of the commands in this example were run in a Windows PowerShell session that was started with the "Run as administrator" option.
 
 
@@ -17551,6 +18858,7 @@ PS C:\>Update-Help -Module BestPractices, ServerManager -Verbose
 ```
 This command updates help for two modules.
 It uses the Verbose common parameter of the Update-Help cmdlet to get a list of the help files that the command updated.
+
 Without the Verbose parameter, Update-Help does not display the results of the command.
 The Verbose parameter is especially useful when you need to verify that you have updated help files for a particular module or a particular locale.
 
@@ -17562,11 +18870,12 @@ PS C:\>Get-Module -ListAvailable | Where HelpInfoUri
 
 ```
 This command gets modules that support Updatable Help.
+
 The command uses the HelpInfoUri property of modules to identify modules that support Updatable Help.
 The value of the HelpInfoUri property contains the address of the Internet location where the module stores its Updatable Help information file.
+
 This command uses the simplified syntax of the Where-Object cmdlet.
 This syntax is introduced in Windows PowerShell 3.0.
-
 
 
 #### Example 8: Inventory updated help files
@@ -17623,8 +18932,10 @@ ADFS                                    en-US                                   
 ```
 The Get-UpdateHelpVersion.ps1 script creates an inventory of the Updatable Help files for each module and their version numbers.
 Copy the script and paste it in a text file.
+
 The script identifies modules that support Updatable Help by using the HelpInfoUri property of modules.
 For modules that support Updatable Help, the script looks for and parses the help information file (HelpInfo XML) to find the latest version number.
+
 The script uses the PSCustomObject class and a hash table to create a custom output object.
 
 
@@ -17659,9 +18970,12 @@ Suppresses the command prompt until one or all of the Windows PowerShell backgro
 ### DESCRIPTION
 The Wait-Job cmdlet waits for Windows PowerShell background jobs to complete before it displays the command prompt.
 You can wait until any background job is complete, or until all background jobs are complete, and you can set a maximum wait time for the job.
+
 When the commands in the job are complete, Wait-Job displays the command prompt and returns a job object so that you can pipe it to another command.
+
 You can use Wait-Job cmdlet to wait for background jobs, such as those that were started by using the Start-Job cmdlet or the AsJob parameter of the Invoke-Command cmdlet.
 For more information about Windows PowerShell background jobs, see about_Jobs.
+
 Beginning in Windows PowerShell 3.0, the Wait-Job cmdlet also waits for custom job types, such as workflow jobs and instances of scheduled jobs.
 To enable Wait-Job to wait for jobs of a particular type, import the module that supports the custom job type into the session before running a Get-Job command, either by using the Import-Module cmdlet or by using or getting a cmdlet in the module.
 For information about a particular custom job type, see the documentation of the custom job type feature.
@@ -17686,9 +19000,11 @@ By default, Wait-Job waits until all of the specified jobs are complete before d
 
 Waits for jobs that satisfy all of the conditions established in the associated hash table.
 Enter a hash table where the keys are job properties and the values are job property values.
+
 This parameter works only on custom job types, such as workflow jobs and scheduled jobs.
 It does not work on standard background jobs, such as those created by using the Start-Job cmdlet.
 For information about support for this parameter, see the help topic for the job type.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -17703,6 +19019,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Waits for jobs with the specified IDs.
+
 The ID is an integer that uniquely identifies the job within the current session.
 It is easier to remember and type than the InstanceId, but it is unique only within the current session.
 You can type one or more IDs (separated by commas).
@@ -17721,6 +19038,7 @@ To find the ID of a job, type "Get-Job" without parameters.
 
 Waits for jobs with the specified instance IDs.
 The default is all jobs.
+
 An instance ID is a GUID that uniquely identifies the job on the computer.
 To find the instance ID of a job, use Get-Job.
 
@@ -17767,6 +19085,7 @@ Waits for jobs with the specified friendly name.
 
 Waits only for jobs in the specified state.
 Valid values are NotStarted, Running, Completed, Failed, Stopped, Blocked, Suspended, Disconnected, Suspending, Stopping.
+
 For more information about job states, see "JobState Enumeration" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.jobstate(v=vs.85).aspx]()
 
 
@@ -17775,6 +19094,7 @@ For more information about job states, see "JobState Enumeration" in MSDN at [ht
 Determines the maximum wait time for each background job, in seconds.
 The default, -1, waits until the job completes, no matter how long it runs.
 The timing starts when you submit the Wait-Job command, not the Start-Job command.
+
 If this time is exceeded, the wait ends and the command prompt returns, even if the job is still running.
 No error message is displayed.
 
@@ -17783,6 +19103,7 @@ No error message is displayed.
 
 Continues waiting if jobs are in the Suspended or Disconnected state.
 By default, Wait-Job returns (terminates the wait) when jobs are in one of the following states: Completed, Failed, Stopped, Suspended, or Disconnected.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -17828,13 +19149,18 @@ PS C:\>$done.Count
 ```
 This example shows how to use the Wait-Job cmdlet with jobs started on remote computers by using the Start-Job cmdlet.
 Both the Start-Job and Wait-Job commands are submitted to the remote computer by using the Invoke-Command cmdlet.
+
 This example uses Wait-Job to determine whether a Get-Date command running as a background job on three different computers is complete.
+
 The first command creates a Windows PowerShell session (PSSession) on each of the three remote computers and stores them in the $s variable.
+
 The second command uses the Invoke-Command cmdlet to run a Start-Job command in each of the three sessions in $s.
 All of the jobs are named Date1.
+
 The third command uses the Invoke-Command cmdlet to run a Wait-Job command.
 This command waits for the Date1 jobs on each computer to complete.
 It stores the resulting collection (array) of job objects in the $done variable.
+
 The fourth command uses the Count property of the array of job objects in the $done variable to determine how many of the jobs are complete.
 
 
@@ -17853,15 +19179,20 @@ PS C:\>Invoke-Command -Session $s -ScriptBlock {Wait-Job -Any}
 ```
 This example uses the Any parameter of Wait-Job to determine when the first of many background jobs running in the current session are complete.
 It also shows how to use the Wait-Job cmdlet to wait for remote jobs to complete.
+
 The first command creates a PSSession on each of the computers listed in the Machines.txt file and stores the PSSessions in the $s variable.
 The command uses the Get-Content cmdlet to get the contents of the file.
 The Get-Content command is enclosed in parentheses to ensure that it runs before the New-PSSession command.
+
 The second command stores a Get-EventLog command string (in quotation marks) in the $c variable.
+
 The third command uses the Invoke-Command cmdlet to run a Start-Job command in each of the sessions in $s.
 The Start-Job command starts a background job that runs the Get-EventLog command in the $c variable.
+
 The command uses the Using scope modifier to indicate that the $c variable was defined on the local computer.
 The Using scope modifier is introduced in Windows PowerShell 3.0.
 For more information about the Using scope modifier, see about_Remote_Variables (http://go.microsoft.com/fwlink/?LinkID=252653).
+
 The fourth command uses the Invoke-Command cmdlet to run a Wait-Job command in the sessions.
 It uses the Any parameter to wait until the first job on the remote computers is complete.
 
@@ -17879,14 +19210,19 @@ PS C:\>$done = Invoke-Command -Session $s -ScriptBlock {Wait-Job -Timeout 30}
 
 ```
 This example shows how to use the Timeout parameter of Wait-Job to set a maximum wait time for the jobs running on remote computers.
+
 The first command creates a PSSession on each of three remote computers (Server01, Server02, and Server03), and it saves the PSSessions in the $s variable.
+
 The second command uses the Invoke-Command cmdlet to run a Start-Job command in each of the PSSessions in $s.
 It saves the resulting job objects in the $jobs variable.
+
 The third command uses the Invoke-Command cmdlet to run a Wait-Job command in each of the PSSessions in $s.
 The Wait-Job command determines whether all of the commands have completed within 30 seconds.
 It uses the Timeout parameter with a value of 30 (seconds) to establish the maximum wait time and saves the results of the command in the $done variable.
+
 In this case, after 30 seconds, only the command on the Server02 computer has completed.
 Wait-Job ends the wait, displays the command prompt, and returns the object that represents the job that was completed.
+
 The $done variable contains a job object that represents the job that ran on Server02.
 
 
@@ -17943,9 +19279,12 @@ PS C:\>$j | Wait-Job
 
 ```
 This example shows how to use the Wait-Job cmdlet with jobs started on the local computer by using the Start-Job cmdlet.
+
 These commands start a job that gets the Windows PowerShell script files that were added or updated in the last week.
+
 The first command uses the Start-Job cmdlet to start a background job on the local computer.
 The job runs a Get-ChildItem command that gets all of the files with a ".ps1" file name extension that were added or updated in the last week.
+
 The third command uses the Wait-Job cmdlet to wait until the job is complete.
 When the job completes, the command displays the job object, which contains information about the job.
 
@@ -17964,11 +19303,15 @@ PS C:\>$j | Wait-Job
 ```
 This example shows how to use the Wait-Job cmdlet with jobs started on remote computers by using the AsJob parameter of the Invoke-Command cmdlet.
 When using AsJob, the job is created on the local computer and the results are automatically returned to the local computer, even though the job runs on the remote computers.
+
 This example uses Wait-Job to determine whether a Get-Process command running in the sessions on three remote computers is complete.
+
 The first command creates PSSessions on three computers and stores them in the $s variable.
+
 The second command uses the Invoke-Command cmdlet to run a Get-Process command in each of the three PSSessions in $s.
 The command uses the AsJob parameter to run the command asynchronously as a background job.
 The command returns a job object, just like the jobs started by using Start-Job, and the job object is stored in the $j variable.
+
 The third command uses a pipeline operator (|) to send the job object in $j to the Wait-Job cmdlet.
 Notice that an Invoke-Command command is not required in this case, because the job resides on the local computer.
 
@@ -18034,21 +19377,31 @@ Selects objects from a collection based on their property values.
 ### DESCRIPTION
 The Where-Object cmdlet selects objects that have particular property values from the collection of objects that are passed to it.
 For example you can use the Where-Object cmdlet to select files that were created after a certain date, events with a particular ID, or computers with a particular version of Windows.
+
 Beginning in Windows PowerShell 3.0, there are two different ways to construct a Where-Object command.
+
 Script block.
 You can use a script block to specify the property name, a comparison operator, and a property value.
 Where-Object returns all objects for which the script block statement is true.
+
 For example, the following command gets processes in the Normal priority class, that is, processes where the value of the PriorityClass property equals "Normal".
+
 Get-Process | Where-Object {$_.PriorityClass -eq "Normal"}
+
 All Windows PowerShell comparison operators are valid in the script block format.
 For more information about comparison operators, see about_Comparison_Operators (http://go.microsoft.com/fwlink/?LinkID=113217).
+
 Comparison statement.
 You can also write a comparison statement, which is much more like natural language.
 Comparison statements were introduced in Windows PowerShell 3.0.
+
 For example, the following commands also get processes that have a priority class of "Normal".
 These commands are equivalent and can be used interchangeably.
+
 Get-Process | Where-Object -Property PriorityClass -eq -Value "Normal"
+
 Get-Process | Where-Object PriorityClass -eq "Normal"
+
 Beginning in Windows PowerShell 3.0, Where-Object adds comparison operators as parameters in a Where-Object command.
 Unless specified, all operators are case-insensitive.
 Prior to Windows PowerShell 3.0, the comparison operators in the Windows PowerShell language could be used only in script blocks.
@@ -18064,8 +19417,11 @@ Prior to Windows PowerShell 3.0, the comparison operators in the Windows PowerSh
 ```
 
 Specifies the Contains operator, which gets objects when any item in the property value of the object is an exact match for the specified value.
+
 For example: Get-Process | where ProcessName -contains "Svchost"
+
 If the property value contains a single object, Windows PowerShell converts it to a collection of one object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18076,6 +19432,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the equals operator, which gets objects when the property value is the same as the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18090,6 +19447,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the script block that is used to filter the objects.
 Enclose the script block in braces ( {} ).
+
 The parameter name (-FilterScript) is optional.
 
 
@@ -18102,6 +19460,7 @@ The parameter name (-FilterScript) is optional.
 ```
 
 Specifies the Greater-than-or-equal operator, which gets objects when the property value is greater than or equal to the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18114,6 +19473,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the Greater-than operator, which gets objects when the property value is greater than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18126,11 +19486,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the In operator, which gets objects when the property value matches any of the specified values.
+
 For example: Get-Process | where -Property ProcessName -in -Value "Svchost", "TaskHost", "WsmProvHost"
+
 If the value of the Value parameter is a single object, Windows PowerShell converts it to a collection of one object.
 
 If the property value of an object is an array, Windows PowerShell uses reference equality to determine a match.
 Where-Object returns the object only if the value of the Property parameter and any value of the Value parameter are the same instance of an object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18156,7 +19519,9 @@ Because InputObject cannot return individual properties from an array or collect
 
 Specifies the Is operator, which gets objects when the property value is an instance of the specified .NET Framework type.
 Enclose the type name in square brackets.
+
 For example, Get-Process | where StartTime -Is [DateTime]
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18169,7 +19534,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the Is-Not operator, which gets objects when the property value is not an instance of the specified .NET Framework type.
+
 For example, Get-Process | where StartTime -IsNot [System.String]
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18182,6 +19549,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the Less-than-or-equals operator.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18194,6 +19562,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the Less-than operator, which gets objects when the property value is less than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18208,6 +19577,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies the Like operator, which gets objects when the property value matches a value that includes wildcard characters.
 
 For example: Get-Process | where ProcessName -like "*host"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18221,7 +19591,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the Match operator, which gets objects when the property value matches the specified regular expression.
 When the input is scalar, the matched value is saved in $Matches automatic variable.
+
 For example: Get-Process | where ProcessName -match "shell"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18234,6 +19606,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the Not-equals operator, which gets objects when the property value is different than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18246,10 +19619,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the  Not-Contains operator, which gets objects when none of the items in the  property value is an exact match for the specified value.
-For example: Get-Process | where ProcessName -NotContains "Svchost"
-"NotContains" refers to a collection of values and is true when the collection does not contain any items that are an exact match for the specified value.
 
+For example: Get-Process | where ProcessName -NotContains "Svchost"
+
+"NotContains" refers to a collection of values and is true when the collection does not contain any items that are an exact match for the specified value.
 If the input is a single object, Windows PowerShell converts it to a collection of one object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18262,11 +19637,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the  Not-In operator, which gets objects when the property value is not an exact match for any of the specified values.
+
 For example: Get-Process | where -Value "svchost" -NotIn -Property ProcessName
+
 If the value of the Value parameter is a single object, Windows PowerShell converts it to a collection of one object.
 
 If the property value of an object is an array, Windows PowerShell uses reference equality to determine a match.
 Where-Object returns the object only if the value of the Property parameter and any value of the Value parameter are not the same instance of an object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18281,6 +19659,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies the Not-Like operator, which gets objects when the property value does not match a value that includes wildcard characters.
 
 For example: Get-Process | where ProcessName -NotLike "*host"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18294,7 +19673,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the not-match operator, which gets objects when the property value does not match the specified regular expression.
 When the input is scalar, the matched value is saved in $Matches automatic variable.
+
 For example: Get-Process | where ProcessName -NotMatch "PowerShell"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18424,7 +19805,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the name of an object property.
+
 The parameter name (-Property) is optional.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18524,7 +19907,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies a property value.
+
 The parameter name (-Value) is optional.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18537,10 +19922,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Contains operator, which gets objects from a collection when the property value of the object is an exact match for the specified value
-For example: Get-Process | where ProcessName -contains "svchost"
-"Contains" refers to a collection of values and is true when the collection contains an item that is an exact match for the specified value.
 
+For example: Get-Process | where ProcessName -contains "svchost"
+
+"Contains" refers to a collection of values and is true when the collection contains an item that is an exact match for the specified value.
 If the input is a single object, Windows PowerShell converts it to a collection of one object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18553,6 +19940,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Equals operator, which gets objects when the property value is the same as the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18565,6 +19953,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Greater-than-or-equal value, which gets objects when the property value is greater than or equal to the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18577,6 +19966,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Greater-than property, which gets objects when the property value is greater than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18589,11 +19979,16 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive In operator, which gets objects when the property value includes the specified value.
+
 For example: Get-Process | where -Value "svchost" -CIn ProcessName
+
 The In operator is much like the Contains operator, except that the property and value positions are reversed.
 For example, the following statements are both true.
+
 "abc", "def" -CContains "abc"
+
 "abc" -CIn "abc", "def"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18606,6 +20001,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Less-than-or-equal operator, which gets objects when the property value is less-than or equal to the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18618,6 +20014,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Less-than operator, which gets objects when the property value is less-than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18632,6 +20029,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Specifies the case-sensitive Like operator, which gets objects when the property value matches a value that includes wildcard characters.
 
 For example: Get-Process | where ProcessName -CLike "*host"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18645,7 +20043,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the case-sensitive Match operator, which gets objects when the property value matches the specified regular expression.
 When the input is scalar, the matched value is saved in $Matches automatic variable.
+
 For example: Get-Process | where ProcessName -CMatch "Shell"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18658,6 +20058,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Not-Equals operator, which gets objects when the property value is different than the specified value.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18670,9 +20071,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Not-Contains operator, which gets objects when the property value of the object is not an exact match for the specified value.
+
 For example: Get-Process | where ProcessName -CNotContains "svchost"
+
 "NotContains" and "CNotContains refer to a collection of values and are true when the collection does not contains any items that are an exact match for the specified value.
 If the input is a single object, Windows PowerShell converts it to a collection of one object.
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18685,10 +20089,14 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Specifies the case-sensitive Not-In operator, which gets objects when the property value is not an exact match for the specified value.
+
 For example: Get-Process | where -Value "svchost" -CNotIn -Property ProcessName
+
 The Not-In  and CNot-In operators are much like the Not-Contains and CNot-Contains operators, except that the property and value positions are reversed.
 For example, the following statements are true.
+
 "abc", "def" -CNotContains "Abc"
+
 "abc" -CNotIn "Abc", "def"
 
 
@@ -18703,6 +20111,7 @@ For example, the following statements are true.
 Specifies the case-sensitive Not-Like operator, which gets objects when the property value does not match a value that includes wildcard characters.
 
 For example: Get-Process | where ProcessName -CNotLike "*host"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18716,7 +20125,9 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the case-sensitive Not-match operator, which gets objects when the property value does not match the specified regular expression.
 When the input is scalar, the matched value is saved in $Matches automatic variable.
+
 For example: Get-Process | where ProcessName -CNotMatch "Shell"
+
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -18736,12 +20147,19 @@ Beginning in Windows PowerShell 4.0, Where() operator behavior has changed.
 Collection.Where('property -match name') no longer accepts string expressions in the format "Property -CompareOperator Value".
 However, the Where() operator accepts string expressions in the format of a scriptblock; this is still supported.
 The following examples show the behavior that has changed.
+
 The following two examples show Where() object behavior that is no longer supported.
+
 (Get-Process).Where('ProcessName -match PowerShell')
+
 (Get-Process).Where('ProcessName -match PowerShell', 'Last', 1)
+
 The following three examples show Where() object behavior that is supported in Windows PowerShell 4.0 and forward.
+
 (Get-Process).Where({$_.ProcessName -match "PowerShell"})
+
 (Get-Process).Where{$_.ProcessName -match "PowerShell"}
+
 (Get-Process).Where({$_.ProcessName -match "PowerShell"}, ‘Last’, 1)
 
 ### EXAMPLES
@@ -18754,6 +20172,7 @@ PS C:\>Get-Service | where Status -eq "Stopped"
 ```
 This command gets a list of all services that are currently stopped.
 The "$_" symbol represents each object that is passed to the Where-Object cmdlet.
+
 The first command uses the script block format.
 The second command uses the comparison statement format.
 The commands are equivalent and can be used interchangeably.
@@ -18771,6 +20190,7 @@ PS C:\>Get-Process | Where-Object WorkingSet -gt (25000*1024)
 ```
 This command lists processes that have a working set greater than 25,000 kilobytes (KB).
 Because the value of the WorkingSet property is stored in bytes, the value of 25,000 is multiplied by 1,024.
+
 The first command uses the script block format.
 The second command uses the comparison statement format.
 The commands are equivalent and can be used interchangeably.
@@ -18785,6 +20205,7 @@ PS C:\>Get-Process | Where-Object ProcessName -Match "^p.*"
 ```
 This command gets the processes that have a ProcessName property value that begins with the letter "p".
 The match operator lets you use regular expression matches.
+
 The first command uses the script block format.
 The second command uses the comparison statement format.
 The commands are equivalent and can be used interchangeably.
@@ -18798,8 +20219,10 @@ PS C:\>Get-Process | where Handles -ge 1000
 
 ```
 This example shows how to use the new comparison statement  format of the Where-Object cmdlet.
+
 The first command uses the comparison statement format.
 In this command, no aliases are used and all parameters include the parameter name.
+
 The second command is the more natural use of the comparison command format.
 The "where" alias is substituted for the "Where-Object" cmdlet name and all optional parameter names are omitted.
 
@@ -18831,13 +20254,16 @@ PS C:\>Get-Module -ListAvailable | where {($_.Name -notlike "Microsoft*" -and $_
 
 ```
 This example shows how to create a Where-Object command with multiple conditions.
+
 This command gets non-core modules that support the Updatable Help feature.
 The command uses the ListAvailable parameter of the Get-Module cmdlet to get all modules on the computer.
 A pipeline operator sends the modules to the Where-Object cmdlet, which gets modules whose names do not begin with "Microsoft" or "PS" and have  a value for the HelpInfoURI property, which tells Windows PowerShell where to find updated help files for the module.
 The comparison statements are connected by the -And logical operator.
+
 The example uses the script block command format.
 Logical operators, such as -And and -Or, are valid only in script blocks.
 You cannot use them in the comparison statement format of a Where-Object command.
+
 For more information about Windows PowerShell logical operators, see about_Logical_Operators (http://go.microsoft.com/fwlink/?LinkID=113238).
 For more information about the Updatable Help feature, see about_Updatable_Help (http://go.microsoft.com/fwlink/?LinkID=235801).
 
@@ -18874,11 +20300,9 @@ Clears the display in the host program.
 The Clear-Host function removes all text from the current display, including commands and output that might have accumulated.
 When complete, it displays the command prompt.
 You can use the function name or its alias, CLS.
-
 Clear-Host affects only the current display.
 It does not delete saved results or remove any items from the session.
 Session-specific items, such as variables and functions, are not affected by this function.
-
 Because the behavior of the Clear-Host function is determined by the host program, Clear-Host might work differently in different host programs.
 
 ### PARAMETERS
@@ -18887,20 +20311,16 @@ Because the behavior of the Clear-Host function is determined by the host progra
 ### INPUTS
 #### None
 
-           You cannot pipe input to Clear-Host.
-
-      
+You cannot pipe input to Clear-Host.
 
 ### OUTPUTS
 #### None
 
-           Clear-Host does not generate any output         
+Clear-Host does not generate any output
 
 ### NOTES
-                           Clear-Host is a simple function, not an advanced function.
+Clear-Host is a simple function, not an advanced function.
 As such, you cannot use common parameters, such as -Debug, in a Clear-Host command.
-
-                       
 
 
 ### EXAMPLES
@@ -18932,13 +20352,10 @@ Gets approved Windows PowerShell verbs.
 
 ### DESCRIPTION
 The Get-Verb function gets verbs that are approved for use in Windows PowerShell commands.
-
-  Windows PowerShell recommends that cmdlet and function names have the Verb-Noun format and include an approved verb.
+Windows PowerShell recommends that cmdlet and function names have the Verb-Noun format and include an approved verb.
 This practice makes command names more consistent and predictable, and easier to use, especially for users who do not speak English as a first language.
-
-  Commands that use unapproved verbs run in Windows PowerShell.
+Commands that use unapproved verbs run in Windows PowerShell.
 However, when you import a module that includes a command with an unapproved verb in its name, the Import-Module command displays a warning message.
-
 NOTE:   The verb list that Get-Verb returns might not be complete.
 For an updated list of approved Windows PowerShell verbs with descriptions, see "Cmdlet Verbs" in MSDN at http://go.microsoft.com/fwlink/?LinkID=160773.
 
@@ -18971,28 +20388,17 @@ Wildcards are permitted.
 
 
 ### NOTES
-                           Get-Verb returns a modified version of a Microsoft.PowerShell.Commands.MemberDefinition object.
+Get-Verb returns a modified version of a Microsoft.PowerShell.Commands.MemberDefinition object.
 The object does not have the standard properties of a MemberDefinition object.
 Instead it has Verb and Group properties.
 The Verb property contains a string with the verb name.
 The Group property contains a string with the verb group.
-
 Windows PowerShell verbs are assigned to a group based on their most common use.
 The groups are designed to make the verbs easy to find and compare, not to restrict their use.
 You can use any approved verb for any type of command.
-
-Each Windows PowerShell verb is assigned to one of the following groups.
-
--- Common: Define generic actions that can apply to almost any cmdlet, such as Add.
--- Communications:  Define actions that apply to communications, such as Connect.
--- Data:  Define actions that apply to data handling, such as Backup.
--- Diagnostic: Define actions that apply to diagnostics, such as Debug.
--- Lifecycle: Define actions that apply to the lifecycle of a cmdlet, such as Complete.
--- Security: Define actions that apply to security, such as Revoke.
--- Other: Define other types of actions.
-
+Each Windows PowerShell verb is assigned to one of the following groups.  -- Common: Define generic actions that can apply to almost any cmdlet, such as Add. -- Communications:  Define actions that apply to communications, such as Connect. -- Data:  Define actions that apply to data handling, such as Backup. -- Diagnostic: Define actions that apply to diagnostics, such as Debug. -- Lifecycle: Define actions that apply to the lifecycle of a cmdlet, such as Complete. -- Security: Define actions that apply to security, such as Revoke. -- Other: Define other types of actions.
 Some of the cmdlets that are installed with Windows PowerShell, such as Tee-Object and Where-Object, use unapproved verbs.
-These cmdlets are considered to be historic exceptions and their verbs are classified as "reserved."                          
+These cmdlets are considered to be historic exceptions and their verbs are classified as "reserved."
 
 
 ### EXAMPLES

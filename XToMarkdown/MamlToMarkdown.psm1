@@ -41,7 +41,37 @@ function Get-EscapedMarkdownText
         # this is kind of a crazy replacement to handle escaping properly.
         # we need to do the reverse operation in our markdown parser.
         # the last part is to make generated markdown more readable.
-        (((($text -replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1') -replace '\.  ', ". `n") -replace '\. ', ".`n"
+        (((($text -replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1') -replace "\.( )+(\w)", ".`n`$2").Trim()
+    }
+}
+
+function Add-LineBreaksForParagraphs
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [string]$text
+    )
+
+    begin
+    {
+        $first = $true
+    }
+
+    process 
+    {
+        if (-not $text)
+        {
+            return $text
+        }
+
+        if ($first) {
+            $first = $false
+        } else {
+            ""
+        }
+
+        $text
     }
 }
 
@@ -56,7 +86,7 @@ function Get-SynopsisMarkdown($command)
 {
 @"
 ### SYNOPSIS
-$($command.details.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText)
+$($command.details.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs)
 "@
 }
 
@@ -65,7 +95,7 @@ function Get-DescriptionMarkdown($command)
 @"
 ### DESCRIPTION
 "@
-$command.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+$command.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
 }
 
 <#
@@ -198,7 +228,7 @@ $parameterMetadata``````
 "@
     }
 
-    $parameter.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    $parameter.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
     $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
@@ -303,14 +333,14 @@ if ($command.inputTypes.inputType.type.name)
 {
     $command.inputTypes.inputType | % { 
         "#### $($_.type.name)"
-        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
-        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText    
+        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
+        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs    
     }
 } 
 else 
 {
     "#### None"
-    $command.inputTypes.inputType.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    $command.inputTypes.inputType.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
 }
 
 }
@@ -324,14 +354,14 @@ if ($command.returnValues.returnValue)
 {
     $command.returnValues.returnValue | % { 
         "#### $($_.type.name)"    
-        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
-        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
+        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
     }
 }
 else 
 {
     "#### None"
-    $command.returnValues.returnValue.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText   
+    $command.returnValues.returnValue.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs   
 }
 
 }
@@ -344,7 +374,7 @@ if ($command.alertSet.alert.para)
 @"
 ### NOTES
 "@
-$command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+$command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
 }
 
 }
@@ -357,11 +387,11 @@ function Get-ExampleMarkdown($example)
         "#### EXAMPLE"
     }
 
-    $example.introduction.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    $example.introduction.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
     '```powershell'
     $example.code
     '```'
-    $example.remarks.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    $example.remarks.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
 }
 
 function Get-ExamplesMarkdown($command)
