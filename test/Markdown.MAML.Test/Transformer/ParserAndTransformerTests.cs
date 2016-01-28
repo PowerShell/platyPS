@@ -58,12 +58,10 @@ And this is my last line.
 ");
             MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
             string[] description = mamlCommand.Description.Split('\n').Select(x => x.Trim()).ToArray();
-            Assert.Equal(5, description.Length);
+            Assert.Equal(3, description.Length);
             Assert.Equal("Hello,", description[0]);
-            Assert.Equal("", description[1]);
-            Assert.Equal("I'm a multiline description.", description[2]);
-            Assert.Equal("", description[3]);
-            Assert.Equal("And this is my last line.", description[4]);
+            Assert.Equal("I'm a multiline description.", description[1]);
+            Assert.Equal("And this is my last line.", description[2]);
         }
 
         [Fact]

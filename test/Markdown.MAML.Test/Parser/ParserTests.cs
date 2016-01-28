@@ -83,7 +83,7 @@ namespace Markdown.MAML.Test.Parser
                     paragraphText,
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(paragraphText, paragraphNode.Spans.First().Text);
+            Assert.Equal(paragraphText.Replace("\r\n", " "), paragraphNode.Spans.First().Text);
         }
 
         [Fact]
@@ -211,7 +211,7 @@ Not a hyperlink [PSObject].
         {
             ParagraphNode paragraphNode =
                 this.ParseAndGetExpectedChild<ParagraphNode>(
-                    "Normal\r\nText *Italic*  \r\n**Bold**\r\n### New header!\r\nBoooo\r\n----\r\n",
+                    "Normal\r\n\r\nText *Italic*  \r\n\r\n**Bold**\r\n### New header!\r\nBoooo\r\n----\r\n",
                     MarkdownNodeType.Paragraph);
 
             ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
@@ -273,7 +273,7 @@ Not a hyperlink [PSObject].
                     documentNode.Children.ElementAtOrDefault(4),
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(paragraphText, paragraphNode.Spans.First().Text);
+            Assert.Equal(paragraphText.Replace("\r\n", " "), paragraphNode.Spans.First().Text);
 
             HyperlinkSpan hyperlinkSpan =
                 Assert.IsType<HyperlinkSpan>(
@@ -312,6 +312,64 @@ Not a hyperlink [PSObject].
                     MarkdownNodeType.CodeBlock);
 
             Assert.Equal("", codeBlockNode.Text);
+        }
+
+        [Fact]
+        public void UnderstandsOneLineBreakVsTwoLineBreaks()
+        {
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(@"
+1
+2
+
+3
+");
+
+
+            ParagraphNode paragraphNode =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Paragraph);
+
+            Assert.Equal("1 2\r\n3", paragraphNode.Spans.First().Text);
+        }
+
+        [Fact]
+        public void ParseEscapingSameWayAsGithub()
+        {
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(@"
+\<
+\\<
+\\\<
+\\\\<
+\\\\\<
+\\\\[
+\
+\\
+\\\
+\\\\
+(
+)
+[
+]
+\(
+\)
+\[
+\\[
+\]
+");
+
+
+            ParagraphNode paragraphNode =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Paragraph);
+
+            // NOTE: to update this example, create a gist on github to check out how it's parsed.
+            Assert.Equal(@"< \< \< \\< \\< \\[ \ \ \\ \\ ( ) [ ] ( ) [ \[ ]", paragraphNode.Spans.First().Text);
         }
 
         [Fact]

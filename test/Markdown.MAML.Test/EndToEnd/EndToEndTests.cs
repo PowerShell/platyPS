@@ -42,7 +42,7 @@ And this is my last line.
 ");
 
             string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(5, description.Length);
+            Assert.Equal(3, description.Length);
         }
 
         [Fact]

@@ -38,7 +38,10 @@ function Get-EscapedMarkdownText
 
     process 
     {
-        (($text -replace '<','\<') -replace '>','\>') -replace '\.  ', ".`n"
+        # this is kind of a crazy replacement to handle escaping properly.
+        # we need to do the reverse operation in our markdown parser.
+        # the last part is to make generated markdown more readable.
+        (((($text -replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1') -replace '\.  ', ". `n") -replace '\. ', ".`n"
     }
 }
 

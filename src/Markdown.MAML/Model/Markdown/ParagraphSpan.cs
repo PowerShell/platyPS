@@ -1,4 +1,6 @@
 ﻿
+using System.Text.RegularExpressions;
+
 namespace Markdown.MAML.Model.Markdown
 {
     public abstract class ParagraphSpan
@@ -9,7 +11,22 @@ namespace Markdown.MAML.Model.Markdown
 
         public static string UnwindMarkdownCharsEscaping(string spanText)
         {
-            return spanText.Replace(@"\<", "<").Replace(@"\>", ">");
+            // this is reverse for this PS code:
+            // ((($text -replace '\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1')
+            spanText = spanText
+                .Replace("\r\n([^\r])", "$1")
+
+                .Replace(@"\[", @"[")
+                .Replace(@"\]", @"]")
+                .Replace(@"\(", @"(")
+                .Replace(@"\)", @")")
+
+                .Replace(@"\<", "<")
+                .Replace(@"\>", ">")
+
+                .Replace(@"\\", @"\");
+
+            return Regex.Replace(spanText, "([^\n])\r\n", "$1 ").Replace(" \r\n", "\r\n");
         }
 
         public ParagraphSpan(string spanText, SourceExtent sourceExtent)
