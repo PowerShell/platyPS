@@ -33,14 +33,17 @@ Returns a history object for each history entry. By default, this cmdlet does no
 
 ### INPUTS
 #### Microsoft.PowerShell.Commands.HistoryInfo
+
 You can pipe a HistoryInfo object to Add-History.
 
 ### OUTPUTS
 #### None or Microsoft.PowerShell.Commands.HistoryInfo
+
 When you use the PassThru parameter, Add-History returns a HistoryInfo object. Otherwise, this cmdlet does not generate any output.
 
 ### NOTES
-The session history is a list of the commands entered during the session along with the ID. The session history represents the order of execution, the status, and the start and end times of the command. As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.  For more information about the session history, see about_History.
+The session history is a list of the commands entered during the session along with the ID. The session history represents the order of execution, the status, and the start and end times of the command. As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.
+For more information about the session history, see about_History.
 To specify the commands to add to the history, use the InputObject parameter. The Add-History command accepts only HistoryInfo objects, such as those returned for each command by the Get-History cmdlet. You cannot pass it a path and file name or a list of commands.
 You can use the InputObject parameter to pass a file of HistoryInfo objects to Add-History. To do so, export the results of a Get-History command to a file by using the Export-Csv or Export-Clixml cmdlet and then import the file by using the Import-Csv or Import-Clixml cmdlets. You can then pass the file of imported HistoryInfo objects to Add-History through a pipeline or in a variable. For more information, see the examples.
 The file of HistoryInfo objects that you pass to the Add-History cmdlet must include the type information, column headings, and all of the properties of the HistoryInfo objects. If you intend to pass the objects back to Add-History, do not use the NoTypeInformation parameter of the Export-Csv cmdlet and do not delete the type information, column headings, or any fields in the file.
@@ -137,7 +140,7 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
 
 ### PARAMETERS
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -145,6 +148,7 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
   Position = 1,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the name of the snap-in. (This is the Name, not the AssemblyName or ModuleName.) Wildcards are permitted.
@@ -163,10 +167,12 @@ Returns an object representing each added snap-in. By default, this cmdlet does 
 
 ### INPUTS
 #### None
+
 You cannot pipe objects to Add-PSSnapin.
 
 ### OUTPUTS
 #### None or System.Management.Automation.PSSnapInInfo
+
 When you use the PassThru parameter, Add-PSSnapin returns a PSSnapInInfo object that represents the snap-in. Otherwise, this cmdlet does not generate any output.
 
 ### NOTES
@@ -255,10 +261,11 @@ Without parameters, Clear-History deletes all commands from the session history,
 
 ### PARAMETERS
 
-#### CommandLine [string[]*]
+#### CommandLine [String[]]
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
 ```
 
 Deletes commands with the specified text strings. If you enter more than one string, Clear-History deletes commands with any of the strings.
@@ -271,7 +278,8 @@ Deletes commands with the specified text strings. If you enter more than one str
 ```
 
 Clears the specified number of  history entries, beginning with the oldest entry in the history.
-If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.  For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
+If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.
+For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
 If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
 
 
@@ -305,10 +313,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe objects to Clear-History.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not generate any output.
 
 ### NOTES
@@ -413,7 +423,8 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session. Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.  The default value is Default.
+Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session. Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+The default value is Default.
 For information about the values of this parameter, see "AuthenticationMechanism enumeration" in MSDN.
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
 
@@ -514,7 +525,9 @@ Specifies the friendly names of the disconnected sessions.
 [Parameter(ParameterSetName = 'Set 4')]
 ```
 
-Specifies the network port on the remote computer that is used to reconnect to the session.  To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the network port on the remote computer that is used to reconnect to the session.
+To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port. To configure the listener, type the following two commands at the Windows PowerShell prompt:
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
@@ -544,7 +557,8 @@ Specifies the disconnected sessions. Enter a variable that contains the PSSessio
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -635,7 +649,8 @@ For more information about session configurations, see about_Session_Configurati
 ```
 
 Specifies the Uniform Resource Identifiers (URIs) of the connection endpoints for the disconnected sessions.
-The URI must be fully qualified.  The format of this string is as follows:
+The URI must be fully qualified.
+The format of this string is as follows:
 
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
 
@@ -660,10 +675,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 You can pipe a session (PSSession) to the Connect-PSSession cmdlet.
 
 ### OUTPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 Connect-PSSession returns an object that represents the session to which it reconnected.
 
 ### NOTES
@@ -876,11 +893,11 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 #### System.Management.Automation.RemotingJob
 
 
+
 ### OUTPUTS
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -983,10 +1000,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any object.
 
 ### NOTES
@@ -1198,7 +1217,7 @@ To disable all session configurations on the computer, use Disable-PSRemoting.
 Suppresses all user prompts. By default, you are prompted to confirm each operation.
 
 
-#### Name [string[]*] = Microsoft.PowerShell
+#### Name [String[]] = Microsoft.PowerShell
 
 ```powershell
 [Parameter(
@@ -1206,6 +1225,7 @@ Suppresses all user prompts. By default, you are prompted to confirm each operat
   ValueFromPipeline = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of session configurations to disable. Enter one or more configuration names. Wildcards are permitted. You can also pipe a string that contains a configuration name or a session configuration object to Disable-PSSessionConfiguration.
@@ -1233,10 +1253,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### Microsoft.PowerShell.Commands.PSSessionConfigurationCommands#PSSessionConfiguration, System.String
+
 You can pipe a session configuration object or a string that contains the name of a session configuration to Disable-PSSessionConfiguration.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any objects.
 
 ### NOTES
@@ -1459,10 +1481,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 You can pipe a session to Disconnect-PSSession.
 
 ### OUTPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 Disconnect-PSSession returns an object that represents the session that it disconnected.
 
 ### NOTES
@@ -1735,10 +1759,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### System.String
+
 Enable-PSRemoting returns strings that describe its results.
 
 ### NOTES
@@ -1830,7 +1856,7 @@ Suppresses all user prompts, and restarts the WinRM service without prompting. R
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -1838,6 +1864,7 @@ To prevent a restart and suppress the restart prompt, use the NoServiceRestart p
   ValueFromPipeline = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of session configurations to enable. Enter one or more configuration names. Wildcards are permitted.
@@ -1888,10 +1915,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### Microsoft.PowerShell.Commands.PSSessionConfigurationCommands#PSSessionConfiguration, System.String
+
 You can pipe a session configuration object or a string that contains the name of a session configuration to Enable-PSSessionConfiguration.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any objects.
 
 ### NOTES
@@ -2041,8 +2070,10 @@ Specifies a process by the process object. The simplest way to use this paramete
 #### System.Diagnostics.Process
 
 
+
 ### OUTPUTS
 #### 
+
 
 
 ### NOTES
@@ -2151,7 +2182,9 @@ The WinRM service uses the application name to select a listener to service the 
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials.   Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".  The default value is "Default".
+Specifies the mechanism that is used to authenticate the user's credentials.
+ Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
+The default value is "Default".
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkId=144382.
 Caution: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -2212,7 +2245,8 @@ The default value is the value of the $PSSessionConfigurationName preference var
   ParameterSetName = 'Set 2')]
 ```
 
-Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session. The URI must be fully qualified.  The format of this string is as follows:
+Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session. The URI must be fully qualified.
+The format of this string is as follows:
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
 The default value is as follows:
 http://localhost:5985/WSMAN
@@ -2274,7 +2308,8 @@ To find the ID of a session, use the Get-PSSession cmdlet.
 ```
 
 Specifies the instance ID of an existing session. Enter-PSSession uses the specified session for the interactive session.
-The instance ID is a GUID. To find the instance ID of a session, use the Get-PSSession cmdlet. You can also use the Session, Name, or ID parameters to specify an existing session.  Or, you can use the ComputerName parameter to start a temporary session.
+The instance ID is a GUID. To find the instance ID of a session, use the Get-PSSession cmdlet. You can also use the Session, Name, or ID parameters to specify an existing session.
+Or, you can use the ComputerName parameter to start a temporary session.
 
 
 #### Name [String]
@@ -2296,7 +2331,8 @@ To establish a friendly name for a session, use the Name parameter of the New-PS
 [Parameter(ParameterSetName = 'Set 1')]
 ```
 
-Specifies the network port  on the remote computer used for this command. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the network port  on the remote computer used for this command. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port. Use the following commands to configure the listener:
 1. winrm delete winrm/config/listener?Address=*+Transport=HTTP
 2. winrm create winrm/config/listener?Address=*+Transport=HTTP @{Port="\<port-number\>"}
@@ -2326,7 +2362,8 @@ When you use Exit-PSSession or the EXIT keyword, the interactive session ends, b
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -2346,10 +2383,12 @@ If you use this parameter, but SSL is not available on the port used for the com
 
 ### INPUTS
 #### System.String or System.Management.Automation.Runspaces.PSSession
+
 You can pipe a computer name (a string) or a session object to Enter-PSSession.
 
 ### OUTPUTS
 #### None
+
 The cmdlet does not return any output.
 
 ### NOTES
@@ -2471,7 +2510,6 @@ Exit-PSHostProcess closes an interactive session with a local process that you h
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -2508,10 +2546,12 @@ You can also use the Exit keyword to end an interactive session. The effect is t
 
 ### INPUTS
 #### None
+
 You cannot pipe objects to Exit-PSSession.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any output.
 
 ### NOTES
@@ -2650,14 +2690,17 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.String
+
 You can pipe a path string to Export-Console.
 
 ### OUTPUTS
 #### System.IO.FileInfo
+
 Export-Console creates a file that contains the exported aliases.
 
 ### NOTES
-When a console file (.psc1) is used to start the session, the name of the console file is automatically stored in the $ConsoleFileName automatic variable.  The value of $ConsoleFileName is updated when you use the Path parameter of Export-Console to specify a new console file. When no console file is used, $ConsoleFileName has no value ($null).
+When a console file (.psc1) is used to start the session, the name of the console file is automatically stored in the $ConsoleFileName automatic variable.
+The value of $ConsoleFileName is updated when you use the Path parameter of Export-Console to specify a new console file. When no console file is used, $ConsoleFileName has no value ($null).
 To use a Windows PowerShell console file in a new session, use the following syntax to start Windows PowerShell:
 "powershell.exe -PsConsoleFile \<ConsoleFile\>.psc1".
 You can also save Windows PowerShell snap-ins for future sessions by adding an Add-PSSnapin command to your Windows PowerShell profile. For more information, see about_Profiles.
@@ -2774,30 +2817,32 @@ An Export-ModuleMember command is optional, but it is a best practice. Even if t
 
 ### PARAMETERS
 
-#### Alias [string[]*]
+#### Alias [String[]]
 
 ```powershell
 [Parameter(
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the aliases that are exported from the script module file. Enter the alias names. Wildcards are permitted.
 
 
-#### Cmdlet [string[]*]
+#### Cmdlet [String[]]
 
 ```powershell
 [Parameter(
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the cmdlets that are exported from the script module file. Enter the cmdlet names. Wildcards are permitted.
 You cannot create cmdlets in a script module file, but you can import cmdlets from a binary module into a script module and re-export them from the script module.
 
 
-#### Function [string[]*]
+#### Function [String[]]
 
 ```powershell
 [Parameter(
@@ -2805,17 +2850,19 @@ You cannot create cmdlets in a script module file, but you can import cmdlets fr
   ValueFromPipeline = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the functions that are exported from the script module file. Enter the function names. Wildcards are permitted. You can also pipe function name strings to Export-ModuleMember.
 
 
-#### Variable [string[]*]
+#### Variable [String[]]
 
 ```powershell
 [Parameter(
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the variables that are exported from the script module file. Enter the variable names (without a dollar sign). Wildcards are permitted.
@@ -2824,10 +2871,12 @@ Specifies the variables that are exported from the script module file. Enter the
 
 ### INPUTS
 #### System.String
+
 You can pipe function name strings to Export-ModuleMember.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not generate any output.
 
 ### NOTES
@@ -3056,13 +3105,14 @@ Specifies the arguments to a method call.
 This parameter is introduced in Windows PowerShell 3.0.
 
 
-#### MemberName [string*]
+#### MemberName [String]
 
 ```powershell
 [Parameter(
   Mandatory = $true,
   Position = 1,
   ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
 ```
 
 Specifies the property to get or the method to call. Wildcard characters are permitted, but work only if the resulting string resolves to a unique value. If, for example, you run Get-Process | ForEach -MemberName *Name, and more than one member exists with a name that contains the string Name--such as the ProcessName and Name properties--the command fails.
@@ -3082,10 +3132,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.PSObject
+
 You can pipe any object to ForEach-Object.
 
 ### OUTPUTS
 #### System.Management.Automation.PSObject
+
 The objects that ForEach-Object returns are determined by the input.
 
 ### NOTES
@@ -3111,7 +3163,8 @@ PS C:\>Get-ChildItem $pshome | ForEach-Object -Process {if (!$_.PSIsContainer) {
 
 
 ```
-This command gets the files and directories in the Windows PowerShell installation directory ($pshome) and passes them to the ForEach-Object cmdlet. If the object is not a directory (the value of the PSISContainer property is false), the script block gets the name of the file, divides the value of its Length property by 1024, and adds a space ("") to separate it from the next entry.   
+This command gets the files and directories in the Windows PowerShell installation directory ($pshome) and passes them to the ForEach-Object cmdlet. If the object is not a directory (the value of the PSISContainer property is false), the script block gets the name of the file, divides the value of its Length property by 1024, and adds a space ("") to separate it from the next entry.
+ 
 
 
 #### -------------------------- EXAMPLE 3 --------------------------
@@ -3233,7 +3286,6 @@ This cmdlet is for internal system use only.
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -3296,9 +3348,11 @@ In Windows PowerShell 2.0, Get-Command gets all commands by default.
 ```
 
 
-Gets information about a cmdlet or function when it is used with the specified  parameters ("arguments").  The alias for ArgumentList is Args.
+Gets information about a cmdlet or function when it is used with the specified  parameters ("arguments").
+The alias for ArgumentList is Args.
 To detect dynamic parameters that are available only when certain other parameters are used, set the value of ArgumentList to the parameters that trigger the dynamic parameters.
-To detect the dynamic parameters that a provider adds to a cmdlet, set the value of the ArgumentList parameter to a path in the provider drive, such as "WSMan:", "HKLM:" or "Cert:".  When the command is a Windows PowerShell provider cmdlet, enter only one path in each command; the provider cmdlets return only the dynamic parameters for the first path the value of ArgumentList. For information about the provider cmdlets, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
+To detect the dynamic parameters that a provider adds to a cmdlet, set the value of the ArgumentList parameter to a path in the provider drive, such as "WSMan:", "HKLM:" or "Cert:".
+When the command is a Windows PowerShell provider cmdlet, enter only one path in each command; the provider cmdlets return only the dynamic parameters for the first path the value of ArgumentList. For information about the provider cmdlets, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
 
 
 #### CommandType [CommandTypes] = Cmdlets, functions, workflows, and alias
@@ -3428,20 +3482,27 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.String
+
 You can pipe command names to Get-Command.
 
 ### OUTPUTS
 #### System.Management.Automation.CommandInfo
+
 All Get-Command output types are derived from this  class. The type of object that is returned depends on the type of command that Get-Command gets.
 #### System.Management.Automation.AliasInfo
+
 Represents aliases.
 #### System.Management.Automation.ApplicationInfo
+
 Represents or applications and files
 #### System.Management.Automation.CmdletInfo
+
 Represents cmdlets.
 #### System.Management.Automation.FunctionInfo
+
 Represents functions and filters
 #### System.Management.Automation.WorkflowInfo
+
 
 
 ### NOTES
@@ -3651,7 +3712,11 @@ TROUBLESHOOTING NOTE: In Windows PowerShell 3.0 and 4.0, Get-Help cannot find Ab
 Displays help only for items in the specified category and their aliases. Valid values are Alias, Cmdlet, Function, Provider, Workflow, and HelpFile. Conceptual topics are in the HelpFile category.
 
 
-#### Component [string[]*] = All components
+#### Component [String[]] = All components
+
+```powershell
+[SupportsWildCards()]
+```
 
 Displays commands with the specified component value, such as "Exchange." Enter a component name. Wildcards are permitted.
 This parameter has no effect on displays of conceptual ("About_") help.
@@ -3691,18 +3756,23 @@ Displays the entire help topic for a cmdlet, including parameter descriptions an
 This parameter is effective only when help files are for the command are installed on the computer. It has no effect on displays of conceptual ("About_") help.
 
 
-#### Functionality [string[]*] = All functionality values
+#### Functionality [String[]] = All functionality values
+
+```powershell
+[SupportsWildCards()]
+```
 
 Displays help for items with the specified functionality. Enter the functionality. Wildcards are permitted.
 This parameter has no effect on displays of conceptual ("About_") help.
 
 
-#### Name [string*]
+#### Name [String]
 
 ```powershell
 [Parameter(
   Position = 1,
   ValueFromPipelineByPropertyName = $true)]
+[SupportsWildCards()]
 ```
 
 Gets help about the specified command or concept. Enter the name of a cmdlet, function, provider, script, or workflow, such as "Get-Member", a conceptual topic name, such as "about_Objects", or an alias, such as "ls". Wildcards are permitted in cmdlet and provider names, but you cannot use wildcards to find the names of function help and script help topics.
@@ -3723,12 +3793,13 @@ Displays the online version of a help topic in the default Internet browser. Thi
 For information about supporting this feature in help topics that you write, see about_Comment_Based_Help (http://go.microsoft.com/fwlink/?LinkID=144309), and "Supporting Online Help" (http://go.microsoft.com/fwlink/?LinkID=242132), and "How to Write Cmdlet Help" (http://go.microsoft.com/fwlink/?LinkID=123415) in the MSDN (Microsoft Developer Network) library.
 
 
-#### Parameter [string*] = All parameters
+#### Parameter [String] = All parameters
 
 ```powershell
 [Parameter(
   Mandatory = $true,
   ParameterSetName = 'Set 5')]
+[SupportsWildCards()]
 ```
 
 Displays only the detailed descriptions of the specified parameters. Wildcards are permitted.
@@ -3743,7 +3814,11 @@ To see the custom cmdlet help for a provider path, go to the provider path locat
 For more information about Windows PowerShell providers, see about_Providers (http://go.microsoft.com/fwlink/?LinkID=113250).
 
 
-#### Role [string[]*] = All roles
+#### Role [String[]] = All roles
+
+```powershell
+[SupportsWildCards()]
+```
 
 Displays help customized for the specified user role. Enter a role. Wildcards are permitted.
 Enter the role that the user plays in an organization. Some cmdlets display different text in their help files based on the value of this parameter. This parameter has no effect on help for the core cmdlets.
@@ -3765,14 +3840,18 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### None
+
 You cannot pipe objects to this cmdlet.
 
 ### OUTPUTS
 #### ExtendedCmdletHelpInfo
+
 If you run Get-Help on a command that does not have a help file, Get-Help returns an ExtendedCmdletHelpInfo object that represents autogenerated help.
 #### System.String
+
 If you get a conceptual help topic, Get-Help returns it as a string.
 #### MamlCommandHelpInfo
+
 If you get a command that has a help file, Get-Help returns a MamlCommandHelpInfo object.
 
 ### NOTES
@@ -4054,10 +4133,12 @@ Specifies the ID number of an entry in the session history. Get-History gets onl
 
 ### INPUTS
 #### Int64
+
 You can pipe a history ID to Get-History.
 
 ### OUTPUTS
 #### Microsoft.PowerShell.Commands.HistoryInfo
+
 Get-History returns a history object for each history item that it gets.
 
 ### NOTES
@@ -4328,10 +4409,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### System.Management.Automation.RemotingJob
+
 Get-Job returns objects that represent the jobs in the session.
 
 ### NOTES
@@ -4676,7 +4759,7 @@ This parameter is introduced in Windows PowerShell 3.0.
 Gets all installed modules. Get-Module gets modules in paths listed in the PSModulePath environment variable. Without this parameter, Get-Module gets only the modules that are both listed in the PSModulePath environment variable, and that are loaded in the current session. ListAvailable does not return information about modules that are not found in the PSModulePath environment variable, even if those modules are loaded in the current session.
 
 
-#### FullyQualifiedName [string[]*] = All imported or available modules.
+#### FullyQualifiedName [String[]] = All imported or available modules.
 
 ```powershell
 [Parameter(
@@ -4691,18 +4774,20 @@ Gets all installed modules. Get-Module gets modules in paths listed in the PSMod
   Position = 1,
   ValueFromPipeline = $true,
   ParameterSetName = 'Set 4')]
+[SupportsWildCards()]
 ```
 
 Gets modules with names that are specified in the form of ModuleSpecification objects (described by the Remarks section of [ModuleSpecification Constructor (Hashtable)]() on MSDN). For example, the FullyQualifiedName parameter accepts a module name that is specified in the format @{ModuleName = "modulename"; ModuleVersion = "version_number"} or @{ModuleName = "modulename"; ModuleVersion = "version_number"; Guid = "GUID"}. ModuleName and ModuleVersion are required, but Guid is optional.
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
-#### Name [string[]*] = All imported or available modules.
+#### Name [String[]] = All imported or available modules.
 
 ```powershell
 [Parameter(
   Position = 1,
   ValueFromPipeline = $true)]
+[SupportsWildCards()]
 ```
 
 Gets only modules with the specified names or name patterns. Wildcards are permitted. You can also pipe the names to Get-Module. You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive. The Name parameter cannot accept a module GUID as a value; to return modules by specifying a GUID, use the FullyQualifiedName parameter instead of the Name parameter.
@@ -4753,10 +4838,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.String
+
 You can pipe module names to Get-Module.
 
 ### OUTPUTS
 #### System.Management.Automation.PSModuleInfo
+
 Get-Module returns objects that represent modules. When you use the ListAvailable parameter, Get-Module returns a ModuleInfoGrouping object, which is a type of PSModuleInfo object that has the same properties and methods.
 
 ### NOTES
@@ -5129,7 +5216,6 @@ The commands in this example enable you to manage the storage systems of a remot
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -5185,7 +5271,8 @@ For more information about Windows PowerShell sessions, see about_PSSessions (ht
 
 Specifies the mechanism that is used to authenticate credentials for the session in which the Get-PSSession command runs.
 This parameter configures the temporary connection that is created to run a Get-PSSession command with the ComputerName or ConnectionUri parameter.
-Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.  The default value is Default.
+Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+The default value is Default.
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
 This parameter is introduced in Windows PowerShell 3.0.
@@ -5253,7 +5340,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 ```
 
 Gets only the sessions with the specified IDs. Type one or more IDs (separated by commas), or use the range operator (..) to specify a range of IDs. You cannot use the ID parameter with the ComputerName parameter.
-An ID is an integer that uniquely identifies the user-managed sessions (PSSessions) in the current session. It is easier to remember and type than the InstanceId, but it is unique only within the current session.  The ID of a session is stored in the ID property of the session.
+An ID is an integer that uniquely identifies the user-managed sessions (PSSessions) in the current session. It is easier to remember and type than the InstanceId, but it is unique only within the current session.
+The ID of a session is stored in the ID property of the session.
 
 
 
@@ -5297,7 +5385,8 @@ The friendly name of a session is stored in the Name property of the session.
 [Parameter(ParameterSetName = 'Set 4')]
 ```
 
-Specifies the specified network port that is used for the temporary connection in which the Get-PSSession command runs. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the specified network port that is used for the temporary connection in which the Get-PSSession command runs. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port. To configure the listener, type the following two commands at the Windows PowerShell prompt:
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
@@ -5431,7 +5520,8 @@ Note: This parameter gets sessions only from computers running Windows PowerShel
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -5440,10 +5530,12 @@ For a description of the session options, including the default values, see New-
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 
 
 ### NOTES
@@ -5577,12 +5669,13 @@ To create and register a session configuration, use the Register-PSSessionConfig
 
 ### PARAMETERS
 
-#### Name [string[]*] = All session configurations on the local computer
+#### Name [String[]] = All session configurations on the local computer
 
 ```powershell
 [Parameter(
   Position = 1,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Gets only the session configurations with the specified name or name pattern. Enter one or more session configuration names. Wildcards are permitted.
@@ -5600,10 +5693,12 @@ Suppresses the prompt to restart the WinRM service, if the service is not alread
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 ####  Microsoft.PowerShell.Commands.PSSessionConfigurationCommands#PSSessionConfiguration
+
 
 
 ### NOTES
@@ -5934,12 +6029,13 @@ Beginning in Windows PowerShell 3.0, the core commands that are included in Wind
 
 ### PARAMETERS
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
   Position = 1,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Gets only the specified Windows PowerShell snap-ins. Enter the names of one or more Windows PowerShell snap-ins. Wildcards are permitted.
@@ -5960,10 +6056,12 @@ Without this parameter, Get-PSSnapin gets the Windows PowerShell snap-ins that h
 
 ### INPUTS
 #### None
+
 You cannot pipe input to Get-PSSnapin.
 
 ### OUTPUTS
 #### System.Management.Automation.PSSnapInInfo
+
 Get-PSSnapin returns an object for each snap-in that it gets.
 
 ### NOTES
@@ -6035,7 +6133,11 @@ Begin by creating a "CIM session" on the remote computer; a connection to Window
 
 ### PARAMETERS
 
-#### Alias [string[]*]
+#### Alias [String[]]
+
+```powershell
+[SupportsWildCards()]
+```
 
 Imports only the specified aliases from the module into the current session. Enter a comma-separated list of aliases. Wildcard characters are permitted.
 Some modules automatically export selected aliases into your session when you import the module. This parameter lets you select from among the exported aliases.
@@ -6043,7 +6145,8 @@ Some modules automatically export selected aliases into your session when you im
 
 #### ArgumentList [Object[]]
 
-Specifies arguments (parameter values) that are passed to a script module during the Import-Module command.  This parameter is valid only when you are importing a script module.
+Specifies arguments (parameter values) that are passed to a script module during the Import-Module command.
+This parameter is valid only when you are importing a script module.
 You can also refer to ArgumentList by its alias, "args". For more information, see about_Aliases.
 
 
@@ -6089,7 +6192,11 @@ Use this parameter to import CIM modules from computers and devices that are not
 This parameter is introduced in Windows PowerShell 3.0.
 
 
-#### Cmdlet [string[]*]
+#### Cmdlet [String[]]
+
+```powershell
+[SupportsWildCards()]
+```
 
 Imports only the specified cmdlets from the module into the current session. Enter a list of cmdlets. Wildcard characters are permitted.
 Some modules automatically export selected cmdlets into your session when you import the module. This parameter lets you select from among the exported cmdlets.
@@ -6099,7 +6206,8 @@ Some modules automatically export selected cmdlets into your session when you im
 
 Suppresses the message that warns you when you import a cmdlet or function whose name includes an unapproved verb or a prohibited character.
 By default,  when a module that you import exports cmdlets or functions that have unapproved verbs in their names, the Windows PowerShell displays the following warning message:
-"WARNING: Some imported command names include unapproved verbs which might make them less discoverable.  Use the Verbose parameter for more detail or type Get-Verb to see the list of approved verbs."
+"WARNING: Some imported command names include unapproved verbs which might make them less discoverable.
+Use the Verbose parameter for more detail or type Get-Verb to see the list of approved verbs."
 This message is only a warning. The complete module is still imported, including the non-conforming commands. Although the message is displayed to module users, the naming problem should be fixed by the module author.
 
 
@@ -6132,7 +6240,11 @@ Imports modules with names that are specified in the form of ModuleSpecification
 You cannot specify the FullyQualifiedName parameter in the same command as a Name parameter; the two parameters are mutually exclusive.
 
 
-#### Function [string[]*]
+#### Function [String[]]
+
+```powershell
+[SupportsWildCards()]
+```
 
 Imports only the specified functions from the module into the current session. Enter a list of functions. Wildcard characters are permitted.
 Some modules automatically export selected functions into your session when you import the module. This parameter lets you select from among the exported functions.
@@ -6158,7 +6270,7 @@ The Global parameter is equivalent to the Scope parameter with a value of Global
 Specifies module objects to import. Enter a variable that contains the module objects, or a command that gets the module objects, such as a "Get-Module -ListAvailable" command. You can also pipe module objects to Import-Module.
 
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -6176,6 +6288,7 @@ Specifies module objects to import. Enter a variable that contains the module ob
   Position = 1,
   ValueFromPipeline = $true,
   ParameterSetName = 'Set 4')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of the modules to import. Enter the name of the module or the name of a file in the module, such as a .psd1, .psm1, .dll, or ps1 file. File paths are optional. Wildcards are not permitted. You can also pipe module names and file names to Import-Module.
@@ -6204,7 +6317,11 @@ For example, if you specify the prefix "UTC" and then import a Get-Date cmdlet, 
 The value of this parameter takes precedence over the DefaultCommandPrefix property of the module, which specifies the default prefix.
 
 
-#### Variable [string[]*] = All variables
+#### Variable [String[]] = All variables
+
+```powershell
+[SupportsWildCards()]
+```
 
 Imports only the specified variables from the module into the current session. Enter a list of variables. Wildcard characters are permitted.
 Some modules automatically export selected variables into your session when you import the module. This parameter lets you select from among the exported variables.
@@ -6283,10 +6400,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.String, System.Management.Automation.PSModuleInfo, System.Reflection.Assembly
+
 You can pipe a module name, module object, or assembly object to Import-Module.
 
 ### OUTPUTS
 #### None, System.Management.Automation.PSModuleInfo, or System.Management.Automation.PSCustomObject
+
 By default, Import-Module does not generate any output. If you use the PassThru parameter, it generates a System.Management.Automation.PSModuleInfo object that represents the module. If you use the AsCustomObject parameter, it generates a PSCustomObject object.
 
 ### NOTES
@@ -6675,7 +6794,8 @@ The "param" keyword lists the local variables that are used in the command. The 
 ```
 
 Runs the command as a background job on a remote computer. Use this parameter to run commands that take an extensive time to complete.
-When you use AsJob, the command returns an object that represents the job, and then displays the command prompt. You can continue to work in the session while the job completes.  To manage the job, use the Job cmdlets. To get the job results, use the Receive-Job cmdlet.
+When you use AsJob, the command returns an object that represents the job, and then displays the command prompt. You can continue to work in the session while the job completes.
+To manage the job, use the Job cmdlets. To get the job results, use the Receive-Job cmdlet.
 The AsJob parameter is similar to using the Invoke-Command cmdlet to run a Start-Job command remotely. However, with AsJob, the job is created on the local computer, even though the job runs on a remote computer, and the results of the remote job are automatically returned to the local computer.
 For more information about Windows PowerShell background jobs, see about_Jobs (http://go.microsoft.com/fwlink/?LinkID=113251) and about_Remote_Jobs (http://go.microsoft.com/fwlink/?LinkID=135184).
 
@@ -6689,7 +6809,9 @@ For more information about Windows PowerShell background jobs, see about_Jobs (h
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials.   Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.  The default value is Default.
+Specifies the mechanism that is used to authenticate the user's credentials.
+ Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+The default value is Default.
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -6898,7 +7020,8 @@ For more information about Windows PowerShell background jobs, see about_Jobs (h
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Specifies the network port  on the remote computer used for this command. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the network port  on the remote computer used for this command. To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, configure the WinRM listener on the remote computer to listen at that port. To configure the listener, type the following two commands at the Windows PowerShell prompt:
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
@@ -6956,7 +7079,8 @@ To create a PSSession, use the New-PSSession cmdlet. For more information, see a
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -7014,10 +7138,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.Management.Automation.ScriptBlock
+
 You can pipe a command in a script block to Invoke-Command. Use the $input automatic variable to represent the input objects in the command.
 
 ### OUTPUTS
 #### System.Management.Automation.PSRemotingJob, System.Management.Automation.Runspaces.PSSession, or the output of the invoked command
+
 When you use the AsJob parameter, Invoke-Command returns a job object. When you use the InDisconnectedSession parameter, Invoke-Command returns a PSSession object. Otherwise, it returns the output of the invoked command (the value of the ScriptBlock parameter).
 
 ### NOTES
@@ -7374,14 +7500,17 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.String
+
 You can pipe a history ID to Invoke-History.
 
 ### OUTPUTS
 #### None
+
 Invoke-History does not generate any output, but output might be generated by the commands that Invoke-History runs.
 
 ### NOTES
-The session history is a list of the commands entered during the session along with the ID. The session history represents the order of execution, the status, and the start and end times of the command. As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.  For more information about the session history, see about_History (http://go.microsoft.com/fwlink/?LinkID=113233).
+The session history is a list of the commands entered during the session along with the ID. The session history represents the order of execution, the status, and the start and end times of the command. As you enter each command, Windows PowerShell adds it to the history so that you can reuse it.
+For more information about the session history, see about_History (http://go.microsoft.com/fwlink/?LinkID=113233).
 You can also refer to Invoke-History by its built-in aliases, "r" and "ihy". For more information, see about_Aliases (http://go.microsoft.com/fwlink/?LinkID=113207).
 
 
@@ -7484,13 +7613,21 @@ Returns a custom object that represents the dynamic module. The module members a
 If the module has multiple members with the same name, such as a function and a variable that are both named "A," only one member with each name is accessible from the custom object.
 
 
-#### Cmdlet [string[]*]
+#### Cmdlet [String[]]
+
+```powershell
+[SupportsWildCards()]
+```
 
 Exports only the specified cmdlets from the module into the current session. Enter a comma-separated list of cmdlets. Wildcard characters are permitted. By default, all cmdlets in the module are exported.
 You cannot define cmdlets in a script block, but a dynamic module can include cmdlets if it imports the cmdlets from a binary module.
 
 
-#### Function [string[]*]
+#### Function [String[]]
+
+```powershell
+[SupportsWildCards()]
+```
 
 Exports only the specified functions from the module into the current session. Enter a comma-separated list of functions. Wildcard characters are permitted. By default, all functions defined in a module are exported.
 
@@ -7533,10 +7670,12 @@ Specifies the contents of the dynamic module. Enclose the contents in braces ( {
 
 ### INPUTS
 #### System.String
+
 You can pipe a module name string to New-Module.
 
 ### OUTPUTS
 #### System.Management.Automation.PSModuleInfo, System.Management.Automation.PSCustomObject, or None
+
 By default, New-Module generates a PSModuleInfo object. If you use the AsCustomObject parameter, it generates a PSCustomObject object. If you use the ReturnResult parameter, it returns the result of evaluating the script block in the dynamic module.
 
 ### NOTES
@@ -7733,17 +7872,19 @@ Creates a new module manifest.
 
 ### DESCRIPTION
 The New-ModuleManifest cmdlet creates a new module manifest (.psd1) file, populates its values, and saves the manifest file in the specified path.
-Module authors can use this cmdlet to create a manifest for their module. A module manifest is a .psd1 file that contains a hash table. The keys and values in the hash table describe the contents and attributes of the module, define the prerequisites, and determine how the components are processed.  Manifests are not required for a module.
+Module authors can use this cmdlet to create a manifest for their module. A module manifest is a .psd1 file that contains a hash table. The keys and values in the hash table describe the contents and attributes of the module, define the prerequisites, and determine how the components are processed.
+Manifests are not required for a module.
 New-ModuleManifest creates a manifest that includes all of the commonly used manifest keys, so you can use the default output as a manifest template. To add or change values, or to add module keys that this cmdlet does not add, open the resulting file in a text editor.
 Each parameter of this cmdlet (except for Path and PassThru) creates a module manifest key and its value. In a module manifest, only the ModuleVersion key is required. Unless specified in the parameter description, if you omit a parameter from the command, New-ModuleManifest creates a comment string for the associated value that has no effect.
 In Windows PowerShell 2.0, New-ModuleManifest prompts you for the values of commonly used parameters that are not specified in the command, in addition to required parameter values. Beginning in Windows PowerShell 3.0, it prompts only when required parameter values are not specified.
 
 ### PARAMETERS
 
-#### AliasesToExport [string[]*] = * (all)
+#### AliasesToExport [String[]] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the aliases that the module exports. Wildcards are permitted.
@@ -7770,10 +7911,11 @@ If you omit this parameter, New-ModuleManifest creates an Author key with the na
 Specifies the minimum version of the Common Language Runtime (CLR) of the Microsoft .NET Framework that the module requires.
 
 
-#### CmdletsToExport [string[]*] = * (all)
+#### CmdletsToExport [String[]] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the cmdlets that the module exports. Wildcards are permitted.
@@ -7839,10 +7981,11 @@ Specifies the formatting files (.ps1xml) that run when the module is imported.
 When you import a module, Windows PowerShell runs the Update-FormatData cmdlet with the specified files. Because formatting files are not scoped, they affect all session states in the session.
 
 
-#### FunctionsToExport [string[]*] = * (all)
+#### FunctionsToExport [String[]] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the functions that the module exports. Wildcards are permitted.
@@ -7927,7 +8070,8 @@ Writes the resulting module manifest to the console, in addition to creating a .
 Specifies the path and file name of the new module manifest. Enter a path and file name with a .psd1 file name extension, such as "$pshome\Modules\MyModule\MyModule.psd1". This parameter is required.
 If you specify the path to an existing file, New-ModuleManifest replaces the file without warning unless the file has the read-only attribute.
 The manifest should be located in the module's directory, and the manifest file name should be the same as the module directory name, but with a .psd1 file name extension.
-Note: You cannot use variables, such as $pshome or $home, in response to a prompt for a Path parameter value.  To use a variable, include the Path parameter in the command.
+Note: You cannot use variables, such as $pshome or $home, in response to a prompt for a Path parameter value.
+To use a variable, include the Path parameter in the command.
 
 
 #### PowerShellHostName [String]
@@ -7992,7 +8136,8 @@ Use this parameter to list all the assemblies that the module requires, includin
 [Parameter(ParameterSetName = 'Set 1')]
 ```
 
-Specifies modules that must be in the global session state.  If the required modules are not in the global session state, Windows PowerShell imports them. If the required modules are not available, the Import-Module command fails.
+Specifies modules that must be in the global session state.
+If the required modules are not in the global session state, Windows PowerShell imports them. If the required modules are not available, the Import-Module command fails.
 Enter each module name as a string or as a hash table with ModuleName and ModuleVersion keys. The hash table can also have an optional GUID key. You can combine strings and hash tables in the parameter value. For more information, see the examples.
 In Windows PowerShell 2.0, Import-Module does not import required modules automatically. It just verifies that the required modules are in the global session state.
 
@@ -8017,10 +8162,11 @@ Specifies the type files (.ps1xml) that run when the module is imported.
 When you import the module, Windows PowerShell runs the Update-TypeData cmdlet with the specified files. Because type files are not scoped, they affect all session states in the session.
 
 
-#### VariablesToExport [string[]*] = * (all)
+#### VariablesToExport [String[]] = * (all)
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the variables that the module exports. Wildcards are permitted.
@@ -8072,10 +8218,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### None or System.String
+
 By default, New-ModuleManifest does not generate any output. However, if you use the PassThru parameter, it generates a System.String object representing the module manifest..
 
 ### NOTES
@@ -8268,7 +8416,8 @@ The second command uses the Format-Table cmdlet to display the PowerShellVersion
 Creates a persistent connection to a local or remote computer.
 
 ### DESCRIPTION
-The New-PSSession cmdlet creates a Windows PowerShell session (PSSession) on a local or remote computer.  When you create a PSSession, Windows PowerShell establishes a persistent connection to the remote computer.
+The New-PSSession cmdlet creates a Windows PowerShell session (PSSession) on a local or remote computer.
+When you create a PSSession, Windows PowerShell establishes a persistent connection to the remote computer.
 Use a PSSession to run multiple commands that share data, such as a function or the value of a variable. To run commands in a PSSession, use the Invoke-Command cmdlet. To use the PSSession to interact directly with a remote computer, use the Enter-PSSession cmdlet. For more information, see about_PSSessions (http://go.microsoft.com/fwlink/?LinkID=135181).
 You can run commands on a remote computer without creating a PSSession by using the ComputerName parameters of Enter-PSSession or Invoke-Command. When you use the ComputerName parameter, Windows PowerShell creates a temporary connection that is used for the command and is then closed.
 
@@ -8305,7 +8454,9 @@ The WinRM service uses the application name to select a listener to service the 
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials.   Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".  The default value is "Default".
+Specifies the mechanism that is used to authenticate the user's credentials.
+ Valid values are "Default", "Basic", "Credssp", "Digest", "Kerberos", "Negotiate", and "NegotiateWithImplicitCredential".
+The default value is "Default".
 For more information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkID=144382.
 Caution: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
 
@@ -8365,7 +8516,8 @@ The default value is the value of the $PSSessionConfigurationName preference var
   ParameterSetName = 'Set 2')]
 ```
 
-Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session. The URI must be fully qualified.  The format of this string is as follows:
+Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint for the session. The URI must be fully qualified.
+The format of this string is as follows:
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
 The default value is as follows:
 http://localhost:5985/WSMAN
@@ -8413,7 +8565,9 @@ You can use the name to refer to the PSSession when using other cmdlets, such as
 [Parameter(ParameterSetName = 'Set 1')]
 ```
 
-Specifies the network port on the remote computer that is used for this connection.  To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the network port on the remote computer that is used for this connection.
+To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port. Use the following commands to configure the listener:
 1. winrm delete winrm/config/listener?Address=*+Transport=HTTP
 2. winrm create winrm/config/listener?Address=*+Transport=HTTP @{Port="\<port-number\>"}
@@ -8442,7 +8596,8 @@ The resulting PSSessions have the same computer name, application name, connecti
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -8468,10 +8623,12 @@ If you use this parameter, but SSL is not available on the port used for the com
 
 ### INPUTS
 #### System.String, System.URI, System.Management.Automation.Runspaces.PSSession
+
 You can pipe a computer name (string), ConnectionURI (URI), or session (PSSession) object to New-PSSession.
 
 ### OUTPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 
 
 ### NOTES
@@ -8940,10 +9097,12 @@ When any Visible parameter is included in the session configuration file, Window
 
 ### INPUTS
 #### None
+
 This cmdlet does not take input from the pipeline.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not generate any output.
 
 ### NOTES
@@ -9430,10 +9589,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### System.Management.Automation.Remoting.PSSessionOption
+
 
 
 ### NOTES
@@ -9783,10 +9944,11 @@ Other session configurations have per-process timeout values. For example, the M
 
 ### INPUTS
 #### None
-This cmdlet does not take input from the pipeline.
+
 
 ### OUTPUTS
 #### Microsoft.PowerShell.Commands.WSManConfigurationOption
+
 
 
 ### NOTES
@@ -9925,7 +10087,6 @@ Accepts input to the cmdlet.
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -9977,10 +10138,12 @@ Displays one page of output at a time, and waits for user input before displayin
 
 ### INPUTS
 #### System.Management.Automation.PSObject
+
 You can pipe any object to Out-Host.
 
 ### OUTPUTS
 #### None
+
 Out-Host does not generate any output. However, the host might display the objects that Out-Host sends to it.
 
 ### NOTES
@@ -10063,7 +10226,6 @@ This cmdlet is for internal use only.
 #### 
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -10116,10 +10278,12 @@ Specifies the object that was sent to null (deleted). Enter a variable that cont
 
 ### INPUTS
 #### System.Management.Automation.PSObject
+
 You can pipe any object to Out-Null.
 
 ### OUTPUTS
 #### None
+
 Out-Null does not generate any output.
 
 ### NOTES
@@ -10153,20 +10317,22 @@ Gets the results of the Windows PowerShell background jobs in the current sessio
 
 ### DESCRIPTION
 The Receive-Job cmdlet gets the results of Windows PowerShell background jobs, such as those started by using the Start-Job cmdlet or the AsJob parameter of any cmdlet. You can get the results of all jobs or identify jobs by their name, ID, instance ID, computer name, location, or session, or by submitting a job object.
-When you start a Windows PowerShell background job, the job starts, but the results do not appear immediately. Instead, the command returns an object that represents the background job. The job object contains useful information about the job, but it does not contain the results. This method allows you to continue working in the session while the job runs.  For more information about background jobs in Windows PowerShell, see about_Jobs.
+When you start a Windows PowerShell background job, the job starts, but the results do not appear immediately. Instead, the command returns an object that represents the background job. The job object contains useful information about the job, but it does not contain the results. This method allows you to continue working in the session while the job runs.
+For more information about background jobs in Windows PowerShell, see about_Jobs.
 The Receive-Job cmdlet gets the results that have been generated by the time that the Receive-Job command is submitted. If the results are not yet complete, you can run additional Receive-Job commands to get the remaining results.
 By default, job results are deleted from the system when you receive them, but you can use the Keep parameter to save the results so that you can receive them again. To delete the job results, run the Receive-Job command again (without the Keep parameter), close the session, or use the Remove-Job cmdlet to delete the job from the session.
 Beginning in Windows PowerShell 3.0, Receive-Job also gets the results of custom job types, such as workflow jobs and instances of scheduled jobs. To enable Receive-Job to get the results a custom job type, import the module that supports the custom job type into the session before running a Receive-Job command, either by using the Import-Module cmdlet or by using or getting a cmdlet in the module. For information about a particular custom job type, see the documentation of the custom job type feature.
 
 ### PARAMETERS
 
-#### ComputerName [string[]*] = All jobs
+#### ComputerName [String[]] = All jobs
 
 ```powershell
 [Parameter(
   Position = 2,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
 ```
 
 Gets the results of jobs that were run on the specified computers. Enter the computer names. Wildcards are supported. The default is all jobs in the current session.
@@ -10244,7 +10410,7 @@ To delete the results, use Receive-Job to receive them again without the Keep pa
 Gets only the results of jobs with the specified location. The default is all jobs in the current session.
 
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -10252,6 +10418,7 @@ Gets only the results of jobs with the specified location. The default is all jo
   Position = 1,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 6')]
+[SupportsWildCards()]
 ```
 
 Gets the results of jobs with the specified friendly name. Wildcards are supported. The default is all jobs in the current session.
@@ -10312,13 +10479,13 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.Management.Automation.Job
+
 You can pipe job objects to Receive-Job.
 
 ### OUTPUTS
 #### PSObject
-Receive-Job returns the results of the commands in the job.
 
-### NOTES
+Receive-Job returns the results of the commands in the job.
 
 
 ### EXAMPLES
@@ -10443,7 +10610,9 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session.   Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.  The default value is Default.
+Specifies the mechanism that is used to authenticate the user's credentials in the command to reconnect to the disconnected session.
+ Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+The default value is Default.
 For information about the values of this parameter, see "AuthenticationMechanism enumeration" in MSDN.
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
 
@@ -10577,7 +10746,9 @@ Typically, the host program displays returned objects at the command line withou
 [Parameter(ParameterSetName = 'Set 3')]
 ```
 
-Specifies the network port on the remote computer that is used to reconnect to the session.  To connect to a remote computer, the remote computer must be listening on the port that the connection uses.  The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
+Specifies the network port on the remote computer that is used to reconnect to the session.
+To connect to a remote computer, the remote computer must be listening on the port that the connection uses.
+The default ports are 5985 (the WinRM port for HTTP) and 5986 (the WinRM port for HTTPS).
 Before using an alternate port, you must configure the WinRM listener on the remote computer to listen at that port. To configure the listener, type the following two commands at the Windows PowerShell prompt:
 Remove-Item -Path WSMan:\Localhost\listener\listener* -Recurse
 New-Item -Path WSMan:\Localhost\listener -Transport http -Address * -Port \<port-number\>
@@ -10677,7 +10848,8 @@ For more information about session configurations, see about_Session_Configurati
 ```
 
 Specifies a Uniform Resource Identifier (URI) that defines the connection endpoint that is used to reconnect to the disconnected session. 
-The URI must be fully qualified.  The format of this string is as follows:
+The URI must be fully qualified.
+The format of this string is as follows:
 
 \<Transport\>://\<ComputerName\>:\<Port\>/\<ApplicationName\>
 
@@ -10698,7 +10870,8 @@ If the destination computer redirects the connection to a different URI, Windows
 [Parameter(ParameterSetName = 'Set 5')]
 ```
 
-Sets advanced options for the session.  Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
+Sets advanced options for the session.
+Enter a SessionOption object, such as one that you create by using the New-PSSessionOption cmdlet, or a hash table in which the keys are session option names and the values are session option values.
 The default values for the options are determined by the value of the $PSSessionOption preference variable, if it is set. Otherwise, the default values are established by options set in the session configuration.
 The session option values take precedence over default values for sessions set in the $PSSessionOption preference variable and in the session configuration. However, they do not take precedence over maximum values, quotas or limits set in the session configuration. 
 For a description of the session options, including the default values, see New-PSSessionOption. For information about the $PSSessionOption preference variable, see about_Preference_Variables (http://go.microsoft.com/fwlink/?LinkID=113248). For more information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152).
@@ -10717,16 +10890,21 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Runspaces.PSSession
+
 You can pipe session objects, such as those returned by the Get-PSSession cmdlet to Receive-PSSession.
 #### System.Int32
+
 You can pipe session IDs to Receive-PSSession.
 #### System.Guid
+
 You can pipe the instance IDs of sessions to Receive-PSSession.
 #### System.String
+
 You can pipe session names to Receive-PSSession.
 
 ### OUTPUTS
 #### System.Management.Automation.Job or PSObject
+
 Receive-PSSession gets the results of commands that ran in the disconnected session, if any. If the value or default value of the OutTarget parameter is Job, Receive-PSSession returns a job object. Otherwise, it returns objects that represent that command results.
 
 ### NOTES
@@ -10939,7 +11117,8 @@ Creates and registers a new session configuration.
 ### DESCRIPTION
 The Register-PSSessionConfiguration cmdlet creates and registers a  new session configuration on the local computer. This is an advanced cmdlet that is designed to be used by system administrators to create custom sessions for remote users.
 Every Windows PowerShell session (PSSession) uses a session configuration, also known as an "endpoint." When users create a session that connects to the computer, they can select a session configuration or use the default session configuration that is registered when you enable Windows PowerShell remoting. Users can also set the $PSSessionConfigurationName preference variable, which specifies a default configuration for remote sessions created in the current session.
-The session configuration defines the environment for the remote session. The configuration can determine which commands and language elements are available in the session, and it can include settings that protect the computer, such as those that limit the amount of data that the session can receive remotely in a single object or command.  The security descriptor (ACL) of the session configuration determines which users have permission to use the session configuration.
+The session configuration defines the environment for the remote session. The configuration can determine which commands and language elements are available in the session, and it can include settings that protect the computer, such as those that limit the amount of data that the session can receive remotely in a single object or command.
+The security descriptor (ACL) of the session configuration determines which users have permission to use the session configuration.
 You can define the elements of configuration by using an assembly that implements a new configuration class and by using a script that runs in the session. Beginning in Windows PowerShell 3.0, you can also use a session configuration file to define the session configuration.
 For information about session configurations, see about_Session_Configurations (http://go.microsoft.com/fwlink/?LinkID=145152). For information about session configuration files, see about_Session_Configuration_Files (http://go.microsoft.com/fwlink/?LinkID=236023).
 
@@ -11032,7 +11211,8 @@ Specifies a name for the session configuration. This parameter is required.
 #### NoServiceRestart [switch]
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter a Register-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.  Until the WinRM service is restarted, the new session configuration is not effective.
+By default, when you enter a Register-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
+Until the WinRM service is restarted, the new session configuration is not effective.
 To restart the WinRM service without prompting, use the Force parameter. To restart the WinRM service manually, use the Restart-Service cmdlet.
 
 
@@ -11089,7 +11269,8 @@ If you omit this parameter, the root SDDL for the WinRM service is used for this
 Specifies the type of session that is created by using the session configuration. The default value is Default. Valid values are:
 -- Empty: No modules or snap-ins are added to session by default. Use the parameters of this cmdlet to add modules, functions, scripts, and other features to the session.
 -- Default: Adds the Microsoft.PowerShell.Core snap-in to the session. This module includes the Import-Module and Add-PSSnapin cmdlets that users can use to import other modules and snap-ins unless you explicitly prohibit the use of the cmdlets.
--- RestrictedRemoteServer: Includes only the following cmdlets:  Exit-PSSession,Get-Command, Get-FormatData, Get-Help, Measure-Object, Out-Default, and Select-Object.  Use a script or assembly, or the keys in the session configuration file, to add modules, functions, scripts, and other features to the session.
+-- RestrictedRemoteServer: Includes only the following cmdlets:  Exit-PSSession,Get-Command, Get-FormatData, Get-Help, Measure-Object, Out-Default, and Select-Object.
+Use a script or assembly, or the keys in the session configuration file, to add modules, functions, scripts, and other features to the session.
 The value of this parameter takes precedence over the value of the  SessionType key in the session configuration file.
 This parameter is introduced in Windows PowerShell 3.0.
 
@@ -11101,7 +11282,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Sets type-specific options for the session configuration.  Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
+Sets type-specific options for the session configuration.
+Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options. Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration. However, session option values cannot exceed maximum values set in the session configuration.
 This parameter is introduced in Windows PowerShell 3.0.
 
@@ -11168,10 +11350,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### Microsoft.WSMan.Management.WSManConfigContainerElement
+
 
 
 ### NOTES
@@ -11458,13 +11642,13 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Job
+
 You can pipe a job object to Remove-Job.
 
 ### OUTPUTS
 #### None
-This cmdlet does not generate any output.
 
-### NOTES
+This cmdlet does not generate any output.
 
 
 ### EXAMPLES
@@ -11632,7 +11816,7 @@ You cannot specify the FullyQualifiedName parameter in the same command as a Nam
 Specifies the module objects to remove. Enter a variable that contains a module object (PSModuleInfo) or a command that gets a module object, such as a Get-Module command. You can also pipe module objects to Remove-Module.
 
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -11640,6 +11824,7 @@ Specifies the module objects to remove. Enter a variable that contains a module 
   Position = 1,
   ValueFromPipeline = $true,
   ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of modules to remove. Wildcard characters are permitted. You can also pipe name strings to Remove-Module.
@@ -11658,13 +11843,13 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.String, System.Management.Automation.PSModuleInfo
+
 You can pipe module names (strings) and module objects to Remove-Module.
 
 ### OUTPUTS
 #### None
-Remove-Module does not generate any output.
 
-### NOTES
+Remove-Module does not generate any output.
 
 
 ### EXAMPLES
@@ -11758,7 +11943,7 @@ If you have saved the PSSession in a variable, the session object remains in the
 
 ### PARAMETERS
 
-#### ComputerName [string[]*] = Local computer
+#### ComputerName [String[]] = Local computer
 
 ```powershell
 [Parameter(
@@ -11766,6 +11951,7 @@ If you have saved the PSSession in a variable, the session object remains in the
   Position = 1,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 2')]
+[SupportsWildCards()]
 ```
 
 Closes the PSSessions that are connected to the specified computers. Wildcards are permitted.
@@ -11783,7 +11969,8 @@ Type the NetBIOS name, an IP address, or a fully qualified domain name of one or
 ```
 
 Closes the PSSessions with the specified IDs. Type one or more IDs (separated by commas) or use the range operator (..) to specify a range of IDs
-An ID is an integer that uniquely identifies the PSSession in the current session. It is easier to remember and type than the InstanceId, but it is unique only within the current session.  To find the ID of a PSSession, use Get-PSSession without parameters.
+An ID is an integer that uniquely identifies the PSSession in the current session. It is easier to remember and type than the InstanceId, but it is unique only within the current session.
+To find the ID of a PSSession, use Get-PSSession without parameters.
 
 
 #### InstanceId [Guid[]]
@@ -11800,13 +11987,14 @@ The instance ID is a GUID that uniquely identifies a PSSession in the current se
 The InstanceID is stored in the InstanceID property of the object that represents a PSSession. To find the InstanceID of the PSSessions in the current session, type "get-pssession | format-table Name, ComputerName, InstanceId".
 
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
   Mandatory = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 4')]
+[SupportsWildCards()]
 ```
 
 Closes the PSSessions with the specified friendly names. Wildcards are permitted.
@@ -11824,7 +12012,8 @@ Because the friendly name of a PSSession might not be unique, when using the Nam
   ParameterSetName = 'Set 5')]
 ```
 
-Specifies the session objects of the PSSessions to close.  Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command. You can also pipe one or more session objects to Remove-PSSession.
+Specifies the session objects of the PSSessions to close.
+Enter a variable that contains the PSSessions or a command that creates or gets the PSSessions, such as a New-PSSession or Get-PSSession command. You can also pipe one or more session objects to Remove-PSSession.
 
 
 #### Confirm [switch]
@@ -11840,10 +12029,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Runspaces.PSSession 
+
 You can pipe a session object to Remove-PSSession.
 
 ### OUTPUTS
 #### None
+
 Remove-PSSession does not return any objects.
 
 ### NOTES
@@ -11979,7 +12170,7 @@ After a snap-in is removed from the current session, it is still loaded, but the
 
 ### PARAMETERS
 
-#### Name [string[]*]
+#### Name [String[]]
 
 ```powershell
 [Parameter(
@@ -11987,6 +12178,7 @@ After a snap-in is removed from the current session, it is still loaded, but the
   Position = 1,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of Windows PowerShell snap-ins to remove from the current session. The parameter name ("Name") is optional, and wildcard characters (*) are permitted in the value.
@@ -12022,10 +12214,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.PSSnapInInfo
+
 You can pipe a snap-in object to Remove-PSSnapin.
 
 ### OUTPUTS
 #### None or System.Management.Automation.PSSnapInInfo
+
 By default, Remove-PsSnapin does not generate any output. However, if you use the PassThru parameter, it generates a System.Management.Automation.PSSnapInInfo object representing the snap-in.
 
 ### NOTES
@@ -12204,10 +12398,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Job
+
 You can pipe all types of jobs to Resume-Job. However, if Resume-Job gets a job of an unsupported type, it throws a terminating error.
 
 ### OUTPUTS
 #### None or System.Management.Automation.Job
+
 If you use the PassThru parameter, Resume-Job returns the jobs that it tried to resume. Otherwise, this cmdlet does not generate any output.
 
 ### NOTES
@@ -12411,12 +12607,13 @@ Specifies modules with names that are specified in the form of ModuleSpecificati
 You cannot specify the FullyQualifiedModule parameter in the same command as a Module parameter; the two parameters are mutually exclusive.
 
 
-#### Module [string[]*] = All (*)
+#### Module [String[]] = All (*)
 
 ```powershell
 [Parameter(
   Position = 2,
   ValueFromPipelineByPropertyName = $true)]
+[SupportsWildCards()]
 ```
 
 Downloads help for the specified modules. Enter one or more module names or name patters in a comma-separated list or in a file with one module name on each line. Wildcard characters are permitted. You can also pipe module objects from the Get-Module cmdlet to Save-Help. 
@@ -12447,10 +12644,12 @@ This parameter is effective only when the web download uses NTLM, negotiate, or 
 
 ### INPUTS
 #### System.Management.Automation.PSModuleInfo
+
 You can pipe a module object from the Get-Module cmdlet to the Module parameter of Save-Help.
 
 ### OUTPUTS
 #### None
+
 Save-Help does not generate any output.
 
 ### NOTES
@@ -12628,13 +12827,13 @@ Specifies the trace level:
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### None
-This cmdlet does not return any output.
 
-### NOTES
+This cmdlet does not return any output.
 
 
 ### EXAMPLES
@@ -12808,7 +13007,8 @@ You cannot use this parameter to change the name of the session configuration.
 #### NoServiceRestart [switch]
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter a Set-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.  Until the WinRM service is restarted, the new session configuration is not effective.
+By default, when you enter a Set-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the new session configuration effective.
+Until the WinRM service is restarted, the new session configuration is not effective.
 To restart the WinRM service without prompting, use the Force parameter. To restart the WinRM service manually, use the Restart-Service cmdlet.
 
 
@@ -12892,14 +13092,16 @@ This parameter is introduced in Windows PowerShell 3.0.
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-Sets type-specific options for the session configuration.  Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
+Sets type-specific options for the session configuration.
+Enter a session type options object, such as the PSWorkflowExecutionOption object that the New-PSWorkflowExecutionOption cmdlet returns.
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options. Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration. However, session option values cannot exceed maximum values set in the session configuration.
 This parameter is introduced in Windows PowerShell 3.0.
 
 
 #### TransportOption [PSTransportOption]
 
-Sets transport options for the session configuration.  Enter a transport options object, such as the WSManConfigurationOption object that the New-PSTransportOption cmdlet returns.
+Sets transport options for the session configuration.
+Enter a transport options object, such as the WSManConfigurationOption object that the New-PSTransportOption cmdlet returns.
 The options of sessions that use the session configuration are determined by the values of session options and the session configuration options. Unless specified, options set in the session, such as by using the New-PSSessionOption cmdlet, take precedence over options set in the session configuration. However, session option values cannot exceed maximum values set in the session configuration.
 This parameter is introduced in Windows PowerShell 3.0.
 
@@ -12944,10 +13146,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### Microsoft.WSMan.Management.WSManConfigLeafElement
+
 
 
 ### NOTES
@@ -13077,7 +13281,8 @@ This example shows different ways of viewing the results of a Set-PSSessionConfi
 ## Set-StrictMode
 
 ### SYNOPSIS
-Establishes and enforces coding rules in expressions, scripts, and script blocks.  
+Establishes and enforces coding rules in expressions, scripts, and script blocks.
+
 
 ### DESCRIPTION
 The Set-StrictMode cmdlet configures strict mode for the current scope (and all child scopes) and turns it on and off. When strict mode is on, Windows PowerShell generates a terminating error when the content of an expression, script, or script block violates basic best-practice coding rules.
@@ -13116,16 +13321,19 @@ The valid values are "1.0", "2.0", and "Latest". The following list shows the ef
 -- Prohibits function calls that use the syntax for calling methods.
 -- Prohibits a variable without a name (${}).
 Latest:
---Selects the latest (most strict) version available.  Use this value to assure that scripts use the strictest available version, even when new versions are added to Windows PowerShell.
+--Selects the latest (most strict) version available.
+Use this value to assure that scripts use the strictest available version, even when new versions are added to Windows PowerShell.
 
 
 
 ### INPUTS
 #### None
+
 You cannot pipe input to this cmdlet.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any output.
 
 ### NOTES
@@ -13216,7 +13424,8 @@ Starts a Windows PowerShell background job.
 The Start-Job cmdlet starts a Windows PowerShell background job on the local computer.
 A Windows PowerShell background job runs a command "in the background" without interacting with the current session. When you start a background job, a job object is returned immediately, even if the job takes an extended time to complete. You can continue to work in the session without interruption while the job runs.
 The job object contains useful information about the job, but it does not contain the job results. When the job completes, use the Receive-Job cmdlet to get the results of the job. For more information about background jobs, see about_Jobs.
-To run a background job on a remote computer, use the AsJob parameter that is available on many cmdlets, or use the Invoke-Command cmdlet to run a Start-Job command on the remote computer.  For more information, see about_Remote_Jobs.
+To run a background job on a remote computer, use the AsJob parameter that is available on many cmdlets, or use the Invoke-Command cmdlet to run a Start-Job command on the remote computer.
+For more information, see about_Remote_Jobs.
 Beginning in Windows PowerShell 3.0, Start-Job can start instances of custom job types, such as scheduled jobs. For information about using Start-Job to start jobs with custom types, see the help topics for the job type feature.
 
 ### PARAMETERS
@@ -13241,7 +13450,9 @@ Because all of the values that follow the ArgumentList parameter name are interp
 [Parameter(ParameterSetName = 'Set 3')]
 ```
 
-Specifies the mechanism that is used to authenticate the user's credentials.   Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.  The default value is Default.
+Specifies the mechanism that is used to authenticate the user's credentials.
+ Valid values are Default, Basic, Credssp, Digest, Kerberos, Negotiate, and NegotiateWithImplicitCredential.
+The default value is Default.
 CredSSP authentication is available only in Windows Vista, Windows Server 2008, and later versions of Windows.
 For information about the values of this parameter, see the description of the System.Management.Automation.Runspaces.AuthenticationMechanism enumeration in MSDN.
 CAUTION: Credential Security Support Provider (CredSSP) authentication, in which the user's credentials are passed to a remote computer to be authenticated, is designed for commands that require authentication on more than one resource, such as accessing a remote network share. This mechanism increases the security risk of the remote operation. If the remote computer is compromised, the credentials that are passed to it can be used to control the network session.
@@ -13358,7 +13569,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 [Parameter(ParameterSetName = 'Set 3')]
 ```
 
-Runs the job in a 32-bit process.  Use this parameter to force the job to run in a 32-bit process on a 64-bit operating system.
+Runs the job in a 32-bit process.
+Use this parameter to force the job to run in a 32-bit process on a 64-bit operating system.
 NOTE: On 64-bit versions of Windows 7 and Windows Server 2008 R2, when the Start-Job command includes the RunAs32 parameter, you cannot use the Credential parameter to specify the credentials of another user.
 
 
@@ -13417,10 +13629,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.String
+
 You can pipe an object with the Name property to the Name parameter. For example, you can pipe a FileInfo object from Get-ChildItem to Start-Job.
 
 ### OUTPUTS
 #### System.Management.Automation.PSRemotingJob
+
 Start-Job returns an object that represents the job that it started.
 
 ### NOTES
@@ -13681,13 +13895,13 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.RemotingJob
+
 You can pipe a job object to Stop-Job.
 
 ### OUTPUTS
 #### None or System.Management.Automation.PSRemotingJob
-When you use the PassThru parameter, Stop-Job returns a job object. Otherwise, this cmdlet does not generate any output.
 
-### NOTES
+When you use the PassThru parameter, Stop-Job returns a job object. Otherwise, this cmdlet does not generate any output.
 
 
 ### EXAMPLES
@@ -13923,10 +14137,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 #### System.Management.Automation.Job
+
 You can pipe all types of jobs to Suspend-Job. However, if Suspend-Job gets a job of an unsupported type, it throws a terminating error.
 
 ### OUTPUTS
 #### System.Management.Automation.Job
+
 Suspend-Job returns the jobs that it suspended.
 
 ### NOTES
@@ -14047,7 +14263,7 @@ The Test-ModuleManifest cmdlet returns an object that represents the module (the
 
 ### PARAMETERS
 
-#### Path [string*]
+#### Path [String]
 
 ```powershell
 [Parameter(
@@ -14056,21 +14272,23 @@ The Test-ModuleManifest cmdlet returns an object that represents the module (the
   ValueFromPipeline = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
-Specifies the path to the module manifest file.  Enter a path (optional) and the name of the module manifest file with the .psd1 file name extension. The default location is the current directory. Wildcards are supported, but must resolve to a single module manifest file. This parameter is required. The parameter name ("Path") is optional. You can also pipe a path to Test-ModuleManifest.
+Specifies the path to the module manifest file.
+Enter a path (optional) and the name of the module manifest file with the .psd1 file name extension. The default location is the current directory. Wildcards are supported, but must resolve to a single module manifest file. This parameter is required. The parameter name ("Path") is optional. You can also pipe a path to Test-ModuleManifest.
 
 
 
 ### INPUTS
 #### System.String
+
 You can pipe the path to a module manifest to Test-ModuleManifest.
 
 ### OUTPUTS
 #### System.Management.Automation.PSModuleInfo
-Test-ModuleManifest returns a PSModuleInfo object that represents the module. It returns this object even if the manifest has errors.
 
-### NOTES
+Test-ModuleManifest returns a PSModuleInfo object that represents the module. It returns this object even if the manifest has errors.
 
 
 ### EXAMPLES
@@ -14165,7 +14383,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
 
 ### PARAMETERS
 
-#### Path [string*]
+#### Path [String]
 
 ```powershell
 [Parameter(
@@ -14174,6 +14392,7 @@ This cmdlet is introduced in Windows PowerShell 3.0.
   ValueFromPipeline = $true,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the path and file name of a session configuration file (.pssc). If you omit the path, the default is the current directory. Wildcards are supported, but they must resolve to a single file. You can also pipe a session configuration file path to Test-PSSessionConfigurationFile.
@@ -14182,13 +14401,13 @@ Specifies the path and file name of a session configuration file (.pssc). If you
 
 ### INPUTS
 #### System.String
+
 You can pipe a session configuration file path to Test-PSSessionConfigurationFile.
 
 ### OUTPUTS
 #### System.Boolean
 
 
-### NOTES
 
 
 ### EXAMPLES
@@ -14271,7 +14490,7 @@ Suppresses all user prompts, and restarts the WinRM service without prompting. R
 To prevent a restart and suppress the restart prompt, use the NoServiceRestart parameter.
 
 
-#### Name [string*]
+#### Name [String]
 
 ```powershell
 [Parameter(
@@ -14279,6 +14498,7 @@ To prevent a restart and suppress the restart prompt, use the NoServiceRestart p
   Position = 1,
   ValueFromPipelineByPropertyName = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Specifies the names of the session configurations to delete. Enter one session configuration name or a configuration name pattern. Wildcards are permitted. This parameter is required.
@@ -14292,7 +14512,8 @@ You can also pipe a session configurations to Unregister-PSSessionConfiguration.
 ```
 
 Does not restart the WinRM service, and suppresses the prompt to restart the service.
-By default, when you enter an Unregister-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the change effective.  Until the WinRM service is restarted, users can still use the unregistered session configuration, even though Get-PSSessionConfiguration does not find it.
+By default, when you enter an Unregister-PSSessionConfiguration command, you are prompted to restart the WinRM service to make the change effective.
+Until the WinRM service is restarted, users can still use the unregistered session configuration, even though Get-PSSessionConfiguration does not find it.
 To restart the WinRM service without prompting, use the Force parameter. To restart the WinRM service manually, use the Restart-Service cmdlet.
 
 
@@ -14317,10 +14538,12 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 
 ### INPUTS
 ####  Microsoft.PowerShell.Commands.PSSessionConfigurationCommands#PSSessionConfiguration
+
 You can pipe a session configuration object from Get-PSSessionConfiguration to Unregister-PSSessionConfiguration.
 
 ### OUTPUTS
 #### None
+
 This cmdlet does not return any objects.
 
 ### NOTES
@@ -14476,12 +14699,13 @@ You can also pipe a directory object, such as one from the Get-Item or Get-Child
 Unlike the value of the SourcePath parameter, the value of the LiteralPath parameter is used exactly as it is typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose it in single quotation marks. Single quotation marks tell Windows PowerShell not to interpret any characters as escape sequences.
 
 
-#### Module [string[]*] = All modules in the current session
+#### Module [String[]] = All modules in the current session
 
 ```powershell
 [Parameter(
   Position = 1,
   ValueFromPipelineByPropertyName = $true)]
+[SupportsWildCards()]
 ```
 
 Updates help for the specified modules. Enter one or more module names or name patters in a comma-separated list, or specify a file that lists one module name on each line. Wildcard characters are permitted. You can also pipe modules from the Get-Module cmdlet, to the Update-Help cmdlet.
@@ -14528,17 +14752,21 @@ This parameter is effective only when the web download uses NTLM, negotiate, or 
 
 ### INPUTS
 #### System.IO.DirectoryInfo
+
 You can pipe a directory path to Update-Help.
 #### System.Management.Automation.PSModuleInfo
+
 You can pipe a module object from the Get-Module cmdlet to  Update-Help.
 
 ### OUTPUTS
 #### None
+
 Update-Help does not generate any output.
 
 ### NOTES
 To update help for the Windows PowerShell Core modules (which contain the commands that are installed with Windows PowerShell) or any module in the $pshome\Modules directory, start Windows PowerShell with the "Run as administrator" option.
-Only  members of the Administrators group on the computer can update help for the for the Windows PowerShell Core modules (the commands that are installed with Windows PowerShell) and for modules in the $pshome\Modules directory. If you do not have permission to update help files, you might be able to read the help topics online.  To open the online version of any cmdlet help topic, type "Get-Help \<cmdlet-name\> -Online ".
+Only  members of the Administrators group on the computer can update help for the for the Windows PowerShell Core modules (the commands that are installed with Windows PowerShell) and for modules in the $pshome\Modules directory. If you do not have permission to update help files, you might be able to read the help topics online.
+To open the online version of any cmdlet help topic, type "Get-Help \<cmdlet-name\> -Online ".
 Modules are the smallest unit of updatable help. You cannot update help for a particular cmdlet; only for all cmdlets in module. To find the module that contains a particular cmdlet, use the ModuleName property of the Get-Command cmdlet, for example, (Get-Command \<cmdlet-name\>).ModuleName
 Because help files are installed in the module directory, the Update-Help cmdlet can install updated help file only for modules that are installed on the computer. However, the Save-Help cmdlet can save help for modules that are not installed on the computer.
 If Update-Help cannot find updated help files for a module, or cannot find updated help in the specified language, it continues silently without displaying an error message. To see status and progress details, use the Verbose parameter.
@@ -14819,10 +15047,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.Management.Automation.RemotingJob
+
 You can pipe a job object to Wait-Job.
 
 ### OUTPUTS
 #### System.Management.Automation.PSRemotingJob
+
 Wait-Job returns job objects that represent the completed jobs. If the wait ends because the value of the Timeout parameter is exceeded, Wait-Job does not return any objects.
 
 ### NOTES
@@ -15219,7 +15449,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the  Not-Contains operator, which gets objects when none of the items in the  property value is an exact match for the specified value.
 For example: Get-Process | where ProcessName -NotContains "Svchost"
-"NotContains" refers to a collection of values and is true when the collection does not contain any items that are an exact match for the specified value.  If the input is a single object, Windows PowerShell converts it to a collection of one object.
+"NotContains" refers to a collection of values and is true when the collection does not contain any items that are an exact match for the specified value.
+If the input is a single object, Windows PowerShell converts it to a collection of one object.
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15504,7 +15735,8 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 Specifies the case-sensitive Contains operator, which gets objects from a collection when the property value of the object is an exact match for the specified value
 For example: Get-Process | where ProcessName -contains "svchost"
-"Contains" refers to a collection of values and is true when the collection contains an item that is an exact match for the specified value.  If the input is a single object, Windows PowerShell converts it to a collection of one object.
+"Contains" refers to a collection of values and is true when the collection contains an item that is an exact match for the specified value.
+If the input is a single object, Windows PowerShell converts it to a collection of one object.
 This parameter is introduced in Windows PowerShell 3.0.
 
 
@@ -15680,10 +15912,12 @@ This parameter is introduced in Windows PowerShell 3.0.
 
 ### INPUTS
 #### System.Management.Automation.PSObject
+
 You can pipe the objects to be filtered to Where-Object.
 
 ### OUTPUTS
 #### Object
+
 Where-Object returns selected items from the input object set.
 
 ### NOTES
@@ -15795,21 +16029,27 @@ For more information about Windows PowerShell logical operators, see about_Logic
 Clears the display in the host program.
 
 ### DESCRIPTION
-The Clear-Host function removes all text from the current display, including commands and output that might have accumulated. When complete, it displays the command prompt. You can use the function name or its alias, CLS.  Clear-Host affects only the current display. It does not delete saved results or remove any items from the session. Session-specific items, such as variables and functions, are not affected by this function.  Because the behavior of the Clear-Host function is determined by the host program, Clear-Host might work differently in different host programs.
+The Clear-Host function removes all text from the current display, including commands and output that might have accumulated. When complete, it displays the command prompt. You can use the function name or its alias, CLS.
+Clear-Host affects only the current display. It does not delete saved results or remove any items from the session. Session-specific items, such as variables and functions, are not affected by this function.
+Because the behavior of the Clear-Host function is determined by the host program, Clear-Host might work differently in different host programs.
 
 ### PARAMETERS
 
 
 ### INPUTS
 #### None
-           You cannot pipe input to Clear-Host.        
+
+           You cannot pipe input to Clear-Host.
+      
 
 ### OUTPUTS
 #### None
+
            Clear-Host does not generate any output         
 
 ### NOTES
-                           Clear-Host is a simple function, not an advanced function. As such, you cannot use common parameters, such as -Debug, in a Clear-Host command.                         
+                           Clear-Host is a simple function, not an advanced function. As such, you cannot use common parameters, such as -Debug, in a Clear-Host command.
+                       
 
 
 ### EXAMPLES
@@ -15836,17 +16076,21 @@ This command uses the CLS alias of Clear-Host to clear the current display.
 Gets approved Windows PowerShell verbs.
 
 ### DESCRIPTION
-The Get-Verb function gets verbs that are approved for use in Windows PowerShell commands.    Windows PowerShell recommends that cmdlet and function names have the Verb-Noun format and include an approved verb. This practice makes command names more consistent and predictable, and easier to use, especially for users who do not speak English as a first language.    Commands that use unapproved verbs run in Windows PowerShell. However, when you import a module that includes a command with an unapproved verb in its name, the Import-Module command displays a warning message.  NOTE:   The verb list that Get-Verb returns might not be complete. For an updated list of approved Windows PowerShell verbs with descriptions, see "Cmdlet Verbs" in MSDN at http://go.microsoft.com/fwlink/?LinkID=160773.
+The Get-Verb function gets verbs that are approved for use in Windows PowerShell commands.
+  Windows PowerShell recommends that cmdlet and function names have the Verb-Noun format and include an approved verb. This practice makes command names more consistent and predictable, and easier to use, especially for users who do not speak English as a first language.
+  Commands that use unapproved verbs run in Windows PowerShell. However, when you import a module that includes a command with an unapproved verb in its name, the Import-Module command displays a warning message.
+NOTE:   The verb list that Get-Verb returns might not be complete. For an updated list of approved Windows PowerShell verbs with descriptions, see "Cmdlet Verbs" in MSDN at http://go.microsoft.com/fwlink/?LinkID=160773.
 
 ### PARAMETERS
 
-#### Verb [string[]*] = All verbs
+#### Verb [string[]] = All verbs
 
 ```powershell
 [Parameter(
   Position = 1,
   ValueFromPipeline = $true,
   ParameterSetName = 'Set 1')]
+[SupportsWildCards()]
 ```
 
 Gets only the specified verbs. Enter the name of a verb or a name pattern. Wildcards are permitted.
@@ -15857,12 +16101,18 @@ Gets only the specified verbs. Enter the name of a verb or a name pattern. Wildc
 #### None
 
 
+
 ### OUTPUTS
 #### Selected.Microsoft.PowerShell.Commands.MemberDefinition
 
 
+
 ### NOTES
-                           Get-Verb returns a modified version of a Microsoft.PowerShell.Commands.MemberDefinition object. The object does not have the standard properties of a MemberDefinition object. Instead it has Verb and Group properties. The Verb property contains a string with the verb name. The Group property contains a string with the verb group.  Windows PowerShell verbs are assigned to a group based on their most common use. The groups are designed to make the verbs easy to find and compare, not to restrict their use. You can use any approved verb for any type of command.  Each Windows PowerShell verb is assigned to one of the following groups.  -- Common: Define generic actions that can apply to almost any cmdlet, such as Add. -- Communications:  Define actions that apply to communications, such as Connect. -- Data:  Define actions that apply to data handling, such as Backup. -- Diagnostic: Define actions that apply to diagnostics, such as Debug. -- Lifecycle: Define actions that apply to the lifecycle of a cmdlet, such as Complete. -- Security: Define actions that apply to security, such as Revoke. -- Other: Define other types of actions.  Some of the cmdlets that are installed with Windows PowerShell, such as Tee-Object and Where-Object, use unapproved verbs. These cmdlets are considered to be historic exceptions and their verbs are classified as "reserved."                          
+                           Get-Verb returns a modified version of a Microsoft.PowerShell.Commands.MemberDefinition object. The object does not have the standard properties of a MemberDefinition object. Instead it has Verb and Group properties. The Verb property contains a string with the verb name. The Group property contains a string with the verb group.
+Windows PowerShell verbs are assigned to a group based on their most common use. The groups are designed to make the verbs easy to find and compare, not to restrict their use. You can use any approved verb for any type of command.
+Each Windows PowerShell verb is assigned to one of the following groups.
+-- Common: Define generic actions that can apply to almost any cmdlet, such as Add. -- Communications:  Define actions that apply to communications, such as Connect. -- Data:  Define actions that apply to data handling, such as Backup. -- Diagnostic: Define actions that apply to diagnostics, such as Debug. -- Lifecycle: Define actions that apply to the lifecycle of a cmdlet, such as Complete. -- Security: Define actions that apply to security, such as Revoke. -- Other: Define other types of actions.
+Some of the cmdlets that are installed with Windows PowerShell, such as Tee-Object and Where-Object, use unapproved verbs. These cmdlets are considered to be historic exceptions and their verbs are classified as "reserved."                          
 
 
 ### EXAMPLES
