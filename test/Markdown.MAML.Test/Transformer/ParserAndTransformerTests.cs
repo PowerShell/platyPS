@@ -481,7 +481,7 @@ NoTypeParam description.
         }
 
         [Fact]
-        public void UsesAstericsToMarkGlobbing()
+        public void UsesSupportsWildCardsToMarkGlobbing()
         {
             var parser = new MarkdownParser();
 
@@ -489,7 +489,11 @@ NoTypeParam description.
 ## Get-Foo
 ### PARAMETERS
 
-#### Name [String*]
+#### Name [String]
+
+```
+[SupportsWildCards()]
+```
 
 ";
             var doc = parser.ParseString(docFormatString);

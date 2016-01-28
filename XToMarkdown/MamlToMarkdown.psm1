@@ -38,7 +38,7 @@ function Get-EscapedMarkdownText
 
     process 
     {
-        ($text -replace '<','\<') -replace '>','\>'
+        (($text -replace '<','\<') -replace '>','\>') -replace '\.  ', ".`n"
     }
 }
 
@@ -82,23 +82,6 @@ function Convert-ParameterTypeTextToType
     if ($typeText -eq 'SwitchParameter') 
     {
         return '[switch]'
-    }
-
-    if ($parameter.globbing -eq 'true')
-    {
-        # Accept wildcard characters?  true
-        if ($typeText -eq 'string')
-        {
-            return '[string*]'
-        }
-
-        if ($typeText -eq 'string[]')
-        {
-            return '[string[]*]'
-        }
-
-        Write-Warning "Parameter with type $typeText listed with globbing = True"
-        return "[$($typeText)*]"    
     }
 
     # default
@@ -197,6 +180,12 @@ function Get-ParameterMarkdown
 
 "@
     $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
+
+    if ($parameter.globbing -eq 'true')
+    {
+        $parameterMetadata += "[SupportsWildCards()]`n"
+    }
+
     if ($parameterMetadata) 
     {
         @"
@@ -311,15 +300,14 @@ if ($command.inputTypes.inputType.type.name)
 {
     $command.inputTypes.inputType | % { 
         "#### $($_.type.name)"
+        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
         $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText    
     }
 } 
 else 
 {
-@"
-#### None
-"@
-$command.inputTypes.inputType.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    "#### None"
+    $command.inputTypes.inputType.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
 }
 
 }
@@ -329,19 +317,33 @@ function Get-OutputMarkdown($command)
 @"
 ### OUTPUTS
 "@
-$command.returnValues.returnValue | % { 
-    "#### $($_.type.name)"    
-    $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+if ($command.returnValues.returnValue) 
+{
+    $command.returnValues.returnValue | % { 
+        "#### $($_.type.name)"    
+        $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+        $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+    }
+}
+else 
+{
+    "#### None"
+    $command.returnValues.returnValue.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText   
 }
 
 }
 
 function Get-NotesMarkdown($command)
 {
+
+if ($command.alertSet.alert.para)
+{
 @"
 ### NOTES
 "@
 $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
+}
+
 }
 
 function Get-ExampleMarkdown($example)
@@ -361,10 +363,15 @@ function Get-ExampleMarkdown($example)
 
 function Get-ExamplesMarkdown($command)
 {
+
+if ($command.examples.example)
+{     
 @"
 ### EXAMPLES
 "@
 $command.examples.example | % { Get-ExampleMarkdown $_ }
+}
+
 }
 
 function Get-RelatedLinksMarkdown($command)

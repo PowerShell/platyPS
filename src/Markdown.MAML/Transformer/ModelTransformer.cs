@@ -492,10 +492,9 @@ $h.parameters.parameter
 
             // TODO: Still need to determine how to get these
             //parameter.VariableLength = ((string)parameterDetails.Properties["variableLength"].Value).Equals("true");
-            //parameter.Globbing = ((string)parameterDetails.Properties["globbing"].Value).Equals("true");
             //parameter.ValueVariableLength = false;
 
-            // TODO: we need to find out, what ValueRequired really mean
+            // it turns to work very well on all real-world examples, but in theory it can be orbitrary
             parameter.ValueRequired = parameter.Type == "switch" ? false : true;
 
             var parameterValueGroup = parameterDetails.Properties["parameterValueGroup"];
@@ -547,24 +546,26 @@ $h.parameters.parameter
                 Extent = headingNode.SourceExtent
             };
 
-            int typeBeginIndex = headingNode.Text.IndexOf('[');
-            int typeEndIndex = headingNode.Text.LastIndexOf(']');
-            if (typeBeginIndex >= 0 && typeEndIndex > 0)
-            {
-                // this is our notation for globbing
-                if (headingNode.Text[typeEndIndex - 1] == '*')
-                {
-                    typeEndIndex = typeEndIndex - 1;
-                    parameter.Globbing = true;
-                }
-
-                parameter.Type = headingNode.Text.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);
-            }
-
             int equalIndex = headingNode.Text.IndexOf('=');
+            string headingNodeText;
             if (equalIndex >= 0)
             {
                 parameter.DefaultValue = headingNode.Text.Substring(equalIndex + 1).Trim();
+                // trim it for this case from PSReadLine:
+                // #### WordDelimiters [Int32] = ;:,.[]{}()/\|^&*-=+
+                // We need to make sure that closing ] corresponds to [Int32], so it's the last ] before first = sign.
+                headingNodeText = headingNode.Text.Substring(0, equalIndex);
+            }
+            else
+            {
+                headingNodeText = headingNode.Text;
+            }
+
+            int typeBeginIndex = headingNodeText.IndexOf('[');
+            int typeEndIndex = headingNodeText.LastIndexOf(']');
+            if (typeBeginIndex >= 0 && typeEndIndex > 0)
+            {
+                parameter.Type = headingNodeText.Substring(typeBeginIndex + 1, typeEndIndex - typeBeginIndex - 1);
             }
 
             node = GetNextNode();
@@ -605,6 +606,11 @@ $h.parameters.parameter
             parameter.AttributesText = 
                 attributesNode != null ?
                     attributesNode.Text : string.Empty;
+
+            if (parameter.AttributesText.Contains(@"[SupportsWildCards()]"))
+            {
+                parameter.Globbing = true;
+            }
 
             command.Parameters.Add(parameter);
             return true;
