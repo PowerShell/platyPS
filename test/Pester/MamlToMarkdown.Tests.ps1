@@ -53,7 +53,7 @@ aliases="none"
               }
           } | Out-String
           $paramMarkdown | Should Be @'
-#### Force [switch]
+### Force [switch]
 
 ```powershell
 [Parameter(Mandatory = $true)]
