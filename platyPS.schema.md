@@ -46,6 +46,15 @@ It closely resembles output of `Get-Help`.
             #### {Output type}
             {{Description text}}
 
+        ### EXAMPLES
+        // for every example
+            #### {Example Name}
+
+            ```powershell
+            {{Example body}}
+            ```
+            {{Example text explanation}}
+
         ### RELATED LINKS
 
         // for every link
