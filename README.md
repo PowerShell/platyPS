@@ -3,9 +3,6 @@
 # PlatyPS
 Generate PowerShell External Help files (aka maml) from Markdown.
 
-# Contributing
-
-Please include short demo / snippets in README.md to quicky onboard others.
 
 # Repo structure
 
