@@ -1,6 +1,6 @@
 # Schema
 
-PlatyPS requires you to author markdown with a certain structure.
+PlatyPS requires you to keep the content in a specific structure and MarkDown notation. Any authoring must not break this formatting.
 It closely resembles output of `Get-Help`.
 
 ## Legend
@@ -8,7 +8,7 @@ It closely resembles output of `Get-Help`.
 *   `{string}` - single-line string value.
 *   `{{text}}` - multi-line text.
 *   `//` - line comment in schema
-*   tabs shows scopes for `// for` statements, they should not be included in the resulted markdown.
+*   tabs shows scopes for `// for` statements, they should not be included in the markdown output.
 
 ### Version 1.0.0
 
