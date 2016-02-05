@@ -84,15 +84,15 @@ function Get-PlatyExternalHelp
     $markdown = $markdown | Out-String
     Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
 
-    $r = [Markdown.MAML.Renderer.MamlRenderer]::new()
-    $p = [Markdown.MAML.Parser.MarkdownParser]::new({
+    $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+    $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    })
-    $t = [Markdown.MAML.Transformer.ModelTransformer]::new({
+    }
+    $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformer' -ArgumentList {
         param([string]$message)
         Write-Verbose $message
-    })
+    }
 
     $model = $p.ParseString($markdown)
     $maml = $t.NodeModelToMamlModel($model)
