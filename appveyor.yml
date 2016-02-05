@@ -1,4 +1,4 @@
-version: 1.0.{build}
+version: 0.1.0.{build}
 
 install:
     - cinst pester
