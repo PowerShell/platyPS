@@ -36,7 +36,7 @@ I.e. en-US\platyPS.psm1-Help.xml
 
 ### EXAMPLES
 
-#### Example 1 (platyPS)
+#### ----------------------------- Example 1 (platyPS) ------------------------------------
 ```powershell
 $maml = Get-PlatyExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
@@ -109,7 +109,7 @@ Name of the module for bulk help generation.
 
 
 ### EXAMPLES
-#### Example 1 (from command)
+#### ----------------------------- Example 1 (from command) ------------------------------------
 
 ```powershell
 function foo {param([string]$bar)}
@@ -118,7 +118,7 @@ Get-PlatyMarkdown -command foo
 
 Create stub markdown on the fly from the function foo.
 
-#### Example 2 (from module)
+#### ----------------------------- Example 2 (from module) ------------------------------------
 
 ```powershell
 Import-Module platyPS
@@ -127,7 +127,7 @@ Get-PlatyMarkdown -module platyPS
 
 Module should be loaded in the PS Session.
 
-#### Example 3 (from maml file path)
+#### ----------------------------- Example 3 (from maml file path) ------------------------------------
 
 ```powershell
 Get-PlatyMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
@@ -135,7 +135,7 @@ Get-PlatyMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1
 
 Create markdown help for inbox PSReadLine module.
 
-#### Example 4 (from maml file content)
+#### ----------------------------- Example 4 (from maml file content) ------------------------------------
 
 ```powershell
 Get-PlatyMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
@@ -193,7 +193,7 @@ Path to the External Help file.
 
 
 ### EXAMPLES
-#### Example 1 (test the module)
+#### ----------------------------- Example 1 (test the module) ------------------------------------
 ```powershell
 $generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
 $generatedModule.Cmdlets | % { Get-Help -Name "$($generatedModule.Name)\$_" -Full | Out-String }

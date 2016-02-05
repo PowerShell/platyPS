@@ -141,6 +141,9 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
 ## Get-Foo
+
+### NOTES
+
 ### EXAMPLES
 #### --EXAMPLE1--
 ```
