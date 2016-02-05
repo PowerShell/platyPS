@@ -4,18 +4,14 @@ $ErrorActionPreference = 'Stop'
 $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
-Import-Module $outFolder\platyPS\MamlToMarkdown.psm1 -Force
+Import-Module $outFolder\platyPS -Force
 Import-Module $outFolder\platyPS\MamlUtils.psm1 -Force
-
-# we assume dll is already built
-$assemblyPath = (Resolve-Path "$outFolder\platyPS\Markdown.MAML.dll").Path
-Add-Type -Path $assemblyPath
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
     It 'transform without errors' {
-        $generatedMaml = [Markdown.MAML.Renderer.MamlRenderer]::MarkdownStringToMamlString($markdown)
+        $generatedMaml = Get-PlatyExternalHelp $markdown -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
     }

@@ -9,7 +9,7 @@ $oldExportAll = $env:PESTER_EXPORT_ALL_MEMBERS
 $env:PESTER_EXPORT_ALL_MEMBERS = '1'
 try 
 {
-  Import-Module $outFolder\platyPS\MamlToMarkdown.psm1 -Force
+  Import-Module $outFolder\platyPS -Force
 }
 finally
 {
