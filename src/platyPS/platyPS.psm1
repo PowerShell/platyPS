@@ -24,7 +24,7 @@
 #   
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyMarkdown
+function Get-PlatyPSMarkdown
 {
     [CmdletBinding()]
     [OutputType([string[]])]
@@ -73,7 +73,7 @@ function Get-PlatyMarkdown
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyExternalHelp
+function Get-PlatyPSExternalHelp
 {
     [CmdletBinding()]
     [OutputType([string])]
@@ -843,6 +843,6 @@ if ($env:PESTER_EXPORT_ALL_MEMBERS)
 }
 else
 {
-    Export-ModuleMember -Function @('Get-PlatyMarkdown', 'Get-PlatyExternalHelp', 'New-ModuleFromMaml')
+    Export-ModuleMember -Function @('Get-PlatyPSMarkdown', 'Get-PlatyPSExternalHelp', 'New-ModuleFromMaml')
 }
 

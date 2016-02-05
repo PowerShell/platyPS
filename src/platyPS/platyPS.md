@@ -1,4 +1,4 @@
-# Get-PlatyExternalHelp
+# Get-PlatyPSExternalHelp
 
 ## SYNOPSIS
 Create External help file from platyPS markdown.
@@ -38,7 +38,7 @@ I.e. en-US\platyPS.psm1-Help.xml
 
 ### ----------------------------- Example 1 (platyPS) ------------------------------------
 ```powershell
-$maml = Get-PlatyExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
+$maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
@@ -47,7 +47,7 @@ Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
 
-# Get-PlatyMarkdown
+# Get-PlatyPSMarkdown
 
 ## SYNOPSIS
 Convert your existing external help into markdown or generate it from Help object.
@@ -113,7 +113,7 @@ Name of the module for bulk help generation.
 
 ```powershell
 function foo {param([string]$bar)}
-Get-PlatyMarkdown -command foo
+Get-PlatyPSMarkdown -command foo
 ```
 
 Create stub markdown on the fly from the function foo.
@@ -122,7 +122,7 @@ Create stub markdown on the fly from the function foo.
 
 ```powershell
 Import-Module platyPS
-Get-PlatyMarkdown -module platyPS
+Get-PlatyPSMarkdown -module platyPS
 ```
 
 Module should be loaded in the PS Session.
@@ -130,7 +130,7 @@ Module should be loaded in the PS Session.
 ### ----------------------------- Example 3 (from maml file path) ------------------------------------
 
 ```powershell
-Get-PlatyMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+Get-PlatyPSMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
 ```
 
 Create markdown help for inbox PSReadLine module.
@@ -138,7 +138,7 @@ Create markdown help for inbox PSReadLine module.
 ### ----------------------------- Example 4 (from maml file content) ------------------------------------
 
 ```powershell
-Get-PlatyMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
+Get-PlatyPSMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
 ```
 
 Create markdown help for inbox PSReadLine module.

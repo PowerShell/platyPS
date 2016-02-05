@@ -10,12 +10,12 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
     It 'transform without errors' {
-        $generatedMaml = Get-PlatyExternalHelp $markdown -Verbose
+        $generatedMaml = Get-PlatyPSExternalHelp $markdown -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
     }
     
-    $g = New-ModuleFromMaml -MamlFilePath $outFolder\SMA.dll-help.xml
+    $g = New-PlatyPSModuleFromMaml -MamlFilePath $outFolder\SMA.dll-help.xml
 
     try 
     {
