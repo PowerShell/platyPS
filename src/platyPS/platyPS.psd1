@@ -27,7 +27,7 @@ CompanyName = 'Microsoft'
 Copyright = '(c) 2016 PowerShell team. All rights reserved.'
 
 # Description of the functionality provided by this module
-# Description = ''
+Description = 'Generate PowerShell External Help files from Markdown'
 
 # Minimum version of the Windows PowerShell engine required by this module
 # PowerShellVersion = ''
@@ -95,10 +95,10 @@ PrivateData = @{
         # Tags = @()
 
         # A URL to the license for this module.
-        # LicenseUri = ''
+        LicenseUri = 'https://github.com/PowerShell/platyPS/blob/master/LICENSE'
 
         # A URL to the main website for this project.
-        # ProjectUri = ''
+        ProjectUri = 'https://github.com/PowerShell/platyPS'
 
         # A URL to an icon representing this module.
         # IconUri = ''
