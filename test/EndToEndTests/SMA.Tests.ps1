@@ -5,7 +5,6 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
-Import-Module $outFolder\platyPS\MamlUtils.psm1 -Force
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 

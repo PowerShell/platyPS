@@ -194,6 +194,11 @@ namespace Markdown.MAML.Transformer
         private void RelatedLinksRule(MamlCommand commmand)
         {
             var paragraphNode = ParagraphNodeRule();
+            if (paragraphNode == null)
+            {
+                return;
+            }
+
             foreach (var paragraphSpan in paragraphNode.Spans)
             {
                 var linkSpan = paragraphSpan as HyperlinkSpan;

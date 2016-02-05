@@ -17,18 +17,11 @@ Please include short demo / snippets in README.md to quicky onboard others.
  -  **[TagsMapping.md](TagsMapping.md)** - maml schema description.
  
 
-## Transform maml to markdown
+## [Usage](src\platyPS\platyPS.md)
 
-```powershell
-Import-Module XToMarkdown\MamlToMarkdown.psm1
-# get maml as a string
-$maml = cat Examples\SMA.help.xml -Raw
-# run convertion
-Convert-MamlToMarkdown -maml $maml
-```
+*  Create markdown from existing external help files.
 
-## Transorm markdown to maml
+*  Create markdown using reflection.
 
-```powershell
-[Markdown.MAML.Renderer.MamlRenderer]::MarkdownStringToMamlString
-```
+*  Create external help files from platyPS markdown.
+
