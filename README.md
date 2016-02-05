@@ -9,17 +9,13 @@ Please include short demo / snippets in README.md to quicky onboard others.
 
 # Repo structure
 
- -  **src, Markdown.MAML.sln**  - source code for C# markdown to MAML converter.
- -  **XToMarkdown** - tools to generate Markdown from something (i.e. MAML, Get-Help object)
- -  **XToMarkdown\MamlToMarkdown.psm1** - powershell MAML to markdown converter
+ -  **src\platyPS** - sources to create the final PowerShell module.
+ -  **src\Markdown.MAML, Markdown.MAML.sln**  - source code for C# markdown to MAML converter.
  -  **Examples** - misc files, showcases, etc.
- -  **EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
- -  **TagsMapping.md** - maml schema description.
-
-## Markdown schema
-
-The best way to figure out up-to-date schema is grab an `*.md` files from build server artifacts.
-We need to capture a formal schema, when everything is settled.
+ -  **test\EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
+ -  **[platyPS.schema.md](platyPS.schema.md)** - description of markdown that platyPS expects.
+ -  **[TagsMapping.md](TagsMapping.md)** - maml schema description.
+ 
 
 ## Transform maml to markdown
 
@@ -30,7 +26,6 @@ $maml = cat Examples\SMA.help.xml -Raw
 # run convertion
 Convert-MamlToMarkdown -maml $maml
 ```
-
 
 ## Transorm markdown to maml
 

@@ -15,12 +15,71 @@ namespace Markdown.MAML.Transformer
         private Runspace runspace;
         private DocumentNode _root;
         private IEnumerator<MarkdownNode> _rootEnumerator;
+        private Action<string> _infoCallback;
 
         private const int COMMAND_NAME_HEADING_LEVEL = 2;
         private const int COMMAND_ENTRIES_HEADING_LEVEL = 3;
         private const int PARAMETER_NAME_HEADING_LEVEL = 4;
         private const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 4;
         private const int EXAMPLE_HEADING_LEVEL = 4;
+        
+        public ModelTransformer() : this(null) {}
+
+        /// <summary>
+        /// </summary>
+        /// <param name="infoCallback">Report string information to some channel</param>
+        public ModelTransformer(Action<string> infoCallback)
+        {
+            _infoCallback = infoCallback;
+        }
+
+        public IEnumerable<MamlCommand> NodeModelToMamlModel(DocumentNode node)
+        {
+            _root = node;
+            if (_root.Children == null)
+            {
+                // HACK:
+                _rootEnumerator = (new LinkedList<MarkdownNode>()).GetEnumerator();
+            }
+            else
+            {
+                _rootEnumerator = _root.Children.GetEnumerator();
+            }
+
+            List<MamlCommand> commands = new List<MamlCommand>();
+            MarkdownNode markdownNode;
+            while ((markdownNode = GetNextNode()) != null)
+            {
+                if (markdownNode is HeadingNode)
+                {
+                    var headingNode = markdownNode as HeadingNode;
+                    switch (headingNode.HeadingLevel)
+                    {
+                        case COMMAND_NAME_HEADING_LEVEL:
+                            {
+                                MamlCommand command = new MamlCommand()
+                                {
+                                    Name = headingNode.Text,
+                                    Extent = headingNode.SourceExtent
+                                };
+
+                                if (_infoCallback != null)
+                                {
+                                    Console.WriteLine("Start processing command " + command.Name);
+                                }
+
+                                // fill up command 
+                                while (SectionDispatch(command)) { }
+
+                                commands.Add(command);
+                                break;
+                            }
+                        default: throw new HelpSchemaException(headingNode.SourceExtent, "Booo, I don't know what is the heading level " + headingNode.HeadingLevel);
+                    }
+                }
+            }
+            return commands;
+        }
 
         private MarkdownNode _ungotNode { get; set; }
 
@@ -684,51 +743,6 @@ $h.parameters.parameter
                     }
             }
             return true;
-        }
-
-        public IEnumerable<MamlCommand> NodeModelToMamlModel(DocumentNode node)
-        {
-            _root = node;
-            if (_root.Children == null)
-            {
-                // HACK:
-                _rootEnumerator = (new LinkedList<MarkdownNode>()).GetEnumerator();
-            }
-            else
-            {
-                _rootEnumerator = _root.Children.GetEnumerator();
-            }
-
-            List<MamlCommand> commands = new List<MamlCommand>();
-            MarkdownNode markdownNode;
-            while ((markdownNode = GetNextNode()) != null)
-            {
-                if (markdownNode is HeadingNode)
-                {
-                    var headingNode = markdownNode as HeadingNode;
-                    switch (headingNode.HeadingLevel)
-                    {
-                        case COMMAND_NAME_HEADING_LEVEL:
-                            {
-                                MamlCommand command = new MamlCommand()
-                                {
-                                    Name = headingNode.Text,
-                                    Extent = headingNode.SourceExtent
-                                };
-                                
-                                Console.WriteLine("Start processing command " + command.Name);
-
-                                // fill up command 
-                                while (SectionDispatch(command)) { }
-
-                                commands.Add(command);
-                                break;
-                            }
-                        default: throw new HelpSchemaException(headingNode.SourceExtent, "Booo, I don't know what is the heading level " + headingNode.HeadingLevel);
-                    }
-                }
-            }
-            return commands;
         }
     }
 }

@@ -15,10 +15,25 @@ namespace Markdown.MAML.Parser
         private string _documentText;
         MarkdownPatternList _markdownPatterns;
         List<ParagraphSpan> _currentParagraphSpans;
+        Action<int, int> _progressCallback;
+        int _reportByteCount;
 
         #endregion
 
         #region Public Methods
+
+        public MarkdownParser() : this(null) {}
+
+        public MarkdownParser(Action<int, int> progressCallback) : this(progressCallback, 3000) { }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="progressCallback">Progress callback called sometimes and report that param1 of param2 bytes processed.</param>
+        /// <param name="reportByteCount">Call progressCallback every reportByteCount bytes.</param>
+        public MarkdownParser(Action<int, int> progressCallback, int reportByteCount)
+        {
+            _progressCallback = progressCallback;
+        }
 
         public DocumentNode ParseString(string markdownString)
         {
@@ -111,16 +126,18 @@ namespace Markdown.MAML.Parser
             int currentLineNumber = 0;
             int currentColumnNumber = 0;
 
-            const int reportCharCount = 3000;
             int lastOffset = 0;
  
             while (startOffset < _documentText.Length)
             {
                 // progress reporting
-                if (lastOffset + reportCharCount < startOffset)
+                if (_progressCallback != null)
                 {
-                    Console.WriteLine(string.Format("Process {0} / {1} chars", startOffset, _documentText.Length));
-                    lastOffset = startOffset;
+                    if (lastOffset + _reportByteCount < startOffset)
+                    {
+                        _progressCallback(startOffset, _documentText.Length);
+                        lastOffset = startOffset;
+                    }
                 }
 
                 // Try each of the patterns to find a match

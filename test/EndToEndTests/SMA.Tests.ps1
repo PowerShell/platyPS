@@ -1,16 +1,14 @@
 ﻿Set-StrictMode -Version latest
 $ErrorActionPreference = 'Stop'
 
-$root = (Resolve-Path $PSScriptRoot\..).Path
+$root = (Resolve-Path $PSScriptRoot\..\..).Path
+$outFolder = "$root\out"
 
-Import-Module $root\MamlUtils.psm1 -Force
-
-# create folder for test run artifacts (intermediate markdown)
-$outFolder = "$PSScriptRoot\..\out"
-mkdir $outFolder -ErrorAction SilentlyContinue > $null
+Import-Module $outFolder\platyPS\MamlToMarkdown.psm1 -Force
+Import-Module $outFolder\platyPS\MamlUtils.psm1 -Force
 
 # we assume dll is already built
-$assemblyPath = (Resolve-Path "$root\src\Markdown.MAML\bin\Debug\Markdown.MAML.dll").Path
+$assemblyPath = (Resolve-Path "$outFolder\platyPS\Markdown.MAML.dll").Path
 Add-Type -Path $assemblyPath
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {

@@ -1,7 +1,20 @@
 Set-StrictMode -Version latest
 $ErrorActionPreference = 'Stop'
 
-Import-Module $PSScriptRoot\MamlToMarkdown.psm1 -Force
+$root = (Resolve-Path $PSScriptRoot\..\..).Path
+$outFolder = "$root\out"
+
+# this is a hack to enable testing of all functions, not only exported
+$oldExportAll = $env:PESTER_EXPORT_ALL_MEMBERS
+$env:PESTER_EXPORT_ALL_MEMBERS = '1'
+try 
+{
+  Import-Module $outFolder\platyPS\MamlToMarkdown.psm1 -Force
+}
+finally
+{
+  $env:PESTER_EXPORT_ALL_MEMBERS = $oldExportAll
+}
 
 Describe 'MamlToMarkdown.psm1' {
     Context 'Get-ParameterMarkdown' {

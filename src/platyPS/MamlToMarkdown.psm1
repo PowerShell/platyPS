@@ -488,16 +488,11 @@ function Convert-MamlToMarkdown
     $commands | %{ Convert-CommandToMarkdown $_ } | Out-String
 }
 
-
-##
-## export everything for test purposes
-## TODO: scope it to a simple public API.
-##
-
-<#
-Export-ModuleMember -Function `
-    Convert-MamlToMarkdown, `
-    Convert-XmlElementToString, `
-    Convert-MamlLinksToMarkDownLinks, `
-    Convert-CommandToMarkdown
-#>
+if ($env:PESTER_EXPORT_ALL_MEMBERS)
+{
+    Export-ModuleMember -Function *
+}
+else
+{
+    Export-ModuleMember -Function Convert-MamlToMarkdown
+}
