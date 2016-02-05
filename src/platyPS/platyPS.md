@@ -57,7 +57,9 @@ An easy way to start with platyPS:
 Generate help stub from:
 
 -  Module.
+
 -  Command.
+
 -  External help xml (aka maml).
 
 ## PARAMETERS
