@@ -13,19 +13,19 @@ It closely resembles output of `Get-Help`.
 ### Version 1.0.0
 
     // for every command:
-        ## {Command name}
+        # {Command name}
 
-        ### SYNOPSIS
+        ## SYNOPSIS
         {{Synopsis text}}
 
-        ### DESCRIPTION
+        ## DESCRIPTION
         {{Description text}}
 
-        ### PARAMETERS
+        ## PARAMETERS
 
         // for every parameter
             // type and default value are non-mandatory
-            #### {Parameter name} [{Parameter type}] = {Parameter default value}
+            ### {Parameter name} [{Parameter type}] = {Parameter default value}
 
             // parameter metadata
             ```powershell
@@ -36,26 +36,26 @@ It closely resembles output of `Get-Help`.
 
             {{Parameter description text}}
 
-        ### INPUTS
+        ## INPUTS
         // for every input type
             #### {Input type}
             {{Description text}}
 
-        ### OUTPUTS
+        ## OUTPUTS
         // for every output type
-            #### {Output type}
+            ### {Output type}
             {{Description text}}
 
-        ### EXAMPLES
+        ## EXAMPLES
         // for every example
-            #### {Example Name}
+            ### {Example Name}
 
             ```powershell
             {{Example body}}
             ```
             {{Example text explanation}}
 
-        ### RELATED LINKS
+        ## RELATED LINKS
 
         // for every link
             [{link name}]({link url})

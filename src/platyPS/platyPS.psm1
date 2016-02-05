@@ -332,12 +332,12 @@ function Get-NameMarkdown($command)
         $name = $command.details.name.Trim()
     }
     
-    "## {0}" -f $name
+    "# {0}" -f $name
 }
 
 function Get-SynopsisMarkdown($command)
 {
-    '### SYNOPSIS'
+    '## SYNOPSIS'
     if ($script:IS_HELP)
     {
         $text = $command.Synopsis
@@ -352,7 +352,7 @@ function Get-SynopsisMarkdown($command)
 
 function Get-DescriptionMarkdown($command)
 {
-    '### DESCRIPTION'
+    '## DESCRIPTION'
     if ($script:IS_HELP)
     {
         $text = $command.description
@@ -492,7 +492,7 @@ function Get-ParameterMarkdown
     }
 
 @"
-#### $($parameter.name) $parameterType$defaultValue
+### $($parameter.name) $parameterType$defaultValue
 
 "@
     $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
@@ -596,7 +596,7 @@ function Get-ParametersMarkdown($command)
 {
     $paramSets = Get-ParameterSetMapping $command
 
-    '### PARAMETERS'
+    '## PARAMETERS'
     ''
     $command.parameters.parameter | % { 
         # can be null, if parameters are not populated
@@ -610,7 +610,7 @@ function Get-ParametersMarkdown($command)
 function Get-InputMarkdown($command)
 {
 
-    '### INPUTS'
+    '## INPUTS'
 
     if ($command.inputTypes.inputType.type.name)
     {
@@ -618,13 +618,13 @@ function Get-InputMarkdown($command)
         if ($script:IS_HELP)
         {
             $command.inputTypes.inputType.type.name.Split() | ? {$_} | % {
-                "#### $($_)"
+                "### $($_)"
             }
         }
         else 
         {
             $command.inputTypes.inputType | % { 
-                "#### $($_.type.name)"
+                "### $($_.type.name)"
                 $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
                 $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs    
             }
@@ -632,7 +632,7 @@ function Get-InputMarkdown($command)
     } 
     else 
     {
-        "#### None"
+        "### None"
         $command.inputTypes.inputType.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
     }
 
@@ -640,20 +640,20 @@ function Get-InputMarkdown($command)
 
 function Get-OutputMarkdown($command)
 {
-    '### OUTPUTS'
+    '## OUTPUTS'
     if ($command.returnValues.returnValue) 
     {
         if ($script:IS_HELP)
         {
             # didn't test it, but I guess it should be the same as Inputs
             $command.returnValues.returnValue.type.name.Split() | ? {$_} | % {
-                "#### $($_)"
+                "### $($_)"
             }
         }
         else 
         {
             $command.returnValues.returnValue | % { 
-                "#### $($_.type.name)"    
+                "### $($_.type.name)"    
                 $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
                 $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
             }
@@ -661,7 +661,7 @@ function Get-OutputMarkdown($command)
     }
     else 
     {
-        "#### None"
+        "### None"
         $command.returnValues.returnValue.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs   
     }
 
@@ -671,7 +671,7 @@ function Get-NotesMarkdown($command)
 {
     if ($command.alertSet.alert.para -or $script:IS_HELP)
     {
-        '### NOTES'
+        '## NOTES'
         $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
     }
 }
@@ -679,9 +679,9 @@ function Get-NotesMarkdown($command)
 function Get-ExampleMarkdown($example)
 {
     if ($example.title) {
-        "#### $($example.title.Trim())"
+        "### $($example.title.Trim())"
     } else {
-        "#### EXAMPLE"
+        "### EXAMPLE"
     }
 
     $example.introduction.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
@@ -695,14 +695,14 @@ function Get-ExamplesMarkdown($command)
 {
     if ($command.examples.example -or $script:IS_HELP)
     {     
-        '### EXAMPLES'
+        '## EXAMPLES'
         $command.examples.example | ? {$_} | % { Get-ExampleMarkdown $_ }
     }
 }
 
 function Get-RelatedLinksMarkdown($command)
 {
-    '### RELATED LINKS'
+    '## RELATED LINKS'
     $command.relatedLinks.navigationLink | ? {$_} | % {
         "`n[$($_.linkText)]($($_.uri))"
     }

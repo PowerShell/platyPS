@@ -15,8 +15,8 @@ namespace Markdown.MAML.Test.Transformer
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### Synopsis
+# Get-Foo
+## Synopsis
 This is Synopsis
 ");
             MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
@@ -29,9 +29,9 @@ This is Synopsis
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-##Add-Member
+#Add-Member
 
-###SYNOPSIS
+##SYNOPSIS
 Adds custom properties and methods to an instance of a Windows PowerShell object.
 
 ");
@@ -45,11 +45,11 @@ Adds custom properties and methods to an instance of a Windows PowerShell object
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### Synopsis
+# Get-Foo
+## Synopsis
 This is Synopsis, but it doesn't matter in this test
 
-### DESCRIPTION
+## DESCRIPTION
 Hello,
 
 I'm a multiline description.
@@ -69,16 +69,16 @@ And this is my last line.
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### Synopsis
+# Get-Foo
+## Synopsis
 This is Synopsis, but it doesn't matter in this test
-### DESCRIPTION
+## DESCRIPTION
 This is description
 
-## Get-Bar
-### DESCRIPTION
+# Get-Bar
+## DESCRIPTION
 This is description
-### Synopsis
+## Synopsis
 This is Synopsis, but it doesn't matter in this test
 
 ");
@@ -95,9 +95,9 @@ This is Synopsis, but it doesn't matter in this test
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### Parameters
-#### Bar
+# Get-Foo
+## Parameters
+### Bar
 This is bar parameter
 
 ");
@@ -114,13 +114,13 @@ This is bar parameter
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### INPUTS
-#### System.String
+# Get-Foo
+## INPUTS
+### System.String
 You can pipe computer names and new names to the Add-ComputerCmdlet.
 
-### OUTPUTS
-#### Microsoft.PowerShell.Commands.ComputerChangeInfo
+## OUTPUTS
+### Microsoft.PowerShell.Commands.ComputerChangeInfo
 
 ");
             var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
@@ -140,18 +140,18 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
+# Get-Foo
 
-### NOTES
+## NOTES
 
-### EXAMPLES
-#### --EXAMPLE1--
+## EXAMPLES
+### --EXAMPLE1--
 ```
 # PS code here
 ```
 Remarks
 
-#### --EXAMPLE2--
+### --EXAMPLE2--
 ```
 # PS code here
 ```
@@ -172,8 +172,8 @@ Remarks
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-###RELATED LINKS
+# Get-Foo
+##RELATED LINKS
 
 [Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289795)
 
@@ -206,8 +206,8 @@ Remarks
         {
             var parser = new MarkdownParser();
             var doc = parser.ParseString(@"
-## Get-Foo
-### SYNOPSIS
+# Get-Foo
+## SYNOPSIS
 
 Runs the [Set-WSManQuickConfig]() cmdlet
 
@@ -250,8 +250,8 @@ Runs the [Set-WSManQuickConfig]() cmdlet
 ";
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
 {0}
 {1}
@@ -304,19 +304,19 @@ Runs the [Set-WSManQuickConfig]() cmdlet
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### NonExistingTypeParam [NonExistingType]
+### NonExistingTypeParam [NonExistingType]
 
 ```powershell
 ```
 
 This is NonExistingTypeParam description.
 
-#### NoDescriptionParam [string]
+### NoDescriptionParam [string]
 
-#### NoTypeParam
+### NoTypeParam
 
 NoTypeParam description.
 ";
@@ -349,12 +349,12 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### informationVariable
+### informationVariable
 
-#### force [switch]
+### force [switch]
 ```powershell
 [Parameter(Mandatory=$false)]
 ```
@@ -377,10 +377,10 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### foo [string]
+### foo [string]
 ```powershell
 [ValidateSet('a', 'b', 'c')]
 ```
@@ -408,10 +408,10 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### TypeName [String]
+### TypeName [String]
 
 ```powershell
 [Parameter(Mandatory = $true, ParameterSetName = 'Set 1')]
@@ -446,16 +446,16 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### SecondSetParam [String]
+### SecondSetParam [String]
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 2')]
 ```
 
-#### FirstSetParam [String]
+### FirstSetParam [String]
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -484,10 +484,10 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### Name [String] = PowerShell
+### Name [String] = PowerShell
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 1')]
@@ -511,10 +511,10 @@ NoTypeParam description.
             var parser = new MarkdownParser();
 
             const string docFormatString = @"
-## Get-Foo
-### PARAMETERS
+# Get-Foo
+## PARAMETERS
 
-#### Name [String]
+### Name [String]
 
 ```
 [SupportsWildCards()]
@@ -540,18 +540,18 @@ NoTypeParam description.
 
             const string docFormatString = @"
 
-## Clear-History
+# Clear-History
 
-### SYNOPSIS
+## SYNOPSIS
 Deletes entries from the command history.
 
-### DESCRIPTION
+## DESCRIPTION
 The Clear-History cmdlet deletes commands from the command history, that is, the list of commands entered during the current session.
 Without parameters, Clear-History deletes all commands from the session history, but you can use the parameters of Clear-History to delete selected commands.
 
-### PARAMETERS
+## PARAMETERS
 
-#### CommandLine [String[]]
+### CommandLine [String[]]
 
 ```powershell
 [Parameter(ParameterSetName = 'Set 2')]
@@ -561,7 +561,7 @@ Without parameters, Clear-History deletes all commands from the session history,
 Deletes commands with the specified text strings. If you enter more than one string, Clear-History deletes commands with any of the strings.
 
 
-#### Count [Int32]
+### Count [Int32]
 
 ```powershell
 [Parameter(Position = 2)]
@@ -573,7 +573,7 @@ For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 
 If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
 
 
-#### Id [Int32[]]
+### Id [Int32[]]
 
 ```powershell
 [Parameter(
@@ -585,17 +585,17 @@ Deletes commands with the specified history IDs.
 To find the history ID of a command, use Get-History.
 
 
-#### Newest [switch]
+### Newest [switch]
 
 Deletes the newest entries in the history. By default, Clear-History deletes the oldest entries in the history.
 
 
-#### Confirm [switch]
+### Confirm [switch]
 
 Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
 
 
-#### WhatIf [switch]
+### WhatIf [switch]
 
 Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
@@ -620,7 +620,7 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
         private static string GetParameterText(string paramName, string paramType, string paramAttributes)
         {
             const string paramFormatString = @"
-#### {0} [{1}]
+### {0} [{1}]
 
 ```powershell
 {2}

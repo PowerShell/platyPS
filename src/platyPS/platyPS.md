@@ -1,9 +1,9 @@
-## Get-PlatyExternalHelp
+# Get-PlatyExternalHelp
 
-### SYNOPSIS
+## SYNOPSIS
 Create External help file from platyPS markdown.
 
-### DESCRIPTION
+## DESCRIPTION
 
 Create External help file from platyPS markdown.
 
@@ -11,9 +11,9 @@ You will get error messages, if provided input doesn't follow schema described i
 
 Store output of this command in the module directory in corresponding language folder, i.e en-US.
 
-### PARAMETERS
+## PARAMETERS
 
-#### markdown [string[]]
+### markdown [string[]]
 
 ```powershell
 [Parameter(
@@ -24,35 +24,35 @@ Store output of this command in the module directory in corresponding language f
 This parameter takes array of string, so you can simply pipe output of [Get-Content]().
 
 
-### OUTPUTS
-#### System.String
+## OUTPUTS
+### System.String
 
 Xml document that should be stored to the module folder in the corresponding language folder.
 
 I.e. en-US\platyPS.psm1-Help.xml
 
-### NOTES
+## NOTES
 
 
-### EXAMPLES
+## EXAMPLES
 
-#### ----------------------------- Example 1 (platyPS) ------------------------------------
+### ----------------------------- Example 1 (platyPS) ------------------------------------
 ```powershell
 $maml = Get-PlatyExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 
-### RELATED LINKS
+## RELATED LINKS
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
 
-## Get-PlatyMarkdown
+# Get-PlatyMarkdown
 
-### SYNOPSIS
+## SYNOPSIS
 Convert your existing external help into markdown or generate it from Help object.
 
-### DESCRIPTION
+## DESCRIPTION
 An easy way to start with platyPS:
 Generate help stub from:
 
@@ -60,9 +60,9 @@ Generate help stub from:
 -  Command.
 -  External help xml (aka maml).
 
-### PARAMETERS
+## PARAMETERS
 
-#### command [Object]
+### command [Object]
 
 ```powershell
 [Parameter(
@@ -74,7 +74,7 @@ Generate help stub from:
 Name of a command from your PowerShell session.
 
 
-#### maml [string]
+### maml [string]
 
 ```powershell
 [Parameter(
@@ -86,7 +86,7 @@ Name of a command from your PowerShell session.
 Path or content of file with existing External Help (aka maml).
 
 
-#### module [Object]
+### module [Object]
 
 ```powershell
 [Parameter(
@@ -98,18 +98,18 @@ Path or content of file with existing External Help (aka maml).
 Name of the module for bulk help generation.
 
 
-### INPUTS
-#### System.Object
-#### System.String
+## INPUTS
+### System.Object
+### System.String
 
-### OUTPUTS
-#### System.String[]
+## OUTPUTS
+### System.String[]
 
-### NOTES
+## NOTES
 
 
-### EXAMPLES
-#### ----------------------------- Example 1 (from command) ------------------------------------
+## EXAMPLES
+### ----------------------------- Example 1 (from command) ------------------------------------
 
 ```powershell
 function foo {param([string]$bar)}
@@ -118,7 +118,7 @@ Get-PlatyMarkdown -command foo
 
 Create stub markdown on the fly from the function foo.
 
-#### ----------------------------- Example 2 (from module) ------------------------------------
+### ----------------------------- Example 2 (from module) ------------------------------------
 
 ```powershell
 Import-Module platyPS
@@ -127,7 +127,7 @@ Get-PlatyMarkdown -module platyPS
 
 Module should be loaded in the PS Session.
 
-#### ----------------------------- Example 3 (from maml file path) ------------------------------------
+### ----------------------------- Example 3 (from maml file path) ------------------------------------
 
 ```powershell
 Get-PlatyMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
@@ -135,7 +135,7 @@ Get-PlatyMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1
 
 Create markdown help for inbox PSReadLine module.
 
-#### ----------------------------- Example 4 (from maml file content) ------------------------------------
+### ----------------------------- Example 4 (from maml file content) ------------------------------------
 
 ```powershell
 Get-PlatyMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
@@ -143,26 +143,26 @@ Get-PlatyMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PS
 
 Create markdown help for inbox PSReadLine module.
 
-### RELATED LINKS
+## RELATED LINKS
 
 
 
 
-## New-ModuleFromMaml
+# New-ModuleFromMaml
 
-### SYNOPSIS
+## SYNOPSIS
 Takes a MAML file and generates a script module with corresponding help at the given location. 
 
-### DESCRIPTION
+## DESCRIPTION
 
 Command generates dummy module with particular External Help file.
 You can use it to see, how generated help will look like.
 
 This cmdlet generates an object which contains the module name, module path and the list of cmdlets for the generated module.
 
-### PARAMETERS
+## PARAMETERS
 
-#### DestinationPath [string]
+### DestinationPath [string]
 
 ```powershell
 [Parameter(
@@ -172,7 +172,7 @@ This cmdlet generates an object which contains the module name, module path and 
 Path to a folder, where module should be generated.
 
 
-#### MamlFilePath [string]
+### MamlFilePath [string]
 
 ```powershell
 [Parameter(
@@ -183,17 +183,17 @@ Path to a folder, where module should be generated.
 Path to the External Help file.
 
 
-### INPUTS
-#### None
+## INPUTS
+### None
 
-### OUTPUTS
-#### System.Object
+## OUTPUTS
+### System.Object
 
-### NOTES
+## NOTES
 
 
-### EXAMPLES
-#### ----------------------------- Example 1 (test the module) ------------------------------------
+## EXAMPLES
+### ----------------------------- Example 1 (test the module) ------------------------------------
 ```powershell
 $generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
 $generatedModule.Cmdlets | % { Get-Help -Name "$($generatedModule.Name)\$_" -Full | Out-String }
@@ -201,5 +201,5 @@ $generatedModule.Cmdlets | % { Get-Help -Name "$($generatedModule.Name)\$_" -Ful
 
 Show generated help for the whole module as an output of Help engine system.
 
-### RELATED LINKS
+## RELATED LINKS
 
