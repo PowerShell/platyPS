@@ -725,6 +725,6 @@ if ($env:PESTER_EXPORT_ALL_MEMBERS)
 }
 else
 {
-    Export-ModuleMember -Function Get-PlatyMarkdown
+    Export-ModuleMember -Function @('Get-PlatyMarkdown', 'Get-PlatyExternalHelp')
 }
 
