@@ -1,7 +1,7 @@
 [![Build status](https://ci.appveyor.com/api/projects/status/u65tnar0cfkmqywl/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/markdown-maml/branch/master)
 
 # PlatyPS
-Generate PowerShell External Help files (aka maml) from Markdown.
+Generates PowerShell External Help XML files (aka maml) from Markdown.
 
 
 # Repo structure
@@ -11,12 +11,12 @@ Generate PowerShell External Help files (aka maml) from Markdown.
  -  **Examples** - misc files, showcases, etc.
  -  **test\EndToEndTests** - pester tests that do the full converting MAML -> markdown -> MAML.
  -  **[platyPS.schema.md](platyPS.schema.md)** - description of markdown that platyPS expects.
- -  **[TagsMapping.md](TagsMapping.md)** - maml schema description.
+ -  **[TagsMapping.md](TagsMapping.md)** - maml schema description and it's mapping to Markdown sections.
  
 
 ## [Usage](src/platyPS/platyPS.md)
 
-*  Create markdown from existing external help files.
+*  Create markdown from existing external help files (maml schema, XML).
 
 *  Create markdown using reflection.
 
