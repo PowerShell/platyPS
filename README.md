@@ -17,7 +17,7 @@ Please include short demo / snippets in README.md to quicky onboard others.
  -  **[TagsMapping.md](TagsMapping.md)** - maml schema description.
  
 
-## [Usage](src\platyPS\platyPS.md)
+## [Usage](src/platyPS/platyPS.md)
 
 *  Create markdown from existing external help files.
 
