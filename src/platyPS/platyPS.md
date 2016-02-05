@@ -23,6 +23,9 @@ Store output of this command in the module directory in corresponding language f
 
 This parameter takes array of string, so you can simply pipe output of [Get-Content]().
 
+### skipPreambula [switch]
+
+Switch to avoid emmiting xml preambula and \<helpitems\> tag.
 
 ## OUTPUTS
 ### System.String
@@ -42,6 +45,14 @@ $maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
+
+### ----------------------------- Example 2 (skipPreambula) ------------------------------------
+```powershell
+$markdown = Get-PlatyPSMarkdown Get-PlatyPSMarkdown | Out-String
+Get-PlatyPSExternalHelp $markdown -skipPreambula | clip
+```
+
+Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.
 
 ## RELATED LINKS
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

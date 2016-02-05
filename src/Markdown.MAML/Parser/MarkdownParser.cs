@@ -37,20 +37,26 @@ namespace Markdown.MAML.Parser
 
         public DocumentNode ParseString(string markdownString)
         {
-            if (string.IsNullOrWhiteSpace(markdownString))
-            {
-                // TODO: Throw ArgumentException instead?
-                return null;
-            }
+            return ParseString(new string[] { markdownString });
+        }
 
-            // Initialize the pattern list
+        public DocumentNode ParseString(string[] markdownStrings)
+        {
             this.InitializePatternList();
-
-            // Trim the leading whitespace off of the string
-            _documentText = this.PrepareDocumentString(markdownString);
-
             _currentDocument = new DocumentNode();
-            this.ParseDocument();
+
+            foreach (string markdownString in markdownStrings)
+            {
+                if (string.IsNullOrWhiteSpace(markdownString))
+                {
+                    continue;
+                }
+
+                // Trim the leading whitespace off of the string
+                _documentText = this.PrepareDocumentString(markdownString);
+
+                this.ParseDocument();
+            }
 
             return _currentDocument;
         }

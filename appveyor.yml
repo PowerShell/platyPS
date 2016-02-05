@@ -11,7 +11,7 @@ before_build:
     - ps: Update-Help
 
 build_script:
-    - ps: .\build.ps1
+    - ps: .\build.ps1 -Configuration Release
 
 on_finish: 
     - ps: | 

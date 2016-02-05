@@ -1,6 +1,7 @@
 # script to create the final package in out\platyPS
 
 param(
+    [ValidateSet('Debug', 'Release')]
     $Configuration = "Debug"
 )
 
@@ -11,7 +12,14 @@ $assemblyPath = (Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAM
 # copy artifacts
 mkdir out -ErrorAction SilentlyContinue > $null
 cp -Rec -Force src\platyPS out
-cp $assemblyPath out\platyPS
+if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or 
+    (ls out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (ls $assemblyPath).LastWriteTime)
+{
+    cp $assemblyPath out\platyPS
+} else {
+    Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'
+}
+
 cp .\platyPS.schema.md out\platyPS
 
 # put the right module version

@@ -336,6 +336,37 @@ Not a hyperlink [PSObject].
         }
 
         [Fact]
+        public void CanUseMultiplyInputStrings()
+        {
+            MarkdownParser markdownParser = new MarkdownParser();
+            DocumentNode documentNode =
+                markdownParser.ParseString(new string[] {
+@"# Hello
+", // TODO: bug: if there is no new-line after header, it fails to parse it.
+@"This is new line",
+@"```powershell
+Code snippet
+```"
+                });
+
+
+            Assert.Equal(3, documentNode.Children.Count());
+
+            HeadingNode node1 =
+                this.AssertNodeType<HeadingNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Heading);
+            ParagraphNode node2 =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(1),
+                    MarkdownNodeType.Paragraph);
+            CodeBlockNode node3 =
+                this.AssertNodeType<CodeBlockNode>(
+                    documentNode.Children.ElementAtOrDefault(2),
+                    MarkdownNodeType.CodeBlock);
+        }
+
+        [Fact]
         public void ParseEscapingSameWayAsGithub()
         {
             MarkdownParser markdownParser = new MarkdownParser();

@@ -82,12 +82,30 @@ namespace Markdown.MAML.Renderer
 
         public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
         {
+            return MamlModelToString(mamlCommands, false);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="mamlCommands"></param>
+        /// <param name="skipPreambula">Don't include header and footer for xml doc</param>
+        /// <returns></returns>
+        public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands, bool skipPreambula)
+        {
             _stringBuilder.Clear();
-            _stringBuilder.AppendLine(XML_PREAMBULA);
+            if (!skipPreambula)
+            {
+                _stringBuilder.AppendLine(XML_PREAMBULA);  
+            }
 
             AddCommands(mamlCommands);
 
-            _stringBuilder.AppendLine("</helpItems>");
+            if (!skipPreambula)
+            {
+                _stringBuilder.AppendLine("</helpItems>");
+            }
+
             return _stringBuilder.ToString();
         }
 

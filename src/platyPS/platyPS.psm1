@@ -79,7 +79,9 @@ function Get-PlatyPSExternalHelp
     [OutputType([string])]
     param(
         [Parameter(Mandatory=$true)]
-        [string[]]$markdown
+        [string[]]$markdown,
+
+        [switch]$skipPreambula
     )
 
     # normalize input
@@ -98,7 +100,7 @@ function Get-PlatyPSExternalHelp
 
     $model = $p.ParseString($markdown)
     $maml = $t.NodeModelToMamlModel($model)
-    $xml = $r.MamlModelToString($maml)
+    $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
 
     return $xml
 }
