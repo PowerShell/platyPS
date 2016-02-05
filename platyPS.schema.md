@@ -1,14 +1,14 @@
 # Schema
 
-PlatyPS requires you to keep the content in a specific structure and MarkDown notation. Any authoring must not break this formatting.
+PlatyPS requires you to keep the content in a specific structure and Markdown notation. Any authoring must not break this formatting or the MAML will not be generated correctly.
 It closely resembles output of `Get-Help`.
 
 ## Legend
 
-*   `{string}` - single-line string value.
-*   `{{text}}` - multi-line text.
+*   `{string}` - single-line string value
+*   `{{text}}` - multi-line text
 *   `//` - line comment in schema
-*   tabs shows scopes for `// for` statements, they should not be included in the markdown output.
+*   tabs show the scopes of `// for` statements; they should not be included in the Markdown output.
 
 ### Version 1.0.0
 
