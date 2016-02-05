@@ -3,7 +3,7 @@
 PlatyPS requires you to author markdown with a certain structure.
 It closely resembles output of `Get-Help`.
 
-## Legenda
+## Legend
 
 *   `{string}` - single-line string value.
 *   `{{text}}` - multi-line text.
