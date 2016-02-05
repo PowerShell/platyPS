@@ -148,7 +148,7 @@ Create markdown help for inbox PSReadLine module.
 
 
 
-# New-ModuleFromMaml
+# New-PlatyPSModuleFromMaml
 
 ## SYNOPSIS
 Takes a MAML file and generates a script module with corresponding help at the given location. 
@@ -195,7 +195,7 @@ Path to the External Help file.
 ## EXAMPLES
 ### ----------------------------- Example 1 (test the module) ------------------------------------
 ```powershell
-$generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
+$generatedModule = New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath
 $generatedModule.Cmdlets | % { Get-Help -Name "$($generatedModule.Name)\$_" -Full | Out-String }
 ```
 

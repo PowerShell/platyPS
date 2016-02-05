@@ -104,7 +104,7 @@ function Get-PlatyPSExternalHelp
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function New-ModuleFromMaml
+function New-PlatyPSModuleFromMaml
 {
     param 
     (
@@ -843,6 +843,6 @@ if ($env:PESTER_EXPORT_ALL_MEMBERS)
 }
 else
 {
-    Export-ModuleMember -Function @('Get-PlatyPSMarkdown', 'Get-PlatyPSExternalHelp', 'New-ModuleFromMaml')
+    Export-ModuleMember -Function @('Get-PlatyPSMarkdown', 'Get-PlatyPSExternalHelp', 'New-PlatyPSModuleFromMaml')
 }
 

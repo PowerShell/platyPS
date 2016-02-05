@@ -24,7 +24,7 @@ if ($env:APPVEYOR_BUILD_VERSION)
 
 # dogfooding: generate help for the module
 Import-Module $pwd\out\platyPS
-$maml = Get-PlatyExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
+$maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 

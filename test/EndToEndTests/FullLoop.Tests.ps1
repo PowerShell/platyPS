@@ -23,7 +23,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     $maml = Get-Content $testMamlFile -Raw
 
     # run convertion
-    $markdown = Get-PlatyMarkdown -maml $maml
+    $markdown = Get-PlatyPSMarkdown -maml $maml
 
     # Write the markdown to a file
     $markdown | Out-File $outMdFilePath -Force -Encoding utf8
@@ -34,7 +34,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
     $markdown = cat $outMdFilePath -Raw
 
-    $generatedMaml = Get-PlatyExternalHelp $markdown -Verbose
+    $generatedMaml = Get-PlatyPSExternalHelp $markdown -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {
@@ -44,7 +44,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     try 
     {
-        $generatedModule = New-ModuleFromMaml -MamlFilePath $outMamlFilePath
+        $generatedModule = New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath
         Import-Module $generatedModule.Path -Force -ea Stop
 
         foreach ($cmdletName in $generatedModule.Cmdlets)
