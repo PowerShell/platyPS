@@ -62,7 +62,7 @@ Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```powershell
 $markdown = Get-PlatyPSMarkdown Get-PlatyPSMarkdown | Out-String
-Get-PlatyPSExternalHelp $markdown -skipPreambula | clip
+Get-PlatyPSExternalHelp -markdown $markdown -skipPreambula | clip
 ```
 
 Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.

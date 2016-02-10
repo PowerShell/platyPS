@@ -10,7 +10,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
     It 'transform without errors' {
-        $generatedMaml = Get-PlatyPSExternalHelp $markdown -Verbose
+        $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
     }

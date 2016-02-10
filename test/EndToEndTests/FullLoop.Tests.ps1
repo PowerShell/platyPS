@@ -34,7 +34,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
     $markdown = cat $outMdFilePath -Raw
 
-    $generatedMaml = Get-PlatyPSExternalHelp $markdown -Verbose
+    $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {
