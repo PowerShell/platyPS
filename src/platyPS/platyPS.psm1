@@ -42,8 +42,34 @@ function Get-PlatyPSMarkdown
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromMaml")]
-        [string]$maml
+        [string]$maml,
+
+        [switch]$OneFilePerCommand,
+
+        [string]$OutputFolder
     )
+
+    begin
+    {
+        if ($OneFilePerCommand)
+        {
+            if (-not $OutputFolder)
+            {
+                throw 'Specify -OutputFolder parameter, when you use -OneFilePerCommand'
+            }
+            else 
+            {
+                mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+            }
+        }
+        else 
+        {
+            if ($OutputFolder)
+            {
+                Write-Warning "-OutputFolder $OutputFolder ignored. Use -OneFilePerCommand with it"
+            }
+        }
+    }
 
     process
     {
@@ -54,11 +80,26 @@ function Get-PlatyPSMarkdown
                 $maml = cat -raw $maml
             }
 
-            Convert-MamlToMarkdown $maml | Out-String
+            if ($OneFilePerCommand)
+            {
+                Convert-MamlToMarkdown $maml -OutputFolder $OutputFolder
+            }
+            else 
+            {
+                Convert-MamlToMarkdown $maml | Out-String    
+            }
         }
         elseif ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            Convert-HelpToMarkdown (Get-Help $command)
+            $md = Convert-HelpToMarkdown (Get-Help $command)
+            if ($OneFilePerCommand)
+            {
+                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
+            }
+            else 
+            {
+                $md    
+            }
         }
         else # "FromModule"
         {
@@ -66,7 +107,15 @@ function Get-PlatyPSMarkdown
             $commands | % {
                 $command = $_
                 $h = Get-Help $module\$command
-                Convert-HelpToMarkdown $h
+                $md = Convert-HelpToMarkdown $h
+                if ($OneFilePerCommand)
+                {
+                    Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
+                }
+                else 
+                {
+                    $md    
+                }
             } | Out-String
         }
     }
@@ -78,14 +127,25 @@ function Get-PlatyPSExternalHelp
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName="Strings")]
         [string[]]$markdown,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownFolder")]
+        [string]$MarkdownFolder,
 
         [switch]$skipPreambula
     )
 
     # normalize input
-    $markdown = $markdown | Out-String
+    if ($MarkdownFolder)
+    {
+        $markdown = ls $MarkdownFolder -File -Filter "*.md" | % {
+            cat -Raw $_.FullName
+        }
+    }
+
     Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
 
     $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
@@ -99,6 +159,7 @@ function Get-PlatyPSExternalHelp
     }
 
     $model = $p.ParseString($markdown)
+    Write-Progress -Activity "Parsing markdown" -Completed    
     $maml = $t.NodeModelToMamlModel($model)
     $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
 
@@ -788,18 +849,42 @@ function Get-NormalizedText([string]$text)
     $text -replace '–','-'
 }
 
+function Out-MarkdownToFile
+{
+    param(
+        [string]$Path,
+        [string]$value
+    )
+
+    Write-Host "Writing to $Path"
+    Set-Content -Path $Path -Value $md -Encoding UTF8
+}
+
 function Convert-MamlToMarkdown
 {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
-        [string]$maml
+        [string]$maml,
+
+        [string]$OutputFolder
     )
 
     $xmlMaml = [xml](Get-NormalizedText $maml)
     $commands = $xmlMaml.helpItems.command
 
-    $commands | %{ Convert-CommandToMarkdown -command $_ } | Out-String
+    $commands | %{ 
+        if ($OutputFolder) 
+        {
+            $md = Convert-CommandToMarkdown -command $_ 
+            $fileName = "$($_.details.name.Trim()).md"
+            Out-MarkdownToFile -path (Join-Path $OutputFolder $fileName) -value $md
+        }
+        else 
+        {
+            Convert-CommandToMarkdown -command $_    
+        }
+    } | Out-String
 }
 
 function Convert-HelpToMarkdown

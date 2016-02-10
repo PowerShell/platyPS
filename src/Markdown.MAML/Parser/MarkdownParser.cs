@@ -45,8 +45,16 @@ namespace Markdown.MAML.Parser
             this.InitializePatternList();
             _currentDocument = new DocumentNode();
 
-            foreach (string markdownString in markdownStrings)
+            for (int i = 0; i < markdownStrings.Length; i++)
             {
+                string markdownString = markdownStrings[i];
+                // if there are more then 1 markdownString, we should report progress
+                // per strings, not for the whole string.
+                if (markdownStrings.Length > 1 && this._progressCallback != null)
+                {
+                    this._progressCallback(i, markdownStrings.Length);
+                }
+
                 if (string.IsNullOrWhiteSpace(markdownString))
                 {
                     continue;
@@ -55,7 +63,7 @@ namespace Markdown.MAML.Parser
                 // Trim the leading whitespace off of the string
                 _documentText = this.PrepareDocumentString(markdownString);
 
-                this.ParseDocument();
+                this.ParseDocument(markdownStrings.Length == 1);
             }
 
             return _currentDocument;
@@ -120,7 +128,7 @@ namespace Markdown.MAML.Parser
 
         #region Parsing Methods
 
-        private void ParseDocument()
+        private void ParseDocument(bool reportProgress)
         {
             // This algorithm works by applying each Markdown pattern to the
             // document string starting at startOffset and finding which match
@@ -137,7 +145,7 @@ namespace Markdown.MAML.Parser
             while (startOffset < _documentText.Length)
             {
                 // progress reporting
-                if (_progressCallback != null)
+                if (reportProgress && _progressCallback != null)
                 {
                     if (lastOffset + _reportByteCount < startOffset)
                     {

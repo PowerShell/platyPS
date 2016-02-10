@@ -13,12 +13,25 @@ Store output of this command in the module directory in corresponding language f
 
 ## PARAMETERS
 
+### MarkdownFolder [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  ParameterSetName = 'MarkdownFolder')]
+```
+
+Path to a folder with "*.md" files.
+Their content would be extracted and used.
+It may be convinient for big modules.
+Also breaking markdown to several files speed-up convertion process.
+
 ### markdown [string[]]
 
 ```powershell
 [Parameter(
   Mandatory = $true,
-  Position = 0)]
+  ParameterSetName = 'MarkdownString')]
 ```
 
 This parameter takes array of string, so you can simply pipe output of [Get-Content]().
@@ -53,6 +66,15 @@ Get-PlatyPSExternalHelp $markdown -skipPreambula | clip
 ```
 
 Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.
+
+
+### ----------------------------- Example 3 (MarkdownFolder) ------------------------------------
+```powershell
+$maml = Get-PlatyPSExternalHelp -MarkdownFolder .\src\platyPS
+```
+
+You can break help for the big module into several markdown files and put them into a folder.
+In this case, you may find -MarkdownFolder parameter more convinient.
 
 ## RELATED LINKS
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
@@ -110,6 +132,16 @@ Path or content of file with existing External Help (aka maml).
 
 Name of the module for bulk help generation.
 
+### OneFilePerCommand [switch]
+
+Use this switch to create a folder with one .md file per cmdlet.
+This parameter requires specifing -OutputFolder.
+
+### OutputFolder [string]
+
+Path to a folder to output markdown files.
+This parameter requires -OneFilePerCommand.
+
 
 ## INPUTS
 ### System.Object
@@ -155,6 +187,15 @@ Get-PlatyPSMarkdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\
 ```
 
 Create markdown help for inbox PSReadLine module.
+
+### ----------------------------- Example 4 (maml, OneFilePerCommand) ------------------------------------
+
+```powershell
+Get-PlatyPSMarkdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml' -OneFilePerCommand -OutputFolder PSReadLineHelp
+```
+
+Create markdown help for inbox PSReadLine module and output them into a PSReadLineHelp folder.
+Create one .md file per cmdlet.
 
 ## RELATED LINKS
 
