@@ -458,7 +458,7 @@ function Get-AttributeDocFunction
 
 }}
 
-function Update-Help() {} # this is a workaround to fix bug https://github.com/PowerShell/platyPS/issues/27
+function Update-Help() {{}} # this is a workaround to fix bug https://github.com/PowerShell/platyPS/issues/27
 $h = Get-Help Get-AttributeDocFunction
 $h.parameters.parameter
 ";
