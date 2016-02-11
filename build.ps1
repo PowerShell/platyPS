@@ -31,6 +31,7 @@ if ($env:APPVEYOR_BUILD_VERSION)
 }
 
 # dogfooding: generate help for the module
+Remove-Module platyPS
 Import-Module $pwd\out\platyPS
 $maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
@@ -38,9 +39,4 @@ Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding
 
 # reload module, to apply generated help
 Import-Module $pwd\out\platyPS -Force
-$help = (get-module platyPS).ExportedCommands.Keys | %{
-    $_ | % { Get-Help -Name "platyPS\$_" -Full | Out-String }
-} | Out-String
-
-# put generated help in out\ directory
-Set-Content -Value $help -Encoding Ascii -Path out\platyPS.txt
+Get-PlatyPSTextHelpFromMaml .\out\platyPS\en-US\platyPS.psm1-Help.xml -TextOutputPath out\platyPS.txt

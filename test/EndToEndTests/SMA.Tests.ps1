@@ -15,23 +15,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         $generatedMaml | Should Not Be $null
     }
     
-    $g = New-PlatyPSModuleFromMaml -MamlFilePath $outFolder\SMA.dll-help.xml
-
-    try 
-    {
-        Import-Module $g.Path -Force -ea Stop
-        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$_" -Full }
-        $allHelp > $outFolder\SMA.generated.txt
-    }
-    finally
-    {
-        Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
-        $moduleDirectory = Split-Path $g.Path
-        if (Test-Path $moduleDirectory)
-        {
-            Remove-Item $moduleDirectory -Force -Recurse
-        }
-    }
+    Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
 
     $originalHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
         $c = $_

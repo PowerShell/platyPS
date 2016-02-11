@@ -257,3 +257,56 @@ Show generated help for the whole module as an output of Help engine system.
 
 ## RELATED LINKS
 
+
+# Get-PlatyPSTextHelpFromMaml
+
+## SYNOPSIS
+Get help text from an external help file xml as a plain text file.
+
+## DESCRIPTION
+Command cretes a temp module with specified external help file and queries help engine to produce a text help for it.
+
+## PARAMETERS
+
+### MamlFilePath [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 0)]
+```
+
+Path to the External Help file.
+
+
+### TextOutputPath [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 1)]
+```
+
+Path to output file with generated text help.
+
+
+
+## INPUTS
+### None
+
+## OUTPUTS
+### None
+
+## NOTES
+
+
+## EXAMPLES
+### ----------------------------- Example 1 (platyPS) ------------------------------------
+
+```powershell
+Get-PlatyPSTextHelpFromMaml .\out\platyPS\en-US\platyPS.psm1-Help.xml -TextOutputPath platyPS.txt
+```
+
+## RELATED LINKS
+
+

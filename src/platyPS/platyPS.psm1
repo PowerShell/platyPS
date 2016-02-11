@@ -195,30 +195,15 @@ function New-PlatyPSModuleFromMaml
         throw "Failed to read '$MamlFilePath'" 
     }
 
-    # This logic is for the generate a module name
-    $moduleType = $null
-    if ($originalHelpFileName.EndsWith(".psm1-help.xml"))
-    {
-        $moduleType =  ".psm1-help.xml"
-    }
-    elseif ($originalHelpFileName.EndsWith(".dll-help.xml"))
-    {
-        $moduleType =  ".dll-help.xml"
-    }
-    else
-    {
-        throw "invalid PowerShell module help file $originalHelpFileName"
-    }
-
     # The information for the module to be generated
     $currentCulture = (Get-UICulture).Name
-    $moduleName = $originalHelpFileName.Replace($moduleType, "") + "_" + (Get-Random).ToString()
+    $moduleName = $originalHelpFileName + "_" + (Get-Random).ToString()
     $moduleFolder = "$destinationPath\$moduleName"
     $helpFileFolder = "$destinationPath\$moduleName\$currentCulture"
     $moduleFilePath = $moduleFolder + "\" + $moduleName + ".psm1"
 
     # The help file will be renamed to this name
-    $helpFileNewName = $moduleName + $moduleType
+    $helpFileNewName = $moduleName + ".psm1-help.xml"
 
     # The result object to be generated
     $result = @{
@@ -280,7 +265,34 @@ function $cmdletName
     return $result
 }
 
+function Get-PlatyPSTextHelpFromMaml
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$MamlFilePath,
 
+        [Parameter(Mandatory=$true)]
+        [string]$TextOutputPath
+    )
+
+    $g = New-PlatyPSModuleFromMaml -MamlFilePath $MamlFilePath
+
+    try 
+    {
+        Import-Module $g.Path -Force -ea Stop
+        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$_" -Full } | Microsoft.PowerShell.Utility\Out-String
+        Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding UTF8
+    }
+    finally
+    {
+        Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
+        $moduleDirectory = Split-Path $g.Path
+        if (Test-Path $moduleDirectory)
+        {
+            Remove-Item $moduleDirectory -Force -Recurse
+        }
+    }
+}
 
 #
 # IIIIIIIIII                                            lllllll                                                                                            tttt                                    tttt            iiii
@@ -930,6 +942,11 @@ if ($env:PESTER_EXPORT_ALL_MEMBERS)
 }
 else
 {
-    Export-ModuleMember -Function @('Get-PlatyPSMarkdown', 'Get-PlatyPSExternalHelp', 'New-PlatyPSModuleFromMaml')
+    Export-ModuleMember -Function @(
+        'Get-PlatyPSMarkdown', 
+        'Get-PlatyPSExternalHelp', 
+        'New-PlatyPSModuleFromMaml', 
+        'Get-PlatyPSTextHelpFromMaml'
+    )
 }
 
