@@ -16,17 +16,5 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     }
     
     Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
-
-    $originalHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
-        $c = $_
-        try 
-        {
-            Microsoft.PowerShell.Core\Get-Help "$_" -Full
-        } 
-        catch 
-        {
-            Write-Warning "Unknown comand $c"
-        }
-    }
-    $originalHelp > $outFolder\SMA.original.txt 
+    Get-PlatyPSTextHelpFromMaml $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
 }

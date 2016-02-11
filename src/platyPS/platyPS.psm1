@@ -280,7 +280,17 @@ function Get-PlatyPSTextHelpFromMaml
     try 
     {
         Import-Module $g.Path -Force -ea Stop
-        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$_" -Full } | Microsoft.PowerShell.Utility\Out-String
+        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
+            $c = $_
+            try
+            {
+                Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
+            }
+            catch 
+            {
+                Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
+            }
+        } | Microsoft.PowerShell.Utility\Out-String
         Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding UTF8
     }
     finally
