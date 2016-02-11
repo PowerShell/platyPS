@@ -8,7 +8,6 @@ init:
 
 before_build:
     - nuget restore
-    - ps: Update-Help
 
 build_script:
     - ps: .\build.ps1 -Configuration Release
