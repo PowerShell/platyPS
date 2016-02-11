@@ -31,7 +31,7 @@ if ($env:APPVEYOR_BUILD_VERSION)
 }
 
 # dogfooding: generate help for the module
-Remove-Module platyPS
+Remove-Module platyPS -ErrorAction SilentlyContinue
 Import-Module $pwd\out\platyPS
 $maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
