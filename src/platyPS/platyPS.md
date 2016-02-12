@@ -307,6 +307,8 @@ Path to output file with generated text help.
 Get-PlatyPSTextHelpFromMaml .\out\platyPS\en-US\platyPS.psm1-Help.xml -TextOutputPath platyPS.txt
 ```
 
+Preview help from generated maml file.
+
 ## RELATED LINKS
 
 
