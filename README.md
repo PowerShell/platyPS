@@ -22,3 +22,4 @@ Generates PowerShell External Help XML files (aka MAML) from Markdown.
 
 *  Create external help files (MAML) from platyPS Markdown.
 
+*  Preview help from generated maml file.
