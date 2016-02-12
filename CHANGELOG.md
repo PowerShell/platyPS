@@ -1,9 +1,12 @@
 CHANGELOG
 -------------
 
-## 0.3.0
+## 0.3.1
 
 *   Fix issue that cause error in CI scenario https://github.com/PowerShell/platyPS/issues/27
+
+## 0.3.0
+
 *   Add Get-PlatyPSTextHelpFromMaml command to simplify resulted help review
 
 ## 0.2.0

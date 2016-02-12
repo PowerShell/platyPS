@@ -458,9 +458,39 @@ function Get-AttributeDocFunction
 
 }}
 
-function Update-Help() {{}} # this is a workaround to fix bug https://github.com/PowerShell/platyPS/issues/27
-$h = Get-Help Get-AttributeDocFunction
+# $h = Get-Help Get-AttributeDocFunction
+{1}
+
 $h.parameters.parameter
+";
+
+            // this is a workaround for https://github.com/PowerShell/platyPS/issues/27
+            const string getHelpString = @"
+$isAdmin = (New-Object Security.Principal.WindowsPrincipal ([Security.Principal.WindowsIdentity]::GetCurrent())).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)  
+$prev = Get-ItemProperty -Name DisablePromptToUpdateHelp -path 'HKLM:\SOFTWARE\Microsoft\PowerShell' -ErrorAction SilentlyContinue
+try
+{
+    if ($isAdmin)
+    {
+        Set-ItemProperty -Name DisablePromptToUpdateHelp -Value 1 -path 'HKLM:\SOFTWARE\Microsoft\PowerShell' 
+    }
+    # this is an importent line that populates object
+    $h = Get-Help Get-AttributeDocFunction
+    }
+    finally
+    {
+    if ($isAdmin)
+    {
+        if ($prev)
+        {
+            if ($prev.DisablePromptToUpdateHelp -ne 1) { Set-ItemProperty -Name DisablePromptToUpdateHelp -Value ($prev.DisablePromptToUpdateHelp) -path 'HKLM:\SOFTWARE\Microsoft\PowerShell' }
+        }
+        else
+        {
+            Remove-ItemProperty -Name DisablePromptToUpdateHelp -path 'HKLM:\SOFTWARE\Microsoft\PowerShell' 
+        }
+    }
+}
 ";
 
             // Create the Runspace on demand
@@ -480,7 +510,8 @@ $h.parameters.parameter
                 var functionScript =
                     string.Format(
                         docFunctionFormatString,
-                        string.Join(",\r\n", parameterBlocks));
+                        string.Join(",\r\n", parameterBlocks),
+                        getHelpString);
 
                 // TODO: There could be some security concerns with executing arbitrary
                 // text here, need to investigate safer ways to do it.  JEA?
