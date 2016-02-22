@@ -38,7 +38,7 @@ It closely resembles output of `Get-Help`.
 
         ## INPUTS
         // for every input type
-            #### {Input type}
+            ### {Input type}
             {{Description text}}
 
         ## OUTPUTS
