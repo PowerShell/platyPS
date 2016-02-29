@@ -10,7 +10,7 @@ It closely resembles output of `Get-Help`.
 *   `//` - line comment in schema
 *   tabs show the scopes of `// for` statements; they should not be included in the Markdown output.
 
-### Version 1.0.0
+### Version 1.1.0
 
     // for every command:
         # {Command name}
@@ -18,23 +18,29 @@ It closely resembles output of `Get-Help`.
         ## SYNOPSIS
         {{Synopsis text}}
 
+        ## SYNTAX
+        // for each parameter set
+            {{Output of Get-Command -Syntax}}
+
         ## DESCRIPTION
         {{Description text}}
 
         ## PARAMETERS
 
         // for every parameter
-            // type and default value are non-mandatory
+            // default value is non-mandatory
             ### {Parameter name} [{Parameter type}] = {Parameter default value}
 
-            // parameter metadata
-            ```powershell
-            {{Parameter attributes as specified in param() block in PowerShell functions
-            i.e. [Parameter(ParameterSetName = 'ByName')]
-            }}
-            ```
-
             {{Parameter description text}}
+
+            // parameter metadata
+            ```yaml // this gives us key/value highlighting
+            Required: {true | false}
+            Position: {1..n}
+            Default value: {None | False (for switch parameters) | the actual default value}
+            Accept pipeline input: {false | true (ByValue, ByPropertyName)}
+            Accept wildcard characters: {true | false}
+            ```
 
         ## INPUTS
         // for every input type
