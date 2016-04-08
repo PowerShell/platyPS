@@ -56,7 +56,7 @@ It closely resembles output of `Get-Help`.
             Default value: {None | False (for switch parameters) | the actual default value}
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
-            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // can be ommitted, then default assumed
+            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
             ```
 
         ## INPUTS
