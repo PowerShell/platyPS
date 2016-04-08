@@ -10,11 +10,14 @@ It closely resembles output of `Get-Help`.
 *   `//` - line comment in schema
 *   tabs show the scopes of `// for` statements; they should not be included in the Markdown output.
 
-### Version 2.0.0
+### Version 2.0.0 (not implemented yet. [Discussion](https://github.com/PowerShell/platyPS/issues/20))
 
     // for every command:
         # {Command name}
-
+    
+        // following level-2 headers sections can go in any order
+        // here is the recommended order
+        
         ## SYNOPSIS
         {{Synopsis text}}
 
@@ -24,6 +27,15 @@ It closely resembles output of `Get-Help`.
 
         ## DESCRIPTION
         {{Description text}}
+
+        ## EXAMPLES
+        // for every example
+            ### {Example Name}
+
+            ```powershell
+            {{Example body}}
+            ```
+            {{Example text explanation}}
 
         ## PARAMETERS
 
@@ -52,15 +64,6 @@ It closely resembles output of `Get-Help`.
             ### {Output type}
             {{Description text}}
 
-        ## EXAMPLES
-        // for every example
-            ### {Example Name}
-
-            ```powershell
-            {{Example body}}
-            ```
-            {{Example text explanation}}
-
         ## RELATED LINKS
 
         // for every link
@@ -70,7 +73,10 @@ It closely resembles output of `Get-Help`.
 
     // for every command:
         # {Command name}
-
+    
+        // following level-2 headers sections can go in any order
+        // here is the recommended order
+    
         ## SYNOPSIS
         {{Synopsis text}}
 
