@@ -23,7 +23,10 @@ It closely resembles output of `Get-Help`.
 
         ## SYNTAX
         // for each parameter set
+            ### Parameter Set Name
+            ```
             {{Output of Get-Command -Syntax}}
+            ```
 
         ## DESCRIPTION
         {{Description text}}
@@ -48,10 +51,11 @@ It closely resembles output of `Get-Help`.
             // parameter metadata
             ```yaml // this gives us key/value highlighting
             Required: {true | false}
-            Position: {1..n}
+            Position: {1..n} | named
             Default value: {None | False (for switch parameters) | the actual default value}
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
+            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2" | default}
             ```
 
         ## INPUTS
