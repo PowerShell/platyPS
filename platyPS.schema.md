@@ -44,18 +44,19 @@ It closely resembles output of `Get-Help`.
 
         // for every parameter
             // default value is non-mandatory
-            ### {Parameter name} [{Parameter type}] = {Parameter default value}
+            ### {Parameter name}
 
             {{Parameter description text}}
 
             // parameter metadata
             ```yaml // this gives us key/value highlighting
+            Type: {Parameter type}  // can be ommitted, then default assumed
             Required: {true | false}
             Position: {1..n} | named
             Default value: {None | False (for switch parameters) | the actual default value}
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
-            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2" | default}
+            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // can be ommitted, then default assumed
             ```
 
         ## INPUTS
