@@ -57,6 +57,7 @@ It closely resembles output of `Get-Help`.
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
             Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
+            Aliases: {comma-separated list of aliases, i.e. "EA", "ERR"} // if ommitted => default
             ```
 
         ## INPUTS
@@ -74,7 +75,7 @@ It closely resembles output of `Get-Help`.
         // for every link
             [{link name}]({link url})
 
-### Version 1.0.0
+### Version 1.0.
 
     // for every command:
         # {Command name}
