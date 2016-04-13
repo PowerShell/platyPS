@@ -23,7 +23,10 @@ It closely resembles output of `Get-Help`.
 
         ## SYNTAX
         // for each parameter set
+            ### Parameter Set Name
+            ```
             {{Output of Get-Command -Syntax}}
+            ```
 
         ## DESCRIPTION
         {{Description text}}
@@ -41,17 +44,20 @@ It closely resembles output of `Get-Help`.
 
         // for every parameter
             // default value is non-mandatory
-            ### {Parameter name} [{Parameter type}] = {Parameter default value}
+            ### {Parameter name}
 
             {{Parameter description text}}
 
             // parameter metadata
             ```yaml // this gives us key/value highlighting
+            Type: {Parameter type}  // can be ommitted, then default assumed
             Required: {true | false}
-            Position: {1..n}
+            Position: {1..n} | named
             Default value: {None | False (for switch parameters) | the actual default value}
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
+            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
+            Aliases: {comma-separated list of aliases, i.e. "EA", "ERR"} // if ommitted => default
             ```
 
         ## INPUTS
@@ -69,7 +75,7 @@ It closely resembles output of `Get-Help`.
         // for every link
             [{link name}]({link url})
 
-### Version 1.0.0
+### Version 1.0.
 
     // for every command:
         # {Command name}
