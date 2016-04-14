@@ -35,10 +35,10 @@ It closely resembles output of `Get-Help`.
         // for every example
             ### {Example Name}
 
+            {{Example text explanation}}
             ```powershell
             {{Example body}}
             ```
-            {{Example text explanation}}
 
         ## PARAMETERS
 
