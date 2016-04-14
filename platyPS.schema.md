@@ -75,7 +75,7 @@ It closely resembles output of `Get-Help`.
         // for every link
             [{link name}]({link url})
 
-### Version 1.0.
+### Version 1.0.0
 
     // for every command:
         # {Command name}
