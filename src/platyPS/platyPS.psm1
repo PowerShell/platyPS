@@ -304,6 +304,85 @@ function Get-PlatyPSTextHelpFromMaml
     }
 }
 
+function New-PlatyPSCab
+{
+    [Cmdletbinding()]
+    param(
+        [parameter(Mandatory=$true)]
+        [string] $Source,
+        [parameter(Mandatory=$true)]
+        [string] $Destination,
+        [parameter(Mandatory=$true)]
+        [string] $Module,
+        [parameter(Mandatory=$true)]
+        [string] $Locale,
+        [parameter(Mandatory=$true)]
+        [string] $Guid
+    )
+
+    #Testing for MakeCab.exe
+    Write-Verbose "Testing that MakeCab.exe is present on this machine."
+    $MakeCab = Get-Command MakeCab
+    if(-not $MakeCab)
+    {
+        throw "MakeCab.exe is not a registered command." 
+    }
+
+    #Testing the source directories.
+    Write-Verbose "Checking the source directory."
+    if(-not (Test-Path $Source))
+    {
+        throw "No directory found at the source provided."
+    }
+    if((Get-ChildItem -Path $Source).Count -le 0)
+    {
+        throw "The file count in the source directory is zero."
+    }
+    
+    #Testing the destination directories, creating if none exists.
+    Write-Verbose "Checking the destination directory"
+    if(-not (Test-Path $Destination))
+    {
+        Write-Verbose "Destination does not exist, creating a new directory."
+        New-Item -ItemType Directory -Path $Destination
+    }
+
+    Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $Module,$Guid,$Locale)
+
+    #Building the cabinet file name.
+    $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $Module,$Guid,$Locale)
+
+    #Setting Cab Directives, make a cab is turned on, compression is turned on
+    Write-Verbose "Creating Cab File"
+    $DirectiveFile = "dir.dff"
+    New-Item -ItemType File -Name $DirectiveFile -Force |Out-Null   
+    Add-Content $DirectiveFile ".Set Cabinet=on"
+    Add-Content $DirectiveFile ".Set Compress=on"
+    
+    #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
+    foreach($file in Get-ChildItem -Path $Source -File)
+    {
+        Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
+    }
+
+    #Making Cab
+    Write-Verbose "Making the cab file"
+    MakeCab.exe /f $DirectiveFile | Out-Null
+
+    #Naming CabFile
+    Write-Verbose "Moving the cab to the destination"
+    Copy-Item "disk1/1.cab" (Join-Path $destination $cabName)
+
+    #Remove ExtraFiles created by the cabbing process
+    Write-Verbose "Performing file cleanup"
+    Remove-Item "setup.inf" -ErrorAction SilentlyContinue
+    Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
+    Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
+    Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
+}
+
+
+
 #
 # IIIIIIIIII                                            lllllll                                                                                            tttt                                    tttt            iiii
 # I::::::::I                                            l:::::l                                                                                         ttt:::t                                 ttt:::t           i::::i
@@ -956,7 +1035,8 @@ else
         'Get-PlatyPSMarkdown', 
         'Get-PlatyPSExternalHelp', 
         'New-PlatyPSModuleFromMaml', 
-        'Get-PlatyPSTextHelpFromMaml'
+        'Get-PlatyPSTextHelpFromMaml',
+        'New-PlatyPSCab'
     )
 }
 
