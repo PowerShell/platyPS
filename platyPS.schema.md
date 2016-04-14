@@ -52,16 +52,22 @@ It closely resembles output of `Get-Help`.
             {{Parameter description text}}
 
             // parameter metadata
-            ```yaml // this gives us key/value highlighting
-            Type: {Parameter type}  // can be ommitted, then default assumed
-            Required: {true | false}
-            Position: {1..n} | named
-            Default value: {None | False (for switch parameters) | the actual default value}
-            Accept pipeline input: {false | true (ByValue, ByPropertyName)}
-            Accept wildcard characters: {true | false}
-            Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
-            Aliases: {comma-separated list of aliases, i.e. "EA", "ERR"} // if ommitted => default
-            ```
+            // for every unique parameter metadata set 
+            // Note: two Parameter Sets can have the same parameter as mandatory and non-mandatory
+            // then we put them in two yaml snippets.
+            // If they have the same metadata, we put them in one yaml snippet.
+                ```yaml // this gives us key/value highlighting
+                Type: {Parameter type}  // can be ommitted, then default assumed
+                Parameter Sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
+                Aliases: {comma-separated list of aliases, i.e. "EA", "ERR"} // if ommitted => default
+                // break line to improve readability and separate metadata block
+                                        
+                Required: {true | false}
+                Position: {1..n} | named
+                Default value: {None | False (for switch parameters) | the actual default value}
+                Accept pipeline input: {false | true (ByValue, ByPropertyName)}
+                Accept wildcard characters: {true | false}
+                ```
 
         ## INPUTS
         // for every input type
