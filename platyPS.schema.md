@@ -35,10 +35,13 @@ It closely resembles output of `Get-Help`.
         // for every example
             ### {Example Name}
 
-            {{Example text explanation}}
+            {{Example introduction text}}
+            
             ```powershell
             {{Example body}}
             ```
+            
+            {{Example remarks}} // not a mandatory, i.e. TechNet articles don't use remarks
 
         ## PARAMETERS
 
