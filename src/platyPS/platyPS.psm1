@@ -309,12 +309,15 @@ function New-PlatyPSCab
     [Cmdletbinding()]
     param(
         [parameter(Mandatory=$true)]
+        [ValidateScript({Test-Path $_ -PathType Container})]
         [string] $Source,
         [parameter(Mandatory=$true)]
+        [ValidateScript({Test-Path $_ -PathType Container})]
         [string] $Destination,
         [parameter(Mandatory=$true)]
         [string] $Module,
         [parameter(Mandatory=$true)]
+        [ValidateScript({$_ -in ([System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]::AllCultures)).Name})]
         [string] $Locale,
         [parameter(Mandatory=$true)]
         [string] $Guid
