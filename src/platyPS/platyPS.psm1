@@ -309,20 +309,61 @@ function New-PlatyPSCab
     [Cmdletbinding()]
     param(
         [parameter(Mandatory=$true)]
-        [ValidateScript({Test-Path $_ -PathType Container})]
+        [ValidateScript(
+            {
+                if(Test-Path $_ -PathType Container)
+                {
+                    $True
+                }
+                else
+                {
+                    Throw "$_ source path is not a valid directory."
+                }
+            })]
         [string] $Source,
         [parameter(Mandatory=$true)]
-        [ValidateScript({Test-Path $_ -PathType Container})]
+        [ValidateScript(
+            {
+                if(Test-Path $_ -PathType Container)
+                {
+                    $True
+                }
+                else
+                {
+                    Throw "$_ source path is not a valid directory."
+                }
+            })]
         [string] $Destination,
         [parameter(Mandatory=$true)]
         [string] $Module,
         [parameter(Mandatory=$true)]
-        [ValidateScript({$_ -in ([System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]::AllCultures)).Name})]
-        [string] $Locale,
+        [ValidateScript({
+                if($_ -match '[a-zA-Z0-9]{8}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{12}')
+                {
+                    $true
+                }
+                else
+                {
+                    Throw "$_ does not match the valid pattern for a PowerShell module GUID. The GUID consists of letters and numbers in this format: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+                }
+            
+            })]
+        [string] $Guid = $(throw 'GUID was not a valid format.'),
         [parameter(Mandatory=$true)]
-        [string] $Guid
+        [ValidateScript(
+            {
+                if($_ -in ([System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]::AllCultures)).Name)
+                {
+                    $True
+                }
+                else
+                {
+                    Throw "$_ is not a valid Locale code in the .Net framework installed."
+                }
+            })]
+        [string] $Locale
     )
-
+    
     #Testing for MakeCab.exe
     Write-Verbose "Testing that MakeCab.exe is present on this machine."
     $MakeCab = Get-Command MakeCab
