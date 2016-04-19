@@ -62,7 +62,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EndToEnd\EndToEndTests.cs" />
-    <Compile Include="Renderer\RendererTests.cs" />
+    <Compile Include="Renderer\MamlRendererTests.cs" />
+    <Compile Include="Renderer\MarkdownV2RendererTests.cs" />
     <Compile Include="Transformer\ParserAndTransformerTests.cs" />
     <Compile Include="Parser\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
