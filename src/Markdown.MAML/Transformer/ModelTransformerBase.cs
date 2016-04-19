@@ -10,25 +10,25 @@ using System.Management.Automation.Runspaces;
 
 namespace Markdown.MAML.Transformer
 {
-    public class ModelTransformer
+    public abstract class ModelTransformerBase : IModelTransformer
     {
         private Runspace runspace;
         private DocumentNode _root;
         private IEnumerator<MarkdownNode> _rootEnumerator;
         private Action<string> _infoCallback;
 
-        private const int COMMAND_NAME_HEADING_LEVEL = 1;
-        private const int COMMAND_ENTRIES_HEADING_LEVEL = 2;
-        private const int PARAMETER_NAME_HEADING_LEVEL = 3;
-        private const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 3;
-        private const int EXAMPLE_HEADING_LEVEL = 3;
+        protected const int COMMAND_NAME_HEADING_LEVEL = 1;
+        protected const int COMMAND_ENTRIES_HEADING_LEVEL = 2;
+        protected const int PARAMETER_NAME_HEADING_LEVEL = 3;
+        protected const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 3;
+        protected const int EXAMPLE_HEADING_LEVEL = 3;
         
-        public ModelTransformer() : this(null) {}
+        public ModelTransformerBase() : this(null) {}
 
         /// <summary>
         /// </summary>
         /// <param name="infoCallback">Report string information to some channel</param>
-        public ModelTransformer(Action<string> infoCallback)
+        public ModelTransformerBase(Action<string> infoCallback)
         {
             _infoCallback = infoCallback;
         }
@@ -83,7 +83,7 @@ namespace Markdown.MAML.Transformer
 
         private MarkdownNode _ungotNode { get; set; }
 
-        private MarkdownNode GetCurrentNode()
+        protected MarkdownNode GetCurrentNode()
         {
             if (_ungotNode != null)
             {
@@ -94,7 +94,7 @@ namespace Markdown.MAML.Transformer
             return _rootEnumerator.Current;
         }
 
-        private MarkdownNode GetNextNode()
+        protected MarkdownNode GetNextNode()
         {
             if (_ungotNode != null)
             {
@@ -110,7 +110,7 @@ namespace Markdown.MAML.Transformer
             return null;
         }
 
-        private void UngetNode(MarkdownNode node)
+        protected void UngetNode(MarkdownNode node)
         {
             if (_ungotNode != null)
             {
@@ -120,14 +120,14 @@ namespace Markdown.MAML.Transformer
             _ungotNode = node;
         }
 
-        private string SimpleTextSectionRule()
+        protected string SimpleTextSectionRule()
         {
             // grammar:
             // Simple paragraph Text
             return GetTextFromParagraphNode(ParagraphNodeRule());
         }
 
-        private void ParametersRule(MamlCommand commmand)
+        protected void ParametersRule(MamlCommand commmand)
         {
             while (ParameterRule(commmand))
             {
@@ -136,7 +136,7 @@ namespace Markdown.MAML.Transformer
             this.GatherParameterDetails(commmand);
         }
 
-        private void InputsRule(MamlCommand commmand)
+        protected void InputsRule(MamlCommand commmand)
         {
             MamlInputOutput input;
             while ((input = InputOutputRule()) != null)
@@ -145,7 +145,7 @@ namespace Markdown.MAML.Transformer
             }
         }
 
-        private void OutputsRule(MamlCommand commmand)
+        protected void OutputsRule(MamlCommand commmand)
         {
             MamlInputOutput output;
             while ((output = InputOutputRule()) != null)
@@ -154,7 +154,7 @@ namespace Markdown.MAML.Transformer
             }
         }
 
-        private void ExamplesRule(MamlCommand commmand)
+        protected void ExamplesRule(MamlCommand commmand)
         {
             MamlExample example;
             while ((example = ExampleRule()) != null)
@@ -163,7 +163,7 @@ namespace Markdown.MAML.Transformer
             }
         }
 
-        private MamlExample ExampleRule()
+        protected MamlExample ExampleRule()
         {
             // grammar:
             // #### ExampleTitle
@@ -191,7 +191,7 @@ namespace Markdown.MAML.Transformer
             return example;
         }
 
-        private void RelatedLinksRule(MamlCommand commmand)
+        protected void RelatedLinksRule(MamlCommand commmand)
         {
             var paragraphNode = ParagraphNodeRule();
             if (paragraphNode == null)
@@ -217,7 +217,7 @@ namespace Markdown.MAML.Transformer
             }
         }
 
-        private MamlInputOutput InputOutputRule()
+        protected MamlInputOutput InputOutputRule()
         {
             // grammar:
             // #### TypeName
@@ -239,7 +239,7 @@ namespace Markdown.MAML.Transformer
             return typeEntity;
         }
 
-        private SourceExtent GetExtent(MarkdownNode node)
+        protected SourceExtent GetExtent(MarkdownNode node)
         {
             TextNode textNode = node as TextNode;
             if (textNode != null)
@@ -265,7 +265,7 @@ namespace Markdown.MAML.Transformer
         /// null, if higher level encountered.
         /// throw exception, if unexpected node encountered.
         /// </returns>
-        private HeadingNode GetHeadingWithExpectedLevel(MarkdownNode node, int level)
+        protected HeadingNode GetHeadingWithExpectedLevel(MarkdownNode node, int level)
         {
             if (node == null)
             {
@@ -543,9 +543,14 @@ try
                 var sortedSyntaxItems = syntaxDetailses.ToList();
                 sortedSyntaxItems.Sort((si1, si2) => String.CompareOrdinal(GetParameterSetNameFromSyntaxItem(si1), GetParameterSetNameFromSyntaxItem(si2)));
 
+                int count = 1;
                 foreach (var syntaxDetails in sortedSyntaxItems)
                 {
-                    MamlSyntax syntax = new MamlSyntax();
+                    MamlSyntax syntax = new MamlSyntax()
+                    {
+                        // HACK: we need a better solution
+                        ParameterSetName = "Set " + (count++)
+                    };
 
                     var syntaxParams = (object[])syntaxDetails.Properties["parameter"].Value;
                     foreach (PSObject syntaxParamPsObject in syntaxParams.OfType<PSObject>())
@@ -723,63 +728,6 @@ try
         /// </summary>
         /// <param name="command"></param>
         /// <returns>true if Section was found</returns>
-        private bool SectionDispatch(MamlCommand command)
-        {
-            var node = GetNextNode();
-            var headingNode = GetHeadingWithExpectedLevel(node, COMMAND_ENTRIES_HEADING_LEVEL);
-            if (headingNode == null)
-            {
-                return false;
-            }
-
-            switch (headingNode.Text.ToUpper())
-            {
-                case "DESCRIPTION":
-                    {
-                        command.Description = SimpleTextSectionRule();
-                        break;
-                    }
-                case "SYNOPSIS":
-                    {
-                        command.Synopsis = SimpleTextSectionRule();
-                        break;
-                    }
-                case "PARAMETERS":
-                    {
-                        ParametersRule(command);
-                        break;
-                    }
-                case "INPUTS":
-                    {
-                        InputsRule(command);
-                        break;
-                    }
-                case "OUTPUTS":
-                    {
-                        OutputsRule(command);
-                        break;
-                    }
-                case "NOTES":
-                    {
-                        command.Notes = SimpleTextSectionRule();
-                        break;
-                    }
-                case "EXAMPLES":
-                    {
-                        ExamplesRule(command);
-                        break;
-                    }
-                case "RELATED LINKS":
-                    {
-                        RelatedLinksRule(command);
-                        break;
-                    }
-                default:
-                    {
-                        throw new HelpSchemaException(headingNode.SourceExtent, "Unexpected header name " + headingNode.Text);
-                    }
-            }
-            return true;
-        }
+        protected abstract bool SectionDispatch(MamlCommand command);
     }
 }

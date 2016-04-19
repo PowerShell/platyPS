@@ -5,10 +5,11 @@ using Markdown.MAML.Parser;
 using Markdown.MAML.Renderer;
 using Markdown.MAML.Transformer;
 using Xunit;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Transformer
 {
-    public class ParserAndTransformerTests
+    public class ParserAndTransformerTestsV1
     {
         [Fact]
         public void TransformSimpleCommand()
@@ -19,7 +20,7 @@ namespace Markdown.MAML.Test.Transformer
 ## Synopsis
 This is Synopsis
 ");
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
             Assert.Equal(mamlCommand.Synopsis, "This is Synopsis");
         }
@@ -35,7 +36,7 @@ This is Synopsis
 Adds custom properties and methods to an instance of a Windows PowerShell object.
 
 ");
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Add-Member");
             Assert.Equal(mamlCommand.Synopsis, "Adds custom properties and methods to an instance of a Windows PowerShell object.");
         }
@@ -56,7 +57,7 @@ I'm a multiline description.
 
 And this is my last line.
 ");
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             string[] description = mamlCommand.Description.Split('\n').Select(x => x.Trim()).ToArray();
             Assert.Equal(3, description.Length);
             Assert.Equal("Hello,", description[0]);
@@ -82,7 +83,7 @@ This is description
 This is Synopsis, but it doesn't matter in this test
 
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 2);
             Assert.NotNull(mamlCommand[0].Description);
             Assert.NotNull(mamlCommand[0].Synopsis);
@@ -101,7 +102,7 @@ This is Synopsis, but it doesn't matter in this test
 This is bar parameter
 
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
             var param = mamlCommand[0].Parameters.ToArray();
             Assert.Equal(param.Count(), 1);
@@ -123,7 +124,7 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
 ### Microsoft.PowerShell.Commands.ComputerChangeInfo
 
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
             var inputs = mamlCommand[0].Inputs.ToArray();
             var outputs = mamlCommand[0].Outputs.ToArray();
@@ -158,7 +159,7 @@ Remarks
 Remarks
 
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
             var examples = mamlCommand[0].Examples.ToArray();
             Assert.Equal(examples.Count(), 2);
@@ -191,7 +192,7 @@ Remarks
 
 [Test-Connection]()
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
             var links = mamlCommand[0].Links.ToArray();
             Assert.Equal(links.Count(), 8);
@@ -212,7 +213,7 @@ Remarks
 Runs the [Set-WSManQuickConfig]() cmdlet
 
 ");
-            var mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).ToArray();
+            var mamlCommand = NodeModelToMamlModelV1(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
             Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
         }
@@ -265,7 +266,7 @@ Runs the [Set-WSManQuickConfig]() cmdlet
                         GetParameterText(barParamName, "double", barAttributes),
                         GetParameterText(bazParamName, "int", bazAttributes)));
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(3, mamlCommand.Parameters.Count);
@@ -322,7 +323,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(3, mamlCommand.Parameters.Count);
@@ -361,7 +362,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(2, mamlCommand.Parameters.Count);
@@ -387,7 +388,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(1, mamlCommand.Syntax.Count);
@@ -420,7 +421,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
@@ -464,7 +465,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
@@ -496,7 +497,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(1, mamlCommand.Parameters.Count);
@@ -523,7 +524,7 @@ NoTypeParam description.
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
             Assert.Equal(1, mamlCommand.Parameters.Count);
@@ -603,7 +604,7 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
 ";
             var doc = parser.ParseString(docFormatString);
 
-            MamlCommand mamlCommand = (new ModelTransformer()).NodeModelToMamlModel(doc).First();
+            MamlCommand mamlCommand = NodeModelToMamlModelV1(doc).First();
             Assert.Equal(mamlCommand.Name, "Clear-History");
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
@@ -630,6 +631,11 @@ This is the documentation for {0}
 
 ";
             return string.Format(paramFormatString, paramName, paramType, paramAttributes);
+        }
+
+        private IEnumerable<MamlCommand> NodeModelToMamlModelV1(DocumentNode doc)
+        {
+            return (new ModelTransformerVersion1()).NodeModelToMamlModel(doc);
         }
     }
 }
