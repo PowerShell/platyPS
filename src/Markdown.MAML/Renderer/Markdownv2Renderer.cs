@@ -80,17 +80,20 @@ namespace Markdown.MAML.Renderer
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
             _stringBuilder.AppendFormat("### {0}{2}{2}{1}{2}{2}", parameter.Name, parameter.Description, Environment.NewLine);
-            command.Syntax
+            //TODO: command.Syntax
+            // to generate ```yaml
         }
 
         private void AddExamples(MamlCommand command)
         {
-            throw new NotImplementedException();
+            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.EXAMPLES, Environment.NewLine);
+            // TODO
         }
 
         private void AddSyntax(MamlCommand command)
         {
-            
+            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.SYNTAX, Environment.NewLine);
+            // TODO
         }
     }
 }
