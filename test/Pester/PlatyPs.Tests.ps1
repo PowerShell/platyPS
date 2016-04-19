@@ -12,7 +12,6 @@ Import-Module $outFolder\platyPS -Force
 
 Describe 'New-PlatyPsCab' {
 
-    $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
     It 'validates the output of Cab creation' {
         $Source = "$outFolder\CabTesting\Source\Xml\"
         $Destination = "$outFolder\CabTesting\"
@@ -27,6 +26,5 @@ Describe 'New-PlatyPsCab' {
         (Get-ChildItem -Filter "*.xml" -Path "$Destination\CabTesting\OutXml").Name | Should Be "HelpXml.xml"
     }
     
-    Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
-    Get-PlatyPSTextHelpFromMaml $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
-}
+ }
+ 
