@@ -10,7 +10,7 @@ using Markdown.MAML.Model.MAML;
 
 namespace Markdown.MAML.Test.Renderer
 {
-    public class RendererTests
+    public class MamlRendererTests
     {
         [Fact]
         public void RendererProduceNameAndSynopsis()
