@@ -66,30 +66,36 @@ namespace Markdown.MAML.Test.Renderer
             string markdown = renderer.MamlModelToString(new[] { command });
             Assert.Equal(@"# Get-Foo
 ## SYNOPSIS
-
 This is the synopsis
+
 ## SYNTAX
 
 ## DESCRIPTION
-
 This is a long description.
+
 ## EXAMPLES
+
+### Example 1
+```
+PS:> Get-Help -YouNeedIt
+```
+
+This does stuff!
 
 ## PARAMETERS
 
 ### Name
-
 Parameter Description.
 
 ## INPUTS
 
-## String
+### String
 Input Description goes here!
 
 ## OUTPUTS
 
-## String
-Input Description goes here!
+### String
+Output Description goes here!
 
 ## RELATED LINKS
 

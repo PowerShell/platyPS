@@ -26,9 +26,9 @@ namespace Markdown.MAML.Renderer
         private void AddCommand(MamlCommand command)
         {
             _stringBuilder.AppendFormat("# {0}{1}", command.Name, Environment.NewLine); // name
-            _stringBuilder.AppendFormat("## {0}{2}{2}{1}{2}", MarkdownStrings.SYNOPSIS, command.Synopsis, Environment.NewLine);
+            _stringBuilder.AppendFormat("## {0}{2}{1}{2}{2}", MarkdownStrings.SYNOPSIS, command.Synopsis, Environment.NewLine);
             AddSyntax(command);
-            _stringBuilder.AppendFormat("## {0}{2}{2}{1}{2}", MarkdownStrings.DESCRIPTION, command.Description, Environment.NewLine);
+            _stringBuilder.AppendFormat("## {0}{2}{1}{2}{2}", MarkdownStrings.DESCRIPTION, command.Description, Environment.NewLine);
             AddExamples(command);
             AddParameters(command);
             AddInputs(command);
@@ -47,13 +47,13 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputOutput(MamlInputOutput io)
         {
-            _stringBuilder.AppendFormat("## {0}{2}{1}{2}{2}", io.TypeName, io.Description, Environment.NewLine);
+            _stringBuilder.AppendFormat("### {0}{2}{1}{2}{2}", io.TypeName, io.Description, Environment.NewLine);
         }
 
         private void AddOutputs(MamlCommand command)
         {
             _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.OUTPUTS, Environment.NewLine);
-            foreach (var io in command.Inputs)
+            foreach (var io in command.Outputs)
             {
                 AddInputOutput(io);
             }
@@ -79,7 +79,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
-            _stringBuilder.AppendFormat("### {0}{2}{2}{1}{2}{2}", parameter.Name, parameter.Description, Environment.NewLine);
+            _stringBuilder.AppendFormat("### {0}{2}{1}{2}{2}", parameter.Name, parameter.Description, Environment.NewLine);
             //TODO: command.Syntax
             // to generate ```yaml
         }
@@ -87,7 +87,24 @@ namespace Markdown.MAML.Renderer
         private void AddExamples(MamlCommand command)
         {
             _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.EXAMPLES, Environment.NewLine);
-            // TODO
+            foreach (var example in command.Examples)
+            {
+                _stringBuilder.AppendFormat("### {0}{1}", example.Title, Environment.NewLine);
+                if (example.Introduction != null)
+                {
+                    _stringBuilder.AppendFormat("{0}{1}{1}", example.Introduction, Environment.NewLine);
+                }
+
+                if (example.Code != null)
+                {
+                    _stringBuilder.AppendFormat("```{1}{0}{1}```{1}{1}", example.Code, Environment.NewLine);
+                }
+
+                if (example.Remarks != null)
+                {
+                    _stringBuilder.AppendFormat("{0}{1}{1}", example.Remarks, Environment.NewLine);
+                }
+            }
         }
 
         private void AddSyntax(MamlCommand command)
