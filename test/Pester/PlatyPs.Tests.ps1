@@ -22,8 +22,8 @@ Describe 'New-PlatyPsCab' {
         New-PlatyPsCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
         expand "$Destination\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\" 
         
-        (Get-ChildItem -Filter "*.cab" -Path "$Destination\CabTesting").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
-        (Get-ChildItem -Filter "*.xml" -Path "$Destination\CabTesting\OutXml").Name | Should Be "HelpXml.xml"
+        (Get-ChildItem -Filter "*.cab" -Path "$Destination").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+        (Get-ChildItem -Filter "*.xml" -Path "$Destination\OutXml").Name | Should Be "HelpXml.xml"
     }
     
  }
