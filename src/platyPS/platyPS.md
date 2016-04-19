@@ -379,7 +379,7 @@ The directory containing the files to be placed in the cab file.
 ### None
 
 ## NOTES
-### None
+
 
 ## EXAMPLES
 ### ----------------------------- Example 1 (platyPS) ------------------------------------
