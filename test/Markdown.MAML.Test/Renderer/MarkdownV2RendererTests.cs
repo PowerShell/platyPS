@@ -22,7 +22,7 @@ namespace Markdown.MAML.Test.Renderer
                 Description = "This is a long description."
             };
 
-            command.Parameters.Add(new MamlParameter()
+            var parameterName = new MamlParameter()
             {
                 Type = "String",
                 Name = "Name",
@@ -33,8 +33,17 @@ namespace Markdown.MAML.Test.Renderer
                 PipelineInput = "True (ByValue)",
                 Position = "1",
                 Aliases = new string[] { "GF", "Foos", "Do" },
-            }
-            );
+            };
+
+            command.Parameters.Add(parameterName);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "ByName"
+            };
+            syntax1.Parameters.Add(parameterName);
+            command.Syntax.Add(syntax1);
+
             command.Inputs.Add(new MamlInputOutput()
             {
                 TypeName = "String",
@@ -86,6 +95,18 @@ This does stuff!
 
 ### Name
 Parameter Description.
+
+```yaml
+Type: String
+Parameter Sets: ByName
+Aliases: GF, Foos, Do
+
+Required: True
+Position: 1
+Default value: 
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: True
+```
 
 ## INPUTS
 

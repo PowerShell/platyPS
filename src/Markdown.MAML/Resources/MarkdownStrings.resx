@@ -117,6 +117,18 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Accept_pipeline_input" xml:space="preserve">
+    <value>Accept pipeline input</value>
+  </data>
+  <data name="Accept_wildcard_characters" xml:space="preserve">
+    <value>Accept wildcard characters</value>
+  </data>
+  <data name="Aliases" xml:space="preserve">
+    <value>Aliases</value>
+  </data>
+  <data name="Default_value" xml:space="preserve">
+    <value>Default value</value>
+  </data>
   <data name="DESCRIPTION" xml:space="preserve">
     <value>DESCRIPTION</value>
   </data>
@@ -132,13 +144,25 @@
   <data name="PARAMETERS" xml:space="preserve">
     <value>PARAMETERS</value>
   </data>
+  <data name="Parameter_Sets" xml:space="preserve">
+    <value>Parameter Sets</value>
+  </data>
+  <data name="Position" xml:space="preserve">
+    <value>Position</value>
+  </data>
   <data name="RELATED_LINKS" xml:space="preserve">
     <value>RELATED LINKS</value>
+  </data>
+  <data name="Required" xml:space="preserve">
+    <value>Required</value>
   </data>
   <data name="SYNOPSIS" xml:space="preserve">
     <value>SYNOPSIS</value>
   </data>
   <data name="SYNTAX" xml:space="preserve">
     <value>SYNTAX</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Type</value>
   </data>
 </root>

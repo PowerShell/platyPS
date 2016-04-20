@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Markdown.MAML.Model.Markdown;
+using System;
 
 namespace Markdown.MAML.Model.MAML
 {
@@ -19,6 +20,9 @@ namespace Markdown.MAML.Model.MAML
 
         public bool VariableLength { get; set; }
 
+        /// <summary>
+        /// Corresponds to "Accept wildcard characters"
+        /// </summary>
         public bool Globbing { get; set; }
 
         public string PipelineInput { get; set; }
@@ -48,6 +52,15 @@ namespace Markdown.MAML.Model.MAML
             Globbing = false;
             PipelineInput = "false";
             Aliases = new string[] {};
+        }
+
+        public bool IsMetadataEqual(MamlParameter other)
+        {
+            return StringComparer.OrdinalIgnoreCase.Equals(this.Name, other.Name) &&
+                this.Required == other.Required &&
+                StringComparer.OrdinalIgnoreCase.Equals(this.Position, other.Position) &&
+                StringComparer.OrdinalIgnoreCase.Equals(this.PipelineInput, other.PipelineInput) &&
+                this.Globbing == other.Globbing;
         }
     }
 }

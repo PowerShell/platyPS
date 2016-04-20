@@ -61,6 +61,42 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accept pipeline input.
+        /// </summary>
+        internal static string Accept_pipeline_input {
+            get {
+                return ResourceManager.GetString("Accept_pipeline_input", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Accept wildcard characters.
+        /// </summary>
+        internal static string Accept_wildcard_characters {
+            get {
+                return ResourceManager.GetString("Accept_wildcard_characters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Aliases.
+        /// </summary>
+        internal static string Aliases {
+            get {
+                return ResourceManager.GetString("Aliases", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default value.
+        /// </summary>
+        internal static string Default_value {
+            get {
+                return ResourceManager.GetString("Default_value", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DESCRIPTION.
         /// </summary>
         internal static string DESCRIPTION {
@@ -97,6 +133,15 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Parameter Sets.
+        /// </summary>
+        internal static string Parameter_Sets {
+            get {
+                return ResourceManager.GetString("Parameter_Sets", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to PARAMETERS.
         /// </summary>
         internal static string PARAMETERS {
@@ -106,11 +151,29 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Position.
+        /// </summary>
+        internal static string Position {
+            get {
+                return ResourceManager.GetString("Position", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to RELATED LINKS.
         /// </summary>
         internal static string RELATED_LINKS {
             get {
                 return ResourceManager.GetString("RELATED_LINKS", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Required.
+        /// </summary>
+        internal static string Required {
+            get {
+                return ResourceManager.GetString("Required", resourceCulture);
             }
         }
         
@@ -129,6 +192,15 @@ namespace Markdown.MAML.Resources {
         internal static string SYNTAX {
             get {
                 return ResourceManager.GetString("SYNTAX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Type.
+        /// </summary>
+        internal static string Type {
+            get {
+                return ResourceManager.GetString("Type", resourceCulture);
             }
         }
     }

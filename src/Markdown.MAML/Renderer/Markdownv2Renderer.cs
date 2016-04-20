@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace Markdown.MAML.Renderer
 {
+    /// <summary>
+    /// Renders MamlModel as markdown with schema v 2.0.0
+    /// </summary>
     public class MarkdownV2Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
@@ -77,11 +80,76 @@ namespace Markdown.MAML.Renderer
             }
         }
 
+        private Dictionary<string, MamlParameter> GetParamSetDictionary(string parameterName, List<MamlSyntax> syntaxes)
+        {
+            var result = new Dictionary<string, MamlParameter>();
+            foreach (var syntax in syntaxes)
+            {
+                foreach (var param in syntax.Parameters)
+                {
+                    if (StringComparer.OrdinalIgnoreCase.Equals(parameterName, param.Name))
+                    {
+                        result[syntax.ParameterSetName] = param;
+                        // there could be only one parameter in the param set with the same name
+                        break;
+                    }
+                }
+            }
+            return result;
+        }
+
+        private List<Tuple<List<string>, MamlParameter>> SimplifyParamSets(Dictionary<string, MamlParameter> parameterMap)
+        {
+            var res = new List<Tuple<List<string>, MamlParameter>>();
+            // using a O(n^2) algorithm, because it's simpler and n is very small.
+            foreach (var pair in parameterMap)
+            {
+                var seekValue = pair.Value;
+                var paramSetName = pair.Key;
+                bool found = false;
+                foreach (var tuple in res)
+                {
+                    if (tuple.Item2.IsMetadataEqual(seekValue))
+                    {
+                        tuple.Item1.Add(paramSetName);
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found)
+                {
+                    // create a new entry
+                    var paramSets = new List<string>();
+                    paramSets.Add(paramSetName);
+                    res.Add(new Tuple<List<string>, MamlParameter>(paramSets, seekValue));
+                }
+            }
+
+            return res;
+        }
+
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
             _stringBuilder.AppendFormat("### {0}{2}{1}{2}{2}", parameter.Name, parameter.Description, Environment.NewLine);
-            //TODO: command.Syntax
-            // to generate ```yaml
+            
+            var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
+            foreach (var set in sets)
+            {
+                _stringBuilder.AppendFormat("```yaml{0}", Environment.NewLine);
+
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Type, parameter.Type, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, string.Join(", ", set.Item1), Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}{2}", MarkdownStrings.Aliases, string.Join(", ", parameter.Aliases), Environment.NewLine);
+
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Position, set.Item2.Position, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Default_value, set.Item2.DefaultValue, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_pipeline_input, set.Item2.PipelineInput, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_wildcard_characters, set.Item2.Globbing, Environment.NewLine);
+
+                _stringBuilder.AppendFormat("```{0}{0}", Environment.NewLine);
+            }
         }
 
         private void AddExamples(MamlCommand command)
