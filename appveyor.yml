@@ -10,25 +10,34 @@ before_build:
     - nuget restore
 
 build_script:
-    - ps: .\build.ps1 -Configuration Release
-
-on_finish: 
-    - ps: | 
+    - ps: |
+        $ErrorActionPreference = 'Stop'
+        .\build.ps1 -Configuration Release
+        # We run Pester tests in build step, because on_finish is too late and we don't want to modify test_script
+        # so Xunit tests just run
         # Pester tests produce artifacts in .\out directory
         $pesterTestResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $pesterTestResultsFile))
-        $stagingDirectory = (Resolve-Path ..).Path 
-        $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip" 
-        Add-Type -assemblyname System.IO.Compression.FileSystem 
-        [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile) 
-        @( 
-            # You can add other artifacts here 
-            (ls $zipFile),
-            (ls .\out -File)
-        # flattering            
-        ) | % {$_} | % { Push-AppveyorArtifact $_.FullName } 
         # Trying to fail the build
-        if ($res.FailedCount -gt 0) { 
+        if ($res.FailedCount -gt 0) {
             throw "$($res.FailedCount) tests failed."
+        }
+
+on_finish:
+    - ps: |
+        $ErrorActionPreference = 'Stop'
+        try {
+            $stagingDirectory = (Resolve-Path ..).Path
+            $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip"
+            Add-Type -assemblyname System.IO.Compression.FileSystem
+            [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile)
+            @(
+                # You can add other artifacts here
+                (ls $zipFile),
+                (ls .\out -File)
+            # flattering
+            ) | % {$_} | ? {$_} |% { Push-AppveyorArtifact $_.FullName }
+        } catch {
+            Write-Host -Foreground Red $_
         }
