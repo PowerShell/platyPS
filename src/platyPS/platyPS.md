@@ -312,3 +312,82 @@ Preview help from generated maml file.
 ## RELATED LINKS
 
 
+# New-PlatyPSCab
+
+## SYNOPSIS
+New-PlatyPSCab [-Source] \<string\> [-Destination] \<string\> [-Module] \<string\> [-Guid] \<string\> [-Locale] \<string\> [\<CommonParameters\>]
+
+## DESCRIPTION
+Creates a cab file containing the files specified by the user. It will format the name of the cab file as required by the PowerShell Help engine: <ModuleName>_<ModuleGuid>_<Locale>_helpcontent.cab
+
+## PARAMETERS
+
+### Destination [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 1,
+  ParameterSetName = 'Set 1')]
+```
+The directory the cab will be placed in on completion.
+
+### Guid [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 3,
+  ParameterSetName = 'Set 1')]
+```
+The GUID for the module that the help represents.
+
+### Locale [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 4,
+  ParameterSetName = 'Set 1')]
+```
+The locale code for the language. en-US
+
+### Module [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 2,
+  ParameterSetName = 'Set 1')]
+```
+The name of the module that cab contains help for.
+
+### Source [string]
+
+```powershell
+[Parameter(
+  Mandatory = $true,
+  Position = 0,
+  ParameterSetName = 'Set 1')]
+```
+The directory containing the files to be placed in the cab file.
+
+## INPUTS
+### None
+
+## OUTPUTS
+### None
+
+## NOTES
+
+
+## EXAMPLES
+### ----------------------------- Example 1 (platyPS) ------------------------------------
+
+```powershell
+New-PlatyPSCab -Source 'C:\InputDirectory\' -Destination 'C:\OutputDirectory\' -Module "moduleName" -Locale "localeCode" -Guid "0bdcabef-a4b7-4a6d-bf7e-d879817ebbff"
+```
+Creates a cab using the files in the source directory, and dropping the properly named Cab file in the destination directory. 
+The Output file will be called: "PlatyPS_0bdcabef-a4b7-4a6d-bf7e-d879817ebbff_en-US_helpcontent.cab"
+
+## RELATED LINKS
