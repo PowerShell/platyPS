@@ -26,6 +26,8 @@ on_finish:
             # You can add other artifacts here 
             (ls $zipFile),
             (ls .\out -File)
+            (ls .\out\CabTesting -File)
+            (ls .\out\CabTesting\OutXml -File)
         # flattering            
         ) | % {$_} | ? {$_} |% { Push-AppveyorArtifact $_.FullName }
         # Trying to fail the build
