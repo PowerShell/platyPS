@@ -153,7 +153,7 @@ function Get-PlatyPSExternalHelp
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
     }
-    $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformer' -ArgumentList {
+    $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
         param([string]$message)
         Write-Verbose $message
     }
