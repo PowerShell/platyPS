@@ -17,7 +17,7 @@ namespace Markdown.MAML.Renderer
 
         public int MaxSyntaxWidth { get; private set; }
 
-        public MarkdownV2Renderer() : this(80) { }
+        public MarkdownV2Renderer() : this(120) { }
 
         public MarkdownV2Renderer(int maxSyntaxWidth)
         {

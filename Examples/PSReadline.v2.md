@@ -105,14 +105,13 @@ Binds or rebinds keys to user defined or PSReadline provided key handlers.
 
 ### Set 1
 ```
-Set-PSReadlineKeyHandler [-Chord] <String[]> [-ScriptBlock] <ScriptBlock>
- [-BriefDescription <String>] [-Description <String>] [<CommonParameters>]
+Set-PSReadlineKeyHandler [-Chord] <String[]> [-ScriptBlock] <ScriptBlock> [-BriefDescription <String>]
+ [-Description <String>] [<CommonParameters>]
 ```
 
 ### Set 2
 ```
-Set-PSReadlineKeyHandler [-Chord] <String[]> [-Function] <String>
- [<CommonParameters>]
+Set-PSReadlineKeyHandler [-Chord] <String[]> [-Function] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -240,26 +239,20 @@ Customizes the behavior of command line editing in PSReadline.
 ### Set 1
 ```
 Set-PSReadlineOption [-EditMode <EditMode>] [-ContinuationPrompt <String>]
- [-ContinuationPromptForegroundColor <ConsoleColor>]
- [-ContinuationPromptBackgroundColor <ConsoleColor>]
- [-EmphasisForegroundColor <ConsoleColor>]
- [-EmphasisBackgroundColor <ConsoleColor>] [-ErrorForegroundColor <ConsoleColor>]
- [-ErrorBackgroundColor <ConsoleColor>] [-HistoryNoDuplicates]
- [-AddToHistoryHandler <Func[String, Boolean]>]
- [-ValidationHandler <Func[String, Object]>] [-HistorySearchCursorMovesToEnd]
- [-MaximumHistoryCount <Int32>] [-MaximumKillRingCount <Int32>]
- [-ResetTokenColors] [-ShowToolTips] [-ExtraPromptLineCount <Int32>]
- [-DingTone <Int32>] [-DingDuration <Int32>] [-BellStyle <BellStyle>]
- [-CompletionQueryItems <Int32>] [-WordDelimiters <string>]
- [-HistorySearchCaseSensitive] [-HistorySaveStyle <HistorySaveStyle>]
- [-HistorySavePath <String>] [<CommonParameters>]
+ [-ContinuationPromptForegroundColor <ConsoleColor>] [-ContinuationPromptBackgroundColor <ConsoleColor>]
+ [-EmphasisForegroundColor <ConsoleColor>] [-EmphasisBackgroundColor <ConsoleColor>]
+ [-ErrorForegroundColor <ConsoleColor>] [-ErrorBackgroundColor <ConsoleColor>] [-HistoryNoDuplicates]
+ [-AddToHistoryHandler <Func[String, Boolean]>] [-ValidationHandler <Func[String, Object]>]
+ [-HistorySearchCursorMovesToEnd] [-MaximumHistoryCount <Int32>] [-MaximumKillRingCount <Int32>] [-ResetTokenColors]
+ [-ShowToolTips] [-ExtraPromptLineCount <Int32>] [-DingTone <Int32>] [-DingDuration <Int32>] [-BellStyle <BellStyle>]
+ [-CompletionQueryItems <Int32>] [-WordDelimiters <string>] [-HistorySearchCaseSensitive]
+ [-HistorySaveStyle <HistorySaveStyle>] [-HistorySavePath <String>] [<CommonParameters>]
 ```
 
 ### Set 2
 ```
-Set-PSReadlineOption [-TokenKind] <TokenClassification>
- [[-ForegroundColor] <ConsoleColor>] [[-BackgroundColor] <ConsoleColor>]
- [<CommonParameters>]
+Set-PSReadlineOption [-TokenKind] <TokenClassification> [[-ForegroundColor] <ConsoleColor>]
+ [[-BackgroundColor] <ConsoleColor>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
