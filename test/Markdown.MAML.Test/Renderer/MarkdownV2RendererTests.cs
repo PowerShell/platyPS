@@ -79,6 +79,11 @@ This is the synopsis
 
 ## SYNTAX
 
+### ByName
+```
+Get-Foo [-Name] <String> [<CommonParameters>]
+```
+
 ## DESCRIPTION
 This is a long description.
 

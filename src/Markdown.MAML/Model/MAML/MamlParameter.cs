@@ -51,6 +51,7 @@ namespace Markdown.MAML.Model.MAML
             ValueVariableLength = false;
             Globbing = false;
             PipelineInput = "false";
+            Position = "Named";
             Aliases = new string[] {};
         }
 
@@ -61,6 +62,16 @@ namespace Markdown.MAML.Model.MAML
                 StringComparer.OrdinalIgnoreCase.Equals(this.Position, other.Position) &&
                 StringComparer.OrdinalIgnoreCase.Equals(this.PipelineInput, other.PipelineInput) &&
                 this.Globbing == other.Globbing;
+        }
+
+        public bool IsSwitchParameter()
+        {
+            return StringComparer.OrdinalIgnoreCase.Equals(this.Type, "SwitchParameter");
+        }
+
+        public bool IsNamed()
+        {
+            return StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
         }
     }
 }

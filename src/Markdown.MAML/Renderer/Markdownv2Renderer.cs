@@ -15,6 +15,15 @@ namespace Markdown.MAML.Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
+        public int MaxSyntaxWidth { get; private set; }
+
+        public MarkdownV2Renderer() : this(80) { }
+
+        public MarkdownV2Renderer(int maxSyntaxWidth)
+        {
+            this.MaxSyntaxWidth = maxSyntaxWidth;
+        }
+
         public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
         {
             _stringBuilder.Clear();
@@ -175,10 +184,61 @@ namespace Markdown.MAML.Renderer
             }
         }
 
+        private string GetSyntaxString(string commandName, MamlSyntax syntax)
+        {
+            var sb = new StringBuilder();
+            sb.Append(commandName);
+            int widthBeforeLastBreak = 0;
+            for (int i = 0; i <= syntax.Parameters.Count; i++)
+            {
+                string paramStr;
+                if (i < syntax.Parameters.Count)
+                {
+                    var param = syntax.Parameters[i];
+                    if (param.IsSwitchParameter())
+                    {
+                        paramStr = string.Format("[-{0}]", param.Name);
+                    }
+                    else
+                    {
+                        paramStr = string.Format("-{0}", param.Name);
+                        if (!param.IsNamed())
+                        {
+                            // for positional parameters, we can avoid specifying the name
+                            paramStr = string.Format("[{0}]", paramStr);
+                        }
+
+                        paramStr = string.Format("{0} <{1}>", paramStr, param.Type);
+                        if (!param.Required)
+                        {
+                            paramStr = string.Format("[{0}]", paramStr);
+                        }
+                    }
+                }
+                else
+                {
+                    paramStr = "[<CommonParameters>]";
+                }
+
+                if (sb.Length - widthBeforeLastBreak + paramStr.Length > this.MaxSyntaxWidth)
+                {
+                    sb.AppendLine();
+                    widthBeforeLastBreak = sb.Length;
+                }
+
+                sb.AppendFormat(" {0}", paramStr);
+            }
+
+            return sb.ToString();
+        }
+
         private void AddSyntax(MamlCommand command)
         {
             _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.SYNTAX, Environment.NewLine);
-            // TODO
+            foreach (var syntax in command.Syntax)
+            {
+                _stringBuilder.AppendFormat("### {0}{2}```{2}{1}{2}```{2}{2}", syntax.ParameterSetName, GetSyntaxString(command.Name, syntax), Environment.NewLine);
+            }
         }
     }
 }
