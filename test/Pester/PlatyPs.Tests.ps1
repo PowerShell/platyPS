@@ -11,6 +11,16 @@ Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><
 
 Import-Module $outFolder\platyPS -Force
 
+Describe 'MakeCab.exe' {
+
+    It 'Validates that MakeCab.exe exists'{
+
+        (Get-Command MakeCab) -ne $null | Should Be $True
+
+    }
+}
+
+
 Describe 'New-PlatyPsCab' {
 
     It 'validates the output of Cab creation' {
