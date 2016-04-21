@@ -66,7 +66,8 @@ namespace Markdown.MAML.Model.MAML
 
         public bool IsSwitchParameter()
         {
-            return StringComparer.OrdinalIgnoreCase.Equals(this.Type, "SwitchParameter");
+            return StringComparer.OrdinalIgnoreCase.Equals(this.Type, "SwitchParameter") ||
+                StringComparer.OrdinalIgnoreCase.Equals(this.Type, "switch");
         }
 
         public bool IsNamed()
