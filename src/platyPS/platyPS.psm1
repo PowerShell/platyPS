@@ -328,7 +328,6 @@ function Get-PlatyPSTextHelpFromMaml
 #                                   p:::::::p
 #                                   ppppppppp
 
-
 function Convert-MamlLinksToMarkDownLinks
 {
     [CmdletBinding()]
@@ -918,6 +917,240 @@ function Convert-HelpToMarkdown
     )
 
     Convert-CommandToMarkdown -helpObject $helpObject -IsHelpObject | Out-String
+}
+
+function Convert-PsObjectsToMamlModel
+{
+
+#Notes for more information required:
+   #From the Get-Command and the Get-Help Objects 
+    #Still cannot access the values for Value Required
+    #Still cannot access the values for ValueVariableLength
+    #Still cannot access the values for ParameterValueGroup
+   #Might want to update the MAML Model to conatin independant Verb Noun and Command Type entries
+   #Might want to update inputs to include a parameter name and a parameter set.
+
+[CmdletBinding()]
+[OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
+param(
+    [Parameter(Mandatory=$true)]
+    $CmdletName
+)
+
+Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
+$MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
+
+$CmdletName = "Add-Computer"
+
+$Help = Get-Help $CmdletName
+$Command = Get-Command $CmdletName
+
+#####GET THE SYNTAX FROM THE GET-COMMAND $Command OBJECT #####
+#region Command Object Processing
+
+#Get Name
+$MamlCommandObject.Name = $Command.Name
+
+#region Data not provided by the command object
+#Get Synopsis
+#Not provided by the command object.
+$MamlCommandObject.Synopsis = "Not provided by the Get-Command object return."
+
+#Get Description
+#Not provided by the command object.
+$MamlCommandObject.Description = "Not provided by the Get-Command Object return."
+
+#Get Notes
+#Not provided by the command object. Using the Command Type to create a note declaring it's type.
+$MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
+
+
+#Get Examples
+#Not provided by the command object.
+
+#Get Links
+#Not provided by the command object.
+
+#endregion 
+
+#Get Inputs
+#Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+#region Inputs
+$Inputs = @()
+foreach($ParameterSet in $Command.ParameterSets)
+{
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        if($Parameter.ValueFromPipeline -eq "True")
+        {
+            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+            $InputObject.TypeName = $Parameter.ParameterType
+
+            $InputObject.Description = $Parameter.Name
+
+            $Inputs += $InputObject
+        }
+    }   
+}
+
+$Inputs = $Inputs | Select -Unique
+foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+
+#endregion
+
+#Get Outputs
+#No Output Type description is provided from the command object.
+#region Outputs
+
+$Outputs = @()
+foreach($OutputType in $Command.OutputType)
+{
+    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+    $OutputObject.TypeName = $OutputType.Type
+
+    $Outputs += $OutputObject
+    
+}
+
+$Outputs = $Outputs | Select -Unique
+foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+
+#endregion
+
+#Get Syntax
+#region Get the Syntax Parameter Set objects
+
+foreach($ParameterSet in $Command.ParameterSets)
+{
+    $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
+
+    $SyntaxObject.ParameterSetName = $ParameterSet.Name
+
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
+
+        $ParameterObject.Type = $Parameter.ParameterType
+        $ParameterObject.Name = $Parameter.Name
+        $ParameterObject.Required = $Parameter.IsMandatory
+        $ParameterObject.Description = "Not provided by the Get-Command return data."
+        $ParameterObject.DefaultValue = "Not provided by the Get-Command return data." 
+        $ParameterObject.PipelineInput = $Parameter.ValueFromPipeline
+        $ParameterObject.AttributesText = $Parameter.Attributes
+
+        foreach($Alias in $Parameter.Aliases)
+        {
+            $ParameterObject.Aliases += $Alias
+        }
+
+        $SyntaxObject.Parameters.Add($ParameterObject)
+    }
+
+    $MamlCommandObject.Syntax.Add($SyntaxObject)
+}
+
+#endregion
+
+
+#endregion
+##########
+
+#####GET THE HELP-Object Content and add it to the MAML Object#####
+#region Help-Object processing
+
+#check to make sure help content exists.
+if($Command.HelpFile -ne $null -and $Help -ne $null)
+{
+    #Get Synopsis
+    $MamlCommandObject.Synopsis = $Help.Synopsis
+
+    #Get Description
+    foreach($DescriptionPiece in $Help.description)
+    {
+        $MamlCommandObject.Description += $DescriptionPiece.Text.ToString()
+        $MamlCommandObject.Description += "`n"
+    }
+    
+    #Add to Notes
+    foreach($Alert in $Help.alertSet.alert)
+    {
+        $MamlCommandObject.Notes += $Alert.Text
+        $MamlCommandObject.Notes += "`n"
+    }
+
+    #Add Examples
+    foreach($Example in $Help.examples.example)
+    {
+        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+        $MamlExampleObject.Introduction = $Example.introduction
+        $MamlExampleObject.Title = $Example.title
+        $MamlExampleObject.Code = $Example.code
+
+        $RemarkText = $null
+        foreach($Remark in $Example.remarks)
+        {
+            $RemarkText += $Remark.text + "`n"
+        }
+
+        $MamlExampleObject.Remarks = $RemarkText
+        $MamlCommandObject.Examples.Add($MamlExampleObject)
+    }
+
+    #Update Parameters
+    foreach($ParameterSet in $MamlCommandObject.Syntax)
+    {
+        foreach($Parameter in $ParameterSet.Parameters)
+        {
+            $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
+
+            $HelpEntryDescription = $null
+
+            foreach($ParameterDescriptionText in $HelpEntry.description)
+            {
+                $HelpEntryDescription += $ParameterDescriptionText.text
+            }
+
+            $Parameter.Description = $HelpEntryDescription
+            $Parameter.DefaultValue = $HelpEntry.defaultValue
+            $Parameter.VariableLength = $HelpEntry.variableLength
+            $Parameter.Globbing = $HelpEntry.globbing
+            $Parameter.Position = $HelpEntry.position
+        }
+    }
+
+}
+#endregion
+##########
+
+#####Adding Parameters Section from Syntax block#####
+#region Parameter Unique Selection from Parameter Sets
+#This will only work when the Parameters member has a public set as well as a get.
+
+#$ParameterArray = @()
+
+#foreach($ParameterSet in $MamlCommandObject.Syntax)
+#{
+#    foreach($Parameter in $ParameterSet.Parameters)
+#    {
+#        $ParameterArray += $Parameter
+#    }
+#}
+
+#$ParameterArray = $ParameterArray | Select Name -Unique
+
+#foreach($Parameter in $ParameterArray)
+#{
+#    $MamlCommandObject.Parameters += $Parameter
+#}
+
+#endregion
+##########
+
+return $MamlCommandObject
+
 }
 
 
