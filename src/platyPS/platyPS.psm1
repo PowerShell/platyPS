@@ -1103,6 +1103,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     #Get Description
     if($Help.description -ne $null)
     {
+        $MamlCommandObject.Description = ""
         foreach($DescriptionPiece in $Help.description)
         {
             $MamlCommandObject.Description += $DescriptionPiece.Text
