@@ -1,3 +1,4 @@
+#region PlatyPS
 #  
 #   
 #   PPPPPPPPPPPPPPPPP   lllllll                           tttt                             PPPPPPPPPPPPPPPPP      SSSSSSSSSSSSSSS
@@ -304,6 +305,42 @@ function Get-PlatyPSTextHelpFromMaml
     }
 }
 
+function Get-PlatyPSMamlObject
+{
+    Param(
+        [CmdletBinding()]
+        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [string] $Cmdlet,
+        [parameter(mandatory=$true, parametersetname="Module")]
+        [string] $Module
+    )
+
+    if($Cmdlet)
+    {
+        Write-Verbose ("Processing: " + $Cmdlet)
+
+        return Convert-PsObjectsToMamlModel -CmdletName $Cmdlet
+    }
+    else
+    {
+        Write-Verbose ("Processing: " + $Module)
+
+        $ObjectArray = @()
+        foreach($Command in (Get-Command -Module $Module))
+        {
+            Write-Verbose ("`tProcessing: " + $Command.Name)
+
+            $ObjectArray += Convert-PsObjectsToMamlModel -CmdletName $Command.Name
+        }
+
+        return $ObjectArray
+    }
+
+}
+
+#endregion
+
+#region PlatyPs Implementation
 #
 # IIIIIIIIII                                            lllllll                                                                                            tttt                                    tttt            iiii
 # I::::::::I                                            l:::::l                                                                                         ttt:::t                                 ttt:::t           i::::i
@@ -937,10 +974,7 @@ param(
     $CmdletName
 )
 
-Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
-
-$CmdletName = "Add-Computer"
 
 $Help = Get-Help $CmdletName
 $Command = Get-Command $CmdletName
@@ -1067,57 +1101,69 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     $MamlCommandObject.Synopsis = $Help.Synopsis
 
     #Get Description
-    foreach($DescriptionPiece in $Help.description)
+    if($Help.description -ne $null)
     {
-        $MamlCommandObject.Description += $DescriptionPiece.Text.ToString()
-        $MamlCommandObject.Description += "`n"
+        foreach($DescriptionPiece in $Help.description)
+        {
+            $MamlCommandObject.Description += $DescriptionPiece.Text
+            $MamlCommandObject.Description += "`n"
+        }
     }
-    
+
     #Add to Notes
-    foreach($Alert in $Help.alertSet.alert)
+    if($help.alertSet -ne $null)
     {
-        $MamlCommandObject.Notes += $Alert.Text
-        $MamlCommandObject.Notes += "`n"
+       foreach($Alert in $Help.alertSet.alert)
+        {
+            $MamlCommandObject.Notes += $Alert.Text
+            $MamlCommandObject.Notes += "`n"
+        }
     }
 
     #Add Examples
-    foreach($Example in $Help.examples.example)
+    if($Help.examples.example.Count -gt 0)
     {
-        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
-
-        $MamlExampleObject.Introduction = $Example.introduction
-        $MamlExampleObject.Title = $Example.title
-        $MamlExampleObject.Code = $Example.code
-
-        $RemarkText = $null
-        foreach($Remark in $Example.remarks)
+        foreach($Example in $Help.examples.example)
         {
-            $RemarkText += $Remark.text + "`n"
-        }
+            $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
-        $MamlExampleObject.Remarks = $RemarkText
-        $MamlCommandObject.Examples.Add($MamlExampleObject)
+            $MamlExampleObject.Introduction = $Example.introduction
+            $MamlExampleObject.Title = $Example.title
+            $MamlExampleObject.Code = $Example.code
+
+            $RemarkText = $null
+            foreach($Remark in $Example.remarks)
+            {
+                $RemarkText += $Remark.text + "`n"
+            }
+            
+            $MamlExampleObject.Remarks = $RemarkText
+            $MamlCommandObject.Examples.Add($MamlExampleObject)
+        }
     }
 
     #Update Parameters
-    foreach($ParameterSet in $MamlCommandObject.Syntax)
+    if($help.parameters.parameter.Count -gt 0)
     {
-        foreach($Parameter in $ParameterSet.Parameters)
+        foreach($ParameterSet in $MamlCommandObject.Syntax)
         {
-            $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
-
-            $HelpEntryDescription = $null
-
-            foreach($ParameterDescriptionText in $HelpEntry.description)
+            foreach($Parameter in $ParameterSet.Parameters)
             {
-                $HelpEntryDescription += $ParameterDescriptionText.text
-            }
+                $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
 
-            $Parameter.Description = $HelpEntryDescription
-            $Parameter.DefaultValue = $HelpEntry.defaultValue
-            $Parameter.VariableLength = $HelpEntry.variableLength
-            $Parameter.Globbing = $HelpEntry.globbing
-            $Parameter.Position = $HelpEntry.position
+                $HelpEntryDescription = $null
+
+                foreach($ParameterDescriptionText in $HelpEntry.description)
+                {
+                    $HelpEntryDescription += $ParameterDescriptionText.text
+                }
+                
+                $Parameter.Description = $HelpEntryDescription
+                $Parameter.DefaultValue = $HelpEntry.defaultValue
+                $Parameter.VariableLength = $HelpEntry.variableLength
+                $Parameter.Globbing = $HelpEntry.globbing
+                $Parameter.Position = $HelpEntry.position
+            }
         }
     }
 
@@ -1129,22 +1175,24 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
 #region Parameter Unique Selection from Parameter Sets
 #This will only work when the Parameters member has a public set as well as a get.
 
-#$ParameterArray = @()
+$ParameterArray = @()
 
-#foreach($ParameterSet in $MamlCommandObject.Syntax)
-#{
-#    foreach($Parameter in $ParameterSet.Parameters)
-#    {
-#        $ParameterArray += $Parameter
-#    }
-#}
+foreach($ParameterSet in $MamlCommandObject.Syntax)
+{
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        $ParameterArray += $Parameter
+    }
+}
 
-#$ParameterArray = $ParameterArray | Select Name -Unique
 
-#foreach($Parameter in $ParameterArray)
-#{
-#    $MamlCommandObject.Parameters += $Parameter
-#}
+foreach($Parameter in $ParameterArray)
+{
+    if(($MamlCommandObject.Parameters | WHERE {$_.Name -eq $Parameter.Name}).Count -eq 0)
+    {
+        $MamlCommandObject.Parameters.Add($Parameter)
+    }
+}
 
 #endregion
 ##########
@@ -1152,8 +1200,9 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
 return $MamlCommandObject
 
 }
+#endregion
 
-
+#region PlatyPS Export
 # 
 # EEEEEEEEEEEEEEEEEEEEEE                                                                                      tttt
 # E::::::::::::::::::::E                                                                                   ttt:::t
@@ -1189,7 +1238,9 @@ else
         'Get-PlatyPSMarkdown', 
         'Get-PlatyPSExternalHelp', 
         'New-PlatyPSModuleFromMaml', 
-        'Get-PlatyPSTextHelpFromMaml'
+        'Get-PlatyPSTextHelpFromMaml',
+        'Get-PlatyPSMamlObject'
     )
 }
 
+#endregion
