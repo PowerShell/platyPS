@@ -326,7 +326,12 @@ function Get-PlatyPSMamlObject
         Write-Verbose ("Processing: " + $Module)
 
         $ObjectArray = @()
-        foreach($Command in (Get-Command -Module $Module))
+        # We use: & (dummy module) {...} syntax to workaround
+        # the case `Get-PlatyPSMamlObject -Module platyPS`
+        # because in this case, we are in the module context and Get-Command returns all commands,
+        # not only exported ones.
+        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
+        foreach ($Command in $commands)
         {
             Write-Verbose ("`tProcessing: " + $Command.Name)
 
