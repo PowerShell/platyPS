@@ -1101,6 +1101,23 @@ param(
     $CmdletName
 )
 
+
+    function IsCommonParameter($Parameter)
+    {
+        @("Verbose",
+        "Debug",
+        "ErrorAction",
+        "WarningAction",
+        "InformationAction",
+        "ErrorVariable",
+        "WarningVariable",
+        "InformationVariable",
+        "OutVariable",
+        "OutBuffer",
+        "PipelineVariable") -contains $Parameter.Name
+    }
+
+
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
 
 $Help = Get-Help $CmdletName
@@ -1191,6 +1208,9 @@ foreach($ParameterSet in $Command.ParameterSets)
 
     foreach($Parameter in $ParameterSet.Parameters)
     {
+        # ignore CommonParameters
+        if (IsCommonParameter $Parameter) { continue }
+
         $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
         $ParameterObject.Type = $Parameter.ParameterType
