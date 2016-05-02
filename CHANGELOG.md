@@ -1,6 +1,14 @@
 CHANGELOG
 -------------
 
+## Not released
+
+*   Schema 2.0.0
+*   Removed APIs:
+    -   `New-PlatyPSModuleFromMaml` (private now)
+    -   `Get-PlatyPSMarkdown -maml`, use `Get-PlatyPSMarkdown -module` and `Get-PlatyPSMarkdown -command`.
+        Maml file by itself doesn't have all nessesary information to create a good stub markdown.
+
 ## 0.3.1
 
 *   Fix issue that cause error in CI scenario https://github.com/PowerShell/platyPS/issues/27
