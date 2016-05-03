@@ -26,9 +26,10 @@ Describe 'Full loop for Add-Member cmdlet' {
     
     # TODO: there are some weired problems with line endings in Parser.
     # For now we just re-read file from disk to normalize them.
-    $markdown = cat $outMdFilePath
-    Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
-    $markdown = cat $outMdFilePath -Raw
+    #
+    # $markdown = cat $outMdFilePath
+    # Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
+    # $markdown = cat $outMdFilePath -Raw
 
     $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
     $generatedMaml | Out-File $outMamlFilePath
