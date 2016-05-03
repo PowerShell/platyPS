@@ -40,11 +40,6 @@ function Get-PlatyPSMarkdown
             ParameterSetName="FromCommand")]
         [object]$command,
 
-        [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
-            ParameterSetName="FromMaml")]
-        [string]$maml,
-
         [switch]$OneFilePerCommand,
 
         [string]$OutputFolder
@@ -74,25 +69,9 @@ function Get-PlatyPSMarkdown
 
     process
     {
-        if ($PSCmdlet.ParameterSetName -eq 'FromMaml')
+        if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            if (Test-Path $maml)
-            {
-                $maml = cat -raw $maml
-            }
-
-            if ($OneFilePerCommand)
-            {
-                Convert-MamlToMarkdown $maml -OutputFolder $OutputFolder
-            }
-            else 
-            {
-                Convert-MamlToMarkdown $maml | Out-String    
-            }
-        }
-        elseif ($PSCmdlet.ParameterSetName -eq 'FromCommand')
-        {
-            $md = Convert-HelpToMarkdown (Get-Help $command)
+            $md = Get-PlatyPSMamlObject -Cmdlet $command | Convert-MamlModelToMarkdown
             if ($OneFilePerCommand)
             {
                 Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
@@ -104,11 +83,9 @@ function Get-PlatyPSMarkdown
         }
         else # "FromModule"
         {
-            $commands = (get-module $module).ExportedCommands.Keys
-            $commands | % {
-                $command = $_
-                $h = Get-Help $module\$command
-                $md = Convert-HelpToMarkdown $h
+            Get-PlatyPSMamlObject -Module $module | % { 
+                $command = $_.Name
+                $md = Convert-MamlModelToMarkdown $_
                 if ($OneFilePerCommand)
                 {
                     Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
@@ -325,7 +302,6 @@ function Get-PlatyPSMamlObject
     {
         Write-Verbose ("Processing: " + $Module)
 
-        $ObjectArray = @()
         # We use: & (dummy module) {...} syntax to workaround
         # the case `Get-PlatyPSMamlObject -Module platyPS`
         # because in this case, we are in the module context and Get-Command returns all commands,
@@ -335,12 +311,9 @@ function Get-PlatyPSMamlObject
         {
             Write-Verbose ("`tProcessing: " + $Command.Name)
 
-            $ObjectArray += Convert-PsObjectsToMamlModel -CmdletName $Command.Name
+            Convert-PsObjectsToMamlModel -CmdletName $Command.Name # yeild
         }
-
-        return $ObjectArray
     }
-
 }
 
 #endregion
@@ -1081,6 +1054,20 @@ function Convert-HelpToMarkdown
     )
 
     Convert-CommandToMarkdown -helpObject $helpObject -IsHelpObject | Out-String
+}
+
+function Convert-MamlModelToMarkdown
+{
+    param(
+        [Parameter(ValueFromPipeline=$true, Mandatory=$true)]
+        [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand
+    )
+
+    process
+    {
+        $r = [Markdown.MAML.Renderer.MarkdownV2Renderer]::new()
+        return $r.MamlModelToString($mamlCommand)
+    }
 }
 
 function Convert-PsObjectsToMamlModel

@@ -24,6 +24,16 @@ namespace Markdown.MAML.Renderer
             this.MaxSyntaxWidth = maxSyntaxWidth;
         }
 
+        /// <summary>
+        /// this helper API is handful for calling from PowerShell
+        /// </summary>
+        /// <param name="mamlCommands"></param>
+        /// <returns></returns>
+        public string MamlModelToString(MamlCommand mamlCommand)
+        {
+            return MamlModelToString(new[] { mamlCommand });
+        }
+
         public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
         {
             _stringBuilder.Clear();
