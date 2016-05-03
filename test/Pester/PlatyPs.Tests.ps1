@@ -8,7 +8,8 @@ Import-Module $outFolder\platyPS -Force
 
 #region PS Objects to MAML Model Tests
 
-$mamlModelObject = Get-PlatyPSMamlObject -Cmdlet "Add-Computer"
+# call non-exported function in the module scope
+$mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Computer" }
 
 Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 

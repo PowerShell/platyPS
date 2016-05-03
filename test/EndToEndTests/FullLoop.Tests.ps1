@@ -18,12 +18,8 @@ Describe 'Full loop for Add-Member cmdlet' {
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
-    $testMamlFile = "$PSScriptRoot\Add-Member.dll-help.xml"
-
-    $maml = Get-Content $testMamlFile -Raw
-
     # run convertion
-    $markdown = Get-PlatyPSMarkdown -maml $maml
+    $markdown = Get-PlatyPSMarkdown -command Add-Member
 
     # Write the markdown to a file
     $markdown | Out-File $outMdFilePath -Force -Encoding utf8
@@ -44,7 +40,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     try 
     {
-        $generatedModule = New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath
+        $generatedModule = & (Get-Module platyPS) [scriptblock]::Create("New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath")
         Import-Module $generatedModule.Path -Force -ea Stop
 
         foreach ($cmdletName in $generatedModule.Cmdlets)
