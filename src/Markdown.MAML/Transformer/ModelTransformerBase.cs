@@ -63,7 +63,7 @@ namespace Markdown.MAML.Transformer
 
                                 if (_infoCallback != null)
                                 {
-                                    Console.WriteLine("Start processing command " + command.Name);
+                                    _infoCallback.Invoke("Start processing command " + command.Name);
                                 }
 
                                 // fill up command 
