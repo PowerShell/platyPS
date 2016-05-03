@@ -4,7 +4,7 @@ using System;
 
 namespace Markdown.MAML.Model.MAML
 {
-    public class MamlParameter
+    public class MamlParameter : ICloneable
     {
         public SourceExtent Extent { get; set; }
 
@@ -35,7 +35,10 @@ namespace Markdown.MAML.Model.MAML
 
         public bool ValueVariableLength { get; set; }
 
-        public string AttributesText { get; set; }
+        /// <summary>
+        /// This string is used only in schema version 1.0.0 processing
+        /// </summary>
+        internal string AttributesText { get; set; }
 
         public List<string> ParameterValueGroup
         {
@@ -53,6 +56,11 @@ namespace Markdown.MAML.Model.MAML
             PipelineInput = "false";
             Position = "Named";
             Aliases = new string[] {};
+        }
+
+        public MamlParameter Clone()
+        {
+            return (MamlParameter)this.MemberwiseClone();
         }
 
         public bool IsMetadataEqual(MamlParameter other)
@@ -73,6 +81,11 @@ namespace Markdown.MAML.Model.MAML
         public bool IsNamed()
         {
             return StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
+        }
+
+        object ICloneable.Clone()
+        {
+            return this.Clone();
         }
     }
 }
