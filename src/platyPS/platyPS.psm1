@@ -570,7 +570,7 @@ foreach($ParameterSet in $Command.ParameterSets)
         {
             $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
 
-            $InputObject.TypeName = $Parameter.ParameterType
+            $InputObject.TypeName = $Parameter.ParameterType.Name
 
             $InputObject.Description = $Parameter.Name
 
@@ -620,7 +620,7 @@ foreach($ParameterSet in $Command.ParameterSets)
 
         $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
-        $ParameterObject.Type = $Parameter.ParameterType
+        $ParameterObject.Type = $Parameter.ParameterType.Name
         $ParameterObject.Name = $Parameter.Name
         $ParameterObject.Required = $Parameter.IsMandatory
         $ParameterObject.Description = "Not provided by the Get-Command return data."
