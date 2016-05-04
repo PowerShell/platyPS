@@ -26,3 +26,54 @@ If you have ideas or concerns about markdown schema feel free to open a GitHub i
  -  **Examples** - misc files, showcases, etc.
  -  **[platyPS.schema.md](platyPS.schema.md)** - description of Markdown that platyPS expects.
  -  **[TagsMapping.md](TagsMapping.md)** - MAML schema description and its mapping to Markdown sections.
+
+## Data transformations
+
+Data transformations are the core of platyPS.
+User has content in some form and she wants to transform it into another form.
+I.e. transform existing module help to markdown and use it in future to generate the external help and static html for online references.
+
+PlatyPS PowerShell module provide APIs in the form of cmdlets for the end-user scenarios.
+This scenarios are assembled from the simple transformations. Chart below describes this simple transformations.
+
+```
+ +----------+
+ |          |
+ |   HTML   |
+ |          |
+ +------^---+
+        |
+ +------+------------+           +-----------------+
+ |  Markdown v1 file |           |  Markdown Model |
+ |                   +----------->                 |
+ |  Markdown v2 file |           +-+---------------+
+ |                   |             |
+ +---------------^---+             |
+                 |                 |
+                 |                 |
+                 |                 |
+              +--+-----------------v--+
+              |      MAML Model       |
+              | (= Generic Help model)|
+              |                       |
+              +--+-------------------^+
+                 |                   |
+                 |                   |
+                 |                   |
++----------------v-----+            ++--------------------------+
+|  MAML XML file       |            | Help Object in PowerShell |
+| (External help file) +------------> (+ Get-Command object)    |
++----------------------+            +---------------------------+
+```
+
+##### Example `Get-PlatyPSMarkdown`
+
+User creates a platyPS markdown for the first time for the command
+
+```
+Get-PlatyPSMarkdown -command New-MyCommand
+```
+
+Under the hood, following tranformations happens
+
+[MAML XML file] --> [Help Object + Get-Command object] --> [MAML Model] --> [Markdown file]
