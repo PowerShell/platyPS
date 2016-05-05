@@ -35,7 +35,6 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         $Parameter.Name | Should be "ComputerName"
         $Parameter.Type | Should be "string[]"
         $Parameter.Required | Should be $false
-        $Parameter.AttributesText | Should be "System.Management.Automation.ValidateNotNullOrEmptyAttribute System.Management.Automation.ParameterAttribute"
         
 
     }

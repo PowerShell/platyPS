@@ -626,8 +626,7 @@ foreach($ParameterSet in $Command.ParameterSets)
         $ParameterObject.Description = "Not provided by the Get-Command return data."
         $ParameterObject.DefaultValue = "Not provided by the Get-Command return data." 
         $ParameterObject.PipelineInput = $Parameter.ValueFromPipeline
-        $ParameterObject.AttributesText = $Parameter.Attributes
-
+        
         foreach($Alias in $Parameter.Aliases)
         {
             $ParameterObject.Aliases += $Alias
