@@ -64,6 +64,9 @@ Returns one entry for each key binding (or chord) for bound functions and/or one
 
 [about_PSReadline]()
 
+-----------------------------------------------------------------
+-----------------------------------------------------------------
+
 # Get-PSReadlineOption
 ## SYNOPSIS
 Returns the values for the options that can be configured.
@@ -96,6 +99,8 @@ You cannot pipe objects to Get-PSReadlineOption
 ## RELATED LINKS
 
 [about_PSReadline]()
+
+------------------------------------------------------------------------------
 
 # Set-PSReadlineKeyHandler
 ## SYNOPSIS
@@ -229,6 +234,13 @@ You cannot pipe objects to Set-PSReadlineKeyHandler
 ## RELATED LINKS
 
 [about_PSReadline]()
+
+---------------------------------------
+---------------------------------------
+---------------------------------------
+---------------------------------------
+---------------------------------------
+---------------------------------------
 
 # Set-PSReadlineOption
 ## SYNOPSIS
