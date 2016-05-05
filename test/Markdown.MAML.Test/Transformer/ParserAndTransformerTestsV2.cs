@@ -331,14 +331,19 @@ Accept wildcard characters: false
 # Get-Foo
 ## PARAMETERS
 
-### NonExistingTypeParam [NonExistingType]
-
-```powershell
-```
+### NonExistingTypeParam
 
 This is NonExistingTypeParam description.
 
-### NoDescriptionParam [string]
+```yaml
+Type: NonExistingType
+```
+
+### NoDescriptionParam
+
+```yaml
+Type: string
+```
 
 ### NoTypeParam
 
@@ -378,9 +383,11 @@ NoTypeParam description.
 
 ### informationVariable
 
-### force [switch]
-```powershell
-[Parameter(Mandatory=$false)]
+### force
+
+```yaml
+Type: switch
+Required: false
 ```
 ";
             var doc = parser.ParseString(docFormatString);
@@ -511,10 +518,18 @@ NoTypeParam description.
 # Get-Foo
 ## PARAMETERS
 
-### Name [String] = PowerShell
+### Name
 
-```powershell
-[Parameter(ParameterSetName = 'Set 1')]
+```yaml
+Type: String
+Parameter Sets: Set1
+Aliases: 
+
+Required: False
+Position: Named
+Default value: PowerShell
+Accept pipeline input: False
+Accept wildcard characters: False
 ```
 
 ";
@@ -575,55 +590,98 @@ Without parameters, Clear-History deletes all commands from the session history,
 
 ## PARAMETERS
 
-### CommandLine [String[]]
-
-```powershell
-[Parameter(ParameterSetName = 'Set 2')]
-[SupportsWildCards()]
-```
-
-Deletes commands with the specified text strings. If you enter more than one string, Clear-History deletes commands with any of the strings.
-
-
-### Count [Int32]
-
-```powershell
-[Parameter(Position = 2)]
-```
-
-Clears the specified number of  history entries, beginning with the oldest entry in the history.
-If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.
-For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
-If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
-
-
-### Id [Int32[]]
-
-```powershell
-[Parameter(
-  Position = 1,
-  ParameterSetName = 'Set 1')]
-```
-
+### Id
 Deletes commands with the specified history IDs.
 To find the history ID of a command, use Get-History.
 
+```yaml
+Type: Int32[]
+Parameter Sets: IDParameter
+Aliases: 
 
-### Newest [switch]
+Required: False
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: True
+```
 
+### Count
+Clears the specified number of  history entries, beginning with the oldest entry in the history.
+If you use the Count and Id parameters in the same command, the cmdlet clears the number of entries specified by the Count parameter, beginning with the entry specified by the Id parameter.  For example, if Count is 10 and Id is 30, Clear-History clears items 21 through 30 inclusive.
+If you use the Count and CommandLine parameters in the same command, Clear-History clears the number of entries specified by the Count parameter, beginning with the entry specified by the CommandLine parameter.
+
+```yaml
+Type: Int32
+Parameter Sets: IDParameter, CommandLineParameter
+Aliases: 
+
+Required: False
+Position: 2
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: True
+```
+
+### Newest
 Deletes the newest entries in the history. By default, Clear-History deletes the oldest entries in the history.
 
+```yaml
+Type: SwitchParameter
+Parameter Sets: IDParameter, CommandLineParameter
+Aliases: 
 
-### Confirm [switch]
+Required: False
+Position: named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: True
+```
 
-Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
-
-
-### WhatIf [switch]
-
+### WhatIf
 Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what would happen if the cmdlet runs. The cmdlet is not run.
 
+```yaml
+Type: SwitchParameter
+Parameter Sets: IDParameter, CommandLineParameter
+Aliases: wi
 
+Required: False
+Position: named
+Default value: false
+Accept pipeline input: False
+Accept wildcard characters: True
+```
+
+### Confirm
+Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: IDParameter, CommandLineParameter
+Aliases: cf
+
+Required: False
+Position: named
+Default value: false
+Accept pipeline input: False
+Accept wildcard characters: True
+```
+
+### CommandLine
+Deletes commands with the specified text strings. If you enter more than one string, Clear-History deletes commands with any of the strings.
+
+```yaml
+Type: String[]
+Parameter Sets: CommandLineParameter
+Aliases: 
+
+Required: False
+Position: named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: True
+```
 ";
             var doc = parser.ParseString(docFormatString);
 
@@ -638,7 +696,7 @@ Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what wou
             Assert.Equal(syntax2.Parameters.Count, 5);
 
             Assert.Equal(syntax1.Parameters[0].Name, "Id");
-            Assert.Equal(syntax2.Parameters[1].Name, "CommandLine");
+            Assert.Equal(syntax2.Parameters[0].Name, "Count");
         }
 
         private static string GetParameterText(string paramName, string paramAttributes)
