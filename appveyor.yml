@@ -16,8 +16,10 @@ build_script:
 
 after_test:
     - ps: |
-        # We run Pester tests in build step, because on_finish is too late and we don't want to modify test_script
-        # so Xunit tests just run
+        # We run Pester tests in after_test step
+        # we don't want to use test_script so Xunit tests just run
+        # appveyor doesn't run after_test, if tests failed.
+        #
         # Pester tests produce artifacts in .\out directory
         $pesterTestResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru
