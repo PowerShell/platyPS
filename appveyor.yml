@@ -13,6 +13,9 @@ build_script:
     - ps: |
         $ErrorActionPreference = 'Stop'
         .\build.ps1 -Configuration Release
+
+after_test:
+    - ps: |
         # We run Pester tests in build step, because on_finish is too late and we don't want to modify test_script
         # so Xunit tests just run
         # Pester tests produce artifacts in .\out directory
