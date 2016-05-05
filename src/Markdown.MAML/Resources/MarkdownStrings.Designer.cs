@@ -79,6 +79,15 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Accepted values.
+        /// </summary>
+        internal static string Accepted_values {
+            get {
+                return ResourceManager.GetString("Accepted_values", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Aliases.
         /// </summary>
         internal static string Aliases {

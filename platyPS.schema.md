@@ -60,7 +60,7 @@ It closely resembles output of `Get-Help`.
                 Type: {Parameter type}  // can be ommitted, then default assumed
                 Parameter sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
                 Aliases: {comma-separated list of aliases, i.e. EA, ERR} // if ommitted => default
-                Accept values: {ValidateSet, comma-separated list of valid values, i.e. Foo, ERR} // if ommitted no ValidateSet
+                Accepted values: {ValidateSet, comma-separated list of valid values, i.e. Foo, Bar} // if ommitted => everything is accepted
                 // break line to improve readability and separate metadata block
                                         
                 Required: {true | false}

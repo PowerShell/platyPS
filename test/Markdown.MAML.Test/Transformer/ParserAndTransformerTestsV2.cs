@@ -411,9 +411,10 @@ Required: false
 # Get-Foo
 ## PARAMETERS
 
-### foo [string]
-```powershell
-[ValidateSet('a', 'b', 'c')]
+### foo
+```yaml
+Type: string
+Accepted values: a, b, c
 ```
 ";
             var doc = parser.ParseString(docFormatString);
@@ -442,11 +443,18 @@ Required: false
 # Get-Foo
 ## PARAMETERS
 
-### TypeName [String]
+### TypeName
 
-```powershell
-[Parameter(Mandatory = $true, ParameterSetName = 'Set 1')]
-[Parameter(ParameterSetName = 'Set 2')]
+```yaml
+Type: string
+Parameter sets: Set 1
+Required: true
+```
+
+```yaml
+Type: string
+Parameter sets: Set 2
+Required: false
 ```
 ";
             var doc = parser.ParseString(docFormatString);
@@ -464,11 +472,11 @@ Required: false
             Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
             Assert.Equal(syntax2.Parameters[0].Name, "TypeName");
 
-            Assert.Equal(syntax1.Parameters[0].Type, "String");
-            Assert.Equal(syntax2.Parameters[0].Type, "String");
+            Assert.Equal(syntax1.Parameters[0].Type, "string");
+            Assert.Equal(syntax2.Parameters[0].Type, "string");
 
-            Assert.Equal(syntax1.Parameters[0].Required, false);
-            Assert.Equal(syntax2.Parameters[0].Required, true);
+            Assert.Equal(syntax1.Parameters[0].Required, true);
+            Assert.Equal(syntax2.Parameters[0].Required, false);
         }
 
         [Fact]
@@ -480,16 +488,18 @@ Required: false
 # Get-Foo
 ## PARAMETERS
 
-### SecondSetParam [String]
+### SecondSetParam
 
-```powershell
-[Parameter(ParameterSetName = 'Set 2')]
+```yaml
+Type: String
+Parameter sets: Set 2
 ```
 
-### FirstSetParam [String]
+### FirstSetParam
 
-```powershell
-[Parameter(ParameterSetName = 'Set 1')]
+```yaml
+Type: String
+Parameter sets: Set 1
 ```
 
 ";
@@ -505,8 +515,8 @@ Required: false
             Assert.Equal(syntax1.Parameters.Count, 1);
             Assert.Equal(syntax2.Parameters.Count, 1);
 
-            Assert.Equal(syntax1.Parameters[0].Name, "FirstSetParam");
-            Assert.Equal(syntax2.Parameters[0].Name, "SecondSetParam");
+            Assert.Equal(syntax2.Parameters[0].Name, "FirstSetParam");
+            Assert.Equal(syntax1.Parameters[0].Name, "SecondSetParam");
         }
 
         [Fact]
@@ -545,7 +555,7 @@ Accept wildcard characters: False
         }
 
         [Fact]
-        public void UsesSupportsWildCardsToMarkGlobbing()
+        public void UsesEntryToMarkGlobbing()
         {
             var parser = new MarkdownParser();
 
@@ -553,10 +563,11 @@ Accept wildcard characters: False
 # Get-Foo
 ## PARAMETERS
 
-### Name [String]
+### Name
 
 ```
-[SupportsWildCards()]
+Type: string
+Accept wildcard characters: true
 ```
 
 ";
@@ -569,7 +580,7 @@ Accept wildcard characters: False
             var parameter = mamlCommand.Parameters[0];
 
             Assert.True(parameter.Globbing);
-            Assert.Equal(parameter.Type, "String");
+            Assert.Equal(parameter.Type, "string");
         }
 
         [Fact]

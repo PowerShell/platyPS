@@ -165,4 +165,7 @@
   <data name="Type" xml:space="preserve">
     <value>Type</value>
   </data>
+  <data name="Accepted_values" xml:space="preserve">
+    <value>Accepted values</value>
+  </data>
 </root>

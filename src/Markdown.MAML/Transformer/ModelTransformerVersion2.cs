@@ -237,6 +237,7 @@ namespace Markdown.MAML.Transformer
             return StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Type) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Parameter_Sets) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Aliases) ||
+                StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Accepted_values) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Required) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Position) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Default_value) ||
@@ -288,6 +289,7 @@ namespace Markdown.MAML.Transformer
             string value;
             parameter.Type = pairs.TryGetValue(MarkdownStrings.Type, out value) ? value : "object";
             parameter.Aliases = pairs.TryGetValue(MarkdownStrings.Aliases, out value) ? SplitByCommaAndTrim(value) : new string [0];
+            parameter.ParameterValueGroup.AddRange(pairs.TryGetValue(MarkdownStrings.Accepted_values, out value) ? SplitByCommaAndTrim(value) : new string[0]);
             parameter.Required = pairs.TryGetValue(MarkdownStrings.Required, out value) ? StringComparer.OrdinalIgnoreCase.Equals("true", value) : false;
             parameter.Position = pairs.TryGetValue(MarkdownStrings.Position, out value) ? value : "named";
             parameter.DefaultValue = pairs.TryGetValue(MarkdownStrings.Default_value, out value) ? value : null;
