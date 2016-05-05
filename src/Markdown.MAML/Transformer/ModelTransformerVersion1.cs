@@ -179,11 +179,11 @@ namespace Markdown.MAML.Transformer
             }
 
             parameter.Description = GetTextFromParagraphNode(descriptionNode);
-            parameter.AttributesText =
+            parameter.AttributesMetadata =
                 attributesNode != null ?
                     attributesNode.Text : string.Empty;
 
-            if (parameter.AttributesText.Contains(@"[SupportsWildCards()]"))
+            if (parameter.AttributesMetadata.Contains(@"[SupportsWildCards()]"))
             {
                 parameter.Globbing = true;
             }
@@ -254,7 +254,7 @@ try
                 var parameterBlocks =
                     command
                         .Parameters
-                        .Select(p => string.Format(parameterFormatString, p.AttributesText, ShiftName(p.Name)));
+                        .Select(p => string.Format(parameterFormatString, p.AttributesMetadata, ShiftName(p.Name)));
 
                 var functionScript =
                     string.Format(

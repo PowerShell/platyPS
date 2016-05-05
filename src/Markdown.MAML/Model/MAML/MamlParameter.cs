@@ -36,9 +36,9 @@ namespace Markdown.MAML.Model.MAML
         public bool ValueVariableLength { get; set; }
 
         /// <summary>
-        /// This string is used only in schema version 1.0.0 processing
+        /// This string is used only in schema version 1.0.0 internal processing
         /// </summary>
-        internal string AttributesText { get; set; }
+        internal string AttributesMetadata { get; set; }
 
         public List<string> ParameterValueGroup
         {
