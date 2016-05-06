@@ -485,7 +485,7 @@ function Convert-MamlModelToMarkdown
 
     process
     {
-        $r = [Markdown.MAML.Renderer.MarkdownV2Renderer]::new()
+        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer
         return $r.MamlModelToString($mamlCommand)
     }
 }

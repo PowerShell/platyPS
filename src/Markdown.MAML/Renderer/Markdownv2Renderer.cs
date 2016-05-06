@@ -1,6 +1,7 @@
 ﻿using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Resources;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -31,18 +32,44 @@ namespace Markdown.MAML.Renderer
         /// <returns></returns>
         public string MamlModelToString(MamlCommand mamlCommand)
         {
-            return MamlModelToString(new[] { mamlCommand });
+            return MamlModelToString(new[] { mamlCommand }, null);
         }
 
-        public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
+        /// <summary>
+        /// Convert MamlCommands into markdown. Use yamlHeader for yaml header metadata.
+        /// </summary>
+        /// <param name="mamlCommands"></param>
+        /// <param name="yamlHeader">can be null</param>
+        /// <returns></returns>
+        public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands, Hashtable yamlHeader)
         {
+            // clear, so we can re-use this instance
             _stringBuilder.Clear();
+            if (yamlHeader == null)
+            {
+                yamlHeader = new Hashtable();
+            }
+
+            // put version there
+            yamlHeader["schema"] = "2.0.0";
+            AddYamlHeader(yamlHeader);
             foreach (var command in mamlCommands)
             {
                 AddCommand(command);
             }
 
             return _stringBuilder.ToString();
+        }
+
+        private void AddYamlHeader(Hashtable yamlHeader)
+        {
+            _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
+            foreach (DictionaryEntry pair in yamlHeader)
+            {
+                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), pair.Value.ToString() , Environment.NewLine);
+            }
+
+            _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
         }
 
         private void AddCommand(MamlCommand command)

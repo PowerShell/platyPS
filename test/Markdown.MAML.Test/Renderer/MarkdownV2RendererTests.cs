@@ -72,8 +72,11 @@ namespace Markdown.MAML.Test.Renderer
             }
             );
 
-            string markdown = renderer.MamlModelToString(new[] { command });
-            Assert.Equal(@"# Get-Foo
+            string markdown = renderer.MamlModelToString(new[] { command }, null);
+            Assert.Equal(@"---
+schema: 2.0.0
+---
+# Get-Foo
 ## SYNOPSIS
 This is the synopsis
 

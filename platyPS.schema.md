@@ -12,6 +12,13 @@ It closely resembles output of `Get-Help`.
 
 ### Version 2.0.0 (not implemented yet. [Discussion](https://github.com/PowerShell/platyPS/issues/20))
 
+    // top-level metadata. You can put your own "key: value" statements there
+    // unknown values would be ignored by platyPS
+    // You can query this data from markdown file with `Get-PlatyPSYamlHeader`
+    ---
+    schema: 2.0.0
+    ---
+
     // for every command:
         # {Command name}
     
