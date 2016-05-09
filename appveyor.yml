@@ -12,6 +12,7 @@ before_build:
 build_script:
     - ps: |
         $ErrorActionPreference = 'Stop'
+        Update-Help # we need up-to-date help content for tests
         .\build.ps1 -Configuration Release
 
 after_test:
