@@ -404,6 +404,25 @@ Code snippet
         }
 
         [Fact]
+        public void GetYamlMetadataWorks()
+        {
+            var map = MarkdownParser.GetYamlMetadata(@"
+
+---
+foo: foo1
+
+bar: bar1
+---
+
+foo: bar # this is not part of yaml metadata
+"
+);
+            Assert.Equal("foo1", map["foo"]);
+            Assert.Equal("bar1", map["bar"]);
+            Assert.Equal(2, map.Count);
+        }
+
+        [Fact]
         public void ParsesExample3FromGetPSSnapin()
         {
             string codeblockText = 

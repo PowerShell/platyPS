@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
+using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Transformer
 {
@@ -16,9 +17,6 @@ namespace Markdown.MAML.Transformer
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
         private static readonly string ALL_PARAM_SETS = "*";
-
-        private static readonly string[] LINE_BREAKS = new [] { "\r\n", "\n" };
-        private static readonly char[] YAML_SEPARATORS = new [] { ':' };
 
         public ModelTransformerVersion2() : this(null) { }
 
@@ -252,28 +250,22 @@ namespace Markdown.MAML.Transformer
         /// <returns></returns>
         private Dictionary<string, string> ParseYamlKeyValuePairs(CodeBlockNode yamlSnippet)
         {
-            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-            foreach (string lineIterator in yamlSnippet.Text.Split(LINE_BREAKS, StringSplitOptions.None))
+            Dictionary<string, string> result;
+            try
             {
-                var line = lineIterator.Trim();
-                if (string.IsNullOrEmpty(line.Trim()))
-                {
-                    continue;
-                }
+                result = MarkdownParser.ParseYamlKeyValuePairs(yamlSnippet.Text);
+            }
+            catch (ArgumentException e)
+            {
+                throw new HelpSchemaException(yamlSnippet.SourceExtent, "Invalid yaml: expected simple key-value pairs");
+            }
 
-                string[] parts = line.Split(YAML_SEPARATORS, 2);
-                if (parts.Length != 2)
+            foreach (var pair in result)
+            {
+                if (!IsKnownKey(pair.Key))
                 {
-                    throw new HelpSchemaException(yamlSnippet.SourceExtent, "Invalid yaml: expected simple key-value pairs");
+                    throw new HelpSchemaException(yamlSnippet.SourceExtent, "Invalid yaml: unknown key " + pair.Key);
                 }
-
-                var key = parts[0].Trim();
-                if (!IsKnownKey(key))
-                {
-                    throw new HelpSchemaException(yamlSnippet.SourceExtent, "Invalid yaml: unknown key " + key);
-                }
-
-                result[parts[0].Trim()] = parts[1].Trim();
             }
 
             return result;

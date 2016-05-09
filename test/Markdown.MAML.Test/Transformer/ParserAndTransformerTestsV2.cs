@@ -25,6 +25,26 @@ This is Synopsis
         }
 
         [Fact]
+        public void SkipYamlMetadataBlock()
+        {
+            var parser = new MarkdownParser();
+            var doc = parser.ParseString(@"
+---
+foo: bar
+baz: foo
+schema: 2.0.0
+---
+
+# Get-Foo
+## Synopsis
+This is Synopsis
+");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal(mamlCommand.Synopsis, "This is Synopsis");
+        }
+
+        [Fact]
         public void TransformCommandWithExtraLine()
         {
             var parser = new MarkdownParser();
