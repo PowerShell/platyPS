@@ -70,7 +70,7 @@ namespace Markdown.MAML.Renderer
         public static string MarkdownStringToMamlString(string markdown)
         {
             var parser = new MarkdownParser();
-            var transformer = new ModelTransformer();
+            var transformer = new ModelTransformerVersion1();
             var renderer = new MamlRenderer();
 
             var markdownModel = parser.ParseString(markdown);

@@ -18,6 +18,9 @@ namespace Markdown.MAML.Parser
         Action<int, int> _progressCallback;
         int _reportByteCount;
 
+        private static readonly string[] LINE_BREAKS = new[] { "\r\n", "\n" };
+        private static readonly char[] YAML_SEPARATORS = new[] { ':' };
+
         #endregion
 
         #region Public Methods
@@ -61,7 +64,8 @@ namespace Markdown.MAML.Parser
                 }
 
                 // Trim the leading whitespace off of the string
-                _documentText = this.PrepareDocumentString(markdownString);
+                // Skip YamlMetadata block at the begining, if present
+                _documentText = this.SkipYamlMetadataBlock(PrepareDocumentString(markdownString));
 
                 this.ParseDocument(markdownStrings.Length == 1);
             }
@@ -399,7 +403,73 @@ namespace Markdown.MAML.Parser
 
         #region Helper Methods
 
-        private string PrepareDocumentString(string documentString)
+        /// <summary>
+        /// we only parse simple key-value pairs here
+        /// </summary>
+        /// <param name="yamlSnippet"></param>
+        /// <returns></returns>
+        internal static Dictionary<string, string> ParseYamlKeyValuePairs(string yamlSnippet)
+        {
+            var result = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+            foreach (string lineIterator in yamlSnippet.Split(LINE_BREAKS, StringSplitOptions.None))
+            {
+                var line = lineIterator.Trim();
+                if (string.IsNullOrEmpty(line.Trim()))
+                {
+                    continue;
+                }
+
+                string[] parts = line.Split(YAML_SEPARATORS, 2);
+                if (parts.Length != 2)
+                {
+                    throw new ArgumentException("Invalid yaml: expected simple key-value pairs");
+                }
+
+                var key = parts[0].Trim();
+                result[parts[0].Trim()] = parts[1].Trim();
+            }
+
+            return result;
+        }
+
+        public static Dictionary<string, string> GetYamlMetadata(string markdownString)
+        {
+            markdownString = PrepareDocumentString(markdownString);
+            int endPosition = GetYamlMetadataBlockEndOffset(markdownString);
+            if (endPosition < 0)
+            {
+                return null;
+            }
+            else
+            {
+                const int OFFSET = 5;
+                return ParseYamlKeyValuePairs(markdownString.Substring(OFFSET, endPosition - OFFSET));
+            }
+        }
+
+        private static int GetYamlMetadataBlockEndOffset(string markdownString)
+        {
+            const int OFFSET = 5;
+            if (markdownString.StartsWith("---\r\n"))
+            {
+                return markdownString.IndexOf("\r\n---", OFFSET);
+            }
+
+            return -1;
+        }
+
+        private string SkipYamlMetadataBlock(string documentString)
+        {
+            int offset = GetYamlMetadataBlockEndOffset(documentString);
+            if (offset >= 0)
+            {
+                return documentString.Substring(offset).TrimStart();
+            }
+
+            return documentString;
+        }
+
+        private static string PrepareDocumentString(string documentString)
         {
             // Trim any leading whitespace off of the string
             documentString = documentString.TrimStart();

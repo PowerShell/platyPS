@@ -12,9 +12,15 @@ before_build:
 build_script:
     - ps: |
         $ErrorActionPreference = 'Stop'
+        Update-Help # we need up-to-date help content for tests
         .\build.ps1 -Configuration Release
-        # We run Pester tests in build step, because on_finish is too late and we don't want to modify test_script
-        # so Xunit tests just run
+
+after_test:
+    - ps: |
+        # We run Pester tests in after_test step
+        # we don't want to use test_script so Xunit tests just run
+        # appveyor doesn't run after_test, if tests failed.
+        #
         # Pester tests produce artifacts in .\out directory
         $pesterTestResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru

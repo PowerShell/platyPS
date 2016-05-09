@@ -1,3 +1,4 @@
+#region PlatyPS
 #  
 #   
 #   PPPPPPPPPPPPPPPPP   lllllll                           tttt                             PPPPPPPPPPPPPPPPP      SSSSSSSSSSSSSSS
@@ -39,11 +40,6 @@ function Get-PlatyPSMarkdown
             ParameterSetName="FromCommand")]
         [object]$command,
 
-        [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
-            ParameterSetName="FromMaml")]
-        [string]$maml,
-
         [switch]$OneFilePerCommand,
 
         [string]$OutputFolder
@@ -73,25 +69,9 @@ function Get-PlatyPSMarkdown
 
     process
     {
-        if ($PSCmdlet.ParameterSetName -eq 'FromMaml')
+        if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            if (Test-Path $maml)
-            {
-                $maml = cat -raw $maml
-            }
-
-            if ($OneFilePerCommand)
-            {
-                Convert-MamlToMarkdown $maml -OutputFolder $OutputFolder
-            }
-            else 
-            {
-                Convert-MamlToMarkdown $maml | Out-String    
-            }
-        }
-        elseif ($PSCmdlet.ParameterSetName -eq 'FromCommand')
-        {
-            $md = Convert-HelpToMarkdown (Get-Help $command)
+            $md = Get-PlatyPSMamlObject -Cmdlet $command | Convert-MamlModelToMarkdown
             if ($OneFilePerCommand)
             {
                 Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
@@ -103,11 +83,9 @@ function Get-PlatyPSMarkdown
         }
         else # "FromModule"
         {
-            $commands = (get-module $module).ExportedCommands.Keys
-            $commands | % {
-                $command = $_
-                $h = Get-Help $module\$command
-                $md = Convert-HelpToMarkdown $h
+            Get-PlatyPSMamlObject -Module $module | % { 
+                $command = $_.Name
+                $md = Convert-MamlModelToMarkdown $_
                 if ($OneFilePerCommand)
                 {
                     Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
@@ -119,6 +97,26 @@ function Get-PlatyPSMarkdown
             } | Out-String
         }
     }
+}
+
+function Get-PlatyPSYamlMetadata
+{
+    param(
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownPath")]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownContent")]
+        [string]$Markdown
+    )
+
+    if ($Path)
+    {
+        $Markdown = Get-Content -Raw $Path
+    }
+
+    return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
@@ -146,16 +144,47 @@ function Get-PlatyPSExternalHelp
         }
     }
 
-    Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
+    # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
+    $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
+    if ($metadata)
+    {
+        $schema = $metadata['schema']
+        if (-not $schema) 
+        {
+            # there is metadata, but schema version is not specified.
+            # assume 2.0.0
+            $schema = '2.0.0'
+        }
+    }
+    else 
+    {
+        # if there is not metadata, then it's schema version 1.0.0
+        $schema = '1.0.0'    
+    }
 
     $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
     $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
     }
-    $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformer' -ArgumentList {
-        param([string]$message)
-        Write-Verbose $message
+
+    if ($schema -eq '1.0.0')
+    {
+        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    elseif ($schema -eq '2.0.0')
+    {
+        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    else 
+    {
+        throw "Unknown schema version: $schema"
     }
 
     $model = $p.ParseString($markdown)
@@ -164,105 +193,6 @@ function Get-PlatyPSExternalHelp
     $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
 
     return $xml
-}
-
-#  .ExternalHelp platyPS.psm1-Help.xml
-function New-PlatyPSModuleFromMaml
-{
-    param 
-    (
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $MamlFilePath,
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $DestinationPath = "$env:TEMP\Modules"
-    )
-
-    if (-not (Test-Path $MamlFilePath))
-    {
-        throw "'$MamlFilePath' does not exist."        
-    }
-
-    # Get the file name
-    $originalHelpFileName = (Get-Item $MamlFilePath).Name
-    
-    # Read the malm file
-    $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
-    if (-not $xml)
-    {
-        throw "Failed to read '$MamlFilePath'" 
-    }
-
-    # The information for the module to be generated
-    $currentCulture = (Get-UICulture).Name
-    $moduleName = $originalHelpFileName + "_" + (Get-Random).ToString()
-    $moduleFolder = "$destinationPath\$moduleName"
-    $helpFileFolder = "$destinationPath\$moduleName\$currentCulture"
-    $moduleFilePath = $moduleFolder + "\" + $moduleName + ".psm1"
-
-    # The help file will be renamed to this name
-    $helpFileNewName = $moduleName + ".psm1-help.xml"
-
-    # The result object to be generated
-    $result = @{
-        Name = $null
-        Cmdlets = @()
-        Path = $null
-    }
-
-    $writeFile = $false
-    $moduleDefintion = ""
-    $template = @'
-
-<#
-.ExternalHelp $helpFileName
-#>
-function $cmdletName
-{
-    [CmdletBinding()]
-    Param
-    (
-        $Param1,
-        $Param2
-    )
-}
-'@
-
-    foreach ($command in $xml.helpItems.command.details)
-    {
-        $thisDefinition = $template
-        $thisDefinition = $thisDefinition.Replace("`$helpFileName", $helpFileNewName)
-        $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.name)        
-        $moduleDefintion += "`r`n" + $thisDefinition + "`r`n"
-        $writeFile = $true
-        $result.Cmdlets += $command.name
-    }
-
-    if (-not $writeFile)
-    {
-        Write-Verbose "There aren't any cmdlets definitions on '$MamlFilePath'." -Verbose
-        return 
-    }
-
-    # Create the module and help content folders.
-    #New-Item -Path $moduleFolder -ItemType Directory -Force | Out-Null
-    New-Item -Path $helpFileFolder -ItemType Directory -Force | Out-Null
-
-    # Copy the help file
-    Copy-Item -Path $MamlFilePath -Destination $helpFileFolder -Force
-
-    # Rename the copied help file
-    $filePath = Join-Path $helpFileFolder (Split-Path $MamlFilePath -Leaf)
-    Rename-Item -Path $filePath -NewName $helpFileNewName -Force
-
-    # Create the module file
-    Set-Content -Value $moduleDefintion -Path $moduleFilePath
-
-    $result.Name = $moduleName
-    $result.Path = $moduleFilePath
-    return $result
 }
 
 function Get-PlatyPSTextHelpFromMaml
@@ -304,6 +234,9 @@ function Get-PlatyPSTextHelpFromMaml
     }
 }
 
+#endregion
+
+#region PlatyPs Implementation
 function New-PlatyPSCab
 {
     [Cmdletbinding()]
@@ -426,7 +359,6 @@ function New-PlatyPSCab
 }
 
 
-
 #
 # IIIIIIIIII                                            lllllll                                                                                            tttt                                    tttt            iiii
 # I::::::::I                                            l:::::l                                                                                         ttt:::t                                 ttt:::t           i::::i
@@ -451,548 +383,138 @@ function New-PlatyPSCab
 #                                   p:::::::p
 #                                   ppppppppp
 
-
-function Convert-MamlLinksToMarkDownLinks
+function Get-PlatyPSMamlObject
 {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
-        $maml
+    Param(
+        [CmdletBinding()]
+        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [string] $Cmdlet,
+        [parameter(mandatory=$true, parametersetname="Module")]
+        [string] $Module
     )
 
-    process 
+    if($Cmdlet)
     {
+        Write-Verbose ("Processing: " + $Cmdlet)
 
-        function Convert([string]$s) 
+        return Convert-PsObjectsToMamlModel -CmdletName $Cmdlet
+    }
+    else
+    {
+        Write-Verbose ("Processing: " + $Module)
+
+        # We use: & (dummy module) {...} syntax to workaround
+        # the case `Get-PlatyPSMamlObject -Module platyPS`
+        # because in this case, we are in the module context and Get-Command returns all commands,
+        # not only exported ones.
+        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
+        foreach ($Command in $commands)
         {
-            ($s -replace "`n", '') -replace '<maml:navigationLink(.*?)><maml:linkText>(.*?)</maml:linkText><maml:uri>(.*?)</maml:uri></maml:navigationLink>', '[$2]($3)'
-        }
+            Write-Verbose ("`tProcessing: " + $Command.Name)
 
-        if (-not $maml) {
-            return $maml
+            Convert-PsObjectsToMamlModel -CmdletName $Command.Name # yeild
         }
-        if ($maml -is [System.Xml.XmlElement]) {
-            return ([xml](Convert (Convert-XmlElementToString $maml))).para.'#text'
-        }
-        if ($maml -is [string]) {
-            return $maml
-        }
-        $maml
-        '' # new line for <para>
     }
 }
 
-function Get-EscapedMarkdownText
+function New-PlatyPSModuleFromMaml
 {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
-        [string]$text
+    param 
+    (
+        [Parameter(Mandatory=$true)]
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $MamlFilePath,
+        [ValidateNotNullOrEmpty()]
+        [String]
+        $DestinationPath = "$env:TEMP\Modules"
     )
 
-    process 
+    if (-not (Test-Path $MamlFilePath))
     {
-        # this is kind of a crazy replacement to handle escaping properly.
-        # we need to do the reverse operation in our markdown parser.
-        # the last part is to make generated markdown more readable.
-        (((($text -replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1') -replace "\.( )+(\w)", ".`r`n`$2").Trim()
-    }
-}
-
-function Add-LineBreaksForParagraphs
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
-        [string]$text
-    )
-
-    begin
-    {
-        $first = $true
+        throw "'$MamlFilePath' does not exist."        
     }
 
-    process 
-    {
-        if (-not $text)
-        {
-            return $text
-        }
-
-        if ($first) {
-            $first = $false
-        } else {
-            ""
-        }
-
-        $text
-    }
-}
-
-function Get-NameMarkdown($command)
-{
-    if ($script:IS_HELP)
-    {
-        $name = $command.Name
-    } 
-    else 
-    {
-        $name = $command.details.name.Trim()
-    }
+    # Get the file name
+    $originalHelpFileName = (Get-Item $MamlFilePath).Name
     
-    "# {0}" -f $name
-}
-
-function Get-SynopsisMarkdown($command)
-{
-    '## SYNOPSIS'
-    if ($script:IS_HELP)
+    # Read the malm file
+    $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
+    if (-not $xml)
     {
-        $text = $command.Synopsis
-    } 
-    else 
-    {
-        $text = $command.details.description.para | Convert-MamlLinksToMarkDownLinks
+        throw "Failed to read '$MamlFilePath'" 
     }
 
-    $text | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-}
+    # The information for the module to be generated
+    $currentCulture = (Get-UICulture).Name
+    $moduleName = $originalHelpFileName + "_" + (Get-Random).ToString()
+    $moduleFolder = "$destinationPath\$moduleName"
+    $helpFileFolder = "$destinationPath\$moduleName\$currentCulture"
+    $moduleFilePath = $moduleFolder + "\" + $moduleName + ".psm1"
 
-function Get-DescriptionMarkdown($command)
-{
-    '## DESCRIPTION'
-    if ($script:IS_HELP)
-    {
-        $text = $command.description
-    } 
-    else 
-    {
-        $text = $command.description.para | Convert-MamlLinksToMarkDownLinks
+    # The help file will be renamed to this name
+    $helpFileNewName = $moduleName + ".psm1-help.xml"
+
+    # The result object to be generated
+    $result = @{
+        Name = $null
+        Cmdlets = @()
+        Path = $null
     }
 
-    $text | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-}
+    $writeFile = $false
+    $moduleDefintion = ""
+    $template = @'
 
 <#
-    .EXAMPLE 
-    'SwitchParameter' -> [switch]
-    'System.Int32' -> [int] # optional
+.ExternalHelp $helpFileName
 #>
-function Convert-ParameterTypeTextToType
+function $cmdletName
 {
     [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        $parameter
+    Param
+    (
+        $Param1,
+        $Param2
     )
-
-    if ($script:IS_HELP)
-    {
-        $typeText = $parameter.type.name
-    }
-    else 
-    {
-        $typeText = $parameter.parameterValue.'#text'
-    }
-
-    # if type is explicitly [object], we want to capture it
-    # if type is not specified, then we don't want to capture it
-    if (-not $typeText)
-    {
-        # return nothing
-        return ''
-    }
-
-    if ($typeText -eq 'SwitchParameter') 
-    {
-        return '[switch]'
-    }
-
-    # default
-    return "[$typeText]"
 }
+'@
 
-function Get-ParamMetadata
-{
-    param(
-        [Parameter(Mandatory=$true)]
-        $parameter,
-        [Parameter(Mandatory=$false)]
-        $paramSet
-    )
-
-    $ValidateSetGenerated = $false
-    foreach ($setPair in $paramSet.GetEnumerator()) {
-
-        $paramSetName = $setPair.Key
-        $syntaxParam = $setPair.Value
-
-        $meta = @()
-
-        if ($syntaxParam.required -eq 'true')
-        {
-            $meta += 'Mandatory = $true'
-        }
-
-        if ($syntaxParam.position -ne 'named')
-        {
-            $meta += 'Position = ' + ($syntaxParam.position)
-        }
-
-        if ($syntaxParam.pipelineInput -eq 'True (ByValue)') {
-            $meta += 'ValueFromPipeline = $true'
-        } elseif ($syntaxParam.pipelineInput -eq 'True (ByPropertyName)') {
-            $meta += 'ValueFromPipelineByPropertyName = $true'
-        } elseif ($syntaxParam.pipelineInput -eq 'True (ByPropertyName, ByValue)') {
-            # mind the order
-            $meta += 'ValueFromPipelineByPropertyName = $true'
-            $meta += 'ValueFromPipeline = $true'
-        } elseif ($syntaxParam.pipelineInput -eq 'true (ByValue, ByPropertyName)') {
-            # mind the order
-            $meta += 'ValueFromPipeline = $true'
-            $meta += 'ValueFromPipelineByPropertyName = $true'
-        } 
-
-        if ($paramSetName -ne '*') {
-            $meta += "ParameterSetName = '$paramSetName'"
-        }
-
-        if ($meta) {
-            # formatting hustle
-            if ($meta.Count -eq 1) {
-                "[Parameter($meta)]"    
-            } else {
-                "[Parameter(`n  " + ($meta -join ",`n  ") + ")]"
-            }
-        }
-
-        if (-not $ValidateSetGenerated) {
-            # [ValidateSet()] is a separate attribute from [Parameter()].
-            # That means, we cannot specify ValidateSet per parameterSet.
-            $validateSet = $syntaxParam.parameterValueGroup.parameterValue.'#text'
-            if ($validateSet) {
-                "[ValidateSet(`n  '" + ($validateSet -join "',`n  '") + "')]"
-                $ValidateSetGenerated = $true
-            }
-        }
-    }
-}
-
-function Get-ParameterMarkdown
-{
-    param(
-        [Parameter(Mandatory=$true)]
-        $parameter,
-        [Parameter(Mandatory=$true)]
-        [hashtable]$paramSets
-    )
-
-    #if (@('InformationAction', 'InformationVariable') -contains $parameter.name) 
-    #{
-        # ignoring common parameters
-    #    return
-    #}
-
-    $parameterType = Convert-ParameterTypeTextToType $parameter
-    $defaultValue = '' 
-    if ($parameter.defaultValue -and $parameter.defaultValue -ne 'none' -and ($parameterType -ne '[switch]' -or $parameter.defaultValue -ne 'false')) {
-        $defaultValue = " = $($parameter.defaultValue)"
-    }
-
-@"
-### $($parameter.name) $parameterType$defaultValue
-
-"@
-    $parameterMetadata = Get-ParamMetadata $parameter -paramSet ($paramSets[$parameter.name]) | Out-String
-
-    if ($parameter.globbing -eq 'true')
+    foreach ($command in $xml.helpItems.command.details)
     {
-        $parameterMetadata += "[SupportsWildCards()]`n"
+        $thisDefinition = $template
+        $thisDefinition = $thisDefinition.Replace("`$helpFileName", $helpFileNewName)
+        $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.name)        
+        $moduleDefintion += "`r`n" + $thisDefinition + "`r`n"
+        $writeFile = $true
+        $result.Cmdlets += $command.name
     }
 
-    if ($parameterMetadata) 
+    if (-not $writeFile)
     {
-        @"
-``````powershell
-$parameterMetadata``````
-
-"@
+        Write-Verbose "There aren't any cmdlets definitions on '$MamlFilePath'." -Verbose
+        return 
     }
 
-    $parameter.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-    $parameter.parameters.parameter | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText
-}
+    # Create the module and help content folders.
+    #New-Item -Path $moduleFolder -ItemType Directory -Force | Out-Null
+    New-Item -Path $helpFileFolder -ItemType Directory -Force | Out-Null
 
-<#
-.SYNOPSIS Get map 'parameterName' -> ('setName' -> parameterXml) 'Parameter sets that it belongs to -> '. 
-    '*' for setName mean it belongs to default set.
+    # Copy the help file
+    Copy-Item -Path $MamlFilePath -Destination $helpFileFolder -Force
 
-Note: for some magical reason this logic works for both Maml xml and Help parameters object.
+    # Rename the copied help file
+    $filePath = Join-Path $helpFileFolder (Split-Path $MamlFilePath -Leaf)
+    Rename-Item -Path $filePath -NewName $helpFileNewName -Force
 
-#>
-function Get-ParameterSetMapping($command)
-{
-    function Simplify($set) 
-    {
-        foreach ($i in 1..($set.Count-1))
-        {
-            if (($set[0].required -ne $set[$i].required) -or
-                ($set[0].pipelineInput -ne $set[$i].pipelineInput) -or
-                ($set[0].position -ne $set[$i].position) -or
-                ($set[0].variableLength -ne $set[$i].variableLength))
-            {
-                return $set
-            }
-        }
+    # Create the module file
+    Set-Content -Value $moduleDefintion -Path $moduleFilePath
 
-        return [ordered]@{'*' = $set[0]}
-    }
-
-    $syntax = $command.syntax
-    $result = @{}
-    $collection = $syntax.syntaxItem
-    
-    # If syntax entries are not properly filled up,
-    # we are assuming that there is only one parameterSet
-    # and take all values for it from parameters section.
-    if (-not $collection.parameter) 
-    {
-        $collection = $command.parameters
-    }
-
-    if (-not $collection.parameter) 
-    {
-        Write-Warning ("No syntax and no parameters entries are found for command " + $command.details.name.Trim())
-        return $result
-    }
-
-    try 
-    {
-        $i = 0
-        $collection | % {
-            $i++
-            $paramSetName = "Set $i"
-            $_.parameter | % {
-                $p = $_
-                if ($result[$p.name]) {
-                    $result[$p.name][$paramSetName] = $p
-                } else {
-                    $result[$p.name] = [ordered]@{$paramSetName = $p}
-                }
-            }
-        }
-
-        # at this point, if parameter belongs to all parameter sets, 
-        # we should try to remove any notation for parameter sets, if metadata is the same for all of them.
-        @($result.Keys) | % {
-            if ($i -eq ($result[$_].Count))
-            {
-                $result[$_] = Simplify $result[$_]
-            }
-        }
-    } 
-    catch 
-    {
-        Write-Warning ("Error processing syntax entries for " + $command.details.name.Trim())
-        Write-Error $_
-    }
-
+    $result.Name = $moduleName
+    $result.Path = $moduleFilePath
     return $result
 }
 
-function Get-ParametersMarkdown($command)
-{
-    $paramSets = Get-ParameterSetMapping $command
-
-    '## PARAMETERS'
-    ''
-    $command.parameters.parameter | % { 
-        # can be null, if parameters are not populated
-        if ($_) {
-            Get-ParameterMarkdown $_ -paramSets $paramSets
-            ''
-        }
-    }
-}
-
-function Get-InputMarkdown($command)
-{
-
-    '## INPUTS'
-
-    if ($command.inputTypes.inputType.type.name)
-    {
-        # there is a weired difference for some reason
-        if ($script:IS_HELP)
-        {
-            $command.inputTypes.inputType.type.name.Split() | ? {$_} | % {
-                "### $($_)"
-            }
-        }
-        else 
-        {
-            $command.inputTypes.inputType | % { 
-                "### $($_.type.name)"
-                $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-                $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs    
-            }
-        }
-    } 
-    else 
-    {
-        "### None"
-        $command.inputTypes.inputType.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-    }
-
-}
-
-function Get-OutputMarkdown($command)
-{
-    '## OUTPUTS'
-    if ($command.returnValues.returnValue) 
-    {
-        if ($script:IS_HELP)
-        {
-            # didn't test it, but I guess it should be the same as Inputs
-            $command.returnValues.returnValue.type.name.Split() | ? {$_} | % {
-                "### $($_)"
-            }
-        }
-        else 
-        {
-            $command.returnValues.returnValue | % { 
-                "### $($_.type.name)"    
-                $_.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-                $_.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-            }
-        }
-    }
-    else 
-    {
-        "### None"
-        $command.returnValues.returnValue.type.description.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs   
-    }
-
-}
-
-function Get-NotesMarkdown($command)
-{
-    if ($command.alertSet.alert.para -or $script:IS_HELP)
-    {
-        '## NOTES'
-        $command.alertSet.alert.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-    }
-}
-
-function Get-ExampleMarkdown($example)
-{
-    if ($example.title) {
-        "### $($example.title.Trim())"
-    } else {
-        "### EXAMPLE"
-    }
-
-    $example.introduction.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-    '```powershell'
-    $example.code
-    '```'
-    $example.remarks.para | Convert-MamlLinksToMarkDownLinks | Get-EscapedMarkdownText | Add-LineBreaksForParagraphs
-}
-
-function Get-ExamplesMarkdown($command)
-{
-    if ($command.examples.example -or $script:IS_HELP)
-    {     
-        '## EXAMPLES'
-        $command.examples.example | ? {$_} | % { Get-ExampleMarkdown $_ }
-    }
-}
-
-function Get-RelatedLinksMarkdown($command)
-{
-    '## RELATED LINKS'
-    $command.relatedLinks.navigationLink | ? {$_} | % {
-        "`n[$($_.linkText)]($($_.uri))"
-    }
-}
-
-function Convert-CommandToMarkdown
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="Maml")]
-        [System.Xml.XmlElement]$command,
-
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="HelpObject")]
-        $HelpObject,
-
-        [Parameter(ParameterSetName="HelpObject")]
-        [switch]$IsHelpObject
-    )
-
-    if ($IsHelpObject)
-    {
-        $o = $helpObject
-        $script:IS_HELP = $true
-    } 
-    else 
-    {
-        $o = $command
-    }
-    
-    Get-NameMarkdown $o
-    ''
-    Get-SynopsisMarkdown $o
-    ''
-    Get-DescriptionMarkdown $o
-    ''
-    Get-ParametersMarkdown $o
-    ''
-    Get-InputMarkdown $o
-    ''
-    Get-OutputMarkdown $o
-    ''
-    Get-NotesMarkdown $o
-    ''
-    Get-ExamplesMarkdown $o
-    ''
-    Get-RelatedLinksMarkdown $o
-    ''
-
-    if ($IsHelpObject)
-    {
-        $script:IS_HELP = $false
-    }
-}
-
-function Convert-XmlElementToString
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true, ValueFromPipeline=$true)]
-        $xml
-    )
-
-    process
-    {
-        $sw = New-Object System.IO.StringWriter
-        $xmlSettings = New-Object System.Xml.XmlWriterSettings
-        $xmlSettings.ConformanceLevel = [System.Xml.ConformanceLevel]::Fragment
-        $xmlSettings.Indent = $true
-        $xw = [System.Xml.XmlWriter]::Create($sw, $xmlSettings)
-        $xml.WriteTo($xw)
-        $xw.Close()
-        
-        # return
-        $sw.ToString()
-    }
-}
-
-function Get-NormalizedText([string]$text)
-{
-    # just normize some commmon typos
-    $text -replace '–','-'
-}
 
 function Out-MarkdownToFile
 {
@@ -1005,45 +527,299 @@ function Out-MarkdownToFile
     Set-Content -Path $Path -Value $md -Encoding UTF8
 }
 
-function Convert-MamlToMarkdown
+function Convert-MamlModelToMarkdown
 {
-    [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$maml,
-
-        [string]$OutputFolder
+        [Parameter(ValueFromPipeline=$true, Mandatory=$true)]
+        [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand
     )
 
-    $xmlMaml = [xml](Get-NormalizedText $maml)
-    $commands = $xmlMaml.helpItems.command
-
-    $commands | %{ 
-        if ($OutputFolder) 
-        {
-            $md = Convert-CommandToMarkdown -command $_ 
-            $fileName = "$($_.details.name.Trim()).md"
-            Out-MarkdownToFile -path (Join-Path $OutputFolder $fileName) -value $md
-        }
-        else 
-        {
-            Convert-CommandToMarkdown -command $_    
-        }
-    } | Out-String
+    process
+    {
+        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer
+        return $r.MamlModelToString($mamlCommand)
+    }
 }
 
-function Convert-HelpToMarkdown
+function Convert-PsObjectsToMamlModel
 {
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$true)]
-        $helpObject
-    )
 
-    Convert-CommandToMarkdown -helpObject $helpObject -IsHelpObject | Out-String
+#Notes for more information required:
+   #From the Get-Command and the Get-Help Objects 
+    #Still cannot access the values for Value Required
+    #Still cannot access the values for ValueVariableLength
+    #Still cannot access the values for ParameterValueGroup
+   #Might want to update the MAML Model to conatin independant Verb Noun and Command Type entries
+   #Might want to update inputs to include a parameter name and a parameter set.
+
+[CmdletBinding()]
+[OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
+param(
+    [Parameter(Mandatory=$true)]
+    $CmdletName
+)
+
+
+    function IsCommonParameter($Parameter)
+    {
+        @("Verbose",
+        "Debug",
+        "ErrorAction",
+        "WarningAction",
+        "InformationAction",
+        "ErrorVariable",
+        "WarningVariable",
+        "InformationVariable",
+        "OutVariable",
+        "OutBuffer",
+        "PipelineVariable") -contains $Parameter.Name
+    }
+
+
+$MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
+
+$Help = Get-Help $CmdletName
+$Command = Get-Command $CmdletName
+
+#####GET THE SYNTAX FROM THE GET-COMMAND $Command OBJECT #####
+#region Command Object Processing
+
+#Get Name
+$MamlCommandObject.Name = $Command.Name
+
+#region Data not provided by the command object
+#Get Synopsis
+#Not provided by the command object.
+$MamlCommandObject.Synopsis = "Not provided by the Get-Command object return."
+
+#Get Description
+#Not provided by the command object.
+$MamlCommandObject.Description = "Not provided by the Get-Command Object return."
+
+#Get Notes
+#Not provided by the command object. Using the Command Type to create a note declaring it's type.
+$MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
+
+
+#Get Examples
+#Not provided by the command object.
+
+#Get Links
+#Not provided by the command object.
+
+#endregion 
+
+#Get Inputs
+#Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+#region Inputs
+$Inputs = @()
+foreach($ParameterSet in $Command.ParameterSets)
+{
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        if($Parameter.ValueFromPipeline -eq "True")
+        {
+            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+            $InputObject.TypeName = $Parameter.ParameterType.Name
+
+            $InputObject.Description = $Parameter.Name
+
+            $Inputs += $InputObject
+        }
+    }   
+}
+
+$Inputs = $Inputs | Select -Unique
+foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+
+#endregion
+
+#Get Outputs
+#No Output Type description is provided from the command object.
+#region Outputs
+
+$Outputs = @()
+foreach($OutputType in $Command.OutputType)
+{
+    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+    $OutputObject.TypeName = $OutputType.Type
+
+    $Outputs += $OutputObject
+    
+}
+
+$Outputs = $Outputs | Select -Unique
+foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+
+#endregion
+
+#Get Syntax
+#region Get the Syntax Parameter Set objects
+
+foreach($ParameterSet in $Command.ParameterSets)
+{
+    $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
+
+    $SyntaxObject.ParameterSetName = $ParameterSet.Name
+
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        # ignore CommonParameters
+        if (IsCommonParameter $Parameter) { continue }
+
+        $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
+
+        $ParameterObject.Type = $Parameter.ParameterType.Name
+        $ParameterObject.Name = $Parameter.Name
+        $ParameterObject.Required = $Parameter.IsMandatory
+        $ParameterObject.Description = "Not provided by the Get-Command return data."
+        $ParameterObject.DefaultValue = "Not provided by the Get-Command return data." 
+        $ParameterObject.PipelineInput = $Parameter.ValueFromPipeline
+        
+        foreach($Alias in $Parameter.Aliases)
+        {
+            $ParameterObject.Aliases += $Alias
+        }
+
+        $SyntaxObject.Parameters.Add($ParameterObject)
+    }
+
+    $MamlCommandObject.Syntax.Add($SyntaxObject)
+}
+
+#endregion
+
+
+#endregion
+##########
+
+#####GET THE HELP-Object Content and add it to the MAML Object#####
+#region Help-Object processing
+
+#check to make sure help content exists.
+if($Command.HelpFile -ne $null -and $Help -ne $null)
+{
+    #Get Synopsis
+    $MamlCommandObject.Synopsis = $Help.Synopsis
+
+    #Get Description
+    if($Help.description -ne $null)
+    {
+        $MamlCommandObject.Description = ""
+        foreach($DescriptionPiece in $Help.description)
+        {
+            $MamlCommandObject.Description += $DescriptionPiece.Text
+            $MamlCommandObject.Description += "`n"
+        }
+    }
+
+    #Add to Notes
+    if($help.alertSet -ne $null)
+    {
+       foreach($Alert in $Help.alertSet.alert)
+        {
+            $MamlCommandObject.Notes += $Alert.Text
+            $MamlCommandObject.Notes += "`n"
+        }
+    }
+
+    #Add to relatedLinks
+    if($help.relatedLinks)
+    {
+       foreach($link in $Help.relatedLinks.navigationLink)
+        {
+            $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
+            $mamlLink.LinkName = $link.linkText
+            $mamlLink.LinkUri = $link.uri
+            $MamlCommandObject.Links.Add($mamlLink)
+        }
+    }
+
+    #Add Examples
+    if($Help.examples.example.Count -gt 0)
+    {
+        foreach($Example in $Help.examples.example)
+        {
+            $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+            $MamlExampleObject.Introduction = $Example.introduction
+            $MamlExampleObject.Title = $Example.title
+            $MamlExampleObject.Code = $Example.code
+
+            $RemarkText = $null
+            foreach($Remark in $Example.remarks)
+            {
+                $RemarkText += $Remark.text + "`n"
+            }
+            
+            $MamlExampleObject.Remarks = $RemarkText
+            $MamlCommandObject.Examples.Add($MamlExampleObject)
+        }
+    }
+
+    #Update Parameters
+    if($help.parameters.parameter.Count -gt 0)
+    {
+        foreach($ParameterSet in $MamlCommandObject.Syntax)
+        {
+            foreach($Parameter in $ParameterSet.Parameters)
+            {
+                $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
+
+                $HelpEntryDescription = $null
+
+                foreach($ParameterDescriptionText in $HelpEntry.description)
+                {
+                    $HelpEntryDescription += $ParameterDescriptionText.text
+                }
+                
+                $Parameter.Description = $HelpEntryDescription
+                $Parameter.DefaultValue = $HelpEntry.defaultValue
+                $Parameter.VariableLength = $HelpEntry.variableLength
+                $Parameter.Globbing = $HelpEntry.globbing
+                $Parameter.Position = $HelpEntry.position
+            }
+        }
+    }
+
+}
+#endregion
+##########
+
+#####Adding Parameters Section from Syntax block#####
+#region Parameter Unique Selection from Parameter Sets
+#This will only work when the Parameters member has a public set as well as a get.
+
+$ParameterArray = @()
+
+foreach($ParameterSet in $MamlCommandObject.Syntax)
+{
+    foreach($Parameter in $ParameterSet.Parameters)
+    {
+        $ParameterArray += $Parameter
+    }
 }
 
 
+foreach($Parameter in $ParameterArray)
+{
+    if(($MamlCommandObject.Parameters | WHERE {$_.Name -eq $Parameter.Name}).Count -eq 0)
+    {
+        $MamlCommandObject.Parameters.Add($Parameter)
+    }
+}
+
+#endregion
+##########
+
+return $MamlCommandObject
+
+}
+#endregion
+
+#region PlatyPS Export
 # 
 # EEEEEEEEEEEEEEEEEEEEEE                                                                                      tttt
 # E::::::::::::::::::::E                                                                                   ttt:::t
@@ -1069,18 +845,12 @@ function Convert-HelpToMarkdown
 #                                           ppppppppp
 
 
-if ($env:PESTER_EXPORT_ALL_MEMBERS)
-{
-    Export-ModuleMember -Function *
-}
-else
-{
-    Export-ModuleMember -Function @(
-        'Get-PlatyPSMarkdown', 
-        'Get-PlatyPSExternalHelp', 
-        'New-PlatyPSModuleFromMaml', 
-        'Get-PlatyPSTextHelpFromMaml',
-        'New-PlatyPSCab'
-    )
-}
+Export-ModuleMember -Function @(
+    'Get-PlatyPSMarkdown', 
+    'Get-PlatyPSYamlMetadata',
+    'Get-PlatyPSExternalHelp', 
+    'Get-PlatyPSTextHelpFromMaml',
+    'New-PlatyPSCab'
+)
 
+#endregion
