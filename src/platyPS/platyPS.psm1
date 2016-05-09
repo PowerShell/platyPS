@@ -725,6 +725,18 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         }
     }
 
+    #Add to relatedLinks
+    if($help.relatedLinks)
+    {
+       foreach($link in $Help.relatedLinks.navigationLink)
+        {
+            $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
+            $mamlLink.LinkName = $link.linkText
+            $mamlLink.LinkUri = $link.uri
+            $MamlCommandObject.Links.Add($mamlLink)
+        }
+    }
+
     #Add Examples
     if($Help.examples.example.Count -gt 0)
     {
