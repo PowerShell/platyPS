@@ -99,6 +99,17 @@ function Get-PlatyPSMarkdown
     }
 }
 
+function Get-PlatyPSYamlMetadata
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$MarkdownFilePath
+    )
+
+    $c = Get-Content -Raw $MarkdownFilePath
+    return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($c)
+}
+
 #  .ExternalHelp platyPS.psm1-Help.xml
 function Get-PlatyPSExternalHelp
 {
@@ -784,6 +795,7 @@ return $MamlCommandObject
 
 Export-ModuleMember -Function @(
     'Get-PlatyPSMarkdown', 
+    'Get-PlatyPSYamlMetadata',
     'Get-PlatyPSExternalHelp', 
     'Get-PlatyPSTextHelpFromMaml',
     'New-PlatyPSCab'

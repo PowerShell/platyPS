@@ -73,6 +73,28 @@ Describe 'New-PlatyPsCab' {
         (Get-ChildItem -Filter "*.cab" -Path "$Destination").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
         (Get-ChildItem -Filter "*.xml" -Path "$Destination\OutXml").Name | Should Be "HelpXml.xml"
     }
-    
- }
+}
+
+Describe 'Get-PlatyPSYamlMetadata' {
+    Context 'Simple markdown file' {
+        Set-Content -Path TestDrive:\foo.md -Value @'
+
+---
+a : 1
+
+b: 2 
+foo: bar
+---
+
+this text would be ignored
+'@        
+        It 'can parse out yaml snippet' {
+            $d = Get-PlatyPSYamlMetadata -MarkdownFilePath TestDrive:\foo.md
+            $d.Count | Should Be 3
+            $d['a'] = '1'
+            $d['b'] = '2'
+            $d['foo'] = 'bar'
+        }
+    }
+}
 
