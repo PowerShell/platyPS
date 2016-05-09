@@ -41,7 +41,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     try 
     {
-        $generatedModule = & (Get-Module platyPS) [scriptblock]::Create("New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath")
+        $generatedModule = & (Get-Module platyPS) ([scriptblock]::Create("New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath"))
         Import-Module $generatedModule.Path -Force -ea Stop
 
         foreach ($cmdletName in $generatedModule.Cmdlets)

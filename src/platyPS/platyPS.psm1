@@ -102,12 +102,21 @@ function Get-PlatyPSMarkdown
 function Get-PlatyPSYamlMetadata
 {
     param(
-        [Parameter(Mandatory=$true)]
-        [string]$MarkdownFilePath
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownPath")]
+        [string]$Path,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownContent")]
+        [string]$Markdown
     )
 
-    $c = Get-Content -Raw $MarkdownFilePath
-    return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($c)
+    if ($Path)
+    {
+        $Markdown = Get-Content -Raw $Path
+    }
+
+    return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
@@ -135,16 +144,47 @@ function Get-PlatyPSExternalHelp
         }
     }
 
-    Add-Type -Path $PSScriptRoot\Markdown.MAML.dll
+    # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
+    $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
+    if ($metadata)
+    {
+        $schema = $metadata['schema']
+        if (-not $schema) 
+        {
+            # there is metadata, but schema version is not specified.
+            # assume 2.0.0
+            $schema = '2.0.0'
+        }
+    }
+    else 
+    {
+        # if there is not metadata, then it's schema version 1.0.0
+        $schema = '1.0.0'    
+    }
 
     $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
     $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
     }
-    $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-        param([string]$message)
-        Write-Verbose $message
+
+    if ($schema -eq '1.0.0')
+    {
+        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    elseif ($schema -eq '2.0.0')
+    {
+        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    else 
+    {
+        throw "Unknown schema version: $schema"
     }
 
     $model = $p.ParseString($markdown)

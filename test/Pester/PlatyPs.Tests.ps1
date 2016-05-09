@@ -89,7 +89,7 @@ foo: bar
 this text would be ignored
 '@        
         It 'can parse out yaml snippet' {
-            $d = Get-PlatyPSYamlMetadata -MarkdownFilePath TestDrive:\foo.md
+            $d = Get-PlatyPSYamlMetadata -Path TestDrive:\foo.md
             $d.Count | Should Be 3
             $d['a'] = '1'
             $d['b'] = '2'
