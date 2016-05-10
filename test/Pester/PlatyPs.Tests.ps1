@@ -8,41 +8,54 @@ Import-Module $outFolder\platyPS -Force
 
 #region PS Objects to MAML Model Tests
 
-# call non-exported function in the module scope
-$mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Computer" }
-
 Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
-    It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
+    Context 'Add-Computer' {
         
-        $mamlModelObject.Name | Should be "Add-Computer"
-        $mamlModelObject.Synopsis | Should be "Add the local computer to a domain or workgroup."
-        $mamlModelObject.Description.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
-        $mamlModelObject.Notes.Substring(0,31) | Should be "The Cmdlet category is: Cmdlet."
+        # call non-exported function in the module scope
+        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Computer" }
+
+        It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
+            
+            $mamlModelObject.Name | Should be "Add-Computer"
+            $mamlModelObject.Synopsis | Should be "Add the local computer to a domain or workgroup."
+            $mamlModelObject.Description.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
+            $mamlModelObject.Notes.Substring(0,31) | Should be "The Cmdlet category is: Cmdlet."
+        }
+
+        It 'Validates the examples by checking Add-Computer Example 1'{
+
+            $mamlModelObject.Examples[0].Title | Should be "-------------------------- EXAMPLE 1 --------------------------"
+            $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName Domain01 -Restart"
+            $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
+
+        }
+        
+        It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
+
+            $Parameter = $mamlModelObject.Syntax[0].Parameters | ? { $_.Name -eq "ComputerName" }
+            $Parameter.Name | Should be "ComputerName"
+            $Parameter.Type | Should be "string[]"
+            $Parameter.Required | Should be $false
+        }        
     }
 
-    It 'Validates the examples by checking Add-Computer Example 1'{
+    Context 'Add-Member' {
+        # call non-exported function in the module scope
+        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Member" }
 
-        $mamlModelObject.Examples[0].Title | Should be "-------------------------- EXAMPLE 1 --------------------------"
-        $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName Domain01 -Restart"
-        $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
+        It 'Fetch MemberSet set name' {
+            $MemberSet = $mamlModelObject.Syntax | ? {$_.ParameterSetName -eq 'MemberSet'}
+            ($MemberSet | measure).Count | Should Be 1
+        }
 
-    }
-    
-    It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
-
-        $Parameter = $mamlModelObject.Syntax[0].Parameters | WHERE { $_.Name -eq "ComputerName" }
-        $Parameter.Name | Should be "ComputerName"
-        $Parameter.Type | Should be "string[]"
-        $Parameter.Required | Should be $false
-    }
-
-    It 'populates ParameterValueGroup for InformationAction' {
-        $Parameters = @($mamlModelObject.Syntax.Parameters) + @($mamlModelObject.Parameters) | WHERE { $_.Name -eq "InformationAction" }
-        ($Parameters | measure).Count | Should Be 3 # 2 from syntax, one from parameters
-        $Parameters | % {
-            $_.Name | Should be "InformationAction"
-            $_.ParameterValueGroup.Count | Should be 6
+        It 'populates ParameterValueGroup for MemberType' {
+            $Parameters = @($mamlModelObject.Syntax.    Parameters) + @($mamlModelObject.Parameters) | ? { $_.Name -eq "MemberType" }
+            ($Parameters | measure).Count | Should Be 2 # one from syntax, one from parameters
+            $Parameters | % {
+                $_.Name | Should be "MemberType"
+                $_.ParameterValueGroup.Count | Should be 16
+            }
         }
     }
 }
