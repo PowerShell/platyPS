@@ -41,11 +41,9 @@ on_finish:
             $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip"
             Add-Type -assemblyname System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile)
-            [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\CabTesting", $zipFileCab)
             @(
                 # You can add other artifacts here
                 (ls $zipFile),
-                (ls $zipFileCab),
                 (ls .\out -File)
             # flattering
             ) | % {$_} | ? {$_} |% { Push-AppveyorArtifact $_.FullName }
