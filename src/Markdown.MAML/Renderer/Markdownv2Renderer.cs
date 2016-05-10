@@ -1,5 +1,6 @@
 ﻿using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Resources;
+using Markdown.MAML.Transformer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -74,10 +75,10 @@ namespace Markdown.MAML.Renderer
 
         private void AddCommand(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("# {0}{1}", command.Name, Environment.NewLine); // name
-            _stringBuilder.AppendFormat("## {0}{2}{1}{2}{2}", MarkdownStrings.SYNOPSIS, command.Synopsis, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_NAME_HEADING_LEVEL, command.Name, extraNewLine:false);
+            AddEntryHeaderWithText(MarkdownStrings.SYNOPSIS, command.Synopsis);
             AddSyntax(command);
-            _stringBuilder.AppendFormat("## {0}{2}{1}{2}{2}", MarkdownStrings.DESCRIPTION, command.Description, Environment.NewLine);
+            AddEntryHeaderWithText(MarkdownStrings.DESCRIPTION, command.Description);
             AddExamples(command);
             AddParameters(command);
             AddInputs(command);
@@ -87,7 +88,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddLinks(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.RELATED_LINKS, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.RELATED_LINKS);
             foreach (var link in command.Links)
             {
                 _stringBuilder.AppendFormat("[{0}]({1}){2}{2}", link.LinkName, link.LinkUri, Environment.NewLine);
@@ -96,12 +97,13 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputOutput(MamlInputOutput io)
         {
-            _stringBuilder.AppendFormat("### {0}{2}{1}{2}{2}", io.TypeName, io.Description, Environment.NewLine);
+            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine: false);
+            AddParagraphs(io.Description);
         }
 
         private void AddOutputs(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.OUTPUTS, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.OUTPUTS);
             foreach (var io in command.Outputs)
             {
                 AddInputOutput(io);
@@ -110,7 +112,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputs(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.INPUTS, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.INPUTS);
             foreach (var io in command.Inputs)
             {
                 AddInputOutput(io);
@@ -119,7 +121,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParameters(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.PARAMETERS, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.PARAMETERS);
             foreach (var param in command.Parameters)
             {
                 AddParameter(param, command);
@@ -177,7 +179,8 @@ namespace Markdown.MAML.Renderer
 
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
-            _stringBuilder.AppendFormat("### {0}{2}{1}{2}{2}", parameter.Name, parameter.Description, Environment.NewLine);
+            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, parameter.Name, extraNewLine: false);
+            AddParagraphs(parameter.Description);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
@@ -200,23 +203,23 @@ namespace Markdown.MAML.Renderer
 
         private void AddExamples(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.EXAMPLES, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.EXAMPLES);
             foreach (var example in command.Examples)
             {
-                _stringBuilder.AppendFormat("### {0}{1}", example.Title, Environment.NewLine);
+                AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: false);
                 if (example.Introduction != null)
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{1}", example.Introduction, Environment.NewLine);
+                    AddParagraphs(example.Introduction);
                 }
 
                 if (example.Code != null)
                 {
-                    _stringBuilder.AppendFormat("```{1}{0}{1}```{1}{1}", example.Code, Environment.NewLine);
+                    AddCodeSnippet(example.Code);
                 }
 
                 if (example.Remarks != null)
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{1}", example.Remarks, Environment.NewLine);
+                    AddParagraphs(example.Remarks);
                 }
             }
         }
@@ -271,10 +274,49 @@ namespace Markdown.MAML.Renderer
 
         private void AddSyntax(MamlCommand command)
         {
-            _stringBuilder.AppendFormat("## {0}{1}{1}", MarkdownStrings.SYNTAX, Environment.NewLine);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.SYNTAX);
             foreach (var syntax in command.Syntax)
             {
-                _stringBuilder.AppendFormat("### {0}{2}```{2}{1}{2}```{2}{2}", syntax.ParameterSetName, GetSyntaxString(command.Name, syntax), Environment.NewLine);
+                AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
+                AddCodeSnippet(GetSyntaxString(command.Name, syntax));
+            }
+        }
+
+        private void AddEntryHeaderWithText(string header, string text)
+        {
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+            AddParagraphs(text);
+        }
+
+        private void AddCodeSnippet(string code, string lang = "")
+        {
+            _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, Environment.NewLine);
+        }
+
+        private void AddHeader(int level, string header, bool extraNewLine = true)
+        {
+            for (int i = 0; i < level; i++)
+            {
+                _stringBuilder.Append('#');
+            }
+            _stringBuilder.Append(' ');
+            _stringBuilder.AppendFormat("{0}{1}", header, Environment.NewLine);
+            if (extraNewLine)
+            {
+                _stringBuilder.Append(Environment.NewLine);
+            }
+        }
+
+        private void AddParagraphs(string body)
+        {
+            if (body != null)
+            {
+                string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+
+                foreach (string para in paragraphs)
+                {
+                    _stringBuilder.AppendFormat("{0}{1}{1}", para.Trim(), Environment.NewLine);
+                }
             }
         }
     }
