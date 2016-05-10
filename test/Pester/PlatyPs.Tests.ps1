@@ -39,7 +39,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     It 'populates ParameterValueGroup for InformationAction' {
         $Parameters = @($mamlModelObject.Syntax.Parameters) + @($mamlModelObject.Parameters) | WHERE { $_.Name -eq "InformationAction" }
-        $Parameters.Count | Should Be 3 # 2 from syntax, one from parameters
+        ($Parameters | measure).Count | Should Be 3 # 2 from syntax, one from parameters
         $Parameters | % {
             $_.Name | Should be "InformationAction"
             $_.ParameterValueGroup.Count | Should be 6
@@ -53,6 +53,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
+New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
 Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
 
@@ -88,8 +89,6 @@ Describe 'Format-PlatyPsHelpXml' {
     $Destination = "$outFolder\CabTesting\OutXml2\"
     $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
     $ModuleName = "CheckModule.dll"
-
-    mkdir $Destination -EA SilentlyContinue > $null
 
     Format-PlatyPsHelpXml -MamlHelpXmlFullPath $MamlFullPath -ModuleSourceFileName $ModuleName -Destination  $Destination
 

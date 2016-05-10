@@ -9,7 +9,7 @@ Import-Module $outFolder\platyPS -Force
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
-    It 'transform without errors' -Skip:(-not $env:APPVEOR) {
+    It 'transform without errors' -Skip:(-not $env:APPVEYOR) {
         $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
