@@ -35,8 +35,15 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         $Parameter.Name | Should be "ComputerName"
         $Parameter.Type | Should be "string[]"
         $Parameter.Required | Should be $false
-        
+    }
 
+    It 'populates ParameterValueGroup for InformationAction' {
+        $Parameters = @($mamlModelObject.Syntax.Parameters) + @($mamlModelObject.Parameters) | WHERE { $_.Name -eq "InformationAction" }
+        $Parameters.Count | Should Be 3 # 2 from syntax, one from parameters
+        $Parameters | % {
+            $_.Name | Should be "InformationAction"
+            $_.ParameterValueGroup.Count | Should be 6
+        }
     }
 }
 
@@ -78,15 +85,17 @@ Describe 'New-PlatyPsCab' {
 
 Describe 'Format-PlatyPsHelpXml' {
 
-    $Destination = "$outFolder\CabTesting\OutXml\"
+    $Destination = "$outFolder\CabTesting\OutXml2\"
     $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
     $ModuleName = "CheckModule.dll"
+
+    mkdir $Destination -EA SilentlyContinue > $null
 
     Format-PlatyPsHelpXml -MamlHelpXmlFullPath $MamlFullPath -ModuleSourceFileName $ModuleName -Destination  $Destination
 
     It 'Checks that the xml file is named properly after using the Format-PlatyPsHelpXml command' {
         
-        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
+        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml2\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
 
     }
 
