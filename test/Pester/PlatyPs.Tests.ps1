@@ -50,8 +50,8 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         }
 
         It 'populates ParameterValueGroup for MemberType' {
-            $Parameters = @($mamlModelObject.Syntax.    Parameters) + @($mamlModelObject.Parameters) | ? { $_.Name -eq "MemberType" }
-            ($Parameters | measure).Count | Should Be 2 # one from syntax, one from parameters
+            $Parameters = $mamlModelObject.Syntax.Parameters | ? { $_.Name -eq "MemberType" }
+            ($Parameters | measure).Count | Should Be 1
             $Parameters | % {
                 $_.Name | Should be "MemberType"
                 $_.ParameterValueGroup.Count | Should be 16
