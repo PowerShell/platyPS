@@ -38,6 +38,10 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
     }
 
     It 'populates ParameterValueGroup for InformationAction' {
+        Write-Host "HELLO"
+        Write-Host $mamlModelObject.Syntax.Parameters.Name -ForegroundColor Yellow
+        Write-Host "HELLO2"
+        Write-Host $mamlModelObject.Parameters.Name -ForegroundColor Yellow
         $Parameters = @($mamlModelObject.Syntax.Parameters) + @($mamlModelObject.Parameters) | WHERE { $_.Name -eq "InformationAction" }
         ($Parameters | measure).Count | Should Be 3 # 2 from syntax, one from parameters
         $Parameters | % {
