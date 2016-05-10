@@ -234,9 +234,6 @@ function Get-PlatyPSTextHelpFromMaml
     }
 }
 
-#endregion
-
-#region PlatyPs Implementation
 function New-PlatyPSCab
 {
     [Cmdletbinding()]
@@ -358,8 +355,52 @@ function New-PlatyPSCab
     Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
 }
 
+function Format-PlatyPsHelpXml
+{
+    [Cmdletbinding()]
+    param(
+        [parameter(Mandatory=$true)]
+        [ValidateScript(
+            {
+                if((Test-Path $_ -PathType Leaf) -and ([System.IO.Path]::GetExtension($_) -eq ".xml"))
+                    {
+                        $True
+                    }
+                    else
+                    {
+                        Throw "$_ MAML Xml is not a valid file of type xml."
+                    }   
+            }
+        )]
+        [string] $MamlHelpXmlFullPath,
+        [parameter(Mandatory=$true)]
+        [string] $ModuleSourceFileName,
+        [parameter(Mandatory=$true)]
+        [ValidateScript(
+            {
+                if(Test-Path -Path $_ -PathType Container)
+                    {
+                        $True
+                    }
+                    else
+                    {
+                        Throw "$_ destination is not a valid directory."
+                    }   
+            }
+        )]
+        [string] $Destination
+    )
 
-#
+    $NewHelpFileName = $ModuleSourceFileName + "-help.xml"
+    $NewHelpFileName = Join-Path $Destination $NewHelpFileName
+
+    Copy-Item -Path $MamlHelpXmlFullPath -Destination $NewHelpFileName
+
+}
+
+#endregion
+
+#region Implementation
 # IIIIIIIIII                                            lllllll                                                                                            tttt                                    tttt            iiii
 # I::::::::I                                            l:::::l                                                                                         ttt:::t                                 ttt:::t           i::::i
 # I::::::::I                                            l:::::l                                                                                         t:::::t                                 t:::::t            iiii
@@ -838,7 +879,6 @@ return $MamlCommandObject
 #endregion
 
 #region PlatyPS Export
-# 
 # EEEEEEEEEEEEEEEEEEEEEE                                                                                      tttt
 # E::::::::::::::::::::E                                                                                   ttt:::t
 # E::::::::::::::::::::E                                                                                   t:::::t
@@ -868,7 +908,8 @@ Export-ModuleMember -Function @(
     'Get-PlatyPSYamlMetadata',
     'Get-PlatyPSExternalHelp', 
     'Get-PlatyPSTextHelpFromMaml',
-    'New-PlatyPSCab'
+    'New-PlatyPSCab',
+    'Format-PlatyPsHelpXml'
 )
 
 #endregion

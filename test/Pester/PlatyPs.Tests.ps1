@@ -42,6 +42,8 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
 #endregion 
 
+#region Checking Cab and File Naming Cmdlets
+
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
@@ -56,7 +58,6 @@ Describe 'MakeCab.exe' {
 
     }
 }
-
 
 Describe 'New-PlatyPsCab' {
 
@@ -74,6 +75,24 @@ Describe 'New-PlatyPsCab' {
         (Get-ChildItem -Filter "*.xml" -Path "$Destination\OutXml").Name | Should Be "HelpXml.xml"
     }
 }
+
+Describe 'Format-PlatyPsHelpXml' {
+
+    $Destination = "$outFolder\CabTesting\OutXml\"
+    $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
+    $ModuleName = "CheckModule.dll"
+
+    Format-PlatyPsHelpXml -MamlHelpXmlFullPath $MamlFullPath -ModuleSourceFileName $ModuleName -Destination  $Destination
+
+    It 'Checks that the xml file is named properly after using the Format-PlatyPsHelpXml command' {
+        
+        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
+
+    }
+
+}
+
+#endregion
 
 Describe 'Get-PlatyPSYamlMetadata' {
     Context 'Simple markdown file' {
