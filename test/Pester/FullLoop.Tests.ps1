@@ -105,15 +105,19 @@ Describe 'Full loop for Add-Member cmdlet' {
             }
 
             Context 'parameters' {
-                It 'generate correct parameters count' -Skip:([bool]($env:APPVEYOR)) {
-                    $generatedHelpObject.parameters.parameter.Count | Should Be $originalHelpObject.parameters.parameter.Count
+                It 'generate correct parameters count' {
+                    # filter out common parameters informationAction and informationVariable
+                    $originalParameters = $originalHelpObject.parameters.parameter | ? {-not ($_.Name -like 'information*')}
+                    $generatedHelpObject.parameters.parameter.Count | Should Be $originalParameters.Count
                 }
 
                 0..($generatedHelpObject.parameters.parameter.Count - 1) | % {
-                    $name = $generatedHelpObject.parameters.parameter[$_].name
-                    # skip TypeName, because of unclearaty of -required
-                    It ('generate correct parameter ' + ($name)) -Skip:(($name -eq 'TypeName') -or ([bool]($env:APPVEYOR))) {
-                        ($generatedHelpObject.parameters.parameter[$_] | Out-String).TrimEnd() | Should Be ($originalHelpObject.parameters.parameter[$_] | Out-String).TrimEnd()
+                    $genParam = $generatedHelpObject.parameters.parameter[$_]
+                    $name = $genParam.name
+                    $origParam = $originalHelpObject.parameters.parameter | ? {$_.Name -eq $name}
+                    # skip Value and SecondValue, because of unclearaty of RequiredValue meaning
+                    It ('generate correct parameter ' + ($name)) -Skip:($name -eq 'Value' -or $name -eq 'SecondValue') {
+                        ($genParam | Out-String).TrimEnd() | Should Be ($origParam | Out-String).TrimEnd()
                     }
                 }
             }

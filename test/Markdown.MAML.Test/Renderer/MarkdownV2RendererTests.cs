@@ -19,7 +19,7 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Name = "Get-Foo",
                 Synopsis = "This is the synopsis",
-                Description = "This is a long description."
+                Description = "This is a long description.\r\nWith two paragraphs."
             };
 
             var parameterName = new MamlParameter()
@@ -89,6 +89,8 @@ Get-Foo [-Name] <String> [<CommonParameters>]
 
 ## DESCRIPTION
 This is a long description.
+
+With two paragraphs.
 
 ## EXAMPLES
 

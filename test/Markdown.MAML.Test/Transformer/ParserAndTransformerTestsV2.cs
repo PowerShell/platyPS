@@ -385,6 +385,7 @@ NoTypeParam description.
             Assert.Equal("NoDescriptionParam", noDescriptionParam.Name);
             Assert.Equal("string", noDescriptionParam.Type);
             Assert.Equal("", noDescriptionParam.Description);
+            Assert.Equal(true, noDescriptionParam.ValueRequired);
 
             var noTypeParam = mamlCommand.Parameters[2];
             Assert.Equal("NoTypeParam", noTypeParam.Name);
@@ -406,7 +407,7 @@ NoTypeParam description.
 ### force
 
 ```yaml
-Type: switch
+Type: SwitchParameter
 Required: false
 ```
 ";
@@ -417,9 +418,15 @@ Required: false
 
             Assert.Equal(2, mamlCommand.Parameters.Count);
 
-            var fooParam = mamlCommand.Parameters[0];
-            Assert.Equal("informationVariable", fooParam.Name);
-            Assert.Equal(null, fooParam.Type);
+            var informationVariable = mamlCommand.Parameters[0];
+            Assert.Equal("informationVariable", informationVariable.Name);
+            Assert.Equal(null, informationVariable.Type);
+            Assert.Equal(true, informationVariable.ValueRequired);
+
+            var force = mamlCommand.Parameters[1];
+            Assert.Equal("force", force.Name);
+            Assert.Equal("SwitchParameter", force.Type);
+            Assert.Equal(false, force.ValueRequired);
         }
 
         [Fact]

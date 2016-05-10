@@ -279,7 +279,7 @@ namespace Markdown.MAML.Transformer
         private void FillUpParameterFromKeyValuePairs(Dictionary<string, string> pairs, MamlParameter parameter)
         {
             string value;
-            parameter.Type = pairs.TryGetValue(MarkdownStrings.Type, out value) ? value : "object";
+            parameter.Type = pairs.TryGetValue(MarkdownStrings.Type, out value) ? value : null;
             parameter.Aliases = pairs.TryGetValue(MarkdownStrings.Aliases, out value) ? SplitByCommaAndTrim(value) : new string [0];
             parameter.ParameterValueGroup.AddRange(pairs.TryGetValue(MarkdownStrings.Accepted_values, out value) ? SplitByCommaAndTrim(value) : new string[0]);
             parameter.Required = pairs.TryGetValue(MarkdownStrings.Required, out value) ? StringComparer.OrdinalIgnoreCase.Equals("true", value) : false;
@@ -327,10 +327,18 @@ namespace Markdown.MAML.Transformer
             _parameterName2ParameterSetMap.Add(Tuple.Create(name, parameterSetMap));
 
             CodeBlockNode codeBlock;
+
+            // fill up couple other things, even if there are no codeBlocks
+            // if there are, we will fill it up inside
+            parameter.ValueRequired = true;
+
             while ((codeBlock = CodeBlockRule()) != null)
             {
                 var yaml = ParseYamlKeyValuePairs(codeBlock);
                 FillUpParameterFromKeyValuePairs(yaml, parameter);
+
+                parameter.ValueRequired = parameter.IsSwitchParameter() ? false : true;
+
                 if (yaml.ContainsKey(MarkdownStrings.Parameter_Sets))
                 {
                     foreach (string parameterSetName in SplitByCommaAndTrim(yaml[MarkdownStrings.Parameter_Sets]))

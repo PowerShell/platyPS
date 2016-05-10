@@ -14,12 +14,12 @@ namespace Markdown.MAML.Transformer
         private IEnumerator<MarkdownNode> _rootEnumerator;
         private Action<string> _infoCallback;
 
-        protected const int COMMAND_NAME_HEADING_LEVEL = 1;
-        protected const int COMMAND_ENTRIES_HEADING_LEVEL = 2;
-        protected const int PARAMETER_NAME_HEADING_LEVEL = 3;
-        protected const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 3;
-        protected const int EXAMPLE_HEADING_LEVEL = 3;
-        protected const int PARAMETERSET_NAME_HEADING_LEVEL = 3;
+        internal const int COMMAND_NAME_HEADING_LEVEL = 1;
+        internal const int COMMAND_ENTRIES_HEADING_LEVEL = 2;
+        internal const int PARAMETER_NAME_HEADING_LEVEL = 3;
+        internal const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 3;
+        internal const int EXAMPLE_HEADING_LEVEL = 3;
+        internal const int PARAMETERSET_NAME_HEADING_LEVEL = 3;
 
         public ModelTransformerBase() : this(null) {}
 

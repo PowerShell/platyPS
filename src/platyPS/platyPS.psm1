@@ -546,7 +546,6 @@ function Convert-PsObjectsToMamlModel
 
 #Notes for more information required:
    #From the Get-Command and the Get-Help Objects 
-    #Still cannot access the values for Value Required
     #Still cannot access the values for ValueVariableLength
     #Still cannot access the values for ParameterValueGroup
    #Might want to update the MAML Model to conatin independant Verb Noun and Command Type entries
@@ -575,6 +574,31 @@ param(
         "PipelineVariable") -contains $Parameter.Name
     }
 
+    function GetPipelineValue($Parameter)
+    {
+        if ($Parameter.ValueFromPipeline)
+        {
+            if ($Parameter.ValueFromPipelineByPropertyName)
+            {
+                return 'True (ByPropertyName, ByValue)'
+            }
+            else 
+            {
+                return 'True (ByValue)'
+            }
+        }
+        else
+        {
+            if ($Parameter.ValueFromPipelineByPropertyName)
+            {
+                return 'True (ByPropertyName)'
+            }
+            else 
+            {
+                return 'False'
+            }
+        }
+    }
 
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
 
@@ -676,7 +700,7 @@ foreach($ParameterSet in $Command.ParameterSets)
         $ParameterObject.Required = $Parameter.IsMandatory
         $ParameterObject.Description = "Not provided by the Get-Command return data."
         $ParameterObject.DefaultValue = "Not provided by the Get-Command return data." 
-        $ParameterObject.PipelineInput = $Parameter.ValueFromPipeline
+        $ParameterObject.PipelineInput = GetPipelineValue $Parameter
         
         foreach($Alias in $Parameter.Aliases)
         {
@@ -768,17 +792,11 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
             {
                 $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
 
-                $HelpEntryDescription = $null
-
-                foreach($ParameterDescriptionText in $HelpEntry.description)
-                {
-                    $HelpEntryDescription += $ParameterDescriptionText.text
-                }
-                
-                $Parameter.Description = $HelpEntryDescription
+                $Parameter.Description = $HelpEntry.description.text
                 $Parameter.DefaultValue = $HelpEntry.defaultValue
-                $Parameter.VariableLength = $HelpEntry.variableLength
-                $Parameter.Globbing = $HelpEntry.globbing
+                $Parameter.VariableLength = $HelpEntry.variableLength -eq 'True'
+                $Parameter.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
+                $Parameter.Globbing = $HelpEntry.globbing -eq 'True'
                 $Parameter.Position = $HelpEntry.position
             }
         }
