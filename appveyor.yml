@@ -36,7 +36,6 @@ on_finish:
         try {
             $stagingDirectory = (Resolve-Path ..).Path
             $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip"
-            $zipFileCab = Join-Path $stagingDirectory "CabTesting-$($env:APPVEYOR_BUILD_VERSION).zip"
             Add-Type -assemblyname System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile)
             [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\CabTesting", $zipFileCab)
