@@ -28,7 +28,7 @@ The schema closely resembles the existing output format of `Get-Help`.
 * You can install platyPS as module from the [PowerShell Gallery](https://powershellgallery.com):
 
 ```powershell
-Install-Module platyPS
+Install-Module -Name platyPS -Scope CurrentUser
 ```
 
 * Create an initial Markdown template from command and copy it to clipboard:
