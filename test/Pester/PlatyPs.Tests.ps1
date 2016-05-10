@@ -35,8 +35,19 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         $Parameter.Name | Should be "ComputerName"
         $Parameter.Type | Should be "string[]"
         $Parameter.Required | Should be $false
-        
+    }
 
+    It 'populates ParameterValueGroup for InformationAction' {
+        Write-Host "HELLO"
+        Write-Host $mamlModelObject.Syntax.Parameters.Name -ForegroundColor Yellow
+        Write-Host "HELLO2"
+        Write-Host $mamlModelObject.Parameters.Name -ForegroundColor Yellow
+        $Parameters = @($mamlModelObject.Syntax.Parameters) + @($mamlModelObject.Parameters) | WHERE { $_.Name -eq "InformationAction" }
+        ($Parameters | measure).Count | Should Be 3 # 2 from syntax, one from parameters
+        $Parameters | % {
+            $_.Name | Should be "InformationAction"
+            $_.ParameterValueGroup.Count | Should be 6
+        }
     }
 }
 
@@ -46,6 +57,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
+New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
 Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
 
@@ -78,7 +90,7 @@ Describe 'New-PlatyPsCab' {
 
 Describe 'Format-PlatyPsHelpXml' {
 
-    $Destination = "$outFolder\CabTesting\OutXml\"
+    $Destination = "$outFolder\CabTesting\OutXml2\"
     $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
     $ModuleName = "CheckModule.dll"
 
@@ -86,7 +98,7 @@ Describe 'Format-PlatyPsHelpXml' {
 
     It 'Checks that the xml file is named properly after using the Format-PlatyPsHelpXml command' {
         
-        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
+        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml2\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
 
     }
 
