@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Xunit;
+using System.Collections;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -72,9 +73,12 @@ namespace Markdown.MAML.Test.Renderer
             }
             );
 
-            string markdown = renderer.MamlModelToString(new[] { command }, null);
+            var metadata = new Hashtable();
+            metadata["foo"] = "bar";
+            string markdown = renderer.MamlModelToString(new[] { command }, metadata);
             Assert.Equal(@"---
 schema: 2.0.0
+foo: bar
 ---
 # Get-Foo
 ## SYNOPSIS

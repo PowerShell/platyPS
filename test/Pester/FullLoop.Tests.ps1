@@ -106,8 +106,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
             Context 'parameters' {
                 It 'generate correct parameters count' {
-                    # filter out common parameters informationAction and informationVariable
-                    $originalParameters = $originalHelpObject.parameters.parameter | ? {-not ($_.Name -like 'information*')}
+                    $originalParameters = $originalHelpObject.parameters.parameter
                     $generatedHelpObject.parameters.parameter.Count | Should Be $originalParameters.Count
                 }
 
@@ -115,8 +114,9 @@ Describe 'Full loop for Add-Member cmdlet' {
                     $genParam = $generatedHelpObject.parameters.parameter[$_]
                     $name = $genParam.name
                     $origParam = $originalHelpObject.parameters.parameter | ? {$_.Name -eq $name}
-                    # skip Value and SecondValue, because of unclearaty of RequiredValue meaning
-                    It ('generate correct parameter ' + ($name)) -Skip:($name -eq 'Value' -or $name -eq 'SecondValue') {
+                    # skip because of unclearaty of RequiredValue meaning for
+                    $skip = @('Value', 'SecondValue', 'InformationVariable', 'InformationAction') -contains $name
+                    It ('generate correct parameter ' + ($name)) -Skip:$skip {
                         ($genParam | Out-String).TrimEnd() | Should Be ($origParam | Out-String).TrimEnd()
                     }
                 }

@@ -1,3 +1,6 @@
+# we use WMF 5 os image to get predictable consistent results from the Update-Help
+os: WMF 5
+
 version: 0.3.1.{build}
 
 install:
@@ -36,14 +39,11 @@ on_finish:
         try {
             $stagingDirectory = (Resolve-Path ..).Path
             $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip"
-            $zipFileCab = Join-Path $stagingDirectory "CabTesting-$($env:APPVEYOR_BUILD_VERSION).zip"
             Add-Type -assemblyname System.IO.Compression.FileSystem
             [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile)
-            [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\CabTesting", $zipFileCab)
             @(
                 # You can add other artifacts here
                 (ls $zipFile),
-                (ls $zipFileCab),
                 (ls .\out -File)
             # flattering
             ) | % {$_} | ? {$_} |% { Push-AppveyorArtifact $_.FullName }

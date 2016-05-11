@@ -392,6 +392,7 @@ function Format-PlatyPsHelpXml
     )
 
     $NewHelpFileName = $ModuleSourceFileName + "-help.xml"
+    
     $NewHelpFileName = Join-Path $Destination $NewHelpFileName
 
     Copy-Item -Path $MamlHelpXmlFullPath -Destination $NewHelpFileName
@@ -588,7 +589,6 @@ function Convert-PsObjectsToMamlModel
 #Notes for more information required:
    #From the Get-Command and the Get-Help Objects 
     #Still cannot access the values for ValueVariableLength
-    #Still cannot access the values for ParameterValueGroup
    #Might want to update the MAML Model to conatin independant Verb Noun and Command Type entries
    #Might want to update inputs to include a parameter name and a parameter set.
 
@@ -600,7 +600,7 @@ param(
 )
 
 
-    function IsCommonParameter($Parameter)
+    function IsCommonParameterName($parameterName)
     {
         @("Verbose",
         "Debug",
@@ -612,7 +612,7 @@ param(
         "InformationVariable",
         "OutVariable",
         "OutBuffer",
-        "PipelineVariable") -contains $Parameter.Name
+        "PipelineVariable") -contains $parameterName
     }
 
     function GetPipelineValue($Parameter)
@@ -638,6 +638,31 @@ param(
             {
                 return 'False'
             }
+        }
+    }
+
+    # This function matches $ParameterSet object that comes from (Get-Command ...).ParameterSet
+    # into syntaxItem object from (Get-Help ...).syntax.syntaxItem
+    function GetSyntaxForParameterSet($ParameterSet)
+    {
+        $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_) }
+        $help.syntax.syntaxItem | % {
+            $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_) }
+            if (Compare-Object $helpNames $commandNames) {
+                # skip
+            }
+            else {
+                $res = $_
+            }
+        }
+
+        if ($res) 
+        {
+            return $res    
+        }
+        else
+        {
+            Write-Warning "Cannot find syntaxItem that matches parameter set $($ParameterSet.Name) for $($Help.Name)"
         }
     }
 
@@ -729,10 +754,22 @@ foreach($ParameterSet in $Command.ParameterSets)
 
     $SyntaxObject.ParameterSetName = $ParameterSet.Name
 
+    $syntax = GetSyntaxForParameterSet $ParameterSet
+
     foreach($Parameter in $ParameterSet.Parameters)
     {
         # ignore CommonParameters
-        if (IsCommonParameter $Parameter) { continue }
+        if (IsCommonParameterName $Parameter.Name) 
+        { 
+            # but don't ignore them, if they have explicit help entries
+            if ($Help.parameters.parameter | ? {$_.Name -eq $Parameter.Name})
+            {
+            }
+            else 
+            {
+                continue
+            } 
+        }
 
         $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
@@ -746,6 +783,16 @@ foreach($ParameterSet in $Command.ParameterSets)
         foreach($Alias in $Parameter.Aliases)
         {
             $ParameterObject.Aliases += $Alias
+        }
+
+        # if we didn't find the corresponding HelpEntry, ignore this info
+        if ($syntax) 
+        {
+            $syntaxParam = $syntax.parameter | ? {$_.Name -eq $Parameter.Name}
+            foreach ($parameterValue in $syntaxParam.parameterValueGroup.parameterValue)
+            {
+                $ParameterObject.parameterValueGroup.Add($parameterValue)
+            }
         }
 
         $SyntaxObject.Parameters.Add($ParameterObject)
