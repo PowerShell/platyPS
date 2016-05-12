@@ -13,25 +13,15 @@ function normalize([string]$text)
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    $outMdFilePath = "$outFolder\Add-Member.md"
+    $OutputFolder = "$outFolder\Add-Member"
     $outMamlFilePath = "$outFolder\Add-Member.dll-help.xml"
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
     # run convertion
-    $markdown = Get-PlatyPSMarkdown -command Add-Member
+    $markdown = Get-PlatyPSMarkdown -command Add-Member -OutputFolder $OutputFolder
 
-    # Write the markdown to a file
-    $markdown | Out-File $outMdFilePath -Force -Encoding utf8
-    
-    # TODO: there are some weired problems with line endings in Parser.
-    # For now we just re-read file from disk to normalize them.
-    #
-    # $markdown = cat $outMdFilePath
-    # Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
-    # $markdown = cat $outMdFilePath -Raw
-
-    $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
+    $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {

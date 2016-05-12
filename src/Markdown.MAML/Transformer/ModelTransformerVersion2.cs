@@ -16,7 +16,7 @@ namespace Markdown.MAML.Transformer
         List<Tuple<string, Dictionary<string, MamlParameter>>> _parameterName2ParameterSetMap = 
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
-        private static readonly string ALL_PARAM_SETS = "*";
+        private static readonly string ALL_PARAM_SETS = "__AllParameterSets";
 
         public ModelTransformerVersion2() : this(null) { }
 
@@ -113,19 +113,33 @@ namespace Markdown.MAML.Transformer
             // ```
             // code
             // ```
+
+            MamlSyntax syntax;
+
             var node = GetNextNode();
-            var headingNode = GetHeadingWithExpectedLevel(node, PARAMETERSET_NAME_HEADING_LEVEL);
-            if (headingNode == null)
+            if (node.NodeType == MarkdownNodeType.CodeBlock)
             {
-                return null;
+                // if header is omitted
+                syntax = new MamlSyntax()
+                {
+                    ParameterSetName = "__AllParameterSets"
+                };
             }
+            else
+            { 
+                var headingNode = GetHeadingWithExpectedLevel(node, PARAMETERSET_NAME_HEADING_LEVEL);
+                if (headingNode == null)
+                {
+                    return null;
+                }
 
-            MamlSyntax syntax = new MamlSyntax()
-            {
-                ParameterSetName = headingNode.Text
-            };
+                syntax = new MamlSyntax()
+                {
+                    ParameterSetName = headingNode.Text
+                };
 
-            var codeBlock = CodeBlockRule();
+                var codeBlock = CodeBlockRule();
+            }
             // we don't use the output of it
             // TODO: we should capture syntax and verify that it's complient.
             return syntax;

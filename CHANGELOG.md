@@ -6,6 +6,7 @@ CHANGELOG
 *   Schema 2.0.0
 *   Removed APIs:
     -   `New-PlatyPSModuleFromMaml` (private now)
+    -   `Get-PlatyPSMarkdown` always produces one md file per cmdlet in `-OutputFolder`.
 *   New APIs:    
     -   `New-PlatyPSCab` - create updatable help Cab files
     -   `Get-PlatyPSYamlMetadata` - get a hashtable with yaml metadata (new in schema 2.0.0) from the markdown file

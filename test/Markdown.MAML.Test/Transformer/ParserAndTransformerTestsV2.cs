@@ -13,8 +13,8 @@ namespace Markdown.MAML.Test.Transformer
         [Fact]
         public void TransformSimpleCommand()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis
@@ -27,8 +27,8 @@ This is Synopsis
         [Fact]
         public void SkipYamlMetadataBlock()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 ---
 foo: bar
 baz: foo
@@ -47,8 +47,8 @@ This is Synopsis
         [Fact]
         public void TransformCommandWithExtraLine()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 #Add-Member
 
 ##SYNOPSIS
@@ -63,8 +63,8 @@ Adds custom properties and methods to an instance of a Windows PowerShell object
         [Fact]
         public void TransformMultilineDescription()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis, but it doesn't matter in this test
@@ -87,8 +87,8 @@ And this is my last line.
         [Fact]
         public void RecogniceTwoCommandsWithDifferentOrdersOfEntries()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis, but it doesn't matter in this test
@@ -113,8 +113,8 @@ This is Synopsis, but it doesn't matter in this test
         [Fact]
         public void SingleParameter()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## Parameters
 ### Bar
@@ -143,8 +143,8 @@ Accept wildcard characters: true
         [Fact]
         public void InputAndOutput()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## INPUTS
 ### System.String
@@ -169,8 +169,8 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
         [Fact]
         public void Produce2Examples()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 
 ## NOTES
@@ -204,8 +204,8 @@ Remarks
         [Fact]
         public void ProduceRelatedLinks()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ##RELATED LINKS
 
@@ -238,8 +238,8 @@ Remarks
         [Fact]
         public void HandlesHyperLinksInsideText()
         {
-            var parser = new MarkdownParser();
-            var doc = parser.ParseString(@"
+            
+            var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
 
@@ -254,7 +254,7 @@ Runs the [Set-WSManQuickConfig]() cmdlet
         [Fact]
         public void ProducesParameterAndSyntaxEntries()
         {
-            var parser = new MarkdownParser();
+            
 
             const string fooParamName = "FooParam";
             const string fooAttributes = @"
@@ -302,7 +302,7 @@ Accept wildcard characters: false
 {2}
 ";
             var doc =
-                parser.ParseString(
+                ParseString(
                     string.Format(
                         docFormatString,
                         GetParameterText(fooParamName, fooAttributes),
@@ -345,7 +345,7 @@ Accept wildcard characters: false
         [Fact]
         public void ProducesParameterEntriesForCornerCases()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -369,7 +369,7 @@ Type: string
 
 NoTypeParam description.
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -396,7 +396,7 @@ NoTypeParam description.
         [Fact]
         public void ProducesParameterForDefaultParameterName()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -411,7 +411,7 @@ Type: SwitchParameter
 Required: false
 ```
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -432,7 +432,7 @@ Required: false
         [Fact]
         public void ProducesParameterValueGroup()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -444,7 +444,7 @@ Type: string
 Accepted values: a, b, c
 ```
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -464,7 +464,7 @@ Accepted values: a, b, c
         [Fact]
         public void ProducesSyntaxForTwoSets()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -484,7 +484,7 @@ Parameter sets: Set 2
 Required: false
 ```
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -509,7 +509,7 @@ Required: false
         [Fact]
         public void ProducesSyntaxInTheRightOrder()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -530,7 +530,7 @@ Parameter sets: Set 1
 ```
 
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -549,7 +549,7 @@ Parameter sets: Set 1
         [Fact]
         public void ProduceDefaultValues()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -570,7 +570,7 @@ Accept wildcard characters: False
 ```
 
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -584,7 +584,7 @@ Accept wildcard characters: False
         [Fact]
         public void UsesEntryToMarkGlobbing()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 # Get-Foo
@@ -598,7 +598,7 @@ Accept wildcard characters: true
 ```
 
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
@@ -613,7 +613,7 @@ Accept wildcard characters: true
         [Fact]
         public void ParseClearHistorySyntaxInTheRightOrder()
         {
-            var parser = new MarkdownParser();
+            
 
             const string docFormatString = @"
 
@@ -721,7 +721,7 @@ Accept pipeline input: False
 Accept wildcard characters: True
 ```
 ";
-            var doc = parser.ParseString(docFormatString);
+            var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Clear-History");
@@ -735,6 +735,12 @@ Accept wildcard characters: True
 
             Assert.Equal(syntax1.Parameters[0].Name, "Id");
             Assert.Equal(syntax2.Parameters[0].Name, "Count");
+        }
+
+        private DocumentNode ParseString(string markdown)
+        {
+            var parser = new MarkdownParser();
+            return parser.ParseString(new string[] { markdown });
         }
 
         private static string GetParameterText(string paramName, string paramAttributes)

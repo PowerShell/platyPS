@@ -130,10 +130,7 @@ namespace Markdown.MAML.Test.Parser
 # Foo
 This is a :""text"" with doublequotes
 ";
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(
-                    documentText);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
             var children = documentNode.Children.ToArray();
             Assert.Equal(2, children.Count());
             var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
@@ -147,10 +144,7 @@ This is a :""text"" with doublequotes
 # Foo
 about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
 ";
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(
-                    documentText);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
             var children = documentNode.Children.ToArray();
             Assert.Equal(2, children.Count());
             var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
@@ -164,10 +158,7 @@ about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
 # Foo
 Not a hyperlink [PSObject].
 ";
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(
-                    documentText);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
             var children = documentNode.Children.ToArray();
             Assert.Equal(2, children.Count());
             var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
@@ -240,10 +231,7 @@ Not a hyperlink [PSObject].
 {2} [{3}]({4})
 ", headingText, codeBlockText, paragraphText, hyperlinkText, hyperlinkUri);
 
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(
-                    documentText);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
 
             HeadingNode headingNode =
                 this.AssertNodeType<HeadingNode>(
@@ -286,9 +274,8 @@ Not a hyperlink [PSObject].
         [Fact]
         public void CanPaserEmptySourceBlock()
         {
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(@"#### 1:
+            DocumentNode documentNode = MarkdownStringToDocumentNode(
+@"#### 1:
 
 ```powershell
 ```
@@ -318,8 +305,7 @@ Not a hyperlink [PSObject].
         public void UnderstandsOneLineBreakVsTwoLineBreaks()
         {
             MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(@"
+            DocumentNode documentNode = MarkdownStringToDocumentNode(@"
 1
 2
 
@@ -370,8 +356,7 @@ Code snippet
         public void ParseEscapingSameWayAsGithub()
         {
             MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(@"
+            DocumentNode documentNode = MarkdownStringToDocumentNode(@"
 \<
 \\<
 \\\<
@@ -489,10 +474,7 @@ Deletes commands with the specified text strings. If you enter more than one str
 
 ", codeblockText, descriptionText);
 
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode =
-                markdownParser.ParseString(
-                    documentText);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
 
             HeadingNode headingNode =
                 this.AssertNodeType<HeadingNode>(
@@ -519,8 +501,7 @@ Deletes commands with the specified text strings. If you enter more than one str
             string markdownString, 
             MarkdownNodeType expectedNodeType)
         {
-            MarkdownParser markdownParser = new MarkdownParser();
-            DocumentNode documentNode = markdownParser.ParseString(markdownString);
+            DocumentNode documentNode = MarkdownStringToDocumentNode(markdownString);
             return 
                 this.AssertNodeType<TNode>(
                     documentNode.Children.FirstOrDefault(),
@@ -534,6 +515,12 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.NotNull(markdownNode);
             Assert.Equal(expectedNodeType, markdownNode.NodeType);
             return Assert.IsType<TNode>(markdownNode);
+        }
+
+        private DocumentNode MarkdownStringToDocumentNode(string markdown)
+        {
+            var parser = new MarkdownParser();
+            return parser.ParseString(new string[] { markdown });
         }
     }
 }

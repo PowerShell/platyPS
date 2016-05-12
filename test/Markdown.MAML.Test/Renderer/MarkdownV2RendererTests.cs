@@ -102,7 +102,6 @@ This is the synopsis
 
 ## SYNTAX
 
-### ByName
 ```
 Get-Foo [-Name] <String> [<CommonParameters>]
 ```
@@ -128,7 +127,6 @@ Parameter Description.
 
 ```yaml
 Type: String
-Parameter Sets: ByName
 Aliases: GF, Foos, Do
 
 Required: True

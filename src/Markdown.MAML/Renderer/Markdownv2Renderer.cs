@@ -184,7 +184,12 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.AppendFormat("```yaml{0}", Environment.NewLine);
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Type, parameter.Type, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, string.Join(", ", set.Item1), Environment.NewLine);
+                if (command.Syntax.Count > 1)
+                {
+                    // ignore, if there is just one parameter set
+                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, string.Join(", ", set.Item1), Environment.NewLine);
+                }
+
                 _stringBuilder.AppendFormat("{0}: {1}{2}{2}", MarkdownStrings.Aliases, string.Join(", ", parameter.Aliases), Environment.NewLine);
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);
@@ -273,7 +278,11 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.SYNTAX);
             foreach (var syntax in command.Syntax)
             {
-                AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
+                if (command.Syntax.Count > 1)
+                {
+                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
+                }
+
                 AddCodeSnippet(GetSyntaxString(command.Name, syntax));
             }
         }
