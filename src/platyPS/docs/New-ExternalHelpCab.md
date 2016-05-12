@@ -2,14 +2,14 @@
 schema: 2.0.0
 ---
 
-# New-PlatyPSCab
+# New-ExternalHelpCab
 ## SYNOPSIS
 {{Fill the Synopsis}}
 
 ## SYNTAX
 
 ```
-New-PlatyPSCab -Source <String> -Destination <String> -Module <String> -Guid <String> -Locale <String>
+New-ExternalHelpCab -Source <String> -Destination <String> -Module <String> -Guid <String> -Locale <String>
  [<CommonParameters>]
 ```
 

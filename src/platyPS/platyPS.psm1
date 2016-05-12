@@ -25,7 +25,7 @@
 #   
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyPSMarkdown
+function New-Markdown
 {
     [CmdletBinding()]
     [OutputType([string[]])]
@@ -72,7 +72,7 @@ function Get-PlatyPSMarkdown
     }
 }
 
-function Get-PlatyPSYamlMetadata
+function Get-MarkdownMetadata
 {
     param(
         [Parameter(Mandatory=$true,
@@ -93,7 +93,7 @@ function Get-PlatyPSYamlMetadata
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyPSExternalHelp
+function New-ExternalHelp
 {
     [CmdletBinding()]
     [OutputType([string])]
@@ -135,7 +135,7 @@ function Get-PlatyPSExternalHelp
         }
 
         # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
-        $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
+        $metadata = Get-MarkdownMetadata -markdown ($markdown | Select -first 1)
         if ($metadata)
         {
             $schema = $metadata['schema']
@@ -186,7 +186,7 @@ function Get-PlatyPSExternalHelp
     }
 }
 
-function Get-PlatyPSTextHelpFromMaml
+function Show-HelpPreview
 {
     param(
         [Parameter(Mandatory=$true)]
@@ -225,7 +225,7 @@ function Get-PlatyPSTextHelpFromMaml
     }
 }
 
-function New-PlatyPSCab
+function New-ExternalHelpCab
 {
     [Cmdletbinding()]
     param(
@@ -961,11 +961,11 @@ return $MamlCommandObject
 
 
 Export-ModuleMember -Function @(
-    'Get-PlatyPSMarkdown', 
-    'Get-PlatyPSYamlMetadata',
-    'Get-PlatyPSExternalHelp', 
-    'Get-PlatyPSTextHelpFromMaml',
-    'New-PlatyPSCab',
+    'New-Markdown', 
+    'Get-MarkdownMetadata',
+    'New-ExternalHelp', 
+    'Show-HelpPreview',
+    'New-ExternalHelpCab',
     'Format-PlatyPsHelpXml'
 )
 

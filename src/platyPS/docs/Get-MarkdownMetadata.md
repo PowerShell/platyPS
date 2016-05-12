@@ -2,7 +2,7 @@
 schema: 2.0.0
 ---
 
-# Get-PlatyPSYamlMetadata
+# Get-MarkdownMetadata
 ## SYNOPSIS
 {{Fill the Synopsis}}
 
@@ -10,12 +10,12 @@ schema: 2.0.0
 
 ### MarkdownPath
 ```
-Get-PlatyPSYamlMetadata -Path <String> [<CommonParameters>]
+Get-MarkdownMetadata -Path <String> [<CommonParameters>]
 ```
 
 ### MarkdownContent
 ```
-Get-PlatyPSYamlMetadata -Markdown <String> [<CommonParameters>]
+Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION

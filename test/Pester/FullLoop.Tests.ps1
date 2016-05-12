@@ -19,11 +19,11 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     It 'creates markdown from Add-Member command' {
         # run convertion
-        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
+        New-Markdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
     }
 
     # test -MarkdownFilePath piping
-    $generatedMaml = ls $outFolder\Add-Member.md | Get-PlatyPSExternalHelp -Verbose
+    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {
@@ -139,18 +139,18 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     $module = 'Microsoft.PowerShell.Core'
 
     It "creates Markdown for $module" {
-        Get-PlatyPSMarkdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
+        New-Markdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
         # artifacts publishing
         ls $smaOutputFolder | % { cp $_.FullName $outFolder }
     }
 
     It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR){
-        $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $smaOutputFolder -Verbose
+        $generatedMaml = New-ExternalHelp -markdownFolder $smaOutputFolder -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
 
         # add artifacts to out
-        Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
-        Get-PlatyPSTextHelpFromMaml $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
+        Show-HelpPreview $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
+        Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
     }
 }

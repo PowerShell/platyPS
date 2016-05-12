@@ -66,12 +66,12 @@ This scenarios are assembled from the simple transformations. Chart below descri
 +----------------------+            +---------------------------+
 ```
 
-##### Example `Get-PlatyPSMarkdown`
+##### Example `New-Markdown`
 
 User creates a platyPS markdown for the first time for the command
 
 ```
-Get-PlatyPSMarkdown -command New-MyCommand
+New-Markdown -command New-MyCommand
 ```
 
 Under the hood, following tranformations happens

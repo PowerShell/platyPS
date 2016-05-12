@@ -2,14 +2,14 @@
 schema: 2.0.0
 ---
 
-# Get-PlatyPSExternalHelp
+# New-ExternalHelp
 ## SYNOPSIS
 Create External help file from platyPS markdown.
 
 ## SYNTAX
 
 ```
-Get-PlatyPSExternalHelp -MarkdownFolder <String> [-skipPreambula] [<CommonParameters>]
+New-ExternalHelp -MarkdownFolder <String> [-skipPreambula] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,7 +23,7 @@ Store output of this command in the module directory in corresponding language f
 
 ### ----------------------------- Example 1 (platyPS) ------------------------------------
 ```
-$maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
+$maml = New-ExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
@@ -32,15 +32,15 @@ Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding
 
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```
-$markdown = Get-PlatyPSMarkdown Get-PlatyPSMarkdown | Out-String
-Get-PlatyPSExternalHelp -markdown $markdown -skipPreambula | clip
+$markdown = New-Markdown New-Markdown | Out-String
+New-ExternalHelp -markdown $markdown -skipPreambula | clip
 ```
 
 Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.
 
 ### ----------------------------- Example 3 (MarkdownFolder) ------------------------------------
 ```
-$maml = Get-PlatyPSExternalHelp -MarkdownFolder .\src\platyPS
+$maml = New-ExternalHelp -MarkdownFolder .\src\platyPS
 ```
 
 You can break help for the big module into several markdown files and put them into a folder. In this case, you may find -MarkdownFolder parameter more convinient.

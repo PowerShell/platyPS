@@ -80,7 +80,7 @@ Describe 'MakeCab.exe' {
     }
 }
 
-Describe 'New-PlatyPsCab' {
+Describe 'New-ExternalHelpCab' {
 
     It 'validates the output of Cab creation' {
         $Source = "$outFolder\CabTesting\Source\Xml\"
@@ -89,7 +89,7 @@ Describe 'New-PlatyPsCab' {
         $GUID = "00000000-0000-0000-0000-000000000000"
         $Locale = "en-US"
         
-        New-PlatyPsCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
+        New-ExternalHelpCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
         expand "$Destination\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
         
         (Get-ChildItem -Filter "*.cab" -Path "$Destination").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
@@ -115,7 +115,7 @@ Describe 'Format-PlatyPsHelpXml' {
 
 #endregion
 
-Describe 'Get-PlatyPSYamlMetadata' {
+Describe 'Get-MarkdownMetadata' {
     Context 'Simple markdown file' {
         Set-Content -Path TestDrive:\foo.md -Value @'
 
@@ -129,7 +129,7 @@ foo: bar
 this text would be ignored
 '@        
         It 'can parse out yaml snippet' {
-            $d = Get-PlatyPSYamlMetadata -Path TestDrive:\foo.md
+            $d = Get-MarkdownMetadata -Path TestDrive:\foo.md
             $d.Count | Should Be 3
             $d['a'] = '1'
             $d['b'] = '2'

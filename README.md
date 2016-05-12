@@ -34,7 +34,7 @@ Install-Module -Name platyPS -Scope CurrentUser
 * Create an initial Markdown template from command and copy it to clipboard:
 
 ```powershell
-Get-platyPSMarkdown -Command Get-MyCommandName | Set-Clipboard
+New-Markdown -Command Get-MyCommandName | Set-Clipboard
 ```
 
 Copy it to some `MyModule.md` file on disk.
@@ -42,7 +42,7 @@ Copy it to some `MyModule.md` file on disk.
 * Create external help from markdown
 
 ```powershell
-$maml = Get-platyPSExternalHelp -Markdown (cat -Raw .\MyModule.md)
+$maml = New-ExternalHelp -Markdown (cat -Raw .\MyModule.md)
 Set-Content -Path en-US\MyModule.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 

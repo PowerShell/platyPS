@@ -2,14 +2,14 @@
 schema: 2.0.0
 ---
 
-# Get-PlatyPSTextHelpFromMaml
+# Show-HelpPreview
 ## SYNOPSIS
 {{Fill the Synopsis}}
 
 ## SYNTAX
 
 ```
-Get-PlatyPSTextHelpFromMaml -MamlFilePath <String> -TextOutputPath <String> [<CommonParameters>]
+Show-HelpPreview -MamlFilePath <String> -TextOutputPath <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
