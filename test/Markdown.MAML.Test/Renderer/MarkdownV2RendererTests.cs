@@ -85,8 +85,14 @@ namespace Markdown.MAML.Test.Renderer
                 LinkName = "PowerShell made by Microsoft Hackathon",
                 LinkUri = "www.microsoft.com"
 
-            }
-            );
+            });
+
+            command.Links.Add(new MamlLink()
+            {
+                LinkName = "", // if name is empty, it would be populated with uri
+                LinkUri = "http://foo.com"
+
+            });
 
             var metadata = new Hashtable();
             metadata["foo"] = "bar";
@@ -149,6 +155,8 @@ Output Description goes here!
 ## RELATED LINKS
 
 [PowerShell made by Microsoft Hackathon](www.microsoft.com)
+
+[http://foo.com](http://foo.com)
 
 ", markdown);
         }
