@@ -13,6 +13,7 @@ namespace Markdown.MAML.Model.Markdown
         {
             // this is reverse for this PS code:
             // ((($text -replace '\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1')
+            // and code from MarkdownV2Renderer.GetEscapedMarkdownText()
             spanText = spanText
                 .Replace("\r\n([^\r])", "$1")
 

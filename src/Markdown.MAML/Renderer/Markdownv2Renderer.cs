@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Markdown.MAML.Renderer
@@ -26,38 +27,33 @@ namespace Markdown.MAML.Renderer
             this.MaxSyntaxWidth = maxSyntaxWidth;
         }
 
-        /// <summary>
-        /// this helper API is handful for calling from PowerShell
-        /// </summary>
-        /// <param name="mamlCommands"></param>
-        /// <returns></returns>
-        public string MamlModelToString(MamlCommand mamlCommand)
+        public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
         {
-            return MamlModelToString(new[] { mamlCommand }, null);
+            return MamlModelToString(mamlCommand, null, skipYamlHeader);
         }
 
-        /// <summary>
-        /// Convert MamlCommands into markdown. Use yamlHeader for yaml header metadata.
-        /// </summary>
-        /// <param name="mamlCommands"></param>
-        /// <param name="yamlHeader">can be null</param>
-        /// <returns></returns>
-        public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands, Hashtable yamlHeader)
+        public string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader)
+        {
+            return MamlModelToString(mamlCommand, yamlHeader, false);
+        }
+
+        private string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader, bool skipYamlHeader)
         {
             // clear, so we can re-use this instance
             _stringBuilder.Clear();
-            if (yamlHeader == null)
+            if (!skipYamlHeader)
             {
-                yamlHeader = new Hashtable();
+                if (yamlHeader == null)
+                {
+                    yamlHeader = new Hashtable();
+                }
+
+                // put version there
+                yamlHeader["schema"] = "2.0.0";
+                AddYamlHeader(yamlHeader);
             }
 
-            // put version there
-            yamlHeader["schema"] = "2.0.0";
-            AddYamlHeader(yamlHeader);
-            foreach (var command in mamlCommands)
-            {
-                AddCommand(command);
-            }
+            AddCommand(mamlCommand);
 
             return _stringBuilder.ToString();
         }
@@ -70,7 +66,7 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), pair.Value.ToString() , Environment.NewLine);
             }
 
-            _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
+            _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
         }
 
         private void AddCommand(MamlCommand command)
@@ -315,9 +311,57 @@ namespace Markdown.MAML.Renderer
 
                 foreach (string para in paragraphs)
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{1}", para.Trim(), Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}{1}{1}", GetEscapedMarkdownText(para.Trim()), Environment.NewLine);
                 }
             }
+        }
+
+        private static string BackSlashMatchEvaluater(Match match)
+        {
+            // '\<' -> '\\<'
+            // '\\<' -> '\\<' - noop
+            // '\\\<' -> '\\\\<'
+
+            var g1 = match.Groups[1].Value;
+            var g2 = match.Groups[2].Value[0];
+
+            if (g1.Length % 2 == 0 && "<>()[]".Contains(g2))
+            {
+                return @"\" + match.Value;
+            }
+
+            return match.Value;
+        }
+
+        // public just to make testing easier
+        public static string GetEscapedMarkdownText(string text)
+        {
+            // this is kind of a crazy replacement to handle escaping properly.
+            // we need to do the reverse operation in our markdown parser.
+
+            // PS code: (((($text - replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1')
+
+            // examples: 
+            // '\<' -> '\\\<'
+            // '\' -> '\'
+            // '\\' -> '\\\\'
+            // '<' -> '\<'
+
+            text = text
+                .Replace(@"\\", @"\\\\");
+
+            text = Regex.Replace(text, @"(\\*)\\(.)", new MatchEvaluator(BackSlashMatchEvaluater));
+
+            return text
+                .Replace(@"<", @"\<")
+                .Replace(@">", @"\>")
+
+                .Replace(@"[", @"\[")
+                .Replace(@"]", @"\]")
+                .Replace(@"(", @"\(")
+                .Replace(@")", @"\)")
+                
+                ;
         }
     }
 }

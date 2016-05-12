@@ -13,6 +13,21 @@ namespace Markdown.MAML.Test.Renderer
     public class MarkdownV2RendererTests
     {
         [Fact]
+        public void RendererUsesCorrectEscaping()
+        {
+            Assert.Equal(@"\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\<"));
+            Assert.Equal(@"\\\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\<"));
+            Assert.Equal(@"\\\\\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\\<"));
+            Assert.Equal(@"\", MarkdownV2Renderer.GetEscapedMarkdownText(@"\"));
+            Assert.Equal(@"\\\\", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\"));
+            Assert.Equal(@"\\\(", MarkdownV2Renderer.GetEscapedMarkdownText(@"\("));
+            Assert.Equal(@"\(", MarkdownV2Renderer.GetEscapedMarkdownText(@"("));
+            Assert.Equal(@"\)", MarkdownV2Renderer.GetEscapedMarkdownText(@")"));
+            Assert.Equal(@"\[", MarkdownV2Renderer.GetEscapedMarkdownText(@"["));
+            Assert.Equal(@"\]", MarkdownV2Renderer.GetEscapedMarkdownText(@"]"));
+        }
+
+        [Fact]
         public void RendererProduceMarkdownV2Output()
         {
             var renderer = new MarkdownV2Renderer();
@@ -48,7 +63,7 @@ namespace Markdown.MAML.Test.Renderer
             command.Inputs.Add(new MamlInputOutput()
             {
                 TypeName = "String",
-                Description = "Input Description goes here!"
+                Description = "Input <Description> goes here!"
 
             }
             );
@@ -75,11 +90,12 @@ namespace Markdown.MAML.Test.Renderer
 
             var metadata = new Hashtable();
             metadata["foo"] = "bar";
-            string markdown = renderer.MamlModelToString(new[] { command }, metadata);
+            string markdown = renderer.MamlModelToString(command, metadata);
             Assert.Equal(@"---
 schema: 2.0.0
 foo: bar
 ---
+
 # Get-Foo
 ## SYNOPSIS
 This is the synopsis
@@ -125,7 +141,7 @@ Accept wildcard characters: True
 ## INPUTS
 
 ### String
-Input Description goes here!
+Input \<Description\> goes here!
 
 ## OUTPUTS
 
