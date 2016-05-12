@@ -98,65 +98,92 @@ function Get-PlatyPSExternalHelp
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FromFolder')]
         [string]$MarkdownFolder,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FromFile',
+            ValueFromPipeline=$true)]
+        [System.IO.FileInfo[]]$MarkdownFilePath,
 
         [switch]$skipPreambula
     )
 
-    $markdown = ls -File $MarkdownFolder -Filter "*.md" | % {
-        cat -Raw $_.FullName
-    }
-
-    # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
-    $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
-    if ($metadata)
+    begin
     {
-        $schema = $metadata['schema']
-        if (-not $schema) 
+        if ($PSCmdlet.ParameterSetName -eq 'FromFile')
         {
-            # there is metadata, but schema version is not specified.
-            # assume 2.0.0
-            $schema = '2.0.0'
+            $MarkdownFilePaths = @()
         }
     }
-    else 
+
+    process
     {
-        # if there is not metadata, then it's schema version 1.0.0
-        $schema = '1.0.0'    
+        $MarkdownFilePaths += $MarkdownFilePath
     }
 
-    $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
-    $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
-        param([int]$current, [int]$all) 
-        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    }
-
-    if ($schema -eq '1.0.0')
-    {
-        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
+    end 
+    { 
+        if ($MarkdownFolder)
+        {
+            $MarkdownFilePaths = Get-ChildItem -File $MarkdownFolder -Filter "*.md"
         }
-    }
-    elseif ($schema -eq '2.0.0')
-    {
-        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
+
+        $markdown = $MarkdownFilePaths | % {
+            cat -Raw $_.FullName
         }
-    }
-    else 
-    {
-        throw "Unknown schema version: $schema"
-    }
 
-    $model = $p.ParseString($markdown)
-    Write-Progress -Activity "Parsing markdown" -Completed    
-    $maml = $t.NodeModelToMamlModel($model)
-    $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
+        # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
+        $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
+        if ($metadata)
+        {
+            $schema = $metadata['schema']
+            if (-not $schema) 
+            {
+                # there is metadata, but schema version is not specified.
+                # assume 2.0.0
+                $schema = '2.0.0'
+            }
+        }
+        else 
+        {
+            # if there is not metadata, then it's schema version 1.0.0
+            $schema = '1.0.0'    
+        }
 
-    return $xml
+        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+        $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+            param([int]$current, [int]$all) 
+            Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
+        }
+
+        if ($schema -eq '1.0.0')
+        {
+            $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
+                param([string]$message)
+                Write-Verbose $message
+            }
+        }
+        elseif ($schema -eq '2.0.0')
+        {
+            $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+                param([string]$message)
+                Write-Verbose $message
+            }
+        }
+        else 
+        {
+            throw "Unknown schema version: $schema"
+        }
+
+        $model = $p.ParseString($markdown)
+        Write-Progress -Activity "Parsing markdown" -Completed    
+        $maml = $t.NodeModelToMamlModel($model)
+        $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
+
+        return $xml
+    }
 }
 
 function Get-PlatyPSTextHelpFromMaml

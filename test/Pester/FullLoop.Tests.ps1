@@ -13,19 +13,17 @@ function normalize([string]$text)
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    $OutputFolder = "TestDrive:\Add-Member"
     $outMamlFilePath = "$outFolder\Add-Member.dll-help.xml"
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
     It 'creates markdown from Add-Member command' {
         # run convertion
-        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
-        # publish artifact for CI
-        ls $OutputFolder | % { cp $_.FullName $outFolder\Add-Member-2.md }
+        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
     }
 
-    $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
+    # test -MarkdownFilePath piping
+    $generatedMaml = ls $outFolder\Add-Member.md | Get-PlatyPSExternalHelp -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {
