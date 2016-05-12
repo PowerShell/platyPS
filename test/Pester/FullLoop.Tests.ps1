@@ -19,7 +19,9 @@ Describe 'Full loop for Add-Member cmdlet' {
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
     # run convertion
-    $markdown = Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
+    Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
+    # publish artifact for CI
+    ls $OutputFolder | % { cp $_.FullName $outFolder }
 
     $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
     $generatedMaml | Out-File $outMamlFilePath

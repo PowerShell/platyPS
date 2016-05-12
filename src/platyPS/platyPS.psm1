@@ -104,7 +104,7 @@ function Get-PlatyPSExternalHelp
         [switch]$skipPreambula
     )
 
-    $markdown = ls $MarkdownFolder -File -Filter "*.md" | % {
+    $markdown = ls -File $MarkdownFolder -Filter "*.md" | % {
         cat -Raw $_.FullName
     }
 
