@@ -18,11 +18,13 @@ Describe 'Full loop for Add-Member cmdlet' {
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
-    # run convertion
-    Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
-    # publish artifact for CI
-    ls $OutputFolder | % { cp $_.FullName $outFolder }
-
+    It 'creates markdown from Add-Member command' {
+        # run convertion
+        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
+        # publish artifact for CI
+        ls $OutputFolder | % { cp $_.FullName $outFolder }
+    }
+    
     $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 

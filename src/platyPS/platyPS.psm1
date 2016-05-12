@@ -626,8 +626,11 @@ param(
     function GetSyntaxForParameterSet($ParameterSet)
     {
         $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_) }
+        # Compare-Object doesn't like $nulls :(
+        if (-not $commandNames) { $commandNames = '__NULL' } 
         $help.syntax.syntaxItem | % {
             $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_) }
+            if (-not $helpNames) { $helpNames = '__NULL' } 
             if (Compare-Object $helpNames $commandNames) {
                 # skip
             }

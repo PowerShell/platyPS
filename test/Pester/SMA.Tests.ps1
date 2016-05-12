@@ -3,14 +3,20 @@ $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
+$smaOutputFolder = "$outFolder\SMA"
 
 Import-Module $outFolder\platyPS -Force
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    $markdown = cat -Raw $PSScriptRoot\SMA.Help.md
-    It 'transform without errors' -Skip:(-not $env:APPVEYOR) {
-        $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
+    $module = 'Microsoft.PowerShell.Core'
+
+    It "creates Markdown for $module" {
+        Get-PlatyPSMarkdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
+    }
+
+    It 'transforms Markdown to MAML with no errors' {
+        $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $smaOutputFolder -Verbose
         $generatedMaml > $outFolder\SMA.dll-help.xml
         $generatedMaml | Should Not Be $null
 
