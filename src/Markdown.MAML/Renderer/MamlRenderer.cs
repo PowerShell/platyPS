@@ -62,24 +62,6 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        /// <summary>
-        /// This is a helper method to do all 3 steps.
-        /// </summary>
-        /// <param name="markdown"></param>
-        /// <returns></returns>
-        public static string MarkdownStringToMamlString(string markdown)
-        {
-            var parser = new MarkdownParser();
-            var transformer = new ModelTransformerVersion1();
-            var renderer = new MamlRenderer();
-
-            var markdownModel = parser.ParseString(markdown);
-            var mamlModel = transformer.NodeModelToMamlModel(markdownModel);
-            string maml = renderer.MamlModelToString(mamlModel);
-
-            return maml;
-        }
-
         public string MamlModelToString(IEnumerable<MamlCommand> mamlCommands)
         {
             return MamlModelToString(mamlCommands, false);

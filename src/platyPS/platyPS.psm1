@@ -40,61 +40,34 @@ function Get-PlatyPSMarkdown
             ParameterSetName="FromCommand")]
         [object]$command,
 
-        [switch]$OneFilePerCommand,
+        [Parameter(Mandatory=$true)]
+        [string]$OutputFolder,
 
-        [string]$OutputFolder
+        [string]$Encoding = 'ASCII'
     )
 
     begin
     {
-        if ($OneFilePerCommand)
-        {
-            if (-not $OutputFolder)
-            {
-                throw 'Specify -OutputFolder parameter, when you use -OneFilePerCommand'
-            }
-            else 
-            {
-                mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
-            }
-        }
-        else 
-        {
-            if ($OutputFolder)
-            {
-                Write-Warning "-OutputFolder $OutputFolder ignored. Use -OneFilePerCommand with it"
-            }
-        }
+        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
     }
 
     process
     {
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            $md = Get-PlatyPSMamlObject -Cmdlet $command | Convert-MamlModelToMarkdown
-            if ($OneFilePerCommand)
-            {
-                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
+            $md = Get-PlatyPSMamlObject -Cmdlet $command | % { 
+                Convert-MamlModelToMarkdown -mamlCommand $_
             }
-            else 
-            {
-                $md    
-            }
+
+            Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
         }
         else # "FromModule"
         {
             Get-PlatyPSMamlObject -Module $module | % { 
                 $command = $_.Name
-                $md = Convert-MamlModelToMarkdown $_
-                if ($OneFilePerCommand)
-                {
-                    Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
-                }
-                else 
-                {
-                    $md    
-                }
-            } | Out-String
+                $md = Convert-MamlModelToMarkdown -mamlCommand $_
+                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
+            }
         }
     }
 }
@@ -125,23 +98,14 @@ function Get-PlatyPSExternalHelp
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [Parameter(Mandatory=$true,
-            ParameterSetName="Strings")]
-        [string[]]$markdown,
-
-        [Parameter(Mandatory=$true,
-            ParameterSetName="MarkdownFolder")]
+        [Parameter(Mandatory=$true)]
         [string]$MarkdownFolder,
 
         [switch]$skipPreambula
     )
 
-    # normalize input
-    if ($MarkdownFolder)
-    {
-        $markdown = ls $MarkdownFolder -File -Filter "*.md" | % {
-            cat -Raw $_.FullName
-        }
+    $markdown = ls -File $MarkdownFolder -Filter "*.md" | % {
+        cat -Raw $_.FullName
     }
 
     # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
@@ -562,24 +526,40 @@ function Out-MarkdownToFile
 {
     param(
         [string]$Path,
-        [string]$value
+        [string]$value,
+        [string]$Encoding
     )
 
     Write-Host "Writing to $Path"
-    Set-Content -Path $Path -Value $md -Encoding UTF8
+    Set-Content -Path $Path -Value $md -Encoding $Encoding
 }
 
 function Convert-MamlModelToMarkdown
 {
     param(
-        [Parameter(ValueFromPipeline=$true, Mandatory=$true)]
-        [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand
+        [Parameter(Mandatory=$true)]
+        [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
+        
+        [Parameter(Mandatory=$false)]
+        [hashtable]$metadata
     )
+
+    begin
+    {
+        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer
+        $count = 0
+    }
 
     process
     {
-        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer
-        return $r.MamlModelToString($mamlCommand)
+        if (($count++) -eq 0)
+        {
+            return $r.MamlModelToString($mamlCommand, $metadata)
+        }
+        else
+        {
+            return $r.MamlModelToString($mamlCommand, $true) # skip version header
+        }
     }
 }
 
@@ -646,8 +626,11 @@ param(
     function GetSyntaxForParameterSet($ParameterSet)
     {
         $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_) }
+        # Compare-Object doesn't like $nulls :(
+        if (-not $commandNames) { $commandNames = '__NULL' } 
         $help.syntax.syntaxItem | % {
             $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_) }
+            if (-not $helpNames) { $helpNames = '__NULL' } 
             if (Compare-Object $helpNames $commandNames) {
                 # skip
             }
@@ -680,11 +663,11 @@ $MamlCommandObject.Name = $Command.Name
 #region Data not provided by the command object
 #Get Synopsis
 #Not provided by the command object.
-$MamlCommandObject.Synopsis = "Not provided by the Get-Command object return."
+$MamlCommandObject.Synopsis = "{{Fill the Synopsis}}"
 
 #Get Description
 #Not provided by the command object.
-$MamlCommandObject.Description = "Not provided by the Get-Command Object return."
+$MamlCommandObject.Description = "{{Fill the Description}}"
 
 #Get Notes
 #Not provided by the command object. Using the Command Type to create a note declaring it's type.
@@ -776,8 +759,8 @@ foreach($ParameterSet in $Command.ParameterSets)
         $ParameterObject.Type = $Parameter.ParameterType.Name
         $ParameterObject.Name = $Parameter.Name
         $ParameterObject.Required = $Parameter.IsMandatory
-        $ParameterObject.Description = "Not provided by the Get-Command return data."
-        $ParameterObject.DefaultValue = "Not provided by the Get-Command return data." 
+        $ParameterObject.Description = "{{Fill $($Parameter.Name) Description}}"
+        #$ParameterObject.DefaultValue
         $ParameterObject.PipelineInput = GetPipelineValue $Parameter
         
         foreach($Alias in $Parameter.Aliases)

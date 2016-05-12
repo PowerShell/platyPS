@@ -13,25 +13,19 @@ function normalize([string]$text)
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    $outMdFilePath = "$outFolder\Add-Member.md"
+    $OutputFolder = "TestDrive:\Add-Member"
     $outMamlFilePath = "$outFolder\Add-Member.dll-help.xml"
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
-    # run convertion
-    $markdown = Get-PlatyPSMarkdown -command Add-Member
+    It 'creates markdown from Add-Member command' {
+        # run convertion
+        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
+        # publish artifact for CI
+        ls $OutputFolder | % { cp $_.FullName $outFolder\Add-Member-2.md }
+    }
 
-    # Write the markdown to a file
-    $markdown | Out-File $outMdFilePath -Force -Encoding utf8
-    
-    # TODO: there are some weired problems with line endings in Parser.
-    # For now we just re-read file from disk to normalize them.
-    #
-    # $markdown = cat $outMdFilePath
-    # Set-Content -Path $outMdFilePath -Value ($markdown | Out-String)
-    # $markdown = cat $outMdFilePath -Raw
-
-    $generatedMaml = Get-PlatyPSExternalHelp -markdown $markdown -Verbose
+    $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
     $generatedMaml | Out-File $outMamlFilePath
 
     It 'generate maml as a valid xml' {
@@ -137,5 +131,28 @@ Describe 'Full loop for Add-Member cmdlet' {
         {
             Remove-Item $moduleDirectory -Force -Recurse
         }
+    }
+}
+
+$smaOutputFolder = "TestDrive:\SMA"
+
+Describe 'Microsoft.PowerShell.Core (SMA) help' {
+
+    $module = 'Microsoft.PowerShell.Core'
+
+    It "creates Markdown for $module" {
+        Get-PlatyPSMarkdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
+        # artifacts publishing
+        ls $smaOutputFolder | % { cp $_.FullName $outFolder }
+    }
+
+    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR){
+        $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $smaOutputFolder -Verbose
+        $generatedMaml > $outFolder\SMA.dll-help.xml
+        $generatedMaml | Should Not Be $null
+
+        # add artifacts to out
+        Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
+        Get-PlatyPSTextHelpFromMaml $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
     }
 }

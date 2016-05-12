@@ -38,11 +38,6 @@ namespace Markdown.MAML.Parser
             _progressCallback = progressCallback;
         }
 
-        public DocumentNode ParseString(string markdownString)
-        {
-            return ParseString(new string[] { markdownString });
-        }
-
         public DocumentNode ParseString(string[] markdownStrings)
         {
             this.InitializePatternList();
@@ -463,7 +458,8 @@ namespace Markdown.MAML.Parser
             int offset = GetYamlMetadataBlockEndOffset(documentString);
             if (offset >= 0)
             {
-                return documentString.Substring(offset).TrimStart();
+                const int OFFSET = 5;
+                return documentString.Substring(offset + OFFSET).TrimStart();
             }
 
             return documentString;

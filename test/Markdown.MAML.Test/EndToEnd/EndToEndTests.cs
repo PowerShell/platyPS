@@ -3,6 +3,8 @@ using System.Xml;
 using System.Xml.XPath;
 using Markdown.MAML.Renderer;
 using Xunit;
+using Markdown.MAML.Parser;
+using Markdown.MAML.Transformer;
 
 namespace Markdown.MAML.Test.EndToEnd
 {
@@ -11,7 +13,7 @@ namespace Markdown.MAML.Test.EndToEnd
         [Fact]
         public void ProduceNameAndSynopsis()
         {
-            string maml = MamlRenderer.MarkdownStringToMamlString(@"
+            string maml = MarkdownStringToMamlString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis
@@ -28,7 +30,7 @@ This is Synopsis
         [Fact]
         public void ProduceMultilineDescription()
         {
-            string maml = MamlRenderer.MarkdownStringToMamlString(@"
+            string maml = MarkdownStringToMamlString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis, but it doesn't matter in this test
@@ -48,7 +50,7 @@ And this is my last line.
         [Fact]
         public void CanUseSharpInsideParagraphs()
         {
-            string maml = MamlRenderer.MarkdownStringToMamlString(@"
+            string maml = MarkdownStringToMamlString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis #hashtagNotAHeader.
@@ -69,7 +71,7 @@ I'm description
         [Fact]
         public void CanProcessAddHistoryAddSnapinMarkdownWithoutErrors()
         {
-            string maml = MamlRenderer.MarkdownStringToMamlString(@"
+            string maml = MarkdownStringToMamlString(@"
 # Add-History
 
 ## SYNOPSIS
@@ -339,6 +341,24 @@ This example demonstrates the process of registering a snap-in on your system an
             }
 
             return result.ToArray();
+        }
+
+        /// <summary>
+        /// This is a helper method to do all 3 steps.
+        /// </summary>
+        /// <param name="markdown"></param>
+        /// <returns></returns>
+        public static string MarkdownStringToMamlString(string markdown)
+        {
+            var parser = new MarkdownParser();
+            var transformer = new ModelTransformerVersion1();
+            var renderer = new MamlRenderer();
+
+            var markdownModel = parser.ParseString(new string[] { markdown });
+            var mamlModel = transformer.NodeModelToMamlModel(markdownModel);
+            string maml = renderer.MamlModelToString(mamlModel);
+
+            return maml;
         }
     }
 }
