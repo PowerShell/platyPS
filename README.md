@@ -46,7 +46,7 @@ $maml = Get-platyPSExternalHelp -Markdown (cat -Raw .\MyModule.md)
 Set-Content -Path en-US\MyModule.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 
-## [Usage](src/platyPS/platyPS.md)
+## [Usage](src/platyPS/docs)
 
 Supported scenarios:
 
