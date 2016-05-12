@@ -41,7 +41,9 @@ function Get-PlatyPSMarkdown
         [object]$command,
 
         [Parameter(Mandatory=$true)]
-        [string]$OutputFolder
+        [string]$OutputFolder,
+
+        [string]$Encoding = 'ASCII'
     )
 
     begin
@@ -57,14 +59,14 @@ function Get-PlatyPSMarkdown
                 Convert-MamlModelToMarkdown -mamlCommand $_
             }
 
-            Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
+            Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
         }
         else # "FromModule"
         {
             Get-PlatyPSMamlObject -Module $module | % { 
                 $command = $_.Name
                 $md = Convert-MamlModelToMarkdown -mamlCommand $_
-                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md
+                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
             }
         }
     }
@@ -98,7 +100,7 @@ function Get-PlatyPSExternalHelp
     param(
         [Parameter(Mandatory=$true)]
         [string]$MarkdownFolder,
-        
+
         [switch]$skipPreambula
     )
 
@@ -524,11 +526,12 @@ function Out-MarkdownToFile
 {
     param(
         [string]$Path,
-        [string]$value
+        [string]$value,
+        [string]$Encoding
     )
 
     Write-Host "Writing to $Path"
-    Set-Content -Path $Path -Value $md -Encoding UTF8
+    Set-Content -Path $Path -Value $md -Encoding $Encoding
 }
 
 function Convert-MamlModelToMarkdown
