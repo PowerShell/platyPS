@@ -19,7 +19,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
     # run convertion
-    $markdown = Get-PlatyPSMarkdown -command Add-Member -OutputFolder $OutputFolder
+    $markdown = Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
 
     $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
     $generatedMaml | Out-File $outMamlFilePath
