@@ -274,10 +274,10 @@ function New-ExternalHelp
             }
         }
 
-        $groups |  % {
-            $maml = Get-MamlModelImpl ( $_.Group | cat -Raw )
+        foreach ($group in $groups) {
+            $maml = Get-MamlModelImpl ( $group.Group | % { cat -Raw $_.FullName } )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
-            $outPath = $_.Name
+            $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             Set-Content -Path $outPath -Value $xml -Encoding $Encoding
             ls $outPath
@@ -289,14 +289,21 @@ function New-ExternalHelp
 function Show-HelpPreview
 {
     [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]])]
+    [OutputType([System.IO.FileInfo[]], [MamlCommandHelpInfo])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            Position=1)]
         [string[]]$MamlFilePath,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FileOutput')]
         [string]$TextOutputPath,
 
+        [Parameter(Mandatory=$true,
+            ParameterSetName='AsObject')]
+        [switch]$AsObject,
+        
+        [Parameter(ParameterSetName='FileOutput')]
         [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
@@ -316,9 +323,17 @@ function Show-HelpPreview
                 {
                     Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
                 }
-            } | Microsoft.PowerShell.Utility\Out-String
-            Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
-            Get-ChildItem $TextOutputPath
+            }
+
+            if ($AsObject)
+            {
+                $allHelp
+            }
+            else {
+                $allHelp = $allHelp | Microsoft.PowerShell.Utility\Out-String
+                Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
+                Get-ChildItem $TextOutputPath    
+            }
         }
         finally
         {

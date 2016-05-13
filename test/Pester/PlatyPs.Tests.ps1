@@ -156,17 +156,18 @@ Describe 'Update-Markdown reflection scenario' {
 
     $v1md = New-Markdown -command Get-MyCoolStuff -OutputFolder $OutputFolder
 
-    It 'produce original stub' {
+    It 'produces original stub' {
         $v1md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
     $v1markdown = $v1md | cat -Raw
 
+    $newFooDescription = 'ThisIsFooDescription'
+
     It 'can update stub' {
-        # TODO update stub
-        Write-Warning '----------'
-        Write-Warning $v1markdown
-        Write-Warning '----------'
+        $v15markdown = $v1markdown -replace '{{Fill Foo Description}}', $newFooDescription
+        $v15markdown | Should BeLike "*$newFooDescription*"
+        Set-Content -Encoding UTF8 -Path $v1md -Value $v15markdown
     }
 
     # change definition of the function with additional parameter
@@ -180,11 +181,22 @@ Describe 'Update-Markdown reflection scenario' {
 
     $v2md = Update-Markdown -MarkdownFile $v1md -UseReflection
 
-    It 'upgrade stub' {
+    It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
     $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
-    $v2file = Show-HelpPreview -MamlFilePath $v2maml -TextOutputPath "$outFolder\CoolStuff.v2.txt"
-    $v2txt = $v2file | cat -Raw
+    $help = Show-HelpPreview -MamlFilePath $v2maml -AsObject
+    
+    It 'has both parameters' {
+        $names = $help.Parameters.parameter.Name
+        ($names | measure).Count | Should Be 2
+        $name[0] | Should Be 'Bar'
+        $name[1] | Should Be 'Foo'
+    }
+
+    It 'has updated description for Foo' {
+        $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
+        $fooParam.Description.Text | Should Be $newFooDescription
+    }
 }
