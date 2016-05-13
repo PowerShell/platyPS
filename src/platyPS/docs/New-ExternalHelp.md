@@ -35,8 +35,6 @@ mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 
-
-
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```
 $markdown = New-Markdown New-Markdown | Out-String
@@ -111,11 +109,12 @@ Accept wildcard characters: False
 ## INPUTS
 
 ### FileInfo[]
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-## NOTES
 
+## NOTES
 
 ## RELATED LINKS
 

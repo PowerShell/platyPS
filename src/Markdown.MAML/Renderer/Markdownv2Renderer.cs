@@ -55,7 +55,13 @@ namespace Markdown.MAML.Renderer
 
             AddCommand(mamlCommand);
 
-            return _stringBuilder.ToString();
+            // at the end, just normalize all ends
+            return NormalizeLineEnds(_stringBuilder.ToString());
+        }
+
+        private string NormalizeLineEnds(string text)
+        {
+            return Regex.Replace(text, "\r\n?|\n", "\r\n");
         }
 
         private void AddYamlHeader(Hashtable yamlHeader)
@@ -108,7 +114,7 @@ namespace Markdown.MAML.Renderer
                 return;
             }
 
-            var extraNewLine = io.Description == null;
+            var extraNewLine = string.IsNullOrEmpty(io.Description);
             AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }
@@ -224,7 +230,7 @@ namespace Markdown.MAML.Renderer
             foreach (var example in command.Examples)
             {
                 AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: false);
-                if (example.Introduction != null)
+                if (!string.IsNullOrEmpty(example.Introduction))
                 {
                     AddParagraphs(example.Introduction);
                 }
@@ -234,7 +240,7 @@ namespace Markdown.MAML.Renderer
                     AddCodeSnippet(example.Code);
                 }
 
-                if (example.Remarks != null)
+                if (!string.IsNullOrEmpty(example.Remarks))
                 {
                     AddParagraphs(example.Remarks);
                 }
@@ -306,7 +312,7 @@ namespace Markdown.MAML.Renderer
         private void AddEntryHeaderWithText(string header, string text)
         {
             // we want indentation, if there is no text inside
-            var extraNewLine = text == null;
+            var extraNewLine = string.IsNullOrWhiteSpace(text);
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine);
             AddParagraphs(text);
         }
@@ -332,7 +338,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParagraphs(string body)
         {
-            if (body != null || string.IsNullOrEmpty(body.Trim()))
+            if (!string.IsNullOrWhiteSpace(body))
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 

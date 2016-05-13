@@ -5,6 +5,7 @@ schema: 2.0.0
 
 # Update-Markdown
 ## SYNOPSIS
+
 ## SYNTAX
 
 ### SchemaUpgrade
@@ -81,8 +82,8 @@ Accept wildcard characters: False
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-## NOTES
 
+## NOTES
 
 ## RELATED LINKS
 
