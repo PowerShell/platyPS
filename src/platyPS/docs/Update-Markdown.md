@@ -19,7 +19,13 @@ Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [
 ```
 
 ## DESCRIPTION
-{{Fill the Description}}
+Update platyPS markdown help files in place.
+
+Two supported scenarios:
+
+- update schema version 
+
+- update markdown with information from the 'live' command
 
 ## EXAMPLES
 
@@ -59,7 +65,7 @@ Aliases:
 
 Required: False
 Position: named
-Default value: $script:DEFAULT_ENCODING
+Default value: UTF8 with no BOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
