@@ -21,6 +21,7 @@ namespace Markdown.MAML.Model.Markdown
                 .Replace(@"\]", @"]")
                 .Replace(@"\(", @"(")
                 .Replace(@"\)", @")")
+                .Replace(@"\`", @"`")
 
                 .Replace(@"\<", "<")
                 .Replace(@"\>", ">")

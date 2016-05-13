@@ -127,9 +127,9 @@ Describe 'Update-Markdown upgrade schema scenario' {
     $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
     $OutputFolder = 'TestDrive:\PSReadline'
 
-    $v1maml = New-ExternalHelp -MarkdownFile $v1md -OutputPath "$OutputFolder\PSReadline.v1.dll-help.xml"
+    $v1maml = New-ExternalHelp -MarkdownFile $v1md -OutputPath "$OutputFolder\v1"
     $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder
-    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\PSReadline.v2.dll-help.xml"
+    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
 
     It 'help preview is the same before and after upgrade' {
         $v1file = Show-HelpPreview -MamlFilePath $v1maml -TextOutputPath "$outFolder\PSReadline.v1.txt"
@@ -140,4 +140,51 @@ Describe 'Update-Markdown upgrade schema scenario' {
 
         $v2txt | Should Be $v1txt
     }
+}
+
+Describe 'Update-Markdown reflection scenario' {
+    
+    $OutputFolder = 'TestDrive:\CoolStuff'
+
+    # bootstraping docs from some code
+    function global:Get-MyCoolStuff
+    {
+        param(
+            [string]$Foo
+        )
+    }
+
+    $v1md = New-Markdown -command Get-MyCoolStuff -OutputFolder $OutputFolder
+
+    It 'produce original stub' {
+        $v1md.Name | Should Be 'Get-MyCoolStuff.md'
+    }
+
+    $v1markdown = $v1md | cat -Raw
+
+    It 'can update stub' {
+        # TODO update stub
+        Write-Warning '----------'
+        Write-Warning $v1markdown
+        Write-Warning '----------'
+    }
+
+    # change definition of the function with additional parameter
+    function global:Get-MyCoolStuff
+    {
+        param(
+            [string]$Foo,
+            [string]$Bar
+        )
+    }
+
+    $v2md = Update-Markdown -MarkdownFile $v1md -UseReflection
+
+    It 'upgrade stub' {
+        $v2md.Name | Should Be 'Get-MyCoolStuff.md'
+    }
+
+    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
+    $v2file = Show-HelpPreview -MamlFilePath $v2maml -TextOutputPath "$outFolder\CoolStuff.v2.txt"
+    $v2txt = $v2file | cat -Raw
 }

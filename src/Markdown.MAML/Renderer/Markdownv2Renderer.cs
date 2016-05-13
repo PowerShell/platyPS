@@ -63,7 +63,8 @@ namespace Markdown.MAML.Renderer
             _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
             foreach (DictionaryEntry pair in yamlHeader)
             {
-                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), pair.Value.ToString() , Environment.NewLine);
+                var value = pair.Value == null ? "" : pair.Value.ToString();
+                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), value, Environment.NewLine);
             }
 
             _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
@@ -342,7 +343,7 @@ namespace Markdown.MAML.Renderer
             var g1 = match.Groups[1].Value;
             var g2 = match.Groups[2].Value[0];
 
-            if (g1.Length % 2 == 0 && "<>()[]".Contains(g2))
+            if (g1.Length % 2 == 0 && "<>()[]`".Contains(g2))
             {
                 return @"\" + match.Value;
             }
@@ -377,7 +378,8 @@ namespace Markdown.MAML.Renderer
                 .Replace(@"]", @"\]")
                 .Replace(@"(", @"\(")
                 .Replace(@")", @"\)")
-                
+                .Replace(@"`", @"\`")
+
                 ;
         }
     }

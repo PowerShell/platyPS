@@ -147,6 +147,41 @@ function Update-Markdown
 
     end 
     {
+        function Update-MarkdownFileWithReflection
+        {
+            param(
+                [System.IO.FileInfo]$file
+            )
+
+            $filePath = $file.FullName
+            $oldMarkdown = cat -Raw $filePath
+            $oldModels = Get-MamlModelImpl $oldMarkdown
+
+            if ($oldModels.Count -gt 1)
+            {
+                Write-Warning "[Update-Markdown] $filePath contains more then 1 command, skipping upgrade."
+                Write-Warning "[Update-Markdown] Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first."
+                return
+            }
+
+            $oldModel = $oldModels[0]
+
+            $name = $oldModel.Name
+            $command = Get-Command $name
+            if (-not $command)
+            {
+                Write-Warning "[Update-Markdown] command $name not found in the session, skipping upgrade for $filePath"
+                return
+            }
+
+            # just preserve old metadata
+            $metadata = Get-MarkdownMetadata -FileInfo $file
+            # TODO ....
+            $md = Convert-MamlModelToMarkdown -mamlCommand $oldModel -metadata $metadata
+
+            return $file
+        }
+
         if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
         {
             $markdown = $MarkdownFiles | % {
@@ -158,7 +193,9 @@ function Update-Markdown
 
             $model | % {
                 $name = $_.Name
-                $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
+                # TODO: can we pass some metadata here?
+                # skipYamlHeader -eq $false
+                $md = $r.MamlModelToString($_, $false)
                 $outPath = Join-Path $OutputFolder "$name.md"
                 Write-Verbose "Writing updated markdown to $outPath"
                 Set-Content -Path $outPath -Value $md -Encoding $Encoding
@@ -167,11 +204,10 @@ function Update-Markdown
         }
         else # Reflection
         {
-            $MarkdownFiles | % {
-                $oldMarkdown = cat -Raw $_.FullName
-                $oldModel = Get-MamlModelImpl $oldMarkdown
-
+            $affectedFiles = $MarkdownFiles | % {
+                Update-MarkdownFileWithReflection $_
             }
+            return $affectedFiles
         }
     }
 }
@@ -225,7 +261,7 @@ function New-ExternalHelp
         $defaultOutputName = 'rename-me.psm1-help.xml'
         $groups = $MarkdownFiles | group { 
             $h = Get-MarkdownMetadata -FileInfo $_
-            if ($h -and $h.ContainsKey($script:EXTERNAL_HELP_FILES)) 
+            if ($h -and $h[$script:EXTERNAL_HELP_FILES]) 
             {
                 Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
             }
@@ -718,6 +754,7 @@ function Out-MarkdownToFile
 function Convert-MamlModelToMarkdown
 {
     param(
+        [ValidateNotNullOrEmpty()]
         [Parameter(Mandatory=$true)]
         [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
         

@@ -16,6 +16,7 @@ namespace Markdown.MAML.Test.Renderer
         public void RendererUsesCorrectEscaping()
         {
             Assert.Equal(@"\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\<"));
+            Assert.Equal(@"\\\`", MarkdownV2Renderer.GetEscapedMarkdownText(@"\`"));
             Assert.Equal(@"\\\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\<"));
             Assert.Equal(@"\\\\\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\\<"));
             Assert.Equal(@"\", MarkdownV2Renderer.GetEscapedMarkdownText(@"\"));
@@ -25,6 +26,7 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Equal(@"\)", MarkdownV2Renderer.GetEscapedMarkdownText(@")"));
             Assert.Equal(@"\[", MarkdownV2Renderer.GetEscapedMarkdownText(@"["));
             Assert.Equal(@"\]", MarkdownV2Renderer.GetEscapedMarkdownText(@"]"));
+            Assert.Equal(@"\`", MarkdownV2Renderer.GetEscapedMarkdownText(@"`"));
         }
 
         [Fact]
@@ -98,10 +100,12 @@ namespace Markdown.MAML.Test.Renderer
 
             var metadata = new Hashtable();
             metadata["foo"] = "bar";
+            metadata["null"] = null;
             string markdown = renderer.MamlModelToString(command, metadata);
             Assert.Equal(@"---
 schema: 2.0.0
 foo: bar
+null: 
 ---
 
 # Get-Foo
