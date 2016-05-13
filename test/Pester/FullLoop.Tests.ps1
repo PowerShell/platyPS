@@ -13,7 +13,6 @@ function normalize([string]$text)
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    $outMamlFilePath = "$outFolder\Add-Member.dll-help.xml"
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
@@ -22,18 +21,16 @@ Describe 'Full loop for Add-Member cmdlet' {
         New-Markdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
     }
 
-    # test -MarkdownFilePath piping
-    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose
-    $generatedMaml | Out-File $outMamlFilePath
+    # test -MarkdownFile piping
+    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputFolder $outFolder
 
     It 'generate maml as a valid xml' {
-        $generatedXml = [xml]$generatedMaml
-        $generatedXml | Should Not Be $null
+        [xml]($generatedMaml | cat -raw) | Should Not Be $null
     }
 
     try 
     {
-        $generatedModule = & (Get-Module platyPS) ([scriptblock]::Create("New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath"))
+        $generatedModule = & (Get-Module platyPS) ([scriptblock]::Create("Get-ModuleFromMaml -MamlFilePath $outFolder\Microsoft.PowerShell.Commands.Utility.dll-help.xml"))
         Import-Module $generatedModule.Path -Force -ea Stop
 
         foreach ($cmdletName in $generatedModule.Cmdlets)
@@ -145,12 +142,11 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     }
 
     It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR){
-        $generatedMaml = New-ExternalHelp -markdownFolder $smaOutputFolder -Verbose
-        $generatedMaml > $outFolder\SMA.dll-help.xml
+        $generatedMaml = New-ExternalHelp -markdownFolder $smaOutputFolder -Verbose -OutputFolder $outFolder
         $generatedMaml | Should Not Be $null
 
         # add artifacts to out
-        Show-HelpPreview $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
+        Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
         Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
     }
 }

@@ -13,7 +13,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
     Context 'Add-Computer' {
         
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Computer" }
+        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Computer" }
 
         It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
             
@@ -42,7 +42,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Member' {
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Member" }
+        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Member" }
 
         It 'Fetch MemberSet set name' {
             $MemberSet = $mamlModelObject.Syntax | ? {$_.ParameterSetName -eq 'MemberSet'}
@@ -97,22 +97,6 @@ Describe 'New-ExternalHelpCab' {
     }
 }
 
-Describe 'Format-PlatyPsHelpXml' {
-
-    $Destination = "$outFolder\CabTesting\OutXml2\"
-    $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
-    $ModuleName = "CheckModule.dll"
-
-    Format-PlatyPsHelpXml -MamlHelpXmlFullPath $MamlFullPath -ModuleSourceFileName $ModuleName -Destination  $Destination
-
-    It 'Checks that the xml file is named properly after using the Format-PlatyPsHelpXml command' {
-        
-        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml2\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
-
-    }
-
-}
-
 #endregion
 
 Describe 'Get-MarkdownMetadata' {
@@ -138,3 +122,7 @@ this text would be ignored
     }
 }
 
+
+Describe 'Update-Markdown upgrade schema scenario' {
+    New-ExternalHelp -MarkdownFile (ls .\Examples\PSReadline.dll-help.md) -OutputFolder TestDrive:\PSReadlineMd 
+}

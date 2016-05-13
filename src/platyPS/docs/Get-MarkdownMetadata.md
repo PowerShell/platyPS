@@ -1,4 +1,5 @@
 ---
+external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
@@ -34,7 +35,7 @@ Parameter Sets: MarkdownPath
 Aliases: 
 
 Required: True
-Position: Named
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -49,7 +50,7 @@ Parameter Sets: MarkdownContent
 Aliases: 
 
 Required: True
-Position: Named
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False

@@ -1,4 +1,5 @@
 ---
+external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
@@ -8,8 +9,14 @@ Create External help file from platyPS markdown.
 
 ## SYNTAX
 
+### FromFolder
 ```
-New-ExternalHelp -MarkdownFolder <String> [-skipPreambula] [<CommonParameters>]
+New-ExternalHelp -MarkdownFolder <String> [-OutputFolder] <String> [<CommonParameters>]
+```
+
+### FromFile
+```
+New-ExternalHelp [-MarkdownFile] <FileInfo[]> [-OutputFolder] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -52,6 +59,7 @@ Path to a folder with "*.md" files. Their content would be extracted and used. I
 
 ```yaml
 Type: String
+Parameter Sets: FromFolder
 Aliases: 
 
 Required: True
@@ -61,25 +69,40 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### skipPreambula
-Switch to avoid emmiting xml preambula and \<helpitems\> tag.
-
+### OutputFolder
 ```yaml
-Type: SwitchParameter
+Type: String
+Parameter Sets: FromFolder, FromFile
 Aliases: 
 
-Required: False
-Position: named
-Default value: False
+Required: True
+Position: 
+Default value: 
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### MarkdownFile
+```yaml
+Type: FileInfo[]
+Parameter Sets: FromFile
+Aliases: 
+
+Required: True
+Position: 
+Default value: 
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ## INPUTS
 
+### FileInfo[]
+MarkdownFile
+
 ## OUTPUTS
 
-### string
+### System.IO.FileInfo[]
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

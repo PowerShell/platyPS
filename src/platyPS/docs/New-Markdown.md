@@ -1,4 +1,5 @@
 ---
+external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
@@ -133,7 +134,7 @@ module
 
 ## OUTPUTS
 
-### string[]
+### System.IO.FileInfo[]
 ## RELATED LINKS
 
 
