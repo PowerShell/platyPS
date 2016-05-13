@@ -45,7 +45,7 @@ function New-Markdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = 'ASCII'
+        [string]$Encoding = 'UTF8'
     )
 
     begin
@@ -126,7 +126,7 @@ function Update-Markdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = 'ASCII'
+        [string]$Encoding = 'UTF8'
     )
 
     begin
@@ -240,6 +240,7 @@ function New-ExternalHelp
             throw "Unknown schema version: $schema"
         }
 
+        # TODO: this is just a place-holder, we can do better
         $defaultOutputName = 'rename-me.psm1-help.xml'
         $groups = $markdown | group { 
             $h = Get-MarkdownMetadata -Markdown $_
@@ -1048,7 +1049,7 @@ Export-ModuleMember -Function @(
     'New-ExternalHelp', 
     'Show-HelpPreview',
     'New-ExternalHelpCab',
-    'Format-PlatyPsHelpXml'
+    'Update-Markdown'
 )
 
 #endregion

@@ -134,16 +134,11 @@ $smaOutputFolder = "TestDrive:\SMA"
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     $module = 'Microsoft.PowerShell.Core'
+    $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
 
-    It "creates Markdown for $module" {
-        New-Markdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
-        # artifacts publishing
-        ls $smaOutputFolder | % { cp $_.FullName $outFolder }
-    }
-
-    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR){
-        $generatedMaml = New-ExternalHelp -markdownFolder $smaOutputFolder -Verbose -OutputFolder $outFolder
-        $generatedMaml | Should Not Be $null
+    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR) {
+        $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputFolder $outFolder
+        $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
         # add artifacts to out
         Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
