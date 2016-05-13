@@ -11,7 +11,7 @@ schema: 2.0.0
 
 ### FileOutput
 ```
-Show-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [[-Encoding] <String>] [<CommonParameters>]
+Show-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### AsObject
@@ -63,7 +63,7 @@ Parameter Sets: FileOutput
 Aliases: 
 
 Required: False
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -76,7 +76,7 @@ Parameter Sets: AsObject
 Aliases: 
 
 Required: True
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -87,7 +87,6 @@ Accept wildcard characters: False
 ## OUTPUTS
 
 ## NOTES
-
 ## RELATED LINKS
 
 

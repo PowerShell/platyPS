@@ -11,12 +11,12 @@ Create External help file from platyPS markdown.
 
 ### FromFolder
 ```
-New-ExternalHelp -MarkdownFolder <String> [-OutputPath] <String> [[-Encoding] <String>] [<CommonParameters>]
+New-ExternalHelp -MarkdownFolder <String> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### FromFile
 ```
-New-ExternalHelp -MarkdownFile <FileInfo[]> [-OutputPath] <String> [[-Encoding] <String>] [<CommonParameters>]
+New-ExternalHelp -MarkdownFile <FileInfo[]> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -74,7 +74,7 @@ Parameter Sets: FromFolder, FromFile
 Aliases: 
 
 Required: True
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -87,7 +87,7 @@ Parameter Sets: FromFolder, FromFile
 Aliases: 
 
 Required: False
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -115,7 +115,6 @@ MarkdownFile
 
 ### System.IO.FileInfo[]
 ## NOTES
-
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

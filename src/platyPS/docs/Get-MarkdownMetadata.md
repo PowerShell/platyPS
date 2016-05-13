@@ -21,7 +21,7 @@ Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 
 ### MarkdownFileInfo
 ```
-Get-MarkdownMetadata [-FileInfo] <FileInfo> [<CommonParameters>]
+Get-MarkdownMetadata -FileInfo <FileInfo> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -68,7 +68,7 @@ Parameter Sets: MarkdownFileInfo
 Aliases: 
 
 Required: True
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -79,7 +79,6 @@ Accept wildcard characters: False
 ## OUTPUTS
 
 ## NOTES
-
 ## RELATED LINKS
 
 
