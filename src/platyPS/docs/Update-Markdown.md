@@ -3,20 +3,19 @@ external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
-# Show-HelpPreview
+# Update-Markdown
 ## SYNOPSIS
-{{Fill the Synopsis}}
 
 ## SYNTAX
 
-### FileOutput
+### SchemaUpgrade
 ```
-Show-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [-Encoding <String>] [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
-### AsObject
+### Reflection
 ```
-Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -26,27 +25,23 @@ Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 
 ## PARAMETERS
 
-### MamlFilePath
-{{Fill MamlFilePath Description}}
-
+### MarkdownFile
 ```yaml
-Type: String[]
-Parameter Sets: FileOutput, AsObject
+Type: Object[]
+Parameter Sets: SchemaUpgrade, Reflection
 Aliases: 
 
 Required: True
 Position: named
 Default value: 
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### TextOutputPath
-{{Fill TextOutputPath Description}}
-
+### OutputFolder
 ```yaml
 Type: String
-Parameter Sets: FileOutput
+Parameter Sets: SchemaUpgrade
 Aliases: 
 
 Required: True
@@ -59,20 +54,20 @@ Accept wildcard characters: False
 ### Encoding
 ```yaml
 Type: String
-Parameter Sets: FileOutput
+Parameter Sets: SchemaUpgrade, Reflection
 Aliases: 
 
 Required: False
 Position: named
-Default value: 
+Default value: $script:DEFAULT_ENCODING
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### AsObject
+### UseReflection
 ```yaml
 Type: SwitchParameter
-Parameter Sets: AsObject
+Parameter Sets: Reflection
 Aliases: 
 
 Required: True
@@ -85,6 +80,8 @@ Accept wildcard characters: False
 ## INPUTS
 
 ## OUTPUTS
+
+### System.IO.FileInfo[]
 
 ## NOTES
 

@@ -1,4 +1,4 @@
----
+﻿---
 external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
@@ -94,6 +94,8 @@ Accept wildcard characters: False
 ## INPUTS
 
 ## OUTPUTS
+
+## NOTES
 
 ## RELATED LINKS
 

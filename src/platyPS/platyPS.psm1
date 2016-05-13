@@ -95,7 +95,7 @@ function Get-MarkdownMetadata
 
         [Parameter(Mandatory=$true,
             ParameterSetName="MarkdownFileInfo")]
-        [System.IO.FileInfo]$File
+        [System.IO.FileInfo]$FileInfo
     )
 
     process
@@ -105,9 +105,9 @@ function Get-MarkdownMetadata
             $Markdown = Get-Content -Raw $Path
         }
 
-        if ($File)
+        if ($FileInfo)
         {
-            $Markdown = $File | Get-Content -Raw
+            $Markdown = $FileInfo | Get-Content -Raw
         }
 
         return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
@@ -122,12 +122,17 @@ function Update-Markdown
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
-        [System.IO.FileInfo[]]$MarkdownFile,
+        [object[]]$MarkdownFile,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName='SchemaUpgrade')]
         [string]$OutputFolder,
 
-        [string]$Encoding = $script:DEFAULT_ENCODING
+        [string]$Encoding = $script:DEFAULT_ENCODING,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName='Reflection')]
+        [switch]$UseReflection
     )
 
     begin
@@ -137,25 +142,86 @@ function Update-Markdown
 
     process
     {
-        $MarkdownFiles += $MarkdownFile
+        $MarkdownFile | % {
+            if ($_ -is [System.IO.FileInfo])
+            {
+                $MarkdownFiles += $_
+            }
+            else 
+            {
+                # treat as a string
+                $MarkdownFiles += ls $_
+            }
+        }
     }
 
     end 
     {
-        $markdown = $MarkdownFiles | % {
-            cat -Raw $_.FullName
+        function Update-MarkdownFileWithReflection
+        {
+            param(
+                [System.IO.FileInfo]$file
+            )
+
+            $filePath = $file.FullName
+            $oldMarkdown = cat -Raw $filePath
+            $oldModels = Get-MamlModelImpl $oldMarkdown
+
+            if ($oldModels.Count -gt 1)
+            {
+                Write-Warning "[Update-Markdown] $filePath contains more then 1 command, skipping upgrade."
+                Write-Warning "[Update-Markdown] Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first."
+                return
+            }
+
+            $oldModel = $oldModels[0]
+
+            $name = $oldModel.Name
+            $command = Get-Command $name
+            if (-not $command)
+            {
+                Write-Warning "[Update-Markdown] command $name not found in the session, skipping upgrade for $filePath"
+                return
+            }
+
+            # just preserve old metadata
+            $metadata = Get-MarkdownMetadata -FileInfo $file
+            $reflectionModel = Get-MamlObject -Cmdlet $name
+
+            $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
+
+            $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
+            Set-Content -Path $file.FullName -Value $md -Encoding $Encoding
+
+            return $file
         }
 
-        $model = Get-MamlModelImpl $markdown
-        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+        if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
+        {
+            $markdown = $MarkdownFiles | % {
+                cat -Raw $_.FullName
+            }
 
-        $model | % {
-            $name = $_.Name
-            $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
-            $outPath = Join-Path $OutputFolder "$name.md"
-            Write-Verbose "Writing updated markdown to $outPath"
-            Set-Content -Path $outPath -Value $md -Encoding $Encoding
-            ls $outPath
+            $model = Get-MamlModelImpl $markdown
+            $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+
+            $model | % {
+                $name = $_.Name
+                # TODO: can we pass some metadata here?
+                # skipYamlHeader -eq $false
+                $md = $r.MamlModelToString($_, $false)
+                $outPath = Join-Path $OutputFolder "$name.md"
+                Write-Verbose "Writing updated markdown to $outPath"
+                Set-Content -Path $outPath -Value $md -Encoding $Encoding
+                ls $outPath
+            }
+        }
+        else # Reflection
+        {
+            $affectedFiles = $MarkdownFiles | % {
+                Update-MarkdownFileWithReflection $_
+            }
+            return $affectedFiles
         }
     }
 }
@@ -203,30 +269,29 @@ function New-ExternalHelp
             $MarkdownFiles = Get-ChildItem -File $MarkdownFolder -Filter "*.md"
         }
 
-        $markdown = $MarkdownFiles | % {
-            cat -Raw $_.FullName
-        }
-
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
         
         # TODO: this is just a place-holder, we can do better
         $defaultOutputName = 'rename-me.psm1-help.xml'
-        $groups = $markdown | group { 
-            $h = Get-MarkdownMetadata -Markdown $_
-            if ($h -and $h.ContainsKey($script:EXTERNAL_HELP_FILES)) 
+        $groups = $MarkdownFiles | group { 
+            $h = Get-MarkdownMetadata -FileInfo $_
+            if ($h -and $h[$script:EXTERNAL_HELP_FILES]) 
             {
                 Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
             }
             else 
             {
-                Join-Path $OutputPath $defaultOutputName
+                $defaultPath = Join-Path $OutputPath $defaultOutputName
+                Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILES)' in metadata for file $($_.FullName)"
+                Write-Warning "[New-ExternalHelp] $defaultPath would be used"
+                $defaultPath
             }
         }
 
-        $groups |  % {
-            $maml = Get-MamlModelImpl $_.Group
+        foreach ($group in $groups) {
+            $maml = Get-MamlModelImpl ( $group.Group | % { cat -Raw $_.FullName } )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
-            $outPath = $_.Name
+            $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             Set-Content -Path $outPath -Value $xml -Encoding $Encoding
             ls $outPath
@@ -238,14 +303,21 @@ function New-ExternalHelp
 function Show-HelpPreview
 {
     [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]])]
+    [OutputType([System.IO.FileInfo[]], [MamlCommandHelpInfo])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            Position=1)]
         [string[]]$MamlFilePath,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FileOutput')]
         [string]$TextOutputPath,
 
+        [Parameter(Mandatory=$true,
+            ParameterSetName='AsObject')]
+        [switch]$AsObject,
+        
+        [Parameter(ParameterSetName='FileOutput')]
         [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
@@ -265,9 +337,17 @@ function Show-HelpPreview
                 {
                     Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
                 }
-            } | Microsoft.PowerShell.Utility\Out-String
-            Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
-            Get-ChildItem $TextOutputPath
+            }
+
+            if ($AsObject)
+            {
+                $allHelp
+            }
+            else {
+                $allHelp = $allHelp | Microsoft.PowerShell.Utility\Out-String
+                Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
+                Get-ChildItem $TextOutputPath    
+            }
         }
         finally
         {
@@ -428,6 +508,26 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+function Merge-MamlModel
+{
+    [OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
+
+    param(
+        [Markdown.MAML.Model.MAML.MamlCommand]
+        $MetadataModel,
+
+        [Markdown.MAML.Model.MAML.MamlCommand]
+        $StringModel
+    )
+
+    $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
+        param([string]$message)
+        Write-Verbose $message
+    }
+
+    return $merger.Merge($MetadataModel, $StringModel)
+}
 
 function Get-MamlModelImpl
 {
@@ -703,6 +803,7 @@ function Out-MarkdownToFile
 function Convert-MamlModelToMarkdown
 {
     param(
+        [ValidateNotNullOrEmpty()]
         [Parameter(Mandatory=$true)]
         [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
         
@@ -835,64 +936,70 @@ $MamlCommandObject.Synopsis = "{{Fill the Synopsis}}"
 #Not provided by the command object.
 $MamlCommandObject.Description = "{{Fill the Description}}"
 
-#Get Notes
-#Not provided by the command object. Using the Command Type to create a note declaring it's type.
-$MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
-
-
-#Get Examples
-#Not provided by the command object.
-
-#Get Links
-#Not provided by the command object.
-
 #endregion 
 
-#Get Inputs
-#Reccomend adding a Parameter Name and Parameter Set Name to each input object.
-#region Inputs
-$Inputs = @()
-foreach($ParameterSet in $Command.ParameterSets)
+# otherwise, we preserve input data from $Help
+if (-not $Help)
 {
-    foreach($Parameter in $ParameterSet.Parameters)
-    {
-        if($Parameter.ValueFromPipeline -eq "True")
-        {
-            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+    #Get Notes
+    #Not provided by the command object. Using the Command Type to create a note declaring it's type.
+    $MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
 
-            $InputObject.TypeName = $Parameter.ParameterType.Name
 
-            $InputObject.Description = $Parameter.Name
+    #Get Examples
+    #Not provided by the command object.
 
-            $Inputs += $InputObject
-        }
-    }   
-}
+    #Get Links
+    #Not provided by the command object.
 
-$Inputs = $Inputs | Select -Unique
-foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
-
-#endregion
-
-#Get Outputs
-#No Output Type description is provided from the command object.
-#region Outputs
-
-$Outputs = @()
-foreach($OutputType in $Command.OutputType)
-{
-    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-
-    $OutputObject.TypeName = $OutputType.Type
-
-    $Outputs += $OutputObject
     
+    #Get Inputs
+    #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+    #region Inputs
+
+    $Inputs = @()
+    foreach($ParameterSet in $Command.ParameterSets)
+    {
+        foreach($Parameter in $ParameterSet.Parameters)
+        {
+            if($Parameter.ValueFromPipeline -eq "True")
+            {
+                $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+                $InputObject.TypeName = $Parameter.ParameterType.Name
+
+                $InputObject.Description = $Parameter.Name
+
+                $Inputs += $InputObject
+            }
+        }   
+    }
+
+    $Inputs = $Inputs | Select -Unique
+    foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+
+    #endregion
+
+    #Get Outputs
+    #No Output Type description is provided from the command object.
+    #region Outputs
+
+    $Outputs = @()
+    foreach($OutputType in $Command.OutputType)
+    {
+        $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+        $OutputObject.TypeName = $OutputType.Type
+
+        $Outputs += $OutputObject
+        
+    }
+
+    $Outputs = $Outputs | Select -Unique
+    foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+
+    #endregion
 }
-
-$Outputs = $Outputs | Select -Unique
-foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
-
-#endregion
 
 #Get Syntax
 #region Get the Syntax Parameter Set objects
@@ -1037,6 +1144,27 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
                 $Parameter.Position = $HelpEntry.position
             }
         }
+    }
+
+    function Get-MamlInputOutput
+    {
+        param($object)
+
+        $o = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $o.TypeName = $object.type.name
+        $o.Description = $object.type.description.text
+
+        return $o
+    }
+
+    # inputs
+    $help.inputTypes.inputType | % { 
+        $MamlCommandObject.Inputs.Add( (Get-MamlInputOutput $_) )
+    }
+
+    # outputs
+    $help.returnValues.returnValue | % { 
+        $MamlCommandObject.Outputs.Add( (Get-MamlInputOutput $_) )
     }
 
 }

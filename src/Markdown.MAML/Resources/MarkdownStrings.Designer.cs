@@ -133,6 +133,15 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to NOTES.
+        /// </summary>
+        internal static string NOTES {
+            get {
+                return ResourceManager.GetString("NOTES", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to OUTPUTS.
         /// </summary>
         internal static string OUTPUTS {

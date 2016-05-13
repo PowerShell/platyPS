@@ -376,6 +376,7 @@ Code snippet
 \[
 \\[
 \]
+\`
 ");
 
 
@@ -385,7 +386,7 @@ Code snippet
                     MarkdownNodeType.Paragraph);
 
             // NOTE: to update this example, create a gist on github to check out how it's parsed.
-            Assert.Equal(@"< \< \< \\< \\< \\[ \ \ \\ \\ ( ) [ ] ( ) [ \[ ]", paragraphNode.Spans.First().Text);
+            Assert.Equal(@"< \< \< \\< \\< \\[ \ \ \\ \\ ( ) [ ] ( ) [ \[ ] `", paragraphNode.Spans.First().Text);
         }
 
         [Fact]

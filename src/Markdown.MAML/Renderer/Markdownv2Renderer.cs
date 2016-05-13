@@ -55,7 +55,13 @@ namespace Markdown.MAML.Renderer
 
             AddCommand(mamlCommand);
 
-            return _stringBuilder.ToString();
+            // at the end, just normalize all ends
+            return NormalizeLineEnds(_stringBuilder.ToString());
+        }
+
+        private string NormalizeLineEnds(string text)
+        {
+            return Regex.Replace(text, "\r\n?|\n", "\r\n");
         }
 
         private void AddYamlHeader(Hashtable yamlHeader)
@@ -63,7 +69,8 @@ namespace Markdown.MAML.Renderer
             _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
             foreach (DictionaryEntry pair in yamlHeader)
             {
-                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), pair.Value.ToString() , Environment.NewLine);
+                var value = pair.Value == null ? "" : pair.Value.ToString();
+                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), value, Environment.NewLine);
             }
 
             _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
@@ -79,6 +86,7 @@ namespace Markdown.MAML.Renderer
             AddParameters(command);
             AddInputs(command);
             AddOutputs(command);
+            AddEntryHeaderWithText(MarkdownStrings.NOTES, command.Notes);
             AddLinks(command);
         }
 
@@ -100,7 +108,14 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputOutput(MamlInputOutput io)
         {
-            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine: false);
+            if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
+            {
+                // in this case ignore
+                return;
+            }
+
+            var extraNewLine = string.IsNullOrEmpty(io.Description);
+            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }
 
@@ -215,7 +230,7 @@ namespace Markdown.MAML.Renderer
             foreach (var example in command.Examples)
             {
                 AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: false);
-                if (example.Introduction != null)
+                if (!string.IsNullOrEmpty(example.Introduction))
                 {
                     AddParagraphs(example.Introduction);
                 }
@@ -225,7 +240,7 @@ namespace Markdown.MAML.Renderer
                     AddCodeSnippet(example.Code);
                 }
 
-                if (example.Remarks != null)
+                if (!string.IsNullOrEmpty(example.Remarks))
                 {
                     AddParagraphs(example.Remarks);
                 }
@@ -296,7 +311,9 @@ namespace Markdown.MAML.Renderer
 
         private void AddEntryHeaderWithText(string header, string text)
         {
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+            // we want indentation, if there is no text inside
+            var extraNewLine = string.IsNullOrWhiteSpace(text);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine);
             AddParagraphs(text);
         }
 
@@ -321,7 +338,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParagraphs(string body)
         {
-            if (body != null)
+            if (!string.IsNullOrWhiteSpace(body))
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
@@ -341,7 +358,7 @@ namespace Markdown.MAML.Renderer
             var g1 = match.Groups[1].Value;
             var g2 = match.Groups[2].Value[0];
 
-            if (g1.Length % 2 == 0 && "<>()[]".Contains(g2))
+            if (g1.Length % 2 == 0 && "<>()[]`".Contains(g2))
             {
                 return @"\" + match.Value;
             }
@@ -376,7 +393,8 @@ namespace Markdown.MAML.Renderer
                 .Replace(@"]", @"\]")
                 .Replace(@"(", @"\(")
                 .Replace(@")", @"\)")
-                
+                .Replace(@"`", @"\`")
+
                 ;
         }
     }

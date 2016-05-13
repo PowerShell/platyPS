@@ -1,4 +1,4 @@
----
+﻿---
 external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
@@ -11,12 +11,12 @@ Create External help file from platyPS markdown.
 
 ### FromFolder
 ```
-New-ExternalHelp -MarkdownFolder <String> [-OutputFolder] <String> [<CommonParameters>]
+New-ExternalHelp -MarkdownFolder <String> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### FromFile
 ```
-New-ExternalHelp [-MarkdownFile] <FileInfo[]> [-OutputFolder] <String> [<CommonParameters>]
+New-ExternalHelp -MarkdownFile <FileInfo[]> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -34,8 +34,6 @@ $maml = New-ExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
-
-
 
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```
@@ -69,14 +67,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### OutputFolder
+### OutputPath
 ```yaml
 Type: String
 Parameter Sets: FromFolder, FromFile
 Aliases: 
 
 Required: True
-Position: 
+Position: named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### Encoding
+```yaml
+Type: String
+Parameter Sets: FromFolder, FromFile
+Aliases: 
+
+Required: False
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -89,7 +100,7 @@ Parameter Sets: FromFile
 Aliases: 
 
 Required: True
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -98,11 +109,13 @@ Accept wildcard characters: False
 ## INPUTS
 
 ### FileInfo[]
-MarkdownFile
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
+
+## NOTES
+
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
