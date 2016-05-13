@@ -287,11 +287,29 @@ namespace Markdown.MAML.Transformer
 
         private string[] SplitByCommaAndTrim(string input)
         {
+            if (input == null)
+            {
+                return new string[0];
+            }
+
             return input.Split(',').Select(x => x.Trim()).ToArray();
         }
 
         private void FillUpParameterFromKeyValuePairs(Dictionary<string, string> pairs, MamlParameter parameter)
         {
+            // for all null keys, we should ignore the value in this context
+            var newPairs = new Dictionary<string, string>(pairs.Comparer);
+
+            foreach (var pair in pairs)
+            {
+                if (pair.Value != null)
+                {
+                    newPairs[pair.Key] = pair.Value;
+                }
+            }
+
+            pairs = newPairs;
+
             string value;
             parameter.Type = pairs.TryGetValue(MarkdownStrings.Type, out value) ? value : null;
             parameter.Aliases = pairs.TryGetValue(MarkdownStrings.Aliases, out value) ? SplitByCommaAndTrim(value) : new string [0];

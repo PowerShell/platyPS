@@ -25,6 +25,7 @@
 #   
 
 $script:EXTERNAL_HELP_FILES = 'external help file'
+$script:DEFAULT_ENCODING = 'UTF8'
 
 #  .ExternalHelp platyPS.psm1-Help.xml
 function New-Markdown
@@ -45,7 +46,7 @@ function New-Markdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = 'UTF8'
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
     begin
@@ -117,24 +118,21 @@ function Get-MarkdownMetadata
 function Update-Markdown
 {
     [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
     param(
         [Parameter(Mandatory=$true,
-            ParameterSetName='SchemaUpgrade',
             ValueFromPipeline=$true)]
         [System.IO.FileInfo[]]$MarkdownFile,
 
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = 'UTF8'
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
     begin
     {
-        if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
-        {
-            $MarkdownFiles = @()
-        }
+        $MarkdownFiles = @()
     }
 
     process
@@ -144,7 +142,21 @@ function Update-Markdown
 
     end 
     {
+        $markdown = $MarkdownFiles | % {
+            cat -Raw $_.FullName
+        }
 
+        $model = Get-MamlModelImpl $markdown
+        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+
+        $model | % {
+            $name = $_.Name
+            $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
+            $outPath = Join-Path $OutputFolder "$name.md"
+            Write-Verbose "Writing updated markdown to $outPath"
+            Set-Content -Path $outPath -Value $md -Encoding $Encoding
+            ls $outPath
+        }
     }
 }
 
@@ -164,9 +176,9 @@ function New-ExternalHelp
         [System.IO.FileInfo[]]$MarkdownFile,
 
         [Parameter(Mandatory=$true)]
-        [string]$OutputFolder,
+        [string]$OutputPath,
 
-        [string]$Encoding = 'UTF8'
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
     begin
@@ -176,7 +188,7 @@ function New-ExternalHelp
             $MarkdownFiles = @()
         }
 
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        mkdir $OutputPath -ErrorAction SilentlyContinue > $null
     }
 
     process
@@ -195,71 +207,26 @@ function New-ExternalHelp
             cat -Raw $_.FullName
         }
 
-        #Get-MarkdownMetadata
-
-        # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
-        $metadata = Get-MarkdownMetadata -markdown ($markdown | Select -first 1)
-        if ($metadata)
-        {
-            $schema = $metadata['schema']
-            if (-not $schema) 
-            {
-                # there is metadata, but schema version is not specified.
-                # assume 2.0.0
-                $schema = '2.0.0'
-            }
-        }
-        else 
-        {
-            # if there is not metadata, then it's schema version 1.0.0
-            $schema = '1.0.0'    
-        }
-
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
-        $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
-            param([int]$current, [int]$all) 
-            Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-        }
-
-        if ($schema -eq '1.0.0')
-        {
-            $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-                param([string]$message)
-                Write-Verbose $message
-            }
-        }
-        elseif ($schema -eq '2.0.0')
-        {
-            $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
-                param([string]$message)
-                Write-Verbose $message
-            }
-        }
-        else 
-        {
-            throw "Unknown schema version: $schema"
-        }
-
+        
         # TODO: this is just a place-holder, we can do better
         $defaultOutputName = 'rename-me.psm1-help.xml'
         $groups = $markdown | group { 
             $h = Get-MarkdownMetadata -Markdown $_
             if ($h -and $h.ContainsKey($script:EXTERNAL_HELP_FILES)) 
             {
-                $h[$script:EXTERNAL_HELP_FILES]
+                Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
             }
             else 
             {
-                $defaultOutputName
+                Join-Path $OutputPath $defaultOutputName
             }
         }
 
         $groups |  % {
-            $model = $p.ParseString($_.Group)
-            Write-Progress -Activity "Parsing markdown" -Completed    
-            $maml = $t.NodeModelToMamlModel($model)
+            $maml = Get-MamlModelImpl $_.Group
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
-            $outPath = Join-Path $OutputFolder $_.Name
+            $outPath = $_.Name
             Write-Verbose "Writing external help to $outPath"
             Set-Content -Path $outPath -Value $xml -Encoding $Encoding
             ls $outPath
@@ -270,39 +237,46 @@ function New-ExternalHelp
 #  .ExternalHelp platyPS.psm1-Help.xml
 function Show-HelpPreview
 {
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
     param(
         [Parameter(Mandatory=$true)]
-        [string]$MamlFilePath,
+        [string[]]$MamlFilePath,
 
         [Parameter(Mandatory=$true)]
-        [string]$TextOutputPath
+        [string]$TextOutputPath,
+
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
-    $g = Get-ModuleFromMaml -MamlFilePath $MamlFilePath
+    $MamlFilePath | % {
+        $g = Get-ModuleFromMaml -MamlFilePath $_
 
-    try 
-    {
-        Import-Module $g.Path -Force -ea Stop
-        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
-            $c = $_
-            try
-            {
-                Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
-            }
-            catch 
-            {
-                Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
-            }
-        } | Microsoft.PowerShell.Utility\Out-String
-        Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding UTF8
-    }
-    finally
-    {
-        Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
-        $moduleDirectory = Split-Path $g.Path
-        if (Test-Path $moduleDirectory)
+        try 
         {
-            Remove-Item $moduleDirectory -Force -Recurse
+            Import-Module $g.Path -Force -ea Stop
+            $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
+                $c = $_
+                try
+                {
+                    Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
+                }
+                catch 
+                {
+                    Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
+                }
+            } | Microsoft.PowerShell.Utility\Out-String
+            Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
+            Get-ChildItem $TextOutputPath
+        }
+        finally
+        {
+            Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
+            $moduleDirectory = Split-Path $g.Path
+            if (Test-Path $moduleDirectory)
+            {
+                Remove-Item $moduleDirectory -Force -Recurse
+            }
         }
     }
 }
@@ -454,6 +428,88 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+function Get-MamlModelImpl
+{
+    param(
+        [string[]]$markdown
+    )
+
+    # we need to pass it into .NET IEnumerable<MamlCommand> API
+    $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
+
+    $markdown | % {
+        $schema = Get-SchemaVersion $_
+        $p = New-MarkdownParser
+        $t = New-ModelTransformer -schema $schema
+
+        $model = $p.ParseString($_)
+        Write-Progress -Activity "Parsing markdown" -Completed    
+        $maml = $t.NodeModelToMamlModel($model)
+
+        # flatten
+        $maml | % { $res.Add($_) }
+    }
+
+    return @(,$res)
+}
+
+function New-MarkdownParser
+{
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+        param([int]$current, [int]$all) 
+        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
+    }
+}
+
+function New-ModelTransformer
+{
+    param(
+        [ValidateSet('1.0.0', '2.0.0')]
+        [string]$schema
+    )
+
+    if ($schema -eq '1.0.0')
+    {
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    elseif ($schema -eq '2.0.0')
+    {
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+}
+
+function Get-SchemaVersion
+{
+    param(
+        [string]$markdown
+    )
+
+    $metadata = Get-MarkdownMetadata -markdown $markdown
+    if ($metadata)
+    {
+        $schema = $metadata['schema']
+        if (-not $schema) 
+        {
+            # there is metadata, but schema version is not specified.
+            # assume 2.0.0
+            $schema = '2.0.0'
+        }
+    }
+    else 
+    {
+        # if there is not metadata, then it's schema version 1.0.0
+        $schema = '1.0.0'    
+    }
+
+    return $schema
+}
 
 function Get-MamlObject
 {

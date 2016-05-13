@@ -48,6 +48,7 @@ namespace Markdown.MAML.Test.Renderer
                 Globbing = true,
                 PipelineInput = "True (ByValue)",
                 Position = "1",
+                DefaultValue = "trololo",
                 Aliases = new string[] { "GF", "Foos", "Do" },
             };
 
@@ -137,7 +138,7 @@ Aliases: GF, Foos, Do
 
 Required: True
 Position: 1
-Default value: 
+Default value: trololo
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```

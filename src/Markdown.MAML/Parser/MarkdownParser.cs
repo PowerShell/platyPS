@@ -421,7 +421,9 @@ namespace Markdown.MAML.Parser
                 }
 
                 var key = parts[0].Trim();
-                result[parts[0].Trim()] = parts[1].Trim();
+                var value = parts[1].Trim();
+                // we treat empty value as null
+                result[key] = string.IsNullOrEmpty(value) ? null : value;
             }
 
             return result;

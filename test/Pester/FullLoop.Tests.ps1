@@ -22,7 +22,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     }
 
     # test -MarkdownFile piping
-    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputFolder $outFolder
+    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputPath $outFolder
 
     It 'generate maml as a valid xml' {
         [xml]($generatedMaml | cat -raw) | Should Not Be $null
@@ -133,11 +133,12 @@ $smaOutputFolder = "TestDrive:\SMA"
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    $module = 'Microsoft.PowerShell.Core'
-    $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
-
     It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR) {
-        $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputFolder $outFolder
+
+        $module = 'Microsoft.PowerShell.Core'
+        $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
+
+        $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $outFolder
         $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
         # add artifacts to out
