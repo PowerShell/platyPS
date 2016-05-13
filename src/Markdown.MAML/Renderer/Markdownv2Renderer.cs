@@ -298,7 +298,9 @@ namespace Markdown.MAML.Renderer
 
         private void AddEntryHeaderWithText(string header, string text)
         {
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+            // we want indentation, if there is no text inside
+            var extraNewLine = text == null;
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine);
             AddParagraphs(text);
         }
 

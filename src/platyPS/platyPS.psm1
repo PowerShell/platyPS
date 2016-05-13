@@ -122,7 +122,7 @@ function Update-Markdown
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
-        [System.IO.FileInfo[]]$MarkdownFile,
+        [object[]]$MarkdownFile,
 
         [Parameter(Mandatory=$true,
             ParameterSetName='SchemaUpgrade')]
@@ -142,7 +142,17 @@ function Update-Markdown
 
     process
     {
-        $MarkdownFiles += $MarkdownFile
+        $MarkdownFile | % {
+            if ($_ -is [System.IO.FileInfo])
+            {
+                $MarkdownFiles += $_
+            }
+            else 
+            {
+                # treat as a string
+                $MarkdownFiles += ls $_
+            }
+        }
     }
 
     end 
@@ -181,8 +191,8 @@ function Update-Markdown
             $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
-            Set-Content -Path $file -Value $md -Encoding $Encoding
-            
+            Set-Content -Path $file.FullName -Value $md -Encoding $Encoding
+
             return $file
         }
 
