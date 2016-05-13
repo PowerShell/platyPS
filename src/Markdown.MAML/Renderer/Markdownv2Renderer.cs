@@ -102,13 +102,14 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputOutput(MamlInputOutput io)
         {
-            if (string.IsNullOrWhiteSpace(io.TypeName.Trim()) && string.IsNullOrWhiteSpace(io.Description.Trim()))
+            if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
             {
                 // in this case ignore
                 return;
             }
 
-            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine: false);
+            var extraNewLine = io.Description == null;
+            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }
 
@@ -331,7 +332,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParagraphs(string body)
         {
-            if (body != null)
+            if (body != null || string.IsNullOrEmpty(body.Trim()))
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
