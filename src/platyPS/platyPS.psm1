@@ -799,6 +799,7 @@ function Out-MarkdownToFile
         # just to create a file
         Set-Content -Path $Path -Value ''
         $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding -ArgumentList $False
+        $Path = (Resolve-Path $Path).Path
         [System.IO.File]::WriteAllLines($Path, $value, $Utf8NoBomEncoding)
     }
     else 
