@@ -102,6 +102,12 @@ namespace Markdown.MAML.Renderer
 
         private void AddInputOutput(MamlInputOutput io)
         {
+            if (string.IsNullOrWhiteSpace(io.TypeName.Trim()) && string.IsNullOrWhiteSpace(io.Description.Trim()))
+            {
+                // in this case ignore
+                return;
+            }
+
             AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine: false);
             AddParagraphs(io.Description);
         }
