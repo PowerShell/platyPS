@@ -201,9 +201,9 @@ namespace Markdown.MAML.Renderer
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Position, set.Item2.Position, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Default_value, set.Item2.DefaultValue, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_pipeline_input, set.Item2.PipelineInput, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_wildcard_characters, set.Item2.Globbing, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Default_value, parameter.DefaultValue, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_pipeline_input, parameter.PipelineInput, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_wildcard_characters, parameter.Globbing, Environment.NewLine);
 
                 _stringBuilder.AppendFormat("```{0}{0}", Environment.NewLine);
             }

@@ -13,7 +13,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
     Context 'Add-Computer' {
         
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Computer" }
+        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Computer" }
 
         It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
             
@@ -42,7 +42,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Member' {
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-PlatyPSMamlObject -Cmdlet "Add-Member" }
+        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Member" }
 
         It 'Fetch MemberSet set name' {
             $MemberSet = $mamlModelObject.Syntax | ? {$_.ParameterSetName -eq 'MemberSet'}
@@ -80,7 +80,7 @@ Describe 'MakeCab.exe' {
     }
 }
 
-Describe 'New-PlatyPsCab' {
+Describe 'New-ExternalHelpCab' {
 
     It 'validates the output of Cab creation' {
         $Source = "$outFolder\CabTesting\Source\Xml\"
@@ -89,7 +89,7 @@ Describe 'New-PlatyPsCab' {
         $GUID = "00000000-0000-0000-0000-000000000000"
         $Locale = "en-US"
         
-        New-PlatyPsCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
+        New-ExternalHelpCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
         expand "$Destination\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
         
         (Get-ChildItem -Filter "*.cab" -Path "$Destination").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
@@ -97,25 +97,9 @@ Describe 'New-PlatyPsCab' {
     }
 }
 
-Describe 'Format-PlatyPsHelpXml' {
-
-    $Destination = "$outFolder\CabTesting\OutXml2\"
-    $MamlFullPath = "$outFolder\CabTesting\Source\Xml\HelpXml.xml"
-    $ModuleName = "CheckModule.dll"
-
-    Format-PlatyPsHelpXml -MamlHelpXmlFullPath $MamlFullPath -ModuleSourceFileName $ModuleName -Destination  $Destination
-
-    It 'Checks that the xml file is named properly after using the Format-PlatyPsHelpXml command' {
-        
-        (Get-ChildItem -Path "$outFolder\CabTesting\OutXml2\CheckModule.dll-help.xml").Name | Should Be "CheckModule.dll-help.xml"
-
-    }
-
-}
-
 #endregion
 
-Describe 'Get-PlatyPSYamlMetadata' {
+Describe 'Get-MarkdownMetadata' {
     Context 'Simple markdown file' {
         Set-Content -Path TestDrive:\foo.md -Value @'
 
@@ -129,7 +113,7 @@ foo: bar
 this text would be ignored
 '@        
         It 'can parse out yaml snippet' {
-            $d = Get-PlatyPSYamlMetadata -Path TestDrive:\foo.md
+            $d = Get-MarkdownMetadata -Path TestDrive:\foo.md
             $d.Count | Should Be 3
             $d['a'] = '1'
             $d['b'] = '2'
@@ -138,3 +122,22 @@ this text would be ignored
     }
 }
 
+
+Describe 'Update-Markdown upgrade schema scenario' {
+    $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
+    $OutputFolder = 'TestDrive:\PSReadline'
+
+    $v1maml = New-ExternalHelp -MarkdownFile $v1md -OutputPath "$OutputFolder\PSReadline.v1.dll-help.xml"
+    $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder
+    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\PSReadline.v2.dll-help.xml"
+
+    It 'help preview is the same before and after upgrade' {
+        $v1file = Show-HelpPreview -MamlFilePath $v1maml -TextOutputPath "$outFolder\PSReadline.v1.txt"
+        $v2file = Show-HelpPreview -MamlFilePath $v2maml -TextOutputPath "$outFolder\PSReadline.v2.txt"
+    
+        $v1txt = $v1file | cat -Raw
+        $v2txt = $v2file | cat -Raw
+
+        $v2txt | Should Be $v1txt
+    }
+}

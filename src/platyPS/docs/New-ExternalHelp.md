@@ -1,15 +1,22 @@
 ---
+external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
-# Get-PlatyPSExternalHelp
+# New-ExternalHelp
 ## SYNOPSIS
 Create External help file from platyPS markdown.
 
 ## SYNTAX
 
+### FromFolder
 ```
-Get-PlatyPSExternalHelp -MarkdownFolder <String> [-skipPreambula] [<CommonParameters>]
+New-ExternalHelp -MarkdownFolder <String> [-OutputFolder] <String> [<CommonParameters>]
+```
+
+### FromFile
+```
+New-ExternalHelp [-MarkdownFile] <FileInfo[]> [-OutputFolder] <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -23,7 +30,7 @@ Store output of this command in the module directory in corresponding language f
 
 ### ----------------------------- Example 1 (platyPS) ------------------------------------
 ```
-$maml = Get-PlatyPSExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
+$maml = New-ExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
 mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
@@ -32,15 +39,15 @@ Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding
 
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```
-$markdown = Get-PlatyPSMarkdown Get-PlatyPSMarkdown | Out-String
-Get-PlatyPSExternalHelp -markdown $markdown -skipPreambula | clip
+$markdown = New-Markdown New-Markdown | Out-String
+New-ExternalHelp -markdown $markdown -skipPreambula | clip
 ```
 
 Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.
 
 ### ----------------------------- Example 3 (MarkdownFolder) ------------------------------------
 ```
-$maml = Get-PlatyPSExternalHelp -MarkdownFolder .\src\platyPS
+$maml = New-ExternalHelp -MarkdownFolder .\src\platyPS
 ```
 
 You can break help for the big module into several markdown files and put them into a folder. In this case, you may find -MarkdownFolder parameter more convinient.
@@ -52,6 +59,7 @@ Path to a folder with "*.md" files. Their content would be extracted and used. I
 
 ```yaml
 Type: String
+Parameter Sets: FromFolder
 Aliases: 
 
 Required: True
@@ -61,25 +69,40 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### skipPreambula
-Switch to avoid emmiting xml preambula and \<helpitems\> tag.
-
+### OutputFolder
 ```yaml
-Type: SwitchParameter
+Type: String
+Parameter Sets: FromFolder, FromFile
 Aliases: 
 
-Required: False
-Position: named
-Default value: False
+Required: True
+Position: 
+Default value: 
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### MarkdownFile
+```yaml
+Type: FileInfo[]
+Parameter Sets: FromFile
+Aliases: 
+
+Required: True
+Position: 
+Default value: 
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ## INPUTS
 
+### FileInfo[]
+MarkdownFile
+
 ## OUTPUTS
 
-### string
+### System.IO.FileInfo[]
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

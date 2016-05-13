@@ -1,8 +1,9 @@
 ---
+external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
-# Get-PlatyPSYamlMetadata
+# Get-MarkdownMetadata
 ## SYNOPSIS
 {{Fill the Synopsis}}
 
@@ -10,12 +11,12 @@ schema: 2.0.0
 
 ### MarkdownPath
 ```
-Get-PlatyPSYamlMetadata -Path <String> [<CommonParameters>]
+Get-MarkdownMetadata -Path <String> [<CommonParameters>]
 ```
 
 ### MarkdownContent
 ```
-Get-PlatyPSYamlMetadata -Markdown <String> [<CommonParameters>]
+Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -34,7 +35,7 @@ Parameter Sets: MarkdownPath
 Aliases: 
 
 Required: True
-Position: Named
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -49,7 +50,7 @@ Parameter Sets: MarkdownContent
 Aliases: 
 
 Required: True
-Position: Named
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False

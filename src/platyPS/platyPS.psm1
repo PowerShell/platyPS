@@ -24,11 +24,14 @@
 #                                                                     yyyyyyy
 #   
 
+$script:EXTERNAL_HELP_FILES = 'external help file'
+$script:DEFAULT_ENCODING = 'UTF8'
+
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyPSMarkdown
+function New-Markdown
 {
     [CmdletBinding()]
-    [OutputType([string[]])]
+    [OutputType([System.IO.FileInfo[]])]
     param(
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
@@ -43,7 +46,7 @@ function Get-PlatyPSMarkdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = 'ASCII'
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
     begin
@@ -55,24 +58,31 @@ function Get-PlatyPSMarkdown
     {
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            $md = Get-PlatyPSMamlObject -Cmdlet $command | % { 
-                Convert-MamlModelToMarkdown -mamlCommand $_
+            $md = Get-MamlObject -Cmdlet $command | % {
+                $helpFileName = Get-HelpFileName (Get-Command $command)
+                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
+                    $script:EXTERNAL_HELP_FILES = $helpFileName
+                }
             }
 
             Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
         }
         else # "FromModule"
         {
-            Get-PlatyPSMamlObject -Module $module | % { 
+            Get-MamlObject -Module $module | % { 
                 $command = $_.Name
-                $md = Convert-MamlModelToMarkdown -mamlCommand $_
+                $helpFileName = Get-HelpFileName (Get-Command -Name $command -Module $module)
+                $md = Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
+                    $script:EXTERNAL_HELP_FILES = $helpFileName
+                }
                 Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
             }
         }
     }
 }
 
-function Get-PlatyPSYamlMetadata
+#  .ExternalHelp platyPS.psm1-Help.xml
+function Get-MarkdownMetadata
 {
     param(
         [Parameter(Mandatory=$true,
@@ -81,124 +91,198 @@ function Get-PlatyPSYamlMetadata
 
         [Parameter(Mandatory=$true,
             ParameterSetName="MarkdownContent")]
-        [string]$Markdown
+        [string]$Markdown,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName="MarkdownFileInfo")]
+        [System.IO.FileInfo]$File
     )
 
-    if ($Path)
+    process
     {
-        $Markdown = Get-Content -Raw $Path
-    }
+        if ($Path)
+        {
+            $Markdown = Get-Content -Raw $Path
+        }
 
-    return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
+        if ($File)
+        {
+            $Markdown = $File | Get-Content -Raw
+        }
+
+        return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
+    }
 }
 
 #  .ExternalHelp platyPS.psm1-Help.xml
-function Get-PlatyPSExternalHelp
+function Update-Markdown
 {
     [CmdletBinding()]
-    [OutputType([string])]
+    [OutputType([System.IO.FileInfo[]])]
     param(
+        [Parameter(Mandatory=$true,
+            ValueFromPipeline=$true)]
+        [System.IO.FileInfo[]]$MarkdownFile,
+
         [Parameter(Mandatory=$true)]
+        [string]$OutputFolder,
+
+        [string]$Encoding = $script:DEFAULT_ENCODING
+    )
+
+    begin
+    {
+        $MarkdownFiles = @()
+    }
+
+    process
+    {
+        $MarkdownFiles += $MarkdownFile
+    }
+
+    end 
+    {
+        $markdown = $MarkdownFiles | % {
+            cat -Raw $_.FullName
+        }
+
+        $model = Get-MamlModelImpl $markdown
+        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+
+        $model | % {
+            $name = $_.Name
+            $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
+            $outPath = Join-Path $OutputFolder "$name.md"
+            Write-Verbose "Writing updated markdown to $outPath"
+            Set-Content -Path $outPath -Value $md -Encoding $Encoding
+            ls $outPath
+        }
+    }
+}
+
+#  .ExternalHelp platyPS.psm1-Help.xml
+function New-ExternalHelp
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param(
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FromFolder')]
         [string]$MarkdownFolder,
 
-        [switch]$skipPreambula
+        [Parameter(Mandatory=$true,
+            ParameterSetName='FromFile',
+            ValueFromPipeline=$true)]
+        [System.IO.FileInfo[]]$MarkdownFile,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputPath,
+
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
-    $markdown = ls -File $MarkdownFolder -Filter "*.md" | % {
-        cat -Raw $_.FullName
-    }
-
-    # metadata would be parsed only from the first one, but we are allowed to be a little bit sloppy here
-    $metadata = Get-PlatyPSYamlMetadata -markdown ($markdown | Select -first 1)
-    if ($metadata)
+    begin
     {
-        $schema = $metadata['schema']
-        if (-not $schema) 
+        if ($PSCmdlet.ParameterSetName -eq 'FromFile')
         {
-            # there is metadata, but schema version is not specified.
-            # assume 2.0.0
-            $schema = '2.0.0'
+            $MarkdownFiles = @()
+        }
+
+        mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+    }
+
+    process
+    {
+        $MarkdownFiles += $MarkdownFile
+    }
+
+    end 
+    { 
+        if ($MarkdownFolder)
+        {
+            $MarkdownFiles = Get-ChildItem -File $MarkdownFolder -Filter "*.md"
+        }
+
+        $markdown = $MarkdownFiles | % {
+            cat -Raw $_.FullName
+        }
+
+        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+        
+        # TODO: this is just a place-holder, we can do better
+        $defaultOutputName = 'rename-me.psm1-help.xml'
+        $groups = $markdown | group { 
+            $h = Get-MarkdownMetadata -Markdown $_
+            if ($h -and $h.ContainsKey($script:EXTERNAL_HELP_FILES)) 
+            {
+                Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
+            }
+            else 
+            {
+                Join-Path $OutputPath $defaultOutputName
+            }
+        }
+
+        $groups |  % {
+            $maml = Get-MamlModelImpl $_.Group
+            $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
+            $outPath = $_.Name
+            Write-Verbose "Writing external help to $outPath"
+            Set-Content -Path $outPath -Value $xml -Encoding $Encoding
+            ls $outPath
         }
     }
-    else 
-    {
-        # if there is not metadata, then it's schema version 1.0.0
-        $schema = '1.0.0'    
-    }
-
-    $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
-    $p = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
-        param([int]$current, [int]$all) 
-        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    }
-
-    if ($schema -eq '1.0.0')
-    {
-        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
-        }
-    }
-    elseif ($schema -eq '2.0.0')
-    {
-        $t = new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
-        }
-    }
-    else 
-    {
-        throw "Unknown schema version: $schema"
-    }
-
-    $model = $p.ParseString($markdown)
-    Write-Progress -Activity "Parsing markdown" -Completed    
-    $maml = $t.NodeModelToMamlModel($model)
-    $xml = $r.MamlModelToString($maml, [bool]$skipPreambula)
-
-    return $xml
 }
 
-function Get-PlatyPSTextHelpFromMaml
+#  .ExternalHelp platyPS.psm1-Help.xml
+function Show-HelpPreview
 {
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
     param(
         [Parameter(Mandatory=$true)]
-        [string]$MamlFilePath,
+        [string[]]$MamlFilePath,
 
         [Parameter(Mandatory=$true)]
-        [string]$TextOutputPath
+        [string]$TextOutputPath,
+
+        [string]$Encoding = $script:DEFAULT_ENCODING
     )
 
-    $g = New-PlatyPSModuleFromMaml -MamlFilePath $MamlFilePath
+    $MamlFilePath | % {
+        $g = Get-ModuleFromMaml -MamlFilePath $_
 
-    try 
-    {
-        Import-Module $g.Path -Force -ea Stop
-        $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
-            $c = $_
-            try
-            {
-                Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
-            }
-            catch 
-            {
-                Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
-            }
-        } | Microsoft.PowerShell.Utility\Out-String
-        Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding UTF8
-    }
-    finally
-    {
-        Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
-        $moduleDirectory = Split-Path $g.Path
-        if (Test-Path $moduleDirectory)
+        try 
         {
-            Remove-Item $moduleDirectory -Force -Recurse
+            Import-Module $g.Path -Force -ea Stop
+            $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
+                $c = $_
+                try
+                {
+                    Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
+                }
+                catch 
+                {
+                    Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
+                }
+            } | Microsoft.PowerShell.Utility\Out-String
+            Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
+            Get-ChildItem $TextOutputPath
+        }
+        finally
+        {
+            Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
+            $moduleDirectory = Split-Path $g.Path
+            if (Test-Path $moduleDirectory)
+            {
+                Remove-Item $moduleDirectory -Force -Recurse
+            }
         }
     }
 }
 
-function New-PlatyPSCab
+#  .ExternalHelp platyPS.psm1-Help.xml
+function New-ExternalHelpCab
 {
     [Cmdletbinding()]
     param(
@@ -319,50 +403,6 @@ function New-PlatyPSCab
     Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
 }
 
-function Format-PlatyPsHelpXml
-{
-    [Cmdletbinding()]
-    param(
-        [parameter(Mandatory=$true)]
-        [ValidateScript(
-            {
-                if((Test-Path $_ -PathType Leaf) -and ([System.IO.Path]::GetExtension($_) -eq ".xml"))
-                    {
-                        $True
-                    }
-                    else
-                    {
-                        Throw "$_ MAML Xml is not a valid file of type xml."
-                    }   
-            }
-        )]
-        [string] $MamlHelpXmlFullPath,
-        [parameter(Mandatory=$true)]
-        [string] $ModuleSourceFileName,
-        [parameter(Mandatory=$true)]
-        [ValidateScript(
-            {
-                if(Test-Path -Path $_ -PathType Container)
-                    {
-                        $True
-                    }
-                    else
-                    {
-                        Throw "$_ destination is not a valid directory."
-                    }   
-            }
-        )]
-        [string] $Destination
-    )
-
-    $NewHelpFileName = $ModuleSourceFileName + "-help.xml"
-    
-    $NewHelpFileName = Join-Path $Destination $NewHelpFileName
-
-    Copy-Item -Path $MamlHelpXmlFullPath -Destination $NewHelpFileName
-
-}
-
 #endregion
 
 #region Implementation
@@ -389,7 +429,89 @@ function Format-PlatyPsHelpXml
 #                                   p:::::::p
 #                                   ppppppppp
 
-function Get-PlatyPSMamlObject
+function Get-MamlModelImpl
+{
+    param(
+        [string[]]$markdown
+    )
+
+    # we need to pass it into .NET IEnumerable<MamlCommand> API
+    $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
+
+    $markdown | % {
+        $schema = Get-SchemaVersion $_
+        $p = New-MarkdownParser
+        $t = New-ModelTransformer -schema $schema
+
+        $model = $p.ParseString($_)
+        Write-Progress -Activity "Parsing markdown" -Completed    
+        $maml = $t.NodeModelToMamlModel($model)
+
+        # flatten
+        $maml | % { $res.Add($_) }
+    }
+
+    return @(,$res)
+}
+
+function New-MarkdownParser
+{
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+        param([int]$current, [int]$all) 
+        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
+    }
+}
+
+function New-ModelTransformer
+{
+    param(
+        [ValidateSet('1.0.0', '2.0.0')]
+        [string]$schema
+    )
+
+    if ($schema -eq '1.0.0')
+    {
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+    elseif ($schema -eq '2.0.0')
+    {
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+            param([string]$message)
+            Write-Verbose $message
+        }
+    }
+}
+
+function Get-SchemaVersion
+{
+    param(
+        [string]$markdown
+    )
+
+    $metadata = Get-MarkdownMetadata -markdown $markdown
+    if ($metadata)
+    {
+        $schema = $metadata['schema']
+        if (-not $schema) 
+        {
+            # there is metadata, but schema version is not specified.
+            # assume 2.0.0
+            $schema = '2.0.0'
+        }
+    }
+    else 
+    {
+        # if there is not metadata, then it's schema version 1.0.0
+        $schema = '1.0.0'    
+    }
+
+    return $schema
+}
+
+function Get-MamlObject
 {
     Param(
         [CmdletBinding()]
@@ -410,7 +532,7 @@ function Get-PlatyPSMamlObject
         Write-Verbose ("Processing: " + $Module)
 
         # We use: & (dummy module) {...} syntax to workaround
-        # the case `Get-PlatyPSMamlObject -Module platyPS`
+        # the case `Get-MamlObject -Module platyPS`
         # because in this case, we are in the module context and Get-Command returns all commands,
         # not only exported ones.
         $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
@@ -423,7 +545,49 @@ function Get-PlatyPSMamlObject
     }
 }
 
-function New-PlatyPSModuleFromMaml
+function Get-HelpFileName
+{
+    param(
+        [System.Management.Automation.CommandInfo]$CommandInfo
+    )
+
+    if ($CommandInfo)
+    {
+        if ($CommandInfo.HelpFile)
+        {
+            if ([System.IO.Path]::IsPathRooted($CommandInfo.HelpFile))
+            {
+                return (Split-Path -Leaf $CommandInfo.HelpFile)
+            }
+            else 
+            {
+                return $CommandInfo.HelpFile   
+            }
+        }
+
+        # overwise, lets guess it
+        $module = @($CommandInfo.Module) + ($CommandInfo.Module.NestedModules) | 
+            ? {$_.ModuleType -ne 'Manifest'} | 
+            ? {$_.ExportedCommands.Keys -contains $CommandInfo.Name}
+
+        if (-not $module)
+        {
+            Write-Warning "[Get-HelpFileName] Cannot find module for $($CommandInfo.Name)"
+            return
+        }
+
+        if ($module.Count -gt 1)
+        {
+            Write-Warning "[Get-HelpFileName] Found $($module.Count) modules for $($CommandInfo.Name)"
+            $module = $module | Select -First 1
+        }
+
+        $fileName = Split-Path -Leaf $module.Path
+        return "$fileName-help.xml"
+    }
+}
+
+function Get-ModuleFromMaml
 {
     param 
     (
@@ -524,14 +688,16 @@ function $cmdletName
 
 function Out-MarkdownToFile
 {
+    [OutputType([System.IO.FileInfo])]        
     param(
         [string]$Path,
         [string]$value,
         [string]$Encoding
     )
 
-    Write-Host "Writing to $Path"
+    Write-Verbose "Writing to $Path"
     Set-Content -Path $Path -Value $md -Encoding $Encoding
+    return Get-ChildItem $Path
 }
 
 function Convert-MamlModelToMarkdown
@@ -645,7 +811,7 @@ param(
         }
         else
         {
-            Write-Warning "Cannot find syntaxItem that matches parameter set $($ParameterSet.Name) for $($Help.Name)"
+            Write-Warning "[Convert-PsObjectsToMamlModel] Cannot find syntaxItem that matches parameter set $($ParameterSet.Name) for $($Help.Name)"
         }
     }
 
@@ -934,12 +1100,12 @@ return $MamlCommandObject
 
 
 Export-ModuleMember -Function @(
-    'Get-PlatyPSMarkdown', 
-    'Get-PlatyPSYamlMetadata',
-    'Get-PlatyPSExternalHelp', 
-    'Get-PlatyPSTextHelpFromMaml',
-    'New-PlatyPSCab',
-    'Format-PlatyPsHelpXml'
+    'New-Markdown', 
+    'Get-MarkdownMetadata',
+    'New-ExternalHelp', 
+    'Show-HelpPreview',
+    'New-ExternalHelpCab',
+    'Update-Markdown'
 )
 
 #endregion

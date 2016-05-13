@@ -4,12 +4,14 @@ CHANGELOG
 ## Not released
 
 *   Schema 2.0.0
+*   Cmdlets renamed: `platyPS` prefix removed from the names.
 *   Removed APIs:
-    -   `New-PlatyPSModuleFromMaml` (private now)
-    -   `Get-PlatyPSMarkdown` always produces one md file per cmdlet in `-OutputFolder`.
+    -   `Get-ModuleFromMaml` (private now)
+    -   `New-Markdown` always produces one md file per cmdlet in `-OutputFolder`.
 *   New APIs:    
-    -   `New-PlatyPSCab` - create updatable help Cab files
-    -   `Get-PlatyPSYamlMetadata` - get a hashtable with yaml metadata (new in schema 2.0.0) from the markdown file
+    -   `New-ExternalHelpCab` - create updatable help Cab files
+    -   `Get-MarkdownMetadata` - get a hashtable with yaml metadata (new in schema 2.0.0) from the markdown file
+    -   `Update`
 *   Generate one file per cmdlet is not the default
 
 ## 0.3.1
@@ -29,5 +31,5 @@ CHANGELOG
 ## 0.1.0
 
 *   Initial release
-*   Commands: `Get-PlatyPSExternalHelp`, `Get-PlatyPSMarkdown`, `New-PlatyPSModuleFromMaml`
+*   Commands: `Get-PlatyPSExternalHelp`, `Get-PlatyPSMarkdown`, `Get-ModuleFromMaml`
 *   Schema: Version 1.0.0

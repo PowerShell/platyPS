@@ -13,29 +13,24 @@ function normalize([string]$text)
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    $OutputFolder = "TestDrive:\Add-Member"
-    $outMamlFilePath = "$outFolder\Add-Member.dll-help.xml"
     $outOriginalHelp = "$outFolder\Add-Member.original.txt"
     $outGeneratedHelp = "$outFolder\Add-Member.generated.txt"
 
     It 'creates markdown from Add-Member command' {
         # run convertion
-        Get-PlatyPSMarkdown -Encoding UTF8 -command Add-Member -OutputFolder $OutputFolder
-        # publish artifact for CI
-        ls $OutputFolder | % { cp $_.FullName $outFolder\Add-Member-2.md }
+        New-Markdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
     }
 
-    $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $OutputFolder -Verbose
-    $generatedMaml | Out-File $outMamlFilePath
+    # test -MarkdownFile piping
+    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputPath $outFolder
 
     It 'generate maml as a valid xml' {
-        $generatedXml = [xml]$generatedMaml
-        $generatedXml | Should Not Be $null
+        [xml]($generatedMaml | cat -raw) | Should Not Be $null
     }
 
     try 
     {
-        $generatedModule = & (Get-Module platyPS) ([scriptblock]::Create("New-PlatyPSModuleFromMaml -MamlFilePath $outMamlFilePath"))
+        $generatedModule = & (Get-Module platyPS) ([scriptblock]::Create("Get-ModuleFromMaml -MamlFilePath $outFolder\Microsoft.PowerShell.Commands.Utility.dll-help.xml"))
         Import-Module $generatedModule.Path -Force -ea Stop
 
         foreach ($cmdletName in $generatedModule.Cmdlets)
@@ -138,21 +133,16 @@ $smaOutputFolder = "TestDrive:\SMA"
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    $module = 'Microsoft.PowerShell.Core'
+    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR) {
 
-    It "creates Markdown for $module" {
-        Get-PlatyPSMarkdown -Encoding UTF8 -module $module -OutputFolder $smaOutputFolder
-        # artifacts publishing
-        ls $smaOutputFolder | % { cp $_.FullName $outFolder }
-    }
+        $module = 'Microsoft.PowerShell.Core'
+        $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
 
-    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR){
-        $generatedMaml = Get-PlatyPSExternalHelp -markdownFolder $smaOutputFolder -Verbose
-        $generatedMaml > $outFolder\SMA.dll-help.xml
-        $generatedMaml | Should Not Be $null
+        $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $outFolder
+        $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
         # add artifacts to out
-        Get-PlatyPSTextHelpFromMaml $outFolder\SMA.dll-help.xml -TextOutputPath $outFolder\SMA.generated.txt
-        Get-PlatyPSTextHelpFromMaml $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
+        Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
+        Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
     }
 }

@@ -31,18 +31,16 @@ The schema closely resembles the existing output format of `Get-Help`.
 Install-Module -Name platyPS -Scope CurrentUser
 ```
 
-* Create an initial Markdown template from command and copy it to clipboard:
+* Create an initial Markdown:
 
 ```powershell
-Get-platyPSMarkdown -Command Get-MyCommandName | Set-Clipboard
+New-Markdown -Command Get-MyCommandName -OutputFolder .\docs
 ```
-
-Copy it to some `MyModule.md` file on disk.
 
 * Create external help from markdown
 
 ```powershell
-$maml = Get-platyPSExternalHelp -Markdown (cat -Raw .\MyModule.md)
+$maml = New-ExternalHelp -MarkdownFolder .\docs
 Set-Content -Path en-US\MyModule.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 
