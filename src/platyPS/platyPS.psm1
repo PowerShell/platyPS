@@ -95,7 +95,7 @@ function Get-MarkdownMetadata
 
         [Parameter(Mandatory=$true,
             ParameterSetName="MarkdownFileInfo")]
-        [System.IO.FileInfo]$File
+        [System.IO.FileInfo]$FileInfo
     )
 
     process
@@ -105,9 +105,9 @@ function Get-MarkdownMetadata
             $Markdown = Get-Content -Raw $Path
         }
 
-        if ($File)
+        if ($FileInfo)
         {
-            $Markdown = $File | Get-Content -Raw
+            $Markdown = $FileInfo | Get-Content -Raw
         }
 
         return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
@@ -124,10 +124,15 @@ function Update-Markdown
             ValueFromPipeline=$true)]
         [System.IO.FileInfo[]]$MarkdownFile,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true,
+            ParameterSetName='SchemaUpgrade')]
         [string]$OutputFolder,
 
-        [string]$Encoding = $script:DEFAULT_ENCODING
+        [string]$Encoding = $script:DEFAULT_ENCODING,
+
+        [Parameter(Mandatory=$true,
+            ParameterSetName='Reflection')]
+        [switch]$UseReflection
     )
 
     begin
@@ -142,20 +147,31 @@ function Update-Markdown
 
     end 
     {
-        $markdown = $MarkdownFiles | % {
-            cat -Raw $_.FullName
+        if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
+        {
+            $markdown = $MarkdownFiles | % {
+                cat -Raw $_.FullName
+            }
+
+            $model = Get-MamlModelImpl $markdown
+            $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+
+            $model | % {
+                $name = $_.Name
+                $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
+                $outPath = Join-Path $OutputFolder "$name.md"
+                Write-Verbose "Writing updated markdown to $outPath"
+                Set-Content -Path $outPath -Value $md -Encoding $Encoding
+                ls $outPath
+            }
         }
+        else # Reflection
+        {
+            $MarkdownFiles | % {
+                $oldMarkdown = cat -Raw $_.FullName
+                $oldModel = Get-MamlModelImpl $oldMarkdown
 
-        $model = Get-MamlModelImpl $markdown
-        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
-
-        $model | % {
-            $name = $_.Name
-            $md = $r.MamlModelToString($_, $false) # skipYamlHeader -eq $false
-            $outPath = Join-Path $OutputFolder "$name.md"
-            Write-Verbose "Writing updated markdown to $outPath"
-            Set-Content -Path $outPath -Value $md -Encoding $Encoding
-            ls $outPath
+            }
         }
     }
 }
@@ -203,28 +219,27 @@ function New-ExternalHelp
             $MarkdownFiles = Get-ChildItem -File $MarkdownFolder -Filter "*.md"
         }
 
-        $markdown = $MarkdownFiles | % {
-            cat -Raw $_.FullName
-        }
-
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
         
         # TODO: this is just a place-holder, we can do better
         $defaultOutputName = 'rename-me.psm1-help.xml'
-        $groups = $markdown | group { 
-            $h = Get-MarkdownMetadata -Markdown $_
+        $groups = $MarkdownFiles | group { 
+            $h = Get-MarkdownMetadata -FileInfo $_
             if ($h -and $h.ContainsKey($script:EXTERNAL_HELP_FILES)) 
             {
                 Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
             }
             else 
             {
-                Join-Path $OutputPath $defaultOutputName
+                $defaultPath = Join-Path $OutputPath $defaultOutputName
+                Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILES)' in metadata for file $($_.FullName)"
+                Write-Warning "[New-ExternalHelp] $defaultPath would be used"
+                $defaultPath
             }
         }
 
         $groups |  % {
-            $maml = Get-MamlModelImpl $_.Group
+            $maml = Get-MamlModelImpl ( $_.Group | cat -Raw )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $_.Name
             Write-Verbose "Writing external help to $outPath"
