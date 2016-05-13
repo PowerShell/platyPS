@@ -26,6 +26,7 @@
 
 $script:EXTERNAL_HELP_FILES = 'external help file'
 $script:DEFAULT_ENCODING = 'UTF8'
+$script:UTF8_NO_BOM = 'UTF8_NO_BOM'
 
 #  .ExternalHelp platyPS.psm1-Help.xml
 function New-Markdown
@@ -46,7 +47,7 @@ function New-Markdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [string]$Encoding = $script:DEFAULT_ENCODING
+        [string]$Encoding = 'UTF8_NO_BOM'
     )
 
     begin
@@ -128,7 +129,7 @@ function Update-Markdown
             ParameterSetName='SchemaUpgrade')]
         [string]$OutputFolder,
 
-        [string]$Encoding = $script:DEFAULT_ENCODING,
+        [string]$Encoding = $script:UTF8_NO_BOM,
 
         [Parameter(Mandatory=$true,
             ParameterSetName='Reflection')]
@@ -191,8 +192,8 @@ function Update-Markdown
             $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
-            Set-Content -Path $file.FullName -Value $md -Encoding $Encoding
-
+            Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding
+            
             return $file
         }
 
@@ -212,7 +213,7 @@ function Update-Markdown
                 $md = $r.MamlModelToString($_, $false)
                 $outPath = Join-Path $OutputFolder "$name.md"
                 Write-Verbose "Writing updated markdown to $outPath"
-                Set-Content -Path $outPath -Value $md -Encoding $Encoding
+                Out-MarkdownToFile -path $outPath -value $md -Encoding $Encoding
                 ls $outPath
             }
         }
@@ -795,8 +796,19 @@ function Out-MarkdownToFile
         [string]$Encoding
     )
 
-    Write-Verbose "Writing to $Path"
-    Set-Content -Path $Path -Value $md -Encoding $Encoding
+    Write-Verbose "Writing to $Path with encoding $Encoding"
+    if ($Encoding -eq $UTF8_NO_BOM)
+    {
+        # just to create a file
+        Set-Content -Path $Path -Value ''
+        $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding -ArgumentList $False
+        [System.IO.File]::WriteAllLines($Path, $value, $Utf8NoBomEncoding)
+    }
+    else 
+    {
+        Set-Content -Path $Path -Value $md -Encoding $Encoding
+    }
+
     return Get-ChildItem $Path
 }
 
