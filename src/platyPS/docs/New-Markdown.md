@@ -1,4 +1,4 @@
----
+﻿---
 external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
@@ -11,12 +11,12 @@ Convert your existing external help into markdown or generate it from Help objec
 
 ### FromModule
 ```
-New-Markdown -module <Object> -OutputFolder <String> [[-Encoding] <String>] [<CommonParameters>]
+New-Markdown -module <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-Markdown -command <Object> -OutputFolder <String> [[-Encoding] <String>] [<CommonParameters>]
+New-Markdown -command <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -106,7 +106,7 @@ Parameter Sets: FromModule, FromCommand
 Aliases: 
 
 Required: False
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -135,6 +135,8 @@ module
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
+## NOTES
+
 ## RELATED LINKS
 
 

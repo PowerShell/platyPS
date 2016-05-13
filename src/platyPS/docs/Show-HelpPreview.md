@@ -1,4 +1,4 @@
----
+﻿---
 external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
@@ -9,8 +9,14 @@ schema: 2.0.0
 
 ## SYNTAX
 
+### FileOutput
 ```
-Show-HelpPreview -MamlFilePath <String> -TextOutputPath <String> [<CommonParameters>]
+Show-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [[-Encoding] <String>] [<CommonParameters>]
+```
+
+### AsObject
+```
+Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -24,7 +30,8 @@ Show-HelpPreview -MamlFilePath <String> -TextOutputPath <String> [<CommonParamet
 {{Fill MamlFilePath Description}}
 
 ```yaml
-Type: String
+Type: String[]
+Parameter Sets: FileOutput, AsObject
 Aliases: 
 
 Required: True
@@ -39,6 +46,7 @@ Accept wildcard characters: False
 
 ```yaml
 Type: String
+Parameter Sets: FileOutput
 Aliases: 
 
 Required: True
@@ -48,9 +56,37 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### Encoding
+```yaml
+Type: String
+Parameter Sets: FileOutput
+Aliases: 
+
+Required: False
+Position: 
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### AsObject
+```yaml
+Type: SwitchParameter
+Parameter Sets: AsObject
+Aliases: 
+
+Required: True
+Position: 
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## INPUTS
 
 ## OUTPUTS
+
+## NOTES
 
 ## RELATED LINKS
 
