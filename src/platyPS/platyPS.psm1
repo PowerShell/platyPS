@@ -192,9 +192,7 @@ function Update-Markdown
             $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
-            Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding
-            
-            return $file
+            Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding # yeild
         }
 
         if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
@@ -213,8 +211,7 @@ function Update-Markdown
                 $md = $r.MamlModelToString($_, $false)
                 $outPath = Join-Path $OutputFolder "$name.md"
                 Write-Verbose "Writing updated markdown to $outPath"
-                Out-MarkdownToFile -path $outPath -value $md -Encoding $Encoding
-                ls $outPath
+                Out-MarkdownToFile -path $outPath -value $md -Encoding $Encoding # yeild
             }
         }
         else # Reflection
