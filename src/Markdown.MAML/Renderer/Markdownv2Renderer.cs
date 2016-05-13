@@ -79,6 +79,7 @@ namespace Markdown.MAML.Renderer
             AddParameters(command);
             AddInputs(command);
             AddOutputs(command);
+            AddEntryHeaderWithText(MarkdownStrings.NOTES, command.Notes);
             AddLinks(command);
         }
 

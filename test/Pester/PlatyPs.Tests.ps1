@@ -20,7 +20,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $mamlModelObject.Name | Should be "Add-Computer"
             $mamlModelObject.Synopsis | Should be "Add the local computer to a domain or workgroup."
             $mamlModelObject.Description.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
-            $mamlModelObject.Notes.Substring(0,31) | Should be "The Cmdlet category is: Cmdlet."
+            $mamlModelObject.Notes.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
         }
 
         It 'Validates the examples by checking Add-Computer Example 1'{

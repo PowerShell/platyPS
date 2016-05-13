@@ -168,4 +168,7 @@
   <data name="Accepted_values" xml:space="preserve">
     <value>Accepted values</value>
   </data>
+  <data name="NOTES" xml:space="preserve">
+    <value>NOTES</value>
+  </data>
 </root>

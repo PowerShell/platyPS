@@ -835,64 +835,70 @@ $MamlCommandObject.Synopsis = "{{Fill the Synopsis}}"
 #Not provided by the command object.
 $MamlCommandObject.Description = "{{Fill the Description}}"
 
-#Get Notes
-#Not provided by the command object. Using the Command Type to create a note declaring it's type.
-$MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
-
-
-#Get Examples
-#Not provided by the command object.
-
-#Get Links
-#Not provided by the command object.
-
 #endregion 
 
-#Get Inputs
-#Reccomend adding a Parameter Name and Parameter Set Name to each input object.
-#region Inputs
-$Inputs = @()
-foreach($ParameterSet in $Command.ParameterSets)
+# otherwise, we preserve input data from $Help
+if (-not $Help)
 {
-    foreach($Parameter in $ParameterSet.Parameters)
-    {
-        if($Parameter.ValueFromPipeline -eq "True")
-        {
-            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+    #Get Notes
+    #Not provided by the command object. Using the Command Type to create a note declaring it's type.
+    $MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
 
-            $InputObject.TypeName = $Parameter.ParameterType.Name
 
-            $InputObject.Description = $Parameter.Name
+    #Get Examples
+    #Not provided by the command object.
 
-            $Inputs += $InputObject
-        }
-    }   
-}
+    #Get Links
+    #Not provided by the command object.
 
-$Inputs = $Inputs | Select -Unique
-foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
-
-#endregion
-
-#Get Outputs
-#No Output Type description is provided from the command object.
-#region Outputs
-
-$Outputs = @()
-foreach($OutputType in $Command.OutputType)
-{
-    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-
-    $OutputObject.TypeName = $OutputType.Type
-
-    $Outputs += $OutputObject
     
+    #Get Inputs
+    #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+    #region Inputs
+
+    $Inputs = @()
+    foreach($ParameterSet in $Command.ParameterSets)
+    {
+        foreach($Parameter in $ParameterSet.Parameters)
+        {
+            if($Parameter.ValueFromPipeline -eq "True")
+            {
+                $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+                $InputObject.TypeName = $Parameter.ParameterType.Name
+
+                $InputObject.Description = $Parameter.Name
+
+                $Inputs += $InputObject
+            }
+        }   
+    }
+
+    $Inputs = $Inputs | Select -Unique
+    foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+
+    #endregion
+
+    #Get Outputs
+    #No Output Type description is provided from the command object.
+    #region Outputs
+
+    $Outputs = @()
+    foreach($OutputType in $Command.OutputType)
+    {
+        $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+
+        $OutputObject.TypeName = $OutputType.Type
+
+        $Outputs += $OutputObject
+        
+    }
+
+    $Outputs = $Outputs | Select -Unique
+    foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+
+    #endregion
 }
-
-$Outputs = $Outputs | Select -Unique
-foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
-
-#endregion
 
 #Get Syntax
 #region Get the Syntax Parameter Set objects
@@ -1037,6 +1043,27 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
                 $Parameter.Position = $HelpEntry.position
             }
         }
+    }
+
+    function Get-MamlInputOutput
+    {
+        param($object)
+
+        $o = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $o.TypeName = $object.type.name
+        $o.Description = $object.type.description.text
+
+        return $o
+    }
+
+    # inputs
+    $help.inputTypes.inputType | % { 
+        $MamlCommandObject.Inputs.Add( (Get-MamlInputOutput $_) )
+    }
+
+    # outputs
+    $help.returnValues.returnValue | % { 
+        $MamlCommandObject.Outputs.Add( (Get-MamlInputOutput $_) )
     }
 
 }

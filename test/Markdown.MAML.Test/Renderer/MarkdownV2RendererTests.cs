@@ -35,7 +35,8 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Name = "Get-Foo",
                 Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs."
+                Description = "This is a long description.\r\nWith two paragraphs.",
+                Notes = "This is a multiline note.\r\nSecond line."
             };
 
             var parameterName = new MamlParameter()
@@ -152,6 +153,11 @@ Input \<Description\> goes here!
 
 ### String
 Output Description goes here!
+
+## NOTES
+This is a multiline note.
+
+Second line.
 
 ## RELATED LINKS
 
