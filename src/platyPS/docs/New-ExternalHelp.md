@@ -35,6 +35,8 @@ mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
 Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
 ```
 
+
+
 ### ----------------------------- Example 2 (skipPreambula) ------------------------------------
 ```
 $markdown = New-Markdown New-Markdown | Out-String
@@ -109,12 +111,12 @@ Accept wildcard characters: False
 ## INPUTS
 
 ### FileInfo[]
-MarkdownFile
-
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 ## NOTES
+
+
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

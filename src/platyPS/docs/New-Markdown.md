@@ -130,12 +130,12 @@ Accept wildcard characters: False
 ## INPUTS
 
 ### Object
-module
-
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 ## NOTES
+
+
 ## RELATED LINKS
 
 

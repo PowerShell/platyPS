@@ -3,15 +3,18 @@ external help file: platyPS.psm1-help.xml
 schema: 2.0.0
 ---
 
-# New-ExternalHelpCab
+# Update-Markdown
 ## SYNOPSIS
-{{Fill the Synopsis}}
-
 ## SYNTAX
 
+### SchemaUpgrade
 ```
-New-ExternalHelpCab -Source <String> -Destination <String> -Module <String> -Guid <String> -Locale <String>
- [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
+```
+
+### Reflection
+```
+Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -21,11 +24,23 @@ New-ExternalHelpCab -Source <String> -Destination <String> -Module <String> -Gui
 
 ## PARAMETERS
 
-### Source
-{{Fill Source Description}}
+### MarkdownFile
+```yaml
+Type: Object[]
+Parameter Sets: SchemaUpgrade, Reflection
+Aliases: 
 
+Required: True
+Position: named
+Default value: 
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### OutputFolder
 ```yaml
 Type: String
+Parameter Sets: SchemaUpgrade
 Aliases: 
 
 Required: True
@@ -35,58 +50,28 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Destination
-{{Fill Destination Description}}
-
+### Encoding
 ```yaml
 Type: String
+Parameter Sets: SchemaUpgrade, Reflection
 Aliases: 
 
-Required: True
+Required: False
 Position: named
-Default value: 
+Default value: $script:DEFAULT_ENCODING
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Module
-{{Fill Module Description}}
-
+### UseReflection
 ```yaml
-Type: String
+Type: SwitchParameter
+Parameter Sets: Reflection
 Aliases: 
 
 Required: True
 Position: named
-Default value: 
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### Guid
-{{Fill Guid Description}}
-
-```yaml
-Type: String
-Aliases: 
-
-Required: True
-Position: named
-Default value: 
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### Locale
-{{Fill Locale Description}}
-
-```yaml
-Type: String
-Aliases: 
-
-Required: True
-Position: named
-Default value: 
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -95,6 +80,7 @@ Accept wildcard characters: False
 
 ## OUTPUTS
 
+### System.IO.FileInfo[]
 ## NOTES
 
 
