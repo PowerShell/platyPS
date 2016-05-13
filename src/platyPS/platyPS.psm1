@@ -176,9 +176,13 @@ function Update-Markdown
 
             # just preserve old metadata
             $metadata = Get-MarkdownMetadata -FileInfo $file
-            # TODO ....
-            $md = Convert-MamlModelToMarkdown -mamlCommand $oldModel -metadata $metadata
+            $reflectionModel = Get-MamlObject -Cmdlet $name
 
+            $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
+
+            $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
+            Set-Content -Path $file -Value $md -Encoding $Encoding
+            
             return $file
         }
 
@@ -494,6 +498,26 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+function Merge-MamlModel
+{
+    [OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
+
+    param(
+        [Markdown.MAML.Model.MAML.MamlCommand]
+        $MetadataModel,
+
+        [Markdown.MAML.Model.MAML.MamlCommand]
+        $StringModel
+    )
+
+    $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
+        param([string]$message)
+        Write-Verbose $message
+    }
+
+    return $merger.Merge($MetadataModel, $StringModel)
+}
 
 function Get-MamlModelImpl
 {

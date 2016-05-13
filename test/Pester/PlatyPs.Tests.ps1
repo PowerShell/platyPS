@@ -179,20 +179,20 @@ Describe 'Update-Markdown reflection scenario' {
         )
     }
 
-    $v2md = Update-Markdown -MarkdownFile $v1md -UseReflection
+    $v2md = Update-Markdown -MarkdownFile $v1md -UseReflection -Verbose
 
     It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
     $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
-    $help = Show-HelpPreview -MamlFilePath $v2maml -AsObject
+    $help = Show-HelpPreview -MamlFilePath $v2maml -AsObject 
     
     It 'has both parameters' {
         $names = $help.Parameters.parameter.Name
         ($names | measure).Count | Should Be 2
-        $name[0] | Should Be 'Bar'
-        $name[1] | Should Be 'Foo'
+        $names[0] | Should Be 'Foo'
+        $names[1] | Should Be 'Bar'
     }
 
     It 'has updated description for Foo' {
