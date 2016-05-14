@@ -139,8 +139,10 @@ function Update-Markdown
     begin
     {
         $MarkdownFiles = @()
-
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        if ($OutputFolder)
+        {
+            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        }
     }
 
     process
