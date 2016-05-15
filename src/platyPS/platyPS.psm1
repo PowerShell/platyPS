@@ -75,7 +75,9 @@ function New-Markdown
         }
         else # "FromModule"
         {
-            if (-not (Get-Module $module))
+            # second if part is for Microsoft.PowerShell.Core module.
+            # Get-Module doesn't know about it
+            if (-not (Get-Module $module) -and -not (Get-Command -module $module))
             {
                 throw "Module $module is not imported in the session. Run 'Import-Module $module'."
             }
