@@ -1046,7 +1046,11 @@ foreach($ParameterSet in $Command.ParameterSets)
         $ParameterObject.Type = $Parameter.ParameterType.Name
         $ParameterObject.Name = $Parameter.Name
         $ParameterObject.Required = $Parameter.IsMandatory
-        $ParameterObject.Description = "{{Fill $($Parameter.Name) Description}}"
+        $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) {
+            "{{Fill $($Parameter.Name) Description}}"
+        } else {
+            $Parameter.HelpMessage
+        }
         #$ParameterObject.DefaultValue
         $ParameterObject.PipelineInput = GetPipelineValue $Parameter
         
