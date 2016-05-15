@@ -6,6 +6,18 @@ $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
 
+Describe 'New-Markdown' {
+    It 'throw when cannot find module' {
+        { New-Markdown -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
+            Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
+    }
+
+    It 'throw when cannot find module' {
+        { New-Markdown -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
+            Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
+    }
+}
+
 #region PS Objects to MAML Model Tests
 
 Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
