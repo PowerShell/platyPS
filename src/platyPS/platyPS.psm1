@@ -695,7 +695,12 @@ function Get-HelpFileName
             $module = $module | Select -First 1
         }
 
-        $fileName = (Split-Path -Leaf $module.Path).TrimEnd('.psm1')
+        $moduleItem = Get-Item -Path $module.Path
+        if ($moduleItem.Extension -eq '.psm1') {
+            $fileName = $moduleItem.BaseName
+        } else {
+            $fileName - $moduleItem.Name
+        }
         return "$fileName-help.xml"
     }
 }
