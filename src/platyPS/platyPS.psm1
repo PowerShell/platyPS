@@ -59,6 +59,11 @@ function New-Markdown
     {
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
+            if (-not (Get-Command $command -EA SilentlyContinue))
+            {
+                throw "Command $command not found in the session."
+            }
+
             $md = Get-MamlObject -Cmdlet $command | % {
                 $helpFileName = Get-HelpFileName (Get-Command $command)
                 Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
@@ -70,6 +75,12 @@ function New-Markdown
         }
         else # "FromModule"
         {
+            # second if part is for Microsoft.PowerShell.Core module.
+            # Get-Module doesn't know about it
+            if (-not (Get-Module $module) -and -not (Get-Command -module $module))
+            {
+                throw "Module $module is not imported in the session. Run 'Import-Module $module'."
+            }
             Get-MamlObject -Module $module | % { 
                 $command = $_.Name
                 $helpFileName = Get-HelpFileName (Get-Command -Name $command -Module $module)
