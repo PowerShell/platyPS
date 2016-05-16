@@ -186,6 +186,10 @@ Describe 'Update-Markdown reflection scenario' {
         $v1md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
+    It 'produce a dummy example' {
+        $v1md.FullName | Should Contain '### Example 1'
+    }
+
     $v1markdown = $v1md | cat -Raw
 
     $newFooDescription = 'ThisIsFooDescription'
@@ -224,5 +228,12 @@ Describe 'Update-Markdown reflection scenario' {
     It 'has updated description for Foo' {
         $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
         $fooParam.Description.Text | Should Be $newFooDescription
+    }
+
+    It 'has a placeholder for example' {
+        ($Help.examples.example | measure).Count | Should Be 1
+        $e = $Help.examples.example
+        $e.Title | Should Be 'Example 1'
+        $e.Code | Should Match 'PS C:\>*'
     }
 }

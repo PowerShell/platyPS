@@ -1158,7 +1158,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
             $MamlExampleObject.Remarks = $RemarkText
             $MamlCommandObject.Examples.Add($MamlExampleObject)
         }
-    }
+    } 
 
     #Update Parameters
     if($help.parameters.parameter.Count -gt 0)
@@ -1199,7 +1199,21 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     $help.returnValues.returnValue | % { 
         $MamlCommandObject.Outputs.Add( (Get-MamlInputOutput $_) )
     }
+}
+else 
+{
+    #
+    # Here we define our misc template for new markdown to bootstrape easier
+    #
 
+    # Example
+    $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+    $MamlExampleObject.Title = 'Example 1'
+    $MamlExampleObject.Code = 'PS C:\> {{ Add example code here }}'
+    $MamlExampleObject.Remarks = '{{ Add example description here }}'
+
+    $MamlCommandObject.Examples.Add($MamlExampleObject)
 }
 #endregion
 ##########
