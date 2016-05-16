@@ -30,6 +30,30 @@ Describe 'New-Markdown' {
             $h['FOO'] | Should Be 'BAR' 
         }
     }
+
+    Context 'Online version link' {
+        
+        function global:Test-PlatyPSFunction {}
+
+        @('https://github.com/PowerShell/platyPS', '') | % {
+            $uri = $_
+            It "generates passed online url '$uri'" {
+                $a = @{
+                    command = 'Test-PlatyPSFunction'
+                    OutputFolder = 'TestDrive:\'
+                }
+                if ($uri) {
+                    $a['OnlineVersionUrl'] = $uri
+                }
+                $file = New-Markdown @a
+                $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+                $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+                $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
+                ($link | measure).Count | Should Be 1
+                $link.uri | Should Be $uri
+            }
+        }
+    }
 }
 
 #region PS Objects to MAML Model Tests
