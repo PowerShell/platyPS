@@ -699,8 +699,9 @@ function Get-HelpFileName
         if ($moduleItem.Extension -eq '.psm1') {
             $fileName = $moduleItem.BaseName
         } else {
-            $fileName - $moduleItem.Name
+            $fileName = $moduleItem.Name
         }
+
         return "$fileName-help.xml"
     }
 }
