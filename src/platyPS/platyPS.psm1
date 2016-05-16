@@ -37,12 +37,16 @@ function New-Markdown
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromModule")]
-        [object]$module,
+        [object]$Module,
 
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
-        [object]$command,
+        [object]$Command,
+
+        [Parameter( 
+            ParameterSetName="FromCommand")]
+        [hashtable]$Metadata,
 
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
@@ -66,9 +70,9 @@ function New-Markdown
 
             $md = Get-MamlObject -Cmdlet $command | % {
                 $helpFileName = Get-HelpFileName (Get-Command $command)
-                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
+                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata ($Metadata + @{
                     $script:EXTERNAL_HELP_FILES = $helpFileName
-                }
+                })
             }
 
             Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
