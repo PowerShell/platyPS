@@ -666,7 +666,7 @@ function Update-MamlObject
     }
 
     # Online Version URL
-    if (-not ($MamlCommandObject.Links | ? {$_.linkText -eq 'Online Version:'} )) {
+    if (-not ($MamlCommandObject.Links | ? {$_.LinkName -eq 'Online Version:'} )) {
         $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
         $mamlLink.LinkName = 'Online Version:'
         $mamlLink.LinkUri = $OnlineVersionUrl
