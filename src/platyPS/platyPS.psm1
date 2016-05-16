@@ -285,7 +285,7 @@ function New-ExternalHelp
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
         
         # TODO: this is just a place-holder, we can do better
-        $defaultOutputName = 'rename-me.psm1-help.xml'
+        $defaultOutputName = 'rename-me-help.xml'
         $groups = $MarkdownFiles | group { 
             $h = Get-MarkdownMetadata -FileInfo $_
             if ($h -and $h[$script:EXTERNAL_HELP_FILES]) 
@@ -695,7 +695,7 @@ function Get-HelpFileName
             $module = $module | Select -First 1
         }
 
-        $fileName = Split-Path -Leaf $module.Path
+        $fileName = (Split-Path -Leaf $module.Path).TrimEnd('.psm1')
         return "$fileName-help.xml"
     }
 }
