@@ -4,6 +4,15 @@
 git clone https://github.com/PowerShell/platyPS
 ```
 
+## First-time setup
+
+Restore nuget packages.
+You can do it from visual studio, or from command line
+
+```
+.\.nuget\NuGet.exe restore
+```
+
 ## Build
 
 You would need Visual Studio and `msbuild` in PATH to build from command line.
