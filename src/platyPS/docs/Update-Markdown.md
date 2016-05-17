@@ -23,11 +23,18 @@ Update platyPS markdown help files in place.
 
 Two supported scenarios:
 
-- update schema version 
+- update schema version
 
 - update markdown with information from the 'live' command
 
 ## EXAMPLES
+
+### Example 1
+```
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
 
 ## PARAMETERS
 
@@ -92,5 +99,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 

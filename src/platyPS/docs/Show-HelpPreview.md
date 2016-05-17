@@ -24,6 +24,13 @@ Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 
 ## EXAMPLES
 
+### Example 1
+```
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
 ## PARAMETERS
 
 ### MamlFilePath
@@ -89,5 +96,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 

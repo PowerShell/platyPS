@@ -19,6 +19,13 @@ New-ExternalHelpCab -Source <String> -Destination <String> -Module <String> -Gui
 
 ## EXAMPLES
 
+### Example 1
+```
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
 ## PARAMETERS
 
 ### Source
@@ -98,5 +105,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 

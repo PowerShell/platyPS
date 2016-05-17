@@ -29,6 +29,13 @@ Get-MarkdownMetadata -FileInfo <FileInfo> [<CommonParameters>]
 
 ## EXAMPLES
 
+### Example 1
+```
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
 ## PARAMETERS
 
 ### Path
@@ -81,5 +88,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 

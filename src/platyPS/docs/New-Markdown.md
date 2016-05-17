@@ -11,12 +11,13 @@ Convert your existing external help into markdown or generate it from Help objec
 
 ### FromModule
 ```
-New-Markdown -module <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
+New-Markdown -Module <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-Markdown -command <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
+New-Markdown -Command <Object> [[-Metadata] <Hashtable>] [[-OnlineVersionUrl] <String>] -OutputFolder <String>
+ [-Encoding <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -69,7 +70,7 @@ Create markdown help for inbox PSReadLine module and output them into a PSReadLi
 
 ## PARAMETERS
 
-### module
+### Module
 Name of the module for bulk help generation.
 
 ```yaml
@@ -112,7 +113,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### command
+### Command
 Name of a command from your PowerShell session.
 
 ```yaml
@@ -127,6 +128,32 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### Metadata
+```yaml
+Type: Hashtable
+Parameter Sets: FromCommand
+Aliases: 
+
+Required: False
+Position: 
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### OnlineVersionUrl
+```yaml
+Type: String
+Parameter Sets: FromCommand
+Aliases: 
+
+Required: False
+Position: 
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ## INPUTS
 
 ### Object
@@ -138,5 +165,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 
