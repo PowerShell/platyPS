@@ -7,14 +7,52 @@ $outFolder = "$root\out"
 Import-Module $outFolder\platyPS -Force
 
 Describe 'New-Markdown' {
-    It 'throw when cannot find module' {
-        { New-Markdown -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
-            Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
+
+    Context 'errors' {
+        It 'throw when cannot find module' {
+            { New-Markdown -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
+                Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
+        }
+
+        It 'throw when cannot find module' {
+            { New-Markdown -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
+                Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
+        }
     }
 
-    It 'throw when cannot find module' {
-        { New-Markdown -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
-            Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
+    Context 'metadata' {
+        It 'generates passed metadata' {
+            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -metadata @{
+                FOO = 'BAR'
+            }
+
+            $h = Get-MarkdownMetadata -Path $file
+            $h['FOO'] | Should Be 'BAR' 
+        }
+    }
+
+    Context 'Online version link' {
+        
+        function global:Test-PlatyPSFunction {}
+
+        @('https://github.com/PowerShell/platyPS', '') | % {
+            $uri = $_
+            It "generates passed online url '$uri'" {
+                $a = @{
+                    command = 'Test-PlatyPSFunction'
+                    OutputFolder = 'TestDrive:\'
+                }
+                if ($uri) {
+                    $a['OnlineVersionUrl'] = $uri
+                }
+                $file = New-Markdown @a
+                $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+                $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+                $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
+                ($link | measure).Count | Should Be 1
+                $link.uri | Should Be $uri
+            }
+        }
     }
 }
 
@@ -172,6 +210,10 @@ Describe 'Update-Markdown reflection scenario' {
         $v1md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
+    It 'produce a dummy example' {
+        $v1md.FullName | Should Contain '### Example 1'
+    }
+
     $v1markdown = $v1md | cat -Raw
 
     $newFooDescription = 'ThisIsFooDescription'
@@ -210,5 +252,12 @@ Describe 'Update-Markdown reflection scenario' {
     It 'has updated description for Foo' {
         $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
         $fooParam.Description.Text | Should Be $newFooDescription
+    }
+
+    It 'has a placeholder for example' {
+        ($Help.examples.example | measure).Count | Should Be 1
+        $e = $Help.examples.example
+        $e.Title | Should Be 'Example 1'
+        $e.Code | Should Match 'PS C:\>*'
     }
 }
