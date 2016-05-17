@@ -1247,26 +1247,23 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     }
 
     #Add Examples
-    if($Help.examples.example.Count -gt 0)
+    foreach($Example in $Help.examples.example)
     {
-        foreach($Example in $Help.examples.example)
+        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+        $MamlExampleObject.Introduction = $Example.introduction
+        $MamlExampleObject.Title = $Example.title
+        $MamlExampleObject.Code = $Example.code
+
+        $RemarkText = $null
+        foreach($Remark in $Example.remarks)
         {
-            $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
-
-            $MamlExampleObject.Introduction = $Example.introduction
-            $MamlExampleObject.Title = $Example.title
-            $MamlExampleObject.Code = $Example.code
-
-            $RemarkText = $null
-            foreach($Remark in $Example.remarks)
-            {
-                $RemarkText += $Remark.text + "`n"
-            }
-            
-            $MamlExampleObject.Remarks = $RemarkText
-            $MamlCommandObject.Examples.Add($MamlExampleObject)
+            $RemarkText += $Remark.text + "`n"
         }
-    } 
+        
+        $MamlExampleObject.Remarks = $RemarkText
+        $MamlCommandObject.Examples.Add($MamlExampleObject)
+    }
 
     #Update Parameters
     if($help.parameters.parameter.Count -gt 0)
