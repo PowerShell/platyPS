@@ -1,5 +1,5 @@
 ---
-external help file: platyPS.psm1-help.xml
+external help file: platyPS-help.xml
 schema: 2.0.0
 ---
 
@@ -119,5 +119,7 @@ Accept wildcard characters: False
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
+
+[Online Version:]()
 
 

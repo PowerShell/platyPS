@@ -26,6 +26,10 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Equal("NewParam", result.Parameters[1].Name);
 
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
+
+            Assert.Equal(originalCommand.Links.Count, result.Links.Count);
+            Assert.Equal(originalCommand.Links[0].LinkName, result.Links[0].LinkName);
+            Assert.Equal(originalCommand.Links[0].LinkUri, result.Links[0].LinkUri);
         }
 
         private MamlCommand GetOriginal()

@@ -28,7 +28,7 @@ $script:EXTERNAL_HELP_FILES = 'external help file'
 $script:DEFAULT_ENCODING = 'UTF8'
 $script:UTF8_NO_BOM = 'UTF8_NO_BOM'
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-Markdown
 {
     [CmdletBinding()]
@@ -37,12 +37,20 @@ function New-Markdown
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromModule")]
-        [object]$module,
+        [object]$Module,
 
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
-        [object]$command,
+        [object]$Command,
+
+        [Parameter( 
+            ParameterSetName="FromCommand")]
+        [hashtable]$Metadata,
+
+         [Parameter( 
+            ParameterSetName="FromCommand")]
+        [string]$OnlineVersionUrl = '',
 
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
@@ -65,10 +73,14 @@ function New-Markdown
             }
 
             $md = Get-MamlObject -Cmdlet $command | % {
+                # populate template
+                Update-MamlObject $_ -OnlineVersionUrl $OnlineVersionUrl
+                # get help file name
                 $helpFileName = Get-HelpFileName (Get-Command $command)
-                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
+                # create markdown
+                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata ($Metadata + @{
                     $script:EXTERNAL_HELP_FILES = $helpFileName
-                }
+                })
             }
 
             Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
@@ -82,8 +94,12 @@ function New-Markdown
                 throw "Module $module is not imported in the session. Run 'Import-Module $module'."
             }
             Get-MamlObject -Module $module | % { 
+                # populate template
+                Update-MamlObject $_
+                # get help file name
                 $command = $_.Name
                 $helpFileName = Get-HelpFileName (Get-Command -Name $command -Module $module)
+                # create markdown
                 $md = Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
                     $script:EXTERNAL_HELP_FILES = $helpFileName
                 }
@@ -93,7 +109,7 @@ function New-Markdown
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function Get-MarkdownMetadata
 {
     param(
@@ -126,7 +142,7 @@ function Get-MarkdownMetadata
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function Update-Markdown
 {
     [CmdletBinding()]
@@ -239,7 +255,7 @@ function Update-Markdown
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-ExternalHelp
 {
     [CmdletBinding()]
@@ -312,7 +328,6 @@ function New-ExternalHelp
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
 function Show-HelpPreview
 {
     [CmdletBinding()]
@@ -374,7 +389,7 @@ function Show-HelpPreview
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-ExternalHelpCab
 {
     [Cmdletbinding()]
@@ -622,6 +637,40 @@ function Get-SchemaVersion
     }
 
     return $schema
+}
+
+function Update-MamlObject
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject,
+
+        [string]$OnlineVersionUrl = ''
+    )
+
+    #
+    # Here we define our misc template for new markdown to bootstrape easier
+    #
+
+    # Example
+    if ($MamlCommandObject.Examples.Count -eq 0)
+    {
+        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+        $MamlExampleObject.Title = 'Example 1'
+        $MamlExampleObject.Code = 'PS C:\> {{ Add example code here }}'
+        $MamlExampleObject.Remarks = '{{ Add example description here }}'
+
+        $MamlCommandObject.Examples.Add($MamlExampleObject)
+    }
+
+    # Online Version URL
+    if (-not ($MamlCommandObject.Links | ? {$_.LinkName -eq 'Online Version:'} )) {
+        $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
+        $mamlLink.LinkName = 'Online Version:'
+        $mamlLink.LinkUri = $OnlineVersionUrl
+        $MamlCommandObject.Links.Add($mamlLink)
+    }
 }
 
 function Get-MamlObject
@@ -1160,7 +1209,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
             $MamlExampleObject.Remarks = $RemarkText
             $MamlCommandObject.Examples.Add($MamlExampleObject)
         }
-    }
+    } 
 
     #Update Parameters
     if($help.parameters.parameter.Count -gt 0)
@@ -1201,7 +1250,6 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     $help.returnValues.returnValue | % { 
         $MamlCommandObject.Outputs.Add( (Get-MamlInputOutput $_) )
     }
-
 }
 #endregion
 ##########
