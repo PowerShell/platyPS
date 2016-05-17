@@ -1228,8 +1228,9 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         }
     }
     
-    #Not provided by the command object. Using the Command Type to create a note declaring it's type.
-    $MamlCommandObject.Notes += "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
+    # Not provided by the command object. Using the Command Type to create a note declaring it's type.
+    # We can add this placeholder
+    # $MamlCommandObject.Notes += "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
     
     
 
@@ -1287,7 +1288,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     }
 
 
-     #Get Inputs
+    #Get Inputs
     #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
     #region Inputs
     $Inputs = @()
@@ -1295,7 +1296,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     $Help.inputTypes.inputType | % {
         $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
         $InputObject.TypeName = $_.type.name
-        $InputObject.Description = "Inputs can be piped to the cmdlet. The description for this input has not been provided."
+        $InputObject.Description = $_.description.Text | Out-String
         $Inputs += $InputObject
     }
     
@@ -1309,10 +1310,10 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     #region Outputs
     $Outputs = @()
     
-    $Help.inputTypes.inputType | % {
+    $Help.returnValues.returnValue | % {
         $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-        $OutputObject.TypeName = $Help.returnValues.returnValue.type.name
-        $OutputObject.Description = "This is the type of object emited by the cmdlet."
+        $OutputObject.TypeName = $_.type.name
+        $OutputObject.Description = $_.description.Text | Out-String
         $Outputs += $OutputObject
     }
     
