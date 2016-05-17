@@ -54,6 +54,52 @@ Describe 'New-Markdown' {
             }
         }
     }
+
+    Context 'Dynamic parameters' {
+        
+        function global:Test-DynamicParameterSet {
+            [CmdletBinding()]
+            [OutputType()]
+
+            Param (
+                [Parameter(
+                    ParameterSetName = 'Static'
+                )]
+                [Switch]
+                $StaticParameter
+            )
+
+            DynamicParam {
+                $dynamicParamAttributes = New-Object -TypeName System.Management.Automation.ParameterAttribute -Property @{
+                    ParameterSetName = 'Dynamic'
+                }
+                $dynamicParamCollection = New-Object -TypeName System.Collections.ObjectModel.Collection[System.Attribute]
+                $dynamicParamCollection.Add($dynamicParamAttributes)
+                $dynamicParam = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter  -ArgumentList ('DynamicParameter', [Switch], $dynamicParamCollection)
+                $dictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+                $dictionary.Add('DynamicParameter', $dynamicParam)
+                return $dictionary
+            }
+
+            Process {
+                Write-Output -InputObject $PSCmdlet.ParameterSetName
+            }
+        }
+
+        It "generates DynamicParameter" {
+            $a = @{
+                command = 'Test-DynamicParameterSet'
+                OutputFolder = 'TestDrive:\'
+            }
+
+            $file = New-Markdown @a
+            $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+            $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+            $help.Syntax.syntaxItem.Count | Should Be 2
+            $dynamicParam = $help.parameters.parameter | ? {$_.name -eq 'DynamicParameter'}
+            ($dynamicParam | measure).Count | Should Be 1
+        }
+    }
 }
 
 #region PS Objects to MAML Model Tests
