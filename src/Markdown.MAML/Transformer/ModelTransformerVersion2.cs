@@ -338,6 +338,10 @@ namespace Markdown.MAML.Transformer
             }
 
             var name = headingNode.Text;
+            if (name.Length > 0 && name[0] == '-')
+            {
+                name = name.Substring(1);
+            }
 
             MamlParameter parameter = new MamlParameter()
             {
