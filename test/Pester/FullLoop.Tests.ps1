@@ -115,6 +115,16 @@ Describe 'Full loop for Add-Member cmdlet' {
                 ($generatedHelpObject.relatedLinks | Out-String) | Should Be ($originalHelpObject.relatedLinks | Out-String)
             }
 
+            It 'generate correct inputTypes' {
+                ($generatedHelpObject.inputTypes.inputType.description | Out-String).Trim() | Should Be (
+                    $originalHelpObject.inputTypes.inputType.description | Out-String).Trim()
+            }
+
+            It 'generate correct returnValues' {
+                ($generatedHelpObject.returnValues.returnValue.description | Out-String).Trim() | Should Be (
+                    $originalHelpObject.returnValues.returnValue.description | Out-String).Trim()
+            }
+
             # TODO: rest of properties!!
         }
     }
