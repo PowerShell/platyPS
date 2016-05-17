@@ -33,7 +33,7 @@ namespace Markdown.MAML.Transformer
             };
 
             // TODO: convert into MergeMetadataProperty
-            result.Links.AddRange(metadataModel.Links);
+            result.Links.AddRange(stringModel.Links);
 
             // All examples come only from strtringModel
             result.Examples.AddRange(stringModel.Examples);
