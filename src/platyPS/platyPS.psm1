@@ -919,14 +919,18 @@ function Convert-PsObjectsToMamlModel
    #Might want to update the MAML Model to conatin independant Verb Noun and Command Type entries
    #Might want to update inputs to include a parameter name and a parameter set.
 
-[CmdletBinding()]
-[OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
-param(
-    [Parameter(Mandatory=$true)]
-    $CmdletName
-)
+    [CmdletBinding()]
+    [OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
+    param(
+        [Parameter(Mandatory=$true)]
+        $CmdletName,
+        [Parameter(ParameterSetName="FromMaml")]
+        [switch] $FromMaml,
+        [Parameter(ParameterSetName="FromMaml")]
+        [string] $MamlFullPath
+    )
 
-
+#region supporting functions
     function IsCommonParameterName($parameterName)
     {
         @("Verbose",
@@ -996,13 +1000,36 @@ param(
         }
     }
 
+    #endregion
+
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
 
-$Help = Get-Help $CmdletName
-$Command = Get-Command $CmdletName
+#region Command Object Values Processing
 
-#####GET THE SYNTAX FROM THE GET-COMMAND $Command OBJECT #####
-#region Command Object Processing
+#Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
+#Otherwise loads the results from Get-Command <Cmdlet> into the $command object
+if($FromMaml)
+{
+     
+    $Module = New-PlatyPSModuleFromMaml -MamlFilePath $MamlFullPath
+ 
+    Import-Module $Module.Path -Force -ea Stop
+        
+    $Command = New-Object PsObject
+
+    $Command | Add-Member -Name "Name" -MemberType NoteProperty -Value $CmdletName
+    $Command | Add-Member -Name "CommandType" -MemberType NoteProperty -Value (Get-Command $CmdletName).CommandType
+    $Command | Add-Member -Name "ModuleName" -MemberType NoteProperty -Value "{{Fill in the Module Name}}"
+    $Command | Add-Member -Name "HelpFile" -MemberType NoteProperty -Value (Split-Path $MamlFullPath -Leaf)
+         
+   
+}
+else
+{
+    $Command = Get-Command $CmdletName
+}
+
+$Help = Get-Help $CmdletName
 
 #Get Name
 $MamlCommandObject.Name = $Command.Name
@@ -1010,29 +1037,17 @@ $MamlCommandObject.Name = $Command.Name
 #region Data not provided by the command object
 #Get Synopsis
 #Not provided by the command object.
-$MamlCommandObject.Synopsis = "{{Fill the Synopsis}}"
+$MamlCommandObject.Synopsis = "{{Fill in the Synopsis}}"
 
 #Get Description
 #Not provided by the command object.
-$MamlCommandObject.Description = "{{Fill the Description}}"
+$MamlCommandObject.Description = "{{Fill in the Description}}"
 
 #endregion 
 
-# otherwise, we preserve input data from $Help
-if (-not $Help)
+#If there is no help file available. Attemp to construct Input and Output Data
+if (($Help -eq $null) -or ($Help -eq ""))
 {
-    #Get Notes
-    #Not provided by the command object. Using the Command Type to create a note declaring it's type.
-    $MamlCommandObject.Notes = "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
-
-
-    #Get Examples
-    #Not provided by the command object.
-
-    #Get Links
-    #Not provided by the command object.
-
-    
     #Get Inputs
     #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
     #region Inputs
@@ -1168,6 +1183,7 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
     }
 
     #Add to Notes
+    #From the Help AlertSet data
     if($help.alertSet -ne $null)
     {
        foreach($Alert in $Help.alertSet.alert)
@@ -1176,6 +1192,11 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
             $MamlCommandObject.Notes += "`n"
         }
     }
+    
+    #Not provided by the command object. Using the Command Type to create a note declaring it's type.
+    $MamlCommandObject.Notes += "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
+    
+    
 
     #Add to relatedLinks
     if($help.relatedLinks)
@@ -1230,26 +1251,40 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         }
     }
 
-    function Get-MamlInputOutput
-    {
-        param($object)
 
-        $o = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-        $o.TypeName = $object.type.name
-        $o.Description = $object.type.description.text
-
-        return $o
+     #Get Inputs
+    #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+    #region Inputs
+    $Inputs = @()
+    
+    $Help.inputTypes.inputType | % {
+        $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $InputObject.TypeName = $_.type.name
+        $InputObject.Description = "Inputs can be piped to the cmdlet. The description for this input has not been provided."
+        $Inputs += $InputObject
     }
-
-    # inputs
-    $help.inputTypes.inputType | % { 
-        $MamlCommandObject.Inputs.Add( (Get-MamlInputOutput $_) )
+    
+    $Inputs = $Inputs | Select -Unique
+    foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+ 
+    #endregion
+ 
+    #Get Outputs
+    #No Output Type description is provided from the command object.
+    #region Outputs
+    $Outputs = @()
+    
+    $Help.inputTypes.inputType | % {
+        $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $OutputObject.TypeName = $Help.returnValues.returnValue.type.name
+        $OutputObject.Description = "This is the type of object emited by the cmdlet."
+        $Outputs += $OutputObject
     }
+    
+    $Outputs = $Outputs | Select -Unique
+    foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+    #endregion
 
-    # outputs
-    $help.returnValues.returnValue | % { 
-        $MamlCommandObject.Outputs.Add( (Get-MamlInputOutput $_) )
-    }
 }
 #endregion
 ##########
