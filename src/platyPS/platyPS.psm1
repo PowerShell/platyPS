@@ -930,12 +930,7 @@ function Convert-PsObjectsToMamlModel
         [string] $MamlFullPath
     )
 
-<<<<<<< Updated upstream
-#region supporting functions
-    function IsCommonParameterName($parameterName)
-=======
     function IsCommonParameterName
->>>>>>> Stashed changes
     {
         param([string]$parameterName, [switch]$Workflow)
 
@@ -1043,13 +1038,7 @@ function Convert-PsObjectsToMamlModel
 
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
 
-<<<<<<< Updated upstream
 #region Command Object Values Processing
-=======
-$Help = Get-Help $CmdletName
-$Command = Get-Command $CmdletName
-$IsWorkflow = $Command.CommandType -eq 'Workflow'
->>>>>>> Stashed changes
 
 #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
 #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
@@ -1075,6 +1064,7 @@ else
 }
 
 $Help = Get-Help $CmdletName
+$IsWorkflow = $Command.CommandType -eq 'Workflow'
 
 #Get Name
 $MamlCommandObject.Name = $Command.Name
@@ -1358,7 +1348,7 @@ foreach($Parameter in $ParameterArray)
 }
 
 # handle CommonParameters and CommonWorkflowParameters
-if ($Command.CommandType -eq 'Function' -and (Get-Command foo).CmdletBinding -eq $false)
+if ($Command.CommandType -eq 'Function' -and $Command.CmdletBinding -eq $false)
 {
     # this is a really weired case, it may never appear in real modules
     $MamlCommandObject.SupportCommonParameters = $false

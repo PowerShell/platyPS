@@ -58,7 +58,9 @@ namespace Markdown.MAML.Transformer
                                 MamlCommand command = new MamlCommand()
                                 {
                                     Name = headingNode.Text,
-                                    Extent = headingNode.SourceExtent
+                                    Extent = headingNode.SourceExtent,
+                                    // we have explicit entry for common parameters in markdown
+                                    SupportCommonParameters = false
                                 };
 
                                 if (_infoCallback != null)
@@ -349,8 +351,9 @@ namespace Markdown.MAML.Transformer
             foreach (var paragraphSpan in spans)
             {
                 // TODO: make it handle hyperlinks, codesnippets, etc more wisely
-                
-                if (!first && paragraphSpan is HyperlinkSpan)
+
+                HyperlinkSpan hyperlink = paragraphSpan as HyperlinkSpan;
+                if (!first && hyperlink != null)
                 {
                     sb.Append(" ");
                 }
@@ -360,9 +363,20 @@ namespace Markdown.MAML.Transformer
                 }
                 
                 sb.Append(paragraphSpan.Text);
+                if (hyperlink != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(hyperlink.Uri))
+                    {
+                        sb.AppendFormat(" ({0})", hyperlink.Uri);
+                    }
+                    else
+                    {
+                        previousIsHyperLink = paragraphSpan is HyperlinkSpan;
+                    }
+                }
 
                 first = false;
-                previousIsHyperLink = paragraphSpan is HyperlinkSpan;
+                
             }
             return sb.ToString();
         }

@@ -30,6 +30,55 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
+        public void RendererCreatesWorkflowParametersEntry()
+        {
+            var renderer = new MarkdownV2Renderer();
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Workflow",
+                IsWorkflow = true
+            };
+
+            command.Syntax.Add(new MamlSyntax());
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Assert.Equal(@"---
+schema: 2.0.0
+---
+
+# Workflow
+## SYNOPSIS
+
+## SYNTAX
+
+```
+Workflow [<WorkflowCommonParameters>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+## EXAMPLES
+
+## PARAMETERS
+
+### WorkflowCommonParameters
+This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject. For more information, see about_WorkflowCommonParameters \(http://go.microsoft.com/fwlink/p/?LinkID=533952\).
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
+
+", markdown);
+        }
+
+        [Fact]
         public void RendererProduceMarkdownV2Output()
         {
             var renderer = new MarkdownV2Renderer();
@@ -134,7 +183,7 @@ This does stuff!
 
 ## PARAMETERS
 
-### Name
+### -Name
 Parameter Description.
 
 ```yaml
@@ -147,6 +196,9 @@ Default value: trololo
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 
