@@ -247,11 +247,12 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private string GetSyntaxString(string commandName, MamlSyntax syntax)
+        private string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
         {
             var sb = new StringBuilder();
-            sb.Append(commandName);
+            sb.Append(command.Name);
             int widthBeforeLastBreak = 0;
+            '[<WorkflowCommonParameters>]';
             for (int i = 0; i <= syntax.Parameters.Count; i++)
             {
                 string paramStr;
@@ -305,7 +306,7 @@ namespace Markdown.MAML.Renderer
                     AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
                 }
 
-                AddCodeSnippet(GetSyntaxString(command.Name, syntax));
+                AddCodeSnippet(GetSyntaxString(command, syntax));
             }
         }
 

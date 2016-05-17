@@ -27,6 +27,10 @@ namespace Markdown.MAML.Model.MAML
 
         public string Notes { get; set; }
 
+        public bool IsWorkflow { get; set; }
+
+        public bool SupportCommonParameters { get; set; }
+
         public List<MamlExample> Examples
         {
             get { return _examples; }
@@ -53,5 +57,11 @@ namespace Markdown.MAML.Model.MAML
         private List<MamlLink> _links = new List<MamlLink>();
 
         private List<MamlSyntax> _syntax = new List<MamlSyntax>();
+
+        public MamlCommand()
+        {
+            // this is the default most often then not
+            this.SupportCommonParameters = true;
+        }
     }
 }

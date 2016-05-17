@@ -930,20 +930,59 @@ function Convert-PsObjectsToMamlModel
         [string] $MamlFullPath
     )
 
+<<<<<<< Updated upstream
 #region supporting functions
     function IsCommonParameterName($parameterName)
+=======
+    function IsCommonParameterName
+>>>>>>> Stashed changes
     {
-        @("Verbose",
-        "Debug",
-        "ErrorAction",
-        "WarningAction",
-        "InformationAction",
-        "ErrorVariable",
-        "WarningVariable",
-        "InformationVariable",
-        "OutVariable",
-        "OutBuffer",
-        "PipelineVariable") -contains $parameterName
+        param([string]$parameterName, [switch]$Workflow)
+
+        if (@(
+                'Verbose',
+                'Debug',
+                'ErrorAction',
+                'WarningAction',
+                'InformationAction',
+                'ErrorVariable',
+                'WarningVariable',
+                'InformationVariable',
+                'OutVariable',
+                'OutBuffer',
+                'PipelineVariable'
+        ) -contains $parameterName) {
+            return $true
+        }
+
+        if ($Workflow)
+        {
+            return @(
+                'PSParameterCollection',
+                'PSComputerName',
+                'PSCredential',
+                'PSConnectionRetryCount',
+                'PSConnectionRetryIntervalSec',
+                'PSRunningTimeoutSec',
+                'PSElapsedTimeoutSec',
+                'PSPersist',
+                'PSAuthentication',
+                'PSAuthenticationLevel',
+                'PSApplicationName',
+                'PSPort',
+                'PSUseSSL',
+                'PSConfigurationName',
+                'PSConnectionURI',
+                'PSAllowRedirection',
+                'PSSessionOption',
+                'PSCertificateThumbprint',
+                'PSPrivateMetadata',
+                'AsJob',
+                'JobName'
+            ) -contains $parameterName
+        }
+
+        return $false
     }
 
     function GetPipelineValue($Parameter)
@@ -976,11 +1015,11 @@ function Convert-PsObjectsToMamlModel
     # into syntaxItem object from (Get-Help ...).syntax.syntaxItem
     function GetSyntaxForParameterSet($ParameterSet)
     {
-        $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_) }
+        $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_ -Workflow:$IsWorkflow) }
         # Compare-Object doesn't like $nulls :(
         if (-not $commandNames) { $commandNames = '__NULL' } 
         $help.syntax.syntaxItem | % {
-            $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_) }
+            $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_ -Workflow:$IsWorkflow) }
             if (-not $helpNames) { $helpNames = '__NULL' } 
             if (Compare-Object $helpNames $commandNames) {
                 # skip
@@ -1004,7 +1043,13 @@ function Convert-PsObjectsToMamlModel
 
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
 
+<<<<<<< Updated upstream
 #region Command Object Values Processing
+=======
+$Help = Get-Help $CmdletName
+$Command = Get-Command $CmdletName
+$IsWorkflow = $Command.CommandType -eq 'Workflow'
+>>>>>>> Stashed changes
 
 #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
 #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
@@ -1110,7 +1155,7 @@ foreach($ParameterSet in $Command.ParameterSets)
     foreach($Parameter in $ParameterSet.Parameters)
     {
         # ignore CommonParameters
-        if (IsCommonParameterName $Parameter.Name) 
+        if (IsCommonParameterName $Parameter.Name -Workflow:$IsWorkflow) 
         { 
             # but don't ignore them, if they have explicit help entries
             if ($Help.parameters.parameter | ? {$_.Name -eq $Parameter.Name})
@@ -1311,6 +1356,19 @@ foreach($Parameter in $ParameterArray)
         $MamlCommandObject.Parameters.Add($Parameter)
     }
 }
+
+# handle CommonParameters and CommonWorkflowParameters
+if ($Command.CommandType -eq 'Function' -and (Get-Command foo).CmdletBinding -eq $false)
+{
+    # this is a really weired case, it may never appear in real modules
+    $MamlCommandObject.SupportCommonParameters = $false
+}
+else 
+{
+    $MamlCommandObject.SupportCommonParameters = $false
+}
+
+$MamlCommandObject.IsWorkflow = $IsWorkflow
 
 #endregion
 ##########
