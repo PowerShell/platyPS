@@ -28,7 +28,7 @@ $script:EXTERNAL_HELP_FILES = 'external help file'
 $script:DEFAULT_ENCODING = 'UTF8'
 $script:UTF8_NO_BOM = 'UTF8_NO_BOM'
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-Markdown
 {
     [CmdletBinding()]
@@ -109,7 +109,7 @@ function New-Markdown
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function Get-MarkdownMetadata
 {
     param(
@@ -142,7 +142,7 @@ function Get-MarkdownMetadata
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function Update-Markdown
 {
     [CmdletBinding()]
@@ -255,7 +255,7 @@ function Update-Markdown
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-ExternalHelp
 {
     [CmdletBinding()]
@@ -328,7 +328,6 @@ function New-ExternalHelp
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
 function Show-HelpPreview
 {
     [CmdletBinding()]
@@ -390,7 +389,7 @@ function Show-HelpPreview
     }
 }
 
-#  .ExternalHelp platyPS.psm1-Help.xml
+
 function New-ExternalHelpCab
 {
     [Cmdletbinding()]

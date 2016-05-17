@@ -1,5 +1,5 @@
 ---
-external help file: platyPS.psm1-help.xml
+external help file: platyPS-help.xml
 schema: 2.0.0
 ---
 
@@ -23,6 +23,13 @@ Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 {{Fill the Description}}
 
 ## EXAMPLES
+
+### Example 1
+```
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
 
 ## PARAMETERS
 
@@ -89,5 +96,7 @@ Accept wildcard characters: False
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:]()
 
 
