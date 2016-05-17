@@ -143,7 +143,7 @@ $smaOutputFolder = "TestDrive:\SMA"
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    It 'transforms Markdown to MAML with no errors' -Skip:(-not $env:APPVEYOR) {
+    It 'transforms Markdown to MAML with no errors' {
 
         $module = 'Microsoft.PowerShell.Core'
         $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
@@ -154,5 +154,19 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         # add artifacts to out
         Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
         Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
+    }
+
+    # this our regression suite for SMA
+    $generatedHelp = Show-HelpPreview $outFolder\System.Management.Automation.dll-help.xml -AsObject
+
+    It 'has right number of outputs for Get-Help' {
+        $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
+        ($h.returnValues.returnValue | measure).Count | Should Be 3
+    }
+
+    It 'has right type for New-PSTransportOption -IdleTimeoutSec' {
+        $h = $generatedHelp | ? {$_.Name -eq 'New-PSTransportOption'}
+        $param = $h.parameters.parameter | ? {$_.Name -eq 'IdleTimeoutSec'}
+        $param.type.name | Should Be 'Int32'
     }
 }

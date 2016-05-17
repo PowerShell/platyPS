@@ -1034,6 +1034,23 @@ function Convert-PsObjectsToMamlModel
         }
     }
 
+    function Get-TypeString
+    {
+        param(
+            [Parameter(ValueFromPipeline=$true)]
+            [System.Reflection.TypeInfo]
+            $typeObject
+        )
+        
+        # special case for nullable value types
+        if ($typeObject.Name -eq 'Nullable`1')
+        {
+            return $typeObject.GenericTypeArguments.Name
+        }
+
+        return $typeObject.Name
+    }
+
     #endregion
 
 $MamlCommandObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlCommand
@@ -1159,7 +1176,7 @@ foreach($ParameterSet in $Command.ParameterSets)
 
         $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
-        $ParameterObject.Type = $Parameter.ParameterType.Name
+        $ParameterObject.Type = $Parameter.ParameterType | Get-TypeString
         $ParameterObject.Name = $Parameter.Name
         $ParameterObject.Required = $Parameter.IsMandatory
         $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) {
