@@ -24,6 +24,17 @@ Use helper `build.ps1` script
 As part of build, module generate help for itself.
 The result of the build would be in `out\platyPS` folder.
 
+## Tests
+
+There are two part of projects and two test sets.
+
+- C# part with xUnit tests
+- PowerShell part with [Pester](https://github.com/pester/Pester) tests
+
+```
+Invoke-Pester
+```
+
 ## Schema
 
 If you have ideas or concerns about markdown schema feel free to open a GitHub issue to discuss it.
