@@ -37,4 +37,4 @@ New-ExternalHelp -MarkdownFolder .\src\platyPS\docs -OutputPath out\platyPS\en-U
 
 # reload module, to apply generated help
 Import-Module $pwd\out\platyPS -Force
-Show-HelpPreview .\out\platyPS\en-US\platyPS.psm1-Help.xml -TextOutputPath out\platyPS.txt
+Show-HelpPreview (ls .\out\platyPS\en-US\*.xml) -TextOutputPath out\platyPS.txt
