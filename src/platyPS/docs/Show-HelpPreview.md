@@ -33,7 +33,7 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### MamlFilePath
+### -MamlFilePath
 {{Fill MamlFilePath Description}}
 
 ```yaml
@@ -48,7 +48,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### TextOutputPath
+### -TextOutputPath
 {{Fill TextOutputPath Description}}
 
 ```yaml
@@ -63,7 +63,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Encoding
+### -Encoding
 ```yaml
 Type: String
 Parameter Sets: FileOutput
@@ -76,7 +76,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### AsObject
+### -AsObject
 ```yaml
 Type: SwitchParameter
 Parameter Sets: AsObject
@@ -88,6 +88,9 @@ Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

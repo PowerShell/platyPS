@@ -38,7 +38,7 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### Path
+### -Path
 {{Fill Path Description}}
 
 ```yaml
@@ -53,7 +53,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Markdown
+### -Markdown
 {{Fill Markdown Description}}
 
 ```yaml
@@ -68,7 +68,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### FileInfo
+### -FileInfo
 ```yaml
 Type: FileInfo
 Parameter Sets: MarkdownFileInfo
@@ -80,6 +80,9 @@ Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

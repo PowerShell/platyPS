@@ -52,7 +52,7 @@ You can break help for the big module into several markdown files and put them i
 
 ## PARAMETERS
 
-### MarkdownFolder
+### -MarkdownFolder
 Path to a folder with "*.md" files. Their content would be extracted and used. It may be convinient for big modules. Also breaking markdown to several files speed-up convertion process.
 
 ```yaml
@@ -67,7 +67,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### OutputPath
+### -OutputPath
 ```yaml
 Type: String
 Parameter Sets: FromFolder, FromFile
@@ -80,7 +80,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Encoding
+### -Encoding
 ```yaml
 Type: String
 Parameter Sets: FromFolder, FromFile
@@ -93,7 +93,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### MarkdownFile
+### -MarkdownFile
 ```yaml
 Type: FileInfo[]
 Parameter Sets: FromFile
@@ -105,6 +105,9 @@ Default value:
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

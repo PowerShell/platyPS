@@ -28,7 +28,7 @@ PS C:\> {{ Add example code here }}
 
 ## PARAMETERS
 
-### Source
+### -Source
 {{Fill Source Description}}
 
 ```yaml
@@ -42,7 +42,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Destination
+### -Destination
 {{Fill Destination Description}}
 
 ```yaml
@@ -56,7 +56,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Module
+### -Module
 {{Fill Module Description}}
 
 ```yaml
@@ -70,7 +70,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Guid
+### -Guid
 {{Fill Guid Description}}
 
 ```yaml
@@ -84,7 +84,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Locale
+### -Locale
 {{Fill Locale Description}}
 
 ```yaml
@@ -97,6 +97,9 @@ Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

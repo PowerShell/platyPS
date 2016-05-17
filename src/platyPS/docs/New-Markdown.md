@@ -70,7 +70,7 @@ Create markdown help for inbox PSReadLine module and output them into a PSReadLi
 
 ## PARAMETERS
 
-### Module
+### -Module
 Name of the module for bulk help generation.
 
 ```yaml
@@ -85,7 +85,7 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### OutputFolder
+### -OutputFolder
 Path to a folder to output markdown files. This parameter requires -OneFilePerCommand.
 
 ```yaml
@@ -100,7 +100,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Encoding
+### -Encoding
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromCommand
@@ -113,7 +113,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Command
+### -Command
 Name of a command from your PowerShell session.
 
 ```yaml
@@ -128,7 +128,7 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
-### Metadata
+### -Metadata
 ```yaml
 Type: Hashtable
 Parameter Sets: FromCommand
@@ -141,7 +141,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### OnlineVersionUrl
+### -OnlineVersionUrl
 ```yaml
 Type: String
 Parameter Sets: FromCommand
@@ -153,6 +153,9 @@ Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 
