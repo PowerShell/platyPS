@@ -16,7 +16,7 @@ New-Markdown -Module <Object> -OutputFolder <String> [-Encoding <String>] [<Comm
 
 ### FromCommand
 ```
-New-Markdown -Command <Object> [[-Metadata] <Hashtable>] [[-OnlineVersionUrl] <String>] -OutputFolder <String>
+New-Markdown -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String>
  [-Encoding <String>] [<CommonParameters>]
 ```
 
@@ -135,7 +135,7 @@ Parameter Sets: FromCommand
 Aliases: 
 
 Required: False
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -148,7 +148,7 @@ Parameter Sets: FromCommand
 Aliases: 
 
 Required: False
-Position: 
+Position: named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
