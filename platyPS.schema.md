@@ -32,6 +32,8 @@ It closely resembles output of `Get-Help`.
     ## SYNTAX
     // for each parameter set
         ### Parameter Set Name
+        // This syntax would be ignored during maml generation.
+        // syntax would be generated from parameters metadata
         ```
         {{Output of Get-Command -Syntax}}
         ```
@@ -55,7 +57,7 @@ It closely resembles output of `Get-Help`.
 
     // for every parameter
         // default value is non-mandatory
-        ### {Parameter name}
+        ### -{Parameter name}
 
         {{Parameter description text}}
 
@@ -77,6 +79,13 @@ It closely resembles output of `Get-Help`.
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
             ```
+        // if supports workflow parameters
+        ### <WorkflowCommonParameters>
+        {{ Workflow common parameters text, would be ingored during maml generation }}
+
+        // if supports common parameters
+        ### <CommonParameters>
+        {{ Common parameters text, would be ingored during maml generation }}
 
     ## INPUTS
     // for every input type

@@ -97,6 +97,24 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216)..
+        /// </summary>
+        internal static string CommonParametersText {
+            get {
+                return ResourceManager.GetString("CommonParametersText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to CommonParameters.
+        /// </summary>
+        internal static string CommonParametersToken {
+            get {
+                return ResourceManager.GetString("CommonParametersToken", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Default value.
         /// </summary>
         internal static string Default_value {
@@ -219,6 +237,24 @@ namespace Markdown.MAML.Resources {
         internal static string Type {
             get {
                 return ResourceManager.GetString("Type", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject. For more information, see about_Workf [rest of string was truncated]&quot;;.
+        /// </summary>
+        internal static string WorkflowParametersText {
+            get {
+                return ResourceManager.GetString("WorkflowParametersText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to WorkflowCommonParameters.
+        /// </summary>
+        internal static string WorkflowParametersToken {
+            get {
+                return ResourceManager.GetString("WorkflowParametersToken", resourceCulture);
             }
         }
     }

@@ -147,7 +147,6 @@ namespace Markdown.MAML.Transformer
 
         protected void ParametersRule(MamlCommand command)
         {
-            _parameterName2ParameterSetMap.Clear();
             while (ParameterRule(command))
             {
             }
@@ -339,6 +338,10 @@ namespace Markdown.MAML.Transformer
             }
 
             var name = headingNode.Text;
+            if (name.Length > 0 && name[0] == '-')
+            {
+                name = name.Substring(1);
+            }
 
             MamlParameter parameter = new MamlParameter()
             {
@@ -347,6 +350,20 @@ namespace Markdown.MAML.Transformer
             };
 
             parameter.Description = GetTextFromParagraphNode(ParagraphNodeRule());
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(parameter.Name, MarkdownStrings.CommonParametersToken))
+            {
+                // ignore text body
+                commmand.SupportCommonParameters = true;
+                return true;
+            }
+
+            if (StringComparer.OrdinalIgnoreCase.Equals(parameter.Name, MarkdownStrings.WorkflowParametersToken))
+            {
+                // ignore text body
+                commmand.IsWorkflow = true;
+                return true;
+            }
 
             // we are filling up two piences here: Syntax and Parameters
             // we are adding this parameter object to the parameters and later modifying it

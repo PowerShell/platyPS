@@ -144,6 +144,28 @@ namespace Markdown.MAML.Renderer
             {
                 AddParameter(param, command);
             }
+
+            if (command.IsWorkflow)
+            {
+                AddWorkflowParameters();
+            }
+
+            if (command.SupportCommonParameters)
+            {
+                AddCommonParameters();
+            }
+        }
+
+        private void AddCommonParameters()
+        {
+            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.CommonParametersToken, extraNewLine: false);
+            AddParagraphs(MarkdownStrings.CommonParametersText);
+        }
+
+        private void AddWorkflowParameters()
+        {
+            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.WorkflowParametersToken, extraNewLine: false);
+            AddParagraphs(MarkdownStrings.WorkflowParametersText);
         }
 
         private Dictionary<string, MamlParameter> GetParamSetDictionary(string parameterName, List<MamlSyntax> syntaxes)
@@ -197,7 +219,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
-            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, parameter.Name, extraNewLine: false);
+            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
             AddParagraphs(parameter.Description);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
@@ -247,41 +269,52 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private string GetSyntaxString(string commandName, MamlSyntax syntax)
+        private string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
         {
             var sb = new StringBuilder();
-            sb.Append(commandName);
-            int widthBeforeLastBreak = 0;
-            for (int i = 0; i <= syntax.Parameters.Count; i++)
+            sb.Append(command.Name);
+
+            var paramStrings = new List<string>();
+                        
+            // first we create list of param string we want to add
+            foreach (var param in syntax.Parameters)
             {
                 string paramStr;
-                if (i < syntax.Parameters.Count)
+                if (param.IsSwitchParameter())
                 {
-                    var param = syntax.Parameters[i];
-                    if (param.IsSwitchParameter())
-                    {
-                        paramStr = string.Format("[-{0}]", param.Name);
-                    }
-                    else
-                    {
-                        paramStr = string.Format("-{0}", param.Name);
-                        if (!param.IsNamed())
-                        {
-                            // for positional parameters, we can avoid specifying the name
-                            paramStr = string.Format("[{0}]", paramStr);
-                        }
-
-                        paramStr = string.Format("{0} <{1}>", paramStr, param.Type);
-                        if (!param.Required)
-                        {
-                            paramStr = string.Format("[{0}]", paramStr);
-                        }
-                    }
+                    paramStr = string.Format("[-{0}]", param.Name);
                 }
                 else
                 {
-                    paramStr = "[<CommonParameters>]";
+                    paramStr = string.Format("-{0}", param.Name);
+                    if (!param.IsNamed())
+                    {
+                        // for positional parameters, we can avoid specifying the name
+                        paramStr = string.Format("[{0}]", paramStr);
+                    }
+
+                    paramStr = string.Format("{0} <{1}>", paramStr, param.Type);
+                    if (!param.Required)
+                    {
+                        paramStr = string.Format("[{0}]", paramStr);
+                    }
                 }
+                paramStrings.Add(paramStr);   
+            }
+
+            if (command.IsWorkflow)
+            {
+                paramStrings.Add("[<" + MarkdownStrings.WorkflowParametersToken + ">]");
+            }
+
+            if (command.SupportCommonParameters)
+            {
+                paramStrings.Add("[<" + MarkdownStrings.CommonParametersToken + ">]");
+            }
+
+            // then we format them properly with repsect to max width for window.
+            int widthBeforeLastBreak = 0;
+            foreach (string paramStr in paramStrings) { 
 
                 if (sb.Length - widthBeforeLastBreak + paramStr.Length > this.MaxSyntaxWidth)
                 {
@@ -305,7 +338,7 @@ namespace Markdown.MAML.Renderer
                     AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
                 }
 
-                AddCodeSnippet(GetSyntaxString(command.Name, syntax));
+                AddCodeSnippet(GetSyntaxString(command, syntax));
             }
         }
 

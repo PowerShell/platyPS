@@ -25,6 +25,20 @@ This is Synopsis
         }
 
         [Fact]
+        public void TransformSynopsisWithHyperlink()
+        {
+
+            var doc = ParseString(@"
+# Get-Foo
+## Synopsis
+Here is a [hyperlink](http://non-existing-uri).
+");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal(mamlCommand.Synopsis, "Here is a hyperlink (http://non-existing-uri).");
+        }
+
+        [Fact]
         public void SkipYamlMetadataBlock()
         {
             
@@ -82,6 +96,7 @@ And this is my last line.
             Assert.Equal("Hello,", description[0]);
             Assert.Equal("I'm a multiline description.", description[1]);
             Assert.Equal("And this is my last line.", description[2]);
+            Assert.Equal(false, mamlCommand.SupportCommonParameters);
         }
 
         [Fact]
@@ -365,6 +380,9 @@ Type: NonExistingType
 Type: string
 ```
 
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+
 ### NoTypeParam
 
 NoTypeParam description.
@@ -391,6 +409,8 @@ NoTypeParam description.
             Assert.Equal("NoTypeParam", noTypeParam.Name);
             Assert.Equal(null, noTypeParam.Type);
             Assert.Equal("NoTypeParam description.", noTypeParam.Description);
+
+            Assert.Equal(true, mamlCommand.SupportCommonParameters);
         }
 
         [Fact]

@@ -171,4 +171,16 @@
   <data name="NOTES" xml:space="preserve">
     <value>NOTES</value>
   </data>
+  <data name="CommonParametersText" xml:space="preserve">
+    <value>This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).</value>
+  </data>
+  <data name="CommonParametersToken" xml:space="preserve">
+    <value>CommonParameters</value>
+  </data>
+  <data name="WorkflowParametersText" xml:space="preserve">
+    <value>This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject. For more information, see about_WorkflowCommonParameters (http://go.microsoft.com/fwlink/p/?LinkID=533952).</value>
+  </data>
+  <data name="WorkflowParametersToken" xml:space="preserve">
+    <value>WorkflowCommonParameters</value>
+  </data>
 </root>
