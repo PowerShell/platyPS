@@ -1297,7 +1297,6 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         $Inputs += $InputObject
     }
     
-    $Inputs = $Inputs | Select -Unique
     foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
  
     #endregion
@@ -1314,7 +1313,6 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         $Outputs += $OutputObject
     }
     
-    $Outputs = $Outputs | Select -Unique
     foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
     #endregion
 
@@ -1361,7 +1359,7 @@ foreach($ParameterName in (Get-ParameterNamesOrder))
     }
     else 
     {
-        Write-Error "[Markdown generation] Could not find parameter object for $ParameterName in command $($Command.Name)"    
+        Write-Warning "[Markdown generation] Could not find parameter object for $ParameterName in command $($Command.Name)"    
     }
 }
 
