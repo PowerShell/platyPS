@@ -1329,22 +1329,42 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
 #region Parameter Unique Selection from Parameter Sets
 #This will only work when the Parameters member has a public set as well as a get.
 
-$ParameterArray = @()
-
-foreach($ParameterSet in $MamlCommandObject.Syntax)
+function Get-ParameterByName
 {
-    foreach($Parameter in $ParameterSet.Parameters)
+    param(
+        [string]$Name
+    )
+
+    $defaultSyntax = $MamlCommandObject.Syntax | ? { $Command.DefaultParameterSet -eq $_.ParameterSetName }
+    # default syntax should have a priority
+    $syntaxes = @($defaultSyntax) + $MamlCommandObject.Syntax
+
+    foreach ($s in $syntaxes) 
     {
-        $ParameterArray += $Parameter
+        $param = $s.Parameters | ? { $_.Name -eq $Name }
+        if ($param)
+        {
+            return $param
+        }
     }
 }
 
-
-foreach($Parameter in $ParameterArray)
+function Get-ParameterNamesOrder
 {
-    if(($MamlCommandObject.Parameters | WHERE {$_.Name -eq $Parameter.Name}).Count -eq 0)
+    # we always have help object at this point
+    $Help.parameters.parameter.Name
+}
+
+foreach($ParameterName in (Get-ParameterNamesOrder))
+{
+    $Parameter = Get-ParameterByName $ParameterName
+    if ($Parameter)
     {
         $MamlCommandObject.Parameters.Add($Parameter)
+    }
+    else 
+    {
+        Write-Error "[Markdown generation] Could not find parameter object for $ParameterName in command $($Command.Name)"    
     }
 }
 

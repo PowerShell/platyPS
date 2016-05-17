@@ -291,8 +291,8 @@ Describe 'Update-Markdown reflection scenario' {
     It 'has both parameters' {
         $names = $help.Parameters.parameter.Name
         ($names | measure).Count | Should Be 2
-        $names[0] | Should Be 'Foo'
-        $names[1] | Should Be 'Bar'
+        $names[0] | Should Be 'Bar'
+        $names[1] | Should Be 'Foo'
     }
 
     It 'has updated description for Foo' {
