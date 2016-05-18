@@ -1,4 +1,6 @@
 ﻿
+using Markdown.MAML.Parser;
+
 namespace Markdown.MAML.Model.Markdown
 {
     public enum TextSpanStyle
@@ -13,7 +15,7 @@ namespace Markdown.MAML.Model.Markdown
         public TextSpanStyle Style { get; private set; }
 
         public TextSpan(string spanText, SourceExtent sourceExtent, TextSpanStyle spanStyle = TextSpanStyle.Normal)
-            : base(UnwindMarkdownCharsEscaping(spanText.Trim()), sourceExtent)
+            : base(MarkdownParser.UnwindMarkdownCharsEscaping(spanText.Trim()), sourceExtent)
         {
             this.Style = spanStyle;
         }

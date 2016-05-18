@@ -482,6 +482,71 @@ namespace Markdown.MAML.Parser
             return Regex.Replace(documentString, "\r\n?|\n", "\r\n");
         }
 
+        public static string UnwindMarkdownCharsEscaping(string spanText)
+        {
+            // this is reverse for the code in MarkdownV2Renderer.GetEscapedMarkdownText()
+            spanText = spanText
+                .Replace("\r\n([^\r])", "$1")
+
+                .Replace(@"\[", @"[")
+                .Replace(@"\]", @"]")
+                .Replace(@"\(", @"(")
+                .Replace(@"\)", @")")
+                .Replace(@"\`", @"`")
+
+                .Replace(@"\<", "<")
+                .Replace(@"\>", ">")
+
+                .Replace(@"\\", @"\");
+
+            // any dummy value with length >= 2
+            _PrevString = "foo";
+
+            return Regex.Replace(spanText, "([^\r\n]*)(\r\n|$)", new MatchEvaluator(LineBreaksMatchEvaluater)).Replace(" \r\n", "\r\n").Trim();
+        }
+
+        // hacky state for matcher, it would cause race condition if we decided to run in parallel
+        private static string _PrevString;
+        private static bool _InList;
+
+        private static string LineBreaksMatchEvaluater(Match match)
+        {
+            // here we want proper line breaks
+            // if it's a list, then preserve line-breaks.
+            // otherwise, convert one line-break into a space and two-line breaks into a line-break.
+
+            var g1 = _PrevString;
+            var g2 = match.Groups[1].Value;
+            _PrevString = g2;
+
+            if (string.IsNullOrWhiteSpace(g2))
+            {
+                return "\r\n";
+            }
+
+            if (g1.Length >= 2 && g2.Length > 2 && g1[0] == g2[0] && g1[1] == g2[1])
+            {
+                if (g1[0] == '-' && g1[1] == '-'
+                    || g1[0] == '-' && g1[1] == ' '
+                    || g1[0] == '*' && g1[1] == ' ')
+                {
+                    // this is a list
+                    _InList = true;
+                    return "\r\n" + g2;
+                }
+            }
+
+            if (_InList)
+            {
+                // now we are not in list, so we just finished it
+                // we preserve one more line ending
+                _InList = false;
+                g2 = "\r\n" + g2;
+            }
+
+            return g2 + " ";
+        }
+
         #endregion
     }
 }

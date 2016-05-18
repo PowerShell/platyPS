@@ -302,6 +302,70 @@ Not a hyperlink [PSObject].
         }
 
         [Fact]
+        public void PreserveLineEndingsInLists()
+        {
+            DocumentNode documentNode = MarkdownStringToDocumentNode(
+@"
+-- This is a list
+-- Yes, with double-dashes
+-- Because that's how it happens a lot in PS docs
+
+- This is a regular list
+- Item2
+- Item3
+
+* Item1
+* Item1
+* Item3
+
+And this is not a list.
+So it's fine to drop this linebreak.
+
+New paragraph
+");
+            ParagraphNode text =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Paragraph);
+
+            Assert.Equal(@"-- This is a list
+-- Yes, with double-dashes
+-- Because that's how it happens a lot in PS docs
+
+- This is a regular list
+- Item2
+- Item3
+
+* Item1
+* Item1
+* Item3
+
+And this is not a list. So it's fine to drop this linebreak.
+New paragraph", text.Spans.First().Text);
+        }
+
+        [Fact]
+        public void PreserveLineEndingsInLists2()
+        {
+            DocumentNode documentNode = MarkdownStringToDocumentNode(
+@"
+Valid values are:
+
+-- Block: When the output buffer is full, execution is suspended until the buffer is clear. 
+-- Drop: When the output buffer is full, execution continues. As new output is saved, the oldest output is discarded.
+-- None: No output buffering mode is specified. The value of the OutputBufferingMode property of the session configuration is used for the disconnected session.");
+            ParagraphNode text =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Paragraph);
+
+            Assert.Equal(@"Valid values are:
+-- Block: When the output buffer is full, execution is suspended until the buffer is clear. 
+-- Drop: When the output buffer is full, execution continues. As new output is saved, the oldest output is discarded.
+-- None: No output buffering mode is specified. The value of the OutputBufferingMode property of the session configuration is used for the disconnected session.", text.Spans.First().Text);
+        }
+
+        [Fact]
         public void UnderstandsOneLineBreakVsTwoLineBreaks()
         {
             MarkdownParser markdownParser = new MarkdownParser();
