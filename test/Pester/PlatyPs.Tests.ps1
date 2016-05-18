@@ -29,6 +29,16 @@ Describe 'New-Markdown' {
             $h = Get-MarkdownMetadata -Path $file
             $h['FOO'] | Should Be 'BAR' 
         }
+
+        It 'respects -NoMetadata' {
+            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata
+            Get-MarkdownMetadata -Path $file | Should Be $null
+        }
+
+        It 'errors on -NoMetadata and -Metadata' {
+            { New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata -Metadata @{} } |
+                Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
+        }
     }
 
     Context 'Online version link' {
