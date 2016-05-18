@@ -37,12 +37,17 @@ function New-Markdown
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromModule")]
-        [object]$Module,
+        [string]$Module,
 
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
-        [object]$Command,
+        [string]$Command,
+
+        [Parameter(Mandatory=$true, 
+            ValueFromPipeline=$true,
+            ParameterSetName="FromMaml")]
+        [string]$MamlFile,
 
         [hashtable]$Metadata,
 
@@ -86,15 +91,24 @@ function New-Markdown
                 else
                 {
                     # get help file name
-                    $a = @{
-                        Name = $commandName
+                    if ($MamlFile)
+                    {
+                        $helpFileName = Split-Path -Leaf $MamlFile
                     }
+                    else 
+                    {
+                        $a = @{
+                            Name = $commandName
+                        }
 
-                    if ($module) {
-                        $a['Module'] = $module
+                        if ($module) {
+                            # for module case, scope it just to this module
+                            $a['Module'] = $module
+                        }
+
+                        $helpFileName = Get-HelpFileName (Get-Command @a)    
                     }
-
-                    $helpFileName = Get-HelpFileName (Get-Command @a)
+                    
                     $newMetadata = ($Metadata + @{
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
                     })
@@ -119,7 +133,7 @@ function New-Markdown
 
             Get-MamlObject -Cmdlet $command | ProcessMamlObjectToFile
         }
-        else # "FromModule"
+        elseif ($PSCmdlet.ParameterSetName -eq 'FromModule')
         {
             # second if part is for Microsoft.PowerShell.Core module.
             # Get-Module doesn't know about it
@@ -127,7 +141,17 @@ function New-Markdown
             {
                 throw "Module $module is not imported in the session. Run 'Import-Module $module'."
             }
+
             Get-MamlObject -Module $module | ProcessMamlObjectToFile
+        }
+        else # 'FromMaml'
+        {
+            if (-not (Test-Path $MamlFile))
+            {
+                throw "No file found in $MamlFile."
+            }
+
+            Get-MamlObject -MamlFile $MamlFile | ProcessMamlObjectToFile
         }
     }
 }
@@ -749,40 +773,6 @@ function Update-MamlObject
     }
 }
 
-function Get-MamlObject
-{
-    Param(
-        [CmdletBinding()]
-        [parameter(mandatory=$true, parametersetname="Cmdlet")]
-        [string] $Cmdlet,
-        [parameter(mandatory=$true, parametersetname="Module")]
-        [string] $Module
-    )
-
-    if($Cmdlet)
-    {
-        Write-Verbose ("Processing: " + $Cmdlet)
-
-        return Convert-PsObjectsToMamlModel -CmdletName $Cmdlet
-    }
-    else
-    {
-        Write-Verbose ("Processing: " + $Module)
-
-        # We use: & (dummy module) {...} syntax to workaround
-        # the case `Get-MamlObject -Module platyPS`
-        # because in this case, we are in the module context and Get-Command returns all commands,
-        # not only exported ones.
-        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
-        foreach ($Command in $commands)
-        {
-            Write-Verbose ("`tProcessing: " + $Command.Name)
-
-            Convert-PsObjectsToMamlModel -CmdletName $Command.Name # yeild
-        }
-    }
-}
-
 function Get-HelpFileName
 {
     param(
@@ -988,17 +978,81 @@ function Convert-MamlModelToMarkdown
     }
 }
 
+<#
+    This function prepares help and command object (possibly do mock) 
+    and passes it to Convert-PsObjectsToMamlModel, then return results
+#>
+function Get-MamlObject
+{
+    Param(
+        [CmdletBinding()]
+        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [string] $Cmdlet,
+        [parameter(mandatory=$true, parametersetname="Module")]
+        [string] $Module,
+        [parameter(mandatory=$true, parametersetname="Maml")]
+        [string] $MamlFile
+    )
+
+    if($Cmdlet)
+    {
+        Write-Verbose ("Processing: " + $Cmdlet)
+        $Help = Get-Help $Cmdlet
+        $Command = Get-Command $Cmdlet
+        return Convert-PsObjectsToMamlModel -Command $Command -Help $Help
+    }
+    elseif ($Module)
+    {
+        Write-Verbose ("Processing: " + $Module)
+
+        # We use: & (dummy module) {...} syntax to workaround
+        # the case `Get-MamlObject -Module platyPS`
+        # because in this case, we are in the module context and Get-Command returns all commands,
+        # not only exported ones.
+        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
+        foreach ($Command in $commands)
+        {
+            Write-Verbose ("`tProcessing: " + $Command.Name)
+            $Help = Get-Help $Command.Name
+            # yeild
+            Convert-PsObjectsToMamlModel -Command $Command -Help $Help
+        }
+    }
+    else # Maml
+    {
+        $HelpCollection = Show-HelpPreview -MamlFilePath $MamlFile -AsObject
+
+        #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
+        #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
+
+        $HelpCollection | % { 
+            
+            $Help = $_
+
+            $Command = [PsObject] @{
+                Name = $Help.Name
+                CommandType = $Help.Category
+                HelpFile = (Split-Path $MamlFile -Leaf)
+            }
+            
+            # yeild
+            Convert-PsObjectsToMamlModel -Command $Command -Help $Help
+        }
+    }
+}
+
+<#
+    This function converts help and command object (possibly mocked) into a Maml Model
+#>
 function Convert-PsObjectsToMamlModel
 {
     [CmdletBinding()]
     [OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
     param(
         [Parameter(Mandatory=$true)]
-        $CmdletName,
-        [Parameter(ParameterSetName="FromMaml")]
-        [switch] $FromMaml,
-        [Parameter(ParameterSetName="FromMaml")]
-        [string] $MamlFullPath
+        [object]$Command,
+        [Parameter(Mandatory=$true)]
+        [object]$Help
     )
 
     function IsCommonParameterName
@@ -1128,30 +1182,6 @@ function Convert-PsObjectsToMamlModel
 
     #region Command Object Values Processing
 
-    #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
-    #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
-    if($FromMaml)
-    {
-         
-        $Module = New-PlatyPSModuleFromMaml -MamlFilePath $MamlFullPath
-     
-        Import-Module $Module.Path -Force -ea Stop
-            
-        $Command = New-Object PsObject
-
-        $Command | Add-Member -Name "Name" -MemberType NoteProperty -Value $CmdletName
-        $Command | Add-Member -Name "CommandType" -MemberType NoteProperty -Value (Get-Command $CmdletName).CommandType
-        $Command | Add-Member -Name "ModuleName" -MemberType NoteProperty -Value "{{Fill in the Module Name}}"
-        $Command | Add-Member -Name "HelpFile" -MemberType NoteProperty -Value (Split-Path $MamlFullPath -Leaf)
-             
-       
-    }
-    else
-    {
-        $Command = Get-Command $CmdletName
-    }
-
-    $Help = Get-Help $CmdletName
     $IsWorkflow = $Command.CommandType -eq 'Workflow'
 
     #Get Name
@@ -1335,8 +1365,6 @@ function Convert-PsObjectsToMamlModel
         
         # Not provided by the command object. Using the Command Type to create a note declaring it's type.
         # We can add this placeholder
-        # $MamlCommandObject.Notes += "The Cmdlet category is: " + $Command.CommandType + ".`nThe Cmdlet is from the " + $Command.ModuleName + " module. `n`n"
-        
         
 
         #Add to relatedLinks
