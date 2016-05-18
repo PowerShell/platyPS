@@ -66,16 +66,23 @@ RequiredAssemblies = @('Markdown.MAML.dll')
 NestedModules = @()
 
 # Functions to export from this module
-FunctionsToExport = '*'
+FunctionsToExport = @(
+    'New-Markdown', 
+    'Get-MarkdownMetadata',
+    'New-ExternalHelp', 
+    'Show-HelpPreview',
+    'New-ExternalHelpCab',
+    'Update-Markdown'
+)
 
 # Cmdlets to export from this module
-CmdletsToExport = '*'
+CmdletsToExport = @()
 
 # Variables to export from this module
-VariablesToExport = '*'
+VariablesToExport = @()
 
 # Aliases to export from this module
-AliasesToExport = '*'
+AliasesToExport = @()
 
 # DSC resources to export from this module
 # DscResourcesToExport = @()
