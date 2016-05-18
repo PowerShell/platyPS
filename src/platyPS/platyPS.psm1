@@ -1174,16 +1174,32 @@ foreach($ParameterSet in $Command.ParameterSets)
             } 
         }
 
+        $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
+
         $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
         $ParameterObject.Type = $Parameter.ParameterType | Get-TypeString
         $ParameterObject.Name = $Parameter.Name
         $ParameterObject.Required = $Parameter.IsMandatory
-        $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) {
-            "{{Fill $($Parameter.Name) Description}}"
-        } else {
-            $Parameter.HelpMessage
+        
+        if (-not $HelpEntry.description.text) 
+        {
+            $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) {
+                "{{Fill $($Parameter.Name) Description}}"
+            } else {
+                $Parameter.HelpMessage
+            }
         }
+        else {
+            $ParameterObject.Description = $HelpEntry.description.text
+        }
+
+        $ParameterObject.DefaultValue = $HelpEntry.defaultValue
+        $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
+        $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
+        $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
+        $ParameterObject.Position = $HelpEntry.position
+
         #$ParameterObject.DefaultValue
         $ParameterObject.PipelineInput = GetPipelineValue $Parameter
         
@@ -1281,26 +1297,6 @@ if($Command.HelpFile -ne $null -and $Help -ne $null)
         $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
     }
-
-    #Update Parameters
-    if($help.parameters.parameter.Count -gt 0)
-    {
-        foreach($ParameterSet in $MamlCommandObject.Syntax)
-        {
-            foreach($Parameter in $ParameterSet.Parameters)
-            {
-                $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
-
-                $Parameter.Description = $HelpEntry.description.text
-                $Parameter.DefaultValue = $HelpEntry.defaultValue
-                $Parameter.VariableLength = $HelpEntry.variableLength -eq 'True'
-                $Parameter.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
-                $Parameter.Globbing = $HelpEntry.globbing -eq 'True'
-                $Parameter.Position = $HelpEntry.position
-            }
-        }
-    }
-
 
     #Get Inputs
     #Reccomend adding a Parameter Name and Parameter Set Name to each input object.

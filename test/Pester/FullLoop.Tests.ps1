@@ -169,4 +169,12 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         $param = $h.parameters.parameter | ? {$_.Name -eq 'IdleTimeoutSec'}
         $param.type.name | Should Be 'Int32'
     }
+
+    It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' {
+        $h = $generatedHelp | ? {$_.Name -eq 'Enter-PSHostProcess'}
+        $h | Should Not BeNullOrEmpty
+        $h.syntax.syntaxItem | % {
+            $_.parameter.Name[0] | Should Not Be 'AppDomainName'
+        }
+    }
 }

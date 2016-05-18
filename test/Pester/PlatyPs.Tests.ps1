@@ -102,6 +102,32 @@ Describe 'New-Markdown' {
     }
 }
 
+Describe 'New-ExternalHelp' {
+    function global:Test-OrderFunction { 
+        param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
+        $First
+        $Third
+        $Named
+    }
+
+    It "generates right order for syntax" {
+        $a = @{
+            command = 'Test-OrderFunction'
+            OutputFolder = 'TestDrive:\'
+        }
+
+        $file = New-Markdown @a
+        $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+        $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+        ($help.Syntax.syntaxItem | measure).Count | Should Be 1
+        $names = $help.Syntax.syntaxItem.parameter.Name
+        ($names | measure).Count | Should Be 3
+        $names[0] | Should Be 'First'        
+        $names[1] | Should Be 'Third'
+        $names[2] | Should Be 'Named'
+    }
+}
+
 #region PS Objects to MAML Model Tests
 
 Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {

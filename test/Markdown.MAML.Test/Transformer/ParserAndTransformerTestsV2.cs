@@ -567,6 +567,52 @@ Parameter sets: Set 1
         }
 
         [Fact]
+        public void ProducesParametersInTheRightOrderInSyntax()
+        {
+
+
+            const string docFormatString = @"
+# Get-Foo
+## PARAMETERS
+
+### -Third
+
+```yaml
+Type: String
+Position: 3
+```
+
+### -Named
+
+```yaml
+Type: String
+Position: Named
+```
+
+### -First
+
+```yaml
+Type: String
+Position: 1
+```
+
+";
+            var doc = ParseString(docFormatString);
+
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(1, mamlCommand.Syntax.Count);
+            var syntax = mamlCommand.Syntax[0];
+
+            Assert.Equal(syntax.Parameters.Count, 3);
+
+            Assert.Equal("First", syntax.Parameters[0].Name);
+            Assert.Equal("Third", syntax.Parameters[1].Name);
+            Assert.Equal("Named", syntax.Parameters[2].Name);
+        }
+
+        [Fact]
         public void ProduceDefaultValues()
         {
             

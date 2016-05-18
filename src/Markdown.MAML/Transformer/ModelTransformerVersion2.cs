@@ -156,6 +156,8 @@ namespace Markdown.MAML.Transformer
 
         private void FillUpSyntax(MamlSyntax syntax, string name)
         {
+            var parametersList = new List<MamlParameter>();
+            
             foreach (var pair in _parameterName2ParameterSetMap)
             {
                 MamlParameter param = null;
@@ -172,14 +174,17 @@ namespace Markdown.MAML.Transformer
                 }
                 if (param != null)
                 {
-                    syntax.Parameters.Add(param);
+                    parametersList.Add(param);
                 }
             }
+
+            // order parameters based on position
+            // User OrderBy instead of Sort for stable sort
+            syntax.Parameters.AddRange(parametersList.OrderBy(x => x.Position));
         }
 
         private void GatherSyntax(MamlCommand command)
         {
-            // Inefficient alogrithm, but it's fine, because all collections are pretty small.
             var parameterSetNames = GetParameterSetNames();
 
             if (parameterSetNames.Count == 0)
@@ -216,6 +221,7 @@ namespace Markdown.MAML.Transformer
 
         private List<string> GetParameterSetNames()
         {
+            // Inefficient alogrithm, but it's fine, because all collections are pretty small.
             var parameterSetNames = new List<string>();
             foreach (var pair in _parameterName2ParameterSetMap)
             {
