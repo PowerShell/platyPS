@@ -42,7 +42,7 @@ Parameter Sets: FileOutput, AsObject
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -57,7 +57,7 @@ Parameter Sets: FileOutput
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -70,7 +70,7 @@ Parameter Sets: FileOutput
 Aliases: 
 
 Required: False
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -83,7 +83,7 @@ Parameter Sets: AsObject
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False

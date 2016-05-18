@@ -36,7 +36,7 @@ Type: String
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -50,7 +50,7 @@ Type: String
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -64,7 +64,7 @@ Type: String
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -78,7 +78,7 @@ Type: String
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -92,7 +92,7 @@ Type: String
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False

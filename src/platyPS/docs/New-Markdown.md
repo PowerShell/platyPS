@@ -11,12 +11,13 @@ Convert your existing external help into markdown or generate it from Help objec
 
 ### FromModule
 ```
-New-Markdown -Module <Object> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
+New-Markdown -Module <Object> [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <String>]
+ [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-Markdown -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String>
+New-Markdown -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata]
  [-Encoding <String>] [<CommonParameters>]
 ```
 
@@ -79,7 +80,7 @@ Parameter Sets: FromModule
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -94,7 +95,7 @@ Parameter Sets: FromModule, FromCommand
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -107,7 +108,7 @@ Parameter Sets: FromModule, FromCommand
 Aliases: 
 
 Required: False
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -122,7 +123,7 @@ Parameter Sets: FromCommand
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
@@ -131,11 +132,11 @@ Accept wildcard characters: False
 ### -Metadata
 ```yaml
 Type: Hashtable
-Parameter Sets: FromCommand
+Parameter Sets: FromModule, FromCommand
 Aliases: 
 
 Required: False
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -148,7 +149,22 @@ Parameter Sets: FromCommand
 Aliases: 
 
 Required: False
-Position: named
+Position: Named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoMetadata
+{{Fill NoMetadata Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: FromModule, FromCommand
+Aliases: 
+
+Required: False
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False

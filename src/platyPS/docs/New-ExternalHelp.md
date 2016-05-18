@@ -61,7 +61,7 @@ Parameter Sets: FromFolder
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -74,7 +74,7 @@ Parameter Sets: FromFolder, FromFile
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -87,7 +87,7 @@ Parameter Sets: FromFolder, FromFile
 Aliases: 
 
 Required: False
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -100,7 +100,7 @@ Parameter Sets: FromFile
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False

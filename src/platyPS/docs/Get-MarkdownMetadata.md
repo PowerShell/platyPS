@@ -47,7 +47,7 @@ Parameter Sets: MarkdownPath
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -62,7 +62,7 @@ Parameter Sets: MarkdownContent
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -75,7 +75,7 @@ Parameter Sets: MarkdownFileInfo
 Aliases: 
 
 Required: True
-Position: named
+Position: Named
 Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
