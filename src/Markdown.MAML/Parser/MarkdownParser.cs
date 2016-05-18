@@ -501,6 +501,7 @@ namespace Markdown.MAML.Parser
 
             // any dummy value with length >= 2
             _PrevString = "foo";
+            _InList = false;
 
             return Regex.Replace(spanText, "([^\r\n]*)(\r\n|$)", new MatchEvaluator(LineBreaksMatchEvaluater)).Replace(" \r\n", "\r\n").Trim();
         }
