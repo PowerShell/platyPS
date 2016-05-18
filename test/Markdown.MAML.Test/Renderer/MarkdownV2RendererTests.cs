@@ -90,7 +90,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
                 Notes = "This is a multiline note.\r\nSecond line."
             };
 
-            var parameterName = new MamlParameter()
+            var parameter = new MamlParameter()
             {
                 Type = "String",
                 Name = "Name",
@@ -103,14 +103,15 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
                 DefaultValue = "trololo",
                 Aliases = new string[] { "GF", "Foos", "Do" },
             };
+            parameter.ParameterValueGroup.AddRange(new string[] { "Value1", "Value2" });
 
-            command.Parameters.Add(parameterName);
+            command.Parameters.Add(parameter);
 
             var syntax1 = new MamlSyntax()
             {
                 ParameterSetName = "ByName"
             };
-            syntax1.Parameters.Add(parameterName);
+            syntax1.Parameters.Add(parameter);
             command.Syntax.Add(syntax1);
 
             command.Inputs.Add(new MamlInputOutput()
@@ -189,6 +190,7 @@ Parameter Description.
 ```yaml
 Type: String
 Aliases: GF, Foos, Do
+Accepted values: Value1, Value2
 
 Required: True
 Position: 1

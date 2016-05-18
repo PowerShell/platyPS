@@ -154,6 +154,12 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         # add artifacts to out
         Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
         Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
+
+        "$outFolder\SMA.original.txt", "$outFolder\SMA.generated.txt" | % {
+            $path = $_
+            $strippedContent = (((((cat -raw $path) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
+            Set-Content -Path "$path.stripped" -Value $strippedContent
+        }
     }
 
     # this our regression suite for SMA
@@ -162,6 +168,11 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     It 'has right number of outputs for Get-Help' {
         $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
         ($h.returnValues.returnValue | measure).Count | Should Be 3
+    }
+
+    It 'Get-Help has ValidateSet entry in syntax block' {
+        $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
+        ($h.syntax | Out-String).Contains('-Category <String[]> {Alias | Cmdlet | Provider | General') | Should Be $true
     }
 
     It 'has right type for New-PSTransportOption -IdleTimeoutSec' {

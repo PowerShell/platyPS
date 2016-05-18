@@ -234,7 +234,12 @@ namespace Markdown.MAML.Renderer
                     _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, string.Join(", ", set.Item1), Environment.NewLine);
                 }
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}{2}", MarkdownStrings.Aliases, string.Join(", ", parameter.Aliases), Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Aliases, string.Join(", ", parameter.Aliases), Environment.NewLine);
+                if (parameter.ParameterValueGroup.Count > 0)
+                {
+                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accepted_values, string.Join(", ", parameter.ParameterValueGroup), Environment.NewLine);
+                }
+                _stringBuilder.AppendLine();
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Position, set.Item2.Position, Environment.NewLine);
@@ -271,6 +276,9 @@ namespace Markdown.MAML.Renderer
 
         private string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
         {
+            // TODO: we may want to add ParameterValueGroup info here,
+            // but it's fine for now
+
             var sb = new StringBuilder();
             sb.Append(command.Name);
 
