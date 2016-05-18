@@ -80,7 +80,8 @@ namespace Markdown.MAML.Model.MAML
 
         public bool IsNamed()
         {
-            return StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
+            return string.IsNullOrWhiteSpace(this.Position) ||
+                StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
         }
 
         object ICloneable.Clone()

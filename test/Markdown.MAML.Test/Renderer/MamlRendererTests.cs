@@ -88,7 +88,7 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Type = "String",
                 Name = "Param1",
-                Position = "Named"
+                Position = ""
             };
 
             var param2 = new MamlParameter()
