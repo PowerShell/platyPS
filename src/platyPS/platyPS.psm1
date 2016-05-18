@@ -36,11 +36,6 @@ function New-Markdown
     param(
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
-            ParameterSetName="FromModule")]
-        [object]$Module,
-
-        [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
         [object]$Command,
 
@@ -57,6 +52,24 @@ function New-Markdown
 
         [string]$Encoding = 'UTF8_NO_BOM'
     )
+
+    DynamicParam {
+        $modules = @(Get-Module | Select-Object -ExpandProperty Name)
+        $modules += 'Microsoft.PowerShell.Core'
+        $moduleParamAttributes = New-Object -TypeName System.Management.Automation.ParameterAttribute -Property @{
+            Mandatory = $true
+            ParameterSetName = 'FromModule'
+            ValueFromPipeline = $true
+        }
+        $moduleParamCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection[System.Attribute]'
+        $moduleParamCollection.Add($moduleParamAttributes)
+        $moduleParameter = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter -ArgumentList ('Module', [Object], $moduleParamCollection)
+        $moduleParameter.Attributes.Add((New-Object -TypeName System.Management.Automation.ValidateSetAttribute($modules)))
+
+        $dictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+        $dictionary.Add('Module', $moduleParameter)
+        return $dictionary
+    }
 
     begin
     {
@@ -87,13 +100,7 @@ function New-Markdown
         }
         else # "FromModule"
         {
-            # second if part is for Microsoft.PowerShell.Core module.
-            # Get-Module doesn't know about it
-            if (-not (Get-Module $module) -and -not (Get-Command -module $module))
-            {
-                throw "Module $module is not imported in the session. Run 'Import-Module $module'."
-            }
-            Get-MamlObject -Module $module | % { 
+            Get-MamlObject -Module $PSBoundParameters.Module | % { 
                 # populate template
                 Update-MamlObject $_
                 # get help file name
