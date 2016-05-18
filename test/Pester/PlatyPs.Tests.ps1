@@ -29,6 +29,11 @@ Describe 'New-Markdown' {
             $h = Get-MarkdownMetadata -Path $file
             $h['FOO'] | Should Be 'BAR' 
         }
+
+        It 'respects -NoYamlHeader' {
+            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoYamlHeader
+            Get-MarkdownMetadata -Path $file | Should Be $null
+        }
     }
 
     Context 'Online version link' {
