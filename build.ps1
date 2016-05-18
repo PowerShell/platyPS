@@ -6,6 +6,12 @@ param(
 )
 
 # build .dll
+# msbuild is part of .NET Framework, we can try to get it from well-known location.
+if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
+    Write-Warning "Appending probable msbuild path"
+    $env:path += ";${env:SystemRoot}\Microsoft.Net\Framework\v4.0.30319"
+}
+
 msbuild Markdown.MAML.sln /p:Configuration=$Configuration
 $assemblyPath = (Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path
 
