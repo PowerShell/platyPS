@@ -55,7 +55,7 @@ function New-Markdown
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
 
-        [switch]$NoYamlHeader,
+        [switch]$NoMetadata,
 
         [string]$Encoding = 'UTF8_NO_BOM'
     )
@@ -82,7 +82,7 @@ function New-Markdown
                 # create markdown
                 Convert-MamlModelToMarkdown -mamlCommand $_ -metadata ($Metadata + @{
                     $script:EXTERNAL_HELP_FILES = $helpFileName
-                }) -NoYamlHeader:$NoYamlHeader
+                }) -NoMetadata:$NoMetadata
             }
 
             Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
@@ -104,7 +104,7 @@ function New-Markdown
                 # create markdown
                 $md = Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
                     $script:EXTERNAL_HELP_FILES = $helpFileName
-                } -NoYamlHeader:$NoYamlHeader
+                } -NoMetadata:$NoMetadata
                 Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
             }
         }
@@ -892,7 +892,7 @@ function Convert-MamlModelToMarkdown
         [Parameter(Mandatory=$false)]
         [hashtable]$metadata,
 
-        [switch]$NoYamlHeader
+        [switch]$NoMetadata
     )
 
     begin
@@ -903,7 +903,7 @@ function Convert-MamlModelToMarkdown
 
     process
     {
-        if (($count++) -eq 0 -and (-not $NoYamlHeader))
+        if (($count++) -eq 0 -and (-not $NoMetadata))
         {
             return $r.MamlModelToString($mamlCommand, $metadata)
         }

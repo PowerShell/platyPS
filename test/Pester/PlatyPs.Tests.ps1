@@ -30,8 +30,8 @@ Describe 'New-Markdown' {
             $h['FOO'] | Should Be 'BAR' 
         }
 
-        It 'respects -NoYamlHeader' {
-            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoYamlHeader
+        It 'respects -NoMetadata' {
+            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata
             Get-MarkdownMetadata -Path $file | Should Be $null
         }
     }
