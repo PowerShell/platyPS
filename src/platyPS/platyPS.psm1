@@ -1621,3 +1621,16 @@ function Convert-PsObjectsToMamlModel
     return $MamlCommandObject
 }
 #endregion
+
+#region
+
+# If powershell 5 or greater, add tab completion to New-Markdown -Module parameter.
+if ($PSVersionTable.PSVersion.Major -ge 5) {
+    Register-ArgumentCompleter -ParameterName Module -CommandName New-Markdown -ScriptBlock {
+        $modules = @(Get-Module | Select-Object -ExpandProperty Name)
+        $modules += 'Microsoft.PowerShell.Core'
+        $modules
+    }
+}
+
+#endregion
