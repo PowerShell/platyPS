@@ -233,6 +233,24 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n-- Drop: When") | Should Be $true
                 ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
             }
+
+            It 'preserve formatting for Connect-PSSession NOTES' {
+
+                # We are cheating a little bit here :(
+                function NormalizeEndings
+                {
+                    param(
+                        [string]$text
+                    )
+
+                    $text2 = ($text -replace "`r","")
+                    [Regex]::Replace($text2, "(`n *)+", "`n")
+                }
+
+                $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
+                $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
+                NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected
+            }
         }
     }
 }
