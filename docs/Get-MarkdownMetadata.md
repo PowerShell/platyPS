@@ -35,7 +35,7 @@ They would be ignore by [New-ExternalHelp](New-ExternalHelp.md).
 These values can be used by external tools.
 
 [Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
-They return as a key-value <Dictionary[String, String]> object.
+They return as a key-value \<Dictionary\[String, String\]\> object.
 
 ## EXAMPLES
 
