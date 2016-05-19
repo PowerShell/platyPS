@@ -110,6 +110,38 @@ Describe 'New-Markdown' {
             ($dynamicParam | measure).Count | Should Be 1
         }
     }
+
+    Context 'Module Landing Page'{
+            
+        $OutputFolder = "TestDrive:\LandingPageMD\"
+
+        New-Item -ItemType Directory $OutputFolder
+
+
+        It "generates a landing page from Module"{
+
+            New-Markdown -Module Appx -OutputFolder $OutputFolder -WithModulePage
+
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Appx.md)
+
+            $LandingPage | Should Not Be $null
+
+        }
+
+        It "generates a landing page from MAML"{
+
+
+            New-Markdown -MamlFile "C:\Windows\System32\WindowsPowerShell\v1.0\Modules\Appx\en-US\Appx.psm1-help.xml" `
+                        -OutputFolder $OutputFolder `
+                        -WithModulePage `
+                        -ModuleName "Appx"
+
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Appx.md)
+
+            $LandingPage | Should Not Be $null
+
+        }
+    }
 }
 
 Describe 'New-ExternalHelp' {
