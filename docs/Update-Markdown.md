@@ -10,13 +10,13 @@ schema: 2.0.0
 
 ### SchemaUpgrade
 ```
-Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [-LogPath <String>]
+Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [-SchemaUpgrade]
  [<CommonParameters>]
 ```
 
 ### Reflection
 ```
-Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [-LogPath <String>] [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-LogPath <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -25,7 +25,6 @@ Update platyPS markdown help files in place.
 Two supported scenarios:
 
 - update schema version
-
 - update markdown with information from the 'live' command
 
 ## EXAMPLES
@@ -78,25 +77,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -UseReflection
-```yaml
-Type: SwitchParameter
-Parameter Sets: Reflection
-Aliases: 
-
-Required: True
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
 ### -LogPath
 {{Fill LogPath Description}}
 
 ```yaml
 Type: String
-Parameter Sets: SchemaUpgrade, Reflection
+Parameter Sets: Reflection
 Aliases: 
 
 Required: False
@@ -106,8 +92,24 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -SchemaUpgrade
+{{Fill SchemaUpgrade Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: SchemaUpgrade
+Aliases: 
+
+Required: True
+Position: Named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

@@ -255,13 +255,15 @@ function Update-Markdown
             ParameterSetName='SchemaUpgrade')]
         [string]$OutputFolder,
 
+        [Parameter(ParameterSetName='Reflection')]
+        [Parameter(ParameterSetName='SchemaUpgrade')]
         [string]$Encoding = $script:UTF8_NO_BOM,
 
         [Parameter(Mandatory=$true,
-            ParameterSetName='Reflection')]
-        [switch]$UseReflection,
+            ParameterSetName='SchemaUpgrade')]
+        [switch]$SchemaUpgrade,
         
-        [Parameter(Mandatory=$false)]
+        [Parameter(ParameterSetName='Reflection')]
         [string]$LogPath
     )
 
@@ -294,10 +296,9 @@ function Update-Markdown
         function Update-MarkdownFileWithReflection
         {
             param(
+                [Parameter(ValueFromPipeline = $true)]
                 [System.IO.FileInfo]
-                $file,
-                [Parameter(mandatory=$false)]
-                [string]$LogPath
+                $file
             )
 
 
@@ -362,16 +363,7 @@ function Update-Markdown
         }
         else # Reflection
         {
-            $affectedFiles = $MarkdownFiles | % {
-                if($LogPath)
-                {
-                    Update-MarkdownFileWithReflection $_ -LogPath $LogPath
-                }
-                else
-                {
-                Update-MarkdownFileWithReflection $_
-            }
-            }
+            $affectedFiles = $MarkdownFiles | % { Update-MarkdownFileWithReflection $_ }
             return $affectedFiles
         }
     }

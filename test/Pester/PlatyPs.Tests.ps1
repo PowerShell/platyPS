@@ -272,7 +272,7 @@ Describe 'Test Log on Update-Markdown'{
     Remove-Item -Recurse $drop -ErrorAction SilentlyContinue
     New-Markdown -Command Add-History -OutputFolder $drop | Out-Null
     $MDs = Get-ChildItem $drop
-    Update-Markdown -MarkdownFile $MDs -UseReflection -LogPath $drop
+    Update-Markdown -MarkdownFile $MDs -LogPath $drop
 
     $result = Get-Childitem $drop\platyPsLog.txt | Select Name
 
@@ -312,7 +312,7 @@ Describe 'Update-Markdown upgrade schema scenario' {
     $OutputFolder = 'TestDrive:\PSReadline'
 
     $v1maml = New-ExternalHelp -MarkdownFile $v1md -OutputPath "$OutputFolder\v1"
-    $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder
+    $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder -SchemaUpgrade
     $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
 
     It 'help preview is the same before and after upgrade' {
@@ -367,7 +367,7 @@ Describe 'Update-Markdown reflection scenario' {
         )
     }
 
-    $v2md = Update-Markdown -MarkdownFile $v1md -UseReflection -Verbose
+    $v2md = Update-Markdown -MarkdownFile $v1md -Verbose
 
     It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
