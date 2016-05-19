@@ -217,6 +217,16 @@ namespace Markdown.MAML.Renderer
             return res;
         }
 
+        private string JoinWithComma(IEnumerable<string> args)
+        {
+            if (args == null)
+            {
+                return "";
+            }
+
+            return string.Join(", ", args);
+        }
+
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
@@ -231,13 +241,13 @@ namespace Markdown.MAML.Renderer
                 if (command.Syntax.Count > 1)
                 {
                     // ignore, if there is just one parameter set
-                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, string.Join(", ", set.Item1), Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, JoinWithComma(set.Item1), Environment.NewLine);
                 }
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Aliases, string.Join(", ", parameter.Aliases), Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Aliases, JoinWithComma(parameter.Aliases), Environment.NewLine);
                 if (parameter.ParameterValueGroup.Count > 0)
                 {
-                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accepted_values, string.Join(", ", parameter.ParameterValueGroup), Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accepted_values, JoinWithComma(parameter.ParameterValueGroup), Environment.NewLine);
                 }
                 _stringBuilder.AppendLine();
 

@@ -244,19 +244,19 @@ namespace Markdown.MAML.Renderer
             PopTag("command:parameters");
         }
 
-        /// <summary>
-        /// This function is reverse of Convert-ParameterTypeTextToType from MamlToMarkdown.psm1
-        /// </summary>
-        /// <param name="typeName"></param>
-        /// <returns></returns>
-        private string ConvertPSTypeToMamlType(string typeName)
+        private string ConvertPSTypeToMamlType(MamlParameter parameter)
         {
-            if (typeName.ToLower().Equals("switch"))
+            if (parameter.Type == null)
+            {
+                return "";
+            }
+
+            if (parameter.IsSwitchParameter())
             {
                 return "SwitchParameter";
             }
 
-            return typeName;
+            return parameter.Type;
         }
 
         private void AddParameterValueGroup(List<string> parameterValueGroup)
@@ -299,7 +299,7 @@ namespace Markdown.MAML.Renderer
                          "variableLength=\"" + parameter.ValueVariableLength.ToString().ToLower();
             attributes += "\"";
 
-            string mamlType = ConvertPSTypeToMamlType(parameter.Type);
+            string mamlType = ConvertPSTypeToMamlType(parameter);
 
             // this is weired quirk inside <syntax>:
             // we don't add [switch] info to make it appear good.

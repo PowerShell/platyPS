@@ -27,6 +27,7 @@
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
 $script:DEFAULT_ENCODING = 'UTF8'
 $script:UTF8_NO_BOM = 'UTF8_NO_BOM'
+$script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
 
 
 function New-Markdown
@@ -1036,7 +1037,7 @@ function Get-MamlObject
             }
             
             # yeild
-            Convert-PsObjectsToMamlModel -Command $Command -Help $Help
+            Convert-PsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata
         }
     }
 }
@@ -1052,7 +1053,8 @@ function Convert-PsObjectsToMamlModel
         [Parameter(Mandatory=$true)]
         [object]$Command,
         [Parameter(Mandatory=$true)]
-        [object]$Help
+        [object]$Help,
+        [switch]$UseHelpForParametersMetadata
     )
 
     function IsCommonParameterName
@@ -1131,34 +1133,6 @@ function Convert-PsObjectsToMamlModel
         }
     }
 
-    # This function matches $ParameterSet object that comes from (Get-Command ...).ParameterSet
-    # into syntaxItem object from (Get-Help ...).syntax.syntaxItem
-    function GetSyntaxForParameterSet($ParameterSet)
-    {
-        $commandNames = $ParameterSet.Parameters.Name | ? { -not (IsCommonParameterName $_ -Workflow:$IsWorkflow) }
-        # Compare-Object doesn't like $nulls :(
-        if (-not $commandNames) { $commandNames = @() } 
-        $help.syntax.syntaxItem | % {
-            $helpNames = $_.parameter.Name | ? { -not (IsCommonParameterName $_ -Workflow:$IsWorkflow) }
-            if (-not $helpNames) { $helpNames = @() } 
-            if (Compare-Object $helpNames $commandNames) {
-                # skip
-            }
-            else {
-                $res = $_
-            }
-        }
-
-        if ($res) 
-        {
-            return $res    
-        }
-        else
-        {
-            Write-Warning "[Convert-PsObjectsToMamlModel] Cannot find syntaxItem that matches parameter set $($ParameterSet.Name) for $($Help.Name)"
-        }
-    }
-
     function Get-TypeString
     {
         param(
@@ -1198,93 +1172,76 @@ function Convert-PsObjectsToMamlModel
 
     #endregion 
 
-    #If there is no help file available. Attemp to construct Input and Output Data
-    if (($Help -eq $null) -or ($Help -eq ""))
-    {
-        #Get Inputs
-        #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
-        #region Inputs
-
-        $Inputs = @()
-        foreach($ParameterSet in $Command.ParameterSets)
-        {
-            foreach($Parameter in $ParameterSet.Parameters)
-            {
-                if($Parameter.ValueFromPipeline -eq "True")
-                {
-                    $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-
-                    $InputObject.TypeName = $Parameter.ParameterType.Name
-
-                    $InputObject.Description = $Parameter.Name
-
-                    $Inputs += $InputObject
-                }
-            }   
-        }
-
-        $Inputs = $Inputs | Select -Unique
-        foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
-
-        #endregion
-
-        #Get Outputs
-        #No Output Type description is provided from the command object.
-        #region Outputs
-
-        $Outputs = @()
-        foreach($OutputType in $Command.OutputType)
-        {
-            $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-
-            $OutputObject.TypeName = $OutputType.Type
-
-            $Outputs += $OutputObject
-            
-        }
-
-        $Outputs = $Outputs | Select -Unique
-        foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
-
-        #endregion
-    }
-
     #Get Syntax
     #region Get the Syntax Parameter Set objects
 
-    foreach($ParameterSet in $Command.ParameterSets)
+    function FillUpParameterFromHelp
     {
-        $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
+        param(
+            [Parameter(Mandatory=$true)]
+            [Markdown.MAML.Model.MAML.MamlParameter]$ParameterObject
+        )
 
-        $SyntaxObject.ParameterSetName = $ParameterSet.Name
+        $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $ParameterObject.Name}
 
-        $syntax = GetSyntaxForParameterSet $ParameterSet
+        $ParameterObject.DefaultValue = $HelpEntry.defaultValue
+        $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
+        $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
+        $ParameterObject.Position = $HelpEntry.position
 
-        foreach($Parameter in $ParameterSet.Parameters)
+        if ($HelpEntry.description) 
         {
-            # ignore CommonParameters
-            if (IsCommonParameterName $Parameter.Name -Workflow:$IsWorkflow) 
-            { 
-                # but don't ignore them, if they have explicit help entries
-                if ($Help.parameters.parameter | ? {$_.Name -eq $Parameter.Name})
-                {
-                }
-                else 
-                {
-                    continue
-                } 
-            }
+            $ParameterObject.Description = $HelpEntry.description.text
+        }
 
-            $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $Parameter.Name}
-
-            $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
-
-            $ParameterObject.Type = $Parameter.ParameterType | Get-TypeString
-            $ParameterObject.Name = $Parameter.Name
-            $ParameterObject.Required = $Parameter.IsMandatory
-            
-            if (-not $HelpEntry.description.text) 
+        $syntaxParam = $Help.syntax.syntaxItem.parameter |  ? {$_.Name -eq $Parameter.Name} | Select -First 1
+        if ($syntaxParam)
+        {
+            # otherwise we could potentialy get it from Reflection but not doing it for now
+            foreach ($parameterValue in $syntaxParam.parameterValueGroup.parameterValue)
             {
+                $ParameterObject.parameterValueGroup.Add($parameterValue)
+            }
+        }
+    }
+
+    function FillUpSyntaxFromCommand
+    {
+        foreach($ParameterSet in $Command.ParameterSets)
+        {
+            $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
+
+            $SyntaxObject.ParameterSetName = $ParameterSet.Name
+
+            foreach($Parameter in $ParameterSet.Parameters)
+            {
+                # ignore CommonParameters
+                if (IsCommonParameterName $Parameter.Name -Workflow:$IsWorkflow) 
+                { 
+                    # but don't ignore them, if they have explicit help entries
+                    if ($Help.parameters.parameter | ? {$_.Name -eq $Parameter.Name})
+                    {
+                    }
+                    else 
+                    {
+                        continue
+                    } 
+                }
+
+                $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
+
+                $ParameterObject.Type = $Parameter.ParameterType | Get-TypeString
+                $ParameterObject.Name = $Parameter.Name
+                $ParameterObject.Required = $Parameter.IsMandatory
+                $ParameterObject.PipelineInput = GetPipelineValue $Parameter
+
+                $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
+
+                foreach($Alias in $Parameter.Aliases)
+                {
+                    $ParameterObject.Aliases += $Alias
+                }
+                
                 $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) 
                 {
                     "{{Fill $($Parameter.Name) Description}}"
@@ -1293,40 +1250,72 @@ function Convert-PsObjectsToMamlModel
                 {
                     $Parameter.HelpMessage
                 }
+
+                FillUpParameterFromHelp $ParameterObject
+
+                $SyntaxObject.Parameters.Add($ParameterObject)
             }
-            else 
+
+            $MamlCommandObject.Syntax.Add($SyntaxObject)
+        }
+    }
+
+    function FillUpSyntaxFromHelp
+    {
+        function GuessTheType
+        {
+            param([string]$type)
+
+            if (-not $type)
             {
-                $ParameterObject.Description = $HelpEntry.description.text
+                # weired, but that's how it works
+                return 'SwitchParameter'
             }
 
-            $ParameterObject.DefaultValue = $HelpEntry.defaultValue
-            $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
-            $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
-            $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
-            $ParameterObject.Position = $HelpEntry.position
-
-            #$ParameterObject.DefaultValue
-            $ParameterObject.PipelineInput = GetPipelineValue $Parameter
-            
-            foreach($Alias in $Parameter.Aliases)
-            {
-                $ParameterObject.Aliases += $Alias
-            }
-
-            # if we didn't find the corresponding HelpEntry, ignore this info
-            if ($syntax) 
-            {
-                $syntaxParam = $syntax.parameter | ? {$_.Name -eq $Parameter.Name}
-                foreach ($parameterValue in $syntaxParam.parameterValueGroup.parameterValue)
-                {
-                    $ParameterObject.parameterValueGroup.Add($parameterValue)
-                }
-            }
-
-            $SyntaxObject.Parameters.Add($ParameterObject)
+            return $type
         }
 
-        $MamlCommandObject.Syntax.Add($SyntaxObject)
+        $ParamSetCount = 0
+        foreach($ParameterSet in $Help.syntax.syntaxItem)
+        {
+            $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
+
+            $ParamSetCount++
+            $SyntaxObject.ParameterSetName = $script:SET_NAME_PLACEHOLDER + "_" + $ParamSetCount
+
+            foreach($Parameter in $ParameterSet.Parameter)
+            {
+                $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
+
+                $ParameterObject.Type = GuessTheType $Parameter.parameterValue
+
+                $ParameterObject.Name = $Parameter.Name
+                $ParameterObject.Required = $Parameter.required -eq 'true'
+                $ParameterObject.PipelineInput = $Parameter.pipelineInput
+
+                $ParameterObject.ValueRequired = -not ($ParameterObject.Type -eq "SwitchParameter") # thisDefinition is a heuristic
+
+                if ($parameter.Aliases -ne 'None')
+                {
+                    $ParameterObject.Aliases = $parameter.Aliases
+                }
+                
+                FillUpParameterFromHelp $ParameterObject
+
+                $SyntaxObject.Parameters.Add($ParameterObject)
+            }
+
+            $MamlCommandObject.Syntax.Add($SyntaxObject)
+        }
+    }
+
+    if ($UseHelpForParametersMetadata)
+    {
+        FillUpSyntaxFromHelp
+    }
+    else 
+    {
+        FillUpSyntaxFromCommand    
     }
 
     #endregion
@@ -1335,101 +1324,94 @@ function Convert-PsObjectsToMamlModel
     #####GET THE HELP-Object Content and add it to the MAML Object#####
     #region Help-Object processing
 
-    #check to make sure help content exists.
-    if($Command.HelpFile -ne $null -and $Help -ne $null)
+    #Get Synopsis
+    $MamlCommandObject.Synopsis = $Help.Synopsis.Trim()
+
+    #Get Description
+    if($Help.description -ne $null)
     {
-        #Get Synopsis
-        $MamlCommandObject.Synopsis = $Help.Synopsis
-
-        #Get Description
-        if($Help.description -ne $null)
+        $MamlCommandObject.Description = ""
+        foreach($DescriptionPiece in $Help.description)
         {
-            $MamlCommandObject.Description = ""
-            foreach($DescriptionPiece in $Help.description)
-            {
-                $MamlCommandObject.Description += $DescriptionPiece.Text
-                $MamlCommandObject.Description += "`n"
-            }
+            $MamlCommandObject.Description += $DescriptionPiece.Text
+            #$MamlCommandObject.Description += "`r`n"
         }
-
-        #Add to Notes
-        #From the Help AlertSet data
-        if($help.alertSet -ne $null)
-        {
-           foreach($Alert in $Help.alertSet.alert)
-            {
-                $MamlCommandObject.Notes += $Alert.Text
-                $MamlCommandObject.Notes += "`n"
-            }
-        }
-        
-        # Not provided by the command object. Using the Command Type to create a note declaring it's type.
-        # We can add this placeholder
-        
-
-        #Add to relatedLinks
-        if($help.relatedLinks)
-        {
-           foreach($link in $Help.relatedLinks.navigationLink)
-            {
-                $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
-                $mamlLink.LinkName = $link.linkText
-                $mamlLink.LinkUri = $link.uri
-                $MamlCommandObject.Links.Add($mamlLink)
-            }
-        }
-
-        #Add Examples
-        foreach($Example in $Help.examples.example)
-        {
-            $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
-
-            $MamlExampleObject.Introduction = $Example.introduction
-            $MamlExampleObject.Title = $Example.title
-            $MamlExampleObject.Code = $Example.code
-
-            $RemarkText = $null
-            foreach($Remark in $Example.remarks)
-            {
-                $RemarkText += $Remark.text + "`n"
-            }
-            
-            $MamlExampleObject.Remarks = $RemarkText
-            $MamlCommandObject.Examples.Add($MamlExampleObject)
-        }
-
-        #Get Inputs
-        #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
-        #region Inputs
-        $Inputs = @()
-        
-        $Help.inputTypes.inputType | % {
-            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-            $InputObject.TypeName = $_.type.name
-            $InputObject.Description = $_.description.Text | Out-String
-            $Inputs += $InputObject
-        }
-        
-        foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
-     
-        #endregion
-     
-        #Get Outputs
-        #No Output Type description is provided from the command object.
-        #region Outputs
-        $Outputs = @()
-        
-        $Help.returnValues.returnValue | % {
-            $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-            $OutputObject.TypeName = $_.type.name
-            $OutputObject.Description = $_.description.Text | Out-String
-            $Outputs += $OutputObject
-        }
-        
-        foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
-        #endregion
-
     }
+
+    #Add to Notes
+    #From the Help AlertSet data
+    if($help.alertSet -ne $null)
+    {
+        foreach($Alert in $Help.alertSet.alert)
+        {
+            if ($Alert) { $MamlCommandObject.Notes += $Alert.Text.Trim() }
+        }
+    }
+    
+    # Not provided by the command object. Using the Command Type to create a note declaring it's type.
+    # We can add this placeholder
+    
+
+    #Add to relatedLinks
+    if($help.relatedLinks)
+    {
+       foreach($link in $Help.relatedLinks.navigationLink)
+        {
+            $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
+            $mamlLink.LinkName = $link.linkText
+            $mamlLink.LinkUri = $link.uri
+            $MamlCommandObject.Links.Add($mamlLink)
+        }
+    }
+
+    #Add Examples
+    foreach($Example in $Help.examples.example)
+    {
+        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+        $MamlExampleObject.Introduction = $Example.introduction
+        $MamlExampleObject.Title = $Example.title
+        $MamlExampleObject.Code = $Example.code
+
+        $RemarkText = $null
+        foreach($Remark in $Example.remarks)
+        {
+            $RemarkText += $Remark.text
+        }
+        
+        $MamlExampleObject.Remarks = $RemarkText
+        $MamlCommandObject.Examples.Add($MamlExampleObject)
+    }
+
+    #Get Inputs
+    #Reccomend adding a Parameter Name and Parameter Set Name to each input object.
+    #region Inputs
+    $Inputs = @()
+    
+    $Help.inputTypes.inputType | % {
+        $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $InputObject.TypeName = $_.type.name
+        $InputObject.Description = $_.description.Text | Out-String
+        $Inputs += $InputObject
+    }
+    
+    foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+ 
+    #endregion
+ 
+    #Get Outputs
+    #No Output Type description is provided from the command object.
+    #region Outputs
+    $Outputs = @()
+    
+    $Help.returnValues.returnValue | % {
+        $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+        $OutputObject.TypeName = $_.type.name
+        $OutputObject.Description = $_.description.Text | Out-String
+        $Outputs += $OutputObject
+    }
+    
+    foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
     #endregion
     ##########
 

@@ -173,8 +173,8 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     ) | % {
 
         $newMarkdownArgs = $_
-        
-        Context "Output SMA into $OutputFolder" {
+
+        Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
 
             It 'transforms Markdown to MAML with no errors' {
 
