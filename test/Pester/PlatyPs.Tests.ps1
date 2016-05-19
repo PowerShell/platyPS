@@ -120,9 +120,9 @@ Describe 'New-Markdown' {
 
         It "generates a landing page from Module"{
 
-            New-Markdown -Module Appx -OutputFolder $OutputFolder -WithModulePage
+            New-Markdown -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage
 
-            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Appx.md)
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
 
             $LandingPage | Should Not Be $null
 
@@ -131,12 +131,12 @@ Describe 'New-Markdown' {
         It "generates a landing page from MAML"{
 
 
-            New-Markdown -MamlFile "C:\Windows\System32\WindowsPowerShell\v1.0\Modules\Appx\en-US\Appx.psm1-help.xml" `
+            New-Markdown -MamlFile (ls "$outFolder\platyPS\en-US\*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
-                        -ModuleName "Appx"
+                        -ModuleName "PlatyPS"
 
-            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Appx.md)
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
 
             $LandingPage | Should Not Be $null
 
