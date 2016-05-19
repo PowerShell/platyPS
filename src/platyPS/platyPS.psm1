@@ -1042,6 +1042,31 @@ function Get-MamlObject
     }
 }
 
+function Add-LineBreaksForParagraphs
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [string]$text
+    )
+
+    begin
+    {
+        $paragraphs = @()
+    }
+
+    process 
+    {
+        $text = $text.Trim()
+        $paragraphs += $text
+    }
+
+    end 
+    {
+        $paragraphs -join "`r`n`r`n" 
+    }
+}
+
 <#
     This function converts help and command object (possibly mocked) into a Maml Model
 #>
@@ -1191,7 +1216,7 @@ function Convert-PsObjectsToMamlModel
 
         if ($HelpEntry.description) 
         {
-            $ParameterObject.Description = $HelpEntry.description.text
+            $ParameterObject.Description = $HelpEntry.description.text | Add-LineBreaksForParagraphs
         }
 
         $syntaxParam = $Help.syntax.syntaxItem.parameter |  ? {$_.Name -eq $Parameter.Name} | Select -First 1
@@ -1330,22 +1355,14 @@ function Convert-PsObjectsToMamlModel
     #Get Description
     if($Help.description -ne $null)
     {
-        $MamlCommandObject.Description = ""
-        foreach($DescriptionPiece in $Help.description)
-        {
-            $MamlCommandObject.Description += $DescriptionPiece.Text
-            #$MamlCommandObject.Description += "`r`n"
-        }
+        $MamlCommandObject.Description = $Help.description.Text | Add-LineBreaksForParagraphs
     }
 
     #Add to Notes
     #From the Help AlertSet data
-    if($help.alertSet -ne $null)
+    if($help.alertSet)
     {
-        foreach($Alert in $Help.alertSet.alert)
-        {
-            if ($Alert) { $MamlCommandObject.Notes += $Alert.Text.Trim() }
-        }
+        $MamlCommandObject.Notes = $help.alertSet.alert.Text | Add-LineBreaksForParagraphs
     }
     
     # Not provided by the command object. Using the Command Type to create a note declaring it's type.
@@ -1373,11 +1390,7 @@ function Convert-PsObjectsToMamlModel
         $MamlExampleObject.Title = $Example.title
         $MamlExampleObject.Code = $Example.code
 
-        $RemarkText = $null
-        foreach($Remark in $Example.remarks)
-        {
-            $RemarkText += $Remark.text
-        }
+        $RemarkText = $Example.remarks.text | Add-LineBreaksForParagraphs
         
         $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
@@ -1391,7 +1404,7 @@ function Convert-PsObjectsToMamlModel
     $Help.inputTypes.inputType | % {
         $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
         $InputObject.TypeName = $_.type.name
-        $InputObject.Description = $_.description.Text | Out-String
+        $InputObject.Description = $_.description.Text | Add-LineBreaksForParagraphs
         $Inputs += $InputObject
     }
     
@@ -1407,7 +1420,7 @@ function Convert-PsObjectsToMamlModel
     $Help.returnValues.returnValue | % {
         $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
         $OutputObject.TypeName = $_.type.name
-        $OutputObject.Description = $_.description.Text | Out-String
+        $OutputObject.Description = $_.description.Text | Add-LineBreaksForParagraphs
         $Outputs += $OutputObject
     }
     
