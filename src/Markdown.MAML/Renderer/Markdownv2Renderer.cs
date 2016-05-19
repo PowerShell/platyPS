@@ -1,4 +1,5 @@
 ﻿using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Parser;
 using Markdown.MAML.Resources;
 using Markdown.MAML.Transformer;
 using System;
@@ -387,13 +388,51 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private string GetAutoWrappingForMarkdown(string text)
+        private string GetAutoWrappingForNonListLine(string line)
+        {
+            return Regex.Replace(line, @"([\.\!\?]) ( )*([^\r\n])", "$1$2\r\n$3");
+        }
+
+        private string GetAutoWrappingForMarkdown(string[] lines)
         {
             // this is an implementation of https://github.com/PowerShell/platyPS/issues/93
-            return text
-                .Replace(". ", ".\r\n")
-                .Replace("! ", "!\r\n")
-                .Replace("? ", "?\r\n");
+            
+            // algorithm: identify chunks that represent lists
+            // Every entry in a list should be preserved as is and 1 EOL between them
+            // Every entry not in a list should be split with GetAutoWrappingForNonListLine
+            // delimiters between lists and non-lists are 2 EOLs.
+
+            var newLines = new List<string>();
+
+            for (int i = 0; i < lines.Length; i++)
+            {
+                if (MarkdownParser.HasListPrefix(lines[i]))
+                {
+                    if (i > 0 && !MarkdownParser.HasListPrefix(lines[i - 1]))
+                    {
+                        // we are in a list and it just started
+                        newLines.Add(Environment.NewLine + lines[i]);
+                    }
+                    else
+                    {
+                        newLines.Add(lines[i]);
+                    }
+                }
+                else
+                {
+                    if (i > 0)
+                    {
+                        // we are just finished a list
+                        newLines.Add(Environment.NewLine + GetAutoWrappingForNonListLine(lines[i]));
+                    }
+                    else
+                    {
+                        newLines.Add(GetAutoWrappingForNonListLine(lines[i]));
+                    }
+                }
+            }
+
+            return string.Join(Environment.NewLine, newLines);
         }
 
         private void AddParagraphs(string body)
@@ -402,11 +441,8 @@ namespace Markdown.MAML.Renderer
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
-                foreach (string para in paragraphs)
-                {
-                    var text = GetAutoWrappingForMarkdown(GetEscapedMarkdownText(para.Trim()));
-                    _stringBuilder.AppendFormat("{0}{1}{1}", text, Environment.NewLine);
-                }
+                var text = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
+                _stringBuilder.AppendFormat("{0}{1}{1}", text, Environment.NewLine);
             }
         }
 

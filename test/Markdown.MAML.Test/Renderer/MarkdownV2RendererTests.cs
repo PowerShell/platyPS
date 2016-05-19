@@ -88,7 +88,7 @@ For more information, see about_CommonParameters \(http://go.microsoft.com/fwlin
             {
                 Name = "Get-Foo",
                 Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs. And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.",
+                Description = "This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces",
                 Notes = "This is a multiline note.\r\nSecond line."
             };
 
@@ -172,11 +172,15 @@ Get-Foo [-Name] <String> [<CommonParameters>]
 ## DESCRIPTION
 This is a long description.
 
-With two paragraphs.
+With two paragraphs. 
 And the second one contains of few line!
 They should be auto-wrapped.
 Because, why not?
 We can do that kind of the things, no problem.
+
+-- Foo. Bar.
+-- Don't break. The list.
+-- Into. Pieces
 
 ## EXAMPLES
 

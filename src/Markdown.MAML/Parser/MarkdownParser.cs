@@ -510,6 +510,21 @@ namespace Markdown.MAML.Parser
         private static string _PrevString;
         private static bool _InList;
 
+        internal static bool HasListPrefix(string s)
+        {
+            if (s.Length >= 2)
+            {
+                if (s[0] == '-' && s[1] == '-' || 
+                    s[0] == '-' && s[1] == ' ' ||
+                    s[0] == '*' && s[1] == ' ')
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
         private static string LineBreaksMatchEvaluater(Match match)
         {
             // here we want proper line breaks
@@ -525,16 +540,11 @@ namespace Markdown.MAML.Parser
                 return "\r\n";
             }
 
-            if (g1.Length >= 2 && g2.Length > 2 && g1[0] == g2[0] && g1[1] == g2[1])
+            if (HasListPrefix(g1) && HasListPrefix(g2))
             {
-                if (g1[0] == '-' && g1[1] == '-'
-                    || g1[0] == '-' && g1[1] == ' '
-                    || g1[0] == '*' && g1[1] == ' ')
-                {
-                    // this is a list
-                    _InList = true;
-                    return "\r\n" + g2;
-                }
+                // this is a list
+                _InList = true;
+                return "\r\n" + g2;
             }
 
             if (_InList)
