@@ -24,7 +24,7 @@
 #                                                                     yyyyyyy
 #   
 
-$script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
+$script:EXTERNAL_HELP_FILES = 'external help file'
 $script:DEFAULT_ENCODING = 'UTF8'
 $script:UTF8_NO_BOM = 'UTF8_NO_BOM'
 
@@ -44,6 +44,8 @@ function New-Markdown
             ParameterSetName="FromCommand")]
         [object]$Command,
 
+        [Parameter( 
+            ParameterSetName="FromCommand")]
         [hashtable]$Metadata,
 
         [Parameter( 
@@ -52,8 +54,6 @@ function New-Markdown
 
         [Parameter(Mandatory=$true)]
         [string]$OutputFolder,
-
-        [switch]$NoMetadata,
 
         [string]$Encoding = 'UTF8_NO_BOM'
     )
@@ -65,51 +65,6 @@ function New-Markdown
 
     process
     {
-        function ProcessMamlObjectToFile
-        {
-            param(
-                [Parameter(ValueFromPipeline=$true)]
-                [ValidateNotNullOrEmpty()]
-                [Markdown.MAML.Model.MAML.MamlCommand]$mamlObject
-            )
-
-            process
-            {
-                # populate template
-                Update-MamlObject $mamlObject -OnlineVersionUrl $OnlineVersionUrl
-                $commandName = $mamlObject.Name
-                # create markdown
-                if ($NoMetadata)
-                {
-                    $newMetadata = $null
-                }
-                else
-                {
-                    # get help file name
-                    $a = @{
-                        Name = $commandName
-                    }
-
-                    if ($module) {
-                        $a['Module'] = $module
-                    }
-
-                    $helpFileName = Get-HelpFileName (Get-Command @a)
-                    $newMetadata = ($Metadata + @{
-                        $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
-                    })
-                }
-
-                $md = Convert-MamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
-                Out-MarkdownToFile -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding
-            }
-        }
-
-        if ($NoMetadata -and $Metadata)
-        {
-            throw '-NoMetadata and -Metadata cannot be specified at the same time'
-        }
-
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
             if (-not (Get-Command $command -EA SilentlyContinue))
@@ -117,7 +72,18 @@ function New-Markdown
                 throw "Command $command not found in the session."
             }
 
-            Get-MamlObject -Cmdlet $command | ProcessMamlObjectToFile
+            $md = Get-MamlObject -Cmdlet $command | % {
+                # populate template
+                Update-MamlObject $_ -OnlineVersionUrl $OnlineVersionUrl
+                # get help file name
+                $helpFileName = Get-HelpFileName (Get-Command $command)
+                # create markdown
+                Convert-MamlModelToMarkdown -mamlCommand $_ -metadata ($Metadata + @{
+                    $script:EXTERNAL_HELP_FILES = $helpFileName
+                })
+            }
+
+            Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
         }
         else # "FromModule"
         {
@@ -127,7 +93,18 @@ function New-Markdown
             {
                 throw "Module $module is not imported in the session. Run 'Import-Module $module'."
             }
-            Get-MamlObject -Module $module | ProcessMamlObjectToFile
+            Get-MamlObject -Module $module | % { 
+                # populate template
+                Update-MamlObject $_
+                # get help file name
+                $command = $_.Name
+                $helpFileName = Get-HelpFileName (Get-Command -Name $command -Module $module)
+                # create markdown
+                $md = Convert-MamlModelToMarkdown -mamlCommand $_ -metadata @{
+                    $script:EXTERNAL_HELP_FILES = $helpFileName
+                }
+                Out-MarkdownToFile -path (Join-Path $OutputFolder "$command.md") -value $md -Encoding $Encoding
+            }
         }
     }
 }
@@ -183,7 +160,10 @@ function Update-Markdown
 
         [Parameter(Mandatory=$true,
             ParameterSetName='Reflection')]
-        [switch]$UseReflection
+        [switch]$UseReflection,
+        
+        [Parameter(Mandatory=$false)]
+        [string]$LogPath
     )
 
     begin
@@ -215,8 +195,12 @@ function Update-Markdown
         function Update-MarkdownFileWithReflection
         {
             param(
-                [System.IO.FileInfo]$file
+                [System.IO.FileInfo]
+                $file,
+                [Parameter(mandatory=$false)]
+                [string]$LogPath
             )
+
 
             $filePath = $file.FullName
             $oldMarkdown = cat -Raw $filePath
@@ -243,7 +227,16 @@ function Update-Markdown
             $metadata = Get-MarkdownMetadata -FileInfo $file
             $reflectionModel = Get-MamlObject -Cmdlet $name
 
+            if($LogPath)
+            {
+                
+                $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel -LogPath $LogPath
+            }
+            else
+            {
             $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
+            }
+            
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
             Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding # yeild
@@ -271,7 +264,14 @@ function Update-Markdown
         else # Reflection
         {
             $affectedFiles = $MarkdownFiles | % {
+                if($LogPath)
+                {
+                    Update-MarkdownFileWithReflection $_ -LogPath $LogPath
+                }
+                else
+                {
                 Update-MarkdownFileWithReflection $_
+            }
             }
             return $affectedFiles
         }
@@ -327,14 +327,14 @@ function New-ExternalHelp
         $defaultOutputName = 'rename-me-help.xml'
         $groups = $MarkdownFiles | group { 
             $h = Get-MarkdownMetadata -FileInfo $_
-            if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) 
+            if ($h -and $h[$script:EXTERNAL_HELP_FILES]) 
             {
-                Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
+                Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILES]
             }
             else 
             {
                 $defaultPath = Join-Path $OutputPath $defaultOutputName
-                Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
+                Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILES)' in metadata for file $($_.FullName)"
                 Write-Warning "[New-ExternalHelp] $defaultPath would be used"
                 $defaultPath
             }
@@ -569,13 +569,39 @@ function Merge-MamlModel
         $MetadataModel,
 
         [Markdown.MAML.Model.MAML.MamlCommand]
-        $StringModel
+        $StringModel,
+        
+        [Parameter(mandatory=$false)]
+        [string]
+        $LogPath
+        
     )
 
+    if($logPath -eq $null)
+    {
     $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
         param([string]$message)
         Write-Verbose $message
     }
+    }
+    else
+    {
+        $logFile = Join-Path $LogPath "platyPsLog.txt"
+
+        if(!(Test-Path $logFile))
+            {
+                New-Item -ItemType File $logFile | Out-Null
+            }
+        
+        $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
+            param([string]$message)
+            
+            
+            Add-Content -Path $logFile -value $message -Encoding UTF8
+
+        }
+    }
+    
 
     return $merger.Merge($MetadataModel, $StringModel)
 }
@@ -668,7 +694,7 @@ function Update-MamlObject
         [Parameter(Mandatory=$true)]
         [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject,
 
-        [string]$OnlineVersionUrl = $null
+        [string]$OnlineVersionUrl = ''
     )
 
     #
@@ -691,11 +717,7 @@ function Update-MamlObject
     if (-not ($MamlCommandObject.Links | ? {$_.LinkName -eq 'Online Version:'} )) {
         $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
         $mamlLink.LinkName = 'Online Version:'
-        if ($OnlineVersionUrl)
-        {
             $mamlLink.LinkUri = $OnlineVersionUrl
-        }
-
         $MamlCommandObject.Links.Add($mamlLink)
     }
 }
@@ -915,9 +937,7 @@ function Convert-MamlModelToMarkdown
         [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
         
         [Parameter(Mandatory=$false)]
-        [hashtable]$metadata,
-
-        [switch]$NoMetadata
+        [hashtable]$metadata
     )
 
     begin
@@ -928,7 +948,7 @@ function Convert-MamlModelToMarkdown
 
     process
     {
-        if (($count++) -eq 0 -and (-not $NoMetadata))
+        if (($count++) -eq 0)
         {
             return $r.MamlModelToString($mamlCommand, $metadata)
         }
@@ -1094,15 +1114,13 @@ function Convert-PsObjectsToMamlModel
         $Command | Add-Member -Name "CommandType" -MemberType NoteProperty -Value (Get-Command $CmdletName).CommandType
         $Command | Add-Member -Name "ModuleName" -MemberType NoteProperty -Value "{{Fill in the Module Name}}"
         $Command | Add-Member -Name "HelpFile" -MemberType NoteProperty -Value (Split-Path $MamlFullPath -Leaf)
-             
-       
     }
     else
     {
         $Command = Get-Command $CmdletName
     }
 
-    $Help = Get-Help $CmdletName
+$Help = Get-Help $CmdletName -Full
     $IsWorkflow = $Command.CommandType -eq 'Workflow'
 
     #Get Name
@@ -1260,7 +1278,7 @@ function Convert-PsObjectsToMamlModel
     if($Command.HelpFile -ne $null -and $Help -ne $null)
     {
         #Get Synopsis
-        $MamlCommandObject.Synopsis = $Help.Synopsis
+    $MamlCommandObject.Synopsis = $Help.Synopsis.Trim()
 
         #Get Description
         if($Help.description -ne $null)
@@ -1269,8 +1287,9 @@ function Convert-PsObjectsToMamlModel
             foreach($DescriptionPiece in $Help.description)
             {
                 $MamlCommandObject.Description += $DescriptionPiece.Text
-                $MamlCommandObject.Description += "`n"
+             $MamlCommandObject.Description += "\r\n" 
             }
+
         }
 
         #Add to Notes
@@ -1279,8 +1298,10 @@ function Convert-PsObjectsToMamlModel
         {
            foreach($Alert in $Help.alertSet.alert)
             {
-                $MamlCommandObject.Notes += $Alert.Text
-                $MamlCommandObject.Notes += "`n"
+            if($Alert)
+            {
+                $MamlCommandObject.Notes += $Alert.Text.Trim()
+            }
             }
         }
         
@@ -1314,7 +1335,7 @@ function Convert-PsObjectsToMamlModel
             $RemarkText = $null
             foreach($Remark in $Example.remarks)
             {
-                $RemarkText += $Remark.text + "`n"
+            $RemarkText += $Remark.text
             }
             
             $MamlExampleObject.Remarks = $RemarkText

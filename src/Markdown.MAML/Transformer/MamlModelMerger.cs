@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Markdown.MAML.Transformer
@@ -23,15 +24,27 @@ namespace Markdown.MAML.Transformer
 
         public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
         {
+
+            Report("----Cmdlet {0} is updating.----", metadataModel.Name);
+
             MamlCommand result = new MamlCommand()
             {
-                Name = MergeMetadataProperty(metadataModel.Name, stringModel.Name),
-                Synopsis = MergeStringProperty(metadataModel.Synopsis, stringModel.Synopsis),
-                Description = MergeStringProperty(metadataModel.Description, stringModel.Description),
-                Notes = MergeStringProperty(metadataModel.Notes, stringModel.Notes),
+                Name = metadataModel.Name,
+                Synopsis = metadataStringCompare(metadataModel.Synopsis,
+                        stringModel.Synopsis,
+                        metadataModel.Name,
+                        "synopsis"),
+                Description = metadataStringCompare(metadataModel.Description,
+                        stringModel.Description,
+                        metadataModel.Name,
+                        "description"),
+                Notes = metadataStringCompare(metadataModel.Notes,
+                        stringModel.Notes,
+                        metadataModel.Name,
+                        "notes"),
                 Extent = stringModel.Extent
             };
-
+            
             // TODO: convert into MergeMetadataProperty
             result.Links.AddRange(stringModel.Links);
 
@@ -43,6 +56,8 @@ namespace Markdown.MAML.Transformer
             result.Outputs.AddRange(stringModel.Outputs);
 
             MergeParameters(result, metadataModel, stringModel);
+
+            Report("----Cmdlet {0} updated.----\r\n\r\n", result.Name);
 
             return result;
         }
@@ -62,41 +77,84 @@ namespace Markdown.MAML.Transformer
                 var strParam = FindParameterByName(param.Name, stringModel.Parameters);
                 if (strParam == null)
                 {
-                    Report("Parameter {0} cannot be found in markdown", param.Name);
+                    Report("::{0}: parameter {1} cannot be found in the markdown file.", metadataModel.Name, param.Name);
                 }
                 else
                 {
-                    param.Description = strParam.Description;
+                    param.Description = metadataStringCompare(param.Description,
+                        strParam.Description,
+                        metadataModel.Name, 
+                        param.Name, 
+                        "description");
+                    
                     param.DefaultValue = strParam.DefaultValue;
                     // don't update type
                     // param.Type = strParam.Type;
                     param.Extent = strParam.Extent;
+                    
                 }
-
+                
                 result.Parameters.Add(param);
             }
+
+            foreach(var param in stringModel.Parameters)
+            {
+                if (FindParameterByName(param.Name, metadataModel.Parameters) == null)
+                {
+                    Report("::{0}: parameter {1} is not longer present.", metadataModel.Name, param.Name);
+                }
+            }
         }
 
-        private string MergeMetadataProperty(string metadataStr, string stringStr)
+        /// <summary>
+        /// Compares parameters
+        /// </summary>
+        private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string paramName, string contentItemName)
         {
-            if (!StringComparer.Ordinal.Equals(metadataStr, stringStr))
+            if(!StringComparer.Ordinal.Equals((stringContent == null ? "" : Pretify(stringContent)),
+                (metadataContent == null ? "" : Pretify(metadataContent))))
             {
-                // TODO: report
-                // Report("Update {0} from {1} to {2}");   
+                Report("::{0}: parameter {1} - {2} has been updated:\r\n<\r\n    {3}\r\n>\r\nreplaced\r\n[\r\n    {4}\r\n]", 
+                    moduleName, 
+                    paramName, 
+                    contentItemName,
+                    stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '),
+                    metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
             }
 
-            return metadataStr;
+            return stringContent;
         }
 
-        private string MergeStringProperty(string metadataStr, string stringStr)
+        /// <summary>
+        /// Cleans the extra \r\n and inserts a tab at the beginning of new lines, mid paragraphs
+        /// </summary>
+        private static string Pretify(string multiLineText)
         {
-            if (!StringComparer.Ordinal.Equals(metadataStr, stringStr))
+            if(string.IsNullOrEmpty(multiLineText))
             {
-                // TODO: report
-                // Report("Update {0} from {1} to {2}");   
+                multiLineText = "";
+            }
+            return Regex.Replace(multiLineText, "(\r\n)+", "\r\n    ");
+        }
+
+        /// <summary>
+        /// Compares Cmdlet values
+        /// </summary>
+        private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
+        {
+            metadataContent = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
+            stringContent = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
+
+            if (!StringComparer.Ordinal.Equals(metadataContent,stringContent))
+            {
+                Report("::{0}: {1} has been updated:\r\n<\r\n    {2}\r\n>\r\nreplaced\r\n[\r\n    {3}\r\n]\r\n",
+                    moduleName,
+                    contentItemName,
+                    stringContent,
+                    metadataContent);
             }
 
-            return stringStr;
+            return stringContent;
         }
 
         private void Report(string format, params object[] objects)
