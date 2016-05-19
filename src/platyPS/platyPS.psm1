@@ -61,7 +61,35 @@ function New-Markdown
 
         [switch]$NoMetadata,
 
-        [string]$Encoding = 'UTF8_NO_BOM'
+        [string]$Encoding = 'UTF8_NO_BOM',
+
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
+        [switch]$WithModulePage,
+
+        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
+        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [string]
+        $Locale = "en-US",
+
+        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
+        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [string]
+        $Version = "{{Please enter version of help manually (X.X.X.X) format}}",
+
+        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
+        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [string]
+        $FwLink = "{{Please enter FwLink manually}}",
+        
+        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [string]
+        $ModuleName = "MamlModule",
+        
+        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [string]
+        $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+
     )
 
     begin
@@ -116,6 +144,7 @@ function New-Markdown
                 }
 
                 $md = Convert-MamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
+
                 Out-MarkdownToFile -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding
             }
         }
@@ -153,6 +182,28 @@ function New-Markdown
             }
 
             Get-MamlObject -MamlFile $MamlFile | ProcessMamlObjectToFile
+        }
+
+        if($WithModulePage)
+        {
+            if($Module)
+            {
+                $ModuleName = $module
+                $ModuleGuid = (Get-Module $ModuleName).Guid
+                $CmdletNames = (Get-Command -Module $ModuleName).Name
+            }
+            else 
+            {
+                $CmdletNames += Get-MamlObject -MamlFile $MamlFile | % {$_.Name}
+            }
+            New-ModuleLandingPage  -Path $OutputFolder `
+                                   -ModuleName $ModuleName `
+                                   -ModuleGuid $ModuleGuid `
+                                   -CmdletNames $CmdletNames `
+                                   -Locale $Locale `
+                                   -Version $Version `
+                                   -FwLink $FwLink `
+                                   -Encoding $Encoding
         }
     }
 }
@@ -945,6 +996,57 @@ function Out-MarkdownToFile
     }
 
     return Get-ChildItem $Path
+}
+
+function New-ModuleLandingPage
+{
+    Param(
+        [Parameter(mandatory=$true)]
+        [string]
+        $Path,
+        [Parameter(mandatory=$true)]
+        [string]
+        $ModuleName,
+        [Parameter(mandatory=$true)]
+        [string]
+        $ModuleGuid,
+        [Parameter(mandatory=$true)]
+        [string[]]
+        $CmdletNames,
+        [Parameter(mandatory=$true)]
+        [string]
+        $Locale,
+        [Parameter(mandatory=$true)]
+        [string]
+        $Version,
+        [Parameter(mandatory=$true)]
+        [string]
+        $FwLink,
+        [Parameter(mandatory=$true)]
+        [string]
+        $Encoding
+    )
+
+    begin
+    {
+        $LandingPageName = $ModuleName + ".md"
+        $LandingPagePath = Join-Path $Path $LandingPageName
+    }
+
+    process
+    {
+        $Content = "---`r`nModule Name: $ModuleName`r`nModule Guid: $ModuleGuid`r`nDownload Help Link: $FwLink`r`n"
+        $Content += "Help Version: $Version`r`nLocale: $Locale`r`n"
+        $Content += "---`r`n`r`n# $ModuleName Module`r`n## Description`r`n"
+        $Content += "{{Manually Enter Description Here}}`r`n`r`n## $ModuleName Cmdlets`r`n"
+        
+        $CmdletNames | % {
+            $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+        }
+
+        Out-MarkdownToFile -Path $LandingPagePath -value $Content -Encoding $Encoding
+    }
+
 }
 
 function Convert-MamlModelToMarkdown

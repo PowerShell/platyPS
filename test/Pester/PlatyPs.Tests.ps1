@@ -110,6 +110,38 @@ Describe 'New-Markdown' {
             ($dynamicParam | measure).Count | Should Be 1
         }
     }
+
+    Context 'Module Landing Page'{
+            
+        $OutputFolder = "TestDrive:\LandingPageMD\"
+
+        New-Item -ItemType Directory $OutputFolder
+
+
+        It "generates a landing page from Module"{
+
+            New-Markdown -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage
+
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
+
+            $LandingPage | Should Not Be $null
+
+        }
+
+        It "generates a landing page from MAML"{
+
+
+            New-Markdown -MamlFile (ls "$outFolder\platyPS\en-US\*xml") `
+                        -OutputFolder $OutputFolder `
+                        -WithModulePage `
+                        -ModuleName "PlatyPS"
+
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
+
+            $LandingPage | Should Not Be $null
+
+        }
+    }
 }
 
 Describe 'New-ExternalHelp' {
