@@ -228,7 +228,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
 #region Checking Cab and File Naming Cmdlets
 
-Remove-Item -path "$outFolder\CabTesting\" -Recurse -Force
+Remove-Item -path "$outFolder\CabTesting\" -Recurse -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\ModuleMd\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
