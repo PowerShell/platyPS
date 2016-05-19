@@ -183,7 +183,10 @@ function Update-Markdown
 
         [Parameter(Mandatory=$true,
             ParameterSetName='Reflection')]
-        [switch]$UseReflection
+        [switch]$UseReflection,
+        
+        [Parameter(Mandatory=$false)]
+        [string]$LogPath
     )
 
     begin
@@ -215,8 +218,12 @@ function Update-Markdown
         function Update-MarkdownFileWithReflection
         {
             param(
-                [System.IO.FileInfo]$file
+                [System.IO.FileInfo]
+                $file,
+                [Parameter(mandatory=$false)]
+                [string]$LogPath
             )
+
 
             $filePath = $file.FullName
             $oldMarkdown = cat -Raw $filePath
@@ -243,7 +250,16 @@ function Update-Markdown
             $metadata = Get-MarkdownMetadata -FileInfo $file
             $reflectionModel = Get-MamlObject -Cmdlet $name
 
+            if($LogPath)
+            {
+                
+                $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel -LogPath $LogPath
+            }
+            else
+            {
             $newModel = Merge-MamlModel -MetadataModel $reflectionModel -StringModel $oldModel
+            }
+            
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
             Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding # yeild
@@ -271,7 +287,14 @@ function Update-Markdown
         else # Reflection
         {
             $affectedFiles = $MarkdownFiles | % {
+                if($LogPath)
+                {
+                    Update-MarkdownFileWithReflection $_ -LogPath $LogPath
+                }
+                else
+                {
                 Update-MarkdownFileWithReflection $_
+            }
             }
             return $affectedFiles
         }
@@ -569,13 +592,39 @@ function Merge-MamlModel
         $MetadataModel,
 
         [Markdown.MAML.Model.MAML.MamlCommand]
-        $StringModel
+        $StringModel,
+        
+        [Parameter(mandatory=$false)]
+        [string]
+        $LogPath
+        
     )
 
+    if(-not $logPath.trim())
+    {
     $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
         param([string]$message)
         Write-Verbose $message
     }
+    }
+    else
+    {
+        $logFile = Join-Path $LogPath "platyPsLog.txt"
+
+        if(!(Test-Path $logFile))
+            {
+                New-Item -ItemType File $logFile | Out-Null
+            }
+        
+        $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList {
+            param([string]$message)
+            
+            
+            Add-Content -Path $logFile -value $message -Encoding UTF8
+
+        }
+    }
+    
 
     return $merger.Merge($MetadataModel, $StringModel)
 }
