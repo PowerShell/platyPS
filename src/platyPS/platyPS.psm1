@@ -37,11 +37,6 @@ function New-Markdown
     param(
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
-            ParameterSetName="FromModule")]
-        [string]$Module,
-
-        [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
         [string]$Command,
 
@@ -91,6 +86,24 @@ function New-Markdown
         $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
     )
+
+    DynamicParam {
+        $modules = @(Get-Module | Select-Object -ExpandProperty Name)
+        $modules += 'Microsoft.PowerShell.Core'
+        $moduleParamAttributes = New-Object -TypeName System.Management.Automation.ParameterAttribute -Property @{
+            Mandatory = $true
+            ParameterSetName = 'FromModule'
+            ValueFromPipeline = $true
+        }
+        $moduleParamCollection = New-Object -TypeName 'System.Collections.ObjectModel.Collection[System.Attribute]'
+        $moduleParamCollection.Add($moduleParamAttributes)
+        $moduleParameter = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameter -ArgumentList ('Module', [Object], $moduleParamCollection)
+        $moduleParameter.Attributes.Add((New-Object -TypeName System.Management.Automation.ValidateSetAttribute($modules)))
+
+        $dictionary = New-Object -TypeName System.Management.Automation.RuntimeDefinedParameterDictionary
+        $dictionary.Add('Module', $moduleParameter)
+        return $dictionary
+    }
 
     begin
     {
