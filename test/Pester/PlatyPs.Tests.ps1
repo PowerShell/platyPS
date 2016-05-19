@@ -228,11 +228,15 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
 #region Checking Cab and File Naming Cmdlets
 
+Remove-Item -path "$outFolder\CabTesting\" -Recurse -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
+New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\ModuleMd\" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
+New-Item -ItemType File -Path "$outFolder\CabTesting\Source\ModuleMd\" -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
 Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
+Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: {{Please enter FwLink manually}}`r`nHelp Version: {{Please enter version of help manually (X.X.X.X) format}}`r`nLocale: en-US`r`n---" | Out-Null
 
 Describe 'MakeCab.exe' {
 
@@ -247,17 +251,15 @@ Describe 'MakeCab.exe' {
 Describe 'New-ExternalHelpCab' {
 
     It 'validates the output of Cab creation' {
-        $Source = "$outFolder\CabTesting\Source\Xml\"
-        $Destination = "$outFolder\CabTesting\"
-        $Module = "PlatyPs" 
-        $GUID = "00000000-0000-0000-0000-000000000000"
-        $Locale = "en-US"
+        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+        $OutputPath = "$outFolder\CabTesting\"
+        $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
         
-        New-ExternalHelpCab -Source $Source -Destination $Destination -Module $Module -GUID $GUID -Locale $Locale
-        expand "$Destination\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
+        New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+        expand "$OutputPath\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
         
-        (Get-ChildItem -Filter "*.cab" -Path "$Destination").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
-        (Get-ChildItem -Filter "*.xml" -Path "$Destination\OutXml").Name | Should Be "HelpXml.xml"
+        (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+        (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
     }
 }
 
