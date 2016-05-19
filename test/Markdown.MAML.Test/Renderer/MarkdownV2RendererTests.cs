@@ -62,10 +62,12 @@ Workflow [<WorkflowCommonParameters>] [<CommonParameters>]
 ## PARAMETERS
 
 ### WorkflowCommonParameters
-This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject. For more information, see about_WorkflowCommonParameters \(http://go.microsoft.com/fwlink/p/?LinkID=533952\).
+This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject.
+For more information, see about_WorkflowCommonParameters \(http://go.microsoft.com/fwlink/p/?LinkID=533952\).
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 
@@ -86,7 +88,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
             {
                 Name = "Get-Foo",
                 Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
+                Description = "This is a long description.\r\nWith two paragraphs. And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.",
                 Notes = "This is a multiline note.\r\nSecond line."
             };
 
@@ -118,7 +120,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
             {
                 TypeName = "String",
                 Description = "Input <Description> goes here!"
-
             }
             );
             command.Outputs.Add(new MamlInputOutput()
@@ -172,6 +173,10 @@ Get-Foo [-Name] <String> [<CommonParameters>]
 This is a long description.
 
 With two paragraphs.
+And the second one contains of few line!
+They should be auto-wrapped.
+Because, why not?
+We can do that kind of the things, no problem.
 
 ## EXAMPLES
 
@@ -200,7 +205,8 @@ Accept wildcard characters: True
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 

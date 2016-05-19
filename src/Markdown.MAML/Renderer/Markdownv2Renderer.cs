@@ -387,6 +387,15 @@ namespace Markdown.MAML.Renderer
             }
         }
 
+        private string GetAutoWrappingForMarkdown(string text)
+        {
+            // this is an implementation of https://github.com/PowerShell/platyPS/issues/93
+            return text
+                .Replace(". ", ".\r\n")
+                .Replace("! ", "!\r\n")
+                .Replace("? ", "?\r\n");
+        }
+
         private void AddParagraphs(string body)
         {
             if (!string.IsNullOrWhiteSpace(body))
@@ -395,7 +404,8 @@ namespace Markdown.MAML.Renderer
 
                 foreach (string para in paragraphs)
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{1}", GetEscapedMarkdownText(para.Trim()), Environment.NewLine);
+                    var text = GetAutoWrappingForMarkdown(GetEscapedMarkdownText(para.Trim()));
+                    _stringBuilder.AppendFormat("{0}{1}{1}", text, Environment.NewLine);
                 }
             }
         }
