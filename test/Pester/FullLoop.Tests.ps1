@@ -139,60 +139,89 @@ Describe 'Full loop for Add-Member cmdlet' {
     }
 }
 
-$smaOutputFolder = "TestDrive:\SMA"
+function PutStripped
+{
+    param([string]$path)
+    
+    $strippedContent = (((((cat -raw $path) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
+    Set-Content -Path "$path.stripped" -Value $strippedContent
+}
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
-    It 'transforms Markdown to MAML with no errors' {
+    Context 'produce the real help' {
+        $textOutputFile = "$outFolder\SMA.original.txt"
+        Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $textOutputFile
+        PutStripped $textOutputFile
+    }
 
-        $module = 'Microsoft.PowerShell.Core'
-        $mdFiles = New-Markdown -Encoding UTF8 -module $module -OutputFolder $outFolder
+    # parameters for New-Markdown
+    @( 
+        
+        [psobject]@{
+            MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
+            Encoding= 'UTF8'
+            OutputFolder = "$outFolder\sma-maml"
+        },
 
-        $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $outFolder
-        $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
-
-        # add artifacts to out
-        Show-HelpPreview $generatedMaml.FullName -TextOutputPath $outFolder\SMA.generated.txt
-        Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $outFolder\SMA.original.txt
-
-        "$outFolder\SMA.original.txt", "$outFolder\SMA.generated.txt" | % {
-            $path = $_
-            $strippedContent = (((((cat -raw $path) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
-            Set-Content -Path "$path.stripped" -Value $strippedContent
+        [psobject]@{
+            module = "Microsoft.PowerShell.Core"
+            Encoding= 'UTF8'
+            OutputFolder = "$outFolder\sma-model"
         }
-    }
 
-    # this our regression suite for SMA
-    $generatedHelp = Show-HelpPreview $outFolder\System.Management.Automation.dll-help.xml -AsObject
+    ) | % {
 
-    It 'has right number of outputs for Get-Help' {
-        $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
-        ($h.returnValues.returnValue | measure).Count | Should Be 3
-    }
+        $newMarkdownArgs = $_
+        
+        Context "Output SMA into $OutputFolder" {
 
-    It 'Get-Help has ValidateSet entry in syntax block' {
-        $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
-        ($h.syntax | Out-String).Contains('-Category <String[]> {Alias | Cmdlet | Provider | General') | Should Be $true
-    }
+            It 'transforms Markdown to MAML with no errors' {
 
-    It 'has right type for New-PSTransportOption -IdleTimeoutSec' {
-        $h = $generatedHelp | ? {$_.Name -eq 'New-PSTransportOption'}
-        $param = $h.parameters.parameter | ? {$_.Name -eq 'IdleTimeoutSec'}
-        $param.type.name | Should Be 'Int32'
-    }
+                $mdFiles = New-Markdown @newMarkdownArgs
 
-    It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' {
-        $h = $generatedHelp | ? {$_.Name -eq 'Enter-PSHostProcess'}
-        $h | Should Not BeNullOrEmpty
-        $h.syntax.syntaxItem | % {
-            $_.parameter.Name[0] | Should Not Be 'AppDomainName'
+                $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $newMarkdownArgs.OutputFolder
+                $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
+
+                # add artifacts to out
+                $textOutputFile = Join-Path $newMarkdownArgs.OutputFolder 'SMA.generated.txt'
+                Show-HelpPreview $generatedMaml.FullName -TextOutputPath $textOutputFile
+                PutStripped $textOutputFile
+            }
+
+            # this our regression suite for SMA
+            $generatedHelp = Show-HelpPreview -AsObject (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+
+            It 'has right number of outputs for Get-Help' {
+                $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
+                ($h.returnValues.returnValue | measure).Count | Should Be 3
+            }
+
+            It 'Get-Help has ValidateSet entry in syntax block' {
+                $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
+                ($h.syntax | Out-String).Contains('-Category <String[]> {Alias | Cmdlet | Provider | General') | Should Be $true
+            }
+
+            It 'has right type for New-PSTransportOption -IdleTimeoutSec' {
+                $h = $generatedHelp | ? {$_.Name -eq 'New-PSTransportOption'}
+                $param = $h.parameters.parameter | ? {$_.Name -eq 'IdleTimeoutSec'}
+                $param.type.name | Should Be 'Int32'
+            }
+
+            It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' {
+                $h = $generatedHelp | ? {$_.Name -eq 'Enter-PSHostProcess'}
+                $h | Should Not BeNullOrEmpty
+                $h.syntax.syntaxItem | % {
+                    $_.parameter.Name[0] | Should Not Be 'AppDomainName'
+                }
+            }
+
+            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
+                $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
+                $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
+                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n-- Drop: When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
+            }
         }
-    }
-
-    It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
-        $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
-        $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
-        ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n-- Drop: When") | Should Be $true
-        ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
     }
 }
