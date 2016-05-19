@@ -10,12 +10,13 @@ schema: 2.0.0
 
 ### SchemaUpgrade
 ```
-Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> -OutputFolder <String> [-Encoding <String>] [-LogPath <String>]
+ [<CommonParameters>]
 ```
 
 ### Reflection
 ```
-Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [<CommonParameters>]
+Update-Markdown -MarkdownFile <Object[]> [-Encoding <String>] [-UseReflection] [-LogPath <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -86,6 +87,21 @@ Aliases:
 Required: True
 Position: Named
 Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -LogPath
+{{Fill LogPath Description}}
+
+```yaml
+Type: String
+Parameter Sets: SchemaUpgrade, Reflection
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

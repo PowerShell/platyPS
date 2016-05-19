@@ -231,6 +231,24 @@ Describe 'New-ExternalHelpCab' {
 
 #endregion
 
+Describe 'Test Log on Update-Markdown'{
+    
+    It 'checks the log exists'{
+    $drop = Join-Path $outFolder "\MD\SingleCommand"
+    Remove-Item -Recurse $drop -ErrorAction SilentlyContinue
+    New-Markdown -Command Add-History -OutputFolder $drop | Out-Null
+    $MDs = Get-ChildItem $drop
+    Update-Markdown -MarkdownFile $MDs -UseReflection -LogPath $drop
+
+    $result = Get-Childitem $drop\platyPsLog.txt | Select Name
+
+    $result | Should Not Be $null
+    
+    }
+
+}
+
+
 Describe 'Get-MarkdownMetadata' {
     Context 'Simple markdown file' {
         Set-Content -Path TestDrive:\foo.md -Value @'
@@ -343,3 +361,4 @@ Describe 'Update-Markdown reflection scenario' {
         $e.Code | Should Match 'PS C:\>*'
     }
 }
+
