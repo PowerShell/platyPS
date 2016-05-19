@@ -24,36 +24,36 @@ Create External help file from platyPS markdown.
 
 You will get error messages, if provided input doesn't follow schema described in platyPS.schema.md
 
-Store output of this command in the module directory in corresponding language folder, i.e en-US.
-
 ## EXAMPLES
 
-### ----------------------------- Example 1 (platyPS) ------------------------------------
+### Example 1 (MarkdownFile)
 ```
-$maml = New-ExternalHelp -markdown (cat -raw .\src\platyPS\platyPS.md)
-mkdir out\platyPS\en-US -ErrorAction SilentlyContinue > $null
-Set-Content -path out\platyPS\en-US\platyPS.psm1-Help.xml -Value $maml -Encoding UTF8
+PS C:\> New-ExternalHelp -MarkdownFile (ls .\docs) -OutputPath out\platyPS\en-US
+
+    Directory: D:\dev\platyPS\out\platyPS\en-US
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
 ```
 
-### ----------------------------- Example 2 (skipPreambula) ------------------------------------
+Create external help file in specified directory (directory includes language name).
+Uses set of files as input.
+
+### Example 2 (MarkdownFolder)
 ```
-$markdown = New-Markdown New-Markdown | Out-String
-New-ExternalHelp -markdown $markdown -skipPreambula | clip
+PS C:\> New-ExternalHelp -MarkdownFolder .\docs -OutputPath out\platyPS\en-US
 ```
 
-Create $maml entry for one command and copy it to clip-board to copy-paste it into existing maml.
+Create external help file in specified directory (directory includes language name).
+Uses folder with markdowns as an input.
 
-### ----------------------------- Example 3 (MarkdownFolder) ------------------------------------
-```
-$maml = New-ExternalHelp -MarkdownFolder .\src\platyPS
-```
-
-You can break help for the big module into several markdown files and put them into a folder. In this case, you may find -MarkdownFolder parameter more convinient.
 
 ## PARAMETERS
 
 ### -MarkdownFolder
-Path to a folder with "*.md" files. Their content would be extracted and used. It may be convinient for big modules. Also breaking markdown to several files speed-up convertion process.
+Path to a folder with "*.md" files.
 
 ```yaml
 Type: String
@@ -68,6 +68,9 @@ Accept wildcard characters: False
 ```
 
 ### -OutputPath
+Path to a folder, where you want to put your external help file(s).
+The name should ends with locale folder, i.e. ".\out\platyPS\en-US".
+
 ```yaml
 Type: String
 Parameter Sets: FromFolder, FromFile
@@ -81,6 +84,8 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+Encoding to be used in the output file.
+
 ```yaml
 Type: String
 Parameter Sets: FromFolder, FromFile
@@ -88,12 +93,14 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value: UTF8
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -MarkdownFile
+File objects with markdown content
+
 ```yaml
 Type: FileInfo[]
 Parameter Sets: FromFile
@@ -107,7 +114,8 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
 
