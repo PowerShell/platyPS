@@ -173,7 +173,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     ) | % {
 
         $newMarkdownArgs = $_
-
+        
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
 
             It 'transforms Markdown to MAML with no errors' {
@@ -191,6 +191,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             # this our regression suite for SMA
             $generatedHelp = Show-HelpPreview -AsObject (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+            $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
 
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
@@ -199,10 +200,20 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             It 'Get-Help has ValidateSet entry in syntax block' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
-                ($h.syntax | Out-String).Contains('-Category <String[]> {Alias | Cmdlet | Provider | General') | Should Be $true
+                if ($IsMaml)
+                {
+                    # maml doesn't have an entry there
+                    $validateString = '-Category {Alias | Cmdlet | Provider | General'
+                }
+                else 
+                {
+                    $validateString = '-Category <String[]> {Alias | Cmdlet | Provider | General'    
+                }
+
+                ($h.syntax | Out-String).Contains($validateString) | Should Be $true
             }
 
-            It 'has right type for New-PSTransportOption -IdleTimeoutSec' {
+            It 'has right type for New-PSTransportOption -IdleTimeoutSec' -Skip:$IsMaml {
                 $h = $generatedHelp | ? {$_.Name -eq 'New-PSTransportOption'}
                 $param = $h.parameters.parameter | ? {$_.Name -eq 'IdleTimeoutSec'}
                 $param.type.name | Should Be 'Int32'
