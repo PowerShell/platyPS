@@ -75,7 +75,7 @@ function New-Markdown
         [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
         [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
         [string]
-        $Version = "{{Please enter version of help manually (X.X.X.X) format}}",
+        $HelpVersion = "{{Please enter version of help manually (X.X.X.X) format}}",
 
         [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
         [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
@@ -201,7 +201,7 @@ function New-Markdown
                                    -ModuleGuid $ModuleGuid `
                                    -CmdletNames $CmdletNames `
                                    -Locale $Locale `
-                                   -Version $Version `
+                                   -Version $HelpVersion `
                                    -FwLink $FwLink `
                                    -Encoding $Encoding
         }
@@ -525,10 +525,10 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ source path is not a valid directory."
+                    Throw "$_ content source file folder path is not a valid directory."
                 }
             })]
-        [string] $Source,
+        [string] $CmdletContentFolder,
         [parameter(Mandatory=$true)]
         [ValidateScript(
             {
@@ -538,38 +538,23 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ source path is not a valid directory."
+                    Throw "$_ output path is not a valid directory."
                 }
             })]
-        [string] $Destination,
-        [parameter(Mandatory=$true)]
-        [string] $Module,
-        [parameter(Mandatory=$true)]
-        [ValidateScript({
-                if($_ -match '[a-zA-Z0-9]{8}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{4}[-][a-zA-Z0-9]{12}')
-                {
-                    $true
-                }
-                else
-                {
-                    Throw "$_ does not match the valid pattern for a PowerShell module GUID. The GUID consists of letters and numbers in this format: XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
-                }
-            
-            })]
-        [string] $Guid = $(throw 'GUID was not a valid format.'),
+        [string] $OutputPath,
         [parameter(Mandatory=$true)]
         [ValidateScript(
             {
-                if($_ -in ([System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]::AllCultures)).Name)
+                if(Test-Path $_ -PathType Leaf)
                 {
                     $True
                 }
                 else
                 {
-                    Throw "$_ is not a valid Locale code in the .Net framework installed."
+                    Throw "$_ Module Page fill pat and name are not valid."
                 }
             })]
-        [string] $Locale
+        [string] $ModuleMdPageFullPath
     )
     
     #Testing for MakeCab.exe
@@ -579,30 +564,38 @@ function New-ExternalHelpCab
     {
         throw "MakeCab.exe is not a registered command." 
     }
-
-    #Testing the source directories.
-    Write-Verbose "Checking the source directory."
-    if(-not (Test-Path $Source))
-    {
-        throw "No directory found at the source provided."
-    }
+    #Testing for files in source directory
     if((Get-ChildItem -Path $Source).Count -le 0)
     {
-        throw "The file count in the source directory is zero."
+        throw "The file count in the content source directory is zero."
     }
     
+
+   ###Get Yaml Metadata here
+   $Metadata = Get-MarkdownMetadata -Path $ModuleMdPageFullPath
+
+   $ModuleName = $Metadata["Module Name"]
+   $Guid = $Metadata["Module Guid"]
+   $Locale = $Metadata["Locale"]
+   $FwLink = $Metadata["Download Help Link"]
+   $HelpVersion = $Metadata["Help Version"]
+
+   #Create HelpInfo File
+   
+
+
     #Testing the destination directories, creating if none exists.
-    Write-Verbose "Checking the destination directory"
-    if(-not (Test-Path $Destination))
+    Write-Verbose "Checking the output directory"
+    if(-not (Test-Path $OutputPath))
     {
-        Write-Verbose "Destination does not exist, creating a new directory."
-        New-Item -ItemType Directory -Path $Destination
+        Write-Verbose "Output directory does not exist, creating a new directory."
+        New-Item -ItemType Directory -Path $OutputPath
     }
 
-    Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $Module,$Guid,$Locale)
+    Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
 
     #Building the cabinet file name.
-    $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $Module,$Guid,$Locale)
+    $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $ModuleName,$Guid,$Locale)
 
     #Setting Cab Directives, make a cab is turned on, compression is turned on
     Write-Verbose "Creating Cab File"
@@ -612,7 +605,7 @@ function New-ExternalHelpCab
     Add-Content $DirectiveFile ".Set Compress=on"
     
     #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
-    foreach($file in Get-ChildItem -Path $Source -File)
+    foreach($file in Get-ChildItem -Path $CmdletContentFolder -File)
     {
         Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
     }
@@ -622,11 +615,11 @@ function New-ExternalHelpCab
     MakeCab.exe /f $DirectiveFile | Out-Null
 
     #Naming CabFile
-    Write-Verbose "Moving the cab to the destination"
-    Copy-Item "disk1/1.cab" (Join-Path $destination $cabName)
+    Write-Verbose "Moving the cab to the output directory"
+    Copy-Item "disk1/1.cab" (Join-Path $OutputPath $cabName)
 
     #Remove ExtraFiles created by the cabbing process
-    Write-Verbose "Performing file cleanup"
+    Write-Verbose "Performing cabbing cleanup"
     Remove-Item "setup.inf" -ErrorAction SilentlyContinue
     Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
     Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
