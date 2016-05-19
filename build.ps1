@@ -26,7 +26,9 @@ if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or
     Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'
 }
 
+# copy schema file and docs
 cp .\platyPS.schema.md out\platyPS
+cp .\docs out\platyPS -Rec
 
 # put the right module version
 if ($env:APPVEYOR_BUILD_VERSION) 
