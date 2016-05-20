@@ -41,6 +41,13 @@ Describe 'New-Markdown' {
         }
     }
 
+    Context 'form module' {
+        It 'creates few help files for platyPS' {
+            $files = New-Markdown -Module PlatyPS -OutputFolder TestDrive:\platyPS
+            ($files | measure).Count | Should BeGreaterThan 4
+        }
+    }
+
     Context 'Online version link' {
         
         function global:Test-PlatyPSFunction {}
@@ -301,7 +308,7 @@ Describe 'Test Log on Update-Markdown'{
     Remove-Item -Recurse $drop -ErrorAction SilentlyContinue
     New-Markdown -Command Add-History -OutputFolder $drop | Out-Null
     $MDs = Get-ChildItem $drop
-    Update-Markdown -MarkdownFile $MDs -LogPath $drop
+    Update-Markdown -MarkdownFile $MDs -LogPath "$drop\platyPSLog.txt"
 
     $result = Get-Childitem $drop\platyPsLog.txt | Select Name
 
@@ -335,6 +342,21 @@ this text would be ignored
     }
 }
 
+Describe 'Update-Markdown with new-markdown inlined functionality' {
+    $OutputFolder = 'TestDrive:\update-new'
+
+    $originalFiles = New-Markdown -Module platyPS -OutputFolder $OutputFolder
+        
+    It 'creates markdown at the first place' {
+        $originalFiles | Should Not Be $null
+        $originalFiles | Select -First 2 | rm
+    }
+
+    It 'updates markdown and creates removed files again' {
+        $updatedFiles = Update-Markdown -MarkdownFolder $OutputFolder -Module platyPS
+        ($updatedFiles | measure).Count | Should Be (($originalFiles | measure).Count)
+    }
+}
 
 Describe 'Update-Markdown upgrade schema scenario' {
     $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
