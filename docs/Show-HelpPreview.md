@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Show-HelpPreview
 ## SYNOPSIS
-Preview output of Get-Help from external help file(s).
+Preview the output Get-Help would return from an external help file(s).
 
 ## SYNTAX
 
@@ -20,10 +20,10 @@ Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-You can use PowerShell help engine to produce text help output for external help.
-It's useful, when you want to verify how your markdown-generated help will look in Get-Help output.
+You can use PowerShell help engine to display the text help output for external help.
+This cmdlet verifies how markdown-generated help will look in Get-Help output.
 
-It can be outputed in a form of help object or as a text.
+It can be output in a form of help object or as a text.
 
 ## EXAMPLES
 
@@ -40,7 +40,7 @@ Mode                LastWriteTime         Length Name
 
 ```
 
-Output help preview from maml-xml in help.txt in a text form.
+Outputs help preview from maml xml in help.txt into text form.
 
 ### Example 2
 ```
@@ -54,8 +54,8 @@ Show-HelpPreview
 Update-Markdown
 ```
 
-Return a help object help preview from maml-xml and assign it to $help variable.
-Get the names of Cmdlet objects inside the help
+Returns a help object get-help preview from maml xml and assign it to the $help variable.
+Gets the names of Cmdlet objects inside help.
 
 ## PARAMETERS
 
@@ -76,7 +76,7 @@ Accept wildcard characters: False
 ```
 
 ### -TextOutputPath
-File path to a output the preview as a text.
+File path where to output the preview as a text.
 
 ```yaml
 Type: String
@@ -106,7 +106,7 @@ Accept wildcard characters: False
 ```
 
 ### -AsObject
-Return output in a form of help object.
+Return output as a PowerShell help object.
 
 ```yaml
 Type: SwitchParameter
@@ -125,8 +125,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
+### None
+You cannot pipe objects into this cmdlet.
 
 ## OUTPUTS
+### None
 
 ## NOTES
 

@@ -22,7 +22,8 @@ New-Markdown -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <Strin
 ```
 
 ## DESCRIPTION
-An easy way to start with platyPS: Generate help stub from:
+An easy way to start with platyPS.
+This cmdlet generates help stub from:
 
 -  Module.
 
@@ -46,33 +47,25 @@ Import-Module platyPS
 New-Markdown -module platyPS
 ```
 
-Module should be loaded in the PS Session.
+The module should be loaded in the PS Session, markdown will be generated from the module.
 
 ### ----------------------------- Example 3 (from maml file path) ------------------------------------
 ```
 New-Markdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
 ```
 
-Create markdown help for inbox PSReadLine module.
+Create markdown help for inbox PSReadLine module. 
+This will use the help file only to generate the markdown.
 
 ### ----------------------------- Example 4 (from maml file content) ------------------------------------
 ```
 New-Markdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
 ```
 
-Create markdown help for inbox PSReadLine module.
-
-### ----------------------------- Example 4 (maml, OneFilePerCommand) ------------------------------------
-```
-New-Markdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml' -OneFilePerCommand -OutputFolder PSReadLineHelp
-```
-
-Create markdown help for inbox PSReadLine module and output them into a PSReadLineHelp folder. Create one .md file per cmdlet.
-
 ## PARAMETERS
 
 ### -Module
-Name of the module for bulk help generation.
+Name of the module markdown help is being generated for.
 
 ```yaml
 Type: Object
@@ -87,7 +80,7 @@ Accept wildcard characters: False
 ```
 
 ### -OutputFolder
-Path to a folder to output markdown files. This parameter requires -OneFilePerCommand.
+Path to the directory to output markdown help files.
 
 ```yaml
 Type: String
@@ -102,6 +95,8 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
+The encoding to use in generating the markdown files.
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromCommand
@@ -143,6 +138,8 @@ Accept wildcard characters: False
 ```
 
 ### -OnlineVersionUrl
+The URL where help can be downloaded using the updatable help function in PowerShell.
+
 ```yaml
 Type: String
 Parameter Sets: FromCommand
@@ -174,12 +171,15 @@ Accept wildcard characters: False
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
+### None
+You cannot pipe objects into this cmdlet.
 
 ### Object
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
+This cmdlet returns a FileInfo[] object.
 
 ## NOTES
 
