@@ -1779,17 +1779,25 @@ function Convert-PsObjectsToMamlModel
 #endregion
 
 #region Parameter Auto Completers
-# Completers are storted in .\psplaty.AutoCompleters.ps1
 
 # Add all completers in this IF block to ensure TabExpansionPlusPlus is installed, else there is no -Description Param in the V5 Register-ArgumentCompleter Command.
 if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -ErrorAction Ignore) {
-    Get-Item -Path $PSScriptRoot\platyPS.AutoCompleters.ps1 | 
-        Resolve-Path |
-            ForEach-Object {
-                . $_.ProviderPath
-            }
+    Function ModuleNameCompleter {
+        Param (
+            $commandName, 
+            $parameterName, 
+            $wordToComplete, 
+            $commandAst, 
+            $fakeBoundParameter
+        )
 
-    Register-ArgumentCompleter -CommandName New-Markdown, Update-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompletion -Description 'This argument completer handles the -Module parameter of the New-Markdown Command.'
+        Get-Module -Name "$wordToComplete*" | 
+            ForEach-Object {
+                New-CompletionResult -CompletionText $_.Name -ToolTip $_.Description
+            }
+    }
+
+    Register-ArgumentCompleter -CommandName New-Markdown, Update-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompleter -Description 'This argument completer handles the -Module parameter of the New-Markdown Command.'
 }
 
 #endregion Parameter Auto Completers
