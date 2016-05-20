@@ -1267,6 +1267,12 @@ function Convert-PsObjectsToMamlModel
             return $typeObject.GenericTypeArguments.Name
         }
 
+        if ($typeObject.IsGenericType)
+        {
+            # keep information about generic parameters
+            return $typeObject.ToString()
+        }
+
         return $typeObject.Name
     }
 

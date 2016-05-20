@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Get-MarkdownMetadata
 ## SYNOPSIS
-{{Fill the Synopsis}}
+Get markdown metadata header in the form of a hashtable.
 
 ## SYNTAX
 
@@ -25,21 +25,65 @@ Get-MarkdownMetadata -FileInfo <FileInfo> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-{{Fill the Description}}
+PlatyPS stores metadata information at the top of a markdown file.
+It's stored as key-value string pairs.
+
+By default, platyPS stores help file name and markdown schema version.
+
+The metadata section can contain user-provided key-value string pairs.
+They would be ignore by [New-ExternalHelp](New-ExternalHelp.md).
+These values can be used by external tools.
+
+[Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
+They return as a key-value \<Dictionary\[String, String\]\> object.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1 (Get metadata by Path)
 ```
-PS C:\> {{ Add example code here }}
+PS C:\> Get-MarkdownMetadata -Path .\docs\Get-MarkdownMetadata.md
+
+Key                Value
+---                -----
+external help file platyPS-help.xml
+schema             2.0.0
+
 ```
 
-{{ Add example description here }}
+Retrives metadata from a markdown file at the path provided.
+
+### Example 2 (Get metadata from a markdown string)
+```
+PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md 
+PS C:\> Get-MarkdownMetadata -Markdown $markdown
+
+Key                Value
+---                -----
+external help file platyPS-help.xml
+schema             2.0.0
+
+```
+
+Retrives metadata from a markdown string.
+
+### Example 3 (Get metadata from a FileInfo object)
+```
+PS C:\> Get-MarkdownMetadata -FileInfo (ls .\docs\Get-MarkdownMetadata.md)
+
+Key                Value
+---                -----
+external help file platyPS-help.xml
+schema             2.0.0
+
+```
+
+Retrives metadata using a FileInfo object to provide the path.
 
 ## PARAMETERS
 
 ### -Path
-{{Fill Path Description}}
+Path to markdown file.
+Markdown files typically use extension .md
 
 ```yaml
 Type: String
@@ -54,7 +98,7 @@ Accept wildcard characters: False
 ```
 
 ### -Markdown
-{{Fill Markdown Description}}
+String object containing markdown.
 
 ```yaml
 Type: String
@@ -69,6 +113,8 @@ Accept wildcard characters: False
 ```
 
 ### -FileInfo
+FileInfo that points to a markdown file.
+
 ```yaml
 Type: FileInfo
 Parameter Sets: MarkdownFileInfo
@@ -82,16 +128,21 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ## INPUTS
+### None
+You cannot pipe objects into this cmdlet.
 
 ## OUTPUTS
+### Dictionary[String, String]
+The dictionary contains key-value pairs found in the markdown metadata block.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[Online Version:]()
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
 
 
