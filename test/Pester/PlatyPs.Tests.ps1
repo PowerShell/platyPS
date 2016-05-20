@@ -236,7 +236,7 @@ New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction 
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
 New-Item -ItemType File -Path "$outFolder\CabTesting\Source\ModuleMd\" -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
 Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
-Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: {{Please enter FwLink manually}}`r`nHelp Version: {{Please enter version of help manually (X.X.X.X) format}}`r`nLocale: en-US`r`n---" | Out-Null
+Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
 
 Describe 'MakeCab.exe' {
 
@@ -260,6 +260,35 @@ Describe 'New-ExternalHelpCab' {
         
         (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
         (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
+    }
+}
+
+Describe 'HelpInfo'{
+    $OutputPath = "$outFolder\CabTesting\"
+    $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+
+    It 'Creates a help info file'{
+        $OutputPath = "$outFolder\CabTesting\"
+        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+        [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+
+        $PlatyPSHelpInfo | Should Not Be $null
+        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
+        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
+    }
+
+    It 'Adds another help locale'{
+        $OutputPath = "$outFolder\CabTesting\"
+        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+        $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
+    
+        Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
+        New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+        [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+        $Count = 0
+        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
+        
+        $Count | Should Be 2
     }
 }
 
