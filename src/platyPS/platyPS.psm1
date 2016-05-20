@@ -1789,7 +1789,7 @@ if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -E
                 . $_.ProviderPath
             }
 
-    Register-ArgumentCompleter -CommandName New-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompletion -Description 'This argument completer handles the -Module parameter of the New-Markdown Command.'
+    Register-ArgumentCompleter -CommandName New-Markdown, Update-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompletion -Description 'This argument completer handles the -Module parameter of the New-Markdown Command.'
 }
 
 #endregion Parameter Auto Completers
