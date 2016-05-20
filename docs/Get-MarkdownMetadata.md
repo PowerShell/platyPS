@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Get-MarkdownMetadata
 ## SYNOPSIS
-Get markdown metadata header in the form of a hashtable.
+Gets the markdown header metadata in the form of a hashtable.
 
 ## SYNTAX
 
@@ -25,17 +25,16 @@ Get-MarkdownMetadata -FileInfo <FileInfo> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-PlatyPS stores metadata information at the top of a markdown file.
+PlatyPS stores metadata information in the header block of the markdown file.
 It's stored as key-value string pairs.
 
 By default, platyPS stores help file name and markdown schema version.
 
-The metadata section can contain user-provided key-value string pairs.
-They would be ignore by [New-ExternalHelp](New-ExternalHelp.md).
-These values can be used by external tools.
+The metadata section can contain user-provided key-value string pairs to be used by external tools.
+These pairs would be ignored by [New-ExternalHelp](New-ExternalHelp.md).
 
 [Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
-They return as a key-value \<Dictionary\[String, String\]\> object.
+The cmdlet returns a key-value \<Dictionary\[String, String\]\> object.
 
 ## EXAMPLES
 

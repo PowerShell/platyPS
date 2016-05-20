@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # New-ExternalHelp
 ## SYNOPSIS
-Create External help file from platyPS markdown.
+Create External help xml file from platyPS markdown, which can be interpreted by the PowerShell help engine.
 
 ## SYNTAX
 
@@ -22,7 +22,7 @@ New-ExternalHelp -MarkdownFile <FileInfo[]> -OutputPath <String> [-Encoding <Str
 ## DESCRIPTION
 Create External help file from platyPS markdown.
 
-You will get error messages, if provided input doesn't follow schema described in platyPS.schema.md
+You will get error messages if the markdown files do not follow the schema described in platyPS.schema.md
 
 ## EXAMPLES
 
@@ -38,16 +38,16 @@ Mode                LastWriteTime         Length Name
 -a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
 ```
 
-Create external help file in specified directory (directory includes language name).
-Uses set of files as input.
+Create external help file in output path directory (directory includes language name).
+Uses set of markdown files as input.
 
 ### Example 2 (MarkdownFolder)
 ```
 PS C:\> New-ExternalHelp -MarkdownFolder .\docs -OutputPath out\platyPS\en-US
 ```
 
-Create external help file in specified directory (directory includes language name).
-Uses folder with markdowns as an input.
+Create external help file in output path directory (directory includes language name).
+Uses folder containing markdowns as input.
 
 
 ## PARAMETERS
@@ -68,8 +68,8 @@ Accept wildcard characters: False
 ```
 
 ### -OutputPath
-Path to a folder, where you want to put your external help file(s).
-The name should ends with locale folder, i.e. ".\out\platyPS\en-US".
+Path to a folder where you want to put your external help file(s).
+The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
 
 ```yaml
 Type: String
@@ -84,7 +84,7 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-Encoding to be used in the output file.
+Encoding to be used by the output external help file.
 
 ```yaml
 Type: String
@@ -99,7 +99,7 @@ Accept wildcard characters: False
 ```
 
 ### -MarkdownFile
-File objects with markdown content
+File objects with markdown content in them.
 
 ```yaml
 Type: FileInfo[]
@@ -120,10 +120,12 @@ For more information, see about_CommonParameters \(http://go.microsoft.com/fwlin
 ## INPUTS
 
 ### FileInfo[]
+You can pipe FileInfo[] objects into this cmdlet.
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
+This cmdlet returns a FileInfo[] object.
 
 ## NOTES
 
