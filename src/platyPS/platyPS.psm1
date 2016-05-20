@@ -67,26 +67,26 @@ function New-Markdown
         [Parameter(ParameterSetName="FromMaml")]
         [switch]$WithModulePage,
 
-        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
-        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $Locale = "en-US",
 
-        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
-        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $HelpVersion = "{{Please enter version of help manually (X.X.X.X) format}}",
 
-        [Parameter(Mandatory=$false,ParameterSetName="FromModule")]
-        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $FwLink = "{{Please enter FwLink manually}}",
         
-        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $ModuleName = "MamlModule",
         
-        [Parameter(Mandatory=$false,ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
 
@@ -1184,7 +1184,6 @@ function Convert-MamlModelToMarkdown
         [Parameter(Mandatory=$true)]
         [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
         
-        [Parameter(Mandatory=$false)]
         [hashtable]$metadata,
 
         [switch]$NoMetadata
