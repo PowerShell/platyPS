@@ -524,7 +524,8 @@ function Get-HelpPreview
                 continue
             }
 
-            $MamlFilePath = (Resolve-Path $MamlFilePath).Path
+            # this is Resolve-Path that resolves mounted drives (i.e. good for tests)
+            $MamlFilePath = (ls $MamlFilePath).FullName
 
             # Read the malm file
             $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
@@ -534,31 +535,47 @@ function Get-HelpPreview
                 continue
             }
 
-            foreach ($command in $xml.helpItems.command.details.name)
+            # we need a copy of maml file to bypass powershell cache,
+            # in case we reuse the same filename few times.
+            $MamlCopyPath = [System.IO.Path]::GetTempFileName()
+            try 
             {
-                $thisDefinition = @"
+                cp $MamlFilePath $MamlCopyPath
+                foreach ($command in $xml.helpItems.command.details.name)
+                {
+                    $thisDefinition = @"
 
 <#
-.ExternalHelp $MamlFilePath
+.ExternalHelp $MamlCopyPath
 #>
-function $command
+filter $command
 {
     [CmdletBinding()]
     Param
     (
-        `$Param1,
-        `$Param2
+        [Parameter(Mandatory=`$true)]
+        [switch]`$platyPSHijack
     )
+
+    Microsoft.PowerShell.Utility\Write-Warning 'PlatyPS hijacked your command $command.'
+    Microsoft.PowerShell.Utility\Write-Warning 'We are sorry for that. It means, there is a bug in our Get-HelpPreview logic.'
+    Microsoft.PowerShell.Utility\Write-Warning 'Please report this issue https://github.com/PowerShell/platyPS/issues'
+    Microsoft.PowerShell.Utility\Write-Warning 'Restart PowerShell to fix the problem.'
 }
 
+# filter is rare enough to distinguish with other commands
+`$innerHelp = Microsoft.PowerShell.Core\Get-Help $command -Full -Category filter
+
 Export-ModuleMember -Function @()
-
-`$script:help = Microsoft.PowerShell.Core\Get-Help $command
-
 "@
-                $m = New-Module ([scriptblock]::Create( $thisDefinition ))
-                & $m ( [scriptblock]::Create( '$script:help' ) ) # yeild
-                remove-module $m -ErrorAction SilentlyContinue
+                    $m = New-Module ( [scriptblock]::Create( "$thisDefinition" )) 
+                    $help = & $m { $innerHelp }
+                    $help # yeild
+                }
+            }
+            finally
+            {
+                rm $MamlCopyPath
             }
         }
     }
@@ -1186,7 +1203,7 @@ function Get-MamlObject
     }
     else # Maml
     {
-        $HelpCollection = Get-HelpPreview -MamlFilePath $MamlFile -AsObject
+        $HelpCollection = Get-HelpPreview -Path $MamlFile
 
         #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
         #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
