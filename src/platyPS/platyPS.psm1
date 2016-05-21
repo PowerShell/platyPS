@@ -524,6 +524,8 @@ function Get-HelpPreview
                 continue
             }
 
+            $MamlFilePath = (Resolve-Path $MamlFilePath).Path
+
             # Read the malm file
             $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
             if (-not $xml)
@@ -537,7 +539,7 @@ function Get-HelpPreview
                 $thisDefinition = @"
 
 <#
-.ExternalHelp $Path
+.ExternalHelp $MamlFilePath
 #>
 function $command
 {
@@ -550,9 +552,12 @@ function $command
 }
 
 Export-ModuleMember -Function @()
+
+`$script:help = Microsoft.PowerShell.Core\Get-Help $command
+
 "@
                 $m = New-Module ([scriptblock]::Create( $thisDefinition ))
-                & $m ( [scriptblock]::Create( "Microsoft.PowerShell.Core\Get-Help $command" ) ) # yeild
+                & $m ( [scriptblock]::Create( '$script:help' ) ) # yeild
                 remove-module $m -ErrorAction SilentlyContinue
             }
         }
