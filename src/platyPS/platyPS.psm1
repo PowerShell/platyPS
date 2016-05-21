@@ -503,62 +503,57 @@ function New-ExternalHelp
     }
 }
 
-function Show-HelpPreview
+function Get-HelpPreview
 {
     [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]], [MamlCommandHelpInfo])]
+    [OutputType('MamlCommandHelpInfo')]
     param(
         [Parameter(Mandatory=$true,
+            ValueFromPipeline=$true,
             Position=1)]
-        [string[]]$MamlFilePath,
-
-        [Parameter(Mandatory=$true,
-            ParameterSetName='FileOutput')]
-        [string]$TextOutputPath,
-
-        [Parameter(Mandatory=$true,
-            ParameterSetName='AsObject')]
-        [switch]$AsObject,
-        
-        [Parameter(ParameterSetName='FileOutput')]
-        [string]$Encoding = $script:DEFAULT_ENCODING
+        [string[]]$Path
     )
 
-    $MamlFilePath | % {
-        $g = Get-ModuleFromMaml -MamlFilePath $_
-
-        try 
+    process
+    {
+        foreach ($MamlFilePath in $Path)
         {
-            Import-Module $g.Path -Force -ea Stop
-            $allHelp = $g.Cmdlets | Microsoft.PowerShell.Core\ForEach-Object { 
-                $c = $_
-                try
-                {
-                    Microsoft.PowerShell.Core\Get-Help "$($g.Name)\$c" -Full 
-                }
-                catch 
-                {
-                    Write-Warning "Exception happens on Get-Help $($g.Name)\$c : $_"
-                }
+            if (-not (Test-path -Type Leaf $MamlFilePath))
+            {
+                Write-Error "$MamlFilePath is not found, skipping"
+                continue
             }
 
-            if ($AsObject)
+            # Read the malm file
+            $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
+            if (-not $xml)
             {
-                $allHelp
+                # already error-out on the convertion, no need to repeat ourselves
+                continue
             }
-            else {
-                $allHelp = $allHelp | Microsoft.PowerShell.Utility\Out-String
-                Microsoft.PowerShell.Management\Set-Content -Path $TextOutputPath -Value $allHelp -Encoding $Encoding
-                Get-ChildItem $TextOutputPath    
-            }
-        }
-        finally
-        {
-            Microsoft.PowerShell.Core\Remove-Module $g.Name -Force -ea SilentlyContinue
-            $moduleDirectory = Split-Path $g.Path
-            if (Test-Path $moduleDirectory)
+
+            foreach ($command in $xml.helpItems.command.details.name)
             {
-                Remove-Item $moduleDirectory -Force -Recurse
+                $thisDefinition = @"
+
+<#
+.ExternalHelp $Path
+#>
+function $command
+{
+    [CmdletBinding()]
+    Param
+    (
+        `$Param1,
+        `$Param2
+    )
+}
+
+Export-ModuleMember -Function @()
+"@
+                $m = New-Module ([scriptblock]::Create( $thisDefinition ))
+                & $m ( [scriptblock]::Create( "Microsoft.PowerShell.Core\Get-Help $command" ) ) # yeild
+                remove-module $m -ErrorAction SilentlyContinue
             }
         }
     }
@@ -708,6 +703,19 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+function Import-ModuleSafe
+{
+    param(
+        [string]$Path
+    )
+    
+    # call to Import-module inside a module adds module to .NestedModules and there is no way to clean-it up.
+    # this helper function workaround it by creating a new module on the fly
+    $MockModule = New-Module {}
+    $ImportedModule = & (New-Module {}) ([scriptblock]::Create("Import-Module -PassThru '$Path' -Force -ea Stop"))
+
+}
 
 function Get-MarkdowFilesFromFolder
 {
@@ -1001,105 +1009,6 @@ function Get-HelpFileName
     }
 }
 
-function Get-ModuleFromMaml
-{
-    param 
-    (
-        [Parameter(Mandatory=$true)]
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $MamlFilePath,
-        [ValidateNotNullOrEmpty()]
-        [String]
-        $DestinationPath = "$env:TEMP\Modules"
-    )
-
-    if (-not (Test-Path $MamlFilePath))
-    {
-        throw "'$MamlFilePath' does not exist."        
-    }
-
-    # Get the file name
-    $originalHelpFileName = (Get-Item $MamlFilePath).Name
-    
-    # Read the malm file
-    $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
-    if (-not $xml)
-    {
-        throw "Failed to read '$MamlFilePath'" 
-    }
-
-    # The information for the module to be generated
-    $currentCulture = (Get-UICulture).Name
-    $moduleName = $originalHelpFileName + "_" + (Get-Random).ToString()
-    $moduleFolder = "$destinationPath\$moduleName"
-    $helpFileFolder = "$destinationPath\$moduleName\$currentCulture"
-    $moduleFilePath = $moduleFolder + "\" + $moduleName + ".psm1"
-
-    # The help file will be renamed to this name
-    $helpFileNewName = $moduleName + ".psm1-help.xml"
-
-    # The result object to be generated
-    $result = @{
-        Name = $null
-        Cmdlets = @()
-        Path = $null
-    }
-
-    $writeFile = $false
-    $moduleDefintion = ""
-    $template = @'
-
-<#
-.ExternalHelp $helpFileName
-#>
-function $cmdletName
-{
-    [CmdletBinding()]
-    Param
-    (
-        $Param1,
-        $Param2
-    )
-}
-'@
-
-    foreach ($command in $xml.helpItems.command.details)
-    {
-        $thisDefinition = $template
-        $thisDefinition = $thisDefinition.Replace("`$helpFileName", $helpFileNewName)
-        $thisDefinition = $thisDefinition.Replace("`$cmdletName", $command.name)        
-        $moduleDefintion += "`r`n" + $thisDefinition + "`r`n"
-        $writeFile = $true
-        $result.Cmdlets += $command.name
-    }
-
-    if (-not $writeFile)
-    {
-        Write-Verbose "There aren't any cmdlets definitions on '$MamlFilePath'." -Verbose
-        return 
-    }
-
-    # Create the module and help content folders.
-    #New-Item -Path $moduleFolder -ItemType Directory -Force | Out-Null
-    New-Item -Path $helpFileFolder -ItemType Directory -Force | Out-Null
-
-    # Copy the help file
-    Copy-Item -Path $MamlFilePath -Destination $helpFileFolder -Force
-
-    # Rename the copied help file
-    $filePath = Join-Path $helpFileFolder (Split-Path $MamlFilePath -Leaf)
-    Rename-Item -Path $filePath -NewName $helpFileNewName -Force
-
-    # Create the module file
-    Set-Content -Value $moduleDefintion -Path $moduleFilePath
-
-    $result.Name = $moduleName
-    $result.Path = $moduleFilePath
-    return $result
-}
-
-
 function Out-MarkdownToFile
 {
     [OutputType([System.IO.FileInfo])]        
@@ -1223,7 +1132,7 @@ function Get-Commands
     # the case `Get-MamlObject -Module platyPS`
     # because in this case, we are in the module context and Get-Command returns all commands,
     # not only exported ones.
-    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
+    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'"))
     if ($AsNames)
     {
         $commands.Name
@@ -1272,7 +1181,7 @@ function Get-MamlObject
     }
     else # Maml
     {
-        $HelpCollection = Show-HelpPreview -MamlFilePath $MamlFile -AsObject
+        $HelpCollection = Get-HelpPreview -MamlFilePath $MamlFile -AsObject
 
         #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
         #Otherwise loads the results from Get-Command <Cmdlet> into the $command object

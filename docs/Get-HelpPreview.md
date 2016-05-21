@@ -3,7 +3,7 @@ external help file: platyPS-help.xml
 schema: 2.0.0
 ---
 
-# Show-HelpPreview
+# Get-HelpPreview
 ## SYNOPSIS
 Preview the output Get-Help would return from an external help file(s).
 
@@ -11,12 +11,12 @@ Preview the output Get-Help would return from an external help file(s).
 
 ### FileOutput
 ```
-Show-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [-Encoding <String>] [<CommonParameters>]
+Get-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [-Encoding <String>] [<CommonParameters>]
 ```
 
 ### AsObject
 ```
-Show-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
+Get-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -29,7 +29,7 @@ It can be output in a form of help object or as a text.
 
 ### Example 1: TextOutputPath
 ```
-PS C:\> Show-HelpPreview -MamlFilePath .\out\platyPS\en-US\platyPS-help.xml -TextOutputPath .\help.txt
+PS C:\> Get-HelpPreview -MamlFilePath .\out\platyPS\en-US\platyPS-help.xml -TextOutputPath .\help.txt
 
     Directory: D:\dev\platyPS
 
@@ -44,13 +44,13 @@ Outputs help preview from maml xml in help.txt into text form.
 
 ### Example 2
 ```
-PS C:\> $help = Show-HelpPreview -MamlFilePath .\out\platyPS\en-US\platyPS-help.xml -AsObject
+PS C:\> $help = Get-HelpPreview -MamlFilePath .\out\platyPS\en-US\platyPS-help.xml -AsObject
 PS C:\> $help.Name
 Get-MarkdownMetadata
 New-ExternalHelp
 New-ExternalHelpCab
 New-Markdown
-Show-HelpPreview
+Get-HelpPreview
 Update-Markdown
 ```
 

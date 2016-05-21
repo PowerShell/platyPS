@@ -64,7 +64,7 @@ Describe 'New-Markdown' {
                 }
                 $file = New-Markdown @a
                 $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
-                $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+                $help = Get-HelpPreview -MamlFilePath $maml -AsObject 
                 $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
                 ($link | measure).Count | Should Be 1
                 $link.uri | Should Be $uri
@@ -111,7 +111,7 @@ Describe 'New-Markdown' {
 
             $file = New-Markdown @a
             $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
-            $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+            $help = Get-HelpPreview -MamlFilePath $maml -AsObject 
             $help.Syntax.syntaxItem.Count | Should Be 2
             $dynamicParam = $help.parameters.parameter | ? {$_.name -eq 'DynamicParameter'}
             ($dynamicParam | measure).Count | Should Be 1
@@ -167,7 +167,7 @@ Describe 'New-ExternalHelp' {
 
         $file = New-Markdown @a
         $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
-        $help = Show-HelpPreview -MamlFilePath $maml -AsObject 
+        $help = Get-HelpPreview -MamlFilePath $maml -AsObject 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
         $names = $help.Syntax.syntaxItem.parameter.Name
         ($names | measure).Count | Should Be 3
@@ -367,8 +367,8 @@ Describe 'Update-Markdown upgrade schema scenario' {
     $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
 
     It 'help preview is the same before and after upgrade' {
-        $v1file = Show-HelpPreview -MamlFilePath $v1maml -TextOutputPath "$outFolder\PSReadline.v1.txt"
-        $v2file = Show-HelpPreview -MamlFilePath $v2maml -TextOutputPath "$outFolder\PSReadline.v2.txt"
+        $v1file = Get-HelpPreview -MamlFilePath $v1maml -TextOutputPath "$outFolder\PSReadline.v1.txt"
+        $v2file = Get-HelpPreview -MamlFilePath $v2maml -TextOutputPath "$outFolder\PSReadline.v2.txt"
     
         $v1txt = $v1file | cat -Raw
         $v2txt = $v2file | cat -Raw
@@ -425,7 +425,7 @@ Describe 'Update-Markdown reflection scenario' {
     }
 
     $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
-    $help = Show-HelpPreview -MamlFilePath $v2maml -AsObject 
+    $help = Get-HelpPreview -MamlFilePath $v2maml -AsObject 
     
     It 'has both parameters' {
         $names = $help.Parameters.parameter.Name

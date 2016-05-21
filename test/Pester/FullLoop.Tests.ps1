@@ -151,7 +151,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     Context 'produce the real help' {
         $textOutputFile = "$outFolder\SMA.original.txt"
-        Show-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $textOutputFile
+        Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $textOutputFile
         PutStripped $textOutputFile
     }
 
@@ -185,12 +185,12 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
                 # add artifacts to out
                 $textOutputFile = Join-Path $newMarkdownArgs.OutputFolder 'SMA.generated.txt'
-                Show-HelpPreview $generatedMaml.FullName -TextOutputPath $textOutputFile
+                Get-HelpPreview $generatedMaml.FullName -TextOutputPath $textOutputFile
                 PutStripped $textOutputFile
             }
 
             # this our regression suite for SMA
-            $generatedHelp = Show-HelpPreview -AsObject (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+            $generatedHelp = Get-HelpPreview -AsObject (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
 
             It 'has right number of outputs for Get-Help' {
