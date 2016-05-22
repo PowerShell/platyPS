@@ -153,6 +153,11 @@ Describe 'New-MarkdownHelp' {
     }
 }
 
+
+###############################################################
+###############################################################
+
+
 Describe 'New-ExternalHelp' {
     function global:Test-OrderFunction { 
         param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
@@ -187,7 +192,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
     Context 'Add-Computer' {
         
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Computer" }
+        $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
         It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
             
@@ -216,7 +221,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Member' {
         # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { Get-MamlObject -Cmdlet "Add-Member" }
+        $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Member" }
 
         It 'Fetch MemberSet set name' {
             $MemberSet = $mamlModelObject.Syntax | ? {$_.ParameterSetName -eq 'MemberSet'}
@@ -235,90 +240,87 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 }
 
 #endregion 
-
+#########################################################
 #region Checking Cab and File Naming Cmdlets
-
-Remove-Item -path "$outFolder\CabTesting\" -Recurse -ErrorAction SilentlyContinue | Out-Null
-New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
-New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\ModuleMd\" -ErrorAction SilentlyContinue | Out-Null
-New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
-New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
-New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
-New-Item -ItemType File -Path "$outFolder\CabTesting\Source\ModuleMd\" -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
-Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
-Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
-
-Describe 'MakeCab.exe' {
-
-    It 'Validates that MakeCab.exe & Expand.exe exists'{
-
-        (Get-Command MakeCab) -ne $null | Should Be $True
-        (Get-Command Expand) -ne $null | Should Be $True
-
-    }
-}
 
 Describe 'New-ExternalHelpCab' {
 
-    It 'validates the output of Cab creation' {
-        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
-        $OutputPath = "$outFolder\CabTesting\"
-        $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
-        
-        New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
-        expand "$OutputPath\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
-        
-        (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
-        (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
-    }
-}
+    Remove-Item -path "$outFolder\CabTesting\" -Recurse -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\ModuleMd\" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
+    New-Item -ItemType File -Path "$outFolder\CabTesting\Source\ModuleMd\" -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
+    Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
+    Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
 
-Describe 'HelpInfo'{
-    $OutputPath = "$outFolder\CabTesting\"
-    $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+    Context 'MakeCab.exe' {
 
-    It 'Creates a help info file'{
-        $OutputPath = "$outFolder\CabTesting\"
-        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
-        [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+        It 'Validates that MakeCab.exe & Expand.exe exists'{
 
-        $PlatyPSHelpInfo | Should Not Be $null
-        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
-        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
+            (Get-Command MakeCab) -ne $null | Should Be $True
+            (Get-Command Expand) -ne $null | Should Be $True
+
+        }
     }
 
-    It 'Adds another help locale'{
+    Context 'New-ExternalHelpCab function' {
+
+        It 'validates the output of Cab creation' {
+            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+            $OutputPath = "$outFolder\CabTesting\"
+            $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
+            
+            New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+            expand "$OutputPath\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
+            
+            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+            (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
+        }
+    }
+
+    Context 'HelpInfo'{
         $OutputPath = "$outFolder\CabTesting\"
         $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
-        $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
-    
-        Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
-        New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
-        [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
-        $Count = 0
-        $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
+
+        It 'Creates a help info file'{
+            $OutputPath = "$outFolder\CabTesting\"
+            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+            [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+
+            $PlatyPSHelpInfo | Should Not Be $null
+            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
+            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
+        }
+
+        It 'Adds another help locale'{
+            $OutputPath = "$outFolder\CabTesting\"
+            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
+            $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
         
-        $Count | Should Be 2
+            Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
+            New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+            [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+            $Count = 0
+            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
+            
+            $Count | Should Be 2
+        }
     }
 }
 
 #endregion
 
-Describe 'Test Log on Update-Markdown'{
+Describe 'Update-MarkdownHelp -LogPath' {
     
-    It 'checks the log exists'{
-    $drop = Join-Path $outFolder "\MD\SingleCommand"
-    Remove-Item -Recurse $drop -ErrorAction SilentlyContinue
-    New-MarkdownHelp -Command Add-History -OutputFolder $drop | Out-Null
-    $MDs = Get-ChildItem $drop
-    Update-Markdown -MarkdownFile $MDs -LogPath "$drop\platyPSLog.txt"
-
-    $result = Get-Childitem $drop\platyPsLog.txt | Select Name
-
-    $result | Should Not Be $null
-    
+    It 'checks the log exists' {
+        $drop = "TestDrive:\MD\SingleCommand"
+        rm -rec $drop -ErrorAction SilentlyContinue
+        New-MarkdownHelp -Command Add-History -OutputFolder $drop | Out-Null
+        Update-MarkdownHelp -Path $drop -LogPath "$drop\platyPSLog.txt"
+        (Get-Childitem $drop\platyPsLog.txt).Name | Should Be 'platyPsLog.txt'
     }
-
 }
 
 
@@ -345,10 +347,10 @@ this text would be ignored
     }
 }
 
-Describe 'Update-Markdown with New-MarkdownHelp inlined functionality' {
+Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
     $OutputFolder = 'TestDrive:\update-new'
 
-    $originalFiles = New-MarkdownHelp -Module platyPS -OutputFolder $OutputFolder
+    $originalFiles = New-MarkdownHelp -Module platyPS -OutputFolder $OutputFolder -WithModulePage 
         
     It 'creates markdown in the first place' {
         $originalFiles | Should Not Be $null
@@ -356,17 +358,17 @@ Describe 'Update-Markdown with New-MarkdownHelp inlined functionality' {
     }
 
     It 'updates markdown and creates removed files again' {
-        $updatedFiles = Update-Markdown -MarkdownFolder $OutputFolder -Module platyPS
-        ($updatedFiles | measure).Count | Should Be (($originalFiles | measure).Count)
+        $updatedFiles = Update-MarkdownHelpModule -Path $OutputFolder
+        ($updatedFiles | measure).Count | Should Be (($originalFiles | measure).Count - 1)
     }
 }
 
-Describe 'Update-Markdown upgrade schema scenario' {
+Describe 'Update-MarkdownHelpSchema' {
     $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
     $OutputFolder = 'TestDrive:\PSReadline'
 
     $v1maml = New-ExternalHelp -Path $v1md.FullName -OutputPath "$OutputFolder\v1.xml"
-    $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder -SchemaUpgrade
+    $v2md = Update-MarkdownHelpSchema -Path $v1md -OutputFolder $outFolder -Force
     $v2maml = New-ExternalHelp $v2md.FullName -OutputPath "$OutputFolder\v2.xml"
 
     It 'help preview is the same before and after upgrade' {
@@ -380,7 +382,7 @@ Describe 'Update-Markdown upgrade schema scenario' {
     }
 }
 
-Describe 'Update-Markdown reflection scenario' {
+Describe 'Update-MarkdownHelp reflection scenario' {
     
     $OutputFolder = 'TestDrive:\CoolStuff'
 
@@ -421,7 +423,7 @@ Describe 'Update-Markdown reflection scenario' {
         )
     }
 
-    $v2md = Update-Markdown -MarkdownFile $v1md -Verbose
+    $v2md = Update-MarkdownHelp $v1md -Verbose
 
     It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
@@ -449,4 +451,3 @@ Describe 'Update-Markdown reflection scenario' {
         $e.Code | Should Match 'PS C:\>*'
     }
 }
-
