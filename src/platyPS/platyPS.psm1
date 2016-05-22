@@ -263,11 +263,16 @@ function Update-MarkdownHelpSchema
     
     begin
     {
-        $MarkdownFiles = GetMarkdowFilesFromPath $Path
+        $MarkdownFiles = @()
         if ($OutputFolder)
         {
             mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
         }
+    }
+    
+    process
+    {
+        $MarkdownFiles += GetMarkdowFilesFromPath $Path
     }
     
     end
@@ -499,7 +504,7 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles = GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdowFilesFromPath $Path
     }
 
     end 
@@ -605,7 +610,7 @@ filter $command
 # filter is rare enough to distinguish with other commands
 `$innerHelp = Microsoft.PowerShell.Core\Get-Help $command -Full -Category filter
 
-Export-ModuleMember -Function @()
+Microsoft.PowerShell.Core\Export-ModuleMember -Function @()
 "@
                     $m = New-Module ( [scriptblock]::Create( "$thisDefinition" )) 
                     $help = & $m { $innerHelp }

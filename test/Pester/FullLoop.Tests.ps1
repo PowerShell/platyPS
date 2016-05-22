@@ -103,21 +103,22 @@ Describe 'Full loop for Add-Member cmdlet' {
     # TODO: rest of properties!!
 }
 
-<#
-function PutStripped
+
+function OutFileAndStripped
 {
-    param([string]$path)
+    param([string]$path, [string]$content)
     
-    $strippedContent = (((((cat -raw $path) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
+    $strippedContent = ((((($content) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
     Set-Content -Path "$path.stripped" -Value $strippedContent
+    Set-Content -Path $path -Value $content
 }
 
 Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     Context 'produce the real help' {
         $textOutputFile = "$outFolder\SMA.original.txt"
-        Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml -TextOutputPath $textOutputFile
-        PutStripped $textOutputFile
+        $help = Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml | Out-String
+        OutFileAndStripped -path $textOutputFile -content $help
     }
 
     # parameters for New-Markdown
@@ -125,14 +126,14 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         
         [psobject]@{
             MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
-            Encoding= 'UTF8'
             OutputFolder = "$outFolder\sma-maml"
+            Force = $true
         },
 
         [psobject]@{
             module = "Microsoft.PowerShell.Core"
-            Encoding= 'UTF8'
             OutputFolder = "$outFolder\sma-model"
+            Force = $true
         }
 
     ) | % {
@@ -145,17 +146,17 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
                 $mdFiles = New-MarkdownHelp @newMarkdownArgs
 
-                $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $newMarkdownArgs.OutputFolder
+                $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
                 $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
                 # add artifacts to out
                 $textOutputFile = Join-Path $newMarkdownArgs.OutputFolder 'SMA.generated.txt'
-                Get-HelpPreview $generatedMaml.FullName -TextOutputPath $textOutputFile
-                PutStripped $textOutputFile
+                $help = Get-HelpPreview $generatedMaml.FullName | Out-String
+                OutFileAndStripped -path $textOutputFile -content $help
             }
 
             # this our regression suite for SMA
-            $generatedHelp = Get-HelpPreview -AsObject (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+            $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
 
             It 'has right number of outputs for Get-Help' {
@@ -214,9 +215,8 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
                 $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
                 $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
-                NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected
+                NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
             }
         }
     }
 }
-#>

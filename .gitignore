@@ -191,3 +191,6 @@ ModelManifest.xml
 # Out project specific stuff
 generatedMarkdown.txt
 out/
+
+# For developing in VSCode
+.vscode/launch.json

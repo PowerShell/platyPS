@@ -144,7 +144,6 @@ Describe 'New-MarkdownHelp' {
 
         It "generates a landing page from MAML"{
 
-
             New-MarkdownHelp -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
