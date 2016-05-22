@@ -32,7 +32,7 @@ namespace Markdown.MAML.Test.Renderer
         [Fact]
         public void RendererCreatesWorkflowParametersEntry()
         {
-            var renderer = new MarkdownV2Renderer();
+            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Workflow",
@@ -83,7 +83,7 @@ For more information, see about_CommonParameters \(http://go.microsoft.com/fwlin
         [Fact]
         public void RendererProduceMarkdownV2Output()
         {
-            var renderer = new MarkdownV2Renderer();
+            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
@@ -240,7 +240,7 @@ Second line.
         [Fact]
         public void RenderesAllParameterSetMoniker()
         {
-            var renderer = new MarkdownV2Renderer();
+            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
@@ -358,6 +358,56 @@ Accept wildcard characters: False
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
 For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
+
+", markdown);
+        }
+
+        [Fact]
+        public void RenderesWithPreservedFormatting()
+        {
+            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.FormattingPreserve);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                SupportCommonParameters = false,
+                Description = @"Hello
+This \<description \> should be preserved by renderer
+With all [hyper](https://links.com) and yada
+  -- yada
+
+* Also
+* This list. May look. A little
+weired
+* [ ] But
+
+* [ ] It should be left
+"
+            };
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Assert.Equal(@"---
+schema: 2.0.0
+---
+
+# Get-Foo
+## SYNOPSIS
+
+## SYNTAX
+
+## DESCRIPTION
+" + command.Description + @"
+
+## EXAMPLES
+
+## PARAMETERS
 
 ## INPUTS
 

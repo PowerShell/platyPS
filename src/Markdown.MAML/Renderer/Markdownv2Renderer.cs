@@ -19,13 +19,16 @@ namespace Markdown.MAML.Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
+        private MarkdownParser.ParserMode _mode;
+
         public int MaxSyntaxWidth { get; private set; }
 
-        public MarkdownV2Renderer() : this(120) { }
+        public MarkdownV2Renderer(MarkdownParser.ParserMode mode) : this(mode, 120) { }
 
-        public MarkdownV2Renderer(int maxSyntaxWidth)
+        public MarkdownV2Renderer(MarkdownParser.ParserMode mode, int maxSyntaxWidth)
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
+            this._mode = mode;
         }
 
         public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
@@ -446,7 +449,17 @@ namespace Markdown.MAML.Renderer
 
         private void AddParagraphs(string body)
         {
-            if (!string.IsNullOrWhiteSpace(body))
+            if (string.IsNullOrWhiteSpace(body))
+            {
+                return;
+            }
+
+            if (this._mode == MarkdownParser.ParserMode.FormattingPreserve)
+            {
+                _stringBuilder.AppendFormat("{0}{1}{1}", body, Environment.NewLine);
+                return;
+            }
+            else
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
 
