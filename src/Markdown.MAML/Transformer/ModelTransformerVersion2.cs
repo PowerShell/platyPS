@@ -16,7 +16,7 @@ namespace Markdown.MAML.Transformer
         List<Tuple<string, Dictionary<string, MamlParameter>>> _parameterName2ParameterSetMap = 
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
-        private static readonly string ALL_PARAM_SETS = "__AllParameterSets";
+        public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
 
         public ModelTransformerVersion2() : this(null) { }
 
@@ -167,7 +167,7 @@ namespace Markdown.MAML.Transformer
                 }
                 else
                 {
-                    if (pair.Item2.Count == 1 && pair.Item2.First().Key == ALL_PARAM_SETS)
+                    if (pair.Item2.Count == 1 && pair.Item2.First().Key == ALL_PARAM_SETS_MONIKER)
                     {
                         param = pair.Item2.First().Value;
                     }
@@ -197,7 +197,7 @@ namespace Markdown.MAML.Transformer
             foreach (var setName in parameterSetNames)
             {
                 MamlSyntax syntax = new MamlSyntax();
-                if (setName == ALL_PARAM_SETS)
+                if (setName == ALL_PARAM_SETS_MONIKER)
                 {
                     if (parameterSetNames.Count == 1)
                     {
@@ -408,7 +408,7 @@ namespace Markdown.MAML.Transformer
                 }
                 else
                 {
-                    parameterSetMap[ALL_PARAM_SETS] = parameter;
+                    parameterSetMap[ALL_PARAM_SETS_MONIKER] = parameter;
                 }
 
                 // in the rare case, when there are multiply yaml snippets

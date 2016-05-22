@@ -239,11 +239,20 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.AppendFormat("```yaml{0}", Environment.NewLine);
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Type, parameter.Type, Environment.NewLine);
-                if (command.Syntax.Count > 1)
+
+                string parameterSetsString;
+                if (command.Syntax.Count == 1 || set.Item1.Count == command.Syntax.Count)
                 {
                     // ignore, if there is just one parameter set
-                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, JoinWithComma(set.Item1), Environment.NewLine);
+                    // or this parameter belongs to All parameter sets, use (All)
+                    parameterSetsString = ModelTransformerVersion2.ALL_PARAM_SETS_MONIKER;
                 }
+                else
+                {
+                    parameterSetsString = JoinWithComma(set.Item1);
+                }
+
+                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, parameterSetsString, Environment.NewLine);
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Aliases, JoinWithComma(parameter.Aliases), Environment.NewLine);
                 if (parameter.ParameterValueGroup.Count > 0)

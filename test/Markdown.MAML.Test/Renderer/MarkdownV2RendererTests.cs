@@ -198,6 +198,7 @@ Parameter Description.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
 Aliases: GF, Foos, Do
 Accepted values: Value1, Value2
 
@@ -232,6 +233,139 @@ Second line.
 [PowerShell made by Microsoft Hackathon](www.microsoft.com)
 
 [http://foo.com](http://foo.com)
+
+", markdown);
+        }
+
+        [Fact]
+        public void RenderesAllParameterSetMoniker()
+        {
+            var renderer = new MarkdownV2Renderer();
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            var commonParam = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Common",
+                Required = true
+            };
+
+            var parameter1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "First",
+                Required = true
+            };
+
+            var parameter2 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Second",
+                Required = true
+            };
+
+            command.Parameters.Add(commonParam);
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "FirstSyntax"
+            };
+
+            syntax1.Parameters.Add(commonParam);
+            syntax1.Parameters.Add(parameter1);
+
+            var syntax2 = new MamlSyntax()
+            {
+                ParameterSetName = "SecondSyntax"
+            };
+
+            syntax2.Parameters.Add(commonParam);
+            syntax2.Parameters.Add(parameter2);
+
+            command.Syntax.Add(syntax1);
+            command.Syntax.Add(syntax2);
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Assert.Equal(@"---
+schema: 2.0.0
+---
+
+# Get-Foo
+## SYNOPSIS
+
+## SYNTAX
+
+### FirstSyntax
+```
+Get-Foo -Common <String> -First <String> [<CommonParameters>]
+```
+
+### SecondSyntax
+```
+Get-Foo -Common <String> -Second <String> [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+## EXAMPLES
+
+## PARAMETERS
+
+### -Common
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases: 
+
+Required: True
+Position: Named
+Default value: 
+Accept pipeline input: false
+Accept wildcard characters: False
+```
+
+### -First
+```yaml
+Type: String
+Parameter Sets: FirstSyntax
+Aliases: 
+
+Required: True
+Position: Named
+Default value: 
+Accept pipeline input: false
+Accept wildcard characters: False
+```
+
+### -Second
+```yaml
+Type: String
+Parameter Sets: SecondSyntax
+Aliases: 
+
+Required: True
+Position: Named
+Default value: 
+Accept pipeline input: false
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
 
 ", markdown);
         }
