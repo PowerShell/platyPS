@@ -3,7 +3,7 @@ external help file: platyPS-help.xml
 schema: 2.0.0
 ---
 
-# New-Markdown
+# New-MarkdownHelp
 ## SYNOPSIS
 Convert your existing external help into markdown or generate it from Help object.
 

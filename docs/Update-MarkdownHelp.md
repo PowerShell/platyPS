@@ -3,7 +3,7 @@ external help file: platyPS-help.xml
 schema: 2.0.0
 ---
 
-# Update-Markdown
+# Update-MarkdownHelp
 ## SYNOPSIS
 
 ## SYNTAX
