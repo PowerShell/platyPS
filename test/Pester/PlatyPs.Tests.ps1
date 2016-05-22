@@ -47,7 +47,7 @@ Describe 'New-MarkdownHelp' {
         Get-MarkdownMetadata -Markdown $content | Should Not Be $null
     }
 
-    Context 'form module' {
+    Context 'from module' {
         It 'creates few help files for platyPS' {
             $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
             ($files | measure).Count | Should BeGreaterThan 4
@@ -76,6 +76,27 @@ Describe 'New-MarkdownHelp' {
                 ($link | measure).Count | Should Be 1
                 $link.uri | Should Be $uri
             }
+        }
+    }
+    
+    Context 'Generated markdown features' {
+        function global:Test-PlatyPSFunction
+        {
+            param(
+                [Switch]$Common,
+                [Parameter(ParameterSetName="First")]
+                [string]$First,
+                [Parameter(ParameterSetName="Second")]
+                [string]$Second
+            )
+        }
+        
+        It 'generate markdown with correct parameter set names' {
+            $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll -Force
+            $content = cat $file
+            ($content | ? {$_ -eq 'Parameter Sets: (All)'} | measure).Count | Should Be 1
+            ($content | ? {$_ -eq 'Parameter Sets: First'} | measure).Count | Should Be 1
+            ($content | ? {$_ -eq 'Parameter Sets: Second'} | measure).Count | Should Be 1
         }
     }
 
