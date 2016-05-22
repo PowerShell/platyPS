@@ -68,7 +68,7 @@ It closely resembles output of `Get-Help`.
         // If they have the same metadata, we put them in one yaml snippet.
             ```yaml // this gives us key/value highlighting
             Type: {Parameter type}  // can be ommitted, then default assumed
-            Parameter sets: {comma-separated list of names, i.e. "SetName1, SetName2"} // if ommitted => default
+            Parameter sets: {comma-separated list of names, i.e. "SetName1, SetName2" or "(All)" for all parameter sets}
             Aliases: {comma-separated list of aliases, i.e. EA, ERR} // if ommitted => default
             Accepted values: {ValidateSet, comma-separated list of valid values, i.e. Foo, Bar} // if ommitted => everything is accepted
             // break line to improve readability and separate metadata block
