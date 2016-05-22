@@ -26,13 +26,13 @@ Describe 'New-Markdown' {
                 FOO = 'BAR'
             }
 
-            $h = Get-MarkdownMetadata -Path $file
+            $h = Get-MarkdownMetadata $file
             $h['FOO'] | Should Be 'BAR' 
         }
 
         It 'respects -NoMetadata' {
             $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata
-            Get-MarkdownMetadata -Path $file | Should Be $null
+            Get-MarkdownMetadata $file | Should Be $null
         }
 
         It 'errors on -NoMetadata and -Metadata' {
@@ -138,7 +138,7 @@ Describe 'New-Markdown' {
         It "generates a landing page from MAML"{
 
 
-            New-Markdown -MamlFile (ls "$outFolder\platyPS\en-US\*xml") `
+            New-Markdown -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
                         -ModuleName "PlatyPS"
@@ -333,7 +333,7 @@ foo: bar
 this text would be ignored
 '@        
         It 'can parse out yaml snippet' {
-            $d = Get-MarkdownMetadata -Path TestDrive:\foo.md
+            $d = Get-MarkdownMetadata TestDrive:\foo.md
             $d.Count | Should Be 3
             $d['a'] = '1'
             $d['b'] = '2'

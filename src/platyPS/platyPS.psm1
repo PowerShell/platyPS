@@ -209,33 +209,41 @@ function New-Markdown
 
 function Get-MarkdownMetadata
 {
+    [CmdletBinding(DefaultParameterSetName="FromFile")]
+
     param(
         [Parameter(Mandatory=$true,
-            ParameterSetName="MarkdownPath")]
-        [string]$Path,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true,
+            Position=1,
+            ParameterSetName="FromFile")]
+        [string[]]$Path,
 
         [Parameter(Mandatory=$true,
-            ParameterSetName="MarkdownContent")]
-        [string]$Markdown,
-
-        [Parameter(Mandatory=$true,
-            ParameterSetName="MarkdownFileInfo")]
-        [System.IO.FileInfo]$FileInfo
+            ParameterSetName="FromMarkdownString")]
+        [string]$Markdown
     )
 
     process
     {
-        if ($Path)
+        if ($PSCmdlet.ParameterSetName -eq 'FromMarkdownString')
         {
-            $Markdown = Get-Content -Raw $Path
+            return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
         }
-
-        if ($FileInfo)
+        else # FromFile)
         {
-            $Markdown = $FileInfo | Get-Content -Raw
+            $Path | % { 
+                if (Test-Path $_ -PathType Leaf)
+                {
+                    $md = Get-Content -Raw $_ 
+                    [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md) # yeild
+                }
+                else 
+                {
+                    Write-Error "Path $_ doesn't represent a file"    
+                }
+            }
         }
-
-        return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
     }
 }
 
@@ -376,7 +384,7 @@ function Update-Markdown
             }
 
             # just preserve old metadata
-            $metadata = Get-MarkdownMetadata -FileInfo $file
+            $metadata = Get-MarkdownMetadata $filePath
             $reflectionModel = Get-MamlObject -Cmdlet $name
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
@@ -478,7 +486,7 @@ function New-ExternalHelp
         # TODO: this is just a place-holder, we can do better
         $defaultOutputName = 'rename-me-help.xml'
         $groups = $MarkdownFiles | group { 
-            $h = Get-MarkdownMetadata -FileInfo $_
+            $h = Get-MarkdownMetadata -Path $_.FullName
             if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) 
             {
                 Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]

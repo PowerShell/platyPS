@@ -65,19 +65,6 @@ schema             2.0.0
 
 Retrives metadata from a markdown string.
 
-### Example 3 (Get metadata from a FileInfo object)
-```
-PS C:\> Get-MarkdownMetadata -FileInfo (ls .\docs\Get-MarkdownMetadata.md)
-
-Key                Value
----                -----
-external help file platyPS-help.xml
-schema             2.0.0
-
-```
-
-Retrives metadata using a FileInfo object to provide the path.
-
 ## PARAMETERS
 
 ### -Path
