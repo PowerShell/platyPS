@@ -9,19 +9,14 @@ Gets the markdown header metadata in the form of a hashtable.
 
 ## SYNTAX
 
-### MarkdownPath
+### FromPath
 ```
-Get-MarkdownMetadata -Path <String> [<CommonParameters>]
+Get-MarkdownMetadata -Path <String[]> [<CommonParameters>]
 ```
 
-### MarkdownContent
+### FromMarkdownString
 ```
 Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
-```
-
-### MarkdownFileInfo
-```
-Get-MarkdownMetadata -FileInfo <FileInfo> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -46,7 +41,6 @@ Key                Value
 ---                -----
 external help file platyPS-help.xml
 schema             2.0.0
-
 ```
 
 Retrives metadata from a markdown file at the path provided.
@@ -60,7 +54,6 @@ Key                Value
 ---                -----
 external help file platyPS-help.xml
 schema             2.0.0
-
 ```
 
 Retrives metadata from a markdown string.
@@ -71,39 +64,28 @@ Retrives metadata from a markdown string.
 Path to markdown file.
 Markdown files typically use extension .md
 
+
+
 ```yaml
-Type: String
-Parameter Sets: MarkdownPath
+Type: String[]
+Parameter Sets: FromPath
 Aliases: 
 
 Required: True
 Position: Named
 Default value: 
-Accept pipeline input: False
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
 ### -Markdown
 String object containing markdown.
 
+
+
 ```yaml
 Type: String
-Parameter Sets: MarkdownContent
-Aliases: 
-
-Required: True
-Position: Named
-Default value: 
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -FileInfo
-FileInfo that points to a markdown file.
-
-```yaml
-Type: FileInfo
-Parameter Sets: MarkdownFileInfo
+Parameter Sets: FromMarkdownString
 Aliases: 
 
 Required: True
@@ -114,14 +96,15 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
+
 ### None
 You cannot pipe objects into this cmdlet.
 
 ## OUTPUTS
+
 ### Dictionary[String, String]
 The dictionary contains key-value pairs found in the markdown metadata block.
 
@@ -130,5 +113,8 @@ The dictionary contains key-value pairs found in the markdown metadata block.
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
+
+
+
 
 

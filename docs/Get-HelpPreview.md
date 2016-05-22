@@ -9,14 +9,8 @@ Preview the output Get-Help would return from an external help file(s).
 
 ## SYNTAX
 
-### FileOutput
 ```
-Get-HelpPreview -MamlFilePath <String[]> -TextOutputPath <String> [-Encoding <String>] [<CommonParameters>]
-```
-
-### AsObject
-```
-Get-HelpPreview -MamlFilePath <String[]> [-AsObject] [<CommonParameters>]
+Get-HelpPreview -Path <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -44,33 +38,32 @@ Gets the names of Cmdlet objects inside help.
 
 ## PARAMETERS
 
-### -File
-File path to maml-xml files.
+### -Path
+Path to maml-xml files.
 You can pass several of them.
-
 ```yaml
 Type: String[]
-Parameter Sets: FileOutput, AsObject
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
 Position: Named
 Default value: 
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
+
 ### String
 You cannot pipe objects into this cmdlet.
 
 ## OUTPUTS
-### HelpInfo
 
+### HelpInfo
 Help object. Same as Get-Help command provides.
 
 ## NOTES
@@ -78,5 +71,8 @@ Help object. Same as Get-Help command provides.
 ## RELATED LINKS
 
 [Online Version:]()
+
+
+
 
 

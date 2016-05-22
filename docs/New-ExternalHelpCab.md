@@ -10,7 +10,7 @@ Generates a cabinet file, compressing the provided files.
 ## SYNTAX
 
 ```
-New-ExternalHelpCab -CmdletContentFolder <String> -OutputPath <String> -ModuleMdPageFullPath <String>
+New-ExternalHelpCab -CabFilesFolder <String> -LandingPagePath <String> -OutputFolder <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -36,11 +36,12 @@ Generates the cab file, containing the content folder files and correctlty named
 
 ## PARAMETERS
 
-### -CmdletContentFolder
+### -CabFilesFolder
 The folder containing all of the help content that should be placed into the cab file.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
@@ -50,12 +51,13 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ModuleMdPageFullPath
+### -LandingPagePath
 The path and name of the Module Markdown file containing all of the metadata required to name the cab. 
 See the top of the [New-MarkdownHelp -WithLandingPage](New-MarkdownHelp.md) output for a list of all required metadata.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
@@ -65,11 +67,12 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -OutputPath
+### -OutputFolder
 This is the location of the cab file and helpinfo.xml created by New-ExternalHelpCab
 
 ```yaml
 Type: String
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
@@ -79,12 +82,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
-###None
+
+### None
 This cmdlet does not take in input over the pipeline.
 
 ## OUTPUTS
-###None
+
+### None
 This cmdlet does not output to the console. The only output is in the output folder specificed by the -OutputPath parameter.
 
 ## NOTES
@@ -92,5 +100,8 @@ This cmdlet does not output to the console. The only output is in the output fol
 ## RELATED LINKS
 
 [Online Version:]()
+
+
+
 
 

@@ -9,14 +9,8 @@ Create External help xml file from platyPS markdown, which can be interpreted by
 
 ## SYNTAX
 
-### FromFolder
 ```
-New-ExternalHelp -MarkdownFolder <String> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
-```
-
-### FromFile
-```
-New-ExternalHelp -MarkdownFile <FileInfo[]> -OutputPath <String> [-Encoding <String>] [<CommonParameters>]
+New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -49,31 +43,17 @@ PS C:\> New-ExternalHelp -MarkdownFolder .\docs -OutputPath out\platyPS\en-US
 Create external help file in output path directory (directory includes language name).
 Uses folder containing markdowns as input.
 
-
 ## PARAMETERS
-
-### -MarkdownFolder
-Path to a folder with "*.md" files.
-
-```yaml
-Type: String
-Parameter Sets: FromFolder
-Aliases: 
-
-Required: True
-Position: Named
-Default value: 
-Accept pipeline input: False
-Accept wildcard characters: False
-```
 
 ### -OutputPath
 Path to a folder where you want to put your external help file(s).
 The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
 
+
+
 ```yaml
 Type: String
-Parameter Sets: FromFolder, FromFile
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
@@ -86,36 +66,52 @@ Accept wildcard characters: False
 ### -Encoding
 Encoding to be used by the output external help file.
 
+
+
 ```yaml
-Type: String
-Parameter Sets: FromFolder, FromFile
+Type: Encoding
+Parameter Sets: (All)
 Aliases: 
 
 Required: False
 Position: Named
-Default value: UTF8
+Default value: UTF8 without BOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -MarkdownFile
+### -Force
+{{Fill Force Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
 File objects with markdown content in them.
 
 ```yaml
-Type: FileInfo[]
-Parameter Sets: FromFile
+Type: String[]
+Parameter Sets: (All)
 Aliases: 
 
 Required: True
 Position: Named
 Default value: 
-Accept pipeline input: True (ByValue)
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -134,5 +130,8 @@ This cmdlet returns a FileInfo[] object.
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
 [Online Version:]()
+
+
+
 
 
