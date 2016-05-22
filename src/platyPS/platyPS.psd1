@@ -67,7 +67,7 @@ NestedModules = @()
 
 # Functions to export from this module
 FunctionsToExport = @(
-    'New-Markdown', 
+    'New-MarkdownHelp', 
     'Get-MarkdownMetadata',
     'New-ExternalHelp', 
     'Get-HelpPreview',

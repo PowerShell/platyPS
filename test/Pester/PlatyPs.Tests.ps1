@@ -6,23 +6,23 @@ $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
 
-Describe 'New-Markdown' {
+Describe 'New-MarkdownHelp' {
 
     Context 'errors' {
         It 'throw when cannot find module' {
-            { New-Markdown -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
+            { New-MarkdownHelp -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
                 Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
         }
 
         It 'throw when cannot find module' {
-            { New-Markdown -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
+            { New-MarkdownHelp -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
                 Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
         }
     }
 
     Context 'metadata' {
         It 'generates passed metadata' {
-            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -metadata @{
+            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -metadata @{
                 FOO = 'BAR'
             }
 
@@ -31,19 +31,19 @@ Describe 'New-Markdown' {
         }
 
         It 'respects -NoMetadata' {
-            $file = New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata
+            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata
             Get-MarkdownMetadata $file | Should Be $null
         }
 
         It 'errors on -NoMetadata and -Metadata' {
-            { New-Markdown -command New-Markdown -OutputFolder TestDrive:\ -NoMetadata -Metadata @{} } |
+            { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Metadata @{} } |
                 Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
         }
     }
 
     Context 'form module' {
         It 'creates few help files for platyPS' {
-            $files = New-Markdown -Module PlatyPS -OutputFolder TestDrive:\platyPS
+            $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS
             ($files | measure).Count | Should BeGreaterThan 4
         }
     }
@@ -62,7 +62,7 @@ Describe 'New-Markdown' {
                 if ($uri) {
                     $a['OnlineVersionUrl'] = $uri
                 }
-                $file = New-Markdown @a
+                $file = New-MarkdownHelp @a
                 $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
                 $help = Get-HelpPreview -Path $maml 
                 $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
@@ -109,7 +109,7 @@ Describe 'New-Markdown' {
                 OutputFolder = 'TestDrive:\'
             }
 
-            $file = New-Markdown @a
+            $file = New-MarkdownHelp @a
             $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
             $help = Get-HelpPreview -Path $maml 
             $help.Syntax.syntaxItem.Count | Should Be 2
@@ -127,7 +127,7 @@ Describe 'New-Markdown' {
 
         It "generates a landing page from Module"{
 
-            New-Markdown -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage
+            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage
 
             $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
 
@@ -138,7 +138,7 @@ Describe 'New-Markdown' {
         It "generates a landing page from MAML"{
 
 
-            New-Markdown -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
+            New-MarkdownHelp -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
                         -ModuleName "PlatyPS"
@@ -165,7 +165,7 @@ Describe 'New-ExternalHelp' {
             OutputFolder = 'TestDrive:\'
         }
 
-        $file = New-Markdown @a
+        $file = New-MarkdownHelp @a
         $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
         $help = Get-HelpPreview -Path $maml 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
@@ -306,7 +306,7 @@ Describe 'Test Log on Update-Markdown'{
     It 'checks the log exists'{
     $drop = Join-Path $outFolder "\MD\SingleCommand"
     Remove-Item -Recurse $drop -ErrorAction SilentlyContinue
-    New-Markdown -Command Add-History -OutputFolder $drop | Out-Null
+    New-MarkdownHelp -Command Add-History -OutputFolder $drop | Out-Null
     $MDs = Get-ChildItem $drop
     Update-Markdown -MarkdownFile $MDs -LogPath "$drop\platyPSLog.txt"
 
@@ -342,10 +342,10 @@ this text would be ignored
     }
 }
 
-Describe 'Update-Markdown with new-markdown inlined functionality' {
+Describe 'Update-Markdown with New-MarkdownHelp inlined functionality' {
     $OutputFolder = 'TestDrive:\update-new'
 
-    $originalFiles = New-Markdown -Module platyPS -OutputFolder $OutputFolder
+    $originalFiles = New-MarkdownHelp -Module platyPS -OutputFolder $OutputFolder
         
     It 'creates markdown in the first place' {
         $originalFiles | Should Not Be $null
@@ -389,7 +389,7 @@ Describe 'Update-Markdown reflection scenario' {
         )
     }
 
-    $v1md = New-Markdown -command Get-MyCoolStuff -OutputFolder $OutputFolder
+    $v1md = New-MarkdownHelp -command Get-MyCoolStuff -OutputFolder $OutputFolder
 
     It 'produces original stub' {
         $v1md.Name | Should Be 'Get-MyCoolStuff.md'

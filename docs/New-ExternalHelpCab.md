@@ -20,7 +20,7 @@ It is reccomended to use content only provided as AboutTopics.Txt and the output
 
 Using Metadata provided in the Module MD file, the out put cab file is correctly named.
 This naming aligns it to the pattern required by the PowerShell help engine to use as updatable help.
-This metadeta is part of the module file created by [New-Markdown](New-Markdown.md) with the -WithModulePage switch. 
+This metadeta is part of the module file created by [New-Markdown](New-MarkdownHelp.md) with the -WithModulePage switch. 
 
 A helpinfo.xml is also generated, or updated if existing.
 This helpinfo.xml provides help verioning and locale details to the PowerShell help engine.
@@ -52,7 +52,7 @@ Accept wildcard characters: False
 
 ### -ModuleMdPageFullPath
 The path and name of the Module Markdown file containing all of the metadata required to name the cab. 
-See the top of the [New-Markdown -WithLandingPage](New-Markdown.md) output for a list of all required metadata.
+See the top of the [New-MarkdownHelp -WithLandingPage](New-MarkdownHelp.md) output for a list of all required metadata.
 
 ```yaml
 Type: String

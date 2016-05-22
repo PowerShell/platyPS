@@ -91,7 +91,7 @@ This scenarios are assembled from the simple transformations. Chart below descri
 User creates a platyPS markdown for the first time for the command
 
 ```
-New-Markdown -command New-MyCommand
+New-MarkdownHelp -command New-MyCommand
 ```
 
 Under the hood, following tranformations happens

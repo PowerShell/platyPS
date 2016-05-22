@@ -30,7 +30,7 @@ $script:UTF8_NO_BOM = 'UTF8_NO_BOM'
 $script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
 
 
-function New-Markdown
+function New-MarkdownHelp
 {
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
@@ -432,7 +432,7 @@ function Update-Markdown
                     if ( -not ($updatedCommands -contains $_) )
                     {
                         log "[Update-Markdown] Creating new markdown for command $_"
-                        $newFiles = New-Markdown -Command $_ -OutputFolder $MarkdownFolder
+                        $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $MarkdownFolder
                         $newFiles # yeild
                     }
                 }
@@ -1762,7 +1762,7 @@ if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -E
             }
     }
 
-    Register-ArgumentCompleter -CommandName New-Markdown, Update-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompleter -Description 'This argument completer handles the -Module parameter of the New-Markdown Command.'
+    Register-ArgumentCompleter -CommandName New-Markdown, Update-Markdown -ParameterName Module -ScriptBlock $Function:ModuleNameCompleter -Description 'This argument completer handles the -Module parameter of the New-MarkdownHelp Command.'
 }
 elseif (Get-Command -Name Register-ArgumentCompleter -ErrorAction Ignore) {
     Function ModuleNameCompleter {

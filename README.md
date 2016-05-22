@@ -37,7 +37,7 @@ Install-Module -Name platyPS -Scope CurrentUser
 * Create an initial Markdown:
 
 ```powershell
-New-Markdown -Command Get-MyCommandName -OutputFolder .\docs
+New-MarkdownHelp -Command Get-MyCommandName -OutputFolder .\docs
 ```
 
 * Create external help from markdown

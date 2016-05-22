@@ -11,13 +11,13 @@ Convert your existing external help into markdown or generate it from Help objec
 
 ### FromModule
 ```
-New-Markdown -Module <Object> [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <String>]
+New-MarkdownHelp -Module <Object> [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <String>]
  [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-Markdown -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata]
+New-MarkdownHelp -Command <Object> [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata]
  [-Encoding <String>] [<CommonParameters>]
 ```
 
@@ -36,7 +36,7 @@ This cmdlet generates help stub from:
 ### ----------------------------- Example 1 (from command) ------------------------------------
 ```
 function foo {param([string]$bar)}
-New-Markdown -command foo
+New-MarkdownHelp -command foo
 ```
 
 Create stub markdown on the fly from the function foo.
@@ -44,14 +44,14 @@ Create stub markdown on the fly from the function foo.
 ### ----------------------------- Example 2 (from module) ------------------------------------
 ```
 Import-Module platyPS
-New-Markdown -module platyPS
+New-MarkdownHelp -module platyPS
 ```
 
 The module should be loaded in the PS Session, markdown will be generated from the module.
 
 ### ----------------------------- Example 3 (from maml file path) ------------------------------------
 ```
-New-Markdown -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+New-MarkdownHelp -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
 ```
 
 Create markdown help for inbox PSReadLine module. 
@@ -59,7 +59,7 @@ This will use the help file only to generate the markdown.
 
 ### ----------------------------- Example 4 (from maml file content) ------------------------------------
 ```
-New-Markdown -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
+New-MarkdownHelp -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
 ```
 
 ## PARAMETERS

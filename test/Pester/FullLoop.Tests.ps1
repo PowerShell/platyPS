@@ -18,7 +18,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     It 'creates markdown from Add-Member command' {
         # run convertion
-        New-Markdown -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
+        New-MarkdownHelp -Encoding UTF8 -command Add-Member -OutputFolder $outFolder
     }
 
     # test -MarkdownFile piping
@@ -178,7 +178,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             It 'transforms Markdown to MAML with no errors' {
 
-                $mdFiles = New-Markdown @newMarkdownArgs
+                $mdFiles = New-MarkdownHelp @newMarkdownArgs
 
                 $generatedMaml = New-ExternalHelp -markdownFile $mdFiles -Verbose -OutputPath $newMarkdownArgs.OutputFolder
                 $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'

@@ -34,7 +34,7 @@ PS C:\> $help.Name
 Get-MarkdownMetadata
 New-ExternalHelp
 New-ExternalHelpCab
-New-Markdown
+New-MarkdownHelp
 Get-HelpPreview
 Update-Markdown
 ```
