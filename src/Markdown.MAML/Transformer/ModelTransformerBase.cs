@@ -203,8 +203,20 @@ namespace Markdown.MAML.Transformer
                         LinkUri = linkSpan.Uri
                     });
                 }
+                else if (paragraphSpan is TextSpan)
+                {
+                    var textSpand = paragraphSpan as TextSpan;
+                    if (textSpand.ParserMode == ParserMode.FormattingPreserve)
+                    {
+                        commmand.Links.Add(new MamlLink(isSimplifiedTextLink: true)
+                        {
+                            LinkName = textSpand.Text,
+                        });
+                    };
+                }
                 else
                 {
+
                     throw new HelpSchemaException(paragraphSpan.SourceExtent, "Expect hyperlink, but got " + paragraphSpan.Text);
                 }
             }

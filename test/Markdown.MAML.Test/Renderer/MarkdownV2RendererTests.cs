@@ -393,6 +393,13 @@ weired
 "
             };
 
+            command.Links.Add(
+                new MamlLink(isSimplifiedTextLink: true)
+                {
+                    LinkName = "Any text [can](go here)\r\n[any](text)"
+                }
+            );
+
             string markdown = renderer.MamlModelToString(command, null);
             Assert.Equal(@"---
 schema: 2.0.0
@@ -417,6 +424,9 @@ schema: 2.0.0
 ## NOTES
 
 ## RELATED LINKS
+
+Any text [can](go here)
+[any](text)
 
 ", markdown);
         }

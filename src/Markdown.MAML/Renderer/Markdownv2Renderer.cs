@@ -99,14 +99,21 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.RELATED_LINKS);
             foreach (var link in command.Links)
             {
-                var name = link.LinkName;
-                if (string.IsNullOrEmpty(name))
+                if (link.IsSimplifiedTextLink)
                 {
-                    // we need a valid name to produce a valid markdown
-                    name = link.LinkUri;
+                    _stringBuilder.AppendFormat("{0}{1}{1}", link.LinkName, Environment.NewLine);
                 }
+                else
+                {
+                    var name = link.LinkName;
+                    if (string.IsNullOrEmpty(name))
+                    {
+                        // we need a valid name to produce a valid markdown
+                        name = link.LinkUri;
+                    }
 
-                _stringBuilder.AppendFormat("[{0}]({1}){2}{2}", name, link.LinkUri, Environment.NewLine);
+                    _stringBuilder.AppendFormat("[{0}]({1}){2}{2}", name, link.LinkUri, Environment.NewLine);
+                }
             }
         }
 

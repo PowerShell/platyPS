@@ -142,6 +142,15 @@ namespace Markdown.MAML.Renderer
             PushTag("command:relatedLinks");
             foreach (MamlLink Link in command.Links)
             {
+                if (Link.IsSimplifiedTextLink)
+                {
+                    // that should never happen.
+                    // we don't know how to represent non-parsed links in maml.
+                    // skipping it.
+                    // TODO: error out?
+                    continue;
+                }
+
                 PushTag("maml:navigationLink");
 
                 PushTag("maml:linkText");
