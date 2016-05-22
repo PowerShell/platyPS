@@ -42,7 +42,7 @@ if ($env:APPVEYOR_BUILD_VERSION)
 # dogfooding: generate help for the module
 Remove-Module platyPS -ErrorAction SilentlyContinue
 Import-Module $pwd\out\platyPS
-New-ExternalHelp -MarkdownFolder .\docs -OutputPath out\platyPS\en-US
+New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
 
 # reload module, to apply generated help
 Import-Module $pwd\out\platyPS -Force

@@ -22,28 +22,28 @@ Describe 'New-MarkdownHelp' {
 
     Context 'metadata' {
         It 'generates passed metadata' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -metadata @{
+            $file = New-MarkdownHelp -metadata @{
                 FOO = 'BAR'
-            }
+            } -command New-MarkdownHelp -OutputFolder TestDrive:\
 
             $h = Get-MarkdownMetadata $file
             $h['FOO'] | Should Be 'BAR' 
         }
 
         It 'respects -NoMetadata' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata
+            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Force
             Get-MarkdownMetadata $file | Should Be $null
         }
 
         It 'errors on -NoMetadata and -Metadata' {
-            { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Metadata @{} } |
+            { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Force -Metadata @{} } |
                 Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
         }
     }
 
     Context 'form module' {
         It 'creates few help files for platyPS' {
-            $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS
+            $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
             ($files | measure).Count | Should BeGreaterThan 4
         }
     }
@@ -58,12 +58,13 @@ Describe 'New-MarkdownHelp' {
                 $a = @{
                     command = 'Test-PlatyPSFunction'
                     OutputFolder = 'TestDrive:\'
+                    Force = $true
                 }
                 if ($uri) {
                     $a['OnlineVersionUrl'] = $uri
                 }
                 $file = New-MarkdownHelp @a
-                $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+                $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
                 $help = Get-HelpPreview -Path $maml 
                 $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
                 ($link | measure).Count | Should Be 1
@@ -110,7 +111,7 @@ Describe 'New-MarkdownHelp' {
             }
 
             $file = New-MarkdownHelp @a
-            $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+            $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\"
             $help = Get-HelpPreview -Path $maml 
             $help.Syntax.syntaxItem.Count | Should Be 2
             $dynamicParam = $help.parameters.parameter | ? {$_.name -eq 'DynamicParameter'}
@@ -127,7 +128,7 @@ Describe 'New-MarkdownHelp' {
 
         It "generates a landing page from Module"{
 
-            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage
+            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
 
             $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
 
@@ -141,7 +142,8 @@ Describe 'New-MarkdownHelp' {
             New-MarkdownHelp -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
-                        -ModuleName "PlatyPS"
+                        -ModuleName "PlatyPS" `
+                        -Force
 
             $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
 
@@ -163,10 +165,11 @@ Describe 'New-ExternalHelp' {
         $a = @{
             command = 'Test-OrderFunction'
             OutputFolder = 'TestDrive:\'
+            Force = $true
         }
 
         $file = New-MarkdownHelp @a
-        $maml = New-ExternalHelp -MarkdownFile $file -OutputPath "TestDrive:\"
+        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
         $help = Get-HelpPreview -Path $maml 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
         $names = $help.Syntax.syntaxItem.parameter.Name
@@ -362,9 +365,9 @@ Describe 'Update-Markdown upgrade schema scenario' {
     $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
     $OutputFolder = 'TestDrive:\PSReadline'
 
-    $v1maml = New-ExternalHelp -MarkdownFile $v1md -OutputPath "$OutputFolder\v1"
+    $v1maml = New-ExternalHelp -Path $v1md.FullName -OutputPath "$OutputFolder\v1.xml"
     $v2md = Update-Markdown -MarkdownFile $v1md -OutputFolder $outFolder -SchemaUpgrade
-    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
+    $v2maml = New-ExternalHelp $v2md.FullName -OutputPath "$OutputFolder\v2.xml"
 
     It 'help preview is the same before and after upgrade' {
         Get-HelpPreview -Path $v1maml > TestDrive:\1.txt
@@ -424,7 +427,7 @@ Describe 'Update-Markdown reflection scenario' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
     }
 
-    $v2maml = New-ExternalHelp -MarkdownFile $v2md -OutputPath "$OutputFolder\v2"
+    $v2maml = New-ExternalHelp -Path $v2md.FullName -OutputPath "$OutputFolder\v2"
     $help = Get-HelpPreview -Path $v2maml 
     
     It 'has both parameters' {

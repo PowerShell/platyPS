@@ -25,9 +25,12 @@
 #   
 
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
-$script:DEFAULT_ENCODING = 'UTF8'
-$script:UTF8_NO_BOM = 'UTF8_NO_BOM'
+$script:UTF8_NO_BOM = New-Object System.Text.UTF8Encoding -ArgumentList $False
 $script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
+
+# TODO: this is just a place-holder, we can do better
+$script:DEFAULT_MAML_XML_OUTPUT_NAME = 'rename-me-help.xml'
+
 
 
 function New-MarkdownHelp
@@ -50,6 +53,8 @@ function New-MarkdownHelp
             ParameterSetName="FromMaml")]
         [string]$MamlFile,
 
+        [switch]$Force,
+
         [hashtable]$Metadata,
 
         [Parameter( 
@@ -61,7 +66,7 @@ function New-MarkdownHelp
 
         [switch]$NoMetadata,
 
-        [string]$Encoding = 'UTF8_NO_BOM',
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
@@ -145,7 +150,7 @@ function New-MarkdownHelp
 
                 $md = Convert-MamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
 
-                Out-MarkdownToFile -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding
+                MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding -Force:$Force
             }
         }
 
@@ -201,7 +206,8 @@ function New-MarkdownHelp
                                    -Locale $Locale `
                                    -Version $HelpVersion `
                                    -FwLink $FwLink `
-                                   -Encoding $Encoding
+                                   -Encoding $Encoding `
+                                   -Force:$Force
         }
     }
 }
@@ -268,7 +274,7 @@ function Update-Markdown
         [Parameter(ParameterSetName='FileUpdate')]
         [Parameter(ParameterSetName='SchemaUpgrade')]
         [Parameter(ParameterSetName='FolderUpdate')]
-        [string]$Encoding = $script:UTF8_NO_BOM,
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
         [Parameter(Mandatory=$true,
             ParameterSetName='SchemaUpgrade')]
@@ -391,7 +397,7 @@ function Update-Markdown
             $newModel = $merger.Merge($reflectionModel, $oldModel)
 
             $md = Convert-MamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
-            Out-MarkdownToFile -path $file.FullName -value $md -Encoding $Encoding # yeild
+            MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yeild
         }
 
         if ($PSCmdlet.ParameterSetName -eq 'SchemaUpgrade')
@@ -410,7 +416,7 @@ function Update-Markdown
                 $md = $r.MamlModelToString($_, $false)
                 $outPath = Join-Path $OutputFolder "$name.md"
                 log "[Update-Markdown] Writing updated markdown to $outPath"
-                Out-MarkdownToFile -path $outPath -value $md -Encoding $Encoding # yeild
+                MySetContent -path $outPath -value $md -Encoding $Encoding # yeild
             }
         }
         else # Reflection
@@ -448,56 +454,81 @@ function New-ExternalHelp
     [OutputType([System.IO.FileInfo[]])]
     param(
         [Parameter(Mandatory=$true,
-            ParameterSetName='FromFolder')]
-        [string]$MarkdownFolder,
-
-        [Parameter(Mandatory=$true,
-            ParameterSetName='FromFile',
-            ValueFromPipeline=$true)]
-        [System.IO.FileInfo[]]$MarkdownFile,
+            Position=1,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
+        [string[]]$Path,
 
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
-        [string]$Encoding = $script:DEFAULT_ENCODING
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
+
+        [switch]$Force
     )
 
     begin
     {
-        if ($PSCmdlet.ParameterSetName -eq 'FromFile')
+        $MarkdownFiles = @()
+        $IsOutputContainer = $true
+        if ( $OutputPath.EndsWith('.xml') -and (-not (Test-Path -PathType Container $OutputPath )) )
         {
-            $MarkdownFiles = @()
+            $IsOutputContainer = $false
+            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a file"
         }
-
-        mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+        else 
+        {
+            mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
+        }
     }
 
     process
     {
-        $MarkdownFiles += $MarkdownFile
+        $Path | % {
+            if (Test-Path -PathType Leaf $_)
+            {
+                $MarkdownFiles += Get-ChildItem $_
+            }
+            elseif (Test-Path -PathType Container $_)
+            {
+                $MarkdownFiles += Get-MarkdowFilesFromFolder $_
+            }
+            else 
+            {
+                Write-Error "$_ is not found"
+            }
+        }
     }
 
     end 
     { 
-        $MarkdownFiles += Get-MarkdowFilesFromFolder $MarkdownFolder
+        $MarkdownFiles | % {
+            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
+        }
 
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
         
-        # TODO: this is just a place-holder, we can do better
-        $defaultOutputName = 'rename-me-help.xml'
-        $groups = $MarkdownFiles | group { 
-            $h = Get-MarkdownMetadata -Path $_.FullName
-            if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) 
-            {
-                Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
+        if ($IsOutputContainer)
+        {
+            $defaultPath = Join-Path $OutputPath $script:DEFAULT_MAML_XML_OUTPUT_NAME
+            $groups = $MarkdownFiles | group { 
+                $h = Get-MarkdownMetadata -Path $_.FullName
+                if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) 
+                {
+                    Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
+                }
+                else 
+                {
+                    Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
+                    Write-Warning "[New-ExternalHelp] $defaultPath would be used"
+                    $defaultPath
+                }
             }
-            else 
-            {
-                $defaultPath = Join-Path $OutputPath $defaultOutputName
-                Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
-                Write-Warning "[New-ExternalHelp] $defaultPath would be used"
-                $defaultPath
-            }
+        }
+        else 
+        {
+            $groups = $MarkdownFiles | group { $OutputPath }
         }
 
         foreach ($group in $groups) {
@@ -505,8 +536,7 @@ function New-ExternalHelp
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
-            Set-Content -Path $outPath -Value $xml -Encoding $Encoding
-            ls $outPath
+            MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
         }
     }
 }
@@ -749,7 +779,10 @@ function Import-ModuleSafe
 
 function Get-MarkdowFilesFromFolder
 {
-    param([string]$MarkdownFolder)
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$MarkdownFolder
+    )
 
     if ($MarkdownFolder)
     {
@@ -1039,29 +1072,47 @@ function Get-HelpFileName
     }
 }
 
-function Out-MarkdownToFile
+function MySetContent
 {
     [OutputType([System.IO.FileInfo])]        
     param(
+        [Parameter(Mandatory=$true)]
         [string]$Path,
+        [Parameter(Mandatory=$true)]
         [string]$value,
-        [string]$Encoding
+        [Parameter(Mandatory=$true)]
+        [System.Text.Encoding]$Encoding,
+        [switch]$Force
     )
 
-    Write-Verbose "Writing to $Path with encoding $Encoding"
-    if ($Encoding -eq $UTF8_NO_BOM)
+    if (Test-Path $Path)
     {
-        # just to create a file
-        Set-Content -Path $Path -Value ''
-        $Utf8NoBomEncoding = New-Object System.Text.UTF8Encoding -ArgumentList $False
-        $Path = (ls $Path).FullName
-        [System.IO.File]::WriteAllLines($Path, $value, $Utf8NoBomEncoding)
+        if (Test-Path $Path -PathType Container)
+        {
+            Write-Error "Cannot write file to $Path, directory with the same name exists."
+            return
+        }
+
+        if (-not $Force)
+        {
+            Write-Error "Cannot write to $Path, file exists. Use -Force to overwrite."
+            return
+        }
     }
     else 
     {
-        Set-Content -Path $Path -Value $md -Encoding $Encoding
+        $dir = Split-Path $Path
+        if ($dir) 
+        {
+            mkdir $dir -ErrorAction SilentlyContinue > $null
+        }
     }
 
+    Write-Verbose "Writing to $Path with encoding = $($Encoding.EncodingName)"
+    # just to create a file
+    Set-Content -Path $Path -Value ''
+    $resolvedPath = (Get-ChildItem $Path).FullName
+    [System.IO.File]::WriteAllLines($resolvedPath, $value, $Encoding)
     return (Get-ChildItem $Path)
 }
 
@@ -1090,8 +1141,9 @@ function New-ModuleLandingPage
         [string]
         $FwLink,
         [Parameter(mandatory=$true)]
-        [string]
-        $Encoding
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
+
+        [switch]$Force
     )
 
     begin
@@ -1111,7 +1163,7 @@ function New-ModuleLandingPage
             $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
         }
 
-        Out-MarkdownToFile -Path $LandingPagePath -value $Content -Encoding $Encoding
+        MySetContent -Path $LandingPagePath -value $Content -Encoding $Encoding -Force:$Force
     }
 
 }
