@@ -642,7 +642,20 @@ function New-ExternalHelpCab
                     Throw "$_ content source file folder path is not a valid directory."
                 }
             })]
-        [string] $CmdletContentFolder,
+        [string] $CabFilesFolder,
+        [parameter(Mandatory=$true)]
+        [ValidateScript(
+            {
+                if(Test-Path $_ -PathType Leaf)
+                {
+                    $True
+                }
+                else
+                {
+                    Throw "$_ Module Landing Page path is nopt valid."
+                }
+            })]
+        [string] $LandingPagePath,
         [parameter(Mandatory=$true)]
         [ValidateScript(
             {
@@ -655,20 +668,7 @@ function New-ExternalHelpCab
                     Throw "$_ output path is not a valid directory."
                 }
             })]
-        [string] $OutputPath,
-        [parameter(Mandatory=$true)]
-        [ValidateScript(
-            {
-                if(Test-Path $_ -PathType Leaf)
-                {
-                    $True
-                }
-                else
-                {
-                    Throw "$_ Module Page fill path and name are not valid."
-                }
-            })]
-        [string] $ModuleMdPageFullPath
+        [string] $OutputFolder
     )
     
     #Testing for MakeCab.exe
@@ -679,14 +679,14 @@ function New-ExternalHelpCab
         throw "MakeCab.exe is not a registered command." 
     }
     #Testing for files in source directory
-    if((Get-ChildItem -Path $Source).Count -le 0)
+    if((Get-ChildItem -Path $CabFilesFolder).Count -le 0)
     {
-        throw "The file count in the content source directory is zero."
+        throw "The file count in the cab files directory is zero."
     }
     
 
    ###Get Yaml Metadata here
-   $Metadata = Get-MarkdownMetadata -Path $ModuleMdPageFullPath
+   $Metadata = Get-MarkdownMetadata -Path $LandingPagePath
 
    $ModuleName = $Metadata[$script:MODULE_PAGE_MODULE_NAME]
    $Guid = $Metadata[$script:MODULE_PAGE_GUID]
@@ -700,10 +700,10 @@ function New-ExternalHelpCab
 
     #Testing the destination directories, creating if none exists.
     Write-Verbose "Checking the output directory"
-    if(-not (Test-Path $OutputPath))
+    if(-not (Test-Path $OutputFolder))
     {
         Write-Verbose "Output directory does not exist, creating a new directory."
-        New-Item -ItemType Directory -Path $OutputPath
+        New-Item -ItemType Directory -Path $OutputFolder
     }
 
     Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
@@ -719,7 +719,7 @@ function New-ExternalHelpCab
     Add-Content $DirectiveFile ".Set Compress=on"
     
     #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
-    foreach($file in Get-ChildItem -Path $CmdletContentFolder -File)
+    foreach($file in Get-ChildItem -Path $CabFilesFolder -File)
     {
         Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
     }
@@ -730,7 +730,7 @@ function New-ExternalHelpCab
 
     #Naming CabFile
     Write-Verbose "Moving the cab to the output directory"
-    Copy-Item "disk1/1.cab" (Join-Path $OutputPath $cabName)
+    Copy-Item "disk1/1.cab" (Join-Path $OutputFolder $cabName)
 
     #Remove ExtraFiles created by the cabbing process
     Write-Verbose "Performing cabbing cleanup"
@@ -740,7 +740,7 @@ function New-ExternalHelpCab
     Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
 
     #Create the HelpInfo Xml 
-    MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputPath
+    MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputFolder
 
 }
 

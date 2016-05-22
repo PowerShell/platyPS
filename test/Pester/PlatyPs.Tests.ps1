@@ -298,7 +298,7 @@ Describe 'New-ExternalHelpCab' {
             $OutputPath = "$outFolder\CabTesting\"
             $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
             
-            New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+            New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
             expand "$OutputPath\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
             
             (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
@@ -326,7 +326,7 @@ Describe 'New-ExternalHelpCab' {
             $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
         
             Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
-            New-ExternalHelpCab -CmdletContentFolder $CmdletContentFolder -OutputPath $OutputPath -ModuleMdPageFullPath $ModuleMdPageFullPath
+            New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
             [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
             $Count = 0
             $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
