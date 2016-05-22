@@ -142,16 +142,16 @@ namespace Markdown.MAML.Transformer
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
         {
-            metadataContent = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
-            stringContent = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
+            var metadataContentPretified = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
+            var stringContenPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
 
-            if (!StringComparer.Ordinal.Equals(metadataContent,stringContent))
+            if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContenPretified))
             {
                 Report("::{0}: {1} has been updated:\r\n<\r\n    {2}\r\n>\r\nreplaced\r\n[\r\n    {3}\r\n]\r\n",
                     moduleName,
                     contentItemName,
-                    stringContent,
-                    metadataContent);
+                    stringContenPretified,
+                    metadataContentPretified);
             }
 
             return stringContent;
