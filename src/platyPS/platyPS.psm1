@@ -281,8 +281,9 @@ function Update-MarkdownHelpSchema
             cat -Raw $_.FullName
         }
 
-        $model = GetMamlModelImpl $markdown
-        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer
+        $model = GetMamlModelImpl $markdown -PreserveFormatting
+        $parseMode = GetParserMode -PreserveFormatting
+        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
 
         $model | % {
             $name = $_.Name
@@ -352,7 +353,7 @@ function Update-MarkdownHelp
 
             $filePath = $file.FullName
             $oldMarkdown = cat -Raw $filePath
-            $oldModels = GetMamlModelImpl $oldMarkdown
+            $oldModels = GetMamlModelImpl $oldMarkdown -PreserveFormatting
 
             if ($oldModels.Count -gt 1)
             {
@@ -852,10 +853,27 @@ function GetMarkdowFilesFromPath
     return $MarkdownFiles
 }
 
+function GetParserMode
+{
+    param(
+        [switch]$PreserveFormatting
+    )
+    
+    if ($PreserveFormatting)
+    {
+        return [Markdown.MAML.Parser.ParserMode]::FormattingPreserve
+    }
+    else 
+    {
+        return [Markdown.MAML.Parser.ParserMode]::Full
+    }
+}
+
 function GetMamlModelImpl
 {
     param(
-        [string[]]$markdown
+        [string[]]$markdown,
+        [switch]$PreserveFormatting
     )
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
@@ -863,10 +881,11 @@ function GetMamlModelImpl
 
     $markdown | % {
         $schema = GetSchemaVersion $_
-        $p = NewMarkdownParser
+        $p = NewMarkdownParser -PreserveFormatting:$PreserveFormatting
         $t = NewModelTransformer -schema $schema
 
-        $model = $p.ParseString($_)
+        $parseMode = GetParserMode -PreserveFormatting:$PreserveFormatting
+        $model = $p.ParseString($_, $parseMode)
         Write-Progress -Activity "Parsing markdown" -Completed    
         $maml = $t.NodeModelToMamlModel($model)
 
@@ -1239,12 +1258,15 @@ function ConvertMamlModelToMarkdown
         
         [hashtable]$metadata,
 
-        [switch]$NoMetadata
+        [switch]$NoMetadata,
+        
+        [switch]$PreserveFormatting
     )
 
     begin
     {
-        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer
+        $parseMode = GetParserMode -PreserveFormatting:$PreserveFormatting
+        $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
         $count = 0
     }
 

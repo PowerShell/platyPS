@@ -19,13 +19,13 @@ namespace Markdown.MAML.Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
-        private MarkdownParser.ParserMode _mode;
+        private ParserMode _mode;
 
         public int MaxSyntaxWidth { get; private set; }
 
-        public MarkdownV2Renderer(MarkdownParser.ParserMode mode) : this(mode, 120) { }
+        public MarkdownV2Renderer(ParserMode mode) : this(mode, 120) { }
 
-        public MarkdownV2Renderer(MarkdownParser.ParserMode mode, int maxSyntaxWidth)
+        public MarkdownV2Renderer(ParserMode mode, int maxSyntaxWidth)
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
             this._mode = mode;
@@ -454,7 +454,7 @@ namespace Markdown.MAML.Renderer
                 return;
             }
 
-            if (this._mode == MarkdownParser.ParserMode.FormattingPreserve)
+            if (this._mode == ParserMode.FormattingPreserve)
             {
                 _stringBuilder.AppendFormat("{0}{1}{1}", body, Environment.NewLine);
                 return;

@@ -432,11 +432,19 @@ Describe 'Update-MarkdownHelp reflection scenario' {
 
     $v1markdown = $v1md | cat -Raw
 
-    $newFooDescription = 'ThisIsFooDescription'
+    $newFooDescription = @'
+ThisIsFooDescription
+
+It has mutlilines.
+And [hyper](link).
+
+- And a list. Yeap.
+- Good stuff?
+'@
 
     It 'can update stub' {
         $v15markdown = $v1markdown -replace '{{Fill Foo Description}}', $newFooDescription
-        $v15markdown | Should BeLike "*$newFooDescription*"
+        $v15markdown | Should BeLike "*ThisIsFooDescription*"
         Set-Content -Encoding UTF8 -Path $v1md -Value $v15markdown
     }
 
@@ -467,7 +475,20 @@ Describe 'Update-MarkdownHelp reflection scenario' {
 
     It 'has updated description for Foo' {
         $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
-        $fooParam.Description.Text | Should Be $newFooDescription
+        $fooParam.Description.Text | Out-String | Should Be @'
+ThisIsFooDescription
+
+It has mutlilines. And hyper (link).
+
+- And a list. Yeap.
+
+- Good stuff?
+
+'@
+    }
+
+    It 'preserves hyperlinks' {
+        $v2markdown.Contains($newFooDescription) | Should Be $true
     }
 
     It 'has a placeholder for example' {

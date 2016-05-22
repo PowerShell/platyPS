@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Xunit;
 using System.Collections;
+using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -32,7 +33,7 @@ namespace Markdown.MAML.Test.Renderer
         [Fact]
         public void RendererCreatesWorkflowParametersEntry()
         {
-            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Workflow",
@@ -83,7 +84,7 @@ For more information, see about_CommonParameters \(http://go.microsoft.com/fwlin
         [Fact]
         public void RendererProduceMarkdownV2Output()
         {
-            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
@@ -240,7 +241,7 @@ Second line.
         [Fact]
         public void RenderesAllParameterSetMoniker()
         {
-            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.Full);
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
@@ -373,7 +374,7 @@ For more information, see about_CommonParameters \(http://go.microsoft.com/fwlin
         [Fact]
         public void RenderesWithPreservedFormatting()
         {
-            var renderer = new MarkdownV2Renderer(MAML.Parser.MarkdownParser.ParserMode.FormattingPreserve);
+            var renderer = new MarkdownV2Renderer(ParserMode.FormattingPreserve);
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",

@@ -5,6 +5,7 @@ using System.Text;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
 using System.Management.Automation;
+using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Transformer
 {
@@ -349,7 +350,7 @@ namespace Markdown.MAML.Transformer
             if (spans.Count() == 1)
             {
                 var textSpan = spans.First() as TextSpan;
-                if (textSpan.ParserMode == Parser.MarkdownParser.ParserMode.FormattingPreserve)
+                if (textSpan.ParserMode == ParserMode.FormattingPreserve)
                 {
                     return textSpan.Text;
                 }

@@ -616,7 +616,7 @@ Deletes commands with the specified text strings. If you enter more than one str
         {
             var parser = new MarkdownParser();
             return parser.ParseString(new string[] { markdown }, 
-                MarkdownParser.ParserMode.FormattingPreserve);
+                ParserMode.FormattingPreserve);
         }
     }
 }
