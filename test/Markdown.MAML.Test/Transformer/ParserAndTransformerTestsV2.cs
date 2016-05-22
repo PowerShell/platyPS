@@ -803,10 +803,46 @@ Accept wildcard characters: True
             Assert.Equal(syntax2.Parameters[0].Name, "Count");
         }
 
+        [Fact]
+        public void PreserveFormattingIfNeeded()
+        {
+            const string description = @"Hello
+
+This description block test formatting preservance.
+-- It need to
+-- Be. Very. [Weiredly](formatted)
+
+
+
+\< to keep > the purpose. \\( \\\( \(
+   This is intentional.
+* we
+
+* dont't want. * Mess up with user's formatting.
+";
+
+            const string docFormatString = @"
+# Get-Foo
+## DESCRIPTION
+" + description;
+            var doc = ParseStringPreserveFormat(docFormatString);
+
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal("Get-Foo", mamlCommand.Name);
+
+            Assert.Equal(description, mamlCommand.Description);
+        }
+
         private DocumentNode ParseString(string markdown)
         {
             var parser = new MarkdownParser();
             return parser.ParseString(new string[] { markdown });
+        }
+
+        private DocumentNode ParseStringPreserveFormat(string markdown)
+        {
+            var parser = new MarkdownParser();
+            return parser.ParseString(new string[] { markdown }, MarkdownParser.ParserMode.FormattingPreserve);
         }
 
         private static string GetParameterText(string paramName, string paramAttributes)

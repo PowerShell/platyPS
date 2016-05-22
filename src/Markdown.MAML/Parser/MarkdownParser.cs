@@ -9,11 +9,28 @@ namespace Markdown.MAML.Parser
 {
     public class MarkdownParser
     {
+        public enum ParserMode
+        {
+            Full,
+            /// <summary>
+            /// It's aimed to be used in a merge scenario. 
+            /// It will allow us preserve formatting existin Markdown as is.
+            /// It doesn't try to do the following:
+            /// 
+            /// - escaping characters
+            /// - parse hyper-links
+            /// - handle soft-breaks and hard-breaks
+            /// </summary>
+            FormattingPreserve
+        }
+
+
         #region Private Fields
 
         DocumentNode _currentDocument;
         private string _documentText;
         MarkdownPatternList _markdownPatterns;
+        ParserMode _parserMode;
         List<ParagraphSpan> _currentParagraphSpans;
         Action<int, int> _progressCallback;
         int _reportByteCount;
@@ -40,6 +57,13 @@ namespace Markdown.MAML.Parser
 
         public DocumentNode ParseString(string[] markdownStrings)
         {
+            // default is full
+            return ParseString(markdownStrings, ParserMode.Full);
+        }
+
+        public DocumentNode ParseString(string[] markdownStrings, ParserMode parseMode)
+        {
+            this._parserMode = parseMode;
             this.InitializePatternList();
             _currentDocument = new DocumentNode();
 
@@ -78,49 +102,57 @@ namespace Markdown.MAML.Parser
                 new MarkdownPatternList
                 {
                     // Headers
-                    {   "hash_header", 
-                        @"(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+", 
+                    {   "hash_header",
+                        @"(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+",
                         this.CreateHashHeader },
                     
                     // This is a dirty hack to tell avoid hash_headers, if it's not a beginning of a line
-                    {   "hash_header2", 
-                        @"(\r\n)+(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+", 
+                    {   "hash_header2",
+                        @"(\r\n)+(\#+)[ ]*(.+?)[ ]*\#*(\r\n)+",
                         this.CreateHashHeader2 },
 
-                    {   "underline_header", 
-                        @"(.+?)[ ]*\r\n(==+|--+)[ ]*(\r\n)+", 
+                    {   "underline_header",
+                        @"(.+?)[ ]*\r\n(==+|--+)[ ]*(\r\n)+",
                         this.CreateUnderlineHeader },
 
                     // Code blocks
                     {   "tick_codeblock",
                         @"```\w*(\r\n)*((.|\r\n)*?)```(\r\n)*",
-                        this.CreateTickCodeBlock },
-
-                    // Paragraph spans
-                    {   "hardbreak",
-                        @"[ ]{2}\r\n",
-                        this.CreateHardBreakSpan },
-
-                    {   "softbreak",
-                        @"(\r\n){{1}}",
-                        this.CreateSoftBreakSpan },
-
-                    {   "new_paragraph",
-                        @"(\r\n){{2,}}",
-                        this.CreateParagraph },
-
-                    {   "hyperlink",
-                        @"\[(.+?)\]\((https?://[^'\"">\s]+)?\)",
-                        this.CreateHyperlinkSpan },
-
-                    {   "bold",
-                        @"\*\*(.+?)\*\*",
-                        this.CreateBoldSpan },
-
-                    {   "italic",
-                        @"\*(.+?)\*",
-                        this.CreateItalicSpan }
+                        this.CreateTickCodeBlock }
                 };
+
+            if (this._parserMode == ParserMode.Full)
+            {
+                _markdownPatterns.Append(
+                    new MarkdownPatternList
+                    { 
+                        // Paragraph spans
+                        {   "hardbreak",
+                            @"[ ]{2}\r\n",
+                            this.CreateHardBreakSpan },
+
+                        {   "softbreak",
+                            @"(\r\n){{1}}",
+                            this.CreateSoftBreakSpan },
+
+                        {   "new_paragraph",
+                            @"(\r\n){{2,}}",
+                            this.CreateParagraph },
+
+                        {   "hyperlink",
+                            @"\[(.+?)\]\((https?://[^'\"">\s]+)?\)",
+                            this.CreateHyperlinkSpan },
+
+                        {   "bold",
+                            @"\*\*(.+?)\*\*",
+                            this.CreateBoldSpan },
+
+                        {   "italic",
+                            @"\*(.+?)\*",
+                            this.CreateItalicSpan }
+                    }
+                );
+            }
         }
 
         #endregion
@@ -312,7 +344,8 @@ namespace Markdown.MAML.Parser
                 _currentParagraphSpans.Add(
                     new TextSpan(
                         spanText,
-                        sourceExtent));
+                        sourceExtent,
+                        this._parserMode));
             }
         }
 
@@ -324,6 +357,7 @@ namespace Markdown.MAML.Parser
                 new TextSpan(
                     regexMatch.Groups[1].Value,
                     sourceExtent,
+                    this._parserMode,
                     TextSpanStyle.Italic));
         }
 
@@ -335,6 +369,7 @@ namespace Markdown.MAML.Parser
                 new TextSpan(
                     regexMatch.Groups[1].Value,
                     sourceExtent,
+                    this._parserMode,
                     TextSpanStyle.Bold));
         }
 

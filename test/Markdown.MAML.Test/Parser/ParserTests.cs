@@ -366,6 +366,30 @@ Valid values are:
         }
 
         [Fact]
+        public void PreserveTextAsIsInFormattingPreserveMode()
+        {
+            string text = @"Hello:
+
+
+-- Block: aaa. Foo
+Bar [this](hyperlink)
+ 
+-- Drop: <When the> output buffer is full
+* None: specified.
+It's up
+   To authors
+      To format text
+";
+            DocumentNode documentNode = MarkdownStringToDocumentNodePreserveFormatting(text);
+            ParagraphNode outText =
+                this.AssertNodeType<ParagraphNode>(
+                    documentNode.Children.ElementAtOrDefault(0),
+                    MarkdownNodeType.Paragraph);
+
+            Assert.Equal(text, outText.Spans.First().Text);
+        }
+
+        [Fact]
         public void UnderstandsOneLineBreakVsTwoLineBreaks()
         {
             MarkdownParser markdownParser = new MarkdownParser();
@@ -586,6 +610,13 @@ Deletes commands with the specified text strings. If you enter more than one str
         {
             var parser = new MarkdownParser();
             return parser.ParseString(new string[] { markdown });
+        }
+
+        private DocumentNode MarkdownStringToDocumentNodePreserveFormatting(string markdown)
+        {
+            var parser = new MarkdownParser();
+            return parser.ParseString(new string[] { markdown }, 
+                MarkdownParser.ParserMode.FormattingPreserve);
         }
     }
 }

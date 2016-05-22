@@ -29,6 +29,11 @@ namespace Markdown.MAML.Parser
                     matchAction));
         }
 
+        public void Append(MarkdownPatternList list)
+        {
+            _patternList.AddRange(list);
+        }
+
         public IEnumerator<MarkdownPattern> GetEnumerator()
         {
             return _patternList.GetEnumerator();

@@ -345,6 +345,16 @@ namespace Markdown.MAML.Transformer
 
         private string GetTextFromParagraphSpans(IEnumerable<ParagraphSpan> spans)
         {
+            // in preserve formatting there is only one span all the time
+            if (spans.Count() == 1)
+            {
+                var textSpan = spans.First() as TextSpan;
+                if (textSpan.ParserMode == Parser.MarkdownParser.ParserMode.FormattingPreserve)
+                {
+                    return textSpan.Text;
+                }
+            }
+
             StringBuilder sb = new StringBuilder();
             bool first = true;
             bool previousIsHyperLink = false;
