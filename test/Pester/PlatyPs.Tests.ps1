@@ -40,6 +40,12 @@ Describe 'New-MarkdownHelp' {
                 Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
         }
     }
+    
+    Context 'encoding' {
+        $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -Force -Encoding ([System.Text.Encoding]::UTF32)
+        $content = $file | Get-Content -Encoding UTF32 -Raw
+        Get-MarkdownMetadata -Markdown $content | Should Not Be $null
+    }
 
     Context 'form module' {
         It 'creates few help files for platyPS' {
