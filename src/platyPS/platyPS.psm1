@@ -379,7 +379,7 @@ function Update-MarkdownHelp
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
             $newModel = $merger.Merge($reflectionModel, $oldModel)
 
-            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting
             MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yeild
         }
     }

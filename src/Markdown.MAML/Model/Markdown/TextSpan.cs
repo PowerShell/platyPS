@@ -1,6 +1,4 @@
-﻿
-using Markdown.MAML.Parser;
-using static Markdown.MAML.Parser.MarkdownParser;
+﻿using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Model.Markdown
 {
@@ -19,7 +17,9 @@ namespace Markdown.MAML.Model.Markdown
 
         public TextSpan(string spanText, SourceExtent sourceExtent, ParserMode parserMode, TextSpanStyle spanStyle = TextSpanStyle.Normal)
             : base(
-                  parserMode == ParserMode.Full ? MarkdownParser.UnwindMarkdownCharsEscaping(spanText.Trim()) : spanText, 
+                  parserMode == ParserMode.Full 
+                  ? MarkdownParser.UnwindMarkdownCharsEscaping(spanText.Trim()) 
+                  : spanText, 
                   sourceExtent)
         {
             this.Style = spanStyle;

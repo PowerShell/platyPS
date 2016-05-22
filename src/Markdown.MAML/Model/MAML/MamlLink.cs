@@ -21,7 +21,9 @@ namespace Markdown.MAML.Model.MAML
         public string LinkName { get; set; }
         public string LinkUri { get; set; }
 
-        public MamlLink(bool isSimplifiedTextLink = false)
+        public MamlLink() : this(false) { }
+
+        public MamlLink(bool isSimplifiedTextLink)
         {
             this.IsSimplifiedTextLink = isSimplifiedTextLink;
         }

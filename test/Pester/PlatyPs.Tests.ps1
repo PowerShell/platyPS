@@ -410,6 +410,11 @@ Describe 'Update-MarkdownHelpSchema' {
 
 Describe 'Update-MarkdownHelp reflection scenario' {
     
+    function normalizeEnds([string]$text)
+    {
+        $text -replace "`r`n?|`n", "`r`n"
+    }
+    
     $OutputFolder = 'TestDrive:\CoolStuff'
 
     # bootstraping docs from some code
@@ -432,11 +437,11 @@ Describe 'Update-MarkdownHelp reflection scenario' {
 
     $v1markdown = $v1md | cat -Raw
 
-    $newFooDescription = @'
+    $newFooDescription = normalizeEnds @'
 ThisIsFooDescription
 
 It has mutlilines.
-And [hyper](link).
+And [hyper](http://link.com).
 
 - And a list. Yeap.
 - Good stuff?
@@ -464,6 +469,7 @@ And [hyper](link).
     }
 
     $v2maml = New-ExternalHelp -Path $v2md.FullName -OutputPath "$OutputFolder\v2"
+    $v2markdown = $v2md | cat -raw 
     $help = Get-HelpPreview -Path $v2maml 
     
     It 'has both parameters' {
@@ -472,23 +478,23 @@ And [hyper](link).
         $names[0] | Should Be 'Bar'
         $names[1] | Should Be 'Foo'
     }
+    
+    It 'preserves hyperlinks' {
+        $v2markdown.Contains($newFooDescription) | Should Be $true
+    }
 
     It 'has updated description for Foo' {
         $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
-        $fooParam.Description.Text | Out-String | Should Be @'
+        $fooParam.Description.Text | Out-String | Should Be (normalizeEnds @'
 ThisIsFooDescription
 
-It has mutlilines. And hyper (link).
+It has mutlilines. And hyper (http://link.com).
 
 - And a list. Yeap.
 
 - Good stuff?
 
-'@
-    }
-
-    It 'preserves hyperlinks' {
-        $v2markdown.Contains($newFooDescription) | Should Be $true
+'@)
     }
 
     It 'has a placeholder for example' {
