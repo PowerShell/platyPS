@@ -28,7 +28,7 @@ This helpinfo.xml provides help verioning and locale details to the PowerShell h
 
 ### Example 1
 ```
-PS C:\> New-ExternalHelpCab -CmdletContentFolder 'C:\Module\ExternalHelpContent' -OutputPath 'C:\Module\Cab\' -ModuleMdPageFullPath 'C:\Module\SomeModuleName.md'
+PS C:\> New-ExternalHelpCab -CabFilesFolder 'C:\Module\ExternalHelpContent'  -LandingPagePath 'C:\Module\SomeModuleName.md' -OutputPath 'C:\Module\Cab\'
 ```
 
 Generates the cab file, containing the content folder files and correctlty named for updatable help, and places in the output path directory.
