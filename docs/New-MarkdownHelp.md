@@ -339,8 +339,6 @@ Accept wildcard characters: False
 The URL where help can be downloaded using the updatable help function in PowerShell.
 Empty string would be used, if no value provided.
 
-
-
 ```yaml
 Type: String
 Parameter Sets: FromCommand
@@ -357,9 +355,6 @@ Accept wildcard characters: False
 Path to the directory to output markdown help files.
 
 
-
-
-
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -374,8 +369,6 @@ Accept wildcard characters: False
 
 ### -WithModulePage
 Generate module page in the output directory.
-
-
 
 ```yaml
 Type: SwitchParameter
@@ -403,7 +396,7 @@ This cmdlet returns a FileInfo[] object for created files.
 
 ## RELATED LINKS
 
-[Online Version:]()
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md)
 
 
 

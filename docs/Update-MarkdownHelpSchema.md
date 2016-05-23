@@ -14,13 +14,29 @@ Update-MarkdownHelpSchema [-Path] <String[]> [-OutputFolder] <String> [[-Encodin
 ```
 
 ## DESCRIPTION
-{{Fill in the Description}}
+Migrate to the latest markdown help schema.
+
+As a release 0.4.0, there are two schemas: 1.0.0 and 2.0.0
+We highly encourage you to migrate to the latest schema.
+
+It's easlier and provides visually apealing expirience.
 
 ## EXAMPLES
 
 ### Example 1
 ```
-PS C:\> Update-MarkdownHelpSchema -MarkdownFile .\Examples\PSReadLine.dll-help.md -OutputFolder .\PSReadLine
+PS C:\> Update-MarkdownHelpSchema .\Examples\PSReadLine.dll-help.md -OutputFolder .\PSReadLine
+
+
+    Directory: D:\dev\platyPS\PSReadLine
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   8:47 PM           1410 Get-PSReadlineKeyHandler.md
+-a----        5/22/2016   8:47 PM            648 Get-PSReadlineOption.md
+-a----        5/22/2016   8:47 PM           4091 Set-PSReadlineKeyHandler.md
+-a----        5/22/2016   8:47 PM          10964 Set-PSReadlineOption.md
 ```
 
 Upgrade PSReadLine platyPS markdown from version 1.0.0 to the latest one (2.0.0).
@@ -28,7 +44,12 @@ Upgrade PSReadLine platyPS markdown from version 1.0.0 to the latest one (2.0.0)
 ## PARAMETERS
 
 ### -Encoding
-{{Fill Encoding Description}}
+Character encoding for created markdown help files.
+
+It should be of the type \[System.Text.Encoding\].
+You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+you can control BOM (Byte Order Mark) preferences with it.
 
 ```yaml
 Type: Encoding
@@ -43,7 +64,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-{{Fill Force Description}}
+Override existing files.
 
 ```yaml
 Type: SwitchParameter
@@ -58,7 +79,7 @@ Accept wildcard characters: False
 ```
 
 ### -OutputFolder
-{{Fill OutputFolder Description}}
+Path to the directory to output markdown help files.
 
 ```yaml
 Type: String
@@ -73,7 +94,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-{{Fill Path Description}}
+Path to markdown files or directories.
 
 ```yaml
 Type: String[]
@@ -89,18 +110,18 @@ Accept wildcard characters: False
 
 ## INPUTS
 
-### System.String[]
-
+### String[]
+You can pipe a collection of paths to this cmdlet.
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-
+This cmdlet returns a FileInfo[] object for created files.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[Online Version:]()
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpSchema.md)
 
 
