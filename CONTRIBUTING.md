@@ -4,6 +4,14 @@
 git clone https://github.com/PowerShell/platyPS
 ```
 
+## Understand code layout
+
+There are two parts: 
+
+- .NET library `Markdown.MAML.dll` written in C#. It does heavy lifting, like parsing markdown, transforming it into xml and so on.
+You can open `.\Markdown.MAML.sln` in Visual Studio 2015.
+- PowerShell scripts in [`.\src\platyPS`](src\platyPS). They provide user interface.
+
 ## First-time setup
 
 Restore nuget packages.
@@ -15,8 +23,7 @@ You can do it from visual studio, or from command line
 
 ## Build
 
-You would need Visual Studio and `msbuild` in PATH to build from command line.
-Use helper `build.ps1` script
+To build the whole project, use helper `build.ps1` script
 
 ```
 .\build.ps1
@@ -28,12 +35,14 @@ The result of the build would be in `out\platyPS` folder.
 
 There are two part of projects and two test sets.
 
-- C# part with xUnit tests
+- C# part with xUnit tests. You can run them with XUnit runner from the visual studio.
 - PowerShell part with [Pester](https://github.com/pester/Pester) tests
 
 ```
 Invoke-Pester
 ```
+
+**Note**: Pester tests always force-import module from the output location of `.\build.ps1`.
 
 ## Schema
 
@@ -86,12 +95,12 @@ This scenarios are assembled from the simple transformations. Chart below descri
 +----------------------+            +---------------------------+
 ```
 
-##### Example `New-Markdown`
+##### Example `New-MarkdownHelp`
 
 User creates a platyPS markdown for the first time for the command
 
 ```
-New-MarkdownHelp -command New-MyCommand
+New-MarkdownHelp -command New-MyCommandHelp
 ```
 
 Under the hood, following tranformations happens
