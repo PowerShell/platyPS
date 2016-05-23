@@ -60,7 +60,7 @@ It may be fine for some scenarios, i.e. you want to have online-only version of 
 
 The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
 
-## [Usage](.\docs)
+## [Usage](docs)
 
 Supported scenarios:
 
