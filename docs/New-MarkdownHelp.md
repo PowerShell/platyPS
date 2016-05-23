@@ -34,48 +34,103 @@ An easy way to start with platyPS.
 This cmdlet generates help stub from:
 
 -  Module.
-
 -  Command.
-
--  External help xml \(aka maml\).
+-  External help xml (aka maml).
 
 ## EXAMPLES
 
-### ----------------------------- Example 1 (from command) ------------------------------------
+###  Example 1 (from command)
 ```
-function foo {param([string]$bar)}
-New-MarkdownHelp -command foo
+PS C:\> function foo {param([string]$bar)}
+PS C:\> New-MarkdownHelp -command foo -OutputFolder .\docs
+
+
+    Directory: D:\dev\platyPS\docs
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:53 PM            664 foo.md
 ```
 
 Create stub markdown on the fly from the function foo.
 
-### ----------------------------- Example 2 (from module) ------------------------------------
+###  Example 2 (from module)
 ```
-Import-Module platyPS
-New-MarkdownHelp -module platyPS
+PS C:\> Import-Module platyPS
+PS C:\> New-MarkdownHelp -module platyPS -OutputFolder .\docs-new -Force
+
+
+    Directory: D:\dev\platyPS\docs-new
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:54 PM           1496 Get-HelpPreview.md
+-a----        5/22/2016   6:54 PM           3208 Get-MarkdownMetadata.md
+-a----        5/22/2016   6:54 PM           3059 New-ExternalHelp.md
+-a----        5/22/2016   6:54 PM           2702 New-ExternalHelpCab.md
+-a----        5/22/2016   6:54 PM           6234 New-MarkdownHelp.md
+-a----        5/22/2016   6:54 PM           2346 Update-MarkdownHelp.md
+-a----        5/22/2016   6:54 PM           1633 Update-MarkdownHelpModule.md
+-a----        5/22/2016   6:54 PM           1630 Update-MarkdownHelpSchema.md
 ```
 
-The module should be loaded in the PS Session, markdown will be generated from the module.
+The module should be loaded in the PS Session first.
+ Markdown generated for all commands in the module.
 
-### ----------------------------- Example 3 (from maml file path) ------------------------------------
+###  Example 3 (from maml file path)
 ```
-New-MarkdownHelp -maml 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> $mamlPath = 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> New-MarkdownHelp -OutputFolder .\psreadline-docs -MamlFile $mamlPath
+
+
+    Directory: D:\dev\platyPS\psreadline-docs
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:56 PM           7443 Get-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:56 PM           3586 Get-PSReadlineOption.md
+-a----        5/22/2016   6:56 PM           1549 Remove-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:56 PM           5947 Set-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:56 PM          15320 Set-PSReadlineOption.md
+
 ```
 
 Create markdown help for inbox PSReadLine module. 
-This will use the help file only to generate the markdown.
+You don't need to load the module itself to do it.
+Only the help file would be used.
 
-### ----------------------------- Example 4 (from maml file content) ------------------------------------
+###  Example 4 (from maml file with module page)
 ```
-New-MarkdownHelp -maml (cat -raw 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml')
+PS C:\> $mamlPath = 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> New-MarkdownHelp -OutputFolder .\psreadline-docs -MamlFile $mamlPath -WithModulePage  -Force -ModuleName PSReadLine
+
+
+    Directory: D:\dev\platyPS\psreadline-docs
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:59 PM           7443 Get-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:59 PM           3586 Get-PSReadlineOption.md
+-a----        5/22/2016   6:59 PM           1549 Remove-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:59 PM           5947 Set-PSReadlineKeyHandler.md
+-a----        5/22/2016   6:59 PM          15320 Set-PSReadlineOption.md
+-a----        5/22/2016   6:59 PM            942 PSReadLine.md
+
 ```
+
+Create markdown help for inbox PSReadLine module. 
+Create a "ModulePage" with name PSReadLine.md, links to other help files
+and metadata needed for creating cab files.
+
 
 ## PARAMETERS
 
 ### -Command
 Name of a command from your PowerShell session.
-
-
 
 ```yaml
 Type: String
@@ -90,9 +145,12 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-The encoding to use in generating the markdown files.
+Character encoding for your markdown help files.
 
-
+It should be of the type \[System.Text.Encoding\].
+You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+you can control BOM (Byte Order Mark) preferences with it.
 
 ```yaml
 Type: Encoding
@@ -101,13 +159,13 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: UTF8 with no BOM
+Default value: UTF8 without BOM
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Force
-{{Fill Force Description}}
+Override existing files.
 
 ```yaml
 Type: SwitchParameter
@@ -122,7 +180,8 @@ Accept wildcard characters: False
 ```
 
 ### -FwLink
-{{Fill FwLink Description}}
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
 
 ```yaml
 Type: String
@@ -137,7 +196,8 @@ Accept wildcard characters: False
 ```
 
 ### -HelpVersion
-{{Fill HelpVersion Description}}
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
 
 ```yaml
 Type: String
@@ -152,7 +212,8 @@ Accept wildcard characters: False
 ```
 
 ### -Locale
-{{Fill Locale Description}}
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
 
 ```yaml
 Type: String
@@ -167,7 +228,7 @@ Accept wildcard characters: False
 ```
 
 ### -MamlFile
-{{Fill MamlFile Description}}
+Path to a MAML xml external help file. 
 
 ```yaml
 Type: String
@@ -182,7 +243,9 @@ Accept wildcard characters: False
 ```
 
 ### -Metadata
-{{ ADD HELP HERE !!!}}
+String-to-string hashtable.
+It would be writed in a header of every markdown help file.
+It would be ignored by New-ExternalHelp, but can be used by external tools.
 
 ```yaml
 Type: Hashtable

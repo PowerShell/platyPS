@@ -33,7 +33,7 @@ The cmdlet returns a key-value \<Dictionary\[String, String\]\> object.
 
 ## EXAMPLES
 
-### Example 1 (Get metadata by Path)
+### Example 1 (Get metadata from a file)
 ```
 PS C:\> Get-MarkdownMetadata -Path .\docs\Get-MarkdownMetadata.md
 
@@ -58,13 +58,38 @@ schema             2.0.0
 
 Retrives metadata from a markdown string.
 
+### Example 1 (Get metadata from all files in a folder)
+```
+PS C:\> Get-MarkdownMetadata .\docs
+
+Key                Value
+---                -----
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+external help file platyPS-help.xml
+schema             2.0.0
+```
+
+Retrives metadata from all markdown file at the directory path provided.
+
+
 ## PARAMETERS
 
 ### -Path
-Path to markdown file.
+Path to markdown file or folder.
 Markdown files typically use extension .md
-
-
 
 ```yaml
 Type: String[]
@@ -80,8 +105,6 @@ Accept wildcard characters: False
 
 ### -Markdown
 String object containing markdown.
-
-
 
 ```yaml
 Type: String
@@ -100,8 +123,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### None
-You cannot pipe objects into this cmdlet.
+### String[]
+You can pipe a collection of paths to this cmdlet.
 
 ## OUTPUTS
 

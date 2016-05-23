@@ -5,7 +5,8 @@ schema: 2.0.0
 
 # New-ExternalHelp
 ## SYNOPSIS
-Create External help xml file from platyPS markdown, which can be interpreted by the PowerShell help engine.
+Create External help xml file from platyPS markdown. 
+Ship it with your module to provide [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) capability.
 
 ## SYNTAX
 
@@ -16,13 +17,14 @@ New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-
 ## DESCRIPTION
 Create External help file from platyPS markdown.
 
-You will get error messages if the markdown files do not follow the schema described in platyPS.schema.md
+You will get error messages if the markdown files do not follow the schema described in
+[platyPS.schema.md](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md).
 
 ## EXAMPLES
 
-### Example 1 (MarkdownFile)
+### Example 1 (Markdown folder)
 ```
-PS C:\> New-ExternalHelp -MarkdownFile (ls .\docs) -OutputPath out\platyPS\en-US
+PS C:\> New-ExternalHelp -Path .\docs -OutputPath out\platyPS\en-US
 
     Directory: D:\dev\platyPS\out\platyPS\en-US
 
@@ -32,24 +34,30 @@ Mode                LastWriteTime         Length Name
 -a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
 ```
 
-Create external help file in output path directory (directory includes language name).
-Uses set of markdown files as input.
+Create external help file in output path directory.
+Note that directory should include language name.
 
-### Example 2 (MarkdownFolder)
+### Example 1 (With -Force and custom encoding)
 ```
-PS C:\> New-ExternalHelp -MarkdownFolder .\docs -OutputPath out\platyPS\en-US
+PS C:\> New-ExternalHelp .\docs -OutputPath out\platyPS\en-US -Force -Encoding ([System.Text.Encoding]::Unicode)
+
+
+    Directory: D:\dev\platyPS\out\platyPS\en-US
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:34 PM         132942 platyPS-help.xml
 ```
 
-Create external help file in output path directory (directory includes language name).
-Uses folder containing markdowns as input.
+Create and overwrite existing external help file in output path directory.
+Use Unicode Encoding for output file.
 
 ## PARAMETERS
 
 ### -OutputPath
 Path to a folder where you want to put your external help file(s).
 The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
-
-
 
 ```yaml
 Type: String
@@ -64,9 +72,12 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-Encoding to be used by the output external help file.
+Character encoding for your external help file.
 
-
+It should be of the type \[System.Text.Encoding\].
+You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+you can control BOM (Byte Order Mark) preferences with it.
 
 ```yaml
 Type: Encoding
@@ -81,7 +92,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-{{Fill Force Description}}
+Override existing files.
 
 ```yaml
 Type: SwitchParameter
@@ -96,7 +107,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-File objects with markdown content in them.
+Path to markdown files or directories.
 
 ```yaml
 Type: String[]
@@ -115,13 +126,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### FileInfo[]
-You can pipe FileInfo[] objects into this cmdlet.
+### String[]
+You can pipe a collection of paths to this cmdlet.
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-This cmdlet returns a FileInfo[] object.
+This cmdlet returns a FileInfo[] object for created files.
 
 ## NOTES
 
@@ -129,7 +140,7 @@ This cmdlet returns a FileInfo[] object.
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
-[Online Version:]()
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md)
 
 
 

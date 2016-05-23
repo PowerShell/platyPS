@@ -62,7 +62,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### String[]
-You can pipe an collection of paths into this cmdlet.
+You can pipe a collection of paths to this cmdlet.
 
 ## OUTPUTS
 
