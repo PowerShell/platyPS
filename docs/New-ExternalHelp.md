@@ -7,7 +7,6 @@ schema: 2.0.0
 ## SYNOPSIS
 Create External help xml file from platyPS markdown. 
 Ship it with your module to provide [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) capability.
-
 ## SYNTAX
 
 ```
@@ -19,7 +18,6 @@ Create External help file from platyPS markdown.
 
 You will get error messages if the markdown files do not follow the schema described in
 [platyPS.schema.md](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md).
-
 ## EXAMPLES
 
 ### Example 1 (Markdown folder)
@@ -36,7 +34,6 @@ Mode                LastWriteTime         Length Name
 
 Create external help file in output path directory.
 Note that directory should include language name.
-
 ### Example 1 (With -Force and custom encoding)
 ```
 PS C:\> New-ExternalHelp .\docs -OutputPath out\platyPS\en-US -Force -Encoding ([System.Text.Encoding]::Unicode)
@@ -52,12 +49,12 @@ Mode                LastWriteTime         Length Name
 
 Create and overwrite existing external help file in output path directory.
 Use Unicode Encoding for output file.
-
 ## PARAMETERS
 
 ### -OutputPath
 Path to a folder where you want to put your external help file(s).
 The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
+
 
 ```yaml
 Type: String
@@ -79,6 +76,7 @@ You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404
 For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
 you can control BOM (Byte Order Mark) preferences with it.
 
+
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -93,6 +91,7 @@ Accept wildcard characters: False
 
 ### -Force
 Override existing files.
+
 
 ```yaml
 Type: SwitchParameter
@@ -109,6 +108,7 @@ Accept wildcard characters: False
 ### -Path
 Path to markdown files or directories.
 
+
 ```yaml
 Type: String[]
 Parameter Sets: (All)
@@ -123,17 +123,14 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
-
 ## INPUTS
 
 ### String[]
 You can pipe a collection of paths to this cmdlet.
-
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a FileInfo[] object for created files.
-
 ## NOTES
 
 ## RELATED LINKS
@@ -141,6 +138,7 @@ This cmdlet returns a FileInfo[] object for created files.
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md)
+
 
 
 

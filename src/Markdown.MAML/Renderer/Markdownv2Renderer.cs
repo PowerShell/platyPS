@@ -23,7 +23,11 @@ namespace Markdown.MAML.Renderer
 
         public int MaxSyntaxWidth { get; private set; }
 
-        public MarkdownV2Renderer(ParserMode mode) : this(mode, 120) { }
+        /// <summary>
+        /// 110 is a good width value, because it doesn't cause github to add horizontal scroll bar
+        /// </summary>
+        /// <param name="mode"></param>
+        public MarkdownV2Renderer(ParserMode mode) : this(mode, 110) { }
 
         public MarkdownV2Renderer(ParserMode mode, int maxSyntaxWidth)
         {

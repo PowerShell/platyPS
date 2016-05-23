@@ -6,7 +6,6 @@ schema: 2.0.0
 # Get-MarkdownMetadata
 ## SYNOPSIS
 Gets the markdown header metadata in the form of a hashtable.
-
 ## SYNTAX
 
 ### FromPath
@@ -30,7 +29,6 @@ These pairs would be ignored by [New-ExternalHelp](New-ExternalHelp.md).
 
 [Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
 The cmdlet returns a key-value \<Dictionary\[String, String\]\> object.
-
 ## EXAMPLES
 
 ### Example 1 (Get metadata from a file)
@@ -44,7 +42,6 @@ schema             2.0.0
 ```
 
 Retrives metadata from a markdown file at the path provided.
-
 ### Example 2 (Get metadata from a markdown string)
 ```
 PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md 
@@ -57,7 +54,6 @@ schema             2.0.0
 ```
 
 Retrives metadata from a markdown string.
-
 ### Example 1 (Get metadata from all files in a folder)
 ```
 PS C:\> Get-MarkdownMetadata .\docs
@@ -83,13 +79,12 @@ schema             2.0.0
 ```
 
 Retrives metadata from all markdown file at the directory path provided.
-
-
 ## PARAMETERS
 
 ### -Path
 Path to markdown file or folder.
 Markdown files typically use extension .md
+
 
 ```yaml
 Type: String[]
@@ -106,6 +101,7 @@ Accept wildcard characters: False
 ### -Markdown
 String object containing markdown.
 
+
 ```yaml
 Type: String
 Parameter Sets: FromMarkdownString
@@ -120,22 +116,20 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
-
 ## INPUTS
 
 ### String[]
 You can pipe a collection of paths to this cmdlet.
-
 ## OUTPUTS
 
 ### Dictionary[String, String]
 The dictionary contains key-value pairs found in the markdown metadata block.
-
 ## NOTES
 
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
+
 
 
 

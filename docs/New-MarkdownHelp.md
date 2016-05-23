@@ -17,8 +17,8 @@ New-MarkdownHelp -Module <String[]> [-Force] [-Metadata <Hashtable>] -OutputFold
 
 ### FromCommand
 ```
-New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String>
- [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
+New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVersionUrl <String>]
+ -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
 ```
 
 ### FromMaml
@@ -125,6 +125,7 @@ Name of a command from your PowerShell session.
 
 
 
+
 ```yaml
 Type: String[]
 Parameter Sets: FromCommand
@@ -147,6 +148,7 @@ you can control BOM (Byte Order Mark) preferences with it.
 
 
 
+
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -161,6 +163,7 @@ Accept wildcard characters: False
 
 ### -Force
 Override existing files.
+
 
 
 
@@ -182,6 +185,7 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
@@ -197,6 +201,7 @@ Accept wildcard characters: False
 ### -HelpVersion
 Metadata for module page, to enable cab creation.
 It would be used as markdown header metadata in the module page.
+
 
 
 
@@ -218,6 +223,7 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
@@ -232,6 +238,7 @@ Accept wildcard characters: False
 
 ### -MamlFile
 Path to a MAML xml external help file. 
+
 
 
 
@@ -254,6 +261,7 @@ It would be ignored by New-ExternalHelp, but can be used by external tools.
 
 
 
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -268,6 +276,7 @@ Accept wildcard characters: False
 
 ### -Module
 Name of the modules to be used in markdown help generation.
+
 
 
 
@@ -289,6 +298,7 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
 ```yaml
 Type: String
 Parameter Sets: FromMaml
@@ -304,6 +314,7 @@ Accept wildcard characters: False
 ### -ModuleName
 Metadata for module page, to enable cab creation.
 It would be used to name module page.
+
 
 
 
@@ -323,6 +334,7 @@ Accept wildcard characters: False
 Don't emit any metadata in generated markdown.
 
 
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
@@ -338,6 +350,7 @@ Accept wildcard characters: False
 ### -OnlineVersionUrl
 The URL where help can be downloaded using the updatable help function in PowerShell.
 Empty string would be used, if no value provided.
+
 
 ```yaml
 Type: String
@@ -355,6 +368,7 @@ Accept wildcard characters: False
 Path to the directory to output markdown help files.
 
 
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -369,6 +383,7 @@ Accept wildcard characters: False
 
 ### -WithModulePage
 Generate module page in the output directory.
+
 
 ```yaml
 Type: SwitchParameter
@@ -397,6 +412,7 @@ This cmdlet returns a FileInfo[] object for created files.
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md)
+
 
 
 
