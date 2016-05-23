@@ -37,17 +37,17 @@ function New-MarkdownHelp
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromModule")]
-        [string]$Module,
+        [string[]]$Module,
 
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
-        [string]$Command,
+        [string[]]$Command,
 
         [Parameter(Mandatory=$true, 
             ValueFromPipeline=$true,
             ParameterSetName="FromMaml")]
-        [string]$MamlFile,
+        [string[]]$MamlFile,
 
         [switch]$Force,
 
@@ -157,54 +157,66 @@ function New-MarkdownHelp
 
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
-            if (-not (Get-Command $command -EA SilentlyContinue))
-            {
-                throw "Command $command not found in the session."
+            $command | % {
+                if (-not (Get-Command $_ -EA SilentlyContinue))
+                {
+                    throw "Command $_ not found in the session."
+                }
+
+                GetMamlObject -Cmdlet $_ | ProcessMamlObjectToFile
             }
-
-            GetMamlObject -Cmdlet $command | ProcessMamlObjectToFile
         }
-        elseif ($PSCmdlet.ParameterSetName -eq 'FromModule')
+        else 
         {
-            if (-not (GetCommands -AsNames -module $module))
+            if ($module)
             {
-                throw "Module $module is not imported in the session. Run 'Import-Module $module'."
-            }
-
-            GetMamlObject -Module $module | ProcessMamlObjectToFile
-        }
-        else # 'FromMaml'
-        {
-            if (-not (Test-Path $MamlFile))
-            {
-                throw "No file found in $MamlFile."
-            }
-
-            GetMamlObject -MamlFile $MamlFile | ProcessMamlObjectToFile
-        }
-
-        if($WithModulePage)
-        {
-            if($Module)
-            {
-                $ModuleName = $module
-                $ModuleGuid = (Get-Module $ModuleName).Guid
-                $CmdletNames = GetCommands -AsNames -Module $ModuleName
+                $iterator = $module
             }
             else 
             {
-                $CmdletNames += GetMamlObject -MamlFile $MamlFile | % {$_.Name}
+                $iterator = $MamlFile
             }
-            # yeild
-            NewModuleLandingPage  -Path $OutputFolder `
-                                   -ModuleName $ModuleName `
-                                   -ModuleGuid $ModuleGuid `
-                                   -CmdletNames $CmdletNames `
-                                   -Locale $Locale `
-                                   -Version $HelpVersion `
-                                   -FwLink $FwLink `
-                                   -Encoding $Encoding `
-                                   -Force:$Force
+            
+            $iterator | % {
+                if ($PSCmdlet.ParameterSetName -eq 'FromModule')
+                {
+                    if (-not (GetCommands -AsNames -module $_))
+                    {
+                        throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
+                    }
+                    
+                    GetMamlObject -Module $_ | ProcessMamlObjectToFile
+                    
+                    $ModuleName = $_
+                    $ModuleGuid = (Get-Module $ModuleName).Guid
+                    $CmdletNames = GetCommands -AsNames -Module $ModuleName
+                }
+                else # 'FromMaml'
+                {
+                    if (-not (Test-Path $_))
+                    {
+                        throw "No file found in $_."
+                    }
+
+                    GetMamlObject -MamlFile $_ | ProcessMamlObjectToFile
+                        
+                    $CmdletNames += GetMamlObject -MamlFile $_ | % {$_.Name}
+                }
+                
+                if($WithModulePage)
+                {
+                    # yeild
+                    NewModuleLandingPage  -Path $OutputFolder `
+                                        -ModuleName $ModuleName `
+                                        -ModuleGuid $ModuleGuid `
+                                        -CmdletNames $CmdletNames `
+                                        -Locale $Locale `
+                                        -Version $HelpVersion `
+                                        -FwLink $FwLink `
+                                        -Encoding $Encoding `
+                                        -Force:$Force
+                }
+            }
         }
     }
 }
