@@ -412,7 +412,6 @@ schema: 2.0.0
 
 ## DESCRIPTION
 " + command.Description + @"
-
 ## EXAMPLES
 
 ## PARAMETERS
@@ -426,9 +425,7 @@ schema: 2.0.0
 ## RELATED LINKS
 
 Any text [can](go here)
-[any](text)
-
-", markdown);
+[any](text)", markdown);
         }
     }
 }

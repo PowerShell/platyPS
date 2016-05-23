@@ -101,7 +101,7 @@ namespace Markdown.MAML.Renderer
             {
                 if (link.IsSimplifiedTextLink)
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{1}", link.LinkName, Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}", link.LinkName);
                 }
                 else
                 {
@@ -463,7 +463,7 @@ namespace Markdown.MAML.Renderer
 
             if (this._mode == ParserMode.FormattingPreserve)
             {
-                _stringBuilder.AppendFormat("{0}{1}{1}", body, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}", body, Environment.NewLine);
                 return;
             }
             else
