@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Update-MarkdownHelp
 ## SYNOPSIS
-
+Update platyPS markdown help files in place.
 ## SYNTAX
 
 ```
@@ -14,40 +14,66 @@ Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <Str
 
 ## DESCRIPTION
 Update platyPS markdown help files in place.
+Files content would be alternated.
 
-Two supported scenarios:
+Some parameters attributes changes over time, i.e. parameter sets, types, default value, required, etc.
 
-- Recreate platyPS markdown with a newer schema version
-- update markdown with information from the 'live' command
+Automatically propogate these changes to your markdown help file:
+
+- Load new version of the module in your PowerShell session.
+- Call Update-MarkdownHelp.
+- Check new parameters metadata in the markdown files.
+
+It also will contain placeholders for new parameters to speed-up your help-authoring expirience.
 
 ## EXAMPLES
 
-### Example 1 (Schema upgrade)
+### Example 1 (Update all files in a folder)
 ```
-PS C:\> Update-Markdown -MarkdownFile .\Examples\PSReadLine.dll-help.md -OutputFolder .\PSReadLine -SchemaUpgrade
+PS C:\> Update-MarkdownHelp .\docs
+
+    Directory: D:\dev\platyPS\docs
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   6:54 PM           1496 Get-HelpPreview.md
+-a----        5/22/2016   6:54 PM           3208 Get-MarkdownMetadata.md
+-a----        5/22/2016   6:54 PM           3059 New-ExternalHelp.md
+-a----        5/22/2016   6:54 PM           2702 New-ExternalHelpCab.md
+-a----        5/22/2016   6:54 PM           6234 New-MarkdownHelp.md
+-a----        5/22/2016   6:54 PM           2346 Update-MarkdownHelp.md
+-a----        5/22/2016   6:54 PM           1633 Update-MarkdownHelpModule.md
+-a----        5/22/2016   6:54 PM           1630 Update-MarkdownHelpSchema.md
+
 ```
 
-Upgrade PSReadLine platyPS markdown from version 1.0.0 to the latest one (2.0.0).
+Update all markdown files is a folder with information from the 'live' commands.
 
-### Example 1 (Schema upgrade)
+### Example 2 (Update one file and capture log)
 ```
-PS C:\> Update-Markdown -MarkdownFile .\docs\Update-Markdown.md
+PS C:\> Update-MarkdownHelp .\docs\Update-MarkdownHelp.md -LogPath .\my.log
+
+    Directory: D:\dev\platyPS\docs
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/22/2016   8:20 PM           9993 New-MarkdownHelp.md
+
 ```
 
-Changed some parameters attributes, i.e. parameter sets, types, default value, required, etc.
-Load the new version of the module in your PowerShell session.
-
-Upgrade markdown for Update-Markdown command, using a live command from the system.
-New parameters metadata would appear in the markdown files.
-
-It will contain placeholders to speed-up your help-authoring expirience.
+Update markdown help file and write log to "my.log" file. 
 
 ## PARAMETERS
 
 ### -Encoding
-Encoding to be used when output markdown files.
+Character encoding for your updated markdown help files.
 
-
+It should be of the type \[System.Text.Encoding\].
+You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+you can control BOM (Byte Order Mark) preferences with it.
 
 ```yaml
 Type: Encoding
@@ -62,7 +88,7 @@ Accept wildcard characters: False
 ```
 
 ### -LogAppend
-{{Fill LogAppend Description}}
+Don't overwrite log file, instead append to it.
 
 ```yaml
 Type: SwitchParameter
@@ -80,8 +106,6 @@ Accept wildcard characters: False
 Put log information into a provided file path.
 By default, VERBOSE stream is used for it.
 
-
-
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -95,7 +119,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-{{Fill Path Description}}
+Path to markdown files or folder.
 
 ```yaml
 Type: String[]
@@ -114,15 +138,19 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
+### String[]
+You can pipe a collection of paths to this cmdlet.
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
+This cmdlet returns a FileInfo[] object for updated files.
 
 ## NOTES
 
 ## RELATED LINKS
 
-[Online Version:]()
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md)
 
 
 

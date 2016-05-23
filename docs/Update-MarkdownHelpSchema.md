@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Update-MarkdownHelpSchema
 ## SYNOPSIS
-Update-MarkdownHelpSchema \[-Path\] \<string\[\]\> \[-OutputFolder\] \<string\> \[\[-Encoding\] \<Encoding\>\] \[-Force\] \[\<CommonParameters\>\]
+Upgrade markdown help from version 1.0.0 to the latest one (2.0.0).
 
 ## SYNTAX
 
@@ -20,10 +20,10 @@ Update-MarkdownHelpSchema [-Path] <String[]> [-OutputFolder] <String> [[-Encodin
 
 ### Example 1
 ```
-PS C:\> {{ Add example code here }}
+PS C:\> Update-MarkdownHelpSchema -MarkdownFile .\Examples\PSReadLine.dll-help.md -OutputFolder .\PSReadLine
 ```
 
-{{ Add example description here }}
+Upgrade PSReadLine platyPS markdown from version 1.0.0 to the latest one (2.0.0).
 
 ## PARAMETERS
 
