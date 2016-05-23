@@ -40,12 +40,10 @@ function New-MarkdownHelp
         [string[]]$Module,
 
         [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
             ParameterSetName="FromCommand")]
         [string[]]$Command,
 
         [Parameter(Mandatory=$true, 
-            ValueFromPipeline=$true,
             ParameterSetName="FromMaml")]
         [string[]]$MamlFile,
 
