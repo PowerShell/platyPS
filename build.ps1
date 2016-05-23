@@ -32,10 +32,10 @@ mkdir out\platyPS\docs -ErrorAction SilentlyContinue > $null
 cp .\docs\* out\platyPS\docs\
 
 # put the right module version
-if ($env:APPVEYOR_BUILD_VERSION) 
+if ($env:APPVEYOR_REPO_TAG_NAME)
 {
     $manifest = cat -raw out\platyPS\platyPS.psd1
-    $manifest = $manifest -replace "ModuleVersion = '1.0'", "ModuleVersion = '$($env:APPVEYOR_BUILD_VERSION)'"
+    $manifest = $manifest -replace "ModuleVersion = '0.0.1'", "ModuleVersion = '$($env:APPVEYOR_REPO_TAG_NAME)'"
     Set-Content -Value $manifest -Path out\platyPS\platyPS.psd1 -Encoding Ascii
 }
 
