@@ -4,22 +4,21 @@
 
 # PlatyPS
 
-PlatyPS provides a way to write PowerShell External Help in Markdown.
-And generate markdown help for your existing modules.
+PlatyPS provides a way to 
+
+* Write PowerShell External Help in Markdown
+* Generate markdown help for your existing modules
 
 Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.  
 
-PlatyPS can also generate cab file for updatable help.
-Updatable help is a PowerShell feature, that you use, when you run `Update-Help`.
+PlatyPS can also generate cab files for [`Update-Help`](https://technet.microsoft.com/en-us/library/hh849720.aspx).
 
-## Problem
+## Why?
 
 Traditionally PowerShell external help files have been authored by hand or using complex tool chains and rendered as MAML XML for use as console help.
 MAML is cumbersome to edit by hand, and common tools and editors don't support it for complex scenarios like they do with Markdown. PlatyPS is provided as a solution for allow documenting PowerShell help in any editor or tool that supports Markdown.
 
 An additional challange PlatyPS tackles, is to handle PowerShell documentation for complex scenarios (e.g. very large, closed source, and/or C#/binary modules) where it may be desirable to have documentation abstracted away from the codebase. PlatyPS does not need source access to generate documentation.
-
-## Solution
 
 Markdown is designed to be human-readable, without rendering. This makes writing and editing easy and efficient. 
 Many editors support it ([Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](http://www.sublimetext.com/), etc), and many tools and collaboration platforms (GitHub, Visual Studio Online) render the Markdown nicely.
@@ -40,7 +39,7 @@ Import-Module platyPS
 New-MarkdownHelp -Module MyAwesomeModule -OutputFolder .\docs
 ```
 
-* Edit markdown files in `.\docs` folder and populate `{{ ... }}` placeholder with missed help content.
+* Edit markdown files in `.\docs` folder and populate `{{ ... }}` placeholders with missed help content.
 
 * Create external help from markdown help
 
@@ -48,17 +47,17 @@ New-MarkdownHelp -Module MyAwesomeModule -OutputFolder .\docs
 New-ExternalHelp .\docs -OutputPath en-US\
 ```
 
-* Congratulations, now you can keep your help files in markdown!
+* **Congratulations**, your help is now in markdown!
 
 ### platyPS markdown schema
 
 Unfortunately, you cannot just write any Markdown, as platyPS expects Markdown to be authored in a **particular way**.
-We have defined a [**schema**](platyPS.schema.md) to determine how parameters are described, where scripts examples are shown and, so on through out the structure of cmdlet documentation.
+We have defined a [**schema**](platyPS.schema.md) to determine how parameters are described, where scripts examples are shown, and so on.
+
+The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
 
 If you break the schema in your markdown, you will get error message from `New-ExternalHelp` and would not be able to generate extrenal help.
 It may be fine for some scenarios, i.e. you want to have online-only version of your help.
-
-The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
 
 ## [Usage](docs)
 
