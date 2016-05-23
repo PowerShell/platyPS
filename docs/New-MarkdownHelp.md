@@ -396,7 +396,7 @@ This cmdlet returns a FileInfo[] object for created files.
 
 ## RELATED LINKS
 
-[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md)
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md)
 
 
 
