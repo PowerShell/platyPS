@@ -32,7 +32,7 @@ Describe 'New-MarkdownHelp' {
 
         It 'respects -NoMetadata' {
             $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Force
-            Get-MarkdownMetadata $file | Should Be $null
+            Get-MarkdownMetadata $file.FullName | Should Be $null
         }
 
         It 'errors on -NoMetadata and -Metadata' {
@@ -51,6 +51,13 @@ Describe 'New-MarkdownHelp' {
         It 'creates few help files for platyPS' {
             $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
             ($files | measure).Count | Should BeGreaterThan 4
+        }
+    }
+    
+    Context 'from command' {
+        It 'creates 2 markdown files from command names' {
+            $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder TestDrive:\commands -Force
+            ($files | measure).Count | Should Be 2
         }
     }
 
