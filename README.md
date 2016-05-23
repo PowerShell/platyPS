@@ -4,30 +4,13 @@
 
 # PlatyPS
 
-Generate Markdown based help documentation for PowerShell Cmdlets. These help docs can be generated from old external help files (AKA: MAML styled Help.xml), the cmdlet object, or both.  
+PlatyPS provides a way to write PowerShell External Help in Markdown.
+And generate markdown help for your existing modules.
 
-PlatyPS can also be used to generate external Help XML files from Markdown, and the cab file that can be used as part of updatable help, the Update-Help feature of PowerShell.
+Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.  
 
-## How to use it?
-
-* You can install platyPS as module from the [PowerShell Gallery](https://powershellgallery.com):
-
-```powershell
-Install-Module -Name platyPS -Scope CurrentUser
-```
-
-* Create an initial Markdown:
-
-```powershell
-New-MarkdownHelp -Command Get-MyCommandName -OutputFolder .\docs
-```
-
-* Create external help from markdown
-
-```powershell
-$maml = New-ExternalHelp -MarkdownFolder .\docs
-Set-Content -Path en-US\MyModule.psm1-Help.xml -Value $maml -Encoding UTF8
-```
+PlatyPS can also generate cab file for updatable help.
+Updatable help is a PowerShell feature, that you use, when you run `Update-Help`.
 
 ## Problem
 
@@ -41,19 +24,43 @@ An additional challange PlatyPS tackles, is to handle PowerShell documentation f
 Markdown is designed to be human-readable, without rendering. This makes writing and editing easy and efficient. 
 Many editors support it ([Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](http://www.sublimetext.com/), etc), and many tools and collaboration platforms (GitHub, Visual Studio Online) render the Markdown nicely.
 
+
+## Quick start
+
+* Install platyPS module from the [PowerShell Gallery](https://powershellgallery.com):
+
+```powershell
+Install-Module -Name platyPS -Scope CurrentUser
+Import-Module platyPS
+```
+
+* Create initial Markdown help for `MyAwesomeModule` module:
+
+```powershell
+New-MarkdownHelp -Module MyAwesomeModule -OutputFolder .\docs
+```
+
+* Edit markdown files in `.\docs` folder and populate `{{ ... }}` placeholder with missed help content.
+
+* Create external help from markdown help
+
+```powershell
+New-ExternalHelp .\docs -OutputPath en-US\
+```
+
+* Congratulations, now you can keep your help files in markdown!
+
 ### platyPS markdown schema
 
 Unfortunately, you cannot just write any Markdown, as platyPS expects Markdown to be authored in a **particular way**.
 We have defined a [**schema**](platyPS.schema.md) to determine how parameters are described, where scripts examples are shown and, so on through out the structure of cmdlet documentation.
 
-**ANY AUTHORING** cannot not break this formatting, or the MAML generated will not be usable by console help.
-The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
-```PowerShell
-#View the output format of get-help with this
-Get-Help Get-Command -Full
-```
+If you break the schema in your markdown, you will get error message from `New-ExternalHelp` and would not be able to generate extrenal help.
+It may be fine for some scenarios, i.e. you want to have online-only version of your help.
 
-## [Usage](src/platyPS/docs)
+The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
+
+## [Usage](.\docs)
 
 Supported scenarios:
 
@@ -64,29 +71,19 @@ Supported scenarios:
     *  For a single cmdlet
     *  For an entire module
 
-*  Update existing Markdown with changes made to the structure of the cmdlet through reflection
+*  Update existing Markdown through reflection.
 
-*  Create a module landing page <ModuleName>.md 
+*  Create a module page <ModuleName>.md with summary. It will also allow you to create updatable help cab.
 
-*  Allow Metadata front matter in the top of the Markdown files (cmdlet and module landing)
+*  Retrieve markdown metadata from markdown file.
 
-*  Allow Metadata to be populated to support cabbing, which requires: 
-    *  Module Name
-    *  GUID, Locale
-    *  Help Version
-    *  Cmdlet Source File name
-    *  PlayPS Schema Version
-    *  Download Link (FwLink)
-
-*  Return the metadata stored in markdown file
-
-*  Create external help.xml files (MAML) from platyPS Markdown.
+*  Create external help xml files (MAML) from platyPS Markdown.
 
 *  Create external help file cab
 
 *  Preview help from generated maml file.
 
-*  Update the schema of existing PlatyPS generated markdown files. Currently from version 1.0.0 to version 2.0.0 
+*  Update the [schema](platyPS.schema.md) of existing PlatyPS generated markdown files (Currently version 1.0.0 to version 2.0.0)
 
 ## Build
 
