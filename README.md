@@ -66,8 +66,10 @@ We have defined a [**schema**](platyPS.schema.md) to determine how parameters ar
 
 The schema closely resembles the existing output format of the `Get-Help` cmdlet in PowerShell. 
 
-If you break the schema in your markdown, you will get error message from `New-ExternalHelp` and would not be able to generate extrenal help.
-It may be fine for some scenarios, i.e. you want to have online-only version of your help.
+If you break the schema in your markdown, you will get error messages from `New-ExternalHelp` and `Update-MarkdownHelp`.
+You would not be able to generate extrenal help or update your markdown.
+
+It may be fine for some scenarios, i.e. you want to have online-only version of markdown.
 
 ## [Usage](docs)
 
