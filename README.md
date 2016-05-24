@@ -8,6 +8,7 @@ PlatyPS provides a way to
 
 * Write PowerShell External Help in Markdown
 * Generate markdown help for your existing modules
+* Keep markdown help up-to-date with your code
 
 Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.  
 
@@ -59,7 +60,7 @@ Import-Module MyAwesomeModule -Force
 Update-MarkdownHelp .\docs
 ```
 
-### platyPS markdown schema
+### PlatyPS markdown schema
 
 Unfortunately, you cannot just write any Markdown, as platyPS expects Markdown to be authored in a **particular way**.
 We have defined a [**schema**](platyPS.schema.md) to determine how parameters are described, where scripts examples are shown, and so on.
