@@ -20,8 +20,8 @@ CHANGELOG
     -   `Update-MarkdowhHelpSchema` - migrate from schema version 1.0.0 to schema version 2.0.0
     -   `Get-HelpPreview` - get preview of help from Maml file. Returns help objects.
 *   Tab-completion support by [@dotps1](https://github.com/dotps1)
-    -    Requires PS v5 or if you use [TabExpansionPlusPlus](https://github.com/lzybkr/TabExpansionPlusPlus)
-    -    For module names in `New-ExternalHelp -Module`
+    -    Requires PS v5 or [TabExpansionPlusPlus](https://github.com/lzybkr/TabExpansionPlusPlus)
+    -    Provides complitions for module names in `New-ExternalHelp -Module <Tab>`
 
 ## 0.3.1
 
