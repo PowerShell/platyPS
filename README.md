@@ -7,7 +7,7 @@
 PlatyPS provides a way to 
 
 * Write PowerShell External Help in Markdown
-* Generate markdown help for your existing modules
+* Generate markdown help ([example](docs/Update-MarkdownHelp.md)) for your existing modules
 * Keep markdown help up-to-date with your code
 
 Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.  
