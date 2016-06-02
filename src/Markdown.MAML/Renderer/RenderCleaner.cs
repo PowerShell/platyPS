@@ -10,7 +10,7 @@ namespace Markdown.MAML.Renderer
 {
     static class RenderCleaner
     {
-        public static string NormalizeCharacters(string text)
+        public static string NormalizeWhitespaces(string text)
         {
             text = Regex.Replace(text, "Â ", " ");
             return text;
