@@ -64,12 +64,7 @@ namespace Markdown.MAML.Renderer
             AddCommand(mamlCommand);
 
             // at the end, just normalize all ends
-            return NormalizeLineEnds(_stringBuilder.ToString());
-        }
-
-        private string NormalizeLineEnds(string text)
-        {
-            return Regex.Replace(text, "\r\n?|\n", "\r\n");
+            return RenderCleaner.NormalizeLineBreaks(_stringBuilder.ToString());
         }
 
         private void AddYamlHeader(Hashtable yamlHeader)
