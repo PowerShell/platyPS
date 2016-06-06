@@ -1,6 +1,3 @@
-# we use WMF 5 os image to get predictable consistent results from the Update-Help
-os: WMF 5
-
 version: 0.4.0.{build}
 
 install:
