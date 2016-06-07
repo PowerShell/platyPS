@@ -88,7 +88,7 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.AppendLine("</helpItems>");
             }
 
-            return _stringBuilder.ToString();
+           return RenderCleaner.NormalizeWhitespaces(_stringBuilder.ToString());
         }
 
         private void AddCommands(IEnumerable<MamlCommand> mamlCommands)
