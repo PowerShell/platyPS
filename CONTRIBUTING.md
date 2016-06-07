@@ -10,7 +10,7 @@ There are two parts:
 
 - .NET library `Markdown.MAML.dll` written in C#. It does heavy lifting, like parsing markdown, transforming it into xml and so on.
 You can open `.\Markdown.MAML.sln` in Visual Studio 2015.
-- PowerShell scripts in [`.\src\platyPS`](src\platyPS). They provide user interface.
+- PowerShell scripts in `.\src\platyPS`. They provide user interface.
 
 ## First-time setup
 
