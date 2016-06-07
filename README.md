@@ -99,4 +99,4 @@ Supported scenarios:
 
 ## Build
 
-For information about building from sources and contributing see [contrubting guidelinces](CONTRIBUTING.md).
+For information about building from sources and contributing see [contributing guidelines](CONTRIBUTING.md).
