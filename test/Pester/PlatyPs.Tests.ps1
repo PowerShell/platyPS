@@ -363,6 +363,20 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $Parameter.Name | Should be "ComputerName"
             $Parameter.Type | Should be "string[]"
             $Parameter.Required | Should be $false
+        }
+        
+        It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
+            
+            $DefaultParameterSet = $mamlModelObject.Syntax | ? {$_.IsDefault}
+            $count = 0
+            foreach($set in $DefaultParameterSet)
+            {
+                $count = $count +1
+            }
+            $count | Should be 1
+            
+            $DefaultParameterSetName = $mamlModelObject.Syntax | ? {$_.IsDefault} | Select ParameterSetName
+            $DefaultParameterSetName.ParameterSetName | Should be "Domain"
         }        
     }
 
@@ -623,5 +637,16 @@ It has mutlilines. And hyper (http://link.com).
         $e = $Help.examples.example
         $e.Title | Should Be 'Example 1'
         $e.Code | Should Match 'PS C:\>*'
+    }
+    
+    It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' {
+        $outputOriginal = "TestDrive:\MarkDownOriginal"
+        $outputUpdated = "TestDrive:\MarkDownUpdated"
+        New-Item -ItemType Directory -Path $outputOriginal
+        New-Item -ItemType Directory -Path $outputUpdated
+        New-MarkdownHelp -Command "Add-Computer" -OutputFolder $outputOriginal -Force
+        Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
+        Update-MarkdownHelp -Path $outputFolder
+        (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
     }
 }

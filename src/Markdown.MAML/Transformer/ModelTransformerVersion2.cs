@@ -7,7 +7,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using Markdown.MAML.Parser;
+using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Transformer
 {
@@ -17,6 +19,8 @@ namespace Markdown.MAML.Transformer
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
         public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
+
+        private string DefaultParameterSet;
 
         public ModelTransformerVersion2() : this(null) { }
 
@@ -101,8 +105,10 @@ namespace Markdown.MAML.Transformer
             MamlSyntax syntax;
             while ((syntax = SyntaxEntryRule()) != null)
             {
-                // We ignore Syntax section from markdown in the transformation
-                // We get all nessesary info from parameters section
+                //this is the only way to retain information on which syntax is the default 
+                // without adding new members to command object.
+                //Though the cmdlet object, does have a member which contains the default syntax name only.
+                if (syntax.IsDefault) { commmand.Syntax.Add(syntax); }
             }
         }
 
@@ -132,10 +138,12 @@ namespace Markdown.MAML.Transformer
                 {
                     return null;
                 }
-
+                
                 syntax = new MamlSyntax()
                 {
-                    ParameterSetName = headingNode.Text
+
+                    ParameterSetName = headingNode.Text.EndsWith(" (Default)") ? headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length) : headingNode.Text,
+                    IsDefault = headingNode.Text.EndsWith(" (Default)") ? true : false
                 };
 
                 var codeBlock = CodeBlockRule();
@@ -186,7 +194,15 @@ namespace Markdown.MAML.Transformer
         private void GatherSyntax(MamlCommand command)
         {
             var parameterSetNames = GetParameterSetNames();
+            var defaultSetName = string.Empty;
 
+            if(command.Syntax.Count == 1 && command.Syntax[0].IsDefault)
+            {
+                //checks for existing IsDefault paramset and remove it while saving the name
+                defaultSetName = command.Syntax[0].ParameterSetName;
+                command.Syntax.Remove(command.Syntax[0]);
+            }
+            
             if (parameterSetNames.Count == 0)
             {
                 // special case: there are no parameters and hence there is only one parameter set
@@ -201,7 +217,7 @@ namespace Markdown.MAML.Transformer
                 {
                     if (parameterSetNames.Count == 1)
                     {
-                        // special case: there is only one parameter set and it's the deafult one
+                        // special case: there is only one parameter set and it's the default one
                         // we don't specify the name in this case.
                     }
                     else
@@ -209,12 +225,17 @@ namespace Markdown.MAML.Transformer
                         continue;
                     }                    
                 }
+                else if (setName == "__AllParameterSets")
+                {
+                    continue;
+                }
                 else
                 {
-                    syntax.ParameterSetName = setName;
+                    syntax.ParameterSetName = syntax.ParameterSetName == defaultSetName ? setName + MarkdownStrings.DefaultParameterSetModifier : setName;
                 }
-
+                
                 FillUpSyntax(syntax, setName);
+                
                 command.Syntax.Add(syntax);
             }
         }

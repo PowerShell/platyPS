@@ -372,7 +372,7 @@ namespace Markdown.MAML.Renderer
             {
                 if (command.Syntax.Count > 1)
                 {
-                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
+                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, string.Format("{0}{1}",syntax.ParameterSetName,syntax.IsDefault ? MarkdownStrings.DefaultParameterSetModifier : null), extraNewLine: false);
                 }
 
                 AddCodeSnippet(GetSyntaxString(command, syntax));
