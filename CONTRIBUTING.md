@@ -31,6 +31,11 @@ To build the whole project, use helper `build.ps1` script
 As part of build, module generate help for itself.
 The result of the build would be in `out\platyPS` folder.
 
+`build.ps1` also imports the module from `out\platyPS` and generates help for the tool itself.
+
+**Note**: if you changed C# code, script will try to overwrite a dll in-use. 
+You would need to re-open your powershell session. If you know a better workflow, please suggest it in the issues.
+
 ## Tests
 
 There are two part of projects and two test sets.
