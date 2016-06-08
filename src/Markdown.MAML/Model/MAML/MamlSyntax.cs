@@ -13,8 +13,6 @@ namespace Markdown.MAML.Model.MAML
             // default for parameter set names is __AllParameterSets
             //commented out for future consideration.
             //ParameterSetName = "__AllParameterSets";
-
-            IsDefault = false;
         }
         
         public string ParameterSetName { get; set; }

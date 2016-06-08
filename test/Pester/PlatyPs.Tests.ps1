@@ -249,6 +249,20 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $Parameter.Name | Should be "ComputerName"
             $Parameter.Type | Should be "string[]"
             $Parameter.Required | Should be $false
+        }
+        
+        It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
+            
+            $DefaultParameterSet = $mamlModelObject.Syntax | ? {$_.IsDefault}
+            $count = 0
+            foreach($set in $DefaultParameterSet)
+            {
+                $count = $count +1
+            }
+            $count | Should be 1
+            
+            $DefaultParameterSetName = $mamlModelObject.Syntax | ? {$_.IsDefault} | Select ParameterSetName
+            $DefaultParameterSetName.ParameterSetName | Should be "Domain"
         }        
     }
 
@@ -509,5 +523,20 @@ It has mutlilines. And hyper (http://link.com).
         $e = $Help.examples.example
         $e.Title | Should Be 'Example 1'
         $e.Code | Should Match 'PS C:\>*'
+    }
+    
+    It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' {
+        $outputFolder = "TestDrive:\MarkDownHelp"
+        New-MarkdownHelp -Command "Add-COmputer" -OutputFolder $outputFolder -Force
+        $MarkdownFiles = @()
+        $MarkdownFiles += & (Get-Module platyPS)  { GetMarkdownFilesFromPath "TestDrive:\MarkDownHelp" }
+        $oldMarkdown = cat -Raw $MarkdownFiles[0].FullName
+        $OldModels = & (Get-Module platyPS) { GetMamlModelImpl $oldMarkdown -PreserveFormatting }.GetNewClosure()
+        $oldModel = $OldModels[0]
+
+        $OldModelDefaultParamSet = $OldModel.Syntax | ? { $_.IsDefault}
+        $Command = Get-Command $OldModel.Name
+
+        $OldModelDefaultParamSet.ParameterSetName | Should Be $Command.DefaultParameterSet
     }
 }

@@ -245,7 +245,7 @@ function Get-MarkdownMetadata
         }
         else # FromFile)
         {
-            GetMarkdowFilesFromPath $Path -IncludeModulePage | % { 
+            GetMarkdownFilesFromPath $Path -IncludeModulePage | % { 
                 $md = Get-Content -Raw $_.FullName
                 [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md) # yeild
             }
@@ -282,7 +282,7 @@ function Update-MarkdownHelpSchema
     
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
     
     end
@@ -330,7 +330,7 @@ function Update-MarkdownHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
 
     end 
@@ -515,7 +515,7 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
 
     end 
@@ -823,7 +823,7 @@ function GetInfoCallback
     return $infoCallback
 }
 
-function GetMarkdowFilesFromPath
+function GetMarkdownFilesFromPath
 {
     [CmdletBinding()]
     param(

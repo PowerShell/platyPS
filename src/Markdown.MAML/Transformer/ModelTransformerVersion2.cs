@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections.Specialized;
+using System.ComponentModel;
 using Markdown.MAML.Parser;
 using System.Text.RegularExpressions;
 
@@ -102,8 +103,10 @@ namespace Markdown.MAML.Transformer
             MamlSyntax syntax;
             while ((syntax = SyntaxEntryRule()) != null)
             {
-                // We ignore Syntax section from markdown in the transformation
-                // We get all nessesary info from parameters section
+                if (syntax.ParameterSetName != "__AllParameterSets")
+                {
+                    commmand.Syntax.Add(syntax);
+                }
             }
         }
 
@@ -134,11 +137,14 @@ namespace Markdown.MAML.Transformer
                     return null;
                 }
 
-                if (Regex.IsMatch(headingNode.Text, (" \\(" + MarkdownStrings.DefaultParameterSetModifier + "\\)$")))
+                var RegExPattern = string.Format("{0}$", MarkdownStrings.DefaultParameterSetModifier.Replace("(","\\(").Replace(")","\\)"));
+                
+                if (Regex.IsMatch(headingNode.Text, RegExPattern))
                 {
                     syntax = new MamlSyntax()
                     {
-                        ParameterSetName = headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length)
+                        ParameterSetName = headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length),
+                        IsDefault = true
                     };
                     
                 }
@@ -199,6 +205,7 @@ namespace Markdown.MAML.Transformer
         {
             var parameterSetNames = GetParameterSetNames();
 
+            
             if (parameterSetNames.Count == 0)
             {
                 // special case: there are no parameters and hence there is only one parameter set
@@ -213,13 +220,32 @@ namespace Markdown.MAML.Transformer
                 {
                     if (parameterSetNames.Count == 1)
                     {
-                        // special case: there is only one parameter set and it's the deafult one
+                        // special case: there is only one parameter set and it's the default one
                         // we don't specify the name in this case.
+                        
                     }
                     else
                     {
+
                         continue;
                     }                    
+                }
+                else if (command.Syntax.Exists(s => s.ParameterSetName == setName))
+                {
+                    //if a Parameter Set existed in source MD, use it instead of a new syntax.
+                    //this preserves the IsDefault setting from the old MD.
+                    syntax = command.Syntax.FirstOrDefault(s => s.ParameterSetName == setName);
+                    FillUpSyntax(syntax, setName);
+
+                    if (syntax.Parameters == null || syntax.Parameters.Count == 0)
+                    {
+                        command.Syntax.Remove(syntax);
+                    }
+                    continue;
+                }
+                else if (setName == "__AllParameterSets")
+                {
+                    continue;
                 }
                 else
                 {
@@ -228,6 +254,9 @@ namespace Markdown.MAML.Transformer
 
                 FillUpSyntax(syntax, setName);
                 command.Syntax.Add(syntax);
+
+                // TODO: we should overwrite previous syntax but need to verify that it's complient.
+
             }
         }
 
