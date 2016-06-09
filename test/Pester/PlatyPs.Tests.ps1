@@ -526,17 +526,13 @@ It has mutlilines. And hyper (http://link.com).
     }
     
     It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' {
-        $outputFolder = "TestDrive:\MarkDownHelp"
-        New-MarkdownHelp -Command "Add-COmputer" -OutputFolder $outputFolder -Force
-        $MarkdownFiles = @()
-        $MarkdownFiles += & (Get-Module platyPS)  { GetMarkdownFilesFromPath "TestDrive:\MarkDownHelp" }
-        $oldMarkdown = cat -Raw $MarkdownFiles[0].FullName
-        $OldModels = & (Get-Module platyPS) { GetMamlModelImpl $oldMarkdown -PreserveFormatting }.GetNewClosure()
-        $oldModel = $OldModels[0]
-
-        $OldModelDefaultParamSet = $OldModel.Syntax | ? { $_.IsDefault}
-        $Command = Get-Command $OldModel.Name
-
-        $OldModelDefaultParamSet.ParameterSetName | Should Be $Command.DefaultParameterSet
+        $outputOriginal = "TestDrive:\MarkDownOriginal"
+        $outputUpdated = "TestDrive:\MarkDownUpdated"
+        New-Item -ItemType Directory -Path $outputOriginal
+        New-Item -ItemType Directory -Path $outputUpdated
+        New-MarkdownHelp -Command "Add-Computer" -OutputFolder $outputOriginal -Force
+        Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
+        Update-MarkdownHelp -Path $outputFolder
+        (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
     }
 }
