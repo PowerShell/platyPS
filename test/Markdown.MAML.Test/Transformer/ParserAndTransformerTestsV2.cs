@@ -267,6 +267,38 @@ Runs the [Set-WSManQuickConfig]() cmdlet
         }
 
         [Fact]
+        public void HandlesItalicInsideText()
+        {
+
+            var doc = ParseString(@"
+# Get-Foo
+## SYNOPSIS
+
+Runs the *Set-WSManQuickConfig* cmdlet
+
+");
+            var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+        }
+
+        [Fact]
+        public void HandlesBoldInsideText()
+        {
+
+            var doc = ParseString(@"
+# Get-Foo
+## SYNOPSIS
+
+Runs the **Set-WSManQuickConfig** cmdlet
+
+");
+            var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+        }
+
+        [Fact]
         public void ProducesParameterAndSyntaxEntries()
         {
             

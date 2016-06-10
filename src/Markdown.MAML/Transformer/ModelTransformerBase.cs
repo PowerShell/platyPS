@@ -370,31 +370,30 @@ namespace Markdown.MAML.Transformer
 
             StringBuilder sb = new StringBuilder();
             bool first = true;
-            bool previousIsHyperLink = false;
+            bool previousSpanIsSpecial = false;
             foreach (var paragraphSpan in spans)
             {
-                // TODO: make it handle hyperlinks, codesnippets, etc more wisely
-
+                // TODO: make it handle hyperlinks, codesnippets, italic, bold etc more wisely
                 HyperlinkSpan hyperlink = paragraphSpan as HyperlinkSpan;
-                if (!first && hyperlink != null)
+                TextSpan text = paragraphSpan as TextSpan;
+                bool spanIsSpecial = hyperlink != null || (text != null && text.Style != TextSpanStyle.Normal);
+                if (!first && spanIsSpecial)
                 {
                     sb.Append(" ");
                 }
-                else if (previousIsHyperLink)
+                else if (previousSpanIsSpecial)
                 {
                     sb.Append(" ");
                 }
                 
                 sb.Append(paragraphSpan.Text);
+                previousSpanIsSpecial = spanIsSpecial;
                 if (hyperlink != null)
                 {
                     if (!string.IsNullOrWhiteSpace(hyperlink.Uri))
                     {
                         sb.AppendFormat(" ({0})", hyperlink.Uri);
-                    }
-                    else
-                    {
-                        previousIsHyperLink = paragraphSpan is HyperlinkSpan;
+                        previousSpanIsSpecial = false;
                     }
                 }
 
