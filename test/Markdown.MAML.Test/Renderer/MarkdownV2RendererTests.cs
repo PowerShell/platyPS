@@ -22,9 +22,9 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Equal(@"\\\\\\\<", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\\<"));
             Assert.Equal(@"\", MarkdownV2Renderer.GetEscapedMarkdownText(@"\"));
             Assert.Equal(@"\\\\", MarkdownV2Renderer.GetEscapedMarkdownText(@"\\"));
-            Assert.Equal(@"\\\(", MarkdownV2Renderer.GetEscapedMarkdownText(@"\("));
-            Assert.Equal(@"\(", MarkdownV2Renderer.GetEscapedMarkdownText(@"("));
-            Assert.Equal(@"\)", MarkdownV2Renderer.GetEscapedMarkdownText(@")"));
+            Assert.Equal(@"\\(", MarkdownV2Renderer.GetEscapedMarkdownText(@"\("));
+            Assert.Equal(@"(", MarkdownV2Renderer.GetEscapedMarkdownText(@"("));
+            Assert.Equal(@")", MarkdownV2Renderer.GetEscapedMarkdownText(@")"));
             Assert.Equal(@"\[", MarkdownV2Renderer.GetEscapedMarkdownText(@"["));
             Assert.Equal(@"\]", MarkdownV2Renderer.GetEscapedMarkdownText(@"]"));
             Assert.Equal(@"\`", MarkdownV2Renderer.GetEscapedMarkdownText(@"`"));
@@ -64,11 +64,11 @@ Workflow [<WorkflowCommonParameters>] [<CommonParameters>]
 
 ### WorkflowCommonParameters
 This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject.
-For more information, see about_WorkflowCommonParameters \(http://go.microsoft.com/fwlink/p/?LinkID=533952\).
+For more information, see about_WorkflowCommonParameters (http://go.microsoft.com/fwlink/p/?LinkID=533952).
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -212,7 +212,7 @@ Accept wildcard characters: True
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
@@ -358,7 +358,7 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
-For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 

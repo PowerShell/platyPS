@@ -516,8 +516,9 @@ namespace Markdown.MAML.Renderer
 
                 .Replace(@"[", @"\[")
                 .Replace(@"]", @"\]")
-                .Replace(@"(", @"\(")
-                .Replace(@")", @"\)")
+                // per https://github.com/PowerShell/platyPS/issues/121 we don't perform escaping for () in markdown renderer, but we do in the parser
+                //.Replace(@"(", @"\(")
+                //.Replace(@")", @"\)")
                 .Replace(@"`", @"\`")
 
                 ;
