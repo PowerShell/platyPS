@@ -1551,11 +1551,16 @@ function ConvertPsObjectsToMamlModel
 
         $HelpEntry = $Help.parameters.parameter | WHERE {$_.Name -eq $ParameterObject.Name}
 
-        $ParameterObject.DefaultValue = $HelpEntry.defaultValue
+        if($HelpEntry.defaultValue)
+        {
+            $ParameterObject.DefaultValue = $HelpEntry.defaultValue.substring(0,1).toupper() + $HelpEntry.defaultValue.substring(1)
+        }
         $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
         $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
-        $ParameterObject.Position = $HelpEntry.position
-
+        if($HelpEntry.position)
+        {
+            $ParameterObject.Position = $HelpEntry.position.substring(0,1).toupper() + $HelpEntry.position.substring(1)
+        }
         if ($HelpEntry.description) 
         {
             $ParameterObject.Description = $HelpEntry.description.text | AddLineBreaksForParagraphs
@@ -1658,8 +1663,10 @@ function ConvertPsObjectsToMamlModel
 
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.required -eq 'true'
-                $ParameterObject.PipelineInput = $Parameter.pipelineInput
-
+                if($ParameterObject.PipelineInput)
+                {
+                    $ParameterObject.PipelineInput = $Parameter.pipelineInput.substring(0,1).ToUpper() + $Parameter.pipelineInput.substring(1)
+                }
                 $ParameterObject.ValueRequired = -not ($ParameterObject.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
                 if ($parameter.Aliases -ne 'None')
