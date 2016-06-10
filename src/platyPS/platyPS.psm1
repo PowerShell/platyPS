@@ -1558,7 +1558,17 @@ function ConvertPsObjectsToMamlModel
 
         if ($HelpEntry.description) 
         {
-            $ParameterObject.Description = $HelpEntry.description.text | AddLineBreaksForParagraphs
+            if ($HelpEntry.description.text)
+            {
+                $ParameterObject.Description = $HelpEntry.description.text | AddLineBreaksForParagraphs
+            }
+            else 
+            {
+                # this case happens, when there is HelpMessage in 'Parameter' attribute,
+                # but there is no maml or comment-based help.
+                # then help engine put string outside of 'text' property
+                $ParameterObject.Description = $HelpEntry.description | AddLineBreaksForParagraphs
+            }
         }
 
         $syntaxParam = $Help.syntax.syntaxItem.parameter |  ? {$_.Name -eq $Parameter.Name} | Select -First 1

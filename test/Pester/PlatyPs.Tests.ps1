@@ -86,24 +86,94 @@ Describe 'New-MarkdownHelp' {
         }
     }
     
-    Context 'Generated markdown features' {
+    Context 'Generated markdown features: comment-based help' {
         function global:Test-PlatyPSFunction
         {
+            # comment-based help template from https://technet.microsoft.com/en-us/library/hh847834.aspx
+
+             <#
+            .SYNOPSIS 
+            Adds a file name extension to a supplied name.
+
+            .DESCRIPTION
+            Adds a file name extension to a supplied name. 
+            Takes any strings for the file name or extension.
+
+            .PARAMETER Second
+            Second parameter help description
+
+            .OUTPUTS
+            System.String. Add-Extension returns a string with the extension or file name.
+
+            .EXAMPLE
+            C:\PS> Test-PlatyPSFunction "File"
+            File.txt
+
+            .EXAMPLE
+            C:\PS> Test-PlatyPSFunction "File" -First "doc"
+            File.doc
+
+            .LINK
+            http://www.fabrikam.com/extension.html
+
+            .LINK
+            Set-Item
+            #>
+
             param(
                 [Switch]$Common,
-                [Parameter(ParameterSetName="First")]
+                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
                 [string]$First,
                 [Parameter(ParameterSetName="Second")]
                 [string]$Second
             )
         }
         
-        It 'generate markdown with correct parameter set names' {
-            $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll -Force
-            $content = cat $file
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll1 -Force
+        $content = cat $file
+
+        It 'generates markdown with correct parameter set names' {
             ($content | ? {$_ -eq 'Parameter Sets: (All)'} | measure).Count | Should Be 1
             ($content | ? {$_ -eq 'Parameter Sets: First'} | measure).Count | Should Be 1
             ($content | ? {$_ -eq 'Parameter Sets: Second'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct help description specified by comment-based help' {
+            ($content | ? {$_ -eq 'Second parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with placeholder for parameter with no description' {
+            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
+        }
+    }
+
+    Context 'Generated markdown features: no comment-based help' {
+        function global:Test-PlatyPSFunction
+        {
+            # there is a help-engine behavior difference for functions with comment-based help (or maml help)
+            # and no-comment based help, we test both 
+            param(
+                [Switch]$Common,
+                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
+                [string]$First,
+                [Parameter(ParameterSetName="Second")]
+                [string]$Second
+            )
+        }
+        
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll2 -Force
+        $content = cat $file
+
+        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with placeholder for parameter with no description' {
+            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
         }
     }
 
