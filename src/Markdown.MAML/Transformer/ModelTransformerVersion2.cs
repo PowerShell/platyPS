@@ -20,6 +20,8 @@ namespace Markdown.MAML.Transformer
 
         public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
 
+        private string DefaultParameterSet;
+
         public ModelTransformerVersion2() : this(null) { }
 
         /// <summary>
@@ -103,10 +105,10 @@ namespace Markdown.MAML.Transformer
             MamlSyntax syntax;
             while ((syntax = SyntaxEntryRule()) != null)
             {
-                if (syntax.ParameterSetName != "__AllParameterSets")
-                {
-                    commmand.Syntax.Add(syntax);
-                }
+                //this is the only way to retain information on which syntax is the default 
+                // without adding new members to command object.
+                //Though the cmdlet object, does have a member which contains the default syntax name only.
+                if (syntax.IsDefault) { commmand.Syntax.Add(syntax); }
             }
         }
 
@@ -136,25 +138,13 @@ namespace Markdown.MAML.Transformer
                 {
                     return null;
                 }
-
-                var RegExPattern = string.Format("{0}$", MarkdownStrings.DefaultParameterSetModifier.Replace("(","\\(").Replace(")","\\)"));
                 
-                if (Regex.IsMatch(headingNode.Text, RegExPattern))
+                syntax = new MamlSyntax()
                 {
-                    syntax = new MamlSyntax()
-                    {
-                        ParameterSetName = headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length),
-                        IsDefault = true
-                    };
-                    
-                }
-                else
-                {
-                    syntax = new MamlSyntax()
-                    {
-                        ParameterSetName = headingNode.Text
-                    };
-                }
+
+                    ParameterSetName = headingNode.Text.EndsWith(" (Default)") ? headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length) : headingNode.Text,
+                    IsDefault = headingNode.Text.EndsWith(" (Default)") ? true : false
+                };
 
                 var codeBlock = CodeBlockRule();
             }
@@ -204,7 +194,14 @@ namespace Markdown.MAML.Transformer
         private void GatherSyntax(MamlCommand command)
         {
             var parameterSetNames = GetParameterSetNames();
+            var defaultSetName = string.Empty;
 
+            if(command.Syntax.Count == 1 && command.Syntax[0].IsDefault)
+            {
+                //checks for existing IsDefault paramset and remove it while saving the name
+                defaultSetName = command.Syntax[0].ParameterSetName;
+                command.Syntax.Remove(command.Syntax[0]);
+            }
             
             if (parameterSetNames.Count == 0)
             {
@@ -222,26 +219,11 @@ namespace Markdown.MAML.Transformer
                     {
                         // special case: there is only one parameter set and it's the default one
                         // we don't specify the name in this case.
-                        
                     }
                     else
                     {
-
                         continue;
                     }                    
-                }
-                else if (command.Syntax.Exists(s => s.ParameterSetName == setName))
-                {
-                    //if a Parameter Set existed in source MD, use it instead of a new syntax.
-                    //this preserves the IsDefault setting from the old MD.
-                    syntax = command.Syntax.FirstOrDefault(s => s.ParameterSetName == setName);
-                    FillUpSyntax(syntax, setName);
-
-                    if (syntax.Parameters == null || syntax.Parameters.Count == 0)
-                    {
-                        command.Syntax.Remove(syntax);
-                    }
-                    continue;
                 }
                 else if (setName == "__AllParameterSets")
                 {
@@ -249,14 +231,12 @@ namespace Markdown.MAML.Transformer
                 }
                 else
                 {
-                    syntax.ParameterSetName = setName;
+                    syntax.ParameterSetName = syntax.ParameterSetName == defaultSetName ? setName + MarkdownStrings.DefaultParameterSetModifier : setName;
                 }
-
+                
                 FillUpSyntax(syntax, setName);
+                
                 command.Syntax.Add(syntax);
-
-                // TODO: we should overwrite previous syntax but need to verify that it's complient.
-
             }
         }
 
