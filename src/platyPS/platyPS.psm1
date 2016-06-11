@@ -1152,11 +1152,21 @@ function GetHelpFileName
             $module = $module | Select-Object -First 1
         }
 
-        $moduleItem = Get-Item -Path $module.Path
-        if ($moduleItem.Extension -eq '.psm1') {
-            $fileName = $moduleItem.BaseName
-        } else {
-            $fileName = $moduleItem.Name
+        if (Test-Path $module.Path -Type Leaf)
+        {
+            # for regular modules, we can deduct the filename from the module path file
+            $moduleItem = Get-Item -Path $module.Path
+            if ($moduleItem.Extension -eq '.psm1') {
+                $fileName = $moduleItem.BaseName
+            } else {
+                $fileName = $moduleItem.Name
+            }
+        }
+        else 
+        {
+            # if it's something like Dynamic module,
+            # we  guess the desired help file name based on the module name
+            $fileName = $module.Name
         }
 
         return "$fileName-help.xml"

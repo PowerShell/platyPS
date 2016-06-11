@@ -47,11 +47,47 @@ Describe 'New-MarkdownHelp' {
         Get-MarkdownMetadata -Markdown $content | Should Not Be $null
     }
 
-    Context 'from module' {
+    Context 'from platyPS module' {
         It 'creates few help files for platyPS' {
             $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
             ($files | measure).Count | Should BeGreaterThan 4
         }
+    }
+
+    Context 'from module' {
+        try
+        {
+            New-Module -Name PlatyPSTestModule -ScriptBlock { 
+                function Get-AAAA 
+                {
+
+                }
+
+                function Set-BBBB 
+                {
+
+                }
+
+                Set-Alias aaaaalias Get-AAAA
+                Set-Alias bbbbalias Get-BBBB
+
+                Export-ModuleMember -Alias aaaaalias
+                Export-ModuleMember -Alias bbbbalias
+                Export-ModuleMember -Function Get-AAAA
+
+            } | Import-Module -Force
+
+            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder TestDrive:\PlatyPSTestModule -Force
+        }
+        finally
+        {
+            Remove-Module PlatyPSTestModule -ErrorAction SilentlyContinue
+        }
+
+        It 'generates markdown files only for exported functions' {
+            ($files | measure).Count | Should Be 1
+            $files.Name | Should Be 'Get-AAAA.md'
+        }        
     }
     
     Context 'from command' {
