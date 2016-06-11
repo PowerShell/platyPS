@@ -138,6 +138,10 @@ Describe 'New-MarkdownHelp' {
             ($content | ? {$_ -eq 'Parameter Sets: Second'} | measure).Count | Should Be 1
         }
 
+        It 'generates markdown with correct synopsis' {
+            ($content | ? {$_ -eq 'Adds a file name extension to a supplied name.'} | measure).Count | Should Be 1
+        }
+
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
             ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
         }
@@ -167,6 +171,10 @@ Describe 'New-MarkdownHelp' {
         
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll2 -Force
         $content = cat $file
+
+        It 'generates markdown with correct synopsis placeholder' {
+            ($content | ? {$_ -eq '{{Fill in the Synopsis}}'} | measure).Count | Should Be 1
+        }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
             ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
