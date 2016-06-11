@@ -1436,7 +1436,7 @@ function ConvertPsObjectsToMamlModel
         [switch]$UsePlaceholderForSynopsis
     )
 
-    function IsCommonParameterName
+    function isCommonParameterName
     {
         param([string]$parameterName, [switch]$Workflow)
 
@@ -1486,7 +1486,7 @@ function ConvertPsObjectsToMamlModel
         return $false
     }
 
-    function GetPipelineValue($Parameter)
+    function getPipelineValue($Parameter)
     {
         if ($Parameter.ValueFromPipeline)
         {
@@ -1512,7 +1512,7 @@ function ConvertPsObjectsToMamlModel
         }
     }
 
-    function Get-TypeString
+    function getTypeString
     {
         param(
             [Parameter(ValueFromPipeline=$true)]
@@ -1533,6 +1533,21 @@ function ConvertPsObjectsToMamlModel
         }
 
         return $typeObject.Name
+    }
+
+    function normalizeFirstLatter
+    {
+        param(
+            [Parameter(ValueFromPipeline=$true)]
+            [string]$value
+        )
+
+        if ($value -and $value.Length -gt 0)
+        {
+            return $value.Substring(0,1).ToUpperInvariant() + $value.substring(1)
+        }
+
+        return $value
     }
 
     #endregion
@@ -1566,11 +1581,10 @@ function ConvertPsObjectsToMamlModel
 
         $HelpEntry = $Help.parameters.parameter | Where-Object {$_.Name -eq $ParameterObject.Name}
 
-        $ParameterObject.DefaultValue = $HelpEntry.defaultValue
+        $ParameterObject.DefaultValue = $HelpEntry.defaultValue | normalizeFirstLatter
         $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
         $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
-        $ParameterObject.Position = $HelpEntry.position
-
+        $ParameterObject.Position = $HelpEntry.position | normalizeFirstLatter
         if ($HelpEntry.description) 
         {
             if ($HelpEntry.description.text)
@@ -1608,7 +1622,7 @@ function ConvertPsObjectsToMamlModel
             foreach($Parameter in $ParameterSet.Parameters)
             {
                 # ignore CommonParameters
-                if (IsCommonParameterName $Parameter.Name -Workflow:$IsWorkflow) 
+                if (isCommonParameterName $Parameter.Name -Workflow:$IsWorkflow) 
                 { 
                     # but don't ignore them, if they have explicit help entries
                     if ($Help.parameters.parameter | Where-Object {$_.Name -eq $Parameter.Name})
@@ -1622,10 +1636,10 @@ function ConvertPsObjectsToMamlModel
 
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
-                $ParameterObject.Type = $Parameter.ParameterType | Get-TypeString
+                $ParameterObject.Type = $Parameter.ParameterType | getTypeString
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
-                $ParameterObject.PipelineInput = GetPipelineValue $Parameter
+                $ParameterObject.PipelineInput = getPipelineValue $Parameter
 
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
@@ -1683,7 +1697,7 @@ function ConvertPsObjectsToMamlModel
 
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.required -eq 'true'
-                $ParameterObject.PipelineInput = $Parameter.pipelineInput
+                $ParameterObject.PipelineInput = $Parameter.pipelineInput | normalizeFirstLatter
 
                 $ParameterObject.ValueRequired = -not ($ParameterObject.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
