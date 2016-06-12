@@ -142,11 +142,10 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         $newMarkdownArgs = $_
         
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
+            $mdFiles = New-MarkdownHelp @newMarkdownArgs
+            $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
 
             It 'transforms Markdown to MAML with no errors' {
-
-                $mdFiles = New-MarkdownHelp @newMarkdownArgs
-
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
                 $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
@@ -156,10 +155,22 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 OutFileAndStripped -path $textOutputFile -content $help
             }
 
+            if ($IsMaml)
+            {
+                It 'generates correct bullet list for NOTES inside Connect-PSSession' {
+                    $file = $mdFiles | ? {$_.Name -eq 'Connect-PSSession.md'}
+                    $file | Should Not Be $null
+
+                    $content = cat $file
+
+                    ($content | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
+                    ($content | ? {$_.StartsWith('  ')} | measure).Count | Should Be 5
+                } 
+            }
+
             # this our regression suite for SMA
             $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
-            $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
-
+            
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
                 ($h.returnValues.returnValue | measure).Count | Should Be 3

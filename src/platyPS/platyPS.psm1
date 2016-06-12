@@ -615,8 +615,10 @@ function Get-HelpPreview
 
                             $_.ChildNodes | Select -Skip 1 | 
                             ForEach-Object {
-                                # non-breakable whitespace. 
-                                # We use it, because help engine strips-out regular whitespace. 
+                                # this character is not a valid space.
+                                # We have to use some odd character here, becasue help engine strips out
+                                # all legetimate whitespaces.
+                                # Note: powershell doesn't render it properly, it will appear as a non-writable char. 
                                 $newInnerXml = ([string][char]0xc2a0) * 2 + $_.get_InnerXml()
                                 $_.set_InnerXml($newInnerXml)
                             }

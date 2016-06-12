@@ -12,8 +12,20 @@ namespace Markdown.MAML.Renderer
     {
         public static string NormalizeWhitespaces(string text)
         {
-            // non-breakable white-space to a normal one
-            text = text.Replace('\uc2a0', ' ');
+            // there are many spaces
+            // https://www.cs.tut.fi/~jkorpela/chars/spaces.html
+            // we interested in just a few of them.
+            // Also, we use en-space \uc2a0 for tabulation inside NOTES list, when we convert them into lists.
+            // it's a hack, this characte is not a whitespace, but that's how we work-around help engine limitations.
+            text = text
+                // non-breakable white-space to a normal one
+                .Replace('\u00a0', ' ')
+                .Replace('\uc2a0', ' ')
+                // also try to clean up these ACSII characters
+                .Replace("Â ", " ")
+                .Replace('Ã', ' ')
+            ;
+
             return text;
         }
 
