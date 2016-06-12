@@ -128,6 +128,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
             OutputFolder = "$outFolder\sma-maml"
             Force = $true
+            ConvertNotesToList = $true
         },
 
         [psobject]@{
@@ -200,22 +201,32 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
             }
 
-            It 'preserve formatting for Connect-PSSession NOTES' {
-
-                # We are cheating a little bit here :(
-                function NormalizeEndings
-                {
-                    param(
-                        [string]$text
-                    )
-
-                    $text2 = ($text -replace "`r","")
-                    [Regex]::Replace($text2, "(`n *)+", "`n")
+            if ($IsMaml)
+            {
+                It 'add bullet list for Connect-PSSession NOTES' {
+                    $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
+                    (($h.alertSet.alert.Text | Out-String).Split("`n") | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
                 }
+            }
+            else 
+            {
+                It 'preserve formatting for Connect-PSSession NOTES' {
 
-                $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
-                $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
-                NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
+                    # We are cheating a little bit here :(
+                    function NormalizeEndings
+                    {
+                        param(
+                            [string]$text
+                        )
+
+                        $text2 = ($text -replace "`r","")
+                        [Regex]::Replace($text2, "(`n *)+", "`n")
+                    }
+
+                    $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
+                    $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
+                    NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
+                }
             }
         }
     }
