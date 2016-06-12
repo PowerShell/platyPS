@@ -68,9 +68,14 @@ Describe 'New-MarkdownHelp' {
 
                 }
 
+                # Set-Alias and New-Alias provide two different results
+                # when `Get-Command -module Foo` is used to list commands.
                 Set-Alias aaaaalias Get-AAAA
                 Set-Alias bbbbalias Get-BBBB
 
+                New-Alias -Name 'Fork-AAAA' -Value 'Get-AAAA'
+
+                Export-ModuleMember -Alias Fork-AAAA
                 Export-ModuleMember -Alias aaaaalias
                 Export-ModuleMember -Alias bbbbalias
                 Export-ModuleMember -Function Get-AAAA

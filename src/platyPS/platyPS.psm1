@@ -1318,7 +1318,9 @@ function GetCommands
     # the case `GetMamlObject -Module platyPS`
     # because in this case, we are in the module context and Get-Command returns all commands,
     # not only exported ones.
-    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'"))
+    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) | 
+        Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
+    
     if ($AsNames)
     {
         $commands.Name
@@ -1363,7 +1365,7 @@ function GetMamlObject
     {
         Write-Verbose ("Processing: " + $Module)
 
-        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module $Module"))
+        $commands = GetCommands $Module
         foreach ($Command in $commands)
         {
             Write-Verbose ("`tProcessing: " + $Command.Name)
