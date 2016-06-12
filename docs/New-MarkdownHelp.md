@@ -23,9 +23,9 @@ New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVe
 
 ### FromMaml
 ```
-New-MarkdownHelp -MamlFile <String[]> [-Force] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata]
- [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-Force] [-Metadata <Hashtable>]
+ -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>]
+ [-HelpVersion <String>] [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -388,6 +388,21 @@ Generate module page in the output directory.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromModule, FromMaml
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertNotesToList
+Add bullet list into notes section to match TechNet format.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: FromMaml
 Aliases: 
 
 Required: False

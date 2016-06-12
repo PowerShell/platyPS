@@ -9,7 +9,7 @@ Preview the output Get-Help would return from an external help file(s).
 ## SYNTAX
 
 ```
-Get-HelpPreview -Path <String[]> [<CommonParameters>]
+Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -51,6 +51,21 @@ Required: True
 Position: Named
 Default value: 
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -ConvertNotesToList
+Add bullet list into notes section to match TechNet format. 
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
