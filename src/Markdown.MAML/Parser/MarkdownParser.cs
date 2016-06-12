@@ -380,7 +380,8 @@ namespace Markdown.MAML.Parser
                 new HyperlinkSpan(
                     regexMatch.Groups[1].Value,
                     regexMatch.Groups[2].Value,
-                    sourceExtent));
+                    sourceExtent,
+                    this._parserMode));
         }
 
         private void CreateSoftBreakSpan(Match regexMatch, SourceExtent sourceExtent)

@@ -1213,7 +1213,7 @@ function MySetContent
     # just to create a file
     Set-Content -Path $Path -Value ''
     $resolvedPath = (Get-ChildItem $Path).FullName
-    [System.IO.File]::WriteAllLines($resolvedPath, $value, $Encoding)
+    [System.IO.File]::WriteAllText($resolvedPath, $value, $Encoding)
     return (Get-ChildItem $Path)
 }
 

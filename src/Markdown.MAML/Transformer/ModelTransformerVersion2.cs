@@ -4,12 +4,7 @@ using Markdown.MAML.Resources;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Collections.Specialized;
-using System.ComponentModel;
 using Markdown.MAML.Parser;
-using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Transformer
 {
@@ -128,7 +123,8 @@ namespace Markdown.MAML.Transformer
                 // if header is omitted
                 syntax = new MamlSyntax()
                 {
-                    ParameterSetName = "__AllParameterSets"
+                    ParameterSetName = ALL_PARAM_SETS_MONIKER,
+                    IsDefault = true
                 };
             }
             else
@@ -138,12 +134,12 @@ namespace Markdown.MAML.Transformer
                 {
                     return null;
                 }
-                
+
+                bool isDefault = headingNode.Text.EndsWith(MarkdownStrings.DefaultParameterSetModifier);
                 syntax = new MamlSyntax()
                 {
-
-                    ParameterSetName = headingNode.Text.EndsWith(" (Default)") ? headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length) : headingNode.Text,
-                    IsDefault = headingNode.Text.EndsWith(" (Default)") ? true : false
+                    ParameterSetName = isDefault ? headingNode.Text.Substring(0, headingNode.Text.Length - MarkdownStrings.DefaultParameterSetModifier.Length) : headingNode.Text,
+                    IsDefault = isDefault
                 };
 
                 var codeBlock = CodeBlockRule();
@@ -225,17 +221,14 @@ namespace Markdown.MAML.Transformer
                         continue;
                     }                    
                 }
-                else if (setName == "__AllParameterSets")
-                {
-                    continue;
-                }
                 else
                 {
-                    syntax.ParameterSetName = syntax.ParameterSetName == defaultSetName ? setName + MarkdownStrings.DefaultParameterSetModifier : setName;
+                    syntax.ParameterSetName = StringComparer.OrdinalIgnoreCase.Equals(syntax.ParameterSetName, defaultSetName) 
+                        ? string.Format("{0}{1}", setName, MarkdownStrings.DefaultParameterSetModifier) 
+                        : setName;
                 }
-                
+
                 FillUpSyntax(syntax, setName);
-                
                 command.Syntax.Add(syntax);
             }
         }

@@ -194,30 +194,28 @@ namespace Markdown.MAML.Transformer
 
             foreach (var paragraphSpan in paragraphNode.Spans)
             {
-                var linkSpan = paragraphSpan as HyperlinkSpan;
-                if (linkSpan != null)
+                if (paragraphSpan.ParserMode == ParserMode.FormattingPreserve)
                 {
-                    commmand.Links.Add(new MamlLink()
+                    commmand.Links.Add(new MamlLink(isSimplifiedTextLink: true)
                     {
-                        LinkName = linkSpan.Text,
-                        LinkUri = linkSpan.Uri
+                        LinkName = paragraphSpan.Text,
                     });
-                }
-                else if (paragraphSpan is TextSpan)
-                {
-                    var textSpand = paragraphSpan as TextSpan;
-                    if (textSpand.ParserMode == ParserMode.FormattingPreserve)
-                    {
-                        commmand.Links.Add(new MamlLink(isSimplifiedTextLink: true)
-                        {
-                            LinkName = textSpand.Text,
-                        });
-                    };
                 }
                 else
                 {
-
-                    throw new HelpSchemaException(paragraphSpan.SourceExtent, "Expect hyperlink, but got " + paragraphSpan.Text);
+                    var linkSpan = paragraphSpan as HyperlinkSpan;
+                    if (linkSpan != null)
+                    {
+                        commmand.Links.Add(new MamlLink()
+                        {
+                            LinkName = linkSpan.Text,
+                            LinkUri = linkSpan.Uri
+                        });
+                    }
+                    else
+                    {
+                        throw new HelpSchemaException(paragraphSpan.SourceExtent, "Expect hyperlink, but got " + paragraphSpan.Text);
+                    }
                 }
             }
         }

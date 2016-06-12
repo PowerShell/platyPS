@@ -240,7 +240,8 @@ namespace Markdown.MAML.Renderer
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
-            AddParagraphs(parameter.Description);
+            // for some reason, in the update mode parameters produces extra newline.
+            AddParagraphs(parameter.Description, /*noNewline*/ true);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
@@ -453,7 +454,7 @@ namespace Markdown.MAML.Renderer
             return string.Join(Environment.NewLine, newLines);
         }
 
-        private void AddParagraphs(string body)
+        private void AddParagraphs(string body, bool noNewline = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
@@ -462,7 +463,7 @@ namespace Markdown.MAML.Renderer
 
             if (this._mode == ParserMode.FormattingPreserve)
             {
-                _stringBuilder.AppendFormat("{0}{1}", body, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}", body, noNewline ? null : Environment.NewLine);
                 return;
             }
             else

@@ -11,8 +11,6 @@ namespace Markdown.MAML.Model.Markdown
 
     public class TextSpan : ParagraphSpan
     {
-        public ParserMode ParserMode { get; private set; }
-
         public TextSpanStyle Style { get; private set; }
 
         public TextSpan(string spanText, SourceExtent sourceExtent, ParserMode parserMode, TextSpanStyle spanStyle = TextSpanStyle.Normal)
@@ -20,10 +18,10 @@ namespace Markdown.MAML.Model.Markdown
                   parserMode == ParserMode.Full 
                   ? MarkdownParser.UnwindMarkdownCharsEscaping(spanText.Trim()) 
                   : spanText, 
-                  sourceExtent)
+                  sourceExtent,
+                  parserMode)
         {
             this.Style = spanStyle;
-            this.ParserMode = parserMode;
         }
     }
 }
