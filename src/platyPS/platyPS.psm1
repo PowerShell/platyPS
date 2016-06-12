@@ -1672,7 +1672,8 @@ function ConvertPsObjectsToMamlModel
                 
                 $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) 
                 {
-                    "{{Fill $($Parameter.Name) Description}}"
+                    # additional new-lines are needed for Update-MarkdownHelp scenario.
+                    "{{Fill $($Parameter.Name) Description}}`r`n`r`n"
                 } 
                 else 
                 {

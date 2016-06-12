@@ -59,7 +59,6 @@ It closely resembles output of `Get-Help`.
     // for every parameter
         // default value is non-mandatory
         ### -{Parameter name}
-
         {{Parameter description text}}
 
         // parameter metadata
