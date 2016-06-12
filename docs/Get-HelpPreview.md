@@ -69,9 +69,3 @@ Help object, which is the same as Get-Help provides.
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md)
-
-
-
-
-
-
