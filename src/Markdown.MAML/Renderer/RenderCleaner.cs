@@ -12,7 +12,8 @@ namespace Markdown.MAML.Renderer
     {
         public static string NormalizeWhitespaces(string text)
         {
-            text = Regex.Replace(text, "Â ", " ");
+            // non-breakable white-space to a normal one
+            text = text.Replace('\uc2a0', ' ');
             return text;
         }
 

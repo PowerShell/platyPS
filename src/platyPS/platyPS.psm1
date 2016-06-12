@@ -604,11 +604,23 @@ function Get-HelpPreview
                 {
                     # Add inline bullet-list, as described in https://github.com/PowerShell/platyPS/issues/125
                     $xml.helpItems.command.alertSet.alert | 
-                        ForEach-Object {$_.ChildNodes | Select -First 1} | 
+                        ForEach-Object { 
+                            # make first <para> a list item
+                            # add indentations to other <para> to make them continuation of list item
+                            $_.ChildNodes | Select -First 1 | 
                             ForEach-Object {
                                 $newInnerXml = '* ' + $_.get_InnerXml()
                                 $_.set_InnerXml($newInnerXml)
                             }
+
+                            $_.ChildNodes | Select -Skip 1 | 
+                            ForEach-Object {
+                                # non-breakable whitespace. 
+                                # We use it, because help engine strips-out regular whitespace. 
+                                $newInnerXml = ([string][char]0xc2a0) * 2 + $_.get_InnerXml()
+                                $_.set_InnerXml($newInnerXml)
+                            }
+                        }
                 }
 
                 $xml.Save($MamlCopyPath)

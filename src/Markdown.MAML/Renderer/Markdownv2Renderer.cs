@@ -64,7 +64,11 @@ namespace Markdown.MAML.Renderer
             AddCommand(mamlCommand);
 
             // at the end, just normalize all ends
-            return RenderCleaner.NormalizeLineBreaks(_stringBuilder.ToString());
+            return RenderCleaner.NormalizeLineBreaks(
+                RenderCleaner.NormalizeWhitespaces(
+                    _stringBuilder.ToString()
+                )
+            );
         }
 
         private void AddYamlHeader(Hashtable yamlHeader)
