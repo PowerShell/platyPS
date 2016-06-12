@@ -245,7 +245,7 @@ function Get-MarkdownMetadata
         }
         else # FromFile)
         {
-            GetMarkdowFilesFromPath $Path -IncludeModulePage | ForEach-Object { 
+            GetMarkdownFilesFromPath $Path -IncludeModulePage | ForEach-Object { 
                 $md = Get-Content -Raw $_.FullName
                 [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md) # yeild
             }
@@ -282,7 +282,7 @@ function Update-MarkdownHelpSchema
     
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
     
     end
@@ -330,7 +330,7 @@ function Update-MarkdownHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
 
     end 
@@ -515,7 +515,7 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdowFilesFromPath $Path
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
     }
 
     end 
@@ -823,7 +823,7 @@ function GetInfoCallback
     return $infoCallback
 }
 
-function GetMarkdowFilesFromPath
+function GetMarkdownFilesFromPath
 {
     [CmdletBinding()]
     param(
@@ -1213,7 +1213,7 @@ function MySetContent
     # just to create a file
     Set-Content -Path $Path -Value ''
     $resolvedPath = (Get-ChildItem $Path).FullName
-    [System.IO.File]::WriteAllLines($resolvedPath, $value, $Encoding)
+    [System.IO.File]::WriteAllText($resolvedPath, $value, $Encoding)
     return (Get-ChildItem $Path)
 }
 
@@ -1618,6 +1618,7 @@ function ConvertPsObjectsToMamlModel
             $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
 
             $SyntaxObject.ParameterSetName = $ParameterSet.Name
+            $SyntaxObject.IsDefault = $ParameterSet.IsDefault
 
             foreach($Parameter in $ParameterSet.Parameters)
             {

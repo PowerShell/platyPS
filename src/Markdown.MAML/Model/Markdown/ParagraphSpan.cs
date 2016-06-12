@@ -1,4 +1,5 @@
 ﻿
+using Markdown.MAML.Parser;
 using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Model.Markdown
@@ -9,10 +10,13 @@ namespace Markdown.MAML.Model.Markdown
 
         public SourceExtent SourceExtent { get; private set; }
 
-        public ParagraphSpan(string spanText, SourceExtent sourceExtent)
+        public ParserMode ParserMode { get; private set; }
+
+        public ParagraphSpan(string spanText, SourceExtent sourceExtent, ParserMode parserMode)
         {
             this.Text = spanText;
             this.SourceExtent = sourceExtent;
+            this.ParserMode = parserMode;
         }
     }
 }

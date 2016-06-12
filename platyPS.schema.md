@@ -31,7 +31,8 @@ It closely resembles output of `Get-Help`.
 
     ## SYNTAX
     // for each parameter set
-        ### Parameter Set Name
+        ### {Parameter Set Name, if default parameter set, followed by "(Default)"}
+        // i.e.: FromPath (Default)
         // This syntax would be ignored during maml generation.
         // syntax would be generated from parameters metadata
         ```

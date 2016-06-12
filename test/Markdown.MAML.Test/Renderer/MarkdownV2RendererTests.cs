@@ -282,7 +282,8 @@ Second line.
 
             var syntax2 = new MamlSyntax()
             {
-                ParameterSetName = "SecondSyntax"
+                ParameterSetName = "SecondSyntax",
+                IsDefault = true
             };
 
             syntax2.Parameters.Add(commonParam);
@@ -306,7 +307,7 @@ schema: 2.0.0
 Get-Foo -Common <String> -First <String> [<CommonParameters>]
 ```
 
-### SecondSyntax
+### SecondSyntax (Default)
 ```
 Get-Foo -Common <String> -Second <String> [<CommonParameters>]
 ```

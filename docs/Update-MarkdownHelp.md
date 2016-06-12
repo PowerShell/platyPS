@@ -148,9 +148,3 @@ This cmdlet returns a FileInfo[] object for updated files.
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md)
-
-
-
-
-
-

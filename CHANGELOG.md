@@ -5,6 +5,8 @@ CHANGELOG
 
 (Capture your changes here)
 
+*   `Update-MarkdownHelp` doesn't add extra-lines anymore.
+
 ## 0.4.0
 
 *   Schema 2.0.0

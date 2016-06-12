@@ -8,7 +8,7 @@ schema: 2.0.0
 Gets the markdown header metadata in the form of a hashtable.
 ## SYNTAX
 
-### FromPath
+### FromPath (Default)
 ```
 Get-MarkdownMetadata -Path <String[]> [<CommonParameters>]
 ```
@@ -129,9 +129,3 @@ The dictionary contains key-value pairs found in the markdown metadata block.
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
-
-
-
-
-
-

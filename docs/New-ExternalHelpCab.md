@@ -98,9 +98,3 @@ This cmdlet does not output to the console. The only output is in the output fol
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md)
-
-
-
-
-
-
