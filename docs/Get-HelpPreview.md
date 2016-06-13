@@ -9,7 +9,7 @@ Preview the output Get-Help would return from an external help file(s).
 ## SYNTAX
 
 ```
-Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [<CommonParameters>]
+Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -56,6 +56,21 @@ Accept wildcard characters: False
 
 ### -ConvertNotesToList
 Add bullet list into notes section to match TechNet format. 
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertDoubleDashLists
+Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).
 
 ```yaml
 Type: SwitchParameter
