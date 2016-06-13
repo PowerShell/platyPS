@@ -129,6 +129,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             OutputFolder = "$outFolder\sma-maml"
             Force = $true
             ConvertNotesToList = $true
+            ConvertDoubleDashLists = $true
         },
 
         [psobject]@{
@@ -206,10 +207,11 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             }
 
             It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
+                $listItemMark = if ($IsMaml) {'- '} else {'-- '}
                 $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
-                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n-- Drop: When") | Should Be $true
-                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
+                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop: When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None: No") | Should Be $true
             }
 
             if ($IsMaml)
