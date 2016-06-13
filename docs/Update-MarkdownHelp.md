@@ -5,7 +5,7 @@ schema: 2.0.0
 
 # Update-MarkdownHelp
 ## SYNOPSIS
-Update platyPS markdown help files in place.
+Update PlatyPS markdown help files.
 ## SYNTAX
 
 ```
@@ -14,25 +14,24 @@ Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <Str
 ```
 
 ## DESCRIPTION
-Update platyPS markdown help files in place.
-Files content would be alternated.
+The **Update-MarkdownHelp** cmdlet updates PlatyPS markdown help files without completely replacing the content of the files.
 
-Some parameters attributes changes over time, i.e. parameter sets, types, default value, required, etc.
+Some parameters attributes changes over time. For instance, parameter sets, types, default value, and required. The cmdlet updates markdown help to reflect those changes. It also adds placeholder text to the markdown file for any new parameter.
 
-Automatically propogate these changes to your markdown help file:
+To propagate changes to your markdown help files, do the following:
 
-- Load new version of the module in your PowerShell session.
-- Call Update-MarkdownHelp.
+- Load the new version of the module into your Windows PowerShell session.
+- Run the **Update-MarkdownHelp** cmdlet to update the files.
 - Check new parameters metadata in the markdown files.
 
-It also will contain placeholders for new parameters to speed-up your help-authoring expirience.
+
 ## EXAMPLES
 
-### Example 1 (Update all files in a folder)
+### Example 1: Update all files in a folder
 ```
-PS C:\> Update-MarkdownHelp .\docs
+PS C:\> Update-MarkdownHelp -Path ".\docs"
 
-    Directory: D:\dev\platyPS\docs
+    Directory: D:\working\PlatyPS\docs
 
 
 Mode                LastWriteTime         Length Name
@@ -47,12 +46,12 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:54 PM           1630 Update-MarkdownHelpSchema.md
 ```
 
-Update all markdown files is a folder with information from the 'live' commands.
-### Example 2 (Update one file and capture log)
+This command updates all markdown help files in the specified path to match the current cmdlets.
+### Example 2: Update one file and capture log
 ```
-PS C:\> Update-MarkdownHelp .\docs\Update-MarkdownHelp.md -LogPath .\my.log
+PS C:\> Update-MarkdownHelp -Path ".\docs\Update-MarkdownHelp.md" -LogPath ".\markdown.log"
 
-    Directory: D:\dev\platyPS\docs
+    Directory: D:\Working\PlatyPS\docs
 
 
 Mode                LastWriteTime         Length Name
@@ -60,22 +59,17 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   8:20 PM           9993 New-MarkdownHelp.md
 ```
 
-Update markdown help file and write log to "my.log" file. 
+This command updates a markdown help file. It writes log information to the markdown.log file.
 ## PARAMETERS
 
 ### -Encoding
-Character encoding for your updated markdown help files.
-
-It should be of the type \[System.Text.Encoding\].
-You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
-For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
-you can control BOM (Byte Order Mark) preferences with it.
+Specifies the character encoding for your markdown help files. Specify a **System.Text.Encoding** object. For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
 
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -85,72 +79,71 @@ Accept wildcard characters: False
 ```
 
 ### -LogAppend
-Don't overwrite log file, instead append to it.
+Indicates that this cmdlet appends information to the log instead overwriting it.
 
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -LogPath
-Put log information into a provided file path.
-By default, VERBOSE stream is used for it.
+Specifies a file path for log information. By default, the cmdlet writes the VERBOSE stream to the log.
 
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Path
-Path to markdown files or folder.
+Specifies an array of paths of markdown files and folders to update.
 
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0
-Default value: 
+Default value:
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]
-You can pipe a collection of paths to this cmdlet.
+You can pipe an array of paths to this cmdlet.
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-This cmdlet returns a FileInfo[] object for updated files.
+This cmdlet returns a **FileInfo[]** object for updated files.
 ## NOTES
 
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md)
 
+[New-MarkdownHelp](New-MarkdownHelp.md)
 
+[Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx)
 
-
-
-
+[Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)
