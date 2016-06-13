@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpModule.md
 ---
 
 # Update-MarkdownHelpModule
@@ -126,5 +127,3 @@ This cmdlet returns a FileInfo[] object for updated and newly created files.
 ## NOTES
 
 ## RELATED LINKS
-
-[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpModule.md)

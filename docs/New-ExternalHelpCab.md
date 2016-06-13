@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md
 ---
 
 # New-ExternalHelpCab
@@ -96,5 +97,3 @@ This cmdlet does not output to the console. The only output is in the output fol
 ## NOTES
 
 ## RELATED LINKS
-
-[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md)

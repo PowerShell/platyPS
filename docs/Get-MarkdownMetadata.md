@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
 ---
 
 # Get-MarkdownMetadata
@@ -127,5 +128,3 @@ The dictionary contains key-value pairs found in the markdown metadata block.
 ## NOTES
 
 ## RELATED LINKS
-
-[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
