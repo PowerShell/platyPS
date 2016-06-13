@@ -32,6 +32,8 @@ $script:MODULE_PAGE_LOCALE = "Locale"
 $script:MODULE_PAGE_FW_LINK = "Download Help Link"
 $script:MODULE_PAGE_HELP_VERSION = "Help Version"
 
+$script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
+
 function New-MarkdownHelp
 {
     [CmdletBinding()]
@@ -119,6 +121,26 @@ function New-MarkdownHelp
             {
                 # populate template
                 UpdateMamlObject $mamlObject
+                if (-not $OnlineVersionUrl)
+                {
+                    # if it's not passed, we should get it from the existing help
+                    $onlineLink = $mamlObject.Links | Select -First 1
+                    if ($onlineLink)
+                    {
+                        $online = $onlineLink.LinkUri
+                        if ($onlineLink.LinkName -eq $script:MAML_ONLINE_LINK_DEFAULT_MONIKER -or $onlineLink.LinkName -eq $onlineLink.LinkUri)
+                        {
+                            # if links follow standart MS convention or doesn't have name,
+                            # remove it to avoid duplications
+                            $mamlObject.Links.Remove($onlineLink) > $null
+                        }
+                    }
+                }
+                else 
+                {
+                    $online = $OnlineVersionUrl  
+                }
+
                 $commandName = $mamlObject.Name
                 # create markdown
                 if ($NoMetadata)
@@ -148,7 +170,7 @@ function New-MarkdownHelp
                     
                     $newMetadata = ($Metadata + @{
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
-                        $script:ONLINE_VERSION_YAML_HEADER = $OnlineVersionUrl
+                        $script:ONLINE_VERSION_YAML_HEADER = $online
                     })
                 }
 
@@ -1076,7 +1098,7 @@ function SetOnlineVersionUrlLink
 
     if ($OnlineVersionUrl -and ((-not $currentFirstLink) -or ($currentFirstLink.LinkUri -ne $OnlineVersionUrl))) {
         $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
-        $mamlLink.LinkName = 'Online Version:'
+        $mamlLink.LinkName = $script:MAML_ONLINE_LINK_DEFAULT_MONIKER
         $mamlLink.LinkUri = $OnlineVersionUrl
 
         # Insert link at the beginning

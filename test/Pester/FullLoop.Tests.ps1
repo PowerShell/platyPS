@@ -8,13 +8,15 @@ Import-Module $outFolder\platyPS -Force
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    It 'creates markdown from Add-Member command' {
-        # run convertion
-        New-MarkdownHelp -command Add-Member -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
+    # run convertion
+    $file = New-MarkdownHelp -command Add-Member -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
+
+    It 'generate correct file name' {
+        $file.FullName | Should Be "$outFolder\Add-Member.md"
     }
 
     # test -MarkdownFile piping
-    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputPath $outFolder -Force
+    $generatedMaml = $file | New-ExternalHelp -Verbose -OutputPath $outFolder -Force
 
     It 'generate maml as a valid xml' {
         [xml]($generatedMaml | cat -raw) | Should Not Be $null
@@ -23,6 +25,13 @@ Describe 'Full loop for Add-Member cmdlet' {
     $generatedHelpObject = Get-HelpPreview $generatedMaml
     $originalHelpObject = Get-Help -Name Microsoft.PowerShell.Utility\Add-Member
     
+    Context 'markdown metadata' {
+        $h = Get-MarkdownMetadata $file
+        It 'online version is available in metadata and metadat is case-insensitive' {
+            $h['oNline vErsion'] | Should Be $originalHelpObject.relatedLinks.navigationLink[0].uri
+        }
+    }
+
     It 'generate correct Name' {
         $generatedHelpObject.Name | Should Be $originalHelpObject.Name
     }
@@ -102,7 +111,6 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     # TODO: rest of properties!!
 }
-
 
 function OutFileAndStripped
 {
