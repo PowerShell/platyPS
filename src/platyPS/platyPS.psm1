@@ -18,6 +18,9 @@
 ## Script constants
 
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
+$script:ONLINE_VERSION_YAML_HEADER = 'online version'
+$script:SCHEMA_VERSION_YAML_HEADER = 'schema'
+
 $script:UTF8_NO_BOM = New-Object System.Text.UTF8Encoding -ArgumentList $False
 $script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
 # TODO: this is just a place-holder, we can do better
@@ -115,7 +118,7 @@ function New-MarkdownHelp
             process
             {
                 # populate template
-                UpdateMamlObject $mamlObject -OnlineVersionUrl $OnlineVersionUrl
+                UpdateMamlObject $mamlObject
                 $commandName = $mamlObject.Name
                 # create markdown
                 if ($NoMetadata)
@@ -145,6 +148,7 @@ function New-MarkdownHelp
                     
                     $newMetadata = ($Metadata + @{
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
+                        $script:ONLINE_VERSION_YAML_HEADER = $OnlineVersionUrl
                     })
                 }
 
@@ -297,7 +301,7 @@ function Update-MarkdownHelpSchema
             Get-Content -Raw $_.FullName
         }
 
-        $model = GetMamlModelImpl $markdown -PreserveFormatting
+        $model = GetMamlModelImpl $markdown -ForAnotherMarkdown
         $parseMode = GetParserMode -PreserveFormatting
         $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
 
@@ -369,7 +373,7 @@ function Update-MarkdownHelp
 
             $filePath = $file.FullName
             $oldMarkdown = Get-Content -Raw $filePath
-            $oldModels = GetMamlModelImpl $oldMarkdown -PreserveFormatting
+            $oldModels = GetMamlModelImpl $oldMarkdown -ForAnotherMarkdown
 
             if ($oldModels.Count -gt 1)
             {
@@ -929,24 +933,33 @@ function GetMamlModelImpl
 {
     param(
         [string[]]$markdown,
-        [switch]$PreserveFormatting
+        [switch]$ForAnotherMarkdown
     )
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
     $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
 
     $markdown | ForEach-Object {
-        $schema = GetSchemaVersion $_
-        $p = NewMarkdownParser -PreserveFormatting:$PreserveFormatting
+        $mdText = $_
+        $schema = GetSchemaVersion $mdText
+        $p = NewMarkdownParser -PreserveFormatting:$ForAnotherMarkdown
         $t = NewModelTransformer -schema $schema
 
-        $parseMode = GetParserMode -PreserveFormatting:$PreserveFormatting
+        $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($_, $parseMode)
         Write-Progress -Activity "Parsing markdown" -Completed    
         $maml = $t.NodeModelToMamlModel($model)
 
         # flatten
-        $maml | ForEach-Object { $res.Add($_) }
+        $maml | ForEach-Object { 
+            if (-not $ForAnotherMarkdown)
+            {
+                # we are preparing model to be transformed in MAML, need to embeed online version url
+                SetOnlineVersionUrlLink -MamlCommandObject $_ -OnlineVersionUrl (GetOnlineVersion $mdText)
+            }
+
+            $res.Add($_) 
+        }
     }
 
     return @(,$res)
@@ -992,7 +1005,7 @@ function GetSchemaVersion
     $metadata = Get-MarkdownMetadata -markdown $markdown
     if ($metadata)
     {
-        $schema = $metadata['schema']
+        $schema = $metadata[$script:SCHEMA_VERSION_YAML_HEADER]
         if (-not $schema) 
         {
             # there is metadata, but schema version is not specified.
@@ -1009,13 +1022,27 @@ function GetSchemaVersion
     return $schema
 }
 
+function GetOnlineVersion
+{
+    param(
+        [string]$markdown
+    )
+
+    $metadata = Get-MarkdownMetadata -markdown $markdown
+    $onlineVersionUrl = $null
+    if ($metadata)
+    {
+        $onlineVersionUrl = $metadata[$script:ONLINE_VERSION_YAML_HEADER]
+    }
+
+    return $onlineVersionUrl
+}
+
 function UpdateMamlObject
 {
     param(
         [Parameter(Mandatory=$true)]
-        [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject,
-
-        [string]$OnlineVersionUrl = $null
+        [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject
     )
 
     #
@@ -1033,17 +1060,27 @@ function UpdateMamlObject
 
         $MamlCommandObject.Examples.Add($MamlExampleObject)
     }
+}
+
+function SetOnlineVersionUrlLink
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject,
+
+        [string]$OnlineVersionUrl = $null
+    )
 
     # Online Version URL
-    if (-not ($MamlCommandObject.Links | Where-Object {$_.LinkName -eq 'Online Version:'} )) {
+    $currentFirstLink = $MamlCommandObject.Links | Select -First 1
+
+    if ($OnlineVersionUrl -and ((-not $currentFirstLink) -or ($currentFirstLink.LinkUri -ne $OnlineVersionUrl))) {
         $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
         $mamlLink.LinkName = 'Online Version:'
-        if ($OnlineVersionUrl)
-        {
-            $mamlLink.LinkUri = $OnlineVersionUrl
-        }
+        $mamlLink.LinkUri = $OnlineVersionUrl
 
-        $MamlCommandObject.Links.Add($mamlLink)
+        # Insert link at the beginning
+        $MamlCommandObject.Links.Insert(0, $mamlLink)
     }
 }
 

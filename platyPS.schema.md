@@ -12,13 +12,19 @@ It closely resembles output of `Get-Help`.
 
 ### Version 2.0.0
     
-    // Every cmdlet help placed in it's own `Command-Name.md` file in one folder 
+    // Every cmdlet help placed in it's own `Command-Name.md` file in one folder.
+    // We sometimes reference to this folder as "HelpModule".
 
-    // top-level metadata. You can put your own "key: value" statements there
+    // Top-level metadata. You can put your own "key: value" statements there
     // unknown values would be ignored by platyPS
     // You can query this data from markdown file with `Get-PlatyPSYamlHeader`
+    //
+    // Keys that have meaning for platyPS have separate entries
     ---
     schema: 2.0.0
+    external help file: {file name for `New-ExternalHelp`}.xml
+    online version: {url for `Get-Help -Online`}
+    {{ User-specific key-value pairs }}
     ---
 
     # {Command name}

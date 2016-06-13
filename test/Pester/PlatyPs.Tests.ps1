@@ -104,25 +104,39 @@ Describe 'New-MarkdownHelp' {
 
     Context 'Online version link' {
         
-        function global:Test-PlatyPSFunction {}
+        function global:Test-PlatyPSFunction {
+            <#
+            .LINK
+            http://www.fabrikam.com/extension.html
+            #>
+        }
 
-        @('https://github.com/PowerShell/platyPS', '') | % {
+        @('https://github.com/PowerShell/platyPS', 'http://www.fabrikam.com/extension.html', $null) | % {
             $uri = $_
             It "generates passed online url '$uri'" {
                 $a = @{
                     command = 'Test-PlatyPSFunction'
                     OutputFolder = 'TestDrive:\'
                     Force = $true
+                    OnlineVersionUrl = $uri
                 }
-                if ($uri) {
-                    $a['OnlineVersionUrl'] = $uri
-                }
+
                 $file = New-MarkdownHelp @a
                 $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
                 $help = Get-HelpPreview -Path $maml 
-                $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
-                ($link | measure).Count | Should Be 1
-                $link.uri | Should Be $uri
+                $link = $help.relatedLinks.navigationLink
+                if ($uri) {
+                    if ($uri -eq 'http://www.fabrikam.com/extension.html') {
+                        ($link | measure).Count | Should Be 1
+                        $link[0].linkText | Should Be $uri
+                        $link[0].uri | Should Be 'http://www.fabrikam.com/extension.html'
+                    }
+                    else {
+                        ($link | measure).Count | Should Be 2
+                        $link[0].linkText | Should Be 'Online Version:'
+                        $link[0].uri | Should Be $uri
+                    }
+                }
             }
         }
     }
