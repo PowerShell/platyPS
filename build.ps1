@@ -31,6 +31,10 @@ cp .\platyPS.schema.md out\platyPS
 mkdir out\platyPS\docs -ErrorAction SilentlyContinue > $null
 cp .\docs\* out\platyPS\docs\
 
+# copy template files
+mkdir out\platyPS\templates -ErrorAction SilentlyContinue > $null
+cp .\templates* out\platyps\templates
+
 # put the right module version
 if ($env:APPVEYOR_REPO_TAG_NAME)
 {
