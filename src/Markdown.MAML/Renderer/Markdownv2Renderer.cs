@@ -64,7 +64,10 @@ namespace Markdown.MAML.Renderer
             AddCommand(mamlCommand);
 
             // at the end, just normalize all ends
-            return RenderCleaner.NormalizeLineBreaks(_stringBuilder.ToString());
+            return RenderCleaner.NormalizeLineBreaks(
+                RenderCleaner.NormalizeWhitespaces(
+                    RenderCleaner.NormalizeQuotesAndDashes(
+                        _stringBuilder.ToString())));
         }
 
         private void AddYamlHeader(Hashtable yamlHeader)
@@ -240,7 +243,8 @@ namespace Markdown.MAML.Renderer
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
-            AddParagraphs(parameter.Description);
+            // for some reason, in the update mode parameters produces extra newline.
+            AddParagraphs(parameter.Description, /*noNewline*/ true);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
@@ -372,7 +376,7 @@ namespace Markdown.MAML.Renderer
             {
                 if (command.Syntax.Count > 1)
                 {
-                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, syntax.ParameterSetName, extraNewLine: false);
+                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, string.Format("{0}{1}",syntax.ParameterSetName,syntax.IsDefault ? MarkdownStrings.DefaultParameterSetModifier : null), extraNewLine: false);
                 }
 
                 AddCodeSnippet(GetSyntaxString(command, syntax));
@@ -453,7 +457,7 @@ namespace Markdown.MAML.Renderer
             return string.Join(Environment.NewLine, newLines);
         }
 
-        private void AddParagraphs(string body)
+        private void AddParagraphs(string body, bool noNewline = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
@@ -462,7 +466,7 @@ namespace Markdown.MAML.Renderer
 
             if (this._mode == ParserMode.FormattingPreserve)
             {
-                _stringBuilder.AppendFormat("{0}{1}", body, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}", body, noNewline ? null : Environment.NewLine);
                 return;
             }
             else
@@ -516,8 +520,9 @@ namespace Markdown.MAML.Renderer
 
                 .Replace(@"[", @"\[")
                 .Replace(@"]", @"\]")
-                .Replace(@"(", @"\(")
-                .Replace(@")", @"\)")
+                // per https://github.com/PowerShell/platyPS/issues/121 we don't perform escaping for () in markdown renderer, but we do in the parser
+                //.Replace(@"(", @"\(")
+                //.Replace(@")", @"\)")
                 .Replace(@"`", @"\`")
 
                 ;

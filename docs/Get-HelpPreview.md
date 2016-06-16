@@ -10,11 +10,13 @@ Displays your generated external help as **Get-Help** output.
 ## SYNTAX
 
 ```
-Get-HelpPreview -Path <String[]>
+Get-HelpPreview -Path <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The **Get-HelpPreview** cmdlet displays your generated external help as [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) output. Specify one or more files in Microsoft Assistance Markup Language (MAML) format.
+The **Get-HelpPreview** cmdlet displays your generated external help as **Get-Help** output.
+Specify one or more files in Microsoft Assistance Markup Language (MAML) format.
+
 
 ## EXAMPLES
 
@@ -34,7 +36,8 @@ Update-MarkdownHelpModule
 Update-MarkdownHelpSchema
 ```
 
-The first command creates a **Help** object for the the specified MAML file. The command stores it in the $Help variable.
+The first command creates a **Help** object for the the specified MAML file.
+The command stores it in the $Help variable.
 
 The second command displays the **Name** property for each of the objects in $Help.
 
@@ -42,6 +45,7 @@ The second command displays the **Name** property for each of the objects in $He
 
 ### -Path
 Specifies an array of paths of MAML external help files.
+
 
 ```yaml
 Type: String[]
@@ -55,6 +59,8 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]
@@ -73,4 +79,4 @@ This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
 
 [New-ExternalHelp](New-ExternalHelp.md)
 
-[Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx)
+[Get-Help]

@@ -16,7 +16,10 @@ Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <Str
 ## DESCRIPTION
 The **Update-MarkdownHelp** cmdlet updates PlatyPS markdown help files without completely replacing the content of the files.
 
-Some parameters attributes changes over time. For instance, parameter sets, types, default value, and required. The cmdlet updates markdown help to reflect those changes. It also adds placeholder text to the markdown file for any new parameter.
+Some parameters attributes changes over time.
+For instance, parameter sets, types, default value, and required.
+The cmdlet updates markdown help to reflect those changes.
+It also adds placeholder text to the markdown file for any new parameter.
 
 To propagate changes to your markdown help files, do the following:
 
@@ -63,7 +66,11 @@ This command updates a markdown help file. It writes log information to the mark
 ## PARAMETERS
 
 ### -Encoding
-Specifies the character encoding for your markdown help files. Specify a **System.Text.Encoding** object. For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
+Specifies the character encoding for your markdown help files.
+Specify a **System.Text.Encoding** object.
+For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
+For example, you can control Byte Order Mark (BOM) preferences.
+For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
 
 ```yaml
@@ -95,7 +102,8 @@ Accept wildcard characters: False
 ```
 
 ### -LogPath
-Specifies a file path for log information. By default, the cmdlet writes the VERBOSE stream to the log.
+Specifies a file path for log information.
+By default, the cmdlet writes the VERBOSE stream to the log.
 
 
 ```yaml
@@ -127,7 +135,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]

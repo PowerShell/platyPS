@@ -14,7 +14,8 @@ New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-
 ```
 
 ## DESCRIPTION
-The **New-ExternalHelp** cmdlet creates an external help file based on markdown help files supported by PlatyPS. You can ship this with a module to provide help by using the  [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) cmdlet.
+The **New-ExternalHelp** cmdlet creates an external help file based on markdown help files supported by PlatyPS.
+You can ship this with a module to provide help by using the **Get-Help** cmdlet.
 
 If the markdown files that you specify do not follow the PlatyPS [Schema](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md), this cmdlet returns error messages.
 ## EXAMPLES
@@ -31,7 +32,8 @@ Mode                LastWriteTime         Length Name
 -a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
 ```
 
-This command creates an external help file in the specified location. This command uses the best practice that the folder name includes the locale.
+This command creates an external help file in the specified location.
+This command uses the best practice that the folder name includes the locale.
 
 ### Example 2: Create help that uses custom encoding
 ```
@@ -46,11 +48,14 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:34 PM         132942 platyPS-help.xml
 ```
 
-This command creates an external help file in the specified location. This command specifies the *Force* parameter, therefore, it overwrites an existing file. The command specifies Unicode encoding for the created file.
+This command creates an external help file in the specified location.
+This command specifies the *Force* parameter, therefore, it overwrites an existing file.
+The command specifies Unicode encoding for the created file.
 ## PARAMETERS
 
 ### -OutputPath
-Specifies the path of a folder where this cmdlet saves your external help file. The folder name should end with a locale folder, as in the following example: ```.\out\PlatyPS\en-US\```.
+Specifies the path of a folder where this cmdlet saves your external help file.
+The folder name should end with a locale folder, as in the following example: `.\out\PlatyPS\en-US\`.
 
 
 ```yaml
@@ -66,7 +71,11 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-Specifies the character encoding for your external help file. Specify a **System.Text.Encoding** object. For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
+Specifies the character encoding for your external help file.
+Specify a **System.Text.Encoding** object.
+For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
+For example, you can control Byte Order Mark (BOM) preferences.
+For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
 
 ```yaml
@@ -98,7 +107,8 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-Specifies an array of paths of markdown files or folders. This cmdlet creates external help based on these files and folders.
+Specifies an array of paths of markdown files or folders.
+This cmdlet creates external help based on these files and folders.
 
 
 ```yaml
@@ -114,7 +124,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]
@@ -135,4 +145,4 @@ This cmdlet returns a **FileInfo[]** object for created files.
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
 
-[Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx)
+[Get-Help]

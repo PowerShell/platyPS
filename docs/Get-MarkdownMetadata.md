@@ -19,17 +19,20 @@ Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The **Get-MarkdownMetadata** cmdlet gets the metadata from the header of a markdown file that is supported by PlatyPS. The command returns the metadata as a hash table.
+The **Get-MarkdownMetadata** cmdlet gets the metadata from the header of a markdown file that is supported by PlatyPS.
+The command returns the metadata as a hash table.
 
-PlatyPS stores metadata in the header block of a markdown file as key-value pairs of strings. By default, PlatyPS stores help file name and markdown schema version.
+PlatyPS stores metadata in the header block of a markdown file as key-value pairs of strings.
+By default, PlatyPS stores help file name and markdown schema version.
 
-Metadata section can contain user-provided values for use with external tools. The [New-ExternalHelp](New-ExternalHelp.md) cmdlet ignores this metadata.
+Metadata section can contain user-provided values for use with external tools.
+The [New-ExternalHelp](New-ExternalHelp.md) cmdlet ignores this metadata.
 
 ## EXAMPLES
 
 ### Example 1: Get metadata from a file
 ```
-PS C:\> Get-MarkdownMetadata -Path "".\docs\Get-MarkdownMetadata.md"
+PS C:\> Get-MarkdownMetadata -Path ".\docs\Get-MarkdownMetadata.md"
 
 Key                Value
 ---                -----
@@ -50,6 +53,7 @@ schema             2.0.0
 ```
 
 The first command gets the contents of a file, and stores them in the $Markdown variable.
+
 The second command retrieves metadata from the string in $Metadata.
 ### Example 3: Get metadata from all files in a folder
 ```
@@ -111,11 +115,11 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]
-You can pipe an array of paths to this cmdlet.
+You can pipe a collection of paths to this cmdlet.
 ## OUTPUTS
 
 ### Dictionary[String, String]

@@ -14,10 +14,10 @@ Update-MarkdownHelpSchema [-Path] <String[]> [-OutputFolder] <String> [[-Encodin
 ```
 
 ## DESCRIPTION
-The **Update-MarkdownHelpSchema** cmdlet migrates markdown help files to the latest PlatyPS markdown help schema. We recommend you update to the latest schema.
+The **Update-MarkdownHelpSchema** cmdlet migrates markdown help files to the latest PlatyPS markdown help schema.
+We recommend you update to the latest schema.
 
 As of release 0.4.0, there are two schemas: 1.0.0 and 2.0.0.
-
 ## EXAMPLES
 
 ### Example 1
@@ -40,7 +40,11 @@ This commad upgrades the PSReadLine platyPS markdown to the latest version, whic
 ## PARAMETERS
 
 ### -Encoding
-Specifies the character encoding for your markdown help files. Specify a **System.Text.Encoding** object. For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
+Specifies the character encoding for your markdown help files.
+Specify a **System.Text.Encoding** object.
+For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
+For example, you can control Byte Order Mark (BOM) preferences.
+For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
 
 ```yaml
@@ -90,6 +94,7 @@ Accept wildcard characters: False
 ### -Path
 Specifies an array of paths of markdown files and folders to update.
 
+
 ```yaml
 Type: String[]
 Parameter Sets: (All)
@@ -103,7 +108,7 @@ Accept wildcard characters: False
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]

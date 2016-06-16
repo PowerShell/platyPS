@@ -3,7 +3,7 @@
     public class HardBreakSpan : ParagraphSpan
     {
         public HardBreakSpan(SourceExtent sourceExtent)
-            : base("\n", sourceExtent)
+            : base("\n", sourceExtent, Parser.ParserMode.Full)
         {
         }
     }

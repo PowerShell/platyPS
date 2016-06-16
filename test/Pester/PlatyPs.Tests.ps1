@@ -47,11 +47,52 @@ Describe 'New-MarkdownHelp' {
         Get-MarkdownMetadata -Markdown $content | Should Not Be $null
     }
 
-    Context 'from module' {
+    Context 'from platyPS module' {
         It 'creates few help files for platyPS' {
             $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
             ($files | measure).Count | Should BeGreaterThan 4
         }
+    }
+
+    Context 'from module' {
+        try
+        {
+            New-Module -Name PlatyPSTestModule -ScriptBlock { 
+                function Get-AAAA 
+                {
+
+                }
+
+                function Set-BBBB 
+                {
+
+                }
+
+                # Set-Alias and New-Alias provide two different results
+                # when `Get-Command -module Foo` is used to list commands.
+                Set-Alias aaaaalias Get-AAAA
+                Set-Alias bbbbalias Get-BBBB
+
+                New-Alias -Name 'Fork-AAAA' -Value 'Get-AAAA'
+
+                Export-ModuleMember -Alias Fork-AAAA
+                Export-ModuleMember -Alias aaaaalias
+                Export-ModuleMember -Alias bbbbalias
+                Export-ModuleMember -Function Get-AAAA
+
+            } | Import-Module -Force
+
+            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder TestDrive:\PlatyPSTestModule -Force
+        }
+        finally
+        {
+            Remove-Module PlatyPSTestModule -ErrorAction SilentlyContinue
+        }
+
+        It 'generates markdown files only for exported functions' {
+            ($files | measure).Count | Should Be 1
+            $files.Name | Should Be 'Get-AAAA.md'
+        }        
     }
     
     Context 'from command' {
@@ -63,47 +104,139 @@ Describe 'New-MarkdownHelp' {
 
     Context 'Online version link' {
         
-        function global:Test-PlatyPSFunction {}
+        function global:Test-PlatyPSFunction {
+            <#
+            .LINK
+            http://www.fabrikam.com/extension.html
+            #>
+        }
 
-        @('https://github.com/PowerShell/platyPS', '') | % {
+        @('https://github.com/PowerShell/platyPS', 'http://www.fabrikam.com/extension.html', $null) | % {
             $uri = $_
             It "generates passed online url '$uri'" {
                 $a = @{
                     command = 'Test-PlatyPSFunction'
                     OutputFolder = 'TestDrive:\'
                     Force = $true
+                    OnlineVersionUrl = $uri
                 }
-                if ($uri) {
-                    $a['OnlineVersionUrl'] = $uri
-                }
+
                 $file = New-MarkdownHelp @a
                 $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
                 $help = Get-HelpPreview -Path $maml 
-                $link = $help.relatedLinks.navigationLink | ? {$_.linkText -eq 'Online Version:'}
-                ($link | measure).Count | Should Be 1
-                $link.uri | Should Be $uri
+                $link = $help.relatedLinks.navigationLink
+                if ($uri) {
+                    if ($uri -eq 'http://www.fabrikam.com/extension.html') {
+                        ($link | measure).Count | Should Be 1
+                        $link[0].linkText | Should Be $uri
+                        $link[0].uri | Should Be 'http://www.fabrikam.com/extension.html'
+                    }
+                    else {
+                        ($link | measure).Count | Should Be 2
+                        $link[0].linkText | Should Be 'Online Version:'
+                        $link[0].uri | Should Be $uri
+                    }
+                }
             }
         }
     }
     
-    Context 'Generated markdown features' {
+    Context 'Generated markdown features: comment-based help' {
         function global:Test-PlatyPSFunction
         {
+            # comment-based help template from https://technet.microsoft.com/en-us/library/hh847834.aspx
+
+             <#
+            .SYNOPSIS 
+            Adds a file name extension to a supplied name.
+
+            .DESCRIPTION
+            Adds a file name extension to a supplied name. 
+            Takes any strings for the file name or extension.
+
+            .PARAMETER Second
+            Second parameter help description
+
+            .OUTPUTS
+            System.String. Add-Extension returns a string with the extension or file name.
+
+            .EXAMPLE
+            C:\PS> Test-PlatyPSFunction "File"
+            File.txt
+
+            .EXAMPLE
+            C:\PS> Test-PlatyPSFunction "File" -First "doc"
+            File.doc
+
+            .LINK
+            http://www.fabrikam.com/extension.html
+
+            .LINK
+            Set-Item
+            #>
+
             param(
                 [Switch]$Common,
-                [Parameter(ParameterSetName="First")]
+                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
                 [string]$First,
                 [Parameter(ParameterSetName="Second")]
                 [string]$Second
             )
         }
         
-        It 'generate markdown with correct parameter set names' {
-            $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll -Force
-            $content = cat $file
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll1 -Force
+        $content = cat $file
+
+        It 'generates markdown with correct parameter set names' {
             ($content | ? {$_ -eq 'Parameter Sets: (All)'} | measure).Count | Should Be 1
             ($content | ? {$_ -eq 'Parameter Sets: First'} | measure).Count | Should Be 1
             ($content | ? {$_ -eq 'Parameter Sets: Second'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct synopsis' {
+            ($content | ? {$_ -eq 'Adds a file name extension to a supplied name.'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct help description specified by comment-based help' {
+            ($content | ? {$_ -eq 'Second parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with placeholder for parameter with no description' {
+            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
+        }
+    }
+
+    Context 'Generated markdown features: no comment-based help' {
+        function global:Test-PlatyPSFunction
+        {
+            # there is a help-engine behavior difference for functions with comment-based help (or maml help)
+            # and no-comment based help, we test both 
+            param(
+                [Switch]$Common,
+                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
+                [string]$First,
+                [Parameter(ParameterSetName="Second")]
+                [string]$Second
+            )
+        }
+        
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll2 -Force
+        $content = cat $file
+
+        It 'generates markdown with correct synopsis placeholder' {
+            ($content | ? {$_ -eq '{{Fill in the Synopsis}}'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+        }
+
+        It 'generates markdown with placeholder for parameter with no description' {
+            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
         }
     }
 
@@ -249,6 +382,20 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $Parameter.Name | Should be "ComputerName"
             $Parameter.Type | Should be "string[]"
             $Parameter.Required | Should be $false
+        }
+        
+        It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
+            
+            $DefaultParameterSet = $mamlModelObject.Syntax | ? {$_.IsDefault}
+            $count = 0
+            foreach($set in $DefaultParameterSet)
+            {
+                $count = $count +1
+            }
+            $count | Should be 1
+            
+            $DefaultParameterSetName = $mamlModelObject.Syntax | ? {$_.IsDefault} | Select ParameterSetName
+            $DefaultParameterSetName.ParameterSetName | Should be "Domain"
         }        
     }
 
@@ -509,5 +656,16 @@ It has mutlilines. And hyper (http://link.com).
         $e = $Help.examples.example
         $e.Title | Should Be 'Example 1'
         $e.Code | Should Match 'PS C:\>*'
+    }
+    
+    It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' {
+        $outputOriginal = "TestDrive:\MarkDownOriginal"
+        $outputUpdated = "TestDrive:\MarkDownUpdated"
+        New-Item -ItemType Directory -Path $outputOriginal
+        New-Item -ItemType Directory -Path $outputUpdated
+        New-MarkdownHelp -Command "Add-Computer" -OutputFolder $outputOriginal -Force
+        Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
+        Update-MarkdownHelp -Path $outputFolder
+        (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
     }
 }

@@ -9,23 +9,24 @@ Creates help in markdown format.
 
 ## SYNTAX
 
-### UNNAMED_PARAMETER_SET_1
+### FromModule
 ```
-New-MarkdownHelp -Command <String[]> [-Encoding <Encoding>] [-Force] [-Metadata <Hashtable>] [-NoMetadata]
- [-OnlineVersionUrl <String>] -OutputFolder <String>
-```
-
-### UNNAMED_PARAMETER_SET_2
-```
-New-MarkdownHelp [-Encoding <Encoding>] [-Force] [-FwLink <String>] [-HelpVersion <String>] [-Locale <String>]
- [-Metadata <Hashtable>] -Module <String[]> [-NoMetadata] -OutputFolder <String> [-WithModulePage]
+New-MarkdownHelp -Module <String[]> [-Force] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata]
+ [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [<CommonParameters>]
 ```
 
-### UNNAMED_PARAMETER_SET_3
+### FromCommand
 ```
-New-MarkdownHelp [-Encoding <Encoding>] [-Force] [-FwLink <String>] [-HelpVersion <String>] [-Locale <String>]
- -MamlFile <String[]> [-Metadata <Hashtable>] [-ModuleGuid <String>] [-ModuleName <String>] [-NoMetadata]
- -OutputFolder <String> [-WithModulePage]
+New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVersionUrl <String>]
+ -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
+```
+
+### FromMaml
+```
+New-MarkdownHelp -MamlFile <String[]> [-Force] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata]
+ [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -120,9 +121,10 @@ This command creates help in markdown format for the specified help MAML file, a
 ### -Command
 Specifies the name of a command in your current session. This can be any command supported by Windows PowerShell help, such as a cmdlet or a function.
 
+
 ```yaml
 Type: String[]
-Parameter Sets: UNNAMED_PARAMETER_SET_1
+Parameter Sets: FromCommand
 Aliases:
 
 Required: True
@@ -151,6 +153,7 @@ Accept wildcard characters: False
 ### -Force
 Indicates that this cmdlet overwrites existing files that have the same names.
 
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
@@ -158,7 +161,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -166,9 +169,10 @@ Accept wildcard characters: False
 ### -FwLink
 Specifies the forward link for the module page. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
 
+
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_2, UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromModule, FromMaml
 Aliases:
 
 Required: False
@@ -181,9 +185,10 @@ Accept wildcard characters: False
 ### -HelpVersion
 Specifies the version of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
 
+
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_2, UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromModule, FromMaml
 Aliases:
 
 Required: False
@@ -196,9 +201,10 @@ Accept wildcard characters: False
 ### -Locale
 Specifies the locale of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
 
+
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_2, UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromModule, FromMaml
 Aliases:
 
 Required: False
@@ -211,9 +217,10 @@ Accept wildcard characters: False
 ### -MamlFile
 Specifies an array of paths path of MAML xml help files.
 
+
 ```yaml
 Type: String[]
-Parameter Sets: UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromMaml
 Aliases:
 
 Required: True
@@ -227,6 +234,7 @@ Accept wildcard characters: False
 Specifies metadata that this cmdlet includes in the help markdown files as a hash table of string-to-sting key-value pairs. This cmdlet writes the metadata in the header of each markdown help file.
 
 The **New-ExternalHelp** cmdlet does not use this metadata. External tools can use this metadata.
+
 
 ```yaml
 Type: Hashtable
@@ -243,9 +251,10 @@ Accept wildcard characters: False
 ### -Module
 Specifies an array of names of modules for which this cmdlet creates help in markdown format.
 
+
 ```yaml
 Type: String[]
-Parameter Sets: UNNAMED_PARAMETER_SET_2
+Parameter Sets: FromModule
 Aliases:
 
 Required: True
@@ -261,7 +270,7 @@ Specifies the GUID of the module of your help. This value is required for .cab f
 
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromMaml
 Aliases:
 
 Required: False
@@ -277,7 +286,7 @@ Specifies the name of the module of your help. This value is required for .cab f
 
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromMaml
 Aliases:
 
 Required: False
@@ -290,6 +299,7 @@ Accept wildcard characters: False
 ### -NoMetadata
 Indicates that this cmdlet does not write any metadata in the generated markdown.
 
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
@@ -297,7 +307,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -305,9 +315,10 @@ Accept wildcard characters: False
 ### -OnlineVersionUrl
 Specifies the URL where the updatable help function downloads updated help. If you do not specify a value, the cmdlet uses an empty string.
 
+
 ```yaml
 Type: String
-Parameter Sets: UNNAMED_PARAMETER_SET_1
+Parameter Sets: FromCommand
 Aliases:
 
 Required: False
@@ -318,7 +329,8 @@ Accept wildcard characters: False
 ```
 
 ### -OutputFolder
-Specifies the folder where this cmdlet creates markdown help files.
+Path to the directory to output markdown help files.
+
 
 ```yaml
 Type: String
@@ -335,18 +347,21 @@ Accept wildcard characters: False
 ### -WithModulePage
 Indicates that this cmdlet creates a module page in the output folder. This file has the name that the *ModuleName* parameter specifies. If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
 
+
 ```yaml
 Type: SwitchParameter
-Parameter Sets: UNNAMED_PARAMETER_SET_2, UNNAMED_PARAMETER_SET_3
+Parameter Sets: FromModule, FromMaml
 Aliases:
 
 Required: False
 Position: Named
-Default value: False
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 ## INPUTS
 
 ### String[]
