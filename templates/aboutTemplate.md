@@ -12,11 +12,6 @@ IE:
 
 This will be transformed into the text file
 as `about_SomeHelpTopicFileName`.
-<<<<<<< HEAD
-
-=======
->>>>>>> bfbe49d... Test fixes to About Topic Feature
-
 Do not include file extensions.
 The second header should have no spaces.
 ```              
@@ -60,4 +55,3 @@ The generated about topic will be encoded UTF-8.
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}    
-

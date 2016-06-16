@@ -675,6 +675,7 @@ namespace Markdown.MAML.Renderer
                     }
                     sb.AppendLine("    " + text);
 
+
                     text = word + " ";
                 }
                 else

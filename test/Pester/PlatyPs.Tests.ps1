@@ -722,7 +722,6 @@ Describe 'Create About Topic Markdown and Txt' {
         }
         
         (Get-ChildItem $AboutTxtFilePath | measure).Count | Should Be 1 
-
         $lineWidthCheck | Should Be $true
     }
 }
