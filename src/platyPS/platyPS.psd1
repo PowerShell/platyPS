@@ -74,7 +74,8 @@ FunctionsToExport = @(
     'New-ExternalHelpCab',
     'Update-MarkdownHelp',
     'Update-MarkdownHelpSchema',
-    'Update-MarkdownHelpModule'
+    'Update-MarkdownHelpModule',
+    'New-MarkdownAboutHelp'
 )
 
 # Cmdlets to export from this module

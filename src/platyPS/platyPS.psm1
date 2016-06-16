@@ -510,6 +510,38 @@ function Update-MarkdownHelpModule
     }
 }
 
+function New-MarkdownAboutHelp
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string] $OutputFolder,
+        [string] $AboutName
+    )
+    
+    begin
+    {
+        $templatePath =  Join-Path $PSScriptRoot "templates\aboutTemplate.md"
+    }
+
+    process
+    {
+        if(Test-Path $OutputFolder)
+        {
+            $AboutContent = Get-Content $templatePath
+            $AboutContent = $AboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $AboutName))
+            $AboutContent = $AboutContent.Replace("{{TOPIC NAME}}",$AboutName)
+            $NewAboutTopic = New-Item -Path $OutputFolder -Name ($AboutName + ".md")
+            Set-Content -Value $AboutContent -Path $NewAboutTopic -Encoding UTF8
+        }
+        else 
+        {
+            throw "The output folder does not exist."
+        }
+    }
+
+}
+
 function New-ExternalHelp
 {
     [CmdletBinding()]
@@ -532,6 +564,7 @@ function New-ExternalHelp
     begin
     {
         $MarkdownFiles = @()
+        $AboutFiles = @()
         $IsOutputContainer = $true
         if ( $OutputPath.EndsWith('.xml') -and (-not (Test-Path -PathType Container $OutputPath )) )
         {
@@ -548,6 +581,15 @@ function New-ExternalHelp
     process
     {
         $MarkdownFiles += GetMarkdownFilesFromPath $Path
+        
+        if($MarkdownFiles)
+        {
+            $AboutFiles += GetAboutTopicsFromPath -Path $Path -MarkDownFilesAlreadyFound $MarkdownFiles.FullName
+        }
+        else 
+        {
+            $AboutFiles += GetAboutTopicsFromPath -Path $Path
+        }
     }
 
     end 
@@ -586,6 +628,21 @@ function New-ExternalHelp
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
+        }
+        
+        if($AboutFiles.Count -gt 0)
+        {
+            foreach($About in $AboutFiles)
+            {
+                $r = New-Object -TypeName 'Markdown.MAML.Renderer.MarkdownV2Renderer' -ArgumentList(80)
+                $Content = Get-Content -Raw $About.FullName
+                $p = NewMarkdownParser
+                $model = $p.ParseString($Content)
+                $value = $r.AboutMarkDownToString($model)
+
+                $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".txt")
+                MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
+            }
         }
     }
 }
@@ -895,6 +952,50 @@ function GetInfoCallback
     return $infoCallback
 }
 
+function GetAboutTopicsFromPath
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string[]]$Path,
+        [string[]]$MarkDownFilesAlreadyFound
+    )
+    
+    $AboutMarkDownFiles = @()
+    
+    if ($Path) { 
+        $Path | ForEach-Object {
+            if (Test-Path -PathType Leaf $_)
+            {
+                $Content = Get-Content $_
+                if($Content[1].Contains("## about_"))
+                {
+                    $AboutMarkdownFiles += Get-ChildItem $_
+                }
+            }
+            elseif (Test-Path -PathType Container $_)
+            {
+                if($MarkDownFilesAlreadyFound)
+                {
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {$_.FullName -notin $MarkDownFilesAlreadyFound -and (Get-Content $_.FullName)[1].Contains("## about_")}
+                }
+                else
+                {
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {(Get-Content $_.FullName)[1].Contains("## about_")}
+                }
+            }
+            else 
+            {
+                Write-Error "$_ about file not found"
+            }
+        }
+    }
+    
+    
+    
+    return $AboutMarkDownFiles
+}
+
 function GetMarkdownFilesFromPath
 {
     [CmdletBinding()]
@@ -913,6 +1014,7 @@ function GetMarkdownFilesFromPath
     {
         $filter = '*-*.md'
     }
+    
 
     $MarkdownFiles = @()
     if ($Path) { 

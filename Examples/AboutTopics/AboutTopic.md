@@ -1,5 +1,5 @@
-# {{TOPIC NAME}}
-## {{FileNameForHelpSystem}}
+﻿# AboutTopic
+## about_AboutTopic
 
 ```
 ABOUT TOPIC NOTE:
@@ -10,19 +10,14 @@ IE:
 # Some Help Topic Name
 ## SomeHelpTopicFileName
 
-This will be transformed into the text file
-as `about_SomeHelpTopicFileName`.
-<<<<<<< HEAD
-
-=======
->>>>>>> bfbe49d... Test fixes to About Topic Feature
+This will be transformed into the text file as `about_SomeHelpTopicFileName`.
 
 Do not include file extensions.
 The second header should have no spaces.
 ```              
 
 # SHORT DESCRIPTION
-{{ Short Description Placeholder }}
+{{Short Description Placeholder}}
 
 ```
 ABOUT TOPIC NOTE:
@@ -32,26 +27,28 @@ The generated about topic will be encoded UTF-8.
 ```
 
 # LONG DESCRIPTION
-{{ Long Description Placeholder }}
+{{Long Description Placeholder}}
 
 ## Optional Subtopics
-{{ Optional Subtopic Placeholder }}
+{{Optional Subtopic Placeholder}}
 
 # EXAMPLES
-{{ Code or descriptive examples of how to leverage the functions described. }}
+{{Code or descriptive examples of how to leverage the functions described.}}
 
 # NOTE
-{{ Note Placeholder - Additional information that a user needs to know.}}
+{{Note Placeholder - Additional information that a user needs to know.}}
 
 # TROUBLESHOOTING NOTE
-{{ Troubleshooting Placeholder - Warns users of bugs}}
+{{Troubleshooting Placeholder - Warns users of bugs}}
 
-{{ Explains behavior that is likely to change with fixes }}
+{{Explains behavior that is likely to change with fixes}}
+
 
 # SEE ALSO
-{{ See also placeholder }}
+{{See also placeholder}}
 
-{{ You can also list related articles, blogs, and video URLs. }}
+{{You can also list related articles, blogs, and video URLs.}}
+
 
 # KEYWORDS
 {{List alternate names or titles for this topic that readers might use.}}
@@ -59,5 +56,5 @@ The generated about topic will be encoded UTF-8.
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}
-- {{ Keyword Placeholder }}    
-
+- {{ Keyword Placeholder }} 
+    

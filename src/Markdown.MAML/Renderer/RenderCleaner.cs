@@ -10,6 +10,19 @@ namespace Markdown.MAML.Renderer
 {
     static class RenderCleaner
     {
+        /// <summary>
+        /// This method runs all of the normalization tools in the cleaner. This allows full normalization without needing to call
+        /// each and every method on a string.
+        /// </summary>
+        /// <param name="text">The string that needs to be cleaned.</param>
+        /// <returns>Normalizaed string: WhiteSpaces, Quotes and Dashes, Linebreaks</returns>
+        public static string FullNormalization(string text)
+        {
+            return NormalizeQuotesAndDashes(
+                        NormalizeLineBreaks(
+                            NormalizeWhitespaces(text)));
+        }
+
         public static string NormalizeWhitespaces(string text)
         {
             // there are many spaces

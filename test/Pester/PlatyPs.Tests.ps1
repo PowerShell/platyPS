@@ -357,6 +357,15 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Computer' {
         
+        It 'Checks that Help Exists on Computer Running Tests' -Skip {
+
+            $Command = Get-Command Add-Computer
+            $Module = Get-Module ($Command).Module
+            $FoundHelp = (Get-ChildItem -Path "C:\Windows\System32\WindowsPowerShell\" -Recurse | Where {$_.Name -eq (Split-Path ($Command.HelpFile) -Leaf ) })
+            
+            $FoundHelp.PsPath | Should Be "Microsoft.PowerShell.Core\FileSystem::C:\windows\system32\windowspowershell\v1.0\en-US\Microsoft.PowerShell.Commands.Management.dll-help.xml"
+        }
+
         # call non-exported function in the module scope
         $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
@@ -667,5 +676,53 @@ It has mutlilines. And hyper (http://link.com).
         Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
         Update-MarkdownHelp -Path $outputFolder
         (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
+    }
+}
+
+Describe 'Create About Topic Markdown and Txt' {
+    
+    $output = "TestDrive:\"
+    $aboutTopicName = "PlatyPS"
+    $templateLocation = (Split-Path ((Get-Module $aboutTopicName).Path) -Parent) + "\templates\aboutTemplate.md"
+    
+    
+    It 'Checks the about topic is created with proper file name, and the content is correctly written' {
+        
+        $aboutContent = Get-Content $templateLocation
+        $aboutContent = $aboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $aboutTopicName))
+        $aboutContent = $aboutContent.Replace("{{TOPIC NAME}}",$aboutTopicName)
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName $aboutTopicName
+
+        Test-Path (Join-Path $output ($aboutTopicName + ".md")) | Should Be $true
+        Get-Content (Join-Path $output ($aboutTopicName + ".md")) | Should Be $aboutContent
+    }
+    
+    It 'Takes constructed markdown about topics and converts them to text with proper character width'{
+
+        $AboutTopicsOutputFolder = Join-Path $output "About"
+
+        New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
+
+        New-MarkdownAboutHelp -OutputFolder $AboutTopicsOutputFolder -AboutName "AboutTopic"
+
+        New-ExternalHelp -Path $AboutTopicsOutputFolder -OutputPath $AboutTopicsOutputFolder
+        
+        $lineWidthCheck = $true;
+        
+        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "AboutTopic.txt"
+
+        $AboutContent = Get-Content $AboutTxtFilePath
+        
+        $AboutContent | % {
+            if($_.Length -gt 80)
+            {
+                $lineWidthCheck = $false
+            } 
+        }
+        
+        (Get-ChildItem $AboutTxtFilePath | measure).Count | Should Be 1 
+
+        $lineWidthCheck | Should Be $true
     }
 }

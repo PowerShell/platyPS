@@ -20,7 +20,7 @@ mkdir out -ErrorAction SilentlyContinue > $null
 cp -Rec -Force src\platyPS out
 if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or 
     (ls out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (ls $assemblyPath).LastWriteTime)
-{
+{ 
     cp $assemblyPath out\platyPS
 } else {
     Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'
@@ -33,7 +33,7 @@ cp .\docs\* out\platyPS\docs\
 
 # copy template files
 mkdir out\platyPS\templates -ErrorAction SilentlyContinue > $null
-cp .\templates* out\platyps\templates
+cp .\templates\* out\platyps\templates\
 
 # put the right module version
 if ($env:APPVEYOR_REPO_TAG_NAME)
