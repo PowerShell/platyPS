@@ -380,7 +380,8 @@ namespace Markdown.MAML.Parser
                 new HyperlinkSpan(
                     regexMatch.Groups[1].Value,
                     regexMatch.Groups[2].Value,
-                    sourceExtent));
+                    sourceExtent,
+                    this._parserMode));
         }
 
         private void CreateSoftBreakSpan(Match regexMatch, SourceExtent sourceExtent)
@@ -524,8 +525,10 @@ namespace Markdown.MAML.Parser
 
                 .Replace(@"\[", @"[")
                 .Replace(@"\]", @"]")
+                // per https://github.com/PowerShell/platyPS/issues/121 we don't perform escaping for () in markdown renderer, but we do in the parser
                 .Replace(@"\(", @"(")
                 .Replace(@"\)", @")")
+
                 .Replace(@"\`", @"`")
 
                 .Replace(@"\<", "<")

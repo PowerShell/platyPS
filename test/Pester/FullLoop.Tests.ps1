@@ -8,13 +8,15 @@ Import-Module $outFolder\platyPS -Force
 
 Describe 'Full loop for Add-Member cmdlet' {
 
-    It 'creates markdown from Add-Member command' {
-        # run convertion
-        New-MarkdownHelp -command Add-Member -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
+    # run convertion
+    $file = New-MarkdownHelp -command Add-Member -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
+
+    It 'generate correct file name' {
+        $file.FullName | Should Be "$outFolder\Add-Member.md"
     }
 
     # test -MarkdownFile piping
-    $generatedMaml = ls $outFolder\Add-Member.md | New-ExternalHelp -Verbose -OutputPath $outFolder -Force
+    $generatedMaml = $file | New-ExternalHelp -Verbose -OutputPath $outFolder -Force
 
     It 'generate maml as a valid xml' {
         [xml]($generatedMaml | cat -raw) | Should Not Be $null
@@ -23,6 +25,13 @@ Describe 'Full loop for Add-Member cmdlet' {
     $generatedHelpObject = Get-HelpPreview $generatedMaml
     $originalHelpObject = Get-Help -Name Microsoft.PowerShell.Utility\Add-Member
     
+    Context 'markdown metadata' {
+        $h = Get-MarkdownMetadata $file
+        It 'online version is available in metadata and metadat is case-insensitive' {
+            $h['oNline vErsion'] | Should Be $originalHelpObject.relatedLinks.navigationLink[0].uri
+        }
+    }
+
     It 'generate correct Name' {
         $generatedHelpObject.Name | Should Be $originalHelpObject.Name
     }
@@ -103,7 +112,6 @@ Describe 'Full loop for Add-Member cmdlet' {
     # TODO: rest of properties!!
 }
 
-
 function OutFileAndStripped
 {
     param([string]$path, [string]$content)
@@ -128,6 +136,8 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
             OutputFolder = "$outFolder\sma-maml"
             Force = $true
+            ConvertNotesToList = $true
+            ConvertDoubleDashLists = $true
         },
 
         [psobject]@{
@@ -141,11 +151,10 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         $newMarkdownArgs = $_
         
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
+            $mdFiles = New-MarkdownHelp @newMarkdownArgs
+            $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
 
             It 'transforms Markdown to MAML with no errors' {
-
-                $mdFiles = New-MarkdownHelp @newMarkdownArgs
-
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
                 $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
 
@@ -155,10 +164,22 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 OutFileAndStripped -path $textOutputFile -content $help
             }
 
+            if ($IsMaml)
+            {
+                It 'generates correct bullet list for NOTES inside Connect-PSSession' {
+                    $file = $mdFiles | ? {$_.Name -eq 'Connect-PSSession.md'}
+                    $file | Should Not Be $null
+
+                    $content = cat $file
+
+                    ($content | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
+                    ($content | ? {$_.StartsWith('  ')} | measure).Count | Should Be 5
+                } 
+            }
+
             # this our regression suite for SMA
             $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
-            $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
-
+            
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
                 ($h.returnValues.returnValue | measure).Count | Should Be 3
@@ -194,28 +215,39 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             }
 
             It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
+                $listItemMark = if ($IsMaml) {'- '} else {'-- '}
                 $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
-                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n-- Drop: When") | Should Be $true
-                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n-- None: No") | Should Be $true
+                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop: When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None: No") | Should Be $true
             }
 
-            It 'preserve formatting for Connect-PSSession NOTES' {
-
-                # We are cheating a little bit here :(
-                function NormalizeEndings
-                {
-                    param(
-                        [string]$text
-                    )
-
-                    $text2 = ($text -replace "`r","")
-                    [Regex]::Replace($text2, "(`n *)+", "`n")
+            if ($IsMaml)
+            {
+                It 'add bullet list for Connect-PSSession NOTES' {
+                    $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
+                    (($h.alertSet.alert.Text | Out-String).Split("`n") | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
                 }
+            }
+            else 
+            {
+                It 'preserve formatting for Connect-PSSession NOTES' {
 
-                $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
-                $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
-                NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
+                    # We are cheating a little bit here :(
+                    function NormalizeEndings
+                    {
+                        param(
+                            [string]$text
+                        )
+
+                        $text2 = ($text -replace "`r","")
+                        [Regex]::Replace($text2, "(`n *)+", "`n")
+                    }
+
+                    $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
+                    $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
+                    NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
+                }
             }
         }
     }

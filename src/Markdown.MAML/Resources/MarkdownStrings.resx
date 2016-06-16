@@ -183,4 +183,7 @@
   <data name="WorkflowParametersToken" xml:space="preserve">
     <value>WorkflowCommonParameters</value>
   </data>
+  <data name="DefaultParameterSetModifier" xml:space="preserve">
+    <value> (Default)</value>
+  </data>
 </root>

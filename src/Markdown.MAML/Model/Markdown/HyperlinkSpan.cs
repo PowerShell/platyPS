@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.MAML.Parser;
+using System;
 
 namespace Markdown.MAML.Model.Markdown
 {
@@ -6,8 +7,8 @@ namespace Markdown.MAML.Model.Markdown
     {
         public string Uri { get; private set; }
 
-        public HyperlinkSpan(string spanText, string uriText, SourceExtent sourceExtent)
-            : base(spanText, sourceExtent)
+        public HyperlinkSpan(string spanText, string uriText, SourceExtent sourceExtent, ParserMode parserMode)
+            : base(spanText, sourceExtent, parserMode)
         {
             this.Uri = uriText;
         }

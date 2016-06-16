@@ -124,6 +124,15 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to  (Default).
+        /// </summary>
+        internal static string DefaultParameterSetModifier {
+            get {
+                return ResourceManager.GetString("DefaultParameterSetModifier", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to DESCRIPTION.
         /// </summary>
         internal static string DESCRIPTION {

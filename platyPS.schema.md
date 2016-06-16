@@ -12,13 +12,19 @@ It closely resembles output of `Get-Help`.
 
 ### Version 2.0.0
     
-    // Every cmdlet help placed in it's own `Command-Name.md` file in one folder 
+    // Every cmdlet help placed in it's own `Command-Name.md` file in one folder.
+    // We sometimes reference to this folder as "HelpModule".
 
-    // top-level metadata. You can put your own "key: value" statements there
+    // Top-level metadata. You can put your own "key: value" statements there
     // unknown values would be ignored by platyPS
     // You can query this data from markdown file with `Get-PlatyPSYamlHeader`
+    //
+    // Keys that have meaning for platyPS have separate entries
     ---
     schema: 2.0.0
+    external help file: {file name for `New-ExternalHelp`}.xml
+    online version: {url for `Get-Help -Online`}
+    {{ User-specific key-value pairs }}
     ---
 
     # {Command name}
@@ -31,7 +37,8 @@ It closely resembles output of `Get-Help`.
 
     ## SYNTAX
     // for each parameter set
-        ### Parameter Set Name
+        ### {Parameter Set Name, if default parameter set, followed by "(Default)"}
+        // i.e.: FromPath (Default)
         // This syntax would be ignored during maml generation.
         // syntax would be generated from parameters metadata
         ```
@@ -58,7 +65,6 @@ It closely resembles output of `Get-Help`.
     // for every parameter
         // default value is non-mandatory
         ### -{Parameter name}
-
         {{Parameter description text}}
 
         // parameter metadata
