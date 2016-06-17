@@ -6,25 +6,27 @@ online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpP
 
 # Get-HelpPreview
 ## SYNOPSIS
-Preview the output Get-Help would return from an external help file(s).
+Displays your generated external help as **Get-Help** output.
+
 ## SYNTAX
 
 ```
-Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [<CommonParameters>]
+Get-HelpPreview -Path <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-You can use PowerShell help engine to display the text help output for external help.
-This cmdlet verifies how markdown-generated help will look in Get-Help output.
+The **Get-HelpPreview** cmdlet displays your generated external help as **Get-Help** output.
+Specify one or more files in Microsoft Assistance Markup Language (MAML) format.
 
-It simulates the output produced by Get-Help cmdlet.
+
 ## EXAMPLES
 
-### Example 1
+### Example 1: Preview the PlatyPS help
 ```
-PS C:\> $help = Get-HelpPreview .\out\platyPS\en-US\platyPS-help.xml
+PS C:\> $Help = Get-HelpPreview -Path ".\out\platyPS\en-US\PlatyPS-help.xml"
 
-PS C:\> $help.Name
+PS C:\> $Help.Name
+
 Get-HelpPreview
 Get-MarkdownMetadata
 New-ExternalHelp
@@ -35,53 +37,26 @@ Update-MarkdownHelpModule
 Update-MarkdownHelpSchema
 ```
 
-Returns a help object get-help preview from maml xml and assign it to the $help variable.
-Gets the names of Cmdlet objects inside help.
+The first command creates a **Help** object for the the specified MAML file.
+The command stores it in the $Help variable.
+
+The second command displays the **Name** property for each of the objects in $Help.
+
 ## PARAMETERS
 
 ### -Path
-Path to MAML help files.
-You can pass several of them.
+Specifies an array of paths of MAML external help files.
+
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: False
-```
-
-### -ConvertNotesToList
-Add bullet list into notes section to match TechNet format. 
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: 
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ConvertDoubleDashLists
-Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases: 
-
-Required: False
-Position: Named
-Default value: 
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -90,12 +65,17 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### String[]
-You can pipe a collection of paths to this cmdlet.
+You can pipe an array of paths to this cmdlet.
+
 ## OUTPUTS
 
 ### Help Object
-Help object, which is the same as Get-Help provides.
+This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
+
 ## NOTES
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md)
+
+[New-ExternalHelp](New-ExternalHelp.md)

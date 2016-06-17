@@ -6,10 +6,10 @@ online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-Markd
 
 # Get-MarkdownMetadata
 ## SYNOPSIS
-Gets the markdown header metadata in the form of a hashtable.
+Gets metadata from the header of a markdown file.
 ## SYNTAX
 
-### FromPath (Default)
+### FromPath
 ```
 Get-MarkdownMetadata -Path <String[]> [<CommonParameters>]
 ```
@@ -20,21 +20,20 @@ Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-PlatyPS stores metadata information in the header block of the markdown file.
-It's stored as key-value string pairs.
+The **Get-MarkdownMetadata** cmdlet gets the metadata from the header of a markdown file that is supported by PlatyPS.
+The command returns the metadata as a hash table.
 
-By default, platyPS stores help file name and markdown schema version.
+PlatyPS stores metadata in the header block of a markdown file as key-value pairs of strings.
+By default, PlatyPS stores help file name and markdown schema version.
 
-The metadata section can contain user-provided key-value string pairs to be used by external tools.
-These pairs would be ignored by [New-ExternalHelp](New-ExternalHelp.md).
+Metadata section can contain user-provided values for use with external tools.
+The [New-ExternalHelp](New-ExternalHelp.md) cmdlet ignores this metadata.
 
-[Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
-The cmdlet returns a key-value \<Dictionary\[String, String\]\> object.
 ## EXAMPLES
 
-### Example 1 (Get metadata from a file)
+### Example 1: Get metadata from a file
 ```
-PS C:\> Get-MarkdownMetadata -Path .\docs\Get-MarkdownMetadata.md
+PS C:\> Get-MarkdownMetadata -Path ".\docs\Get-MarkdownMetadata.md"
 
 Key                Value
 ---                -----
@@ -42,11 +41,11 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-Retrives metadata from a markdown file at the path provided.
-### Example 2 (Get metadata from a markdown string)
+This command retrieves metadata from a markdown file.
+### Example 2: Get metadata from a markdown string
 ```
-PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md 
-PS C:\> Get-MarkdownMetadata -Markdown $markdown
+PS C:\> $Markdown = Get-Content -Path ".\docs\Get-MarkdownMetadata.md" -Raw
+PS C:\> Get-MarkdownMetadata -Markdown $Markdown
 
 Key                Value
 ---                -----
@@ -54,10 +53,12 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-Retrives metadata from a markdown string.
-### Example 1 (Get metadata from all files in a folder)
+The first command gets the contents of a file, and stores them in the $Markdown variable.
+
+The second command retrieves metadata from the string in $Metadata.
+### Example 3: Get metadata from all files in a folder
 ```
-PS C:\> Get-MarkdownMetadata .\docs
+PS C:\> Get-MarkdownMetadata -Path ".\docs"
 
 Key                Value
 ---                -----
@@ -79,38 +80,37 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-Retrives metadata from all markdown file at the directory path provided.
+This command gets metadata from each of the markdown files in the .\docs folder.
 ## PARAMETERS
 
 ### -Path
-Path to markdown file or folder.
-Markdown files typically use extension .md
+Specifies an array of paths of markdown files or folders.
 
 
 ```yaml
 Type: String[]
 Parameter Sets: FromPath
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
 ### -Markdown
-String object containing markdown.
+Specifies a string that contains markdown formatted text.
 
 
 ```yaml
 Type: String
 Parameter Sets: FromMarkdownString
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -124,8 +124,12 @@ You can pipe a collection of paths to this cmdlet.
 ## OUTPUTS
 
 ### Dictionary[String, String]
+The cmdlet returns a **Dictionary\[String, String\]** object.
 The dictionary contains key-value pairs found in the markdown metadata block.
 ## NOTES
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
+
+[New-ExternalHelp](New-ExternalHelp.md)

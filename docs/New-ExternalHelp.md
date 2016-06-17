@@ -6,8 +6,8 @@ online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-Exter
 
 # New-ExternalHelp
 ## SYNOPSIS
-Create External help xml file from platyPS markdown. 
-Ship it with your module to provide [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) capability.
+Creates external help file based on markdown supported by PlatyPS.
+
 ## SYNTAX
 
 ```
@@ -15,17 +15,17 @@ New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-
 ```
 
 ## DESCRIPTION
-Create External help file from platyPS markdown.
+The **New-ExternalHelp** cmdlet creates an external help file based on markdown help files supported by PlatyPS.
+You can ship this with a module to provide help by using the **Get-Help** cmdlet.
 
-You will get error messages if the markdown files do not follow the schema described in
-[platyPS.schema.md](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md).
+If the markdown files that you specify do not follow the PlatyPS [Schema](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md), this cmdlet returns error messages.
 ## EXAMPLES
 
-### Example 1 (Markdown folder)
+### Example 1: Create external help based on the contents of a folder
 ```
-PS C:\> New-ExternalHelp -Path .\docs -OutputPath out\platyPS\en-US
+PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\platyPS\en-US"
 
-    Directory: D:\dev\platyPS\out\platyPS\en-US
+    Directory: D:\Working\PlatyPS\out\platyPS\en-US
 
 
 Mode                LastWriteTime         Length Name
@@ -33,14 +33,15 @@ Mode                LastWriteTime         Length Name
 -a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
 ```
 
-Create external help file in output path directory.
-Note that directory should include language name.
-### Example 1 (With -Force and custom encoding)
+This command creates an external help file in the specified location.
+This command uses the best practice that the folder name includes the locale.
+
+### Example 2: Create help that uses custom encoding
 ```
-PS C:\> New-ExternalHelp .\docs -OutputPath out\platyPS\en-US -Force -Encoding ([System.Text.Encoding]::Unicode)
+PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\PlatyPS\en-US" -Force -Encoding ([System.Text.Encoding]::Unicode)
 
 
-    Directory: D:\dev\platyPS\out\platyPS\en-US
+    Directory: D:\Working\PlatyPS\out\PlatyPS\en-US
 
 
 Mode                LastWriteTime         Length Name
@@ -48,40 +49,40 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:34 PM         132942 platyPS-help.xml
 ```
 
-Create and overwrite existing external help file in output path directory.
-Use Unicode Encoding for output file.
+This command creates an external help file in the specified location.
+This command specifies the *Force* parameter, therefore, it overwrites an existing file.
+The command specifies Unicode encoding for the created file.
 ## PARAMETERS
 
 ### -OutputPath
-Path to a folder where you want to put your external help file(s).
-The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
+Specifies the path of a folder where this cmdlet saves your external help file.
+The folder name should end with a locale folder, as in the following example: `.\out\PlatyPS\en-US\`.
 
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Encoding
-Character encoding for your external help file.
-
-It should be of the type \[System.Text.Encoding\].
-You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
-For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
-you can control BOM (Byte Order Mark) preferences with it.
+Specifies the character encoding for your external help file.
+Specify a **System.Text.Encoding** object.
+For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
+For example, you can control Byte Order Mark (BOM) preferences.
+For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
 
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -91,33 +92,34 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Override existing files.
+Indicates that this cmdlet overwrites an existing file that has the same name.
 
 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Path
-Path to markdown files or directories.
+Specifies an array of paths of markdown files or folders.
+This cmdlet creates external help based on these files and folders.
 
 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -127,13 +129,19 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### String[]
-You can pipe a collection of paths to this cmdlet.
+You can pipe an array of paths to this cmdlet.
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-This cmdlet returns a FileInfo[] object for created files.
+This cmdlet returns a **FileInfo[]** object for created files.
 ## NOTES
 
 ## RELATED LINKS
+
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md)
+
+[New-ExternalHelpCab](New-ExternalHelpCab.md)
+
+[Schema](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md)
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
