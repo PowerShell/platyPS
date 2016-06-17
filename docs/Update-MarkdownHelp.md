@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelp.md
 ---
 
 # Update-MarkdownHelp
@@ -62,7 +63,8 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   8:20 PM           9993 New-MarkdownHelp.md
 ```
 
-This command updates a markdown help file. It writes log information to the markdown.log file.
+This command updates a markdown help file.
+It writes log information to the markdown.log file.
 ## PARAMETERS
 
 ### -Encoding

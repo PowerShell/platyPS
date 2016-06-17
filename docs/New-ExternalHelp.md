@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md
 ---
 
 # New-ExternalHelp
@@ -144,5 +145,3 @@ This cmdlet returns a **FileInfo[]** object for created files.
 [Schema](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md)
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
-
-[Get-Help]

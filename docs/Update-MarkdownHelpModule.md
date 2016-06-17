@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpModule.md
 ---
 
 # Update-MarkdownHelpModule
@@ -43,7 +44,8 @@ The command creates markdown help topics for any cmdlets that are not already in
 
 ### -Encoding
 Specifies the character encoding for your markdown help files.
-Specify a **System.Text.Encoding** object. For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
+Specify a **System.Text.Encoding** object.
+For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
 For example, you can control Byte Order Mark (BOM) preferences.
 For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
@@ -76,7 +78,8 @@ Accept wildcard characters: False
 ```
 
 ### -LogPath
-Specifies a file path for log information. By default, the cmdlet writes the VERBOSE stream to the log.
+Specifies a file path for log information.
+By default, the cmdlet writes the VERBOSE stream to the log.
 
 
 ```yaml
@@ -92,7 +95,8 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-Specifies an array of paths of markdown folders to update. The folder must contain a module page from which this cmdlet can get the module name.
+Specifies an array of paths of markdown folders to update.
+The folder must contain a module page from which this cmdlet can get the module name.
 
 
 ```yaml

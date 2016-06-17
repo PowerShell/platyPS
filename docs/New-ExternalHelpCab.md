@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md
 ---
 
 # New-ExternalHelpCab
@@ -21,7 +22,7 @@ We recommend that you provide as content only about_ topics and the output from 
 
 This cmdlet uses metadata stored in the module markdown file to name your .cab file.
 This naming matches the pattern that the Windows PowerShell help system requires for use as updatable help.
-This metadata is part of the module file created by using the [New-MarkdownHelp](New-MarkdownHelp.md) cmdlet with the *WithModulePage* parameter.  
+This metadata is part of the module file created by using the [New-MarkdownHelp](New-MarkdownHelp.md) cmdlet with the *WithModulePage* parameter.
 
 This cmdlet also generates or updates an existing helpinfo.xml file.
 That file provides versioning and locale details to the Windows PowerShell help system.
@@ -95,7 +96,8 @@ You cannot pipe values to this cmdlet.
 ## OUTPUTS
 
 ### None
-This cmdlet does not generate output. The cmldet saves its results in the output folder that the *OutputPath* parameter specifies.
+This cmdlet does not generate output.
+The cmldet saves its results in the output folder that the *OutputPath* parameter specifies.
 ## NOTES
 
 ## RELATED LINKS
