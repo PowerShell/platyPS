@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md
 ---
 
 # New-ExternalHelpCab
@@ -38,6 +39,8 @@ Generates the cab file, containing the content folder files and correctlty named
 The folder containing all of the help content that should be placed into the cab file.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -53,6 +56,8 @@ Accept wildcard characters: False
 ### -LandingPagePath
 The path and name of the Module Markdown file containing all of the metadata required to name the cab.
 See the top of the [New-MarkdownHelp -WithLandingPage](New-MarkdownHelp.md) output for a list of all required metadata.
+
+
 
 
 ```yaml
@@ -71,6 +76,8 @@ Accept wildcard characters: False
 This is the location of the cab file and helpinfo.xml created by New-ExternalHelpCab
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -78,7 +85,7 @@ Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

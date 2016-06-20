@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
 ---
 
 # Get-MarkdownMetadata
@@ -8,7 +9,7 @@ schema: 2.0.0
 Gets the markdown header metadata in the form of a hashtable.
 ## SYNTAX
 
-### FromPath
+### FromPath (Default)
 ```
 Get-MarkdownMetadata -Path <String[]> [<CommonParameters>]
 ```
@@ -86,6 +87,8 @@ Path to markdown file or folder.
 Markdown files typically use extension .md
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: FromPath
@@ -93,13 +96,15 @@ Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
 ### -Markdown
 String object containing markdown.
+
+
 
 
 ```yaml

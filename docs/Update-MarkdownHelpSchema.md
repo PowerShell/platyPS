@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpSchema.md
 ---
 
 # Update-MarkdownHelpSchema
@@ -50,6 +51,8 @@ For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-wri
 you can control BOM (Byte Order Mark) preferences with it.
 
 
+
+
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -64,6 +67,8 @@ Accept wildcard characters: False
 
 ### -Force
 Override existing files.
+
+
 
 
 ```yaml
@@ -82,6 +87,8 @@ Accept wildcard characters: False
 Path to the directory to output markdown help files.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -96,6 +103,8 @@ Accept wildcard characters: False
 
 ### -Path
 Path to markdown files or directories.
+
+
 
 
 ```yaml

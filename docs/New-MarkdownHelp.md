@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md
 ---
 
 # New-MarkdownHelp
@@ -23,9 +24,10 @@ New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVe
 
 ### FromMaml
 ```
-New-MarkdownHelp -MamlFile <String[]> [-Force] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata]
- [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
+ [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [-WithModulePage]
+ [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -126,6 +128,8 @@ Name of a command from your PowerShell session.
 
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: FromCommand
@@ -149,6 +153,8 @@ you can control BOM (Byte Order Mark) preferences with it.
 
 
 
+
+
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -163,6 +169,8 @@ Accept wildcard characters: False
 
 ### -Force
 Override existing files.
+
+
 
 
 
@@ -186,6 +194,8 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
@@ -205,6 +215,8 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
@@ -212,7 +224,7 @@ Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -220,6 +232,8 @@ Accept wildcard characters: False
 ### -Locale
 Metadata for module page, to enable cab creation.
 It would be used as markdown header metadata in the module page.
+
+
 
 
 
@@ -238,6 +252,8 @@ Accept wildcard characters: False
 
 ### -MamlFile
 Path to a MAML xml external help file.
+
+
 
 
 
@@ -262,6 +278,8 @@ It would be ignored by New-ExternalHelp, but can be used by external tools.
 
 
 
+
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -276,6 +294,8 @@ Accept wildcard characters: False
 
 ### -Module
 Name of the modules to be used in markdown help generation.
+
+
 
 
 
@@ -299,6 +319,8 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromMaml
@@ -314,6 +336,8 @@ Accept wildcard characters: False
 ### -ModuleName
 Metadata for module page, to enable cab creation.
 It would be used to name module page.
+
+
 
 
 
@@ -335,6 +359,8 @@ Don't emit any metadata in generated markdown.
 
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
@@ -350,6 +376,8 @@ Accept wildcard characters: False
 ### -OnlineVersionUrl
 The URL where help can be downloaded using the updatable help function in PowerShell.
 Empty string would be used, if no value provided.
+
+
 
 
 ```yaml
@@ -369,6 +397,8 @@ Path to the directory to output markdown help files.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -385,6 +415,8 @@ Accept wildcard characters: False
 Generate module page in the output directory.
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromModule, FromMaml
@@ -393,6 +425,32 @@ Aliases:
 Required: False
 Position: Named
 Default value:
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertNotesToList
+Add bullet list into notes section to match TechNet format.```yaml
+Type: SwitchParameter
+Parameter Sets: FromMaml
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertDoubleDashLists
+Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).```yaml
+Type: SwitchParameter
+Parameter Sets: FromMaml
+Aliases:
+
+Required: False
+Position: Named
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```

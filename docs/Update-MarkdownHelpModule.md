@@ -1,6 +1,7 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpModule.md
 ---
 
 # Update-MarkdownHelpModule
@@ -51,6 +52,8 @@ For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-wri
 you can control BOM (Byte Order Mark) preferences with it.
 
 
+
+
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -65,6 +68,8 @@ Accept wildcard characters: False
 
 ### -LogAppend
 Don't overwrite log file, instead append to it.
+
+
 
 
 ```yaml
@@ -84,6 +89,8 @@ Put log information into a provided file path.
 By default, VERBOSE stream is used for it.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -99,6 +106,8 @@ Accept wildcard characters: False
 ### -Path
 Path to markdown help module folder.
 Folder should contain module page to retrive module name.
+
+
 
 
 ```yaml
