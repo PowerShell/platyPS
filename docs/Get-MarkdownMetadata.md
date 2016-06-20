@@ -1,12 +1,11 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
-online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
 ---
 
 # Get-MarkdownMetadata
 ## SYNOPSIS
-Gets metadata from the header of a markdown file.
+Gets the markdown header metadata in the form of a hashtable.
 ## SYNTAX
 
 ### FromPath
@@ -20,20 +19,21 @@ Get-MarkdownMetadata -Markdown <String> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The **Get-MarkdownMetadata** cmdlet gets the metadata from the header of a markdown file that is supported by PlatyPS.
-The command returns the metadata as a hash table.
+PlatyPS stores metadata information in the header block of the markdown file.
+It's stored as key-value string pairs.
 
-PlatyPS stores metadata in the header block of a markdown file as key-value pairs of strings.
-By default, PlatyPS stores help file name and markdown schema version.
+By default, platyPS stores help file name and markdown schema version.
 
-Metadata section can contain user-provided values for use with external tools.
-The [New-ExternalHelp](New-ExternalHelp.md) cmdlet ignores this metadata.
+The metadata section can contain user-provided key-value string pairs to be used by external tools.
+These pairs would be ignored by [New-ExternalHelp](New-ExternalHelp.md).
 
+[Get-MarkdownMetadata](Get-MarkdownMetadata.md) provides a consistent way to retrieve these key-value pairs.
+The cmdlet returns a key-value \<Dictionary\[String, String\]\> object.
 ## EXAMPLES
 
-### Example 1: Get metadata from a file
+### Example 1 (Get metadata from a file)
 ```
-PS C:\> Get-MarkdownMetadata -Path ".\docs\Get-MarkdownMetadata.md"
+PS C:\> Get-MarkdownMetadata -Path .\docs\Get-MarkdownMetadata.md
 
 Key                Value
 ---                -----
@@ -41,11 +41,11 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-This command retrieves metadata from a markdown file.
-### Example 2: Get metadata from a markdown string
+Retrives metadata from a markdown file at the path provided.
+### Example 2 (Get metadata from a markdown string)
 ```
-PS C:\> $Markdown = Get-Content -Path ".\docs\Get-MarkdownMetadata.md" -Raw
-PS C:\> Get-MarkdownMetadata -Markdown $Markdown
+PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md
+PS C:\> Get-MarkdownMetadata -Markdown $markdown
 
 Key                Value
 ---                -----
@@ -53,12 +53,10 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-The first command gets the contents of a file, and stores them in the $Markdown variable.
-
-The second command retrieves metadata from the string in $Metadata.
-### Example 3: Get metadata from all files in a folder
+Retrives metadata from a markdown string.
+### Example 1 (Get metadata from all files in a folder)
 ```
-PS C:\> Get-MarkdownMetadata -Path ".\docs"
+PS C:\> Get-MarkdownMetadata .\docs
 
 Key                Value
 ---                -----
@@ -80,11 +78,12 @@ external help file platyPS-help.xml
 schema             2.0.0
 ```
 
-This command gets metadata from each of the markdown files in the .\docs folder.
+Retrives metadata from all markdown file at the directory path provided.
 ## PARAMETERS
 
 ### -Path
-Specifies an array of paths of markdown files or folders.
+Path to markdown file or folder.
+Markdown files typically use extension .md
 
 
 ```yaml
@@ -94,13 +93,13 @@ Aliases:
 
 Required: True
 Position: Named
-Default value:
+Default value: 
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
 ### -Markdown
-Specifies a string that contains markdown formatted text.
+String object containing markdown.
 
 
 ```yaml
@@ -124,12 +123,9 @@ You can pipe a collection of paths to this cmdlet.
 ## OUTPUTS
 
 ### Dictionary[String, String]
-The cmdlet returns a **Dictionary\[String, String\]** object.
 The dictionary contains key-value pairs found in the markdown metadata block.
 ## NOTES
 
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)
-
-[New-ExternalHelp](New-ExternalHelp.md)

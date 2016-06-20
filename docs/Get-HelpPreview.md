@@ -1,13 +1,11 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
-online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md
 ---
 
 # Get-HelpPreview
 ## SYNOPSIS
-Displays your generated external help as **Get-Help** output.
-
+Preview the output Get-Help would return from an external help file(s).
 ## SYNTAX
 
 ```
@@ -15,18 +13,17 @@ Get-HelpPreview -Path <String[]> [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-The **Get-HelpPreview** cmdlet displays your generated external help as **Get-Help** output.
-Specify one or more files in Microsoft Assistance Markup Language (MAML) format.
+You can use PowerShell help engine to display the text help output for external help.
+This cmdlet verifies how markdown-generated help will look in Get-Help output.
 
-
+It simulates the output produced by Get-Help cmdlet.
 ## EXAMPLES
 
-### Example 1: Preview the PlatyPS help
+### Example 1
 ```
-PS C:\> $Help = Get-HelpPreview -Path ".\out\platyPS\en-US\PlatyPS-help.xml"
+PS C:\> $help = Get-HelpPreview .\out\platyPS\en-US\platyPS-help.xml
 
-PS C:\> $Help.Name
-
+PS C:\> $help.Name
 Get-HelpPreview
 Get-MarkdownMetadata
 New-ExternalHelp
@@ -37,16 +34,13 @@ Update-MarkdownHelpModule
 Update-MarkdownHelpSchema
 ```
 
-The first command creates a **Help** object for the the specified MAML file.
-The command stores it in the $Help variable.
-
-The second command displays the **Name** property for each of the objects in $Help.
-
+Returns a help object get-help preview from maml xml and assign it to the $help variable.
+Gets the names of Cmdlet objects inside help.
 ## PARAMETERS
 
 ### -Path
-Specifies an array of paths of MAML external help files.
-
+Path to MAML help files.
+You can pass several of them.
 
 ```yaml
 Type: String[]
@@ -55,7 +49,7 @@ Aliases:
 
 Required: True
 Position: Named
-Default value:
+Default value: 
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
@@ -65,17 +59,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## INPUTS
 
 ### String[]
-You can pipe an array of paths to this cmdlet.
-
+You can pipe a collection of paths to this cmdlet.
 ## OUTPUTS
 
 ### Help Object
-This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
-
+Help object, which is the same as Get-Help provides.
 ## NOTES
 
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md)
-
-[New-ExternalHelp](New-ExternalHelp.md)

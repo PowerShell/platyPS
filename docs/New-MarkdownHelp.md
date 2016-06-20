@@ -1,13 +1,11 @@
 ---
 external help file: platyPS-help.xml
 schema: 2.0.0
-online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md
 ---
 
 # New-MarkdownHelp
 ## SYNOPSIS
-Creates help in markdown format.
-
+Convert your existing external help into markdown or generate it from Help object.
 ## SYNTAX
 
 ### FromModule
@@ -31,34 +29,36 @@ New-MarkdownHelp -MamlFile <String[]> [-Force] [-Metadata <Hashtable>] -OutputFo
 ```
 
 ## DESCRIPTION
-The **New-MarkdownHelp** cmdlet creates help in markdown format based on a module, a command, or a file in Microsoft Assistance Markup Language (MAML) format.
+An easy way to start with platyPS.
+This cmdlet generates help stub from:
+
+-  Module.
+-  Command.
+-  External help xml (aka maml).
 ## EXAMPLES
 
-### Example 1: Create help from a command
+### Example 1 (from command)
 ```
-PS C:\> function Command03 {param([string]$Value)}
-PS C:\> New-MarkdownHelp -Command "Command03" -OutputFolder ".\docs"
+PS C:\> function foo {param([string]$bar)}
+PS C:\> New-MarkdownHelp -command foo -OutputFolder .\docs
 
 
-    Directory: D:\Working\docs
+    Directory: D:\dev\platyPS\docs
 
 
 Mode                LastWriteTime         Length Name
 ----                -------------         ------ ----
--a----        5/22/2016   6:53 PM            664 Command03.md
+-a----        5/22/2016   6:53 PM            664 foo.md
 ```
 
-The first command creates a function named Command03 by using standard Windows PowerShell syntax.
-
-The second command creates help for that stub function in the .\docs folder.
-
-### Example 2: Create help from a module
+Create stub markdown on the fly from the function foo.
+### Example 2 (from module)
 ```
-PS C:\> Import-Module -Module "PlatyPS"
-PS C:\> New-MarkdownHelp -Module "PlatyPS" -OutputFolder ".\docs" -Force
+PS C:\> Import-Module platyPS
+PS C:\> New-MarkdownHelp -module platyPS -OutputFolder .\docs-new -Force
 
 
-    Directory: D:\Working\PlatyPS\docs
+    Directory: D:\dev\platyPS\docs-new
 
 
 Mode                LastWriteTime         Length Name
@@ -73,19 +73,15 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:54 PM           1630 Update-MarkdownHelpSchema.md
 ```
 
-The first command loads the PlatyPS module into the current session by using the **Import-Module** cmdlet.
-
-The second command creates help for all the cmdlets in the PlatyPS module.
-It stores them in the .\docs folder.
-This command specifies the *Force* parameter.
-Therefore, it overwrites existing help markdown files that have the same name.
-
-
-### Example 3: Create help from an existing MAML file
+The module should be loaded in the PS Session first.
+ Markdown generated for all commands in the module.
+### Example 3 (from maml file path)
 ```
-PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> $mamlPath = 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> New-MarkdownHelp -OutputFolder .\psreadline-docs -MamlFile $mamlPath
 
-    Directory: D:\PSReadline\docs
+
+    Directory: D:\dev\platyPS\psreadline-docs
 
 
 Mode                LastWriteTime         Length Name
@@ -97,17 +93,16 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:56 PM          15320 Set-PSReadlineOption.md
 ```
 
-This command creates help in markdown format for the specified help MAML file.
-You do not have to load the module, as in the previous example.
-If the module is already loaded, this command creates help based on the MAML file, not on the currently installed module.
-
-
-### Example 4: Create help from an existing MAML file for use in a CAB file
+Create markdown help for inbox PSReadLine module.
+You don't need to load the module itself to do it.
+Only the help file would be used.
+### Example 4 (from maml file with module page)
 ```
-PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml' -WithModulePage  -Force -ModuleName "PSReadLine"
+PS C:\> $mamlPath = 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+PS C:\> New-MarkdownHelp -OutputFolder .\psreadline-docs -MamlFile $mamlPath -WithModulePage  -Force -ModuleName PSReadLine
 
 
-    Directory: D:\PSReadline\docs
+    Directory: D:\dev\platyPS\psreadline-docs
 
 
 Mode                LastWriteTime         Length Name
@@ -120,15 +115,15 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:59 PM            942 PSReadLine.md
 ```
 
-This command creates help in markdown format for the specified help MAML file, as in the previous example.
-This command also specifies the *WithModulePage* parameter and the *ModuleName* parameter.
-The command creates a file named PSReadLine.md that contains links to the other markdown files in this module and metadata that can be used to create .cab files.
-
+Create markdown help for inbox PSReadLine module.
+Create a "ModulePage" with name PSReadLine.md, links to other help files
+and metadata needed for creating cab files.
 ## PARAMETERS
 
 ### -Command
-Specifies the name of a command in your current session.
-This can be any command supported by Windows PowerShell help, such as a cmdlet or a function.
+Name of a command from your PowerShell session.
+
+
 
 
 ```yaml
@@ -144,11 +139,14 @@ Accept wildcard characters: False
 ```
 
 ### -Encoding
-Specifies the character encoding for your markdown help files.
-Specify a **System.Text.Encoding** object.
-For more information, see [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx) in the Microsoft Developer Network.
-For example, you can control Byte Order Mark (BOM) preferences.
-For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
+Character encoding for your markdown help files.
+
+It should be of the type \[System.Text.Encoding\].
+You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom),
+you can control BOM (Byte Order Mark) preferences with it.
+
+
 
 
 ```yaml
@@ -164,7 +162,9 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-Indicates that this cmdlet overwrites existing files that have the same names.
+Override existing files.
+
+
 
 
 ```yaml
@@ -180,9 +180,10 @@ Accept wildcard characters: False
 ```
 
 ### -FwLink
-Specifies the forward link for the module page.
-This value is required for .cab file creation.
-This value is used as markdown header metadata in the module page.
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
+
+
 
 
 ```yaml
@@ -198,9 +199,10 @@ Accept wildcard characters: False
 ```
 
 ### -HelpVersion
-Specifies the version of your help.
-This value is required for .cab file creation.
-This value is used as markdown header metadata in the module page.
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
+
+
 
 
 ```yaml
@@ -210,15 +212,16 @@ Aliases:
 
 Required: False
 Position: Named
-Default value:
+Default value: 
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -Locale
-Specifies the locale of your help.
-This value is required for .cab file creation.
-This value is used as markdown header metadata in the module page.
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
+
+
 
 
 ```yaml
@@ -234,7 +237,9 @@ Accept wildcard characters: False
 ```
 
 ### -MamlFile
-Specifies an array of paths path of MAML xml help files.
+Path to a MAML xml external help file.
+
+
 
 
 ```yaml
@@ -250,11 +255,11 @@ Accept wildcard characters: False
 ```
 
 ### -Metadata
-Specifies metadata that this cmdlet includes in the help markdown files as a hash table of string-to-sting key-value pairs.
-This cmdlet writes the metadata in the header of each markdown help file.
+String-to-string hashtable.
+It would be writed in a header of every markdown help file.
+It would be ignored by New-ExternalHelp, but can be used by external tools.
 
-The **New-ExternalHelp** cmdlet does not use this metadata.
-External tools can use this metadata.
+
 
 
 ```yaml
@@ -270,7 +275,9 @@ Accept wildcard characters: False
 ```
 
 ### -Module
-Specifies an array of names of modules for which this cmdlet creates help in markdown format.
+Name of the modules to be used in markdown help generation.
+
+
 
 
 ```yaml
@@ -286,9 +293,10 @@ Accept wildcard characters: False
 ```
 
 ### -ModuleGuid
-Specifies the GUID of the module of your help.
-This value is required for .cab file creation.
-This value is used as markdown header metadata in the module page.
+Metadata for module page, to enable cab creation.
+It would be used as markdown header metadata in the module page.
+
+
 
 
 ```yaml
@@ -304,9 +312,10 @@ Accept wildcard characters: False
 ```
 
 ### -ModuleName
-Specifies the name of the module of your help.
-This value is required for .cab file creation.
-This value is used as markdown header metadata in the module page.
+Metadata for module page, to enable cab creation.
+It would be used to name module page.
+
+
 
 
 ```yaml
@@ -322,7 +331,8 @@ Accept wildcard characters: False
 ```
 
 ### -NoMetadata
-Indicates that this cmdlet does not write any metadata in the generated markdown.
+Don't emit any metadata in generated markdown.
+
 
 
 ```yaml
@@ -338,8 +348,8 @@ Accept wildcard characters: False
 ```
 
 ### -OnlineVersionUrl
-Specifies the URL where the updatable help function downloads updated help.
-If you do not specify a value, the cmdlet uses an empty string.
+The URL where help can be downloaded using the updatable help function in PowerShell.
+Empty string would be used, if no value provided.
 
 
 ```yaml
@@ -358,6 +368,7 @@ Accept wildcard characters: False
 Path to the directory to output markdown help files.
 
 
+
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -371,9 +382,7 @@ Accept wildcard characters: False
 ```
 
 ### -WithModulePage
-Indicates that this cmdlet creates a module page in the output folder.
-This file has the name that the *ModuleName* parameter specifies.
-If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
+Generate module page in the output directory.
 
 
 ```yaml
@@ -394,23 +403,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### String[]
 You can pipe module names to this cmdlet.
-These are the modules from which this cmdlet creates help markdown.
-
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-This cmdlet returns a **FileInfo\[\]** object for created files.
-
+This cmdlet returns a FileInfo[] object for created files.
 ## NOTES
 
 ## RELATED LINKS
 
 [Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md)
-
-[New-ExternalHelp](New-ExternalHelp.md)
-
-[Update-MarkdownHelp](Update-MarkdownHelp.md)
-
-[Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx)
-
-[Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)
