@@ -18,6 +18,9 @@ Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath
 This cmdlet provides a way to update existing help and create new markdown for newly created commands.
 
 It combines Update-MarkdownHelp and New-MarkdownHelp and provides a convinient way to do a bulk update.
+
+New content
+
 ## EXAMPLES
 
 ### Example 1
