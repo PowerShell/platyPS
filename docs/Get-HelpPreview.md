@@ -17,6 +17,8 @@ Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists]
 You can use PowerShell help engine to display the text help output for external help.
 This cmdlet verifies how markdown-generated help will look in Get-Help output.
 
+New content
+
 It simulates the output produced by Get-Help cmdlet.
 ## EXAMPLES
 
