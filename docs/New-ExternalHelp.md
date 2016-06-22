@@ -17,6 +17,8 @@ New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-
 ## DESCRIPTION
 Create External help file from platyPS markdown.
 
+New content
+
 You will get error messages if the markdown files do not follow the schema described in
 [platyPS.schema.md](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md).
 ## EXAMPLES
