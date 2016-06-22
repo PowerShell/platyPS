@@ -37,6 +37,7 @@ This cmdlet generates help stub from:
 -  Module.
 -  Command.
 -  External help xml (aka maml).
+
 ## EXAMPLES
 
 ### Example 1 (from command)
