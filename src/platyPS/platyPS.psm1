@@ -634,7 +634,7 @@ function New-ExternalHelp
         {
             foreach($About in $AboutFiles)
             {
-                $r = New-Object -TypeName 'Markdown.MAML.Renderer.MarkdownV2Renderer' -ArgumentList(80)
+                $r = New-Object -TypeName 'Markdown.MAML.Renderer.TextRenderer' -ArgumentList(80)
                 $Content = Get-Content -Raw $About.FullName
                 $p = NewMarkdownParser
                 $model = $p.ParseString($Content)

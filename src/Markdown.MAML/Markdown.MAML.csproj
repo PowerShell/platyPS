@@ -67,6 +67,7 @@
     <Compile Include="Parser\MarkdownPatternList.cs" />
     <Compile Include="Renderer\RenderCleaner.cs" />
     <Compile Include="Renderer\MarkdownV2Renderer.cs" />
+    <Compile Include="Renderer\TextRenderer.cs" />
     <Compile Include="Resources\MarkdownStrings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

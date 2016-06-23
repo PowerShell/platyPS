@@ -20,7 +20,7 @@ mkdir out -ErrorAction SilentlyContinue > $null
 cp -Rec -Force src\platyPS out
 if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or 
     (ls out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (ls $assemblyPath).LastWriteTime)
-{ 
+{
     cp $assemblyPath out\platyPS
 } else {
     Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'

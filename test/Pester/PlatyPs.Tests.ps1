@@ -357,7 +357,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Computer' {
         
-        It 'Checks that Help Exists on Computer Running Tests' -Skip {
+        It 'Checks that Help Exists on Computer Running Tests' {
 
             $Command = Get-Command Add-Computer
             $Module = Get-Module ($Command).Module
