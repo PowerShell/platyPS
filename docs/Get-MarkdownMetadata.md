@@ -45,7 +45,7 @@ schema             2.0.0
 Retrives metadata from a markdown file at the path provided.
 ### Example 2 (Get metadata from a markdown string)
 ```
-PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md 
+PS C:\> $markdown = cat -Raw .\docs\Get-MarkdownMetadata.md
 PS C:\> Get-MarkdownMetadata -Markdown $markdown
 
 Key                Value
@@ -87,14 +87,16 @@ Path to markdown file or folder.
 Markdown files typically use extension .md
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: FromPath
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -103,14 +105,16 @@ Accept wildcard characters: False
 String object containing markdown.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromMarkdownString
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -129,3 +133,4 @@ The dictionary contains key-value pairs found in the markdown metadata block.
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md)

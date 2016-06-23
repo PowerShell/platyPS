@@ -6,7 +6,7 @@ online version: https://github.com/PowerShell/platyPS/blob/master/docs/New-Exter
 
 # New-ExternalHelp
 ## SYNOPSIS
-Create External help xml file from platyPS markdown. 
+Create External help xml file from platyPS markdown.
 Ship it with your module to provide [Get-Help](https://msdn.microsoft.com/en-us/library/dd878343.aspx) capability.
 ## SYNTAX
 
@@ -57,14 +57,16 @@ Path to a folder where you want to put your external help file(s).
 The name should end with a locale folder, i.e. ".\out\platyPS\en-US".
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -74,14 +76,16 @@ Character encoding for your external help file.
 
 It should be of the type \[System.Text.Encoding\].
 You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
-For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom),
 you can control BOM (Byte Order Mark) preferences with it.
+
+
 
 
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -94,14 +98,16 @@ Accept wildcard characters: False
 Override existing files.
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -110,14 +116,16 @@ Accept wildcard characters: False
 Path to markdown files or directories.
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -137,3 +145,5 @@ This cmdlet returns a FileInfo[] object for created files.
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)
+
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md)

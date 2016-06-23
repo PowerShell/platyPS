@@ -48,14 +48,16 @@ Character encoding for your updated markdown help files.
 
 It should be of the type \[System.Text.Encoding\].
 You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
-For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom),
 you can control BOM (Byte Order Mark) preferences with it.
+
+
 
 
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -68,14 +70,16 @@ Accept wildcard characters: False
 Don't overwrite log file, instead append to it.
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -85,14 +89,16 @@ Put log information into a provided file path.
 By default, VERBOSE stream is used for it.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -102,14 +108,16 @@ Path to markdown help module folder.
 Folder should contain module page to retrive module name.
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0
-Default value: 
+Default value:
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
@@ -128,3 +136,4 @@ This cmdlet returns a FileInfo[] object for updated and newly created files.
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Update-MarkdownHelpModule.md)

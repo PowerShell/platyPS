@@ -96,7 +96,7 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:56 PM          15320 Set-PSReadlineOption.md
 ```
 
-Create markdown help for inbox PSReadLine module. 
+Create markdown help for inbox PSReadLine module.
 You don't need to load the module itself to do it.
 Only the help file would be used.
 ### Example 4 (from maml file with module page)
@@ -118,7 +118,7 @@ Mode                LastWriteTime         Length Name
 -a----        5/22/2016   6:59 PM            942 PSReadLine.md
 ```
 
-Create markdown help for inbox PSReadLine module. 
+Create markdown help for inbox PSReadLine module.
 Create a "ModulePage" with name PSReadLine.md, links to other help files
 and metadata needed for creating cab files.
 ## PARAMETERS
@@ -129,14 +129,16 @@ Name of a command from your PowerShell session.
 
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: FromCommand
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -146,8 +148,10 @@ Character encoding for your markdown help files.
 
 It should be of the type \[System.Text.Encoding\].
 You can control [precise details](https://msdn.microsoft.com/en-us/library/ms404377.aspx) about your encoding.
-For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom), 
+For [example](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom),
 you can control BOM (Byte Order Mark) preferences with it.
+
+
 
 
 
@@ -155,7 +159,7 @@ you can control BOM (Byte Order Mark) preferences with it.
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -170,14 +174,16 @@ Override existing files.
 
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -189,14 +195,16 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -208,14 +216,16 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -227,20 +237,24 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -MamlFile
-Path to a MAML xml external help file. 
+Path to a MAML xml external help file.
+
+
 
 
 
@@ -248,11 +262,11 @@ Path to a MAML xml external help file.
 ```yaml
 Type: String[]
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -265,14 +279,16 @@ It would be ignored by New-ExternalHelp, but can be used by external tools.
 
 
 
+
+
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -283,14 +299,16 @@ Name of the modules to be used in markdown help generation.
 
 
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: FromModule
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
@@ -302,14 +320,16 @@ It would be used as markdown header metadata in the module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -321,14 +341,16 @@ It would be used to name module page.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -338,14 +360,16 @@ Don't emit any metadata in generated markdown.
 
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -355,14 +379,16 @@ The URL where help can be downloaded using the updatable help function in PowerS
 Empty string would be used, if no value provided.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: FromCommand
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -372,14 +398,16 @@ Path to the directory to output markdown help files.
 
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -388,44 +416,42 @@ Accept wildcard characters: False
 Generate module page in the output directory.
 
 
+
+
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -ConvertNotesToList
-Add bullet list into notes section to match TechNet format.
-
-```yaml
+Add bullet list into notes section to match TechNet format.```yaml
 Type: SwitchParameter
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -ConvertDoubleDashLists
-Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).
-
-```yaml
+Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).```yaml
 Type: SwitchParameter
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -444,3 +470,4 @@ This cmdlet returns a FileInfo[] object for created files.
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md)

@@ -43,44 +43,42 @@ Gets the names of Cmdlet objects inside help.
 Path to MAML help files.
 You can pass several of them.
 
+
+
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 
 ### -ConvertNotesToList
-Add bullet list into notes section to match TechNet format. 
-
-```yaml
+Add bullet list into notes section to match TechNet format.```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -ConvertDoubleDashLists
-Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).
-
-```yaml
+Convert two-hypen lists (common in MS-authored MAML) into one-hypen list (accepted in markdown).```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value: False
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -99,3 +97,4 @@ Help object, which is the same as Get-Help provides.
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md)

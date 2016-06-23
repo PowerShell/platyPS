@@ -21,7 +21,7 @@ It is reccomended to use content only provided as AboutTopics.Txt and the output
 
 Using Metadata provided in the Module MD file, the out put cab file is correctly named.
 This naming aligns it to the pattern required by the PowerShell help engine to use as updatable help.
-This metadeta is part of the module file created by [New-Markdown](New-MarkdownHelp.md) with the -WithModulePage switch. 
+This metadeta is part of the module file created by [New-Markdown](New-MarkdownHelp.md) with the -WithModulePage switch.
 
 A helpinfo.xml is also generated, or updated if existing.
 This helpinfo.xml provides help verioning and locale details to the PowerShell help engine.
@@ -29,7 +29,7 @@ This helpinfo.xml provides help verioning and locale details to the PowerShell h
 
 ### Example 1
 ```
-PS C:\> New-ExternalHelpCab -CabFilesFolder 'C:\Module\ExternalHelpContent'  -LandingPagePath 'C:\Module\SomeModuleName.md' -OutputPath 'C:\Module\Cab\'
+PS C:\> New-ExternalHelpCab -CmdletContentFolder 'C:\Module\ExternalHelpContent' -OutputPath 'C:\Module\Cab\' -ModuleMdPageFullPath 'C:\Module\SomeModuleName.md'
 ```
 
 Generates the cab file, containing the content folder files and correctlty named for updatable help, and places in the output path directory.
@@ -39,31 +39,35 @@ Generates the cab file, containing the content folder files and correctlty named
 The folder containing all of the help content that should be placed into the cab file.
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
 ### -LandingPagePath
-The path and name of the Module Markdown file containing all of the metadata required to name the cab. 
+The path and name of the Module Markdown file containing all of the metadata required to name the cab.
 See the top of the [New-MarkdownHelp -WithLandingPage](New-MarkdownHelp.md) output for a list of all required metadata.
+
+
 
 
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -72,14 +76,16 @@ Accept wildcard characters: False
 This is the location of the cab file and helpinfo.xml created by New-ExternalHelpCab
 
 
+
+
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -98,3 +104,4 @@ This cmdlet does not output to the console. The only output is in the output fol
 
 ## RELATED LINKS
 
+[Online Version:](https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelpCab.md)
