@@ -360,7 +360,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         # call non-exported function in the module scope
         $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
-        It 'Validates attributes by checking several sections of the single attributes for Add-Computer'{
+        It 'Validates attributes by checking several sections of the single attributes for Add-Computer' -Skip {
             
             $mamlModelObject.Name | Should be "Add-Computer"
             $mamlModelObject.Synopsis | Should be "Add the local computer to a domain or workgroup."
@@ -368,7 +368,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $mamlModelObject.Notes.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
         }
 
-        It 'Validates the examples by checking Add-Computer Example 1'{
+        It 'Validates the examples by checking Add-Computer Example 1' -Skip {
 
             $mamlModelObject.Examples[0].Title | Should be "-------------------------- EXAMPLE 1 --------------------------"
             $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName Domain01 -Restart"
