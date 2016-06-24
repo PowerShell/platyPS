@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Markdown.MAML.Model.Markdown;
+using Markdown.MAML.Resources;
 
 namespace Markdown.MAML.Renderer
 {
@@ -11,7 +11,7 @@ namespace Markdown.MAML.Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
-        private const string aboutIndentation = "    ";
+        private const string AboutIndentation = "    ";
 
         private int _maxLineWidth { get; set; }
 
@@ -25,11 +25,13 @@ namespace Markdown.MAML.Renderer
         public string AboutMarkdownToString(DocumentNode document)
         {
             //ensure that all node types in the about topic are handeled.
-            List<MarkdownNodeType> AcceptableNodeTypes = new List<MarkdownNodeType>();
-            AcceptableNodeTypes.Add(MarkdownNodeType.Heading);
-            AcceptableNodeTypes.Add(MarkdownNodeType.Paragraph);
-            AcceptableNodeTypes.Add(MarkdownNodeType.CodeBlock);
-            if (document.Children.Any(c => (!AcceptableNodeTypes.Contains(c.NodeType))))
+            var acceptableNodeTypes = new List<MarkdownNodeType>
+            {
+                MarkdownNodeType.Heading,
+                MarkdownNodeType.Paragraph,
+                MarkdownNodeType.CodeBlock
+            };
+            if (document.Children.Any(c => (!acceptableNodeTypes.Contains(c.NodeType))))
             {
                 throw new NotSupportedException("About Topics can only have heading, parapgrah or code block nodes in their Markdown Model.");
             }
@@ -51,6 +53,8 @@ namespace Markdown.MAML.Renderer
                         CodeBlockNode codeblockNode = currentNode as CodeBlockNode;
                         AddAboutCodeBlock(codeblockNode);
                         break;
+                    default:
+                        throw new ArgumentOutOfRangeException();
                 }
             }
 
@@ -59,11 +63,11 @@ namespace Markdown.MAML.Renderer
 
         private void AddAboutCodeBlock(CodeBlockNode codeblockNode)
         {
-            string[] lines = codeblockNode.Text.Split(new string[] { "\r\n" }, StringSplitOptions.None);
+            var lines = codeblockNode.Text.Split(new[] {"\r\n"}, StringSplitOptions.None);
 
-            foreach (string line in lines)
+            foreach (var line in lines)
             {
-                _stringBuilder.Append(aboutIndentation);
+                _stringBuilder.Append(AboutIndentation);
                 _stringBuilder.AppendLine(line);
             }
 
@@ -72,36 +76,34 @@ namespace Markdown.MAML.Renderer
 
         private void AddAboutHeading(HeadingNode headingNode, DocumentNode document)
         {
+            const int level1Heading = 1;
+            const int level2Heading = 2;
+
             if (document.Children.ElementAt(0) as HeadingNode == headingNode)
             {
-                _stringBuilder.AppendLine("TOPIC");
+                _stringBuilder.AppendLine(MarkdownStrings.AboutTopicFirstHeader.ToUpper());
             }
-            else if (headingNode.HeadingLevel == 1)
+            else if (headingNode.HeadingLevel == level1Heading)
             {
                 _stringBuilder.AppendLine(headingNode.Text.ToUpper());
             }
-            else if (headingNode.HeadingLevel == 2 && document.Children.ElementAt(1) == headingNode)
+            else if (headingNode.HeadingLevel == level2Heading && document.Children.ElementAt(1) == headingNode)
             {
-                _stringBuilder.AppendFormat("{0}{1}{2}{3}", 
-                                                aboutIndentation, 
-                                                headingNode.Text.ToLower(),
-                                                Environment.NewLine, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}{2}{3}", AboutIndentation, headingNode.Text.ToLower(), Environment.NewLine, Environment.NewLine);
             }
-            else if (headingNode.HeadingLevel == 2)
+            else if (headingNode.HeadingLevel == level2Heading)
             {
                 _stringBuilder.AppendLine(headingNode.Text);
             }
             else
             {
-                _stringBuilder.AppendFormat("{0}{1}{2}", 
-                                                aboutIndentation, 
-                                                headingNode.Text.ToUpper(),Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, headingNode.Text.ToUpper(), Environment.NewLine);
             }
         }
 
         private void AddAboutParagraph(ParagraphNode paragraphNode)
         {
-            foreach (string lineContent in paragraphNode.Spans.Select(span => span.Text))
+            foreach (var lineContent in paragraphNode.Spans.Select(span => span.Text))
             {
                 //handles all paragraph lines over 80 characters long and not headers
                 if (lineContent.Length > _maxLineWidth - 4)
@@ -109,15 +111,13 @@ namespace Markdown.MAML.Renderer
                     WrapAndAppendLines(lineContent, _stringBuilder);
                     _stringBuilder.AppendLine();
                 }
-                else if (StringComparer.OrdinalIgnoreCase.Equals(lineContent,"\n"))
+                else if (StringComparer.OrdinalIgnoreCase.Equals(lineContent, "\n"))
                 {
                     _stringBuilder.AppendLine();
                 }
                 else
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{2}", 
-                                                    aboutIndentation, 
-                                                    lineContent,Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, lineContent, Environment.NewLine);
                 }
             }
             _stringBuilder.AppendLine();
@@ -125,57 +125,57 @@ namespace Markdown.MAML.Renderer
 
         public void WrapAndAppendLines(string text, StringBuilder sb)
         {
-            string SingleSpace = " ";
+            const string singleSpace = " ";
 
-            string[] words = text.Split(' ');
+            var words = text.Split(' ');
             text = "";
 
-            foreach (string word in words)
+            foreach (var word in words)
             {
                 if (word.Contains("\r\n"))
                 {
-                    string[] breakLine = word.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                    var breakLine = word.Split(new[] {"\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 
-                    foreach (string part in breakLine)
+                    foreach (var part in breakLine)
                     {
                         if (part == breakLine.Last())
                         {
-                            text += part + SingleSpace;
+                            text += part + singleSpace;
                         }
                         else
                         {
                             text += part;
-                            sb.AppendFormat("{0}{1}{2}",aboutIndentation,text,Environment.NewLine);
+                            sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, Environment.NewLine);
                             text = "";
                         }
                     }
                 }
-                else if (text.Length + word.Length > (this._maxLineWidth - 4))
+                else if (text.Length + word.Length > (_maxLineWidth - 4))
                 {
-                    if (StringComparer.OrdinalIgnoreCase.Equals(text.Substring(text.Length - 1),SingleSpace))
+                    if (StringComparer.OrdinalIgnoreCase.Equals(text.Substring(text.Length - 1), singleSpace))
                     {
                         text = text.Substring(0, text.Length - 1);
                     }
-                    sb.AppendFormat("{0}{1}{2}", aboutIndentation, text, Environment.NewLine);
+                    sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, Environment.NewLine);
 
-                    text = word + SingleSpace;
+                    text = word + singleSpace;
                 }
                 else
                 {
-                    text += word + SingleSpace;
+                    text += word + singleSpace;
                 }
-
             }
 
-            if (text.Length > 0 && !StringComparer.OrdinalIgnoreCase.Equals(text,SingleSpace))
+            if (text.Length <= 0 || StringComparer.OrdinalIgnoreCase.Equals(text, singleSpace))
             {
-                if (StringComparer.OrdinalIgnoreCase.Equals(text.Substring(text.Length - 1),SingleSpace))
-                {
-                    text = text.Substring(0, text.Length - 1);
-                }
-
-                sb.AppendFormat("{0}{1}",aboutIndentation, text);
+                return;
             }
+            if (StringComparer.OrdinalIgnoreCase.Equals(text.Substring(text.Length - 1), singleSpace))
+            {
+                text = text.Substring(0, text.Length - 1);
+            }
+
+            sb.AppendFormat("{0}{1}", AboutIndentation, text);
         }
     }
 }

@@ -61,6 +61,15 @@ namespace Markdown.MAML.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to TOPIC.
+        /// </summary>
+        internal static string AboutTopicFirstHeader {
+            get {
+                return ResourceManager.GetString("AboutTopicFirstHeader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Accept pipeline input.
         /// </summary>
         internal static string Accept_pipeline_input {
