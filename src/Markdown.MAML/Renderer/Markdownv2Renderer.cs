@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Renderer
 {
@@ -20,6 +21,8 @@ namespace Markdown.MAML.Renderer
         private StringBuilder _stringBuilder = new StringBuilder();
 
         private ParserMode _mode;
+
+        private int _maxLineWidth { get; set; }
 
         public int MaxSyntaxWidth { get; private set; }
 
@@ -33,6 +36,11 @@ namespace Markdown.MAML.Renderer
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
             this._mode = mode;
+        }
+
+        public MarkdownV2Renderer(int maxLineWidth)
+        {
+            _maxLineWidth = maxLineWidth;
         }
 
         public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
@@ -69,7 +77,7 @@ namespace Markdown.MAML.Renderer
                     RenderCleaner.NormalizeQuotesAndDashes(
                         _stringBuilder.ToString())));
         }
-
+        
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", Environment.NewLine);

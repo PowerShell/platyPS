@@ -64,6 +64,7 @@
     <Compile Include="EndToEnd\EndToEndTests.cs" />
     <Compile Include="Renderer\MamlRendererTests.cs" />
     <Compile Include="Renderer\MarkdownV2RendererTests.cs" />
+    <Compile Include="Renderer\TextRendererTests.cs" />
     <Compile Include="Transformer\MamlModelMergerTests.cs" />
     <Compile Include="Transformer\ParserAndTransformerTestsV1.cs" />
     <Compile Include="Parser\ParserTests.cs" />

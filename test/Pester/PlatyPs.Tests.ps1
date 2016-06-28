@@ -357,10 +357,25 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
     Context 'Add-Computer' {
         
+        It 'Checks that Help Exists on Computer Running Tests' {
+
+            $Command = Get-Command Add-Computer
+            $HelpFileName = Split-Path $Command.HelpFile -Leaf
+            $foundHelp = @()
+            $paths = $env:PsModulePath.Split(';')
+            foreach($path in $paths)
+            {
+            $path = Split-Path $path -Parent
+            $foundHelp += Get-ChildItem -Path $path -Recurse | Where { $_.Name -like "*$HelpFileName"} | Select Name
+            }
+
+            $foundHelp.Count | Should BeGreaterThan 0
+        }
+
         # call non-exported function in the module scope
         $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
-        It 'Validates attributes by checking several sections of the single attributes for Add-Computer' -Skip {
+        It 'Validates attributes by checking several sections of the single attributes for Add-Computer' {
             
             $mamlModelObject.Name | Should be "Add-Computer"
             $mamlModelObject.Synopsis | Should be "Add the local computer to a domain or workgroup."
@@ -368,10 +383,10 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             $mamlModelObject.Notes.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
         }
 
-        It 'Validates the examples by checking Add-Computer Example 1' -Skip {
+        It 'Validates the examples by checking Add-Computer Example 1' {
 
-            $mamlModelObject.Examples[0].Title | Should be "-------------------------- EXAMPLE 1 --------------------------"
-            $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName Domain01 -Restart"
+            $mamlModelObject.Examples[0].Title | Should be "Example 1: Add a local computer to a domain then restart the computer"
+            $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
             $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
 
         }
@@ -667,5 +682,52 @@ It has mutlilines. And hyper (http://link.com).
         Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
         Update-MarkdownHelp -Path $outputFolder
         (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
+    }
+}
+
+Describe 'Create About Topic Markdown and Txt' {
+    
+    $output = "TestDrive:\"
+    $aboutTopicName = "PlatyPS"
+    $templateLocation = (Split-Path ((Get-Module $aboutTopicName).Path) -Parent) + "\templates\aboutTemplate.md"
+    
+    
+    It 'Checks the about topic is created with proper file name, and the content is correctly written' {
+        
+        $aboutContent = Get-Content $templateLocation
+        $aboutContent = $aboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $aboutTopicName))
+        $aboutContent = $aboutContent.Replace("{{TOPIC NAME}}",$aboutTopicName)
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName $aboutTopicName
+
+        Test-Path (Join-Path $output ($aboutTopicName + ".md")) | Should Be $true
+        Get-Content (Join-Path $output ($aboutTopicName + ".md")) | Should Be $aboutContent
+    }
+    
+    It 'Takes constructed markdown about topics and converts them to text with proper character width'{
+
+        $AboutTopicsOutputFolder = Join-Path $output "About"
+
+        New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
+
+        New-MarkdownAboutHelp -OutputFolder $AboutTopicsOutputFolder -AboutName "AboutTopic"
+
+        New-ExternalHelp -Path $AboutTopicsOutputFolder -OutputPath $AboutTopicsOutputFolder
+        
+        $lineWidthCheck = $true;
+        
+        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "AboutTopic.txt"
+
+        $AboutContent = Get-Content $AboutTxtFilePath
+        
+        $AboutContent | % {
+            if($_.Length -gt 80)
+            {
+                $lineWidthCheck = $false
+            } 
+        }
+        
+        (Get-ChildItem $AboutTxtFilePath | measure).Count | Should Be 1 
+        $lineWidthCheck | Should Be $true
     }
 }

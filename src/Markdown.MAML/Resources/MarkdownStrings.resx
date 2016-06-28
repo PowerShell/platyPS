@@ -186,4 +186,7 @@
   <data name="DefaultParameterSetModifier" xml:space="preserve">
     <value> (Default)</value>
   </data>
+  <data name="AboutTopicFirstHeader" xml:space="preserve">
+    <value>TOPIC</value>
+  </data>
 </root>
