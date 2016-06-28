@@ -360,10 +360,16 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         It 'Checks that Help Exists on Computer Running Tests' {
 
             $Command = Get-Command Add-Computer
-            $Module = Get-Module ($Command).Module
-            $FoundHelp = (Get-ChildItem -Path "C:\Windows\System32\WindowsPowerShell\" -Recurse | Where {$_.Name -eq (Split-Path ($Command.HelpFile) -Leaf ) })
-            
-            $FoundHelp.PsPath | Should Be "Microsoft.PowerShell.Core\FileSystem::C:\windows\system32\windowspowershell\v1.0\en-US\Microsoft.PowerShell.Commands.Management.dll-help.xml"
+            $HelpFileName = Split-Path $Command.HelpFile -Leaf
+            $foundHelp = @()
+            $paths = $env:PsModulePath.Split(';')
+            foreach($path in $paths)
+            {
+            $path = Split-Path $path -Parent
+            $foundHelp += Get-ChildItem -Path $path -Recurse | Where { $_.Name -like "*$HelpFileName"} | Select Name
+            }
+
+            $foundHelp.Count | Should BeGreaterThan 0
         }
 
         # call non-exported function in the module scope
