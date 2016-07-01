@@ -723,6 +723,17 @@ function Get-HelpPreview
                         }
                 }
 
+                # in PS v5 help engine is not happy, when first non-empty link (== Online version link) is not a valid URI
+                # User encounter this problem too oftern to ignore it, hence this workaround in platyPS:
+                # always add a dummy link with a valid URI into xml and then remove the first link from the help object.
+                # for more context see https://github.com/PowerShell/platyPS/issues/144
+                $xml.helpItems.command.relatedLinks | ForEach-Object {
+                    if ($_)
+                    {
+                        $_.InnerXml = '<maml:navigationLink xmlns:maml="http://schemas.microsoft.com/maml/2004/10"><maml:linkText>PLATYPS_DUMMY_LINK</maml:linkText><maml:uri>https://github.com/PowerShell/platyPS/issues/144</maml:uri></maml:navigationLink>' + $_.InnerXml
+                    }
+                }
+
                 $xml.Save($MamlCopyPath)
                 
                 foreach ($command in $xml.helpItems.command.details.name)
@@ -754,6 +765,15 @@ Microsoft.PowerShell.Core\Export-ModuleMember -Function @()
 "@
                     $m = New-Module ( [scriptblock]::Create( "$thisDefinition" )) 
                     $help = & $m { $innerHelp }
+                    # this is the second part of the workaround for https://github.com/PowerShell/platyPS/issues/144
+                    # see comments above for context
+                    $help.relatedLinks | ForEach-Object {
+                        if ($_)
+                        {
+                            $_.navigationLink = $_.navigationLink | Select -Skip 1
+                        }
+                    }
+
                     $help # yeild
                 }
             }
