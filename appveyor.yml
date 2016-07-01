@@ -1,7 +1,7 @@
-version: 0.4.0.{build}
+version: 0.5.0.{build}
 
 install:
-    - cinst pester
+    - nuget install pester -source https://www.powershellgallery.com/api/v2 -outputDirectory C:\ -ExcludeVersion
 
 init:
     - git config --global core.autocrlf true
@@ -22,6 +22,7 @@ after_test:
         # appveyor doesn't run after_test, if tests failed.
         #
         # Pester tests produce artifacts in .\out directory
+        Import-Module C:\Pester
         $pesterTestResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $pesterTestResultsFile))
