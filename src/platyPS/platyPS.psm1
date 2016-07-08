@@ -773,7 +773,6 @@ Microsoft.PowerShell.Core\Export-ModuleMember -Function @()
                             $_.navigationLink = $_.navigationLink | Select -Skip 1
                         }
                     }
-
                     $help # yeild
                 }
             }
@@ -968,7 +967,6 @@ function GetInfoCallback
             Write-Verbose $message
         }
     }
-    
     return $infoCallback
 }
 
@@ -1252,7 +1250,9 @@ function MakeHelpInfoXml
 
 
     )
-    $OutputFullPath = Join-Path $OutputFolder ($ModuleName + "_" + $GUID + "_HelpInfo.xml")
+    
+    $HelpInfoFileNme = $ModuleName + "_" + $GUID + "_HelpInfo.xml"
+    $OutputFullPath = Join-Path $OutputFolder $HelpInfoFileNme
 
     if(Test-Path $OutputFullPath -PathType Leaf)
     {
@@ -1337,7 +1337,13 @@ function MakeHelpInfoXml
     }
 
     #Commit Help
-    $HelpInfoContent.Save($OutputFullPath)
+        if(!(Test-Path $OutputFullPath))
+    {
+        New-Item -Path $OutputFolder -ItemType File -Name $HelpInfoFileNme
+        
+    }
+    
+    $HelpInfoContent.Save((Get-ChildItem $OutputFullPath).FullName)
 
 }
 

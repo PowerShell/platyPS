@@ -52,11 +52,11 @@ The optional expression in a Throw statement can be a string, as shown in
 the following example:
 
 ```
-C:\PS> throw "This is an error."
+C:\PS> throw 'This is an error.'
 
 This is an error.
 At line:1 char:6
-+ throw <<<<  "This is an error."
++ throw <<<< 'This is an error.'
     + CategoryInfo          : OperationStopped: (This is an error.:String) [], RuntimeException
     + FullyQualifiedErrorId : This is an error.
 ```
@@ -74,7 +74,7 @@ At line:1 char:6
 + throw <<<<  (get-process PowerShell)
     + CategoryInfo          : OperationStopped: (System.Diagnostics.Process (PowerShell):Process) [
 RuntimeException
-    + FullyQualifiedErrorId : System.Diagnostics.Process (PowerShell)
+    + FullyQualifiedErrorId : System.Diagnostics.Process(PowerShell)
 ```
 
 You can use the TargetObject property of  the ErrorRecord object in the
@@ -90,12 +90,12 @@ Handles  NPM(K)    PM(K)      WS(K) VM(M)   CPU(s)     Id ProcessName
     319      26    61016      70864   568     3.28   5548 PowerShell
 ```
 
-You can also throw an ErrorRecord object or a Microsoft .NET Framework
+You can also throw an ErrorRecord object or a Microsoft.NET Framework
 exception. The following example uses the Throw keyword to throw a
 System.FormatException object.
 
 ```
-C:\PS> $formatError = new-object system.formatexception
+C:\PS> $formatError = new- object system.formatexception
 
 C:\PS> throw $formatError
 
@@ -122,7 +122,7 @@ ErrorRecord object is automatically saved in the $Error automatic variable.
 You can use the Throw keyword to make a function parameter mandatory.
 
 This is an alternative to using the Mandatory parameter of the Parameter
-keyword. When you use the Mandatory parameter, the system prompts the user
+keyword.When you use the Mandatory parameter, the system prompts the user
 for the required parameter value. When you use the Throw keyword, the
 command stops and displays the error record.
 
@@ -137,8 +137,8 @@ is optional.
 ```
 function Get-XMLFiles
 {
-    param ($path = $(throw "The Path parameter is required."))
-    dir -path $path\*.xml -recurse | sort lastwritetime | ft lastwritetime, attributes, name  -auto
+        param($path = $(throw 'The Path parameter is required.'))
+    dir - path $path\*.xml - recurse | sort lastwritetime | ft lastwritetime, attributes, name - auto
 }
 ```
 
@@ -149,4 +149,3 @@ function Get-XMLFiles
 - about_Scope
 - about_Trap
 - about_Try_Catch_Finally
-    
