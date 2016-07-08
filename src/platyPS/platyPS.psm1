@@ -967,7 +967,6 @@ function GetInfoCallback
             Write-Verbose $message
         }
     }
-    
     return $infoCallback
 }
 
