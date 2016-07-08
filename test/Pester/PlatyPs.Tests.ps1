@@ -439,16 +439,17 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 #region Checking Cab and File Naming Cmdlets
 
 Describe 'New-ExternalHelpCab' {
+    $OutputPath = "TestDrive:\CabTesting"
 
-    Remove-Item -path "$outFolder\CabTesting\" -Recurse -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\Xml\" -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path "$outFolder\CabTesting\Source\ModuleMd\" -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml" -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path "$outFolder\CabTesting\OutXml2" -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType File -Path "$outFolder\CabTesting\Source\Xml\" -Name "HelpXml.xml" -force | Out-Null
-    New-Item -ItemType File -Path "$outFolder\CabTesting\Source\ModuleMd\" -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
-    Set-Content -Path "$outFolder\CabTesting\Source\Xml\HelpXml.xml" -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
-    Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\Xml\") -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\ModuleMd\") -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml") -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml2") -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\Xml\") -Name "HelpXml.xml" -force | Out-Null
+    New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\ModuleMd\") -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
+    New-Item -ItemType File -Path $OutputPath -Name "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml" -ErrorAction SilentlyContinue | Out-Null
+    Set-Content -Path (Join-Path $OutputPath "\Source\Xml\HelpXml.xml") -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
+    Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
 
     Context 'MakeCab.exe' {
 
@@ -460,28 +461,27 @@ Describe 'New-ExternalHelpCab' {
         }
     }
 
-    Context 'New-ExternalHelpCab function' {
+    Context 'New-ExternalHelpCab function, External Help & HelpInfo' {
+
+        $CmdletContentFolder = (Join-Path $OutputPath "\Source\Xml\")
+        $ModuleMdPageFullPath = (Join-Path $OutputPath "\Source\ModuleMd\Module.md")
 
         It 'validates the output of Cab creation' {
-            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
-            $OutputPath = "$outFolder\CabTesting\"
-            $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
-            
+
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
-            expand "$OutputPath\PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab" /f:* "$outFolder\CabTesting\OutXml\HelpXml.xml" 
+            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab")).FullName
+            $cabExtract = (Join-Path (Split-Path $cab -Parent) "OutXml")
+
+            $cabExtract = Join-Path $cabExtract "HelpXml.xml"
+
+            expand $cab /f:* $cabExtract
             
             (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+            (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
         }
-    }
-
-    Context 'HelpInfo'{
-        $OutputPath = "$outFolder\CabTesting\"
-        $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
 
         It 'Creates a help info file'{
-            $OutputPath = "$outFolder\CabTesting\"
-            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
             [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
 
             $PlatyPSHelpInfo | Should Not Be $null
@@ -490,11 +490,8 @@ Describe 'New-ExternalHelpCab' {
         }
 
         It 'Adds another help locale'{
-            $OutputPath = "$outFolder\CabTesting\"
-            $CmdletContentFolder = "$outFolder\CabTesting\Source\Xml\"
-            $ModuleMdPageFullPath = "$outFolder\CabTesting\Source\ModuleMd\Module.md"
         
-            Set-Content -Path "$outFolder\CabTesting\Source\ModuleMd\Module.md" -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
+            Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
             [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
             $Count = 0
