@@ -54,9 +54,10 @@ namespace Markdown.MAML.Transformer
             // TODO: figure out what's the right thing for MamlInputOutput
             result.Inputs.AddRange(stringModel.Inputs);
             result.Outputs.AddRange(stringModel.Outputs);
-
+            
+            //Result takes in the merged parameter results.
             MergeParameters(result, metadataModel, stringModel);
-
+            
             Report("----Cmdlet {0} updated.----\r\n\r\n", result.Name);
 
             return result;
@@ -71,9 +72,50 @@ namespace Markdown.MAML.Transformer
         {
             // we care only about metadata for parameters in syntax
             result.Syntax.AddRange(metadataModel.Syntax);
+            
+            //report name changes to syntax objects
+            Report("::Syntax Block and Parameter Set Names fully replaced by Cmdlet Reflection");
+
+            //reports changes to parameter set names
+            foreach (var reflectedSyntax in metadataModel.Syntax)
+            {
+                var reflectedSyntaxParameters = reflectedSyntax.Parameters.Select(s => s.Name).ToList();
+                reflectedSyntaxParameters.Sort();
+
+                bool foundSyntaxMatch = false;
+
+                foreach (var stringSyntax in stringModel.Syntax)
+                {
+                    var stringSyntaxParameters = stringSyntax.Parameters.Select(s => s.Name).ToList();
+                    stringSyntaxParameters.Sort();
+
+                    if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
+                    {
+                        Report("::ParameterSet Name: <{0}> replaced [{1}]",reflectedSyntax.ParameterSetName,stringSyntax.ParameterSetName);
+                        foundSyntaxMatch = true;
+                    }
+                }
+
+                if (!foundSyntaxMatch)
+                {
+                    Report("::ParameterSet Name no match found: <{0}> added", reflectedSyntax.ParameterSetName);
+                }
+                
+                if (reflectedSyntax.IsDefault)
+                {
+                    Report("::{0} has been set as the default Parameter Set for {1}.\r\n",reflectedSyntax.ParameterSetName,metadataModel.Name);
+                }
+            }
 
             foreach (var param in metadataModel.Parameters)
             {
+                var aliases = param.Aliases.Aggregate(string.Empty, (current, alias) => current + " " + alias);
+
+                if (aliases != string.Empty)
+                {
+                    Report("::Aliases updated for {0}:{1}", param.Name, aliases);
+                }
+
                 var strParam = FindParameterByName(param.Name, stringModel.Parameters);
                 if (strParam == null)
                 {
@@ -114,7 +156,7 @@ namespace Markdown.MAML.Transformer
             if(!StringComparer.Ordinal.Equals((stringContent == null ? "" : Pretify(stringContent)),
                 (metadataContent == null ? "" : Pretify(metadataContent))))
             {
-                Report("::{0}: parameter {1} - {2} has been updated:\r\n<\r\n    {3}\r\n>\r\nreplaced\r\n[\r\n    {4}\r\n]", 
+                Report("::{0}: parameter {1} - {2} has been updated:\r\n<Old from MAML\r\n    {4}\r\n>\r\n\r\n[New from Markdown\r\n    {3}\r\n]", 
                     moduleName, 
                     paramName, 
                     contentItemName,
@@ -143,14 +185,14 @@ namespace Markdown.MAML.Transformer
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
         {
             var metadataContentPretified = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
-            var stringContenPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
+            var stringContentPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
 
-            if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContenPretified))
+            if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContentPretified))
             {
-                Report("::{0}: {1} has been updated:\r\n<\r\n    {2}\r\n>\r\nreplaced\r\n[\r\n    {3}\r\n]\r\n",
+                Report("::{0}: {1} has been updated:\r\n<Old from MAML\r\n    {3}\r\n>\r\n\r\n[New from Markdown\r\n    {2}\r\n]\r\n",
                     moduleName,
                     contentItemName,
-                    stringContenPretified,
+                    stringContentPretified,
                     metadataContentPretified);
             }
 
@@ -159,11 +201,7 @@ namespace Markdown.MAML.Transformer
 
         private void Report(string format, params object[] objects)
         {
-            if (_infoCallback != null)
-            {
-                _infoCallback.Invoke(string.Format(format, objects));
-            }
+            _infoCallback?.Invoke(string.Format(format, objects));
         }
-
     }
 }
