@@ -27,7 +27,7 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Equal("Name", result.Parameters[0].Name);
             Assert.Equal("NewParam", result.Parameters[1].Name);
             Assert.Contains("Get-Foo: parameter Remove is not longer present.", _reportStream);
-            Assert.Contains("Get-Foo: parameter Name - description has been updated:\r\n<\r\n    Parameter Description.\r\n>\r\nreplaced\r\n[\r\n    Old Description\r\n]", _reportStream);
+            Assert.Contains("Get-Foo: parameter Name - description has been updated:\r\n<Old from MAML\r\n    Old Description\r\n>\r\n\r\n[New from Markdown\r\n    Parameter Description.\r\n]", _reportStream);
 
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
 
