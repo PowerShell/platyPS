@@ -201,7 +201,10 @@ namespace Markdown.MAML.Transformer
 
         private void Report(string format, params object[] objects)
         {
-            _infoCallback?.Invoke(string.Format(format, objects));
+            if (_infoCallback != null)
+            {
+                _infoCallback.Invoke(string.Format(format, objects));
+            }
         }
     }
 }
