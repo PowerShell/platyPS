@@ -15,9 +15,13 @@ New-MarkdownAboutHelp [-OutputFolder] <String> [[-AboutName] <String>]
 ```
 
 ## DESCRIPTION
-The **New-MarkdownAboutHelp** cmdlet generates a Markdown file that is prepopulated with the standard elements of an About Topic. The cmdlet copies the template MD, renames headers and file name according to the **AboutName** parameter, and deposits the file in the directory designated by the **OutputFoler** parameter.
+The **New-MarkdownAboutHelp** cmdlet generates a Markdown file that is prepopulated with the standard elements of an About Topic.
+The cmdlet copies the template MD, renames headers and file name according to the **AboutName** parameter,
+and deposits the file in the directory designated by the **OutputFoler** parameter.
 
-The About Topic can be converted to Txt format. About topics must be in txt format or the PowerShell Help engine will not be able to parse the document. Use the [New-ExternalHelp](New-ExternalHelp.md) cmdlet to convert About Topic markdown files into About Topic txt files.
+The About Topic can be converted to Txt format. 
+About topics must be in txt format or the PowerShell Help engine will not be able to parse the document. 
+Use the [New-ExternalHelp](New-ExternalHelp.md) cmdlet to convert About Topic markdown files into About Topic txt files.
 
 ## EXAMPLES
 
@@ -101,5 +105,7 @@ This cmdlet returns a object for created files.
 The about topics will need to be added to a cab file to leverage updatable help.
 
 ## RELATED LINKS
+
 [New-ExternalHelp](New-ExternalHelp.md)
-[New-ExternalHelpCab] (New-ExternalHelpCab.md)
+
+[New-ExternalHelpCab](New-ExternalHelpCab.md)
