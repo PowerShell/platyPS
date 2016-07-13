@@ -15,6 +15,7 @@ CHANGELOG
 
 #### Bug Fixes
 * Update-MarkdownHelp Log updated to improve readability.
+* You can use relative file paths for related links now. [#164](https://github.com/PowerShell/platyPS/issues/164)
 
 ## 0.5.0
 
