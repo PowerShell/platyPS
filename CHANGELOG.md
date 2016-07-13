@@ -5,6 +5,8 @@ CHANGELOG
 
 (Capture your changes here)
 
+## 0.6.0
+
 #### New
 * About Topics Support
   - New Cmdlet New-MarkdownAboutHelp generates a MD of a blank about topic MD file from a template file.
@@ -13,7 +15,6 @@ CHANGELOG
 
 #### Bug Fixes
 * Update-MarkdownHelp Log updated to improve readability.
-* Pester Test cases updated with addition of new features and fixed with addition of log update
 
 ## 0.5.0
 
