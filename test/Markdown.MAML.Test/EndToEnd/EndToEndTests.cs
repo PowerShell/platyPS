@@ -69,6 +69,31 @@ I'm description
         }
 
         [Fact]
+        public void CanUseRelativeLinksInRelatedLinksSection()
+        {
+            // more details: https://github.com/PowerShell/platyPS/issues/164
+
+            string maml = MarkdownStringToMamlString(@"
+# Get-Foo
+
+## RELATED LINKS
+
+[foo](foo.md)
+[bar](bar://bar.md)
+");
+
+            string[] linkText = GetXmlContent(maml, "/helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:linkText");
+            Assert.Equal(2, linkText.Length);
+            Assert.Equal("foo", linkText[0]);
+            Assert.Equal("bar", linkText[1]);
+
+            string[] linkUri = GetXmlContent(maml, "/helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:uri");
+            Assert.Equal(2, linkUri.Length);
+            Assert.Equal("", linkUri[0]); // empty, because foo.md is not a valid URI and help system will be unhappy.
+            Assert.Equal("bar://bar.md", linkUri[1]); // bar://bar.md is a valid URI
+        }
+
+        [Fact]
         public void CanProcessAddHistoryAddSnapinMarkdownWithoutErrors()
         {
             string maml = MarkdownStringToMamlString(@"

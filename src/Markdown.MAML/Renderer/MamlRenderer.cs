@@ -158,7 +158,23 @@ namespace Markdown.MAML.Renderer
                 PopTag(1);
 
                 PushTag("maml:uri");
-                _stringBuilder.Append(XmlEscape(Link.LinkUri));
+
+                // PowerShell help engine is not happy, when LinkUri doesn't represent a valid URI
+                // but it's often convinient to have it (i.e. relative links between markdown files on github).
+                // so, we are ignoring non-uri links when rendering the final maml.
+                // https://github.com/PowerShell/platyPS/issues/164
+                Uri uri;
+                string linkUri = "";
+                try
+                {
+                    uri = new Uri(Link.LinkUri);
+                    linkUri = XmlEscape(Link.LinkUri);
+                }
+                catch (UriFormatException e)
+                {
+                }
+
+                _stringBuilder.Append(linkUri);
                 PopTag(1);
 
                 PopTag(1);
