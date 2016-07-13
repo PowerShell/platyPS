@@ -443,7 +443,7 @@ function Update-MarkdownHelpModule
     
     begin
     {
-        $infoCallback = GetInfoCallback $LogFile -Append:$LogAppend
+        $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend
         $MarkdownFiles = @()
     }
 
@@ -478,7 +478,7 @@ function Update-MarkdownHelpModule
             if ($h.$script:MODULE_PAGE_MODULE_NAME)
             {
                 $module = $h.$script:MODULE_PAGE_MODULE_NAME | Select-Object -First 1
-                log "Determined module name for $modulePath as $moduleName"
+                log "Determined module name for $modulePath as $module"
             }
             
             if (-not $module)
