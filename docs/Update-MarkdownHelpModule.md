@@ -19,7 +19,7 @@ The **Update-MarkdownHelpModule** cmdlet updates existing help markdown files an
 This cmdlet combines functionality of the [Update-MarkdownHelp](Update-MarkdownHelp) and [New-MarkdownHelp](New-MarkdownHelp) cmdlets to perform a bulk update.
 ## EXAMPLES
 
-### Example 1: Update a markdown help module 
+### Example 1: Update a markdown help module
 ```
 PS C:\> Update-MarkdownHelpModule -Path ".\docs"
 

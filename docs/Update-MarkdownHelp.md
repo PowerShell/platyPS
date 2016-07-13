@@ -49,7 +49,6 @@ Mode                LastWriteTime         Length Name
 ```
 
 This command updates all markdown help files in the specified path to match the current cmdlets.
-
 ### Example 2: Update one file and capture log
 ```
 PS C:\> Update-MarkdownHelp -Path ".\docs\Update-MarkdownHelp.md" -LogPath ".\markdown.log"
@@ -64,7 +63,6 @@ Mode                LastWriteTime         Length Name
 
 This command updates a markdown help file.
 It writes log information to the markdown.log file.
-
 ## PARAMETERS
 
 ### -Encoding
