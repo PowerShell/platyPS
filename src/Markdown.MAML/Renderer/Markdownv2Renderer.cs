@@ -81,10 +81,17 @@ namespace Markdown.MAML.Renderer
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
+            
+            // Use a sorted dictionary to force the metadata into alphabetical order by key for consistency.
+            var sortedHeader = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry pair in yamlHeader)
             {
-                var value = pair.Value == null ? "" : pair.Value.ToString();
-                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key.ToString(), value, Environment.NewLine);
+                sortedHeader[pair.Key.ToString()] = pair.Value == null ? "" : pair.Value.ToString();
+            }
+            
+            foreach (var pair in sortedHeader)
+            {
+                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key, pair.Value, Environment.NewLine);
             }
 
             _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
