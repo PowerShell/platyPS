@@ -5,6 +5,10 @@ CHANGELOG
 
 (Capture your changes here)
 
+## 0.6.1
+
+* Forcing metadata in md files to be sorted alphabetically by key.
+
 ## 0.6.0
 
 #### New
