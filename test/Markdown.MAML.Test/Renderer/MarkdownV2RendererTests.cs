@@ -192,14 +192,15 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 
             });
 
+            // Note that the metadata should end up getting alphabetized.
             var metadata = new Hashtable();
             metadata["foo"] = "bar";
             metadata["null"] = null;
             string markdown = renderer.MamlModelToString(command, metadata);
             Assert.Equal(@"---
-schema: 2.0.0
 foo: bar
 null: 
+schema: 2.0.0
 ---
 
 # Get-Foo
