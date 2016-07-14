@@ -1,7 +1,7 @@
 ---
 external help file: platyPS-help.xml
-schema: 2.0.0
 online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-HelpPreview.md
+schema: 2.0.0
 ---
 
 # Get-HelpPreview
