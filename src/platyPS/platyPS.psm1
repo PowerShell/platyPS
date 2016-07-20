@@ -641,6 +641,10 @@ function New-ExternalHelp
                 $value = $r.AboutMarkDownToString($model)
 
                 $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".txt")
+                if((Split-Path -Leaf $outPath).ToUpper().Substring(0,6) -ne "ABOUT_")
+                {
+                    $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
+                }
                 MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
             }
         }
@@ -978,6 +982,20 @@ function GetAboutTopicsFromPath
         [string[]]$Path,
         [string[]]$MarkDownFilesAlreadyFound
     )
+
+    function ConfirmAboutBySecondHeaderText
+    {
+        param(
+            [string]$AboutFilePath
+        )
+
+        if((Get-Content $AboutFilePath)[1].substring(3,5).ToUpper() -eq "ABOUT")
+        {
+            return $true
+        }
+
+        return $false
+    }
     
     $AboutMarkDownFiles = @()
     
@@ -985,8 +1003,7 @@ function GetAboutTopicsFromPath
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
-                $Content = Get-Content $_
-                if($Content[1].Contains("## about_"))
+                if(ConfirmAboutBySecondHeaderText($_))
                 {
                     $AboutMarkdownFiles += Get-ChildItem $_
                 }
@@ -995,11 +1012,11 @@ function GetAboutTopicsFromPath
             {
                 if($MarkDownFilesAlreadyFound)
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {$_.FullName -notin $MarkDownFilesAlreadyFound -and (Get-Content $_.FullName)[1].Contains("## about_")}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName))}
                 }
                 else
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {(Get-Content $_.FullName)[1].Contains("## about_")}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {ConfirmAboutBySecondHeaderText($_.FullName)}
                 }
             }
             else 

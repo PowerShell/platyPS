@@ -5,8 +5,15 @@ CHANGELOG
 
 (Capture your changes here)
 
+#### New
+
+#### Bug Fixes
+* Resolved issue where about topic second header was case sensitive. Now insensitive. Issue #174
+* About topics will be named with about_<Topic Name> when converted to txt using New-ExternalHelp. Enhancement suggested in #174
+
 ## 0.6.1
 
+#### New
 * Forcing metadata in md files to be sorted alphabetically by key.
 
 ## 0.6.0
