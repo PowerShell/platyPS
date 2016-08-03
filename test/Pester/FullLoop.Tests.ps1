@@ -9,7 +9,8 @@ Import-Module $outFolder\platyPS -Force
 Describe 'Full loop for Add-Member cmdlet' {
 
     $cmdlet = "Add-Member"
-    $cmdletHelpFile = (Get-Command $cmdlet).HelpFile
+    $powerShellModuleDirectory = "C:\Windows\System32\WindowsPowerShell\v1.0\"
+    $cmdletHelpFile = (Get-ChildItem -Path $powerShellModuleDirectory (Get-Command $cmdlet).HelpFile -Recurse).FullName 
     $testDriveCmdletHelpFile = (Join-Path "TestDrive:\" (Split-Path -Leaf $cmdletHelpFile))
     # run convertion
     $file = New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
