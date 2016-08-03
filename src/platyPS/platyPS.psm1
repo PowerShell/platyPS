@@ -1001,9 +1001,12 @@ function GetAboutTopicsFromPath
             [string]$AboutFilePath
         )
 
-        if((Get-Content $AboutFilePath)[1].substring(3,5).ToUpper() -eq "ABOUT")
+        if((Get-Content $AboutFilePath)[1].length -gt 3)
         {
-            return $true
+            if((Get-Content $AboutFilePath)[1].substring(3,5).ToUpper() -eq "ABOUT")
+            {
+                return $true
+            }
         }
 
         return $false
