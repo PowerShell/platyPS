@@ -105,7 +105,6 @@ function New-MarkdownHelp
     begin
     {
         validateWorkingProvider
-
         mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
     }
 
@@ -273,7 +272,6 @@ function Get-MarkdownMetadata
 
     process
     {
-        
         if ($PSCmdlet.ParameterSetName -eq 'FromMarkdownString')
         {
             return [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($Markdown)
@@ -649,7 +647,7 @@ function New-ExternalHelp
                 $value = $r.AboutMarkDownToString($model)
 
                 $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".txt")
-                if((Split-Path -Leaf $outPath).ToUpper().Substring(0,6) -ne "ABOUT_")
+                if((Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_",$true,$null))
                 {
                     $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
                 }
@@ -2187,7 +2185,16 @@ function validateWorkingProvider
 {
     if((Get-Location).Drive.Provider.Name -ne 'FileSystem')
     {
-        throw 'PlatyPS Cmdlets only work in the FileSystem Provider. Please change your working drive to one with Provider type filesystem.'
+        Write-Verbose 'PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to filesystem.'
+        $AvailableFileSystemDrives = Get-PSDrive | Where {$_.Provider.Name -eq "FileSystem"} | Select Root
+        if($AvailableFileSystemDrives.Count -gt 0)
+        {
+           Set-Location $AvailableFileSystemDrives[0].Root
+        }
+        else 
+        {
+             throw 'PlatyPS Cmdlets only work in the FileSystem Provider.' 
+        }
     }
 }
 #endregion
