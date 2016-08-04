@@ -713,7 +713,7 @@ Describe 'Create About Topic Markdown and Txt' {
         
         $lineWidthCheck = $true;
         
-        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "AboutTopic.txt"
+        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "about_AboutTopic.txt"
 
         $AboutContent = Get-Content $AboutTxtFilePath
         

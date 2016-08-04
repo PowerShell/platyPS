@@ -8,8 +8,12 @@ Import-Module $outFolder\platyPS -Force
 
 Describe 'Full loop for Add-Member cmdlet' {
 
+    $cmdlet = "Add-Member"
+    $powerShellModuleDirectory = "C:\Windows\System32\WindowsPowerShell\v1.0\"
+    $cmdletHelpFile = (Get-ChildItem -Path $powerShellModuleDirectory (Get-Command $cmdlet).HelpFile -Recurse).FullName 
+    $testDriveCmdletHelpFile = (Join-Path "TestDrive:\" (Split-Path -Leaf $cmdletHelpFile))
     # run convertion
-    $file = New-MarkdownHelp -command Add-Member -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
+    $file = New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
 
     It 'generate correct file name' {
         $file.FullName | Should Be "$outFolder\Add-Member.md"
@@ -23,7 +27,14 @@ Describe 'Full loop for Add-Member cmdlet' {
     }
 
     $generatedHelpObject = Get-HelpPreview $generatedMaml
-    $originalHelpObject = Get-Help -Name Microsoft.PowerShell.Utility\Add-Member
+    Copy-Item -Path $cmdletHelpFile -Destination $testDriveCmdletHelpFile
+    New-MarkdownHelp -MamlFile $testDriveCmdletHelpFile -OutputFolder "TestDrive:\"
+    Remove-Item -Path "TestDrive:\*.*" -Exclude "Add-Member.md" -Force
+    Update-MarkdownHelp -Path "TestDrive:\"
+    New-ExternalHelp -Path "TestDrive:" -OutputPath "TestDrive:"
+    Remove-Item -Path "TestDrive:\*.md"-Force
+    
+    $originalHelpObject = Get-HelpPreview -Path $testDriveCmdletHelpFile
     
     Context 'markdown metadata' {
         $h = Get-MarkdownMetadata $file
@@ -218,8 +229,8 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 $listItemMark = if ($IsMaml) {'- '} else {'-- '}
                 $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
-                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop: When") | Should Be $true
-                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None: No") | Should Be $true
+                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop. When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None. No") | Should Be $true
             }
 
             if ($IsMaml)

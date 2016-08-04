@@ -104,6 +104,7 @@ function New-MarkdownHelp
 
     begin
     {
+        validateWorkingProvider
         mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
     }
 
@@ -356,6 +357,7 @@ function Update-MarkdownHelp
 
     begin
     {
+        validateWorkingProvider
         $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend
         $MarkdownFiles = @()
     }
@@ -443,6 +445,7 @@ function Update-MarkdownHelpModule
     
     begin
     {
+        validateWorkingProvider
         $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend
         $MarkdownFiles = @()
     }
@@ -521,6 +524,7 @@ function New-MarkdownAboutHelp
     
     begin
     {
+        validateWorkingProvider
         $templatePath =  Join-Path $PSScriptRoot "templates\aboutTemplate.md"
     }
 
@@ -563,6 +567,8 @@ function New-ExternalHelp
 
     begin
     {
+        validateWorkingProvider
+
         $MarkdownFiles = @()
         $AboutFiles = @()
         $IsOutputContainer = $true
@@ -641,6 +647,10 @@ function New-ExternalHelp
                 $value = $r.AboutMarkDownToString($model)
 
                 $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".txt")
+                if(!(Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_",$true,$null))
+                {
+                    $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
+                }
                 MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
             }
         }
@@ -830,77 +840,81 @@ function New-ExternalHelpCab
         [string] $OutputFolder
     )
     
-    #Testing for MakeCab.exe
-    Write-Verbose "Testing that MakeCab.exe is present on this machine."
-    $MakeCab = Get-Command MakeCab
-    if(-not $MakeCab)
-    {
-        throw "MakeCab.exe is not a registered command." 
-    }
-    #Testing for files in source directory
-    if((Get-ChildItem -Path $CabFilesFolder).Count -le 0)
-    {
-        throw "The file count in the cab files directory is zero."
-    }
+    process{
+
+        validateWorkingProvider
+
+        #Testing for MakeCab.exe
+        Write-Verbose "Testing that MakeCab.exe is present on this machine."
+        $MakeCab = Get-Command MakeCab
+        if(-not $MakeCab)
+        {
+            throw "MakeCab.exe is not a registered command." 
+        }
+        #Testing for files in source directory
+        if((Get-ChildItem -Path $CabFilesFolder).Count -le 0)
+        {
+            throw "The file count in the cab files directory is zero."
+        }
+        
+
+    ###Get Yaml Metadata here
+    $Metadata = Get-MarkdownMetadata -Path $LandingPagePath
+
+    $ModuleName = $Metadata[$script:MODULE_PAGE_MODULE_NAME]
+    $Guid = $Metadata[$script:MODULE_PAGE_GUID]
+    $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
+    $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
+    $HelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+
+    #Create HelpInfo File
     
 
-   ###Get Yaml Metadata here
-   $Metadata = Get-MarkdownMetadata -Path $LandingPagePath
 
-   $ModuleName = $Metadata[$script:MODULE_PAGE_MODULE_NAME]
-   $Guid = $Metadata[$script:MODULE_PAGE_GUID]
-   $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
-   $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
-   $HelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+        #Testing the destination directories, creating if none exists.
+        Write-Verbose "Checking the output directory"
+        if(-not (Test-Path $OutputFolder))
+        {
+            Write-Verbose "Output directory does not exist, creating a new directory."
+            New-Item -ItemType Directory -Path $OutputFolder
+        }
 
-   #Create HelpInfo File
-   
+        Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
 
+        #Building the cabinet file name.
+        $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $ModuleName,$Guid,$Locale)
 
-    #Testing the destination directories, creating if none exists.
-    Write-Verbose "Checking the output directory"
-    if(-not (Test-Path $OutputFolder))
-    {
-        Write-Verbose "Output directory does not exist, creating a new directory."
-        New-Item -ItemType Directory -Path $OutputFolder
+        #Setting Cab Directives, make a cab is turned on, compression is turned on
+        Write-Verbose "Creating Cab File"
+        $DirectiveFile = "dir.dff"
+        New-Item -ItemType File -Name $DirectiveFile -Force |Out-Null   
+        Add-Content $DirectiveFile ".Set Cabinet=on"
+        Add-Content $DirectiveFile ".Set Compress=on"
+        
+        #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
+        foreach($file in Get-ChildItem -Path $CabFilesFolder -File)
+        {
+            Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
+        }
+
+        #Making Cab
+        Write-Verbose "Making the cab file"
+        MakeCab.exe /f $DirectiveFile | Out-Null
+
+        #Naming CabFile
+        Write-Verbose "Moving the cab to the output directory"
+        Copy-Item "disk1/1.cab" (Join-Path $OutputFolder $cabName)
+
+        #Remove ExtraFiles created by the cabbing process
+        Write-Verbose "Performing cabbing cleanup"
+        Remove-Item "setup.inf" -ErrorAction SilentlyContinue
+        Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
+        Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
+        Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
+
+        #Create the HelpInfo Xml 
+        MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputFolder
     }
-
-    Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
-
-    #Building the cabinet file name.
-    $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $ModuleName,$Guid,$Locale)
-
-    #Setting Cab Directives, make a cab is turned on, compression is turned on
-    Write-Verbose "Creating Cab File"
-    $DirectiveFile = "dir.dff"
-    New-Item -ItemType File -Name $DirectiveFile -Force |Out-Null   
-    Add-Content $DirectiveFile ".Set Cabinet=on"
-    Add-Content $DirectiveFile ".Set Compress=on"
-    
-    #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
-    foreach($file in Get-ChildItem -Path $CabFilesFolder -File)
-    {
-        Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
-    }
-
-    #Making Cab
-    Write-Verbose "Making the cab file"
-    MakeCab.exe /f $DirectiveFile | Out-Null
-
-    #Naming CabFile
-    Write-Verbose "Moving the cab to the output directory"
-    Copy-Item "disk1/1.cab" (Join-Path $OutputFolder $cabName)
-
-    #Remove ExtraFiles created by the cabbing process
-    Write-Verbose "Performing cabbing cleanup"
-    Remove-Item "setup.inf" -ErrorAction SilentlyContinue
-    Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
-    Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
-    Remove-Item -Path "disk1" -Recurse -ErrorAction SilentlyContinue
-
-    #Create the HelpInfo Xml 
-    MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputFolder
-
 }
 
 #endregion
@@ -978,6 +992,23 @@ function GetAboutTopicsFromPath
         [string[]]$Path,
         [string[]]$MarkDownFilesAlreadyFound
     )
+
+    function ConfirmAboutBySecondHeaderText
+    {
+        param(
+            [string]$AboutFilePath
+        )
+
+        if((Get-Content $AboutFilePath)[1].length -gt 3)
+        {
+            if((Get-Content $AboutFilePath)[1].substring(3,5).ToUpper() -eq "ABOUT")
+            {
+                return $true
+            }
+        }
+
+        return $false
+    }
     
     $AboutMarkDownFiles = @()
     
@@ -985,8 +1016,7 @@ function GetAboutTopicsFromPath
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
-                $Content = Get-Content $_
-                if($Content[1].Contains("## about_"))
+                if(ConfirmAboutBySecondHeaderText($_))
                 {
                     $AboutMarkdownFiles += Get-ChildItem $_
                 }
@@ -995,11 +1025,11 @@ function GetAboutTopicsFromPath
             {
                 if($MarkDownFilesAlreadyFound)
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {$_.FullName -notin $MarkDownFilesAlreadyFound -and (Get-Content $_.FullName)[1].Contains("## about_")}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName))}
                 }
                 else
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {(Get-Content $_.FullName)[1].Contains("## about_")}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {ConfirmAboutBySecondHeaderText($_.FullName)}
                 }
             }
             else 
@@ -2149,6 +2179,23 @@ function ConvertPsObjectsToMamlModel
     ##########
 
     return $MamlCommandObject
+}
+
+function validateWorkingProvider
+{
+    if((Get-Location).Drive.Provider.Name -ne 'FileSystem')
+    {
+        Write-Verbose 'PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to filesystem.'
+        $AvailableFileSystemDrives = Get-PSDrive | Where {$_.Provider.Name -eq "FileSystem"} | Select Root
+        if($AvailableFileSystemDrives.Count -gt 0)
+        {
+           Set-Location $AvailableFileSystemDrives[0].Root
+        }
+        else 
+        {
+             throw 'PlatyPS Cmdlets only work in the FileSystem Provider.' 
+        }
+    }
 }
 #endregion
 
