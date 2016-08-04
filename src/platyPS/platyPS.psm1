@@ -236,6 +236,10 @@ function New-MarkdownHelp
                 
                 if($WithModulePage)
                 {
+                    if(-not $ModuleGuid)
+                    {
+                        $ModuleGuid = "00000000-0000-0000-0000-000000000000"
+                    }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
                                         -ModuleName $ModuleName `
