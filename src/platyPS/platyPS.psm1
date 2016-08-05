@@ -539,7 +539,7 @@ function New-MarkdownAboutHelp
             $AboutContent = Get-Content $templatePath
             $AboutContent = $AboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $AboutName))
             $AboutContent = $AboutContent.Replace("{{TOPIC NAME}}",$AboutName)
-            $NewAboutTopic = New-Item -Path $OutputFolder -Name ($AboutName + ".md")
+            $NewAboutTopic = New-Item -Path $OutputFolder -Name "about_$($AboutName).md"
             Set-Content -Value $AboutContent -Path $NewAboutTopic -Encoding UTF8
         }
         else 
