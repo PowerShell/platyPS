@@ -6,12 +6,14 @@ CHANGELOG
 (Capture your changes here)
 
 #### New
+* Update markdown parser to handle underscore version of italics and bold [Issue #176](https://github.com/PowerShell/platyPS/issues/176)
 
 #### Bug Fixes
 * Resolved issue where about topic second header was case sensitive. Now insensitive. [Issue #174](https://github.com/PowerShell/platyPS/issues/174)
 * About topics will be named with about_<Topic Name> when converted to txt using New-ExternalHelp. Enhancement suggested in [Issue #174](https://github.com/PowerShell/platyPS/issues/174)
 * If PowerShell session is in a non-file system provider, PlatyPS will switch to a file system provider. Preference C: drive. [Issue #161](https://github.com/PowerShell/platyPS/issues/161)
 * Updates to Pester-Tests to fix issues occuring when updatable-help changes
+* Updated New-MarkdownAboutHelp to name the about file about_<AboutTopicName>.md instead of <AboutTopicName>.md. [Issue #177](https://github.com/PowerShell/PlatyPS/issues/177)
 
 ## 0.6.1
 
