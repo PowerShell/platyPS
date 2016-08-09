@@ -240,6 +240,10 @@ function New-MarkdownHelp
                     {
                         $ModuleGuid = "00000000-0000-0000-0000-000000000000"
                     }
+                    if($ModuleGuid.Count -gt 1)
+                    {
+                        Write-Warning -Message "This module has more than 1 guid. This could impact external help creation."
+                    }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
                                         -ModuleName $ModuleName `
@@ -752,6 +756,8 @@ function Get-HelpPreview
                 
                 foreach ($command in $xml.helpItems.command.details.name)
                 {
+                    #PlatyPS will have trouble parsing a command with space around the name. 
+                    $command = $command.Trim()
                     $thisDefinition = @"
 
 <#
@@ -830,24 +836,15 @@ function New-ExternalHelpCab
             })]
         [string] $LandingPagePath,
         [parameter(Mandatory=$true)]
-        [ValidateScript(
-            {
-                if(Test-Path $_ -PathType Container)
-                {
-                    $True
-                }
-                else
-                {
-                    Throw "$_ output path is not a valid directory."
-                }
-            })]
         [string] $OutputFolder
     )
-    
-    process{
-
-        validateWorkingProvider
-
+    begin
+    {
+        validateWorkingProvider 
+        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null  
+    }
+    process
+    {
         #Testing for MakeCab.exe
         Write-Verbose "Testing that MakeCab.exe is present on this machine."
         $MakeCab = Get-Command MakeCab
