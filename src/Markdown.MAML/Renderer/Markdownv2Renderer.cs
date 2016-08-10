@@ -29,8 +29,9 @@ namespace Markdown.MAML.Renderer
         /// <summary>
         /// 110 is a good width value, because it doesn't cause github to add horizontal scroll bar
         /// </summary>
-        /// <param name="mode"></param>
-        public MarkdownV2Renderer(ParserMode mode) : this(mode, 110) { }
+        public const int DEFAULT_SYNTAX_WIDTH = 110;
+
+        public MarkdownV2Renderer(ParserMode mode) : this(mode, DEFAULT_SYNTAX_WIDTH) { }
 
         public MarkdownV2Renderer(ParserMode mode, int maxSyntaxWidth)
         {
@@ -322,7 +323,13 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
+        public static string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
+        {
+            return GetSyntaxString(command, syntax, DEFAULT_SYNTAX_WIDTH);
+        }
+
+
+        public static string GetSyntaxString(MamlCommand command, MamlSyntax syntax, int maxSyntaxWidth)
         {
             // TODO: we may want to add ParameterValueGroup info here,
             // but it's fine for now
@@ -372,7 +379,7 @@ namespace Markdown.MAML.Renderer
             int widthBeforeLastBreak = 0;
             foreach (string paramStr in paramStrings) { 
 
-                if (sb.Length - widthBeforeLastBreak + paramStr.Length > this.MaxSyntaxWidth)
+                if (sb.Length - widthBeforeLastBreak + paramStr.Length > maxSyntaxWidth)
                 {
                     sb.AppendLine();
                     widthBeforeLastBreak = sb.Length;
