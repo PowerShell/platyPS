@@ -752,6 +752,7 @@ function Get-HelpPreview
                 
                 foreach ($command in $xml.helpItems.command.details.name)
                 {
+                    $command = $command.trim()
                     $thisDefinition = @"
 
 <#

@@ -31,6 +31,32 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
+        public void ReturnsSyntaxString()
+        {
+            var command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                SupportCommonParameters = true
+            };
+
+            var param1 = new MamlParameter()
+            {
+                Name = "Bar",
+                Type = "BarObject"
+            };
+
+            var syntax = new MamlSyntax()
+            {
+                IsDefault = true
+            };
+
+            syntax.Parameters.Add(param1);
+
+            string syntaxString = MarkdownV2Renderer.GetSyntaxString(command, syntax);
+            Assert.Equal("Get-Foo [-Bar <BarObject>] [<CommonParameters>]", syntaxString);
+        }
+
+        [Fact]
         public void RendererCreatesWorkflowParametersEntry()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
