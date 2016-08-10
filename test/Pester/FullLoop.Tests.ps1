@@ -9,14 +9,11 @@ Import-Module $outFolder\platyPS -Force
 Describe 'Full loop for Add-Member cmdlet' {
 
     $cmdlet = "Add-Member"
-    $powerShellModuleDirectory = "C:\Windows\System32\WindowsPowerShell\v1.0\"
-    $cmdletHelpFile = (Get-ChildItem -Path $powerShellModuleDirectory (Get-Command $cmdlet).HelpFile -Recurse).FullName 
-    $testDriveCmdletHelpFile = (Join-Path "TestDrive:\" (Split-Path -Leaf $cmdletHelpFile))
     # run convertion
     $file = New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
 
     It 'generate correct file name' {
-        $file.FullName | Should Be "$outFolder\Add-Member.md"
+        $file.FullName | Should Be "$outFolder\$cmdlet.md"
     }
 
     # test -MarkdownFile piping
@@ -27,14 +24,8 @@ Describe 'Full loop for Add-Member cmdlet' {
     }
 
     $generatedHelpObject = Get-HelpPreview $generatedMaml
-    Copy-Item -Path $cmdletHelpFile -Destination $testDriveCmdletHelpFile
-    New-MarkdownHelp -MamlFile $testDriveCmdletHelpFile -OutputFolder "TestDrive:\"
-    Remove-Item -Path "TestDrive:\*.*" -Exclude "Add-Member.md" -Force
-    Update-MarkdownHelp -Path "TestDrive:\"
-    New-ExternalHelp -Path "TestDrive:" -OutputPath "TestDrive:"
-    Remove-Item -Path "TestDrive:\*.md"-Force
     
-    $originalHelpObject = Get-HelpPreview -Path $testDriveCmdletHelpFile
+    $originalHelpObject = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdlet"
     
     Context 'markdown metadata' {
         $h = Get-MarkdownMetadata $file

@@ -148,7 +148,15 @@ namespace Markdown.MAML.Parser
 
                         {   "italic",
                             @"\*(.+?)\*",
-                            this.CreateItalicSpan }
+                            this.CreateItalicSpan },
+
+                        {   "bold2",
+                            @"(?<![a-zA-Z0-9])__(.+?)__(?![a-zA-Z0-9])",
+                            this.CreateBoldSpan },
+                        {   "italic2",
+                            @"(?<![a-zA-Z0-9])_(.+?)_(?![a-zA-Z0-9])",
+                            this.CreateItalicSpan },
+
                     }
                 );
             }

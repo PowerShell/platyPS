@@ -202,7 +202,7 @@ Not a hyperlink [PSObject].
         {
             ParagraphNode paragraphNode =
                 this.ParseAndGetExpectedChild<ParagraphNode>(
-                    "Normal\r\n\r\nText *Italic*  \r\n\r\n**Bold**\r\n### New header!\r\nBoooo\r\n----\r\n",
+                    "Normal\r\n\r\nText *Italic*  \r\n\r\n**Bold**\r\n _Italic2_\r\n __Bold2__\r\n### New header!\r\nBoooo\r\n----\r\n",
                     MarkdownNodeType.Paragraph);
 
             ParagraphSpan[] spans = paragraphNode.Spans.ToArray();
@@ -211,6 +211,8 @@ Not a hyperlink [PSObject].
             Assert.Equal("Italic", spans[1].Text);
             Assert.IsType<HardBreakSpan>(spans[2]);
             Assert.Equal("Bold", spans[3].Text);
+            Assert.Equal("Italic2", spans[4].Text);
+            Assert.Equal("Bold2", spans[5].Text);
         }
 
         [Fact]

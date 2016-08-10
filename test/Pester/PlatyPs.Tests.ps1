@@ -697,8 +697,8 @@ Describe 'Create About Topic Markdown and Txt' {
 
         New-MarkdownAboutHelp -OutputFolder $output -AboutName $aboutTopicName
 
-        Test-Path (Join-Path $output ($aboutTopicName + ".md")) | Should Be $true
-        Get-Content (Join-Path $output ($aboutTopicName + ".md")) | Should Be $aboutContent
+        Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
+        Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $aboutContent
     }
     
     It 'Takes constructed markdown about topics and converts them to text with proper character width'{

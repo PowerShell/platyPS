@@ -2,6 +2,7 @@ version: 0.6.0.{build}
 
 install:
     - ps: |
+        Write-Host "PowerShell Version:" $PSVersionTable.PSVersion.tostring()
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
         Install-Module Pester -Force
 
@@ -15,6 +16,8 @@ build_script:
     - ps: |
         $ErrorActionPreference = 'Stop'
         Update-Help # we need up-to-date help content for tests
+        # We need a specific version of the help for Pester Full Loop Tests, unstable to depend on hand authored, and constantly changing help.
+        Update-Help -Module Microsoft.PowerShell.Utility -SourcePath '.\Examples\ExternalHelpCab\Microsoft.PowerShell.Utility\' -Force 
         .\build.ps1 -Configuration Release
 
 after_test:

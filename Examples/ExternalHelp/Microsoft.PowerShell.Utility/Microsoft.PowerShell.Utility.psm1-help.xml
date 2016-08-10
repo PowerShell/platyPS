@@ -1,0 +1,751 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems schema="maml">
+
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>ConvertFrom-SddlString</command:name>
+<command:verb>ConvertFrom</command:verb>
+<command:noun>SddlString</command:noun>
+<maml:description><maml:para>
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>ConvertFrom-SddlString</maml:name>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="none"><maml:name>Sddl</maml:name>
+<maml:Description><maml:para>{{Fill Sddl Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Type</maml:name>
+<maml:Description><maml:para>{{Fill Type Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValueGroup><command:parameterValue required="false" variableLength="false">FileSystemRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">RegistryRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">ActiveDirectoryRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MutexRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SemaphoreRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">CryptoKeyRights</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">EventWaitHandleRights</command:parameterValue>
+</command:parameterValueGroup>
+<command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+<dev:type><maml:name>Object</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters><command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="1" aliases="none"><maml:name>Sddl</maml:name>
+<maml:Description><maml:para>{{Fill Sddl Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Type</maml:name>
+<maml:Description><maml:para>{{Fill Type Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+<dev:type><maml:name>Object</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:parameters>
+<command:inputTypes></command:inputTypes>
+<command:returnValues></command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>1:</maml:title>
+<dev:code>PS C:\&gt;</dev:code>
+<dev:remarks><maml:para>
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821754</maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>Format-Hex</command:name>
+<command:verb>Format</command:verb>
+<command:noun>Hex</command:noun>
+<maml:description><maml:para>Displays a file or other input as hexadecimal.
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>The Format-Hex cmdlet displays a file or other input as hexadecimal values. To determine the offset of a character from the output, add the number at the leftmost of the row to the number at the top of the column for that character.
+</maml:para>
+<maml:para>This cmdlet can help you determine the file type of a corrupted file or a file which may not have a file name extension. Run this cmdlet, and then inspect the results for file information.
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>Format-Hex</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Encoding</maml:name>
+<maml:Description><maml:para>Specifies the type of character encoding used in the file that this cmdlet formats as hexadecimal. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- Ascii 
+</maml:para>
+<maml:para>-- UTF32
+</maml:para>
+<maml:para>-- UTF7
+</maml:para>
+<maml:para>-- UTF8
+</maml:para>
+<maml:para>-- BigEndianUnicode
+</maml:para>
+<maml:para>-- Unicode
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>The default value is Unicode.
+</maml:para>
+</maml:Description>
+<command:parameterValueGroup><command:parameterValue required="false" variableLength="false">Ascii</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">UTF32</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">UTF7</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">UTF8</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">BigEndianUnicode</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">Unicode</command:parameterValue>
+</command:parameterValueGroup>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="none"><maml:name>InputObject</maml:name>
+<maml:Description><maml:para>{{Fill InputObject Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+<dev:type><maml:name>Object</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue></dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Raw</maml:name>
+<maml:Description><maml:para>{{Fill Raw Description}}
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+<command:syntaxItem><maml:name>Format-Hex</maml:name>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>Specifies an array of literal paths of items. This parameter does not accept wildcard characters. To use wildcard characters, specify the Path parameter instead.
+</maml:para>
+<maml:para>If this parameter includes escape characters, enclose the path in single quotation marks. Windows PowerShell does not interpret any characters in a single quoted string as escape sequences. For more information, type Get-Help about_Quoting_Rules.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+<command:syntaxItem><maml:name>Format-Hex</maml:name>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>Specifies an array of paths of items. This cmdlet returns a hexadecimal representation of the items that this parameter specifies.
+</maml:para>
+<maml:para>Use a dot (.) to specify the current location. Use the wildcard character (*) to specify all the items in the current location.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Encoding</maml:name>
+<maml:Description><maml:para>Specifies the type of character encoding used in the file that this cmdlet formats as hexadecimal. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- Ascii 
+</maml:para>
+<maml:para>-- UTF32
+</maml:para>
+<maml:para>-- UTF7
+</maml:para>
+<maml:para>-- UTF8
+</maml:para>
+<maml:para>-- BigEndianUnicode
+</maml:para>
+<maml:para>-- Unicode
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>The default value is Unicode.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>Specifies an array of literal paths of items. This parameter does not accept wildcard characters. To use wildcard characters, specify the Path parameter instead.
+</maml:para>
+<maml:para>If this parameter includes escape characters, enclose the path in single quotation marks. Windows PowerShell does not interpret any characters in a single quoted string as escape sequences. For more information, type Get-Help about_Quoting_Rules.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>Specifies an array of paths of items. This cmdlet returns a hexadecimal representation of the items that this parameter specifies.
+</maml:para>
+<maml:para>Use a dot (.) to specify the current location. Use the wildcard character (*) to specify all the items in the current location.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByValue)" position="named" aliases="none"><maml:name>InputObject</maml:name>
+<maml:Description><maml:para>{{Fill InputObject Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+<dev:type><maml:name>Object</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue></dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Raw</maml:name>
+<maml:Description><maml:para>{{Fill Raw Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+</command:parameters>
+<command:inputTypes><command:inputType><dev:type><maml:name>System.String</maml:name>
+</dev:type>
+<maml:description><maml:para>You can pipe a string to this cmdlet.
+</maml:para>
+</maml:description>
+</command:inputType>
+</command:inputTypes>
+<command:returnValues><command:returnValue><dev:type><maml:name>Microsoft.PowerShell.Commands.ByteCollection</maml:name>
+</dev:type>
+<maml:description><maml:para>This cmdlet returns a ByteCollection. This object represents a collection of bytes. It includes methods that convert the collection of bytes to a string formatted like each line of output returned by Format-Hex. If you specify the Path or LiteralPath parameter, the object also contains the path of the file that contains each byte.
+</maml:para>
+</maml:description>
+</command:returnValue>
+</command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>Example 1: Get the hexadecimal representation of a string</maml:title>
+<dev:code>PS C:\&gt;"Hello World" | Format-Hex
+           00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+00000000   48 65 6C 6C 6F 20 57 6F 72 6C 64                 Hello World</dev:code>
+<dev:remarks><maml:para>This command returns the hexadecimal representation of the string Hello World.
+</maml:para>
+</dev:remarks>
+</command:example>
+<command:example><maml:title>Example 2: Investigate a file type</maml:title>
+<dev:code>PS C:\&gt;Format-Hex -Path "C:\temp\temp.t7f"
+           00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F
+
+00000000   25 50 44 46 2D 31 2E 35 0D 0A 25 B5 B5 B5 B5 0D  %PDF-1.5..%????. 
+00000010   0A 31 20 30 20 6F 62 6A 0D 0A 3C 3C 2F 54 79 70  .1 0 obj..&lt;&lt;/Typ
+00000020   65 2F 43 61 74 61 6C 6F 67 2F 50 61 67 65 73 20  e/Catalog/Pages</dev:code>
+<dev:remarks><maml:para>This command converts the file that is named temp.t7f to hexadecimal. In this example, a file that has the unfamiliar file name extension .t7f is actually a PDF file. The first few bytes of the header contain that information.
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821773</maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Format-Custom</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Format-List</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Format-Table</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Format-Wide</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>Get-FileHash</command:name>
+<command:verb>Get</command:verb>
+<command:noun>FileHash</command:noun>
+<maml:description><maml:para>Computes the hash value for a file by using a specified hash algorithm.
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>The Get-FileHash cmdlet computes the hash value for a file by using a specified hash algorithm. A hash value is a unique value that corresponds to the content of the file. Rather than identifying the contents of a file by its file name, extension, or other designation, a hash assigns a unique value to the contents of a file. File names and extensions can be changed without altering the content of the file, and without changing the hash value. Similarly, the file's content can be changed without changing the name or extension. However, changing even a single character in the contents of a file changes the hash value of the file.
+</maml:para>
+<maml:para>The purpose of hash values is to provide a cryptographically-secure way to verify that the contents of a file have not been changed. While some hash algorithms, including MD5 and SHA1, are no longer considered secure against attack, the goal of a secure hash algorithm is to render it impossible to change the contents of a file-either by accident, or by malicious or unauthorized attempt-and maintain the same hash value. You can also use hash values to determine if two different files have exactly the same content. If the hash values of two files are identical, the contents of the files are also identical.
+</maml:para>
+<maml:para>By default, the Get-FileHash cmdlet uses the SHA256 algorithm, although any hash algorithm that is supported by the target operating system can be used.
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>Get-FileHash</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Algorithm</maml:name>
+<maml:Description><maml:para>Specifies the cryptographic hash function to use for computing the hash value of the contents of the specified file. A cryptographic hash function includes the property that it is not possible to find two distinct inputs that generate the same hash values. Hash functions are commonly used with digital signatures and for data integrity. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- SHA1
+</maml:para>
+<maml:para>-- SHA256
+</maml:para>
+<maml:para>-- SHA384
+</maml:para>
+<maml:para>-- SHA512
+</maml:para>
+<maml:para>-- MACTripleDES
+</maml:para>
+<maml:para>-- MD5
+</maml:para>
+<maml:para>-- RIPEMD160
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>If no value is specified, or if the parameter is omitted, the default value is SHA256.
+</maml:para>
+<maml:para>For security reasons, MD5 and SHA1, which are no longer considered secure, should only be used for simple change validation, and should not be used to generate hash values for files that require protection from attack or tampering.
+</maml:para>
+</maml:Description>
+<command:parameterValueGroup><command:parameterValue required="false" variableLength="false">SHA1</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA256</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA384</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA512</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MACTripleDES</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MD5</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">RIPEMD160</command:parameterValue>
+</command:parameterValueGroup>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>InputStream</maml:name>
+<maml:Description><maml:para>Specifies the input stream.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">Stream</command:parameterValue>
+<dev:type><maml:name>Stream</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+<command:syntaxItem><maml:name>Get-FileHash</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Algorithm</maml:name>
+<maml:Description><maml:para>Specifies the cryptographic hash function to use for computing the hash value of the contents of the specified file. A cryptographic hash function includes the property that it is not possible to find two distinct inputs that generate the same hash values. Hash functions are commonly used with digital signatures and for data integrity. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- SHA1
+</maml:para>
+<maml:para>-- SHA256
+</maml:para>
+<maml:para>-- SHA384
+</maml:para>
+<maml:para>-- SHA512
+</maml:para>
+<maml:para>-- MACTripleDES
+</maml:para>
+<maml:para>-- MD5
+</maml:para>
+<maml:para>-- RIPEMD160
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>If no value is specified, or if the parameter is omitted, the default value is SHA256.
+</maml:para>
+<maml:para>For security reasons, MD5 and SHA1, which are no longer considered secure, should only be used for simple change validation, and should not be used to generate hash values for files that require protection from attack or tampering.
+</maml:para>
+</maml:Description>
+<command:parameterValueGroup><command:parameterValue required="false" variableLength="false">SHA1</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA256</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA384</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA512</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MACTripleDES</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MD5</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">RIPEMD160</command:parameterValue>
+</command:parameterValueGroup>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>Specifies the path to a file as an array. Unlike the Path parameter, the value of the LiteralPath parameter is used exactly as it is typed. No characters are interpreted as wildcard characters. If the path includes escape characters, enclose the path in single quotation marks. Single quotation marks instruct Windows PowerShell not to interpret characters as escape sequences.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+<command:syntaxItem><maml:name>Get-FileHash</maml:name>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>Specifies the path to one or more files as an array. Wildcard characters are permitted.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Algorithm</maml:name>
+<maml:Description><maml:para>Specifies the cryptographic hash function to use for computing the hash value of the contents of the specified file. A cryptographic hash function includes the property that it is not possible to find two distinct inputs that generate the same hash values. Hash functions are commonly used with digital signatures and for data integrity. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- SHA1
+</maml:para>
+<maml:para>-- SHA256
+</maml:para>
+<maml:para>-- SHA384
+</maml:para>
+<maml:para>-- SHA512
+</maml:para>
+<maml:para>-- MACTripleDES
+</maml:para>
+<maml:para>-- MD5
+</maml:para>
+<maml:para>-- RIPEMD160
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>If no value is specified, or if the parameter is omitted, the default value is SHA256.
+</maml:para>
+<maml:para>For security reasons, MD5 and SHA1, which are no longer considered secure, should only be used for simple change validation, and should not be used to generate hash values for files that require protection from attack or tampering.
+</maml:para>
+</maml:Description>
+<command:parameterValueGroup><command:parameterValue required="false" variableLength="false">SHA1</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA256</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA384</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">SHA512</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MACTripleDES</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">MD5</command:parameterValue>
+<command:parameterValue required="false" variableLength="false">RIPEMD160</command:parameterValue>
+</command:parameterValueGroup>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>Algorithm</maml:name>
+<maml:Description><maml:para>Specifies the cryptographic hash function to use for computing the hash value of the contents of the specified file. A cryptographic hash function includes the property that it is not possible to find two distinct inputs that generate the same hash values. Hash functions are commonly used with digital signatures and for data integrity. The acceptable values for this parameter are:
+</maml:para>
+<maml:para>-- SHA1
+</maml:para>
+<maml:para>-- SHA256
+</maml:para>
+<maml:para>-- SHA384
+</maml:para>
+<maml:para>-- SHA512
+</maml:para>
+<maml:para>-- MACTripleDES
+</maml:para>
+<maml:para>-- MD5
+</maml:para>
+<maml:para>-- RIPEMD160
+</maml:para>
+<maml:para>
+</maml:para>
+<maml:para>If no value is specified, or if the parameter is omitted, the default value is SHA256.
+</maml:para>
+<maml:para>For security reasons, MD5 and SHA1, which are no longer considered secure, should only be used for simple change validation, and should not be used to generate hash values for files that require protection from attack or tampering.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+<dev:type><maml:name>String</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none"><maml:name>InputStream</maml:name>
+<maml:Description><maml:para>Specifies the input stream.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">Stream</command:parameterValue>
+<dev:type><maml:name>Stream</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>Specifies the path to a file as an array. Unlike the Path parameter, the value of the LiteralPath parameter is used exactly as it is typed. No characters are interpreted as wildcard characters. If the path includes escape characters, enclose the path in single quotation marks. Single quotation marks instruct Windows PowerShell not to interpret characters as escape sequences.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>Specifies the path to one or more files as an array. Wildcard characters are permitted.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:parameters>
+<command:inputTypes><command:inputType><dev:type><maml:name>System.String</maml:name>
+</dev:type>
+<maml:description><maml:para>You can pipe a string to the Get-FileHash cmdlet that contains a path to one or more files.
+</maml:para>
+</maml:description>
+</command:inputType>
+</command:inputTypes>
+<command:returnValues><command:returnValue><dev:type><maml:name>Microsoft.Powershell.Utility.FileHash</maml:name>
+</dev:type>
+<maml:description><maml:para>Get-FileHash returns an object that represents the path to the specified file, the value of the computed hash, and the algorithm used to compute the hash.
+</maml:para>
+</maml:description>
+</command:returnValue>
+</command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>Example 1: Compute the hash value for a PowerShell.exe file</maml:title>
+<dev:code>PS C:\&gt;Get-FileHash $pshome\powershell.exe | Format-List
+Algorithm : SHA256
+Hash      : 6A785ADC0263238DAB3EB37F4C185C8FBA7FEB5D425D034CA9864F1BE1C1B473
+Path      : C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe</dev:code>
+<dev:remarks><maml:para>This command uses the Get-FileHash cmdlet to compute the hash value for the Powershell.exe file. The hash algorithm used is the default, SHA256. The output is piped to the Format-List cmdlet to format the output as a list.
+</maml:para>
+</dev:remarks>
+</command:example>
+<command:example><maml:title>Example 2: Compute the has value for an ISO file</maml:title>
+<dev:code>PS C:\&gt; Get-FileHash C:\Users\Andris\Downloads\Contoso8_1_ENT.iso -Algorithm SHA384 | Format-List
+
+Algorithm : SHA384
+Hash      : 20AB1C2EE19FC96A7C66E33917D191A24E3CE9DAC99DB7C786ACCE31E559144FEAFC695C58E508E2EBBC9D3C96F21FA3
+Path      : C:\Users\Andris\Downloads\Contoso8_1_ENT.iso</dev:code>
+<dev:remarks><maml:para>This command uses the Get-FileHash cmdlet and the SHA384 algorithm to compute the hash value for an ISO file that an administrator has downloaded from the Internet. The output is piped to the Format-List cmdlet to format the output as a list.
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821788</maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Format-List</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>Import-PowerShellDataFile</command:name>
+<command:verb>Import</command:verb>
+<command:noun>PowerShellDataFile</command:noun>
+<maml:description><maml:para>
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>Import-PowerShellDataFile</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>{{Fill LiteralPath Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+<command:syntaxItem><maml:name>Import-PowerShellDataFile</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>{{Fill Path Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="named" aliases="PSPath"><maml:name>LiteralPath</maml:name>
+<maml:Description><maml:para>{{Fill LiteralPath Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none"><maml:name>Path</maml:name>
+<maml:Description><maml:para>{{Fill Path Description}}
+</maml:para>
+</maml:Description>
+<command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
+<dev:type><maml:name>String[]</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>None</dev:defaultValue>
+</command:parameter>
+</command:parameters>
+<command:inputTypes></command:inputTypes>
+<command:returnValues></command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>1:</maml:title>
+<dev:code>PS C:\&gt;</dev:code>
+<dev:remarks><maml:para>
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821817</maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>New-Guid</command:name>
+<command:verb>New</command:verb>
+<command:noun>Guid</command:noun>
+<maml:description><maml:para>Creates a GUID.
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>The New-Guid cmdlet creates a random globally unique identifier (GUID). If you need a unique ID in a script, you can create a GUID, as needed.
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>New-Guid</maml:name>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters></command:parameters>
+<command:inputTypes></command:inputTypes>
+<command:returnValues><command:returnValue><dev:type><maml:name>System.Guid</maml:name>
+</dev:type>
+<maml:description><maml:para>This cmdlet returns a GUID.
+</maml:para>
+</maml:description>
+</command:returnValue>
+</command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>Example 1: Create a GUID</maml:title>
+<dev:code>PS C:\&gt;New-Guid
+Guid
+----
+0352cf0f-2e7a-4aee-801d-7f27f8344c77</dev:code>
+<dev:remarks><maml:para>This command creates a random GUID. Alternatively, you could store the output of this cmdlet in a variable to use elsewhere in a script.
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821834</maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>Windows PowerShell Utility Cmdlets</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+<command:details><command:name>New-TemporaryFile</command:name>
+<command:verb>New</command:verb>
+<command:noun>TemporaryFile</command:noun>
+<maml:description><maml:para>Creates a temporary file.
+</maml:para>
+</maml:description>
+</command:details>
+<maml:description><maml:para>The New-TemporaryFile cmdlet creates an empty file that has the .tmp file name extension. This cmdlet names the file tmpNNNN.tmp, where NNNN is a random hexadecimal number. The cmdlet creates the file in your $Env:Temp folder.
+</maml:para>
+<maml:para>This cmdlet creates temporary files that you can use in scripts.
+</maml:para>
+</maml:description>
+<command:syntax><command:syntaxItem><maml:name>New-TemporaryFile</maml:name>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
+<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="wi"><maml:name>WhatIf</maml:name>
+<maml:Description><maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what would happen if the cmdlet runs. The cmdlet is not run.
+</maml:para>
+</maml:Description>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+</command:syntaxItem>
+</command:syntax>
+<command:parameters><command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="cf"><maml:name>Confirm</maml:name>
+<maml:Description><maml:para>Prompts you for confirmation before running the cmdlet.Prompts you for confirmation before running the cmdlet.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+<command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="wi"><maml:name>WhatIf</maml:name>
+<maml:Description><maml:para>Shows what would happen if the cmdlet runs. The cmdlet is not run.Shows what would happen if the cmdlet runs. The cmdlet is not run.
+</maml:para>
+</maml:Description>
+<command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+<dev:type><maml:name>SwitchParameter</maml:name>
+<maml:uri /></dev:type>
+<dev:defaultValue>False</dev:defaultValue>
+</command:parameter>
+</command:parameters>
+<command:inputTypes></command:inputTypes>
+<command:returnValues><command:returnValue><dev:type><maml:name>System.IO.FileInfo</maml:name>
+</dev:type>
+<maml:description><maml:para>This cmdlet returns a FileInfo object that represents the temporary file.
+</maml:para>
+</maml:description>
+</command:returnValue>
+</command:returnValues>
+<maml:alertSet><maml:alert><maml:para>
+</maml:para>
+</maml:alert>
+</maml:alertSet>
+<command:examples><command:example><maml:title>Example 1: Create a temporary file</maml:title>
+<dev:code>PS C:\&gt;$TempFile = New-TemporaryFile</dev:code>
+<dev:remarks><maml:para>This command generates a .tmp file in your temporary folder, and then stores a reference to the file in the $TempFile variable. You can use this file later in your script.
+</maml:para>
+</dev:remarks>
+</command:example>
+</command:examples>
+<command:relatedLinks><maml:navigationLink><maml:linkText>Online Version:</maml:linkText>
+<maml:uri>http://go.microsoft.com/fwlink/?LinkId=821836</maml:uri>
+</maml:navigationLink>
+<maml:navigationLink><maml:linkText>about_Environment_Variables</maml:linkText>
+<maml:uri></maml:uri>
+</maml:navigationLink>
+</command:relatedLinks>
+</command:command>
+</helpItems>
