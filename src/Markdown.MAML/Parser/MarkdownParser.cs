@@ -152,10 +152,10 @@ namespace Markdown.MAML.Parser
 
                         {   "bold2",
                             @"(?<![a-zA-Z0-9])__(.+?)__(?![a-zA-Z0-9])",
-                            this.CreateBold2Span },
+                            this.CreateBoldSpan },
                         {   "italic2",
                             @"(?<![a-zA-Z0-9])_(.+?)_(?![a-zA-Z0-9])",
-                            this.CreateItalic2Span },
+                            this.CreateItalicSpan },
 
                     }
                 );
@@ -369,30 +369,6 @@ namespace Markdown.MAML.Parser
         }
 
         private void CreateBoldSpan(Match regexMatch, SourceExtent sourceExtent)
-        {
-            this.StartParagraph();
-
-            _currentParagraphSpans.Add(
-                new TextSpan(
-                    regexMatch.Groups[1].Value,
-                    sourceExtent,
-                    this._parserMode,
-                    TextSpanStyle.Bold));
-        }
-
-        private void CreateItalic2Span(Match regexMatch, SourceExtent sourceExtent)
-        {
-            this.StartParagraph();
-
-            _currentParagraphSpans.Add(
-                new TextSpan(
-                    regexMatch.Groups[1].Value,
-                    sourceExtent,
-                    this._parserMode,
-                    TextSpanStyle.Italic));
-        }
-
-        private void CreateBold2Span(Match regexMatch, SourceExtent sourceExtent)
         {
             this.StartParagraph();
 
