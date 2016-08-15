@@ -1525,7 +1525,10 @@ function NewModuleLandingPage
         $Content += "{{Manually Enter Description Here}}`r`n`r`n## $ModuleName Cmdlets`r`n"
         
         $CmdletNames | ForEach-Object {
-            $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+            # For each add description from synopsis of cmdlet
+            $Help = Get-Help $_
+            $Synopsis = $Help.Synopsis
+            $Content += "### [" + $_ + "](" + $_ + ".md)`r`n$Synopsis`r`n`r`n"    
         }
 
         MySetContent -Path $LandingPagePath -value $Content -Encoding $Encoding -Force:$Force # yeild
