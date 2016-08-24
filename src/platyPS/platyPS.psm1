@@ -1080,7 +1080,7 @@ function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter -Exclude "about_*"
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike "*about_*"}
             }
             else 
             {
