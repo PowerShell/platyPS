@@ -696,7 +696,7 @@ function Get-HelpPreview
             $MamlFilePath = (Get-ChildItem $MamlFilePath).FullName
 
             # Read the malm file
-            $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue -Encoding UTF8)
+            $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
             if (-not $xml)
             {
                 # already error-out on the convertion, no need to repeat ourselves
