@@ -727,4 +727,14 @@ Describe 'Create About Topic Markdown and Txt' {
         (Get-ChildItem $AboutTxtFilePath | measure).Count | Should Be 1 
         $lineWidthCheck | Should Be $true
     }
+
+    It 'Adds a yaml block to the AboutTopic and verifies buidl as expected'{
+
+        $content = Get-Content (Join-Path $output ("about_$($aboutTopicName).md"))
+        $content = ("---Yaml: Stuff---" + $content)
+        Set-Content -Value $content -Path (Join-Path $output ("about_$($aboutTopicName).md")) -Force
+
+        Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
+        Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $content
+    }
 }

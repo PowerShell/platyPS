@@ -1000,9 +1000,15 @@ function GetAboutTopicsFromPath
             [string]$AboutFilePath
         )
 
-        if((Get-Content $AboutFilePath)[1].length -gt 3)
+        $MdContent = Get-Content -raw $AboutFilePath
+        $MdParser = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
+                                -ArgumentList { param([int]$current, [int]$all) 
+                                Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)}
+        $MdObject = $MdParser.ParseString($MdContent)
+
+        if($MdObject.Children[1].text.length -gt 5)
         {
-            if((Get-Content $AboutFilePath)[1].substring(3,5).ToUpper() -eq "ABOUT")
+            if($MdObject.Children[1].text.substring(0,5).ToUpper() -eq "ABOUT")
             {
                 return $true
             }
@@ -1074,7 +1080,7 @@ function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike "*about_*"}
             }
             else 
             {
