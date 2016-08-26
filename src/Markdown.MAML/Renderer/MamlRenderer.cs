@@ -346,7 +346,7 @@ namespace Markdown.MAML.Renderer
 
             PushTag("dev:defaultValue");
 
-            if (mamlType == "SwitchParameter" && parameter.DefaultValue == null)
+            if (mamlType == "SwitchParameter" && parameter.DefaultValue == "None")
             {
                 _stringBuilder.Append("False");
             }
