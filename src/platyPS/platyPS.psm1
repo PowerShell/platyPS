@@ -637,7 +637,7 @@ function New-ExternalHelp
         }
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { Get-Content -Raw $_.FullName } )
+            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { Get-Content -Raw $_.FullName -Encoding UTF8} )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
@@ -693,7 +693,7 @@ function Get-HelpPreview
             $MamlFilePath = (Get-ChildItem $MamlFilePath).FullName
 
             # Read the malm file
-            $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue)
+            $xml = [xml](Get-Content $MamlFilePath -Raw -ea SilentlyContinue -Encoding UTF8)
             if (-not $xml)
             {
                 # already error-out on the convertion, no need to repeat ourselves
