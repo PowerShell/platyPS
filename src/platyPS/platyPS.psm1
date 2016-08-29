@@ -424,8 +424,9 @@ function Update-MarkdownHelp
                 return
             }
 
-            # just preserve old metadata
+            # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
+            $metadata["external help file"] = GetHelpFileName $command
             $reflectionModel = GetMamlObject -Cmdlet $name
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
