@@ -90,7 +90,7 @@ Describe 'Full loop for Add-Member cmdlet' {
             $name = $genParam.name
             # By default is empty, set default value of 'False' if parametr is empty and type is 'SwitchParameter'
             # Otherwise, set default value of 'None' if parameter is empty
-            if(([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue)) -and ($originalHelpObject.parameters.parameter[$_].type.name.Equals("SwitchParameter")))
+            if([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue) -and $originalHelpObject.parameters.parameter[$_].type.name.Equals("SwitchParameter"))
             {
                 $originalHelpObject.parameters.parameter[$_].defaultValue = "False"
             }
