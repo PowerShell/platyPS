@@ -90,14 +90,14 @@ Describe 'Full loop for Add-Member cmdlet' {
             $name = $genParam.name
             # By default is empty, set default value of 'False' if parametr is empty and type is 'SwitchParameter'
             # Otherwise, set default value of 'None' if parameter is empty
-            #if([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue) -and $originalHelpObject.parameters.parameter[$_].type.name.Equals("SwitchParameter"))
-            #{
-            #    $originalHelpObject.parameters.parameter[$_].defaultValue = "False"
-            #}
-            #elseif([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue))
-            #{
-            #    $originalHelpObject.parameters.parameter[$_].defaultValue = "None"
-            #}
+            if([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue) -and $originalHelpObject.parameters.parameter[$_].type.name.Equals("SwitchParameter"))
+            {
+                $originalHelpObject.parameters.parameter[$_].defaultValue = "False"
+            }
+            elseif([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue))
+            {
+                $originalHelpObject.parameters.parameter[$_].defaultValue = "None"
+            }
             $origParam = $originalHelpObject.parameters.parameter | ? {$_.Name -eq $name}
             # skip because of unclearaty of RequiredValue meaning for
             $skip = @('Value', 'SecondValue', 'InformationVariable', 'InformationAction') -contains $name
