@@ -879,12 +879,16 @@ function New-ExternalHelpCab
     $Guid = $Metadata[$script:MODULE_PAGE_GUID]
     $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
     $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
-    $HelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+    $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+
+    #IncrementHelpVersion
+    $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
+    $MdContent = Get-Content -raw $LandingPagePath
+    $MdContent = $MdContent.Replace($OldHelpVersion,$HelpVersion)
+    Set-Content -path $LandingPagePath -value $MdContent
 
     #Create HelpInfo File
     
-
-
         #Testing the destination directories, creating if none exists.
         Write-Verbose "Checking the output directory"
         if(-not (Test-Path $OutputFolder))
@@ -1769,6 +1773,25 @@ function AddLineBreaksForParagraphs
     end 
     {
         $paragraphs -join "`r`n`r`n" 
+    }
+}
+
+function IncrementHelpVersion
+{
+    param(
+        [string]
+        $HelpVersionString
+    )
+    process
+    {
+        if($HelpVersionString -eq "{{Please enter version of help manually (X.X.X.X) format}}")
+        {
+            return "1.0.0.0"
+        }
+        $lastDigitPosition = $HelpVersionString.LastIndexOf(".") + 1
+        $frontDigits = $HelpVersionString.Substring(0,$lastDigitPosition)
+        $frontDigits += ([int] $HelpVersionString.Substring($lastDigitPosition)) + 1
+        return $frontDigits
     }
 }
 
