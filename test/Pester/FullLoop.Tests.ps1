@@ -88,6 +88,10 @@ Describe 'Full loop for Add-Member cmdlet' {
         0..($generatedHelpObject.parameters.parameter.Count - 1) | % {
             $genParam = $generatedHelpObject.parameters.parameter[$_]
             $name = $genParam.name
+            if(!$originalHelpObject.parameters.parameter[$_].defaultValue)
+            {
+                $originalHelpObject.parameters.parameter[$_].defaultValue="None"
+            }
             $origParam = $originalHelpObject.parameters.parameter | ? {$_.Name -eq $name}
             # skip because of unclearaty of RequiredValue meaning for
             $skip = @('Value', 'SecondValue', 'InformationVariable', 'InformationAction') -contains $name
