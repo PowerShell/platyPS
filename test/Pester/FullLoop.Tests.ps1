@@ -94,10 +94,10 @@ Describe 'Full loop for Add-Member cmdlet' {
             {
                 $originalHelpObject.parameters.parameter[$_].defaultValue = "False"
             }
-            elseif([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue))
-            {
-                $originalHelpObject.parameters.parameter[$_].defaultValue = "None"
-            }
+            #elseif([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue))
+            #{
+            #    $originalHelpObject.parameters.parameter[$_].defaultValue = "None"
+            #}
             $origParam = $originalHelpObject.parameters.parameter | ? {$_.Name -eq $name}
             # skip because of unclearaty of RequiredValue meaning for
             $skip = @('Value', 'SecondValue', 'InformationVariable', 'InformationAction') -contains $name
