@@ -88,11 +88,11 @@ Describe 'Full loop for Add-Member cmdlet' {
         0..($generatedHelpObject.parameters.parameter.Count - 1) | % {
             $genParam = $generatedHelpObject.parameters.parameter[$_]
             $name = $genParam.name
-            if((!$originalHelpObject.parameters.parameter[$_].defaultValue) -and ($originalHelpObject.parameters.parameter[$_].type.name = "SwitchParameter"))
+            if(([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue)) -and ($originalHelpObject.parameters.parameter[$_].type.name.Equals("SwitchParameter")))
             {
                 $originalHelpObject.parameters.parameter[$_].defaultValue = "False"
             }
-            elseif(!$originalHelpObject.parameters.parameter[$_].defaultValue)
+            elseif([String]::IsNullOrEmpty($originalHelpObject.parameters.parameter[$_].defaultValue))
             {
                 $originalHelpObject.parameters.parameter[$_].defaultValue = "None"
             }
