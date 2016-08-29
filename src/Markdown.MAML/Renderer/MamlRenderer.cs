@@ -359,7 +359,7 @@ namespace Markdown.MAML.Renderer
                 else
                 {
                     // sometimes default is none, but empty makes more sense.
-                    // _stringBuilder.Append("none");
+                     _stringBuilder.Append("None");
                 }
             }
 
