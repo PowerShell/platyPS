@@ -1501,14 +1501,14 @@ function MyGetContent
 
     if (-not(Test-Path $Path))
     {
-        Write-Error "Cannot read from $Path, file does not exist."
+        throw "Cannot read from $Path, file does not exist."
         return
     }
     else
     {
         if (Test-Path $Path -PathType Container)
         {
-            Write-Error "Cannot read from $Path, $Path is a directory."
+            throw "Cannot read from $Path, $Path is a directory."
             return
         }
     }
