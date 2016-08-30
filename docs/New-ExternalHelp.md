@@ -88,6 +88,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### Encode
+Specifies the encoding for get raw content, with a default value of UTF8
+
+```yaml
+Type: Encoding
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: UTF8
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Force
 Indicates that this cmdlet overwrites an existing file that has the same name.
 
