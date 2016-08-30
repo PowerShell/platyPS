@@ -848,7 +848,7 @@ You can pipe a string that contains a path to an existing archive file.
     
     Set-Content -Path "$outFolder\Expand-Archive.md" -Value $MD
 
-    Update-MarkdownHelp -Path $outFolder
+    Update-MarkdownHelp -Path "$outFolder\ExpandArchive.md"
 
     $MD = Get-Content -Raw "$outFolder\Expand-Archive.md"
 
