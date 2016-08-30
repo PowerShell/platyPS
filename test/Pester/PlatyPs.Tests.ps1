@@ -688,7 +688,7 @@ Describe 'Update Markdown Help and Correct Help File Metadata' {
 
     It 'Verifies that a bad metadata value for the help file is fixed on update' {
 
-        $ValidHelpFileName = "Microsoft.PowerShell.Archive.psm1-help.xml"
+        $ValidHelpFileName = "Microsoft.PowerShell.Archive-help.xml"
         $MD = @'
 ---
 external help file: ABadFileName-Help.xml
