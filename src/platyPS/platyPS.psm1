@@ -570,6 +570,9 @@ function New-ExternalHelp
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
+        [Parameter(HelpMessage="Specifies the encoding for get raw content, with a default value of UTF8")]
+        [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]$Encode = [Microsoft.PowerShell.Commands.FileSystemCmdletProviderEncoding]::UTF8,
+        
         [switch]$Force
     )
 
@@ -637,7 +640,7 @@ function New-ExternalHelp
         }
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { Get-Content -Raw $_.FullName } )
+            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { Get-Content -Raw $_.FullName -Encoding $Encode} )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
