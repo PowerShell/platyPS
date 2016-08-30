@@ -88,7 +88,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### Encode
+### -Encode
 Specifies the encoding for get raw content, with a default value of UTF8
 
 ```yaml
