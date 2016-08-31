@@ -568,8 +568,8 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
-        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-
+        [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
+        
         [switch]$Force
     )
 
@@ -637,7 +637,7 @@ function New-ExternalHelp
         }
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { Get-Content -Raw $_.FullName } )
+            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { MyGetContent -Path $_.FullName -Encoding $Encoding } )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
@@ -1485,6 +1485,35 @@ function MySetContent
     $resolvedPath = (Get-ChildItem $Path).FullName
     [System.IO.File]::WriteAllText($resolvedPath, $value, $Encoding)
     return (Get-ChildItem $Path)
+}
+
+function MyGetContent
+{
+    [OutputType([System.String])]
+    param(
+        [Parameter(Mandatory=$true)]
+        [string]$Path,
+        [Parameter(Mandatory=$true)]
+        [System.Text.Encoding]$Encoding
+    )
+
+    if (-not(Test-Path $Path))
+    {
+        throw "Cannot read from $Path, file does not exist."
+        return
+    }
+    else
+    {
+        if (Test-Path $Path -PathType Container)
+        {
+            throw "Cannot read from $Path, $Path is a directory."
+            return
+        }
+    }
+
+    Write-Verbose "Reading from $Path with encoding = $($Encoding.EncodingName)"
+    $resolvedPath = (Get-ChildItem $Path).FullName
+    return [System.IO.File]::ReadAllText($resolvedPath, $Encoding)
 }
 
 function NewModuleLandingPage
