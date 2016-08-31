@@ -568,10 +568,8 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
-        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-
-        [System.Text.Encoding]$Encode = [System.Text.Encoding]::UTF8,
-
+        [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
+        
         [switch]$Force
     )
 
@@ -639,7 +637,7 @@ function New-ExternalHelp
         }
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { MyGetContent -Path $_.FullName -Encoding $Encode } )
+            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { MyGetContent -Path $_.FullName -Encoding $Encoding } )
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
