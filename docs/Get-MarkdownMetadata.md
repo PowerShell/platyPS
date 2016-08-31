@@ -93,7 +93,7 @@ Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -109,7 +109,7 @@ Aliases:
 
 Required: True
 Position: Named
-Default value: 
+Default value: None
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
