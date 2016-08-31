@@ -60,6 +60,8 @@ function New-MarkdownHelp
 
         [switch]$Force,
 
+        [switch]$AlphabeticParamsOrder,
+
         [hashtable]$Metadata,
 
         [Parameter( 
@@ -110,7 +112,66 @@ function New-MarkdownHelp
 
     process
     {
-        function ProcessMamlObjectToFile
+        function updateMamlObject
+        {
+            param(
+                [Parameter(Mandatory=$true)]
+                [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject
+            )
+
+            #
+            # Here we define our misc template for new markdown to bootstrape easier
+            #
+
+            # Example
+            if ($MamlCommandObject.Examples.Count -eq 0)
+            {
+                $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
+
+                $MamlExampleObject.Title = 'Example 1'
+                $MamlExampleObject.Code = 'PS C:\> {{ Add example code here }}'
+                $MamlExampleObject.Remarks = '{{ Add example description here }}'
+
+                $MamlCommandObject.Examples.Add($MamlExampleObject)
+            }
+
+            # sort parameters alphabetically with minor exceptions
+            # https://github.com/PowerShell/platyPS/issues/142
+            if ($AlphabeticParamsOrder)
+            {
+                $confirm = $MamlCommandObject.Parameters | ? { $_.Name -eq 'Confirm' }
+                $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf ' }
+
+                if ($confirm)
+                {
+                    $MamlCommandObject.Parameters.Remove($confirm)
+                }
+
+                if ($whatif)
+                {
+                    $MamlCommandObject.Parameter.Remove($whatif)
+                }
+
+                $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
+                $MamlCommandObject.Parameters.Clear()
+
+                $sortedParams | % {
+                    $MamlCommandObject.Parameters.Add($_)
+                }
+
+                if ($confirm)
+                {
+                    $MamlCommandObject.Parameters.Add($confirm)
+                }
+
+                if ($whatif)
+                {
+                    $MamlCommandObject.Parameter.Add($whatif)
+                }
+            }
+        }
+
+        function processMamlObjectToFile
         {
             param(
                 [Parameter(ValueFromPipeline=$true)]
@@ -121,7 +182,7 @@ function New-MarkdownHelp
             process
             {
                 # populate template
-                UpdateMamlObject $mamlObject
+                updateMamlObject $mamlObject
                 if (-not $OnlineVersionUrl)
                 {
                     # if it's not passed, we should get it from the existing help
@@ -194,7 +255,7 @@ function New-MarkdownHelp
                     throw "Command $_ not found in the session."
                 }
 
-                GetMamlObject -Cmdlet $_ | ProcessMamlObjectToFile
+                GetMamlObject -Cmdlet $_ | processMamlObjectToFile
             }
         }
         else 
@@ -216,7 +277,7 @@ function New-MarkdownHelp
                         throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
                     }
                     
-                    GetMamlObject -Module $_ | ProcessMamlObjectToFile
+                    GetMamlObject -Module $_ | processMamlObjectToFile
                     
                     $ModuleName = $_
                     $ModuleGuid = (Get-Module $ModuleName).Guid
@@ -229,7 +290,7 @@ function New-MarkdownHelp
                         throw "No file found in $_."
                     }
 
-                    GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists | ProcessMamlObjectToFile
+                    GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists | processMamlObjectToFile
                         
                     $CmdletNames += GetMamlObject -MamlFile $_ | ForEach-Object {$_.Name}
                 }
@@ -1232,30 +1293,6 @@ function GetOnlineVersion
     }
 
     return $onlineVersionUrl
-}
-
-function UpdateMamlObject
-{
-    param(
-        [Parameter(Mandatory=$true)]
-        [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject
-    )
-
-    #
-    # Here we define our misc template for new markdown to bootstrape easier
-    #
-
-    # Example
-    if ($MamlCommandObject.Examples.Count -eq 0)
-    {
-        $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
-
-        $MamlExampleObject.Title = 'Example 1'
-        $MamlExampleObject.Code = 'PS C:\> {{ Add example code here }}'
-        $MamlExampleObject.Remarks = '{{ Add example description here }}'
-
-        $MamlCommandObject.Examples.Add($MamlExampleObject)
-    }
 }
 
 function SetOnlineVersionUrlLink
