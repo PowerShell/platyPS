@@ -11,23 +11,23 @@ Creates help in markdown format.
 
 ### FromModule
 ```
-New-MarkdownHelp -Module <String[]> [-Force] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata]
- [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [<CommonParameters>]
+New-MarkdownHelp -Module <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>]
+ [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-MarkdownHelp -Command <String[]> [-Force] [-Metadata <Hashtable>] [-OnlineVersionUrl <String>]
- -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
+New-MarkdownHelp -Command <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
 ```
 
 ### FromMaml
 ```
 New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
- [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [-WithModulePage]
- [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>]
- [<CommonParameters>]
+ [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>]
+ [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [-ModuleName <String>]
+ [-ModuleGuid <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -393,6 +393,23 @@ Markdown accepts single-hyphens for lists.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromMaml
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 Aliases: 
 
 Required: False
