@@ -424,8 +424,9 @@ function Update-MarkdownHelp
                 return
             }
 
-            # just preserve old metadata
+            # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
+            $metadata["external help file"] = GetHelpFileName $command
             $reflectionModel = GetMamlObject -Cmdlet $name
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
@@ -447,6 +448,7 @@ function Update-MarkdownHelpModule
         [string[]]$Path,
         
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
+        [switch]$RefreshModulePage,
         [string]$LogPath,
         [switch]$LogAppend
     )
@@ -517,6 +519,18 @@ function Update-MarkdownHelpModule
                     $newFiles # yeild
                 }
             }
+
+            if($RefreshModulePage)
+            {
+                $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
+                $files = @()
+                foreach($md in $affectedFiles)
+                {
+                    $files += Get-Content -Raw $md.FullName
+                } 
+                $MamlModel = GetMamlModelImpl $files -ForAnotherMarkdown
+                NewModuleLandingPage  -RefreshModulePage -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force
+            }
         }
     }
 }
@@ -551,7 +565,6 @@ function New-MarkdownAboutHelp
             throw "The output folder does not exist."
         }
     }
-
 }
 
 function New-ExternalHelp
@@ -866,12 +879,16 @@ function New-ExternalHelpCab
     $Guid = $Metadata[$script:MODULE_PAGE_GUID]
     $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
     $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
-    $HelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+    $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+
+    #IncrementHelpVersion
+    $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
+    $MdContent = Get-Content -raw $LandingPagePath
+    $MdContent = $MdContent.Replace($OldHelpVersion,$HelpVersion)
+    Set-Content -path $LandingPagePath -value $MdContent
 
     #Create HelpInfo File
     
-
-
         #Testing the destination directories, creating if none exists.
         Write-Verbose "Checking the output directory"
         if(-not (Test-Path $OutputFolder))
@@ -1525,24 +1542,29 @@ function NewModuleLandingPage
         [Parameter(mandatory=$true)]
         [string]
         $ModuleName,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $ModuleGuid,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string[]]
         $CmdletNames,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $Locale,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $Version,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $FwLink,
+        [Parameter(ParameterSetName="UpdateLandingPage")]
+        [switch]
+        $RefreshModulePage,
+        [Parameter(mandatory=$true,ParameterSetName="UpdateLandingPage")]
+        [System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]]
+        $Module,
         [Parameter(mandatory=$true)]
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-
         [switch]$Force
     )
 
@@ -1554,15 +1576,73 @@ function NewModuleLandingPage
 
     process
     {
-        $Content = "---`r`nModule Name: $ModuleName`r`nModule Guid: $ModuleGuid`r`nDownload Help Link: $FwLink`r`n"
-        $Content += "Help Version: $Version`r`nLocale: $Locale`r`n"
-        $Content += "---`r`n`r`n# $ModuleName Module`r`n## Description`r`n"
-        $Content += "{{Manually Enter Description Here}}`r`n`r`n## $ModuleName Cmdlets`r`n"
-        
-        $CmdletNames | ForEach-Object {
-            $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+        $Description = "{{Manually Enter Description Here}}"
+
+        if($RefreshModulePage)
+        {
+            if(Test-Path $LandingPagePath)
+            {
+                $OldLandingPageContent = Get-Content -Raw $LandingPagePath
+                $OldMetaData = Get-MarkdownMetadata -Markdown $OldLandingPageContent
+                $ModuleGuid = $OldMetaData["Module Guid"]
+                $FwLink = $OldMetaData["Download Help Link"] 
+                $Version = $OldMetaData["Help Version"]
+                $Locale = $OldMetaData["Locale"]
+
+                $p = NewMarkdownParser
+                $model = $p.ParseString($OldLandingPageContent)
+                $index = $model.Children.IndexOf(($model.Children | WHERE {$_.Text -eq "Description"}))
+                $i = 1
+                $stillParagraph = $true
+                $Description = ""
+                while($stillParagraph -eq $true)
+                {
+                    $Description += $model.Children[$index + $i].spans.text
+                    $i++
+
+                    if($model.Children[$i].NodeType -eq "Heading")
+                    {
+                        $stillParagraph = $false
+                    }
+                }
+            }
+            else 
+            {
+                $ModuleGuid = "{{ Update Module Guid }}"
+                $FwLink = "{{ Update Download Link }}"
+                $Version = "{{ Update Help Version }}"
+                $Locale = "{{ Update Locale }}"
+                $Description = "{{Manually Enter Description Here}}"
+            }
         }
 
+        $Content = "---`r`nModule Name: $ModuleName`r`nModule Guid: $ModuleGuid`r`nDownload Help Link: $FwLink`r`n"
+        $Content += "Help Version: $Version`r`nLocale: $Locale`r`n"
+        $Content += "---`r`n`r`n"
+        $Content += "# $ModuleName Module`r`n## Description`r`n"
+        $Content += "$Description`r`n`r`n## $ModuleName Cmdlets`r`n"
+ 
+        if($RefreshModulePage)
+        {
+            $Module | % {
+                $command = $_
+                if(-not $command.Synopsis)
+                {
+                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n{{Manually Enter " + $command.Name + " Description Here}}`r`n`r`n"
+                }
+                else 
+                {
+                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $command.Synopsis + "`r`n`r`n"    
+                }
+            }
+        }
+        else 
+        {
+            $CmdletNames | ForEach-Object {
+                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"    
+            }    
+        }
+        
         MySetContent -Path $LandingPagePath -value $Content -Encoding $Encoding -Force:$Force # yeild
     }
 
@@ -1722,6 +1802,25 @@ function AddLineBreaksForParagraphs
     end 
     {
         $paragraphs -join "`r`n`r`n" 
+    }
+}
+
+function IncrementHelpVersion
+{
+    param(
+        [string]
+        $HelpVersionString
+    )
+    process
+    {
+        if($HelpVersionString -eq "{{Please enter version of help manually (X.X.X.X) format}}")
+        {
+            return "1.0.0.0"
+        }
+        $lastDigitPosition = $HelpVersionString.LastIndexOf(".") + 1
+        $frontDigits = $HelpVersionString.Substring(0,$lastDigitPosition)
+        $frontDigits += ([int] $HelpVersionString.Substring($lastDigitPosition)) + 1
+        return $frontDigits
     }
 }
 
