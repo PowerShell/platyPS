@@ -135,39 +135,9 @@ function New-MarkdownHelp
                 $MamlCommandObject.Examples.Add($MamlExampleObject)
             }
 
-            # sort parameters alphabetically with minor exceptions
-            # https://github.com/PowerShell/platyPS/issues/142
             if ($AlphabeticParamsOrder)
             {
-                $confirm = $MamlCommandObject.Parameters | ? { $_.Name -eq 'Confirm' }
-                $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf' }
-
-                if ($confirm)
-                {
-                    $MamlCommandObject.Parameters.Remove($confirm) > $null
-                }
-
-                if ($whatif)
-                {
-                    $MamlCommandObject.Parameters.Remove($whatif) > $null
-                }
-
-                $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
-                $MamlCommandObject.Parameters.Clear()
-
-                $sortedParams | % {
-                    $MamlCommandObject.Parameters.Add($_)
-                }
-
-                if ($confirm)
-                {
-                    $MamlCommandObject.Parameters.Add($confirm)
-                }
-
-                if ($whatif)
-                {
-                    $MamlCommandObject.Parameters.Add($whatif)
-                }
+                SortParamsAlphabetically $MamlCommandObject
             }
         }
 
@@ -421,7 +391,8 @@ function Update-MarkdownHelp
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
         [string]$LogPath,
-        [switch]$LogAppend
+        [switch]$LogAppend,
+        [switch]$AlphabeticParamsOrder
     )
 
     begin
@@ -493,6 +464,11 @@ function Update-MarkdownHelp
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
             $newModel = $merger.Merge($reflectionModel, $oldModel)
 
+            if ($AlphabeticParamsOrder)
+            {
+                SortParamsAlphabetically $newModel
+            }
+
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting
             MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yeild
         }
@@ -511,7 +487,8 @@ function Update-MarkdownHelpModule
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
         [switch]$RefreshModulePage,
         [string]$LogPath,
-        [switch]$LogAppend
+        [switch]$LogAppend,
+        [switch]$AlphabeticParamsOrder
     )
     
     begin
@@ -562,7 +539,7 @@ function Update-MarkdownHelpModule
             }
         
             # always append on this call
-            $affectedFiles = Update-MarkdownHelp -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding
+            $affectedFiles = Update-MarkdownHelp -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder
             $affectedFiles # yeild
             
             $allCommands = GetCommands -AsNames -Module $Module
@@ -576,7 +553,7 @@ function Update-MarkdownHelpModule
                 if ( -not ($updatedCommands -contains $_) )
                 {
                     log "Creating new markdown for command $_"
-                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath
+                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
                     $newFiles # yeild
                 }
             }
@@ -1021,6 +998,46 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+function SortParamsAlphabetically
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $MamlCommandObject
+    )
+
+    # sort parameters alphabetically with minor exceptions
+    # https://github.com/PowerShell/platyPS/issues/142
+    $confirm = $MamlCommandObject.Parameters | ? { $_.Name -eq 'Confirm' }
+    $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf' }
+
+    if ($confirm)
+    {
+        $MamlCommandObject.Parameters.Remove($confirm) > $null
+    }
+
+    if ($whatif)
+    {
+        $MamlCommandObject.Parameters.Remove($whatif) > $null
+    }
+
+    $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
+    $MamlCommandObject.Parameters.Clear()
+
+    $sortedParams | % {
+        $MamlCommandObject.Parameters.Add($_)
+    }
+
+    if ($confirm)
+    {
+        $MamlCommandObject.Parameters.Add($confirm)
+    }
+
+    if ($whatif)
+    {
+        $MamlCommandObject.Parameters.Add($whatif)
+    }
+}
 
 # If LogPath not provided, use -Verbose output for logs
 function GetInfoCallback
