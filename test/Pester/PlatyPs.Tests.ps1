@@ -103,7 +103,7 @@ Describe 'New-MarkdownHelp' {
     }
 
     Context 'AlphabeticParamsOrder' {
-        function Get-Alpha
+        function global:Get-Alpha
         {
             param(
                 [Switch]
