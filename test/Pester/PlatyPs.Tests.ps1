@@ -102,6 +102,39 @@ Describe 'New-MarkdownHelp' {
         }
     }
 
+    Context 'AlphabeticParamsOrder' {
+        function global:Get-Alpha
+        {
+            param(
+                [Switch]
+                [Parameter(Position=1)]
+                $WhatIf,
+                [string]
+                [Parameter(Position=2)]
+                $CCC,
+                [string]
+                $AAA,
+                [string]
+                $BBB,
+                [Switch]
+                $Confirm
+            )
+        }
+
+        It 'uses alphabetic order when specified' {
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
+            ($files | measure).Count | Should Be 1
+            Get-Content $files | ? {$_.StartsWith('### -')} | Out-String | Should Be @'
+### -AAA
+### -BBB
+### -CCC
+### -Confirm
+### -WhatIf
+
+'@
+        }
+    }
+
     Context 'Online version link' {
         
         function global:Test-PlatyPSFunction {
@@ -628,7 +661,7 @@ And [hyper](http://link.com).
         )
     }
 
-    $v2md = Update-MarkdownHelp $v1md -Verbose
+    $v2md = Update-MarkdownHelp $v1md -Verbose -AlphabeticParamsOrder
 
     It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'
