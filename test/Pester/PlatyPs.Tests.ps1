@@ -661,7 +661,7 @@ And [hyper](http://link.com).
         )
     }
 
-    $v2md = Update-MarkdownHelp $v1md -Verbose
+    $v2md = Update-MarkdownHelp $v1md -Verbose -AlphabeticParamsOrder
 
     It 'upgrades stub' {
         $v2md.Name | Should Be 'Get-MyCoolStuff.md'

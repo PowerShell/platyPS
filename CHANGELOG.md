@@ -10,7 +10,7 @@ CHANGELOG
 * Cab creation the help version metadata is incremented prior to cabbing. IE: 1.0.0.0 -> 1.0.0.1
 * Update markdown will now check the external help file name and update to correct value.
 * Update-MarkdownHelpModule new switch -RefreshModulePage, update the module page with cmdlet synopsis and preserves the module description field.
-* Add New-MarkdownHelp -AlphabeticParamsOrder parameter.
+* Add -AlphabeticParamsOrder parameter to `New-MarkdownHelp`, `Update-MarkdownHelp` and `New-MarkdownHelpModule`.
   When specified orders parameters alphabetically by name in PARAMETERS section.
 
 #### Bug Fixes
