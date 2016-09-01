@@ -11,7 +11,7 @@ Update PlatyPS markdown help files.
 
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
- [<CommonParameters>]
+ [-AlphabeticParamsOrder] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -132,6 +132,23 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 

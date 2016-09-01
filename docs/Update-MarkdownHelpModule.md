@@ -11,7 +11,7 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [<CommonParameters>]
+ [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -115,6 +115,23 @@ Accept wildcard characters: False
 
 ### -RefreshModulePage
 Update module page when updating the help module.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
 
 ```yaml
 Type: SwitchParameter
