@@ -140,16 +140,16 @@ function New-MarkdownHelp
             if ($AlphabeticParamsOrder)
             {
                 $confirm = $MamlCommandObject.Parameters | ? { $_.Name -eq 'Confirm' }
-                $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf ' }
+                $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf' }
 
                 if ($confirm)
                 {
-                    $MamlCommandObject.Parameters.Remove($confirm)
+                    $MamlCommandObject.Parameters.Remove($confirm) > $null
                 }
 
                 if ($whatif)
                 {
-                    $MamlCommandObject.Parameter.Remove($whatif)
+                    $MamlCommandObject.Parameters.Remove($whatif) > $null
                 }
 
                 $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
@@ -166,7 +166,7 @@ function New-MarkdownHelp
 
                 if ($whatif)
                 {
-                    $MamlCommandObject.Parameter.Add($whatif)
+                    $MamlCommandObject.Parameters.Add($whatif)
                 }
             }
         }
