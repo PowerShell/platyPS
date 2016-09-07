@@ -111,3 +111,19 @@ New-MarkdownHelp -command New-MyCommandHelp
 Under the hood, following tranformations happens
 
 [MAML XML file] --> [Help Object + Get-Command object] --> [MAML Model] --> [Markdown file]
+
+
+# Making a release
+
+1. Make sure that `CHANGELOG.md` is up-to-date, move section from `UNRELEASED` to new section `<release name>`.
+1. Make sure platyPS help itself (content in .\docs folder) is up to date. 
+   `Update-MarkdownHelp -Path .\docs` should result in no changes.
+1. From master, tag the release.
+1. Push tag to GitHub.
+1. Find the corresponding build on AppVeyor
+1. Download zip archive with the module from artifacts tab.
+1. Unblock the zip archive, copy content to one of the `$env:PSMODULEPATH` locations, so it's available to `Publish-Module`.
+1. Use `Publish-Module -RequiredVersion <version> -Verbose -NuGetApiKey $apiKey`
+10. Check that https://www.powershellgallery.com/packages/platyPS/ updated.
+
+Congratulations! You just made a release.
