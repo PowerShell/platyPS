@@ -5,6 +5,8 @@ CHANGELOG
 
 (Capture your changes here)
 
+## 0.7.0
+
 #### New
 * Update markdown parser to handle underscore version of italics and bold [Issue #176](https://github.com/PowerShell/platyPS/issues/176)
 * Cab creation the help version metadata is incremented prior to cabbing. IE: 1.0.0.0 -> 1.0.0.1
