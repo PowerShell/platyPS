@@ -260,7 +260,7 @@ namespace Markdown.MAML.Renderer
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
             // for some reason, in the update mode parameters produces extra newline.
-            AddParagraphs(parameter.Description);
+            AddParagraphs(parameter.Description, this._mode == ParserMode.FormattingPreserve);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
@@ -485,7 +485,7 @@ namespace Markdown.MAML.Renderer
             return string.Join(Environment.NewLine, newLines);
         }
 
-        private void AddParagraphs(string body)
+        private void AddParagraphs(string body, bool noNewLines = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
@@ -498,7 +498,7 @@ namespace Markdown.MAML.Renderer
                 body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
             }
 
-            _stringBuilder.AppendFormat("{0}{1}{1}", body, Environment.NewLine);
+            _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : Environment.NewLine);
         }
 
         private static string BackSlashMatchEvaluater(Match match)
