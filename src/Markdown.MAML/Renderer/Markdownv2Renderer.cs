@@ -100,7 +100,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddCommand(MamlCommand command)
         {
-            AddHeader(ModelTransformerBase.COMMAND_NAME_HEADING_LEVEL, command.Name, extraNewLine:false);
+            AddHeader(ModelTransformerBase.COMMAND_NAME_HEADING_LEVEL, command.Name);
             AddEntryHeaderWithText(MarkdownStrings.SYNOPSIS, command.Synopsis);
             AddSyntax(command);
             AddEntryHeaderWithText(MarkdownStrings.DESCRIPTION, command.Description);
@@ -260,7 +260,7 @@ namespace Markdown.MAML.Renderer
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
             // for some reason, in the update mode parameters produces extra newline.
-            AddParagraphs(parameter.Description, /*noNewline*/ true);
+            AddParagraphs(parameter.Description);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
@@ -407,10 +407,16 @@ namespace Markdown.MAML.Renderer
 
         private void AddEntryHeaderWithText(string header, string text)
         {
-            // we want indentation, if there is no text inside
-            var extraNewLine = string.IsNullOrWhiteSpace(text);
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine);
-            AddParagraphs(text);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+            // to correctly handle empty text case, we are adding new-line here
+            if (string.IsNullOrEmpty(text))
+            {
+                _stringBuilder.Append(Environment.NewLine);
+            }
+            else
+            {
+                AddParagraphs(text);
+            }
         }
 
         private void AddCodeSnippet(string code, string lang = "")
@@ -479,25 +485,20 @@ namespace Markdown.MAML.Renderer
             return string.Join(Environment.NewLine, newLines);
         }
 
-        private void AddParagraphs(string body, bool noNewline = false)
+        private void AddParagraphs(string body)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
                 return;
             }
 
-            if (this._mode == ParserMode.FormattingPreserve)
-            {
-                _stringBuilder.AppendFormat("{0}{1}", body, noNewline ? null : Environment.NewLine);
-                return;
-            }
-            else
+            if (this._mode != ParserMode.FormattingPreserve)
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
-
-                var text = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
-                _stringBuilder.AppendFormat("{0}{1}{1}", text, Environment.NewLine);
+                body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
             }
+
+            _stringBuilder.AppendFormat("{0}{1}{1}", body, Environment.NewLine);
         }
 
         private static string BackSlashMatchEvaluater(Match match)

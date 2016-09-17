@@ -715,14 +715,12 @@ It has mutlilines. And hyper (http://link.com).
     }
 }
 
-Describe 'Update Markdown Help and Correct Help File Metadata' {
+Describe 'Update Markdown Help' {
     
     $output = "TestDrive:\"
 
-    It 'Verifies that a bad metadata value for the help file is fixed on update' {
-
-        $ValidHelpFileName = "Microsoft.PowerShell.Archive-help.xml"
-        $MD = @'
+    $ValidHelpFileName = "Microsoft.PowerShell.Archive-help.xml"
+    $md = @'
 ---
 external help file: ABadFileName-Help.xml
 online version: http://go.microsoft.com/fwlink/?LinkId=821655
@@ -731,7 +729,8 @@ schema: 2.0.0
 
 # Expand-Archive
 ## SYNOPSIS
-Extracts files from a specified archive (zipped) file.
+Extracts files from a specified archive (zipped) file.          
+
 ## SYNTAX
 
 ### Path (Default)
@@ -749,6 +748,7 @@ Expand-Archive -LiteralPath <String> [[-DestinationPath] <String>] [-Force] [-Wh
 ## DESCRIPTION
 The Expand-Archive cmdlet extracts files from a specified zipped archive file to a specified destination folder.
 An archive file allows multiple files to be packaged, and optionally compressed, into a single zipped file for easier distribution and storage.
+
 ## EXAMPLES
 
 ### Example 1: Extract the contents of an archive
@@ -757,12 +757,14 @@ PS C:\>Expand-Archive -LiteralPath C:\Archives\Draft.Zip -DestinationPath C:\Ref
 ```
 
 This command extracts the contents of an existing archive file, Draft.zip, into the folder specified by the DestinationPath parameter, C:\Reference.
+
 ### Example 2: Extract the contents of an archive in the current folder
 ```
 PS C:\>Expand-Archive -Path Draft.Zip -DestinationPath C:\Reference
 ```
 
 This command extracts the contents of an existing archive file in the current folder, Draft.zip, into the folder specified by the DestinationPath parameter, C:\Reference.
+
 ## PARAMETERS
 
 ### -DestinationPath
@@ -864,10 +866,12 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### System.String
 You can pipe a string that contains a path to an existing archive file.
+
 ## OUTPUTS
 
 ### System.IO.FileInfo or System.IO.DirectoryInfo
@@ -879,16 +883,27 @@ You can pipe a string that contains a path to an existing archive file.
 [Compress-Archive]()
 '@
     
-    Set-Content -Path "$outFolder\Expand-Archive.md" -Value $MD
-
+    Set-Content -Path "$outFolder\Expand-Archive.md" -Value $md
     Update-MarkdownHelp -Path "$outFolder\Expand-Archive.md"
+    $updatedMd = Get-Content "$outFolder\Expand-Archive.md"
 
-    $MD = Get-Content -Raw "$outFolder\Expand-Archive.md"
+    It 'Verifies that a bad metadata value for the help file is fixed on update' {
+        $MetaData = Get-MarkdownMetadata -Markdown ($updatedMd | Out-String)
+        $MetaData["external help file"] | Should Be $ValidHelpFileName
+    }
 
-    $MetaData = Get-MarkdownMetadata -Markdown $MD
-
-    $MetaData["external help file"] | Should Be $ValidHelpFileName
-
+    @('## ', '### ') | % {
+        It "use a single spacing for $_ sections" {
+            $lineStart = $_
+            for ($i=2; $i -lt $updatedMd.Count; $i++)
+            {
+                if ($updatedMd[$i].StartsWith($lineStart))
+                {
+                    $updatedMd[$i - 1] | Should Be ''
+                    $updatedMd[$i - 2] | Should Not Be ''
+                }
+            }
+        }
     }
 }
 
