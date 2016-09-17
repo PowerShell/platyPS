@@ -2110,7 +2110,14 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage)) 
                 {
                     # additional new-lines are needed for Update-MarkdownHelp scenario.
-                    "{{Fill $($Parameter.Name) Description}}`r`n`r`n"
+                    switch ($Parameter.Name)
+                    {
+                        # we have well-known parameters and can generate a reasonable description for them
+                        # https://github.com/PowerShell/platyPS/issues/211
+                        'Confirm' { "Prompts you for confirmation before running the cmdlet.`r`n`r`n" }
+                        'WhatIf' { "Shows what would happen if the cmdlet runs. The cmdlet is not run.`r`n`r`n" }
+                        default { "{{Fill $($Parameter.Name) Description}}`r`n`r`n" }
+                    }
                 } 
                 else 
                 {

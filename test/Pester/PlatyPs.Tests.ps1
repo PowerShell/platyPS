@@ -173,6 +173,35 @@ Describe 'New-MarkdownHelp' {
             }
         }
     }
+
+    Context 'Generates well-known stub descriptions for parameters' {
+        function global:Test-PlatyPSFunction {
+            param(
+                [string]$Foo,
+                [switch]$Confirm,
+                [switch]$WhatIf
+            )
+        }
+
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\ -Force -AlphabeticParamsOrder
+        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
+        $help = Get-HelpPreview -Path $maml
+
+        It 'generates well-known stub descriptions for -WhatIf' {
+            $param = $help.parameters.parameter | ? { $_.Name -eq 'WhatIf' }
+            $param.description.text | Should Be 'Shows what would happen if the cmdlet runs. The cmdlet is not run.'
+        }
+
+        It 'generates well-known stub descriptions for -Confirm' {
+            $param = $help.parameters.parameter | ? { $_.Name -eq 'Confirm' }
+            $param.description.text | Should Be 'Prompts you for confirmation before running the cmdlet.'
+        }
+
+        It 'generates well-known stub descriptions for -Foo' {
+            $param = $help.parameters.parameter | ? { $_.Name -eq 'Foo' }
+            $param.description.text | Should Be '{{Fill Foo Description}}'
+        }
+    }
     
     Context 'Generated markdown features: comment-based help' {
         function global:Test-PlatyPSFunction
