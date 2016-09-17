@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # Update-MarkdownHelp
+
 ## SYNOPSIS
 Update PlatyPS markdown help files.
+
 ## SYNTAX
 
 ```
@@ -27,6 +29,7 @@ To propagate changes to your markdown help files, do the following:
 - Load the new version of the module into your Windows PowerShell session.
 - Run the **Update-MarkdownHelp** cmdlet to update the files.
 - Check new parameters metadata in the markdown files.
+
 ## EXAMPLES
 
 ### Example 1: Update all files in a folder
@@ -49,6 +52,7 @@ Mode                LastWriteTime         Length Name
 ```
 
 This command updates all markdown help files in the specified path to match the current cmdlets.
+
 ### Example 2: Update one file and capture log
 ```
 PS C:\> Update-MarkdownHelp -Path ".\docs\Update-MarkdownHelp.md" -LogPath ".\markdown.log"
@@ -63,6 +67,7 @@ Mode                LastWriteTime         Length Name
 
 This command updates a markdown help file.
 It writes log information to the markdown.log file.
+
 ## PARAMETERS
 
 ### -Encoding
@@ -154,14 +159,17 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### String[]
 You can pipe an array of paths to this cmdlet.
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for updated files.
+
 ## NOTES
 
 ## RELATED LINKS

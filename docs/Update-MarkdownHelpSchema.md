@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # Update-MarkdownHelpSchema
+
 ## SYNOPSIS
 Migrates markdown help files to the latest markdown help schema.
+
 ## SYNTAX
 
 ```
@@ -19,6 +21,7 @@ The **Update-MarkdownHelpSchema** cmdlet migrates markdown help files to the lat
 We recommend you update to the latest schema.
 
 Currently, there are two schemas: 1.0.0 and 2.0.0.
+
 ## EXAMPLES
 
 ### Example 1: Update to current schema
@@ -38,6 +41,7 @@ Mode                LastWriteTime         Length Name
 ```
 
 This commad upgrades the PSReadLine platyPS markdown to the latest version, which is currently 2.0.0.
+
 ## PARAMETERS
 
 ### -Encoding
@@ -110,14 +114,17 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### String[]
 You can pipe an array of paths to this cmdlet. 
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for updated files. 
+
 ## NOTES
 
 ## RELATED LINKS

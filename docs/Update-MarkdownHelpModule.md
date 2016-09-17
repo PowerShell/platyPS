@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # Update-MarkdownHelpModule
+
 ## SYNOPSIS
 Update all files in a markdown help module folder.
+
 ## SYNTAX
 
 ```
@@ -17,6 +19,7 @@ Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshM
 ## DESCRIPTION
 The **Update-MarkdownHelpModule** cmdlet updates existing help markdown files and creates markdown files for new cmdlets in a module.
 This cmdlet combines functionality of the [Update-MarkdownHelp](Update-MarkdownHelp.md) and [New-MarkdownHelp](New-MarkdownHelp.md) cmdlets to perform a bulk update.
+
 ## EXAMPLES
 
 ### Example 1: Update a markdown help module
@@ -40,6 +43,7 @@ Mode                LastWriteTime         Length Name
 
 This command updates all the files in the specified folder based on the cmdlets as loaded into your current session.
 The command creates markdown help topics for any cmdlets that are not already included in the .\docs folder.
+
 ## PARAMETERS
 
 ### -Encoding
@@ -147,14 +151,17 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### System.String[]
 You can pipe an array of paths to this cmdlet. 
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for updated and new files. 
+
 ## NOTES
 
 ## RELATED LINKS

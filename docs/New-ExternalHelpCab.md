@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # New-ExternalHelpCab
+
 ## SYNOPSIS
 Generates generates a .cab file.
+
 ## SYNTAX
 
 ```
@@ -26,6 +28,7 @@ This metadata is part of the module file created by using the [New-MarkdownHelp]
 
 This cmdlet also generates or updates an existing helpinfo.xml file.
 That file provides versioning and locale details to the Windows PowerShell help system.
+
 ## EXAMPLES
 
 ### Example 1: Create a CAB file
@@ -36,6 +39,7 @@ PS C:\> New-ExternalHelpCab -CabFilesFolder 'C:\Module\ExternalHelpContent' -Lan
 This commmand creates a .cab file that contains the content folder files.
 The .cab file is named for updatable help based on metadata.
 The command places the .cab file in the output folder.
+
 ## PARAMETERS
 
 ### -CabFilesFolder
@@ -89,15 +93,18 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### None
 You cannot pipe values to this cmdlet.
+
 ## OUTPUTS
 
 ### None
 This cmdlet does not generate output.
 The cmldet saves its results in the output folder that the *OutputPath* parameter specifies.
+
 ## NOTES
 
 ## RELATED LINKS
