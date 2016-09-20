@@ -80,6 +80,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transformer\IModelTransformer.cs" />
     <Compile Include="Transformer\MamlModelMerger.cs" />
+    <Compile Include="Transformer\MamlComparer.cs" />
     <Compile Include="Transformer\ModelTransformerBase.cs" />
     <Compile Include="Transformer\ModelTransformerVersion1.cs" />
     <Compile Include="Transformer\ModelTransformerVersion2.cs" />
@@ -91,6 +92,7 @@
     <EmbeddedResource Include="Resources\MarkdownStrings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>MarkdownStrings.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

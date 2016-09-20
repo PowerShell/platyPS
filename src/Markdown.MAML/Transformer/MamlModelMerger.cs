@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation.Language;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -26,7 +27,7 @@ namespace Markdown.MAML.Transformer
         {
             MamlCommand result = null;
 
-            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----");
+            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----\r\n\r\n");
             try
             {
                 result = new MamlCommand()
@@ -80,11 +81,11 @@ namespace Markdown.MAML.Transformer
             // we care only about metadata for parameters in syntax
             result.Syntax.AddRange(metadataModel.Syntax);
             
-            //report name changes to syntax objects
+            //report name changes to syntax objects (Parameter Sets)
             Report("Syntax Block and Parameter Set Names reflected and document syntax fully updated.\r\n\r\n");
 
-            var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxComparer());
-            var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxComparer());
+            var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxNameComparer());
+            var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxNameComparer());
             var removedSyntaxes = stringSyntaxSet.Except(metadataSyntaxSet).ToList();
             var addedSyntaxes = metadataSyntaxSet.Except(stringSyntaxSet).ToList();
 
@@ -103,7 +104,7 @@ namespace Markdown.MAML.Transformer
                 var reflectedSyntaxParameters = reflectedSyntax.Parameters.Select(s => s.Name).ToList();
                 reflectedSyntaxParameters.Sort();
 
-                bool foundSyntaxMatch = false;
+                var foundSyntaxMatch = false;
 
                 foreach (var stringSyntax in stringModel.Syntax)
                 {
@@ -112,7 +113,7 @@ namespace Markdown.MAML.Transformer
 
                     if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
                     {
-                        Report($"Parameter Set Name Updated:\r\nOld Set:{stringSyntax.ParameterSetName}\r\nNew Set:{reflectedSyntax.ParameterSetName}\r\n\r\n");
+                        Report($"Parameter Set Name Updated:\r\nOld Set: {stringSyntax.ParameterSetName}\r\nNew Set: {reflectedSyntax.ParameterSetName}\r\n\r\n");
                         foundSyntaxMatch = true;
                     }
                 }
@@ -128,21 +129,40 @@ namespace Markdown.MAML.Transformer
                 }
             }
 
+            //Processing Parameters for cmdlet
+            var stringParameterSet = new SortedSet<MamlParameter>(stringModel.Parameters, new MamlParameterNameComparer());
+            var metadataParameterSet = new SortedSet<MamlParameter>(metadataModel.Parameters, new MamlParameterNameComparer());
+            var addedParameters = metadataParameterSet.Except(stringParameterSet).ToList();
+            var removedParameters = stringParameterSet.Except(metadataParameterSet).ToList();
+
+            foreach (var addedParam in addedParameters)
+            {
+                Report($"Parameter Added: {addedParam.Name}\r\n\r\n");
+            }
+            foreach (var removedParam in removedParameters)
+            {
+                Report($"Parameter Deleted: {removedParam.Name}\r\n\r\n");
+            }
+
+            var matchedParametersSet = stringParameterSet.Intersect(metadataParameterSet,new MamlParameterEqualityComparer()).ToList();
+            var matchedComparer = new MamlParameterAttributeComparer();
+
+            foreach (var matchedParam in matchedParametersSet)
+            {
+                var metadataMatch = metadataModel.Parameters.Single(p => p.Name == matchedParam.Name);
+                if (matchedComparer.Compare(matchedParam, metadataMatch) == 0)
+                {
+                    continue;
+                }
+                var metaDataAttributeString = assembleAttributeString(metadataMatch);
+                var stringAttributeString = assembleAttributeString(matchedParam);
+                Report($"Parameter Updated: {matchedParam.Name}\r\nUpdated from:\r\n{metaDataAttributeString}\r\nTo:\r\n{stringAttributeString}\r\n\r\n");
+            }
+
             foreach (var param in metadataModel.Parameters)
             {
-                var aliases = param.Aliases.Aggregate(string.Empty, (current, alias) => current + " " + alias);
-
-                if (aliases != string.Empty)
-                {
-                    Report("::Aliases updated for {0}:{1}", param.Name, aliases);
-                }
-
                 var strParam = FindParameterByName(param.Name, stringModel.Parameters);
-                if (strParam == null)
-                {
-                    Report("::{0}: parameter {1} cannot be found in the markdown file.", metadataModel.Name, param.Name);
-                }
-                else
+                if (strParam != null)
                 {
                     param.Description = metadataStringCompare(param.Description,
                         strParam.Description,
@@ -159,14 +179,22 @@ namespace Markdown.MAML.Transformer
                 
                 result.Parameters.Add(param);
             }
+            
+        }
 
-            foreach(var param in stringModel.Parameters)
-            {
-                if (FindParameterByName(param.Name, metadataModel.Parameters) == null)
-                {
-                    Report("::{0}: parameter {1} is not longer present.", metadataModel.Name, param.Name);
-                }
-            }
+        private string assembleAttributeString(MamlParameter parameter)
+        {
+            var attributeBlock = new StringBuilder();
+            attributeBlock.AppendLine($"Type: {parameter.Type}");
+            var aliasas = parameter.Aliases.Aggregate(string.Empty, (current, alias) => current + " " + alias);
+            attributeBlock.AppendLine($"Aliases: {aliasas}");
+            attributeBlock.AppendLine($"Required: {parameter.Required}");
+            attributeBlock.AppendLine($"Position: {parameter.Position}");
+            attributeBlock.AppendLine($"Default Value: {parameter.DefaultValue}");
+            attributeBlock.AppendLine($"Accept pipeline input: {parameter.PipelineInput}");
+            attributeBlock.AppendLine($"Accept wildcard characters: {parameter.Globbing}");
+
+            return attributeBlock.ToString();
         }
 
         /// <summary>
