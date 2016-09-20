@@ -24,41 +24,48 @@ namespace Markdown.MAML.Transformer
 
         public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
         {
+            MamlCommand result = null;
 
-            Report("----Cmdlet {0} is updating.----", metadataModel.Name);
-
-            MamlCommand result = new MamlCommand()
+            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----");
+            try
             {
-                Name = metadataModel.Name,
-                Synopsis = metadataStringCompare(metadataModel.Synopsis,
-                        stringModel.Synopsis,
-                        metadataModel.Name,
-                        "synopsis"),
-                Description = metadataStringCompare(metadataModel.Description,
-                        stringModel.Description,
-                        metadataModel.Name,
-                        "description"),
-                Notes = metadataStringCompare(metadataModel.Notes,
-                        stringModel.Notes,
-                        metadataModel.Name,
-                        "notes"),
-                Extent = stringModel.Extent
-            };
-            
-            // TODO: convert into MergeMetadataProperty
-            result.Links.AddRange(stringModel.Links);
+                result = new MamlCommand()
+                {
+                    Name = metadataModel.Name,
+                    Synopsis = metadataStringCompare(metadataModel.Synopsis,
+                            stringModel.Synopsis,
+                            metadataModel.Name,
+                            "synopsis"),
+                    Description = metadataStringCompare(metadataModel.Description,
+                            stringModel.Description,
+                            metadataModel.Name,
+                            "description"),
+                    Notes = metadataStringCompare(metadataModel.Notes,
+                            stringModel.Notes,
+                            metadataModel.Name,
+                            "notes"),
+                    Extent = stringModel.Extent
+                };
 
-            // All examples come only from strtringModel
-            result.Examples.AddRange(stringModel.Examples);
+                // TODO: convert into MergeMetadataProperty
+                result.Links.AddRange(stringModel.Links);
 
-            // TODO: figure out what's the right thing for MamlInputOutput
-            result.Inputs.AddRange(stringModel.Inputs);
-            result.Outputs.AddRange(stringModel.Outputs);
-            
-            //Result takes in the merged parameter results.
-            MergeParameters(result, metadataModel, stringModel);
-            
-            Report("----Cmdlet {0} updated.----\r\n\r\n", result.Name);
+                // All examples come only from strtringModel
+                result.Examples.AddRange(stringModel.Examples);
+
+                // TODO: figure out what's the right thing for MamlInputOutput
+                result.Inputs.AddRange(stringModel.Inputs);
+                result.Outputs.AddRange(stringModel.Outputs);
+
+                //Result takes in the merged parameter results.
+                MergeParameters(result, metadataModel, stringModel);
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"Exception message: \r\n{ex.Message}\r\n");
+            }
+            Report($"---- COMPLETED UPDATING Cmdlet : {metadataModel.Name} ----\r\n\r\n");
 
             return result;
         }
@@ -74,7 +81,21 @@ namespace Markdown.MAML.Transformer
             result.Syntax.AddRange(metadataModel.Syntax);
             
             //report name changes to syntax objects
-            Report("::Syntax Block and Parameter Set Names fully replaced by Cmdlet Reflection");
+            Report("Syntax Block and Parameter Set Names reflected and document syntax fully updated.\r\n\r\n");
+
+            var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxComparer());
+            var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxComparer());
+            var removedSyntaxes = stringSyntaxSet.Except(metadataSyntaxSet).ToList();
+            var addedSyntaxes = metadataSyntaxSet.Except(stringSyntaxSet).ToList();
+
+            foreach (var addedSyntax in addedSyntaxes)
+            {
+                Report($"Parameter Set Added: {addedSyntax.ParameterSetName}\r\n\r\n");
+            }
+            foreach (var droppedSyntax in removedSyntaxes)
+            {
+                Report($"Parameter Set Deleted: {droppedSyntax.ParameterSetName}\r\n\r\n");
+            }
 
             //reports changes to parameter set names
             foreach (var reflectedSyntax in metadataModel.Syntax)
@@ -91,19 +112,19 @@ namespace Markdown.MAML.Transformer
 
                     if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
                     {
-                        Report("::ParameterSet Name: <{0}> replaced [{1}]",reflectedSyntax.ParameterSetName,stringSyntax.ParameterSetName);
+                        Report($"Parameter Set Name Updated:\r\nOld Set:{stringSyntax.ParameterSetName}\r\nNew Set:{reflectedSyntax.ParameterSetName}\r\n\r\n");
                         foundSyntaxMatch = true;
                     }
                 }
 
                 if (!foundSyntaxMatch)
                 {
-                    Report("::ParameterSet Name no match found: <{0}> added", reflectedSyntax.ParameterSetName);
+                    Report($"Parameter Set Added: {reflectedSyntax.ParameterSetName}\r\n\r\n");
                 }
                 
                 if (reflectedSyntax.IsDefault)
                 {
-                    Report("::{0} has been set as the default Parameter Set for {1}.\r\n",reflectedSyntax.ParameterSetName,metadataModel.Name);
+                    Report($"Default Parameter Set: {reflectedSyntax.ParameterSetName}\r\n\r\n");
                 }
             }
 
@@ -127,7 +148,7 @@ namespace Markdown.MAML.Transformer
                         strParam.Description,
                         metadataModel.Name, 
                         param.Name, 
-                        "description");
+                        "parameter description");
                     
                     param.DefaultValue = strParam.DefaultValue;
                     // don't update type
@@ -153,15 +174,13 @@ namespace Markdown.MAML.Transformer
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string paramName, string contentItemName)
         {
-            if(!StringComparer.Ordinal.Equals((stringContent == null ? "" : Pretify(stringContent)),
-                (metadataContent == null ? "" : Pretify(metadataContent))))
+
+            var pretifiedStringContent = stringContent == null ? "" : Pretify(stringContent).TrimEnd(' ');
+            var pretifiedMetadataContent = metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' ');
+
+            if (!StringComparer.Ordinal.Equals((pretifiedStringContent),(pretifiedMetadataContent)))
             {
-                Report("::{0}: parameter {1} - {2} has been updated:\r\n<Old from MAML\r\n    {4}\r\n>\r\n\r\n[New from Markdown\r\n    {3}\r\n]", 
-                    moduleName, 
-                    paramName, 
-                    contentItemName,
-                    stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '),
-                    metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
+                Report($"Reflection found a new {contentItemName}, for parameter {paramName}. The original content has been preserved.\r\n\r\nPreserved:\r\n{pretifiedStringContent}\r\n\r\nOverridden:\r\n{pretifiedMetadataContent}\r\n\r\n");   
             }
 
             return stringContent;
@@ -180,7 +199,7 @@ namespace Markdown.MAML.Transformer
         }
 
         /// <summary>
-        /// Compares Cmdlet values
+        /// Compares Cmdlet values: Synopsis, Description, and Notes. Preserves the content from the string model (old) or the metadata model (new).
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
         {
@@ -189,11 +208,7 @@ namespace Markdown.MAML.Transformer
 
             if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContentPretified))
             {
-                Report("::{0}: {1} has been updated:\r\n<Old from MAML\r\n    {3}\r\n>\r\n\r\n[New from Markdown\r\n    {2}\r\n]\r\n",
-                    moduleName,
-                    contentItemName,
-                    stringContentPretified,
-                    metadataContentPretified);
+                Report($"Reflection found a new {contentItemName}. The original content has been preserved.\r\n\r\nPreserved:\r\n{stringContentPretified}\r\n\r\nOverridden:\r\n{metadataContentPretified}\r\n\r\n");
             }
 
             return stringContent;
