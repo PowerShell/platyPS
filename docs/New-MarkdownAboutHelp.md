@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # New-MarkdownAboutHelp
+
 ## SYNOPSIS
 Generates a new About Topic MD file from template.
+
 ## SYNTAX
 
 ```
@@ -21,6 +23,7 @@ and deposits the file in the directory designated by the **OutputFoler** paramet
 The About Topic can be converted to Txt format. 
 About topics must be in txt format or the PowerShell Help engine will not be able to parse the document. 
 Use the [New-ExternalHelp](New-ExternalHelp.md) cmdlet to convert About Topic markdown files into About Topic txt files.
+
 ## EXAMPLES
 
 ### Example 1
@@ -37,6 +40,7 @@ Mode                LastWriteTime         Length Name
 ```
 
 Create and display file info for PowerShell About Topic Markdown File.
+
 ### Example 2
 ```
 PS C:\> New-ExternalHelp -Path C:\Test\ -OutputPath C:\Test
@@ -51,6 +55,7 @@ Mode                LastWriteTime         Length Name
 ```
 
 Create PowerShell About Topic Txt file from existing Markdown About file.
+
 ## PARAMETERS
 
 ### -AboutName
@@ -85,6 +90,7 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### None
@@ -93,8 +99,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.Object
 This cmdlet returns a object for created files.
+
 ## NOTES
 The about topics will need to be added to a cab file to leverage updatable help.
+
 ## RELATED LINKS
 
 [New-ExternalHelp](New-ExternalHelp.md)

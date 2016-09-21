@@ -5,6 +5,11 @@ CHANGELOG
 
 (Capture your changes here)
 
+## 0.7.1
+
+* Improve blank-line padding in `New-MarkdownHelp` and `Update-MarkdownHelp`. [Issue #210](https://github.com/PowerShell/platyPS/issues/210)
+* Auto-generate default descriptions for `-Confirm` and `-WhatIf` parameters in `New-MarkdownHelp`. [Issue #211](https://github.com/PowerShell/platyPS/issues/211)
+
 ## 0.7.0
 
 #### New

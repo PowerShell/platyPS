@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # Get-HelpPreview
+
 ## SYNOPSIS
 Displays your generated external help as **Get-Help** output.
+
 ## SYNTAX
 
 ```
@@ -16,6 +18,7 @@ Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists]
 ## DESCRIPTION
 The **Get-HelpPreview** cmdlet displays your generated external help as **Get-Help** output.
 Specify one or more files in Microsoft Assistance Markup Language (MAML) format.
+
 ## EXAMPLES
 
 ### Example 1: Preview the PlatyPS help
@@ -38,6 +41,7 @@ The first command creates a **Help** object for the the specified MAML file.
 The command stores it in the $Help variable.
 
 The second command displays the **Name** property for each of the objects in $Help.
+
 ## PARAMETERS
 
 ### -Path
@@ -90,14 +94,17 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### String[]
 You can pipe an array of paths to this cmdlet.
+
 ## OUTPUTS
 
 ### Help Object
 This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
+
 ## NOTES
 
 ## RELATED LINKS

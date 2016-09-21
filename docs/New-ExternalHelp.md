@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # New-ExternalHelp
+
 ## SYNOPSIS
 Creates external help file based on markdown supported by PlatyPS.
+
 ## SYNTAX
 
 ```
@@ -18,6 +20,7 @@ The **New-ExternalHelp** cmdlet creates an external help file based on markdown 
 You can ship this with a module to provide help by using the **Get-Help** cmdlet.
 
 If the markdown files that you specify do not follow the PlatyPS [Schema](https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md), this cmdlet returns error messages.
+
 ## EXAMPLES
 
 ### Example 1: Create external help based on the contents of a folder
@@ -34,6 +37,7 @@ Mode                LastWriteTime         Length Name
 
 This command creates an external help file in the specified location.
 This command uses the best practice that the folder name includes the locale.
+
 ### Example 2: Create help that uses custom encoding
 ```
 PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\PlatyPS\en-US" -Force -Encoding ([System.Text.Encoding]::Unicode)
@@ -50,6 +54,7 @@ Mode                LastWriteTime         Length Name
 This command creates an external help file in the specified location.
 This command specifies the *Force* parameter, therefore, it overwrites an existing file.
 The command specifies Unicode encoding for the created file.
+
 ## PARAMETERS
 
 ### -OutputPath
@@ -121,14 +126,17 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### String[]
 You can pipe an array of paths to this cmdlet.
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for created files.
+
 ## NOTES
 
 ## RELATED LINKS

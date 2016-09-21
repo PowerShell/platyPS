@@ -74,6 +74,7 @@ schema: 2.0.0
 ---
 
 # Workflow
+
 ## SYNOPSIS
 
 ## SYNTAX
@@ -123,6 +124,7 @@ schema: 2.0.0
 ---
 
 # Test-Quotes
+
 ## SYNOPSIS
 
 ## SYNTAX
@@ -189,21 +191,28 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             {
                 TypeName = "String",
                 Description = "Input <Description> goes here!"
-            }
-            );
+            });
             command.Outputs.Add(new MamlInputOutput()
             {
                 TypeName = "String",
                 Description = "Output Description goes here!"
-            }
-            );
+            });
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 1",
                 Code = "PS:> Get-Help -YouNeedIt",
                 Remarks = "This does stuff!"
-            }
-            );
+            });
+            command.Examples.Add(new MamlExample()
+            {
+                Title = "Example 2",
+                Code = "PS:> Get-Help -YouNeedTwo",
+            });
+            command.Examples.Add(new MamlExample()
+            {
+                Title = "Example 3",
+                Code = "PS:> Get-Help -YouNeedTwo",
+            });
             command.Links.Add(new MamlLink()
             {
                 LinkName = "PowerShell made by Microsoft Hackathon",
@@ -230,6 +239,7 @@ schema: 2.0.0
 ---
 
 # Get-Foo
+
 ## SYNOPSIS
 This is the synopsis
 
@@ -260,6 +270,16 @@ PS:> Get-Help -YouNeedIt
 ```
 
 This does stuff!
+
+### Example 2
+```
+PS:> Get-Help -YouNeedTwo
+```
+
+### Example 3
+```
+PS:> Get-Help -YouNeedTwo
+```
 
 ## PARAMETERS
 
@@ -367,6 +387,7 @@ schema: 2.0.0
 ---
 
 # Get-Foo
+
 ## SYNOPSIS
 
 ## SYNTAX
@@ -459,8 +480,7 @@ With all [hyper](https://links.com) and yada
 weired
 * [ ] But
 
-* [ ] It should be left
-"
+* [ ] It should be left"
             };
 
             command.Links.Add(
@@ -476,12 +496,14 @@ schema: 2.0.0
 ---
 
 # Get-Foo
+
 ## SYNOPSIS
 
 ## SYNTAX
 
 ## DESCRIPTION
 " + command.Description + @"
+
 ## EXAMPLES
 
 ## PARAMETERS

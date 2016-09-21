@@ -5,8 +5,10 @@ schema: 2.0.0
 ---
 
 # New-MarkdownHelp
+
 ## SYNOPSIS
 Creates help in markdown format.
+
 ## SYNTAX
 
 ### FromModule
@@ -32,6 +34,7 @@ New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashL
 
 ## DESCRIPTION
 The **New-MarkdownHelp** cmdlet creates help in markdown format based on a module, a command, or a file in Microsoft Assistance Markup Language (MAML) format.
+
 ## EXAMPLES
 
 ### Example 1: Create help from a command
@@ -51,6 +54,7 @@ Mode                LastWriteTime         Length Name
 The first command creates a function named Command03 by using standard Windows PowerShell syntax.
 
 The second command creates help for that stub function in the .\docs folder.
+
 ### Example 2: Create help from a module
 ```
 PS C:\> Import-Module -Module "PlatyPS"
@@ -78,6 +82,7 @@ The second command creates help for all the cmdlets in the PlatyPS module.
 It stores them in the .\docs folder.
 This command specifies the *Force* parameter.
 Therefore, it overwrites existing help markdown files that have the same name.
+
 ### Example 3: Create help from an existing MAML file
 ```
 PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
@@ -97,6 +102,7 @@ Mode                LastWriteTime         Length Name
 This command creates help in markdown format for the specified help MAML file.
 You do not have to load the module, as in the previous example.
 If the module is already loaded, this command creates help based on the MAML file, not on the currently installed module.
+
 ### Example 4: Create help from an existing MAML file for use in a CAB file
 ```
 PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml' -WithModulePage  -Force -ModuleName "PSReadLine"
@@ -118,6 +124,7 @@ Mode                LastWriteTime         Length Name
 This command creates help in markdown format for the specified help MAML file, as in the previous example.
 This command also specifies the *WithModulePage* parameter and the *ModuleName* parameter.
 The command creates a file named PSReadLine.md that contains links to the other markdown files in this module and metadata that can be used to create .cab files.
+
 ## PARAMETERS
 
 ### -Command
@@ -421,15 +428,18 @@ Accept wildcard characters: False
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ## INPUTS
 
 ### String[]
 You can pipe module names to this cmdlet.
 These are the modules from which this cmdlet creates help markdown.
+
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for created files.
+
 ## NOTES
 
 ## RELATED LINKS
