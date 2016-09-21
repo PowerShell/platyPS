@@ -60,4 +60,17 @@ namespace Markdown.MAML.Transformer
             return obj.Name.ToUpper().GetHashCode();
         }
     }
+
+    internal class MamlParameterSetEqualityComparer : IEqualityComparer<MamlSyntax>
+    {
+        public bool Equals(MamlSyntax x, MamlSyntax y)
+        {
+            return x.ParameterSetName == y.ParameterSetName;
+        }
+
+        public int GetHashCode(MamlSyntax obj)
+        {
+            return obj.ParameterSetName.ToUpper().GetHashCode();
+        }
+    }
 }

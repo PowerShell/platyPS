@@ -94,8 +94,8 @@ namespace Markdown.MAML.Transformer
             //reports changes to parameter set names
             var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxNameComparer());
             var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxNameComparer());
-            var removedSyntaxes = stringSyntaxSet.Except(metadataSyntaxSet).ToList();
-            var addedSyntaxes = metadataSyntaxSet.Except(stringSyntaxSet).ToList();
+            var removedSyntaxes = stringSyntaxSet.Except(metadataSyntaxSet,new MamlParameterSetEqualityComparer()).ToList();
+            var addedSyntaxes = metadataSyntaxSet.Except(stringSyntaxSet, new MamlParameterSetEqualityComparer()).ToList();
 
             foreach (var addedSyntax in addedSyntaxes)
             {
@@ -108,27 +108,21 @@ namespace Markdown.MAML.Transformer
                 _cmdletUpdated = true;
             }
 
-            foreach (var reflectedSyntax in metadataModel.Syntax)
+            foreach (var metadataSyntax in metadataModel.Syntax)
             {
-                var reflectedSyntaxParameters = reflectedSyntax.Parameters.Select(s => s.Name).ToList();
-                reflectedSyntaxParameters.Sort();
-
-
+                var metadataParameters = new SortedSet<MamlParameter>(metadataSyntax.Parameters,new MamlParameterNameComparer());
 
                 foreach (var stringSyntax in stringModel.Syntax)
                 {
-                    var stringSyntaxParameters = stringSyntax.Parameters.Select(s => s.Name).ToList();
-                    stringSyntaxParameters.Sort();
-
-                    if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
+                    var stringParameters = new SortedSet<MamlParameter>(stringSyntax.Parameters, new MamlParameterNameComparer());
+                    if (metadataParameters.SetEquals(stringParameters) &&
+                        stringSyntax.ParameterSetName != metadataSyntax.ParameterSetName)
                     {
-                        _cmdletUpdated = true;
-                        Report($"\tParameter Set Name Updated:{reflectedSyntax.ParameterSetName}\r\n\t\tOld Set: {stringSyntax.ParameterSetName}\r\n\t\tNew Set: {reflectedSyntax.ParameterSetName}\r\n");
+                        Report($"\tParameter Set Name Updated: {metadataSyntax.ParameterSetName}\r\n\t\tOld Set: {stringSyntax.ParameterSetName}\r\n\t\tNew Set: {metadataSyntax.ParameterSetName}\r\n");
                     }
                 }
             }
-
-
+        
             //Processing Parameters for cmdlet
             var stringParameterSet = new SortedSet<MamlParameter>(stringModel.Parameters, new MamlParameterNameComparer());
             var metadataParameterSet = new SortedSet<MamlParameter>(metadataModel.Parameters, new MamlParameterNameComparer());
@@ -182,7 +176,7 @@ namespace Markdown.MAML.Transformer
                     _cmdletUpdated = true;
                     Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tType updated from {matchedParam.Type} to {metadataMatch.Type}\r\n");
                 }
-                if (matchedParam.Aliases != metadataMatch.Aliases)
+                if (string.Join(",", matchedParam.Aliases) != string.Join(",", metadataMatch.Aliases))
                 {
                     _cmdletUpdated = true;
                     Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAliases updated from {string.Join(",",matchedParam.Aliases)} to {string.Join(",",metadataMatch.Aliases)}\r\n");
