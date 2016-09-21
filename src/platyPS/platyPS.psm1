@@ -939,6 +939,8 @@ function New-ExternalHelpCab
 
         #Building the cabinet file name.
         $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $ModuleName,$Guid,$Locale)
+        $zipName = ("{0}_{1}_{2}_helpcontent.zip" -f $ModuleName,$Guid,$Locale)
+        $zipPath = Join-Path $OutputFolder $zipName
 
         #Setting Cab Directives, make a cab is turned on, compression is turned on
         Write-Verbose "Creating Cab File"
@@ -950,7 +952,8 @@ function New-ExternalHelpCab
         #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)     
         foreach($file in Get-ChildItem -Path $CabFilesFolder -File)
         {
-            Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
+            Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )            
+            Compress-Archive -DestinationPath $zipPath -Path $file.FullName -Update
         }
 
         #Making Cab
