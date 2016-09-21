@@ -8,7 +8,7 @@ namespace Markdown.MAML.Transformer
     {
         public int Compare(MamlSyntax x, MamlSyntax y)
         {
-            return string.Compare(x.ParameterSetName, y.ParameterSetName);
+            return string.Compare(x.ParameterSetName.ToUpper(), y.ParameterSetName.ToUpper());
         }
     }
 
@@ -16,7 +16,7 @@ namespace Markdown.MAML.Transformer
     {
         public int Compare(MamlParameter x, MamlParameter y)
         {
-            return string.Compare(x.Name, y.Name);
+            return string.Compare(x.Name.ToUpper(), y.Name.ToUpper());
         }
     }
 

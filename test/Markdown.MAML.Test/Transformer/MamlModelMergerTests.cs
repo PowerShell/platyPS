@@ -33,7 +33,6 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Contains("New Set: SetNewName", _reportStream);
             Assert.Contains("Parameter Added: NewParam", _reportStream);
             Assert.Contains("Parameter Deleted: Remove", _reportStream);
-            Assert.Contains("Preserved:\r\nParameter Description.\r\n\r\nOverridden:\r\nOld Description", _reportStream);
             Assert.Contains("---- UPDATING Cmdlet : Get-Foo ----", _reportStream);
             Assert.Contains("---- COMPLETED UPDATING Cmdlet : Get-Foo ----\r\n\r\n", _reportStream);
             
@@ -94,14 +93,16 @@ namespace Markdown.MAML.Test.Transformer
 
             var syntax1 = new MamlSyntax()
             {
-                ParameterSetName = "ByName"
+                ParameterSetName = "ByName",
             };
             syntax1.Parameters.Add(parameterName);
+            syntax1.Parameters.Add(removedParameterName);
             originalCommand.Syntax.Add(syntax1);
 
             var syntax2 = new MamlSyntax()
             {
-                ParameterSetName = "SetOldName"
+                ParameterSetName = "SetOldName",
+                IsDefault = true
             };
             syntax2.Parameters.Add(parameterName);
             originalCommand.Syntax.Add(syntax2);
@@ -164,6 +165,7 @@ namespace Markdown.MAML.Test.Transformer
                 Globbing = false, // DIFF!!
                 PipelineInput = "True (ByValue)",
                 Position = "Named",  // DIFF!!
+                Aliases = new string[]{"GF","Foo","Bar"}
             };
 
             var parameterNew = new MamlParameter()
@@ -187,7 +189,8 @@ namespace Markdown.MAML.Test.Transformer
 
             var syntax4 = new MamlSyntax()
             {
-                ParameterSetName = "SetNewName"
+                ParameterSetName = "SetNewName",
+                IsDefault = true
             };
 
             syntax4.Parameters.Add(parameterName1);

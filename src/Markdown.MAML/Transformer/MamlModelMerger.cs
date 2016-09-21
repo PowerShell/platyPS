@@ -13,6 +13,8 @@ namespace Markdown.MAML.Transformer
     {
         private Action<string> _infoCallback;
 
+        private bool _cmdletUpdated;
+
         public MamlModelMerger() : this(null) { }
 
         /// <summary>
@@ -26,8 +28,9 @@ namespace Markdown.MAML.Transformer
         public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
         {
             MamlCommand result = null;
+            _cmdletUpdated = false;
 
-            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----\r\n\r\n");
+            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----\r\n");
             try
             {
                 result = new MamlCommand()
@@ -64,8 +67,15 @@ namespace Markdown.MAML.Transformer
             catch (Exception ex)
             {
                 Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
-                Report($"Exception message: \r\n{ex.Message}\r\n");
+                Report($"    Exception message: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
             }
+
+            if (!_cmdletUpdated)
+            {
+                Report("\tNo updates done\r\n");
+            }
+
             Report($"---- COMPLETED UPDATING Cmdlet : {metadataModel.Name} ----\r\n\r\n");
 
             return result;
@@ -81,9 +91,7 @@ namespace Markdown.MAML.Transformer
             // we care only about metadata for parameters in syntax
             result.Syntax.AddRange(metadataModel.Syntax);
             
-            //report name changes to syntax objects (Parameter Sets)
-            Report("Syntax Block and Parameter Set Names reflected and document syntax fully updated.\r\n\r\n");
-
+            //reports changes to parameter set names
             var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxNameComparer());
             var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxNameComparer());
             var removedSyntaxes = stringSyntaxSet.Except(metadataSyntaxSet).ToList();
@@ -91,20 +99,21 @@ namespace Markdown.MAML.Transformer
 
             foreach (var addedSyntax in addedSyntaxes)
             {
-                Report($"Parameter Set Added: {addedSyntax.ParameterSetName}\r\n\r\n");
+                Report($"\tParameter Set Added: {addedSyntax.ParameterSetName}\r\n");
+                _cmdletUpdated = true;
             }
             foreach (var droppedSyntax in removedSyntaxes)
             {
-                Report($"Parameter Set Deleted: {droppedSyntax.ParameterSetName}\r\n\r\n");
+                Report($"\tParameter Set Deleted: {droppedSyntax.ParameterSetName}\r\n");
+                _cmdletUpdated = true;
             }
 
-            //reports changes to parameter set names
             foreach (var reflectedSyntax in metadataModel.Syntax)
             {
                 var reflectedSyntaxParameters = reflectedSyntax.Parameters.Select(s => s.Name).ToList();
                 reflectedSyntaxParameters.Sort();
 
-                var foundSyntaxMatch = false;
+
 
                 foreach (var stringSyntax in stringModel.Syntax)
                 {
@@ -113,35 +122,49 @@ namespace Markdown.MAML.Transformer
 
                     if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
                     {
-                        Report($"Parameter Set Name Updated:\r\nOld Set: {stringSyntax.ParameterSetName}\r\nNew Set: {reflectedSyntax.ParameterSetName}\r\n\r\n");
-                        foundSyntaxMatch = true;
+                        _cmdletUpdated = true;
+                        Report($"\tParameter Set Name Updated:{reflectedSyntax.ParameterSetName}\r\n\t\tOld Set: {stringSyntax.ParameterSetName}\r\n\t\tNew Set: {reflectedSyntax.ParameterSetName}\r\n");
                     }
                 }
-
-                if (!foundSyntaxMatch)
-                {
-                    Report($"Parameter Set Added: {reflectedSyntax.ParameterSetName}\r\n\r\n");
-                }
-                
-                if (reflectedSyntax.IsDefault)
-                {
-                    Report($"Default Parameter Set: {reflectedSyntax.ParameterSetName}\r\n\r\n");
-                }
             }
+
 
             //Processing Parameters for cmdlet
             var stringParameterSet = new SortedSet<MamlParameter>(stringModel.Parameters, new MamlParameterNameComparer());
             var metadataParameterSet = new SortedSet<MamlParameter>(metadataModel.Parameters, new MamlParameterNameComparer());
-            var addedParameters = metadataParameterSet.Except(stringParameterSet).ToList();
-            var removedParameters = stringParameterSet.Except(metadataParameterSet).ToList();
+            var addedParameters = metadataParameterSet.Except(stringParameterSet, new MamlParameterEqualityComparer()).ToList();
+            var removedParameters = stringParameterSet.Except(metadataParameterSet, new MamlParameterEqualityComparer()).ToList();
 
             foreach (var addedParam in addedParameters)
             {
-                Report($"Parameter Added: {addedParam.Name}\r\n\r\n");
+                Report($"\tParameter Added: {addedParam.Name}\r\n");
+                _cmdletUpdated = true;
             }
             foreach (var removedParam in removedParameters)
             {
-                Report($"Parameter Deleted: {removedParam.Name}\r\n\r\n");
+                Report($"\tParameter Deleted: {removedParam.Name}\r\n");
+                _cmdletUpdated = true;
+            }
+
+            foreach (var param in metadataModel.Parameters)
+            {
+                var strParam = FindParameterByName(param.Name, stringModel.Parameters);
+                if (strParam != null)
+                {
+                    param.Description = metadataStringCompare(param.Description,
+                        strParam.Description,
+                        metadataModel.Name,
+                        param.Name,
+                        "parameter description");
+
+                    param.DefaultValue = strParam.DefaultValue;
+                    // don't update type
+                    // param.Type = strParam.Type;
+                    param.Extent = strParam.Extent;
+
+                }
+
+                result.Parameters.Add(param);
             }
 
             var matchedParametersSet = stringParameterSet.Intersect(metadataParameterSet,new MamlParameterEqualityComparer()).ToList();
@@ -154,47 +177,44 @@ namespace Markdown.MAML.Transformer
                 {
                     continue;
                 }
-                var metaDataAttributeString = assembleAttributeString(metadataMatch);
-                var stringAttributeString = assembleAttributeString(matchedParam);
-                Report($"Parameter Updated: {matchedParam.Name}\r\nUpdated from:\r\n{metaDataAttributeString}\r\nTo:\r\n{stringAttributeString}\r\n\r\n");
-            }
-
-            foreach (var param in metadataModel.Parameters)
-            {
-                var strParam = FindParameterByName(param.Name, stringModel.Parameters);
-                if (strParam != null)
+                if (matchedParam.Type != metadataMatch.Type)
                 {
-                    param.Description = metadataStringCompare(param.Description,
-                        strParam.Description,
-                        metadataModel.Name, 
-                        param.Name, 
-                        "parameter description");
-                    
-                    param.DefaultValue = strParam.DefaultValue;
-                    // don't update type
-                    // param.Type = strParam.Type;
-                    param.Extent = strParam.Extent;
-                    
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tType updated from {matchedParam.Type} to {metadataMatch.Type}\r\n");
                 }
-                
-                result.Parameters.Add(param);
+                if (matchedParam.Aliases != metadataMatch.Aliases)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAliases updated from {string.Join(",",matchedParam.Aliases)} to {string.Join(",",metadataMatch.Aliases)}\r\n");
+                }
+                if (matchedParam.Required != metadataMatch.Required)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tRequired updated from {matchedParam.Required} to {metadataMatch.Required}\r\n");
+                }
+                if (matchedParam.Position != metadataMatch.Position)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tPosition updated from {matchedParam.Position} to {metadataMatch.Position}\r\n");
+                }
+                if (matchedParam.DefaultValue != metadataMatch.DefaultValue)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tDefault Value updated from {matchedParam.DefaultValue} to {metadataMatch.DefaultValue}\r\n");
+                }
+                if (matchedParam.PipelineInput != metadataMatch.PipelineInput)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAccepts Pipeline Input updated from {matchedParam.PipelineInput} to {metadataMatch.PipelineInput}\r\n");
+                }
+                if (matchedParam.Globbing != metadataMatch.Globbing)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAccepts wildcard characters updated from {matchedParam.Globbing} to {metadataMatch.Globbing}\r\n");
+                }
             }
             
-        }
-
-        private string assembleAttributeString(MamlParameter parameter)
-        {
-            var attributeBlock = new StringBuilder();
-            attributeBlock.AppendLine($"Type: {parameter.Type}");
-            var aliasas = parameter.Aliases.Aggregate(string.Empty, (current, alias) => current + " " + alias);
-            attributeBlock.AppendLine($"Aliases: {aliasas}");
-            attributeBlock.AppendLine($"Required: {parameter.Required}");
-            attributeBlock.AppendLine($"Position: {parameter.Position}");
-            attributeBlock.AppendLine($"Default Value: {parameter.DefaultValue}");
-            attributeBlock.AppendLine($"Accept pipeline input: {parameter.PipelineInput}");
-            attributeBlock.AppendLine($"Accept wildcard characters: {parameter.Globbing}");
-
-            return attributeBlock.ToString();
+            
         }
 
         /// <summary>
@@ -202,14 +222,8 @@ namespace Markdown.MAML.Transformer
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string paramName, string contentItemName)
         {
-
             var pretifiedStringContent = stringContent == null ? "" : Pretify(stringContent).TrimEnd(' ');
             var pretifiedMetadataContent = metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' ');
-
-            if (!StringComparer.Ordinal.Equals((pretifiedStringContent),(pretifiedMetadataContent)))
-            {
-                Report($"Reflection found a new {contentItemName}, for parameter {paramName}. The original content has been preserved.\r\n\r\nPreserved:\r\n{pretifiedStringContent}\r\n\r\nOverridden:\r\n{pretifiedMetadataContent}\r\n\r\n");   
-            }
 
             return stringContent;
         }
@@ -234,11 +248,6 @@ namespace Markdown.MAML.Transformer
             var metadataContentPretified = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
             var stringContentPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
 
-            if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContentPretified))
-            {
-                Report($"Reflection found a new {contentItemName}. The original content has been preserved.\r\n\r\nPreserved:\r\n{stringContentPretified}\r\n\r\nOverridden:\r\n{metadataContentPretified}\r\n\r\n");
-            }
-
             return stringContent;
         }
 
@@ -250,4 +259,6 @@ namespace Markdown.MAML.Transformer
             }
         }
     }
+
+
 }
