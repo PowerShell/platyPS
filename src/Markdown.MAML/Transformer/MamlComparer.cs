@@ -57,6 +57,10 @@ namespace Markdown.MAML.Transformer
 
         public int GetHashCode(MamlParameter obj)
         {
+            if (obj == null || obj.Name == null)
+            {
+                return 0;
+            }
             return obj.Name.ToUpper().GetHashCode();
         }
     }
@@ -70,6 +74,10 @@ namespace Markdown.MAML.Transformer
 
         public int GetHashCode(MamlSyntax obj)
         {
+            if (obj == null || obj.ParameterSetName == null)
+            {
+                return 0;
+            } 
             return obj.ParameterSetName.ToUpper().GetHashCode();
         }
     }
