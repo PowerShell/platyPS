@@ -501,7 +501,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 #region Checking Cab and File Naming Cmdlets
 
 Describe 'New-ExternalHelpCab' {
-    $OutputPath = "TestDrive:\CabTesting"
+    $OutputPath = "$TestDrive\CabTesting"
 
     New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\Xml\") -ErrorAction SilentlyContinue | Out-Null
     New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\ModuleMd\") -ErrorAction SilentlyContinue | Out-Null
@@ -541,6 +541,7 @@ Describe 'New-ExternalHelpCab' {
             (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
+            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.zip"
         }
 
         It 'Creates a help info file'{
