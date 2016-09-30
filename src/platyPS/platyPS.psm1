@@ -539,6 +539,8 @@ function Update-MarkdownHelpModule
             }
         
             # always append on this call
+            log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
+            log ("Updating docs for Module " + $module + " in " + $modulePath)
             $affectedFiles = Update-MarkdownHelp -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder
             $affectedFiles # yeild
             

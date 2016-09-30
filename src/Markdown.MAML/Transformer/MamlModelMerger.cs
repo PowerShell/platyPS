@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation.Language;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -11,6 +12,8 @@ namespace Markdown.MAML.Transformer
     public class MamlModelMerger
     {
         private Action<string> _infoCallback;
+
+        private bool _cmdletUpdated;
 
         public MamlModelMerger() : this(null) { }
 
@@ -24,41 +27,82 @@ namespace Markdown.MAML.Transformer
 
         public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
         {
+            MamlCommand result = null;
+            _cmdletUpdated = false;
 
-            Report("----Cmdlet {0} is updating.----", metadataModel.Name);
-
-            MamlCommand result = new MamlCommand()
+            Report($"---- UPDATING Cmdlet : {metadataModel.Name} ----\r\n");
+            try
             {
-                Name = metadataModel.Name,
-                Synopsis = metadataStringCompare(metadataModel.Synopsis,
+                result = new MamlCommand()
+                {
+                    Name = metadataModel.Name,
+                    Synopsis = metadataStringCompare(metadataModel.Synopsis,
                         stringModel.Synopsis,
                         metadataModel.Name,
                         "synopsis"),
-                Description = metadataStringCompare(metadataModel.Description,
+                    Description = metadataStringCompare(metadataModel.Description,
                         stringModel.Description,
                         metadataModel.Name,
                         "description"),
-                Notes = metadataStringCompare(metadataModel.Notes,
+                    Notes = metadataStringCompare(metadataModel.Notes,
                         stringModel.Notes,
                         metadataModel.Name,
                         "notes"),
-                Extent = stringModel.Extent
-            };
-            
-            // TODO: convert into MergeMetadataProperty
-            result.Links.AddRange(stringModel.Links);
+                    Extent = stringModel.Extent
+                };
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"    Exception Creating Merged Object: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
+            }
+            try
+            {
+                // TODO: convert into MergeMetadataProperty
+                result.Links.AddRange(stringModel.Links);
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"    Exception Links: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
+            }
+            try
+            {
+                // All examples come only from strtringModel
+                result.Examples.AddRange(stringModel.Examples);
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"    Exception Examples: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
+            }
+            try
+            {
+                // TODO: figure out what's the right thing for MamlInputOutput
+                result.Inputs.AddRange(stringModel.Inputs);
+                result.Outputs.AddRange(stringModel.Outputs);
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
+            }
 
-            // All examples come only from strtringModel
-            result.Examples.AddRange(stringModel.Examples);
-
-            // TODO: figure out what's the right thing for MamlInputOutput
-            result.Inputs.AddRange(stringModel.Inputs);
-            result.Outputs.AddRange(stringModel.Outputs);
-            
             //Result takes in the merged parameter results.
             MergeParameters(result, metadataModel, stringModel);
-            
-            Report("----Cmdlet {0} updated.----\r\n\r\n", result.Name);
+
+
+
+            if (!_cmdletUpdated)
+            {
+                Report("\tNo updates done\r\n");
+            }
+
+            Report($"---- COMPLETED UPDATING Cmdlet : {metadataModel.Name} ----\r\n\r\n");
 
             return result;
         }
@@ -70,82 +114,180 @@ namespace Markdown.MAML.Transformer
 
         private void MergeParameters(MamlCommand result, MamlCommand metadataModel, MamlCommand stringModel)
         {
-            // we care only about metadata for parameters in syntax
-            result.Syntax.AddRange(metadataModel.Syntax);
-            
-            //report name changes to syntax objects
-            Report("::Syntax Block and Parameter Set Names fully replaced by Cmdlet Reflection");
-
-            //reports changes to parameter set names
-            foreach (var reflectedSyntax in metadataModel.Syntax)
+            try
             {
-                var reflectedSyntaxParameters = reflectedSyntax.Parameters.Select(s => s.Name).ToList();
-                reflectedSyntaxParameters.Sort();
-
-                bool foundSyntaxMatch = false;
-
-                foreach (var stringSyntax in stringModel.Syntax)
+                // we care only about metadata for parameters in syntax
+                try
                 {
-                    var stringSyntaxParameters = stringSyntax.Parameters.Select(s => s.Name).ToList();
-                    stringSyntaxParameters.Sort();
+                    result.Syntax.AddRange(metadataModel.Syntax);
+                }
+                catch (Exception ex)
+                {
+                    Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                    Report($"    Exception adding parameter syntax to merge: \r\n{ex.Message}\r\n");
+                    _cmdletUpdated = true;
+                }
+                //reports changes to parameter set names
+                var metadataSyntaxSet = new SortedSet<MamlSyntax>(metadataModel.Syntax, new MamlSyntaxNameComparer());
+                var stringSyntaxSet = new SortedSet<MamlSyntax>(stringModel.Syntax, new MamlSyntaxNameComparer());
+                var removedSyntaxes =
+                    stringSyntaxSet.Except(metadataSyntaxSet, new MamlParameterSetEqualityComparer()).ToList();
+                var addedSyntaxes =
+                    metadataSyntaxSet.Except(stringSyntaxSet, new MamlParameterSetEqualityComparer()).ToList();
 
-                    if (reflectedSyntaxParameters.SequenceEqual(stringSyntaxParameters))
+                foreach (var addedSyntax in addedSyntaxes)
+                {
+                    Report($"\tParameter Set Added: {addedSyntax.ParameterSetName}\r\n");
+                    _cmdletUpdated = true;
+                }
+                foreach (var droppedSyntax in removedSyntaxes)
+                {
+                    Report($"\tParameter Set Deleted: {droppedSyntax.ParameterSetName}\r\n");
+                    _cmdletUpdated = true;
+                }
+
+                foreach (var metadataSyntax in metadataModel.Syntax)
+                {
+                    var metadataParameters = new SortedSet<MamlParameter>(metadataSyntax.Parameters,
+                        new MamlParameterNameComparer());
+
+                    foreach (var stringSyntax in stringModel.Syntax)
                     {
-                        Report("::ParameterSet Name: <{0}> replaced [{1}]",reflectedSyntax.ParameterSetName,stringSyntax.ParameterSetName);
-                        foundSyntaxMatch = true;
+                        var stringParameters = new SortedSet<MamlParameter>(stringSyntax.Parameters,
+                            new MamlParameterNameComparer());
+                        if (metadataParameters.SetEquals(stringParameters) &&
+                            stringSyntax.ParameterSetName != metadataSyntax.ParameterSetName)
+                        {
+                            Report(
+                                $"\tParameter Set Name Updated: {metadataSyntax.ParameterSetName}\r\n\t\tOld Set: {stringSyntax.ParameterSetName}\r\n\t\tNew Set: {metadataSyntax.ParameterSetName}\r\n");
+                        }
                     }
                 }
 
-                if (!foundSyntaxMatch)
+                //Processing Parameters for cmdlet
+                var stringParameterSet = new SortedSet<MamlParameter>(stringModel.Parameters,
+                    new MamlParameterNameComparer());
+                var metadataParameterSet = new SortedSet<MamlParameter>(metadataModel.Parameters,
+                    new MamlParameterNameComparer());
+                var addedParameters =
+                    metadataParameterSet.Except(stringParameterSet, new MamlParameterEqualityComparer()).ToList();
+                var removedParameters =
+                    stringParameterSet.Except(metadataParameterSet, new MamlParameterEqualityComparer()).ToList();
+
+                foreach (var addedParam in addedParameters)
                 {
-                    Report("::ParameterSet Name no match found: <{0}> added", reflectedSyntax.ParameterSetName);
+                    Report($"\tParameter Added: {addedParam.Name}\r\n");
+                    _cmdletUpdated = true;
+                }
+                foreach (var removedParam in removedParameters)
+                {
+                    Report($"\tParameter Deleted: {removedParam.Name}\r\n");
+                    _cmdletUpdated = true;
+                }
+
+                foreach (var param in metadataModel.Parameters)
+                {
+                    var strParam = FindParameterByName(param.Name, stringModel.Parameters);
+                    if (strParam != null)
+                    {
+                        try
+                        {
+                            param.Description = metadataStringCompare(param.Description,
+                                strParam.Description,
+                                metadataModel.Name,
+                                param.Name,
+                                "parameter description");
+                        }
+                        catch (Exception ex)
+                        {
+                            Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                            Report($"    Exception {param.Name} description merge: \r\n{ex.Message}\r\n");
+                            _cmdletUpdated = true;
+                        }
+
+                        try
+                        {
+                            param.DefaultValue = strParam.DefaultValue;
+                        }
+                        catch (Exception ex)
+                        {
+                            Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                            Report($"    Exception {param.Name} default value merge: \r\n{ex.Message}\r\n");
+                            _cmdletUpdated = true;
+                        }
+                        // don't update type
+                        // param.Type = strParam.Type;
+                        try
+                        {
+                            param.Extent = strParam.Extent;
+                        }
+                        catch (Exception ex)
+                        {
+                            Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                            Report($"    Exception {param.Name} extent merge: \r\n{ex.Message}\r\n");
+                            _cmdletUpdated = true;
+                        }
+
+                    }
+
+                    result.Parameters.Add(param);
                 }
                 
-                if (reflectedSyntax.IsDefault)
-                {
-                    Report("::{0} has been set as the default Parameter Set for {1}.\r\n",reflectedSyntax.ParameterSetName,metadataModel.Name);
-                }
-            }
+            var matchedParametersSet = stringParameterSet.Intersect(metadataParameterSet,new MamlParameterEqualityComparer()).ToList();
+            var matchedComparer = new MamlParameterAttributeComparer();
 
-            foreach (var param in metadataModel.Parameters)
+            foreach (var matchedParam in matchedParametersSet)
             {
-                var aliases = param.Aliases.Aggregate(string.Empty, (current, alias) => current + " " + alias);
-
-                if (aliases != string.Empty)
+                var metadataMatch = metadataModel.Parameters.Single(p => p.Name == matchedParam.Name);
+                if (matchedComparer.Compare(matchedParam, metadataMatch) == 0)
                 {
-                    Report("::Aliases updated for {0}:{1}", param.Name, aliases);
+                    continue;
                 }
-
-                var strParam = FindParameterByName(param.Name, stringModel.Parameters);
-                if (strParam == null)
+                if (matchedParam.Type != metadataMatch.Type)
                 {
-                    Report("::{0}: parameter {1} cannot be found in the markdown file.", metadataModel.Name, param.Name);
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tType updated from {matchedParam.Type} to {metadataMatch.Type}\r\n");
                 }
-                else
+                if (string.Join(",", matchedParam.Aliases) != string.Join(",", metadataMatch.Aliases))
                 {
-                    param.Description = metadataStringCompare(param.Description,
-                        strParam.Description,
-                        metadataModel.Name, 
-                        param.Name, 
-                        "description");
-                    
-                    param.DefaultValue = strParam.DefaultValue;
-                    // don't update type
-                    // param.Type = strParam.Type;
-                    param.Extent = strParam.Extent;
-                    
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAliases updated from {string.Join(",",matchedParam.Aliases)} to {string.Join(",",metadataMatch.Aliases)}\r\n");
                 }
-                
-                result.Parameters.Add(param);
+                if (matchedParam.Required != metadataMatch.Required)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tRequired updated from {matchedParam.Required} to {metadataMatch.Required}\r\n");
+                }
+                if (matchedParam.Position != metadataMatch.Position)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tPosition updated from {matchedParam.Position} to {metadataMatch.Position}\r\n");
+                }
+                if (matchedParam.DefaultValue != metadataMatch.DefaultValue)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tDefault Value updated from {matchedParam.DefaultValue} to {metadataMatch.DefaultValue}\r\n");
+                }
+                if (matchedParam.PipelineInput != metadataMatch.PipelineInput)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAccepts Pipeline Input updated from {matchedParam.PipelineInput} to {metadataMatch.PipelineInput}\r\n");
+                }
+                if (matchedParam.Globbing != metadataMatch.Globbing)
+                {
+                    _cmdletUpdated = true;
+                    Report($"\tParameter Updated: {matchedParam.Name}\r\n\t\tAccepts wildcard characters updated from {matchedParam.Globbing} to {metadataMatch.Globbing}\r\n");
+                }
             }
-
-            foreach(var param in stringModel.Parameters)
+            }
+            catch (Exception ex)
             {
-                if (FindParameterByName(param.Name, metadataModel.Parameters) == null)
-                {
-                    Report("::{0}: parameter {1} is not longer present.", metadataModel.Name, param.Name);
-                }
+                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"    Exception parameter merge: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
             }
+
+
         }
 
         /// <summary>
@@ -153,16 +295,8 @@ namespace Markdown.MAML.Transformer
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string paramName, string contentItemName)
         {
-            if(!StringComparer.Ordinal.Equals((stringContent == null ? "" : Pretify(stringContent)),
-                (metadataContent == null ? "" : Pretify(metadataContent))))
-            {
-                Report("::{0}: parameter {1} - {2} has been updated:\r\n<Old from MAML\r\n    {4}\r\n>\r\n\r\n[New from Markdown\r\n    {3}\r\n]", 
-                    moduleName, 
-                    paramName, 
-                    contentItemName,
-                    stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '),
-                    metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
-            }
+            var pretifiedStringContent = stringContent == null ? "" : Pretify(stringContent).TrimEnd(' ');
+            var pretifiedMetadataContent = metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' ');
 
             return stringContent;
         }
@@ -180,21 +314,12 @@ namespace Markdown.MAML.Transformer
         }
 
         /// <summary>
-        /// Compares Cmdlet values
+        /// Compares Cmdlet values: Synopsis, Description, and Notes. Preserves the content from the string model (old) or the metadata model (new).
         /// </summary>
         private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
         {
             var metadataContentPretified = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
             var stringContentPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
-
-            if (!StringComparer.Ordinal.Equals(metadataContentPretified, stringContentPretified))
-            {
-                Report("::{0}: {1} has been updated:\r\n<Old from MAML\r\n    {3}\r\n>\r\n\r\n[New from Markdown\r\n    {2}\r\n]\r\n",
-                    moduleName,
-                    contentItemName,
-                    stringContentPretified,
-                    metadataContentPretified);
-            }
 
             return stringContent;
         }
@@ -207,4 +332,6 @@ namespace Markdown.MAML.Transformer
             }
         }
     }
+
+
 }

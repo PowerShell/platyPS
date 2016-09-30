@@ -26,14 +26,24 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Equal(2, originalCommand.Parameters.Count);
             Assert.Equal("Name", result.Parameters[0].Name);
             Assert.Equal("NewParam", result.Parameters[1].Name);
-            Assert.Contains("Get-Foo: parameter Remove is not longer present.", _reportStream);
-            Assert.Contains("Get-Foo: parameter Name - description has been updated:\r\n<Old from MAML\r\n    Old Description\r\n>\r\n\r\n[New from Markdown\r\n    Parameter Description.\r\n]", _reportStream);
+            Assert.Contains("Parameter Updated: Name", _reportStream);
+            Assert.Contains("Parameter Set Added: AnotherName", _reportStream);
+            Assert.Contains("Parameter Set Deleted: ByName", _reportStream);
+            Assert.Contains("Old Set: SetOldName", _reportStream);
+            Assert.Contains("New Set: SetNewName", _reportStream);
+            Assert.Contains("Parameter Added: NewParam", _reportStream);
+            Assert.Contains("Parameter Deleted: Remove", _reportStream);
+            Assert.Contains("---- UPDATING Cmdlet : Get-Foo ----", _reportStream);
+            Assert.Contains("---- COMPLETED UPDATING Cmdlet : Get-Foo ----\r\n\r\n", _reportStream);
+            
 
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
 
             Assert.Equal(originalCommand.Links.Count, result.Links.Count);
             Assert.Equal(originalCommand.Links[0].LinkName, result.Links[0].LinkName);
             Assert.Equal(originalCommand.Links[0].LinkUri, result.Links[0].LinkUri);
+
+            
         }
 
         private void WriteMessage(string message)
@@ -83,10 +93,21 @@ namespace Markdown.MAML.Test.Transformer
 
             var syntax1 = new MamlSyntax()
             {
-                ParameterSetName = "ByName"
+                ParameterSetName = "ByName",
             };
             syntax1.Parameters.Add(parameterName);
+            syntax1.Parameters.Add(removedParameterName);
             originalCommand.Syntax.Add(syntax1);
+
+            var syntax2 = new MamlSyntax()
+            {
+                ParameterSetName = "SetOldName",
+                IsDefault = true
+            };
+            syntax2.Parameters.Add(parameterName);
+            originalCommand.Syntax.Add(syntax2);
+
+
 
             originalCommand.Inputs.Add(new MamlInputOutput()
             {
@@ -144,6 +165,7 @@ namespace Markdown.MAML.Test.Transformer
                 Globbing = false, // DIFF!!
                 PipelineInput = "True (ByValue)",
                 Position = "Named",  // DIFF!!
+                Aliases = new string[]{"GF","Foo","Bar"}
             };
 
             var parameterNew = new MamlParameter()
@@ -156,16 +178,24 @@ namespace Markdown.MAML.Test.Transformer
             metadataCommand.Parameters.Add(parameterName1);
             metadataCommand.Parameters.Add(parameterNew);
 
-            var syntax2 = new MamlSyntax()
+            var syntax3 = new MamlSyntax()
             {
                 ParameterSetName = "AnotherName"
             };
 
-            syntax2.Parameters.Add(parameterName1);
-            syntax2.Parameters.Add(parameterNew);
+            syntax3.Parameters.Add(parameterName1);
+            syntax3.Parameters.Add(parameterNew);
+            metadataCommand.Syntax.Add(syntax3);
 
-            metadataCommand.Syntax.Add(syntax2);
-            
+            var syntax4 = new MamlSyntax()
+            {
+                ParameterSetName = "SetNewName",
+                IsDefault = true
+            };
+
+            syntax4.Parameters.Add(parameterName1);
+            metadataCommand.Syntax.Add(syntax4);
+
             return metadataCommand;
         }
     }

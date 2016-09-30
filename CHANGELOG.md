@@ -3,7 +3,7 @@ CHANGELOG
 
 ## Not released
 
-(Capture your changes here)
+* Enhanced Logging and Error trapping for Update Scenarios [Issue #214](https://github.com/PowerShell/platyPS/issues/214)
 
 ## 0.7.1
 
