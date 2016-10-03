@@ -2099,8 +2099,8 @@ function ConvertPsObjectsToMamlModel
                 }
 
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
-
-                $ParameterObject.Type = $Parameter.ParameterType | getTypeString
+                $ParameterType = $Parameter.ParameterType
+                $ParameterObject.Type = getTypeString -typeObject $ParameterType
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
