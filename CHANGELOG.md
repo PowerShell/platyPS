@@ -3,6 +3,10 @@ CHANGELOG
 
 ## Not released
 
+## 0.7.3
+
+* Fix about topic naming pattern [Issue #235](https://github.com/PowerShell/platyPS/issues/235)
+
 ## 0.7.2
 
 * Enhanced Logging and Error trapping for Update Scenarios [Issue #214](https://github.com/PowerShell/platyPS/issues/214)
