@@ -968,7 +968,7 @@ Describe 'Create About Topic Markdown and Txt' {
         
         $lineWidthCheck = $true;
         
-        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "about_AboutTopic.txt"
+        $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "about_AboutTopic.help.txt"
 
         $AboutContent = Get-Content $AboutTxtFilePath
         
@@ -983,7 +983,7 @@ Describe 'Create About Topic Markdown and Txt' {
         $lineWidthCheck | Should Be $true
     }
 
-    It 'Adds a yaml block to the AboutTopic and verifies buidl as expected'{
+    It 'Adds a yaml block to the AboutTopic and verifies build as expected'{
 
         $content = Get-Content (Join-Path $output ("about_$($aboutTopicName).md"))
         $content = ("---Yaml: Stuff---" + $content)

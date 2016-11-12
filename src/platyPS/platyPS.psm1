@@ -707,7 +707,7 @@ function New-ExternalHelp
                 $model = $p.ParseString($Content)
                 $value = $r.AboutMarkDownToString($model)
 
-                $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".txt")
+                $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".help.txt")
                 if(!(Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_",$true,$null))
                 {
                     $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
