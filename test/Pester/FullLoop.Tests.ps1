@@ -176,19 +176,6 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 OutFileAndStripped -path $textOutputFile -content $help
             }
 
-            if ($IsMaml)
-            {
-                It 'generates correct bullet list for NOTES inside Connect-PSSession' {
-                    $file = $mdFiles | ? {$_.Name -eq 'Connect-PSSession.md'}
-                    $file | Should Not Be $null
-
-                    $content = cat $file
-
-                    ($content | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
-                    ($content | ? {$_.StartsWith('  ')} | measure).Count | Should Be 5
-                } 
-            }
-
             # this our regression suite for SMA
             $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
             
@@ -199,16 +186,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             It 'Get-Help has ValidateSet entry in syntax block' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
-                if ($IsMaml)
-                {
-                    # maml doesn't have an entry there
-                    $validateString = '-Category {Alias | Cmdlet | Provider | General'
-                }
-                else 
-                {
-                    $validateString = '-Category <String[]> {Alias | Cmdlet | Provider | General'    
-                }
-
+                $validateString = '-Category {Alias | Cmdlet | Provider | General'
                 ($h.syntax | Out-String).Contains($validateString) | Should Be $true
             }
 
@@ -234,14 +212,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None. No") | Should Be $true
             }
 
-            if ($IsMaml)
-            {
-                It 'add bullet list for Connect-PSSession NOTES' {
-                    $h = $generatedHelp | ? {$_.Name -eq 'Connect-PSSession'}
-                    (($h.alertSet.alert.Text | Out-String).Split("`n") | ? {$_.StartsWith('* ')} | measure).Count | Should Be 5
-                }
-            }
-            else 
+            if (-not $IsMaml)
             {
                 It 'preserve formatting for Connect-PSSession NOTES' {
 
