@@ -186,7 +186,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             It 'Get-Help has ValidateSet entry in syntax block' {
                 $h = $generatedHelp | ? {$_.Name -eq 'Get-Help'}
-                $validateString = '-Category {Alias | Cmdlet | Provider | General'
+                $validateString = '{Alias | Cmdlet | Provider | General'
                 ($h.syntax | Out-String).Contains($validateString) | Should Be $true
             }
 
