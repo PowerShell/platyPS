@@ -57,12 +57,13 @@ namespace Markdown.MAML.Parser
         public DocumentNode ParseString(string[] markdownStrings)
         {
             // default is full
-            return ParseString(markdownStrings, ParserMode.Full);
+            return ParseString(markdownStrings, ParserMode.Full, null);
         }
 
-        public DocumentNode ParseString(string[] markdownStrings, ParserMode parseMode)
+        public DocumentNode ParseString(string[] markdownStrings, ParserMode parseMode, string path)
         {
             this._parserMode = parseMode;
+            this._path = path;
             this.InitializePatternList();
             _currentDocument = new DocumentNode();
 
@@ -236,7 +237,8 @@ namespace Markdown.MAML.Parser
                                 startOffset,
                                 firstMatch.Index,
                                 currentLineNumber,
-                                currentColumnNumber);
+                                currentColumnNumber,
+                                _path);
 
                         this.CreateNormalSpan(
                             spanExtent.OriginalText,
@@ -255,7 +257,8 @@ namespace Markdown.MAML.Parser
                             firstMatch.Index,
                             firstMatch.Index + firstMatch.Length,
                             currentLineNumber,
-                            currentColumnNumber);
+                            currentColumnNumber,
+                            _path);
 
                     // Run the match action for the pattern
                     firstMatchedPattern.MatchAction(firstMatch, matchExtent);
@@ -274,7 +277,8 @@ namespace Markdown.MAML.Parser
                             startOffset,
                             _documentText.Length,
                             currentLineNumber,
-                            currentColumnNumber);
+                            currentColumnNumber,
+                            _path);
 
                     // If no match found, treat the rest of the text as a span
                     this.CreateNormalSpan(
@@ -554,6 +558,7 @@ namespace Markdown.MAML.Parser
         // hacky state for matcher, it would cause race condition if we decided to run in parallel
         private static string _PrevString;
         private static bool _InList;
+        private string _path;
 
         internal static bool HasListPrefix(string s)
         {

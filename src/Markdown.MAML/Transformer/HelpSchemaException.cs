@@ -17,7 +17,8 @@ namespace Markdown.MAML.Transformer
         public HelpSchemaException(SourceExtent extent, string message)
             : base(
             String.Format(
-                "{0}:{1} '{2}'\n {3}",
+                "{0}:{1}:({2}) '{3}'\n {4}",
+                extent.File,
                 extent.Line.Start, 
                 extent.Column.Start, 
                 GetSnippet(extent.OriginalText), 

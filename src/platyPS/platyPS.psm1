@@ -359,11 +359,7 @@ function Update-MarkdownHelpSchema
     
     end
     {
-        $markdown = $MarkdownFiles | ForEach-Object {
-            Get-Content -Raw $_.FullName
-        }
-
-        $model = GetMamlModelImpl $markdown -ForAnotherMarkdown
+        $model = GetMamlModelImpl $MarkdownFiles -ForAnotherMarkdown -Encoding $Encoding
         $parseMode = GetParserMode -PreserveFormatting
         $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
 
@@ -436,8 +432,7 @@ function Update-MarkdownHelp
             $file = $_
 
             $filePath = $file.FullName
-            $oldMarkdown = Get-Content -Raw $filePath
-            $oldModels = GetMamlModelImpl $oldMarkdown -ForAnotherMarkdown
+            $oldModels = GetMamlModelImpl $filePath -ForAnotherMarkdown -Encoding $Encoding
 
             if ($oldModels.Count -gt 1)
             {
@@ -564,11 +559,7 @@ function Update-MarkdownHelpModule
             {
                 $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
                 $files = @()
-                foreach($md in $affectedFiles)
-                {
-                    $files += Get-Content -Raw $md.FullName
-                } 
-                $MamlModel = GetMamlModelImpl $files -ForAnotherMarkdown
+                $MamlModel = GetMamlModelImpl $affectedFiles -ForAnotherMarkdown -Encoding $Encoding
                 NewModuleLandingPage  -RefreshModulePage -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force
             }
         }
@@ -690,7 +681,7 @@ function New-ExternalHelp
         }
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ( $group.Group | ForEach-Object { MyGetContent -Path $_.FullName -Encoding $Encoding } )
+            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
@@ -1211,21 +1202,24 @@ function GetParserMode
 function GetMamlModelImpl
 {
     param(
-        [string[]]$markdown,
+        [Parameter(Mandatory=$true)]
+        [string[]]$markdownFiles,
+        [Parameter(Mandatory=$true)]
+        [System.Text.Encoding]$Encoding,
         [switch]$ForAnotherMarkdown
     )
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
     $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
 
-    $markdown | ForEach-Object {
-        $mdText = $_
+    $markdownFiles | ForEach-Object {
+        $mdText = MyGetContent $_ -Encoding $Encoding
         $schema = GetSchemaVersion $mdText
-        $p = NewMarkdownParser -PreserveFormatting:$ForAnotherMarkdown
+        $p = NewMarkdownParser
         $t = NewModelTransformer -schema $schema
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
-        $model = $p.ParseString($_, $parseMode)
+        $model = $p.ParseString($mdText, $parseMode, $_)
         Write-Progress -Activity "Parsing markdown" -Completed    
         $maml = $t.NodeModelToMamlModel($model)
 

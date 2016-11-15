@@ -18,6 +18,8 @@ namespace Markdown.MAML.Model.Markdown
     [DebuggerDisplay("StartPos = (L: {Line.Start}, C: {Column.Start}), EndPos = (L: {Line.End}, C: {Column.End}), Text = {OriginalText}")]
     public class SourceExtent
     {
+        public string File { get; private set; }
+
         public SourceRange Line { get; private set; }
 
         public SourceRange Column { get; private set; }
@@ -31,7 +33,8 @@ namespace Markdown.MAML.Model.Markdown
             int startOffset,
             int endOffset,
             int currentLineNumber,
-            int currentColumnNumber)
+            int currentColumnNumber,
+            string file)
         {
             int newLineNumber = currentLineNumber;
             int newColumnNumber = currentColumnNumber;
@@ -42,6 +45,7 @@ namespace Markdown.MAML.Model.Markdown
                 ref newLineNumber,
                 ref newColumnNumber);
 
+            this.File = file;
             this.Offset = new SourceRange(startOffset, endOffset);
             this.Line = new SourceRange(currentLineNumber, newLineNumber);
             this.Column = new SourceRange(currentColumnNumber, newColumnNumber);

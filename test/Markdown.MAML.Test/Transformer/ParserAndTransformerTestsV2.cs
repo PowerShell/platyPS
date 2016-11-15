@@ -874,7 +874,7 @@ This description block test formatting preservance.
         private DocumentNode ParseStringPreserveFormat(string markdown)
         {
             var parser = new MarkdownParser();
-            return parser.ParseString(new string[] { markdown }, ParserMode.FormattingPreserve);
+            return parser.ParseString(new string[] { markdown }, ParserMode.FormattingPreserve, null);
         }
 
         private static string GetParameterText(string paramName, string paramAttributes)

@@ -255,7 +255,7 @@ namespace Markdown.MAML.Transformer
                 return paragraphNode.Spans.First().SourceExtent;
             }
 
-            return new SourceExtent("", 0, 0, 0, 0);
+            return new SourceExtent("", 0, 0, 0, 0, null);
         }
 
         /// <summary>
