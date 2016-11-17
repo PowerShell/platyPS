@@ -176,9 +176,19 @@ namespace Markdown.MAML.Transformer
                 Title = headingNode.Text
             };
             example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
-            var codeBlock = CodeBlockRule();
+            CodeBlockNode codeBlock;
+            while ((codeBlock = CodeBlockRule()) != null)
+            {
+                if (example.Code == null)
+                {
+                    example.Code = codeBlock.Text;
+                }
+                else
+                {
+                    example.Code += "\r\n\r\n" + codeBlock.Text;
+                }
+            }
 
-            example.Code = codeBlock.Text;
             example.Remarks = GetTextFromParagraphNode(ParagraphNodeRule());
             
             return example;
@@ -345,6 +355,7 @@ namespace Markdown.MAML.Transformer
                 case MarkdownNodeType.CodeBlock:
                     break;
                 case MarkdownNodeType.Heading:
+                case MarkdownNodeType.Paragraph:
                     UngetNode(node);
                     return null;
                 default:

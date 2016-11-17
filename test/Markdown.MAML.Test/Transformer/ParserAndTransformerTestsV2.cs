@@ -203,6 +203,9 @@ Introduction
 ```
 # PS code here
 ```
+```PowerShell
+# PS More code here
+```
 Remarks
 
 ");
@@ -214,6 +217,7 @@ Remarks
             Assert.Equal(examples[0].Code, "# PS code here");
             Assert.Equal(examples[0].Remarks, "Remarks");
             Assert.Equal(examples[0].Introduction, "Introduction");
+            Assert.Equal(examples[1].Code, "# PS code here\r\n\r\n# PS More code here");
         }
 
         [Fact]
