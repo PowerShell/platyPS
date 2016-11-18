@@ -68,7 +68,7 @@ It closely resembles output of `Get-Help`.
     // for every parameter
         // default value is non-mandatory
         ### -{Parameter name}
-        {{Parameter description text}}
+        {{Parameter description text. It can also include codesnippets, but they could not be ```yaml}}
 
         // parameter metadata
         // for every unique parameter metadata set 
