@@ -73,6 +73,7 @@ namespace Markdown.MAML.Test.Parser
                     MarkdownNodeType.CodeBlock);
 
             Assert.Equal(codeBlockText, codeBlockNode.Text);
+            Assert.Equal("powershell", codeBlockNode.LanguageMoniker);
         }
 
         [Fact]

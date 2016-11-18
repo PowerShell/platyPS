@@ -117,7 +117,7 @@ namespace Markdown.MAML.Parser
 
                     // Code blocks
                     {   "tick_codeblock",
-                        @"```\w*(\r\n)*((.|\r\n)*?)```(\r\n)*",
+                        @"```(\w*)(\r\n)*((.|\r\n)*?)```(\r\n)*",
                         this.CreateTickCodeBlock }
                 };
 
@@ -336,7 +336,8 @@ namespace Markdown.MAML.Parser
 
                 _currentDocument.AddChildNode(
                     new CodeBlockNode(
-                        regexMatch.Groups[2].Value,
+                        regexMatch.Groups[1].Value,
+                        regexMatch.Groups[3].Value,
                         sourceExtent));
         }
 

@@ -344,7 +344,8 @@ namespace Markdown.MAML.Transformer
         {
             // grammar:
             // #### Name
-            // Description              -  optional
+            // Description              -  optional, there also could be codesnippets in the description
+            //                             but no yaml codesnippets
             //
             // ```yaml                  -  one entry for every unique parameter metadata set
             // ...
@@ -369,7 +370,7 @@ namespace Markdown.MAML.Transformer
                 Extent = headingNode.SourceExtent
             };
 
-            parameter.Description = GetTextFromParagraphNode(ParagraphNodeRule());
+            parameter.Description = ParagraphOrCodeBlockNodeRule("yaml");
 
             if (StringComparer.OrdinalIgnoreCase.Equals(parameter.Name, MarkdownStrings.CommonParametersToken))
             {

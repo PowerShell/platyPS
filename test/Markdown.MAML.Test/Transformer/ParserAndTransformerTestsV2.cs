@@ -155,6 +155,40 @@ Accept wildcard characters: true
             Assert.Equal(param[0].Globbing, true);
         }
 
+        // For more context see https://github.com/PowerShell/platyPS/issues/239
+        [Fact]
+        public void SingleParameterWithCodesnippet()
+        {
+
+            var doc = ParseString(@"
+# Get-Foo
+## Parameters
+### Bar
+This is bar parameter
+
+```
+// With a codesnippet
+```
+
+And something else
+
+```yaml
+Required: true
+Position: named
+Default value: Fooo
+Accept pipeline input: false
+Accept wildcard characters: true
+```
+
+");
+            var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var param = mamlCommand[0].Parameters.ToArray();
+            Assert.Equal(param.Count(), 1);
+            Assert.Equal(param[0].Name, "Bar");
+            Assert.Equal(param[0].Description, "This is bar parameter\r\n\r\n// With a codesnippet\r\n\r\nAnd something else");
+        }
+
         [Fact]
         public void InputAndOutput()
         {
@@ -694,7 +728,7 @@ Accept wildcard characters: False
 
 ### Name
 
-```
+```yaml
 Type: string
 Accept wildcard characters: true
 ```

@@ -335,6 +335,57 @@ namespace Markdown.MAML.Transformer
             return node as ParagraphNode;
         }
 
+        protected string ParagraphOrCodeBlockNodeRule(string excludeLanguageMoniker)
+        {
+            var res = new List<string>();
+            MarkdownNode node;
+
+            while ((node = GetNextNode()) != null)
+            {
+                bool breakFlag = false;
+                switch (node.NodeType)
+                {
+                    case MarkdownNodeType.Paragraph:
+                        {
+                            res.Add(GetTextFromParagraphNode(node as ParagraphNode));
+                            break;
+                        }
+                    case MarkdownNodeType.CodeBlock:
+                        {
+                            var codeblock = node as CodeBlockNode;
+                            if (!String.Equals(excludeLanguageMoniker, codeblock.LanguageMoniker, StringComparison.OrdinalIgnoreCase))
+                            {
+                                res.Add(codeblock.Text);
+                            }
+                            else
+                            {
+                                UngetNode(node);
+                                breakFlag = true;
+                            }
+
+                            break;
+                        }
+                    case MarkdownNodeType.Heading:
+                        {
+                            UngetNode(node);
+                            breakFlag = true;
+                            break;
+                        }
+                    default:
+                        {
+                            throw new HelpSchemaException(GetExtent(node), "Expect Paragraph or CodeBlock");
+                        }
+                }
+
+                if (breakFlag)
+                {
+                    break;
+                }                
+            }
+
+            return string.Join("\r\n\r\n", res);
+        }
+
         /// <summary>
         /// </summary>
         /// <returns>
