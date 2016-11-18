@@ -3,6 +3,12 @@ CHANGELOG
 
 ## Not released
 
+## 0.7.4
+
+* Add path to md file to the error message [Issue #237](https://github.com/PowerShell/platyPS/issues/237)
+* Allow multiple code snippets in the examples
+* Allow schema to have non-yaml codesnippets in the Parameter as part of Description [Issue #239](https://github.com/PowerShell/platyPS/issues/239)
+
 ## 0.7.3
 
 * Fix about topic naming pattern [Issue #235](https://github.com/PowerShell/platyPS/issues/235)
