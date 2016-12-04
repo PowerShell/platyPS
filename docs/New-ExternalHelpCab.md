@@ -7,7 +7,7 @@ schema: 2.0.0
 # New-ExternalHelpCab
 
 ## SYNOPSIS
-Generates generates a .cab file.
+Generates a .cab file.
 
 ## SYNTAX
 
