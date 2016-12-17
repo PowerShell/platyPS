@@ -18,7 +18,7 @@ namespace Markdown.MAML.Renderer
         private Stack<string> _tagStack = new Stack<string>();
 
         public const string XML_PREAMBULA = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<helpItems schema=""maml"">
+<helpItems xmlns=""http://msh"" schema=""maml"">
 ";
         public const string COMMAND_PREAMBULA = @"<command:command xmlns:maml=""http://schemas.microsoft.com/maml/2004/10"" xmlns:command=""http://schemas.microsoft.com/maml/dev/command/2004/10"" xmlns:dev=""http://schemas.microsoft.com/maml/dev/2004/10"" xmlns:MSHelp=""http://msdn.microsoft.com/mshelp"">";
 
