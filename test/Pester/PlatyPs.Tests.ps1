@@ -394,7 +394,7 @@ Describe 'New-ExternalHelp' {
         $Named
     }
 
-    It "generates right order for syntax" {
+    BeforeAll {
         $a = @{
             command = 'Test-OrderFunction'
             OutputFolder = 'TestDrive:\'
@@ -402,7 +402,10 @@ Describe 'New-ExternalHelp' {
         }
 
         $file = New-MarkdownHelp @a
-        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
+        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\TestOrderFunction.xml" -Force
+    }
+
+    It "generates right order for syntax" {
         $help = Get-HelpPreview -Path $maml 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
         $names = $help.Syntax.syntaxItem.parameter.Name
@@ -410,6 +413,11 @@ Describe 'New-ExternalHelp' {
         $names[0] | Should Be 'First'        
         $names[1] | Should Be 'Third'
         $names[2] | Should Be 'Named'
+    }
+
+    It "checks that xmlns 'http://msh' is present" {
+        $xml = [xml] (Get-Content (Join-Path $TestDrive 'TestOrderFunction.xml'))
+        $xml.helpItems.namespaceuri | Should Be 'http://msh'
     }
 }
 
