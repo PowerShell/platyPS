@@ -66,11 +66,11 @@ namespace Markdown.MAML.Test.Renderer
 
             string maml = renderer.MamlModelToString(new [] {command});
 
-            string[] name = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:details/command:name");
+            string[] name = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/command:name");
             Assert.Equal(1, name.Length);
             Assert.Equal("Get-Foo", name[0]);
 
-            string[] synopsis = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:details/maml:description/maml:para");
+            string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is the synopsis", synopsis[0]);
         }
@@ -108,16 +108,16 @@ namespace Markdown.MAML.Test.Renderer
 
             string maml = renderer.MamlModelToString(new[] { command });
 
-            string[] syntaxItemName = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:syntax/command:syntaxItem/maml:name");
+            string[] syntaxItemName = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:syntax/command:syntaxItem/maml:name");
             Assert.Equal(1, syntaxItemName.Length);
             Assert.Equal("Get-Foo", syntaxItemName[0]);
 
-            string[] nameSyntax = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:syntax/command:syntaxItem/command:parameter/maml:name");
+            string[] nameSyntax = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:syntax/command:syntaxItem/command:parameter/maml:name");
             Assert.Equal(2, nameSyntax.Length);
             Assert.Equal("Param1", nameSyntax[0]);
             Assert.Equal("Param2", nameSyntax[1]);
 
-            string[] nameParam = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:parameters/command:parameter/maml:name");
+            string[] nameParam = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter/maml:name");
             Assert.Equal(2, nameParam.Length);
             Assert.Equal("Param1", nameParam[0]);
             Assert.Equal("Param2", nameParam[1]);
@@ -135,7 +135,7 @@ namespace Markdown.MAML.Test.Renderer
             
             string maml = renderer.MamlModelToString(new[] { command });
 
-            string[] synopsis = EndToEndTests.GetXmlContent(maml, "/helpItems/command:command/command:details/maml:description/maml:para");
+            string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal(synopsis[0], command.Synopsis);
         }

@@ -18,11 +18,11 @@ namespace Markdown.MAML.Test.EndToEnd
 ## Synopsis
 This is Synopsis
 ");
-            string[] name = GetXmlContent(maml, "/helpItems/command:command/command:details/command:name");
+            string[] name = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/command:name");
             Assert.Equal(1, name.Length);
             Assert.Equal("Get-Foo", name[0]);
 
-            string[] synopsis = GetXmlContent(maml, "/helpItems/command:command/command:details/maml:description/maml:para");
+            string[] synopsis = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is Synopsis", synopsis[0]);
         }
@@ -43,7 +43,7 @@ I'm a multiline description.
 And this is my last line.
 ");
 
-            string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
+            string[] description = GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
             Assert.Equal(3, description.Length);
         }
 
@@ -59,11 +59,11 @@ This is Synopsis #hashtagNotAHeader.
 I'm description
 ");
 
-            string[] description = GetXmlContent(maml, "/helpItems/command:command/maml:description/maml:para");
+            string[] description = GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
             Assert.Equal(1, description.Length);
             Assert.Equal("I'm description", description[0]);
 
-            string[] synopsis = GetXmlContent(maml, "/helpItems/command:command/command:details/maml:description/maml:para");
+            string[] synopsis = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is Synopsis #hashtagNotAHeader.", synopsis[0]);
         }
@@ -82,12 +82,12 @@ I'm description
 [bar](bar://bar.md)
 ");
 
-            string[] linkText = GetXmlContent(maml, "/helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:linkText");
+            string[] linkText = GetXmlContent(maml, "/msh:helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:linkText");
             Assert.Equal(2, linkText.Length);
             Assert.Equal("foo", linkText[0]);
             Assert.Equal("bar", linkText[1]);
 
-            string[] linkUri = GetXmlContent(maml, "/helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:uri");
+            string[] linkUri = GetXmlContent(maml, "/msh:helpItems/command:command/command:relatedLinks/maml:navigationLink/maml:uri");
             Assert.Equal(2, linkUri.Length);
             Assert.Equal("", linkUri[0]); // empty, because foo.md is not a valid URI and help system will be unhappy.
             Assert.Equal("bar://bar.md", linkUri[1]); // bar://bar.md is a valid URI
@@ -340,7 +340,7 @@ This example demonstrates the process of registering a snap-in on your system an
 [about_PSSnapins]()
 
 ");
-            string[] examples = GetXmlContent(maml, "/helpItems/command:command/command:examples/command:example/dev:code");
+            string[] examples = GetXmlContent(maml, "msh:helpItems/command:command/command:examples/command:example/dev:code");
             Assert.Equal(5 + 3, examples.Length);
         }
 
@@ -358,6 +358,7 @@ This example demonstrates the process of registering a snap-in on your system an
             xmlns.AddNamespace("maml", "http://schemas.microsoft.com/maml/2004/10");
             xmlns.AddNamespace("dev", "http://schemas.microsoft.com/maml/dev/2004/10");
             xmlns.AddNamespace("MSHelp", "http://msdn.microsoft.com/mshelp");
+            xmlns.AddNamespace("msh", "http://msh");
 
             XPathNodeIterator iterator = nav.Select(xpath, xmlns);
             foreach (var i in iterator)
