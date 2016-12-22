@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Microsoft.PowerShell.Commands;
 
 namespace Markdown.MAML.Renderer
 {

@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Text;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
-using System.Management.Automation;
 using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Transformer
