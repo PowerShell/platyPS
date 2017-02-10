@@ -539,17 +539,17 @@ Describe 'New-ExternalHelpCab' {
         It 'validates the output of Cab creation' {
 
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
-            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab")).FullName
+            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab")).FullName
             $cabExtract = (Join-Path (Split-Path $cab -Parent) "OutXml")
 
             $cabExtract = Join-Path $cabExtract "HelpXml.xml"
 
             expand $cab /f:* $cabExtract
             
-            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
-            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.zip"
+            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.zip"
         }
 
         It 'Creates a help info file'{

@@ -931,7 +931,7 @@ function New-ExternalHelpCab
         Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
 
         #Building the cabinet file name.
-        $cabName = ("{0}_{1}_{2}_helpcontent.cab" -f $ModuleName,$Guid,$Locale)
+        $cabName = ("{0}_{1}_{2}_HelpContent.cab" -f $ModuleName,$Guid,$Locale)
         $zipName = ("{0}_{1}_{2}_helpcontent.zip" -f $ModuleName,$Guid,$Locale)
         $zipPath = (Join-Path $OutputFolder $zipName)
 
