@@ -387,22 +387,16 @@ Describe 'New-MarkdownHelp' {
 
 
 Describe 'New-ExternalHelp' {
-    function global:Test-OrderFunction { 
+    BeforeAll {
+        function global:Test-OrderFunction {
         param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
         $First
         $Third
         $Named
     }
 
-    BeforeAll {
-        $a = @{
-            command = 'Test-OrderFunction'
-            OutputFolder = 'TestDrive:\'
-            Force = $true
-        }
-
-        $file = New-MarkdownHelp @a
-        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\TestOrderFunction.xml" -Force
+        $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force
+        $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -Force
     }
 
     It "generates right order for syntax" {
