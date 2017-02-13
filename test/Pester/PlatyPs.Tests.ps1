@@ -389,16 +389,15 @@ Describe 'New-MarkdownHelp' {
 Describe 'New-ExternalHelp' {
     BeforeAll {
         function global:Test-OrderFunction {
-        param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
-        $First
-        $Third
-        $Named
-    }
-
+          param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
+          $First
+          $Third
+          $Named
+        }
         $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force
         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -Force
     }
-
+    
     It "generates right order for syntax" {
         $help = Get-HelpPreview -Path $maml 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
