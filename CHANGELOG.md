@@ -3,6 +3,10 @@ CHANGELOG
 
 ## Not released
 
+## 0.7.6
+
+* Updated artifact name to 0.7.6
+
 ## 0.7.5
 
 * Updated New-ExternalHelpCab.md for removing duplicate word in synopsis.
