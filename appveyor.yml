@@ -1,4 +1,4 @@
-version: 0.7.4.{build}
+version: 0.7.6.{build}
 
 install:
     - ps: |
