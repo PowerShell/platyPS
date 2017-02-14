@@ -205,7 +205,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             }
 
             It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
-                $listItemMark = if ($IsMaml) {'- '} else {'-- '}
+                $listItemMark = '- '
                 $h = $generatedHelp | ? {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | ? {$_.Name -eq 'OutputBufferingMode'}
                 ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop. When") | Should Be $true

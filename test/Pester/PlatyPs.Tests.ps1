@@ -387,24 +387,17 @@ Describe 'New-MarkdownHelp' {
 
 
 Describe 'New-ExternalHelp' {
-    function global:Test-OrderFunction { 
-        param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
-        $First
-        $Third
-        $Named
-    }
-
     BeforeAll {
-        $a = @{
-            command = 'Test-OrderFunction'
-            OutputFolder = 'TestDrive:\'
-            Force = $true
+        function global:Test-OrderFunction {
+          param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
+          $First
+          $Third
+          $Named
         }
-
-        $file = New-MarkdownHelp @a
-        $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\TestOrderFunction.xml" -Force
+        $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force
+        $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -Force
     }
-
+    
     It "generates right order for syntax" {
         $help = Get-HelpPreview -Path $maml 
         ($help.Syntax.syntaxItem | measure).Count | Should Be 1
@@ -539,17 +532,17 @@ Describe 'New-ExternalHelpCab' {
         It 'validates the output of Cab creation' {
 
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
-            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab")).FullName
+            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab")).FullName
             $cabExtract = (Join-Path (Split-Path $cab -Parent) "OutXml")
 
             $cabExtract = Join-Path $cabExtract "HelpXml.xml"
 
             expand $cab /f:* $cabExtract
             
-            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.cab"
+            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
             (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
-            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_helpcontent.zip"
+            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.zip"
         }
 
         It 'Creates a help info file'{
