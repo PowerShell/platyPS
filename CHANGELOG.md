@@ -3,6 +3,12 @@ CHANGELOG
 
 ## Not released
 
+## 0.7.5
+
+* Updated New-ExternalHelpCab.md for removing duplicate word in synopsis.
+* Fixed XML_PREAMBULA to have msh namespace, so provider help works.
+* Updated the names of the generated cab and zip files so that they have correct case sensitivity. 
+
 ## 0.7.4
 
 * Add path to md file to the error message [Issue #237](https://github.com/PowerShell/platyPS/issues/237)
