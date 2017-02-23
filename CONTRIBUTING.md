@@ -8,14 +8,16 @@ git clone https://github.com/PowerShell/platyPS
 
 There are two parts: 
 
-- .NET library `Markdown.MAML.dll` written in C#. It does heavy lifting, like parsing markdown, transforming it into xml and so on.
-You can open `.\Markdown.MAML.sln` in Visual Studio 2015.
-- PowerShell scripts in `.\src\platyPS`. They provide user interface.
+- `Markdown.MAML.dll`, a .NET library written in C#.
+  It does the heavy lifting, like parsing Markdown, transforming it into XML, and so on.
+  You can open `.\Markdown.MAML.sln` in Visual Studio 2015.
+- A PowerShell module in `.\src\platyPS`.
+  This module provides the user CLI.
 
 ## First-time setup
 
-Restore nuget packages.
-You can do it from visual studio, or from command line
+Restore NuGet packages.
+You can do this from Visual Studio, or from the command line.
 
 ```
 .\.nuget\NuGet.exe restore
@@ -23,35 +25,37 @@ You can do it from visual studio, or from command line
 
 ## Build
 
-To build the whole project, use helper `build.ps1` script
+To build the whole project, use the `build.ps1` helper script.
 
 ```
 .\build.ps1
 ```
-As part of build, module generate help for itself.
-The result of the build would be in `out\platyPS` folder.
+As part of the build, platyPS generates help for itself.
+The output of the build is placed in `out\platyPS`.
 
-`build.ps1` also imports the module from `out\platyPS` and generates help for the tool itself.
+`build.ps1` also imports the module from `out\platyPS` and generates help itself.
 
-**Note**: if you changed C# code, script will try to overwrite a dll in-use. 
-You would need to re-open your powershell session. If you know a better workflow, please suggest it in the issues.
+**Note**: if you changed C# code, `build.ps1` will try to overwrite a DLL in use.
+You will then need to re-open your PowerShell session.
+If you know a better workflow, please suggest it in the Issues.
 
 ## Tests
 
-There are two part of projects and two test sets.
+Each part of the project has a test set:
 
-- C# part with xUnit tests. You can run them with XUnit runner from the visual studio.
-- PowerShell part with [Pester](https://github.com/pester/Pester) tests
+- The C# part has xUnit tests.
+  You can run them with xUnit from Visual Studio.
+- The PowerShell part has [Pester](https://github.com/pester/Pester) tests.
+  You can run them using:
+  ```
+  Invoke-Pester
+  ```
 
-```
-Invoke-Pester
-```
-
-**Note**: Pester tests always force-import module from the output location of `.\build.ps1`.
+**Note**: Pester tests always force-import the module from the output location of `.\build.ps1`.
 
 ## Schema
 
-If you have ideas or concerns about markdown schema feel free to open a GitHub issue to discuss it.
+If you have ideas or concerns about the Markdown schema, feel free to open a GitHub Issue to discuss it.
 
 ## Repo structure
 
@@ -64,11 +68,12 @@ If you have ideas or concerns about markdown schema feel free to open a GitHub i
 ## Data transformations
 
 Data transformations are the core of platyPS.
-User has content in some form and she wants to transform it into another form.
-I.e. transform existing module help to markdown and use it in future to generate the external help and static html for online references.
+A user has content in some form and she wants to transform it into another form.
+E.g. transform existing module help (in MAML) to Markdown and use it in the future to generate the external help (MAML) and static HTML for online references.
 
-PlatyPS PowerShell module provide APIs in the form of cmdlets for the end-user scenarios.
-This scenarios are assembled from the simple transformations. Chart below describes this simple transformations.
+platyPS provides APIs in the form of cmdlets for end-user scenarios.
+These scenarios are assembled from simple transformations.
+This chart describes these simple transformations:
 
 ```
  +----------+
@@ -102,28 +107,27 @@ This scenarios are assembled from the simple transformations. Chart below descri
 
 ##### Example `New-MarkdownHelp`
 
-User creates a platyPS markdown for the first time for the command
+A user creates a platyPS Markdown for the first time with `New-MarkdownHelp`: 
 
 ```
-New-MarkdownHelp -command New-MyCommandHelp
+New-MarkdownHelp -Command New-MyCommandHelp
 ```
 
-Under the hood, following tranformations happens
+Under the hood, the following tranformations happen:
 
 [MAML XML file] --> [Help Object + Get-Command object] --> [MAML Model] --> [Markdown file]
 
-
-# Making a release
+# Making a new release
 
 1. Make sure that `CHANGELOG.md` is up-to-date, move section from `UNRELEASED` to new section `<release name>`.
 1. Make sure platyPS help itself (content in .\docs folder) is up to date. 
    `Update-MarkdownHelp -Path .\docs` should result in no changes.
 1. From master, tag the release.
 1. Push tag to GitHub.
-1. Find the corresponding build on AppVeyor
-1. Download zip archive with the module from artifacts tab.
-1. Unblock the zip archive, copy content to one of the `$env:PSMODULEPATH` locations, so it's available to `Publish-Module`.
-1. Use `Publish-Module -RequiredVersion <version> -Verbose -NuGetApiKey $apiKey`
+1. Find the corresponding build on AppVeyor.
+1. Download ZIP archive with the module from Appveyor's Artifacts tab.
+1. Unblock the ZIP archive (`Unblock-File foo.zip`), and copy the ZIP's contents to `$env:PSMODULEPATH` so it's available to `Publish-Module`.
+1. Publish the module to the Gallery: `Publish-Module -RequiredVersion <version> -Verbose -NuGetApiKey $apiKey`.
 10. Check that https://www.powershellgallery.com/packages/platyPS/ updated.
 
 Congratulations! You just made a release.
