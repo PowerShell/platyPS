@@ -1240,10 +1240,12 @@ function GetMamlModelImpl
 
 function NewMarkdownParser
 {
-    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+    $infoCallback = GetInfoCallback
+
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ({
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    }
+    },$infoCallback)
 }
 
 function NewModelTransformer
