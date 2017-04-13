@@ -14,6 +14,7 @@ namespace Markdown.MAML.Transformer
         private DocumentNode _root;
         private IEnumerator<MarkdownNode> _rootEnumerator;
         private Action<string> _infoCallback;
+        private Action<string> _warningCallback;
 
         internal const int COMMAND_NAME_HEADING_LEVEL = 1;
         internal const int COMMAND_ENTRIES_HEADING_LEVEL = 2;
@@ -30,6 +31,11 @@ namespace Markdown.MAML.Transformer
         public ModelTransformerBase(Action<string> infoCallback)
         {
             _infoCallback = infoCallback;
+        }
+
+        public ModelTransformerBase(Action<string> infoCallback, Action<string> warningCallback) : this(infoCallback)
+        {
+            _warningCallback = warningCallback;
         }
 
         public IEnumerable<MamlCommand> NodeModelToMamlModel(DocumentNode node)
@@ -165,33 +171,44 @@ namespace Markdown.MAML.Transformer
             // ```
             // Remarks
             var node = GetNextNode();
-            var headingNode = GetHeadingWithExpectedLevel(node, EXAMPLE_HEADING_LEVEL);
-            if (headingNode == null)
+            try
             {
-                return null;
-            }
+                var headingNode = GetHeadingWithExpectedLevel(node, EXAMPLE_HEADING_LEVEL);
 
-            MamlExample example = new MamlExample()
-            {
-                Title = headingNode.Text
-            };
-            example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
-            CodeBlockNode codeBlock;
-            while ((codeBlock = CodeBlockRule()) != null)
-            {
-                if (example.Code == null)
+                if (headingNode == null)
                 {
-                    example.Code = codeBlock.Text;
+                    return null;
                 }
-                else
-                {
-                    example.Code += "\r\n\r\n" + codeBlock.Text;
-                }
-            }
 
-            example.Remarks = GetTextFromParagraphNode(ParagraphNodeRule());
+                MamlExample example = new MamlExample()
+                {
+                    Title = headingNode.Text
+                };
+                example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
+                CodeBlockNode codeBlock;
+                while ((codeBlock = CodeBlockRule()) != null)
+                {
+                    if (example.Code == null)
+                    {
+                        example.Code = codeBlock.Text;
+                    }
+                    else
+                    {
+                        example.Code += "\r\n\r\n" + codeBlock.Text;
+                    }
+                }
+
+                example.Remarks = GetTextFromParagraphNode(ParagraphNodeRule());
+
+                return example;
+            }
+            catch (HelpSchemaException headingException)
+            {
+                Report("Schema exception. This can occur when there are multiple code blocks in one example. " + headingException.Message);
+
+                throw headingException;
+            }
             
-            return example;
         }
 
         protected void RelatedLinksRule(MamlCommand commmand)
@@ -478,5 +495,13 @@ namespace Markdown.MAML.Transformer
         /// <param name="command"></param>
         /// <returns>true if Section was found</returns>
         protected abstract bool SectionDispatch(MamlCommand command);
+
+        protected void Report(string warning)
+        {
+            if (_warningCallback != null)
+            {
+                _warningCallback.Invoke("Error encountered: " + warning);
+            }
+        }
     }
 }
