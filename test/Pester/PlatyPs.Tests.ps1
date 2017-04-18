@@ -550,7 +550,7 @@ Describe 'New-ExternalHelpCab' {
 
             $PlatyPSHelpInfo | Should Not Be $null
             $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.2"
+            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
         }
 
         It 'Adds another help locale'{

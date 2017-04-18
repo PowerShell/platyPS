@@ -910,14 +910,8 @@ function New-ExternalHelpCab
     $Guid = $Metadata[$script:MODULE_PAGE_GUID]
     $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
     $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
-    $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
-
-    #IncrementHelpVersion
-    $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
-    $MdContent = Get-Content -raw $LandingPagePath
-    $MdContent = $MdContent.Replace($OldHelpVersion,$HelpVersion)
-    Set-Content -path $LandingPagePath -value $MdContent
-
+    $HelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+    
     #Create HelpInfo File
     
         #Testing the destination directories, creating if none exists.
