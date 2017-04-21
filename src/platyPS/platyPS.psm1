@@ -880,7 +880,10 @@ function New-ExternalHelpCab
             })]
         [string] $LandingPagePath,
         [parameter(Mandatory=$true)]
-        [string] $OutputFolder
+        [string] $OutputFolder,
+
+        [parameter()]
+        [switch] $IncrementHelpVersion
     )
     begin
     {
@@ -911,12 +914,19 @@ function New-ExternalHelpCab
     $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
     $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
     $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
-
-    #IncrementHelpVersion
-    $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
-    $MdContent = Get-Content -raw $LandingPagePath
-    $MdContent = $MdContent.Replace($OldHelpVersion,$HelpVersion)
-    Set-Content -path $LandingPagePath -value $MdContent
+    
+    if($IncrementHelpVersion)
+    {
+        #IncrementHelpVersion
+        $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
+        $MdContent = Get-Content -raw $LandingPagePath
+        $MdContent = $MdContent.Replace($OldHelpVersion,$HelpVersion)
+        Set-Content -path $LandingPagePath -value $MdContent
+    }
+    else
+    {
+        $HelpVersion = $OldHelpVersion
+    }
 
     #Create HelpInfo File
     
