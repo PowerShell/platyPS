@@ -563,13 +563,13 @@ Describe 'New-ExternalHelpCab' {
 
         It 'Adds another help locale'{
         
-            Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: fr-FR`r`n---" | Out-Null
+            Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`nAdditional Locale: fr-FR,ja-JP`r`nfr-FR Version: 1.2.3.4`r`nja-JP Version: 2.3.4.5`r`n---" | Out-Null
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
             [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
             $Count = 0
             $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
             
-            $Count | Should Be 2
+            $Count | Should Be 3
         }
     }
 }

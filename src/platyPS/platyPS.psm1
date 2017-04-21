@@ -31,6 +31,7 @@ $script:MODULE_PAGE_GUID = "Module Guid"
 $script:MODULE_PAGE_LOCALE = "Locale"
 $script:MODULE_PAGE_FW_LINK = "Download Help Link"
 $script:MODULE_PAGE_HELP_VERSION = "Help Version"
+$script:MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
 $script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
 
@@ -914,6 +915,7 @@ function New-ExternalHelpCab
     $Locale = $Metadata[$script:MODULE_PAGE_LOCALE]
     $FwLink = $Metadata[$script:MODULE_PAGE_FW_LINK]
     $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
+    $AdditionalLocale = $Metadata[$script:MODULE_PAGE_ADDITIONAL_LOCALE]
     
     if($IncrementHelpVersion)
     {
@@ -976,6 +978,26 @@ function New-ExternalHelpCab
 
         #Create the HelpInfo Xml 
         MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputFolder
+
+        if($AdditionalLocale)
+        {
+            $allLocales = $AdditionalLocale -split ','
+
+            foreach($loc in $allLocales)
+            {
+                #Create the HelpInfo Xml for each locale
+                $locVersion = $Metadata["$loc Version"]
+
+                if([String]::IsNullOrEmpty($locVersion))
+                {
+                    Write-Warning ("No version found for Locale: {0}" -f $loc)
+                }
+                else
+                {
+                    MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $loc -HelpVersion $locVersion -URI $FwLink -OutputFolder $OutputFolder
+                }
+            }
+        }
     }
 }
 
