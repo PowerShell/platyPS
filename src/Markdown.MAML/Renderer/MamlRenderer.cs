@@ -139,7 +139,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddLinks(MamlCommand command)
         {
-            PushTag("command:relatedLinks");
+            PushTag("maml:relatedLinks");
             foreach (MamlLink Link in command.Links)
             {
                 if (Link.IsSimplifiedTextLink)
