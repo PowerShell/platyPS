@@ -24,6 +24,8 @@ namespace Markdown.MAML.Transformer
         /// <param name="infoCallback">Report string information to some channel</param>
         public ModelTransformerVersion2(Action<string> infoCallback) : base(infoCallback) { }
 
+        public ModelTransformerVersion2(Action<string> infoCallback, Action<string> warningCallback) : base(infoCallback, warningCallback) { }
+
         /// <summary>
         /// 
         /// </summary>

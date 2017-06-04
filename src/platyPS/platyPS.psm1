@@ -1058,6 +1058,16 @@ function GetInfoCallback
     return $infoCallback
 }
 
+function GetWarningCallback
+{
+    $warningCallback = {
+        param([string]$message)
+        Write-Warning $message
+    }
+    
+    return $warningCallback
+}
+
 function GetAboutTopicsFromPath
 {
     [CmdletBinding()]
@@ -1222,10 +1232,12 @@ function GetMamlModelImpl
 
 function NewMarkdownParser
 {
-    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+    $warningCallback = GetWarningCallback
+
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ({
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    }
+    },$warningCallback)
 }
 
 function NewModelTransformer
@@ -1241,10 +1253,12 @@ function NewModelTransformer
     }
     elseif ($schema -eq '2.0.0')
     {
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+        $warningCallback = GetWarningCallback
+
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ({
             param([string]$message)
             Write-Verbose $message
-        }
+        },$warningCallback)
     }
 }
 
