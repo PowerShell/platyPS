@@ -1267,11 +1267,11 @@ function GetMamlModelImpl
 function NewMarkdownParser
 {
     $warningCallback = GetWarningCallback
-
-    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ({
+    $progressCallback = {
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
-    },$warningCallback)
+    }
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ($progressCallback, $warningCallback)
 }
 
 function NewModelTransformer
@@ -1287,12 +1287,12 @@ function NewModelTransformer
     }
     elseif ($schema -eq '2.0.0')
     {
-        $warningCallback = GetWarningCallback
-
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ({
+        $infoCallback = {
             param([string]$message)
             Write-Verbose $message
-        },$warningCallback)
+        }
+        $warningCallback = GetWarningCallback
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback)
     }
 }
 
