@@ -414,6 +414,28 @@ Describe 'New-ExternalHelp' {
     }
 }
 
+Describe 'New-ExternalHelp -ApplicableTag for cmdlet level' {
+    BeforeAll {
+        function global:Test-Applicable12 {}
+        function global:Test-ApplicableNone {}
+        function global:Test-Applicable32 {}
+    }
+
+    It 'ignores cmdlet when applicable tag doesn''t match' {
+        $files = @()
+        $files += New-MarkdownHelp -Metadata @{ applicable = 'tag 1, tag 2'} -Command Test-Applicable12 -OutputFolder $TestDrive -Force
+        $files += New-MarkdownHelp -Metadata @{ applicable = 'tag 3, tag 2'} -Command Test-Applicable32 -OutputFolder $TestDrive -Force
+        $files += New-MarkdownHelp -Command Test-ApplicableNone -OutputFolder $TestDrive -Force
+
+        $maml = $files | New-ExternalHelp -ApplicableTag 'tag 1' -OutputPath "$TestDrive\TestApplicable.xml" -Force
+        $help = Get-HelpPreview -Path $maml
+        ($help | measure).Count | Should Be 2
+        $names = $help.Name
+        $names[0] | Should Be 'Test-Applicable12'
+        $names[1] | Should Be 'Test-ApplicableNone'
+    }
+}
+
 #region PS Objects to MAML Model Tests
 
 Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
