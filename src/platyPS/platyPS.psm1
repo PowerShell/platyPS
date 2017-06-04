@@ -326,56 +326,6 @@ function Get-MarkdownMetadata
     }
 }
 
-function Update-MarkdownHelpSchema
-{
-    [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]])]
-    
-    param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true)]
-        [string[]]$Path,
-
-        [Parameter(Mandatory=$true)]
-        [string]$OutputFolder,
-
-        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-        
-        [switch]$Force
-    )
-    
-    begin
-    {
-        $MarkdownFiles = @()
-        if ($OutputFolder)
-        {
-            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
-        }
-    }
-    
-    process
-    {
-        $MarkdownFiles += GetMarkdownFilesFromPath $Path
-    }
-    
-    end
-    {
-        $model = GetMamlModelImpl $MarkdownFiles -ForAnotherMarkdown -Encoding $Encoding
-        $parseMode = GetParserMode -PreserveFormatting
-        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
-
-        $model | ForEach-Object {
-            $name = $_.Name
-            # TODO: can we pass some metadata here?
-            # skipYamlHeader -eq $false
-            $md = $r.MamlModelToString($_, $false)
-            $outPath = Join-Path $OutputFolder "$name.md"
-            Write-Verbose "[Update-Markdown] Writing updated markdown to $outPath"
-            MySetContent -path $outPath -value $md -Encoding $Encoding -Force:$Force # yeild
-        }
-    }
-}
-
 function Update-MarkdownHelp
 {
     [CmdletBinding()]
@@ -1287,10 +1237,7 @@ function NewModelTransformer
 
     if ($schema -eq '1.0.0')
     {
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
-        }
+        throw "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version."
     }
     elseif ($schema -eq '2.0.0')
     {
