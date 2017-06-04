@@ -627,25 +627,6 @@ Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
     }
 }
 
-Describe 'Update-MarkdownHelpSchema' {
-    $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
-    $OutputFolder = 'TestDrive:\PSReadline'
-
-    $v1maml = New-ExternalHelp -Path $v1md.FullName -OutputPath "$OutputFolder\v1.xml"
-    $v2md = Update-MarkdownHelpSchema -Path $v1md -OutputFolder $outFolder -Force
-    $v2maml = New-ExternalHelp $v2md.FullName -OutputPath "$OutputFolder\v2.xml"
-
-    It 'help preview is the same before and after upgrade' {
-        Get-HelpPreview -Path $v1maml > TestDrive:\1.txt
-        Get-HelpPreview -Path $v2maml > TestDrive:\2.txt
-    
-        $v1txt = cat -Raw TestDrive:\1.txt
-        $v2txt = cat -Raw TestDrive:\2.txt
-
-        $v2txt | Should Be $v1txt
-    }
-}
-
 Describe 'Update-MarkdownHelp reflection scenario' {
     
     function normalizeEnds([string]$text)
