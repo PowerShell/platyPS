@@ -15,15 +15,12 @@ namespace Markdown.MAML.Transformer
 
         public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
 
-        private string DefaultParameterSet;
-
-        public ModelTransformerVersion2() : this(null) { }
+        public ModelTransformerVersion2() : this(null, null) { }
 
         /// <summary>
         /// </summary>
-        /// <param name="infoCallback">Report string information to some channel</param>
-        public ModelTransformerVersion2(Action<string> infoCallback) : base(infoCallback) { }
-
+        /// <param name="infoCallback">Report string information to some callback</param>
+        /// <param name="warningCallback">Report string warnings to some callback</param>
         public ModelTransformerVersion2(Action<string> infoCallback, Action<string> warningCallback) : base(infoCallback, warningCallback) { }
 
         /// <summary>

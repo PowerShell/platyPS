@@ -23,18 +23,9 @@ namespace Markdown.MAML.Transformer
         internal const int EXAMPLE_HEADING_LEVEL = 3;
         internal const int PARAMETERSET_NAME_HEADING_LEVEL = 3;
 
-        public ModelTransformerBase() : this(null) {}
-
-        /// <summary>
-        /// </summary>
-        /// <param name="infoCallback">Report string information to some channel</param>
-        public ModelTransformerBase(Action<string> infoCallback)
+        public ModelTransformerBase(Action<string> infoCallback, Action<string> warningCallback)
         {
             _infoCallback = infoCallback;
-        }
-
-        public ModelTransformerBase(Action<string> infoCallback, Action<string> warningCallback) : this(infoCallback)
-        {
             _warningCallback = warningCallback;
         }
 
