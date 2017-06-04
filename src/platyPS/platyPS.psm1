@@ -20,6 +20,7 @@
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
 $script:ONLINE_VERSION_YAML_HEADER = 'online version'
 $script:SCHEMA_VERSION_YAML_HEADER = 'schema'
+$script:APPLICABLE_YAML_HEADER = 'applicable'
 
 $script:UTF8_NO_BOM = New-Object System.Text.UTF8Encoding -ArgumentList $False
 $script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
@@ -563,6 +564,8 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
+        [string]$ApplicableTag,
+
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
         
         [switch]$Force
@@ -603,12 +606,25 @@ function New-ExternalHelp
 
     end 
     { 
+        # write verbose output and filter out files based on applicable tag
         $MarkdownFiles | ForEach-Object {
             Write-Verbose "[New-ExternalHelp] Input markdown file $_"
         }
 
-        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
-        
+        if ($ApplicableTag) {
+            Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
+            $MarkdownFiles = $MarkdownFiles | ForEach-Object {
+                $applicableList = GetApplicableList -Path $_.FullName
+                if ((-not $applicableList) -or $applicableList -contains $ApplicableTag) {
+                    # yeild
+                    $_
+                } else {
+                    Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
+                }
+            }
+        }
+
+        # group the files based on the output xml path metadata tag
         if ($IsOutputContainer)
         {
             $defaultPath = Join-Path $OutputPath $script:DEFAULT_MAML_XML_OUTPUT_NAME
@@ -631,6 +647,9 @@ function New-ExternalHelp
             $groups = $MarkdownFiles | Group-Object { $OutputPath }
         }
 
+        # generate the xml content
+        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+
         foreach ($group in $groups) {
             $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
@@ -639,6 +658,7 @@ function New-ExternalHelp
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
         }
         
+        # handle about topics
         if($AboutFiles.Count -gt 0)
         {
             foreach($About in $AboutFiles)
@@ -976,6 +996,20 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   p:::::::p
 #                                   ppppppppp
+
+# parse out the list "applicable" tags from yaml header
+function GetApplicableList
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $Path
+    )
+
+    $h = Get-MarkdownMetadata -Path $Path
+    if ($h -and $h[$script:APPLICABLE_YAML_HEADER]) {
+        return $h[$script:APPLICABLE_YAML_HEADER].Split(',').Trim()
+    }
+}
 
 function SortParamsAlphabetically
 {
