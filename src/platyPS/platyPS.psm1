@@ -564,7 +564,7 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
-        [string]$ApplicableTag,
+        [string[]]$ApplicableTag,
 
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
         
@@ -615,7 +615,8 @@ function New-ExternalHelp
             Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
             $MarkdownFiles = $MarkdownFiles | ForEach-Object {
                 $applicableList = GetApplicableList -Path $_.FullName
-                if ((-not $applicableList) -or $applicableList -contains $ApplicableTag) {
+                # this Compare-Object call is getting the intersection of two string[]
+                if ((-not $applicableList) -or (Compare-Object $applicableList $ApplicableTag -IncludeEqual -ExcludeDifferent)) {
                     # yeild
                     $_
                 } else {
@@ -651,7 +652,7 @@ function New-ExternalHelp
         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
 
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding
+            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
             $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
@@ -1232,8 +1233,13 @@ function GetMamlModelImpl
         [string[]]$markdownFiles,
         [Parameter(Mandatory=$true)]
         [System.Text.Encoding]$Encoding,
-        [switch]$ForAnotherMarkdown
+        [switch]$ForAnotherMarkdown,
+        [String[]]$ApplicableTag
     )
+
+    if ($ForAnotherMarkdown -and $ApplicableTag) {
+        throw '[ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag'
+    }
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
     $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
@@ -1242,7 +1248,7 @@ function GetMamlModelImpl
         $mdText = MyGetContent $_ -Encoding $Encoding
         $schema = GetSchemaVersion $mdText
         $p = NewMarkdownParser
-        $t = NewModelTransformer -schema $schema
+        $t = NewModelTransformer -schema $schema $ApplicableTag
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($mdText, $parseMode, $_)
@@ -1278,7 +1284,8 @@ function NewModelTransformer
 {
     param(
         [ValidateSet('1.0.0', '2.0.0')]
-        [string]$schema
+        [string]$schema,
+        [string[]]$ApplicableTag
     )
 
     if ($schema -eq '1.0.0')
@@ -1292,7 +1299,7 @@ function NewModelTransformer
             Write-Verbose $message
         }
         $warningCallback = GetWarningCallback
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback)
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback, $ApplicableTag)
     }
 }
 
