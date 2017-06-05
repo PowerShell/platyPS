@@ -342,6 +342,9 @@ namespace Markdown.MAML.Transformer
             parameter.DefaultValue = pairs.TryGetValue(MarkdownStrings.Default_value, out value) ? value : null;
             parameter.PipelineInput = pairs.TryGetValue(MarkdownStrings.Accept_pipeline_input, out value) ? value : "false";
             parameter.Globbing = pairs.TryGetValue(MarkdownStrings.Accept_wildcard_characters, out value) ? StringComparer.OrdinalIgnoreCase.Equals("true", value) : false;
+            // having Applicable for the whole parameter is a little bit sloppy: ideally it should be per yaml entry.
+            // but that will make the code super ugly and it's unlikely that these two features would need to be used together.
+            parameter.Applicable = pairs.TryGetValue(MarkdownStrings.Applicable, out value) ? SplitByCommaAndTrim(value) : null;
         }
 
         private bool ParameterRule(MamlCommand commmand)
@@ -414,16 +417,7 @@ namespace Markdown.MAML.Transformer
                 parameter.ValueRequired = parameter.IsSwitchParameter() ? false : true;
 
                 // handle applicable tag
-
-                // by default everything is appicable
-                bool isApplicable = true;
-                if (this._applicableTag != null && yaml.ContainsKey(MarkdownStrings.Applicable))
-                {
-                    // applicable if intersect is not empty
-                    isApplicable = this._applicableTag.Intersect(SplitByCommaAndTrim(yaml[MarkdownStrings.Applicable]), StringComparer.OrdinalIgnoreCase).Any();
-                }
-
-                if (isApplicable)
+                if (parameter.IsApplicable(this._applicableTag))
                 {
                     isApplicableForAtLeastOneYaml = true;
                     
