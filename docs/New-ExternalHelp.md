@@ -12,7 +12,8 @@ Creates external help file based on markdown supported by PlatyPS.
 ## SYNTAX
 
 ```
-New-ExternalHelp -Path <String[]> -OutputPath <String> [-Encoding <Encoding>] [-Force] [<CommonParameters>]
+New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
+ [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -121,6 +122,26 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
+Accept wildcard characters: False
+```
+
+### -ApplicableTag
+Specify array of tags to use as a filter.
+If cmdlet has `applicable` in the yaml metadata and none of the passed tags is
+mentioned there, cmdlet would be ignored in the generated help.
+Same applies to the Parameter level `applicable` yaml metadata.
+If `applicable` is ommited, cmdlet or parameter would be always present.
+See [design issue](https://github.com/PowerShell/platyPS/issues/273) for more details.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
