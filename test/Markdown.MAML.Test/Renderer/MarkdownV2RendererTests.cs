@@ -175,6 +175,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
                 Position = "1",
                 DefaultValue = "trololo",
                 Aliases = new string[] { "GF", "Foos", "Do" },
+                Applicable = new string[] { "Module1", "Module2" }
             };
             parameter.ParameterValueGroup.AddRange(new string[] { "Value1", "Value2" });
 
@@ -291,6 +292,7 @@ Type: String
 Parameter Sets: (All)
 Aliases: GF, Foos, Do
 Accepted values: Value1, Value2
+Applicable: Module1, Module2
 
 Required: True
 Position: 1
