@@ -14,14 +14,18 @@ namespace Markdown.MAML.Transformer
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
         public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
-
-        public ModelTransformerVersion2() : this(null, null) { }
+        private String[] _applicableTag;
+        public ModelTransformerVersion2() : this(null, null, null) { }
 
         /// <summary>
         /// </summary>
         /// <param name="infoCallback">Report string information to some callback</param>
         /// <param name="warningCallback">Report string warnings to some callback</param>
-        public ModelTransformerVersion2(Action<string> infoCallback, Action<string> warningCallback) : base(infoCallback, warningCallback) { }
+        /// <param name="applicableTag">tag to filter out applicable Parameters, null accept everything</param>
+        public ModelTransformerVersion2(Action<string> infoCallback, Action<string> warningCallback, String[] applicableTag) : base(infoCallback, warningCallback)
+        {
+            _applicableTag = applicableTag;
+        }
 
         /// <summary>
         /// 
@@ -272,7 +276,8 @@ namespace Markdown.MAML.Transformer
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Position) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Default_value) ||
                 StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Accept_pipeline_input) ||
-                StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Accept_wildcard_characters);
+                StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Accept_wildcard_characters) ||
+                StringComparer.OrdinalIgnoreCase.Equals(key, MarkdownStrings.Applicable);
         }
 
         /// <summary>
@@ -342,7 +347,7 @@ namespace Markdown.MAML.Transformer
         private bool ParameterRule(MamlCommand commmand)
         {
             // grammar:
-            // #### Name
+            // #### -Name
             // Description              -  optional, there also could be codesnippets in the description
             //                             but no yaml codesnippets
             //
@@ -385,15 +390,12 @@ namespace Markdown.MAML.Transformer
                 return true;
             }
 
-            // we are filling up two piences here: Syntax and Parameters
+            // we are filling up two pieces here: Syntax and Parameters
             // we are adding this parameter object to the parameters and later modifying it
             // in the rare case, when there are multiply yaml snippets,
             // the first one should be present in the resulted maml in the Parameters section
             // (all of them would be present in Syntax entry)
-            commmand.Parameters.Add(parameter);
-
             var parameterSetMap = new Dictionary<string, MamlParameter>(StringComparer.OrdinalIgnoreCase);
-            _parameterName2ParameterSetMap.Add(Tuple.Create(name, parameterSetMap));
 
             CodeBlockNode codeBlock;
 
@@ -401,32 +403,59 @@ namespace Markdown.MAML.Transformer
             // if there are, we will fill it up inside
             parameter.ValueRequired = true;
 
+            bool isApplicableForAtLeastOneYaml = false;
+            bool isAtLeastOneYaml = false;
             while ((codeBlock = CodeBlockRule()) != null)
             {
+                isAtLeastOneYaml = true;
                 var yaml = ParseYamlKeyValuePairs(codeBlock);
                 FillUpParameterFromKeyValuePairs(yaml, parameter);
 
                 parameter.ValueRequired = parameter.IsSwitchParameter() ? false : true;
 
-                if (yaml.ContainsKey(MarkdownStrings.Parameter_Sets))
-                {
-                    foreach (string parameterSetName in SplitByCommaAndTrim(yaml[MarkdownStrings.Parameter_Sets]))
-                    {
-                        if (string.IsNullOrEmpty(parameterSetName))
-                        {
-                            continue;
-                        }
+                // handle applicable tag
 
-                        parameterSetMap[parameterSetName] = parameter;
-                    }
-                }
-                else
+                // by default everything is appicable
+                bool isApplicable = true;
+                if (this._applicableTag != null && yaml.ContainsKey(MarkdownStrings.Applicable))
                 {
-                    parameterSetMap[ALL_PARAM_SETS_MONIKER] = parameter;
+                    // applicable if intersect is not empty
+                    isApplicable = this._applicableTag.Intersect(SplitByCommaAndTrim(yaml[MarkdownStrings.Applicable]), StringComparer.OrdinalIgnoreCase).Any();
+                }
+
+                if (isApplicable)
+                {
+                    isApplicableForAtLeastOneYaml = true;
+                    
+                    // handle parameter sets
+                    if (yaml.ContainsKey(MarkdownStrings.Parameter_Sets))
+                    {
+                        foreach (string parameterSetName in SplitByCommaAndTrim(yaml[MarkdownStrings.Parameter_Sets]))
+                        {
+                            if (string.IsNullOrEmpty(parameterSetName))
+                            {
+                                continue;
+                            }
+
+                            parameterSetMap[parameterSetName] = parameter;
+                        }
+                    }
+                    else
+                    {
+                        parameterSetMap[ALL_PARAM_SETS_MONIKER] = parameter;
+                    }
                 }
 
                 // in the rare case, when there are multiply yaml snippets
                 parameter = parameter.Clone();
+            }
+
+            // capture these two piece of information
+            // if no yaml are present it's a special case and we leave it as is
+            if (!isAtLeastOneYaml || isApplicableForAtLeastOneYaml)
+            {
+                commmand.Parameters.Add(parameter);
+                _parameterName2ParameterSetMap.Add(Tuple.Create(name, parameterSetMap));
             }
 
             return true;

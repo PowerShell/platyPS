@@ -189,4 +189,7 @@
   <data name="AboutTopicFirstHeader" xml:space="preserve">
     <value>TOPIC</value>
   </data>
+  <data name="Applicable" xml:space="preserve">
+    <value>Applicable</value>
+  </data>
 </root>
