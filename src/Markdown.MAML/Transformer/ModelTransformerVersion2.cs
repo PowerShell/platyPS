@@ -406,8 +406,10 @@ namespace Markdown.MAML.Transformer
             // if there are, we will fill it up inside
             parameter.ValueRequired = true;
 
-            bool isApplicableForAtLeastOneYaml = false;
+            // First parameter is what should be used in the Parameters section
+            MamlParameter firstParameter = null;
             bool isAtLeastOneYaml = false;
+
             while ((codeBlock = CodeBlockRule()) != null)
             {
                 isAtLeastOneYaml = true;
@@ -419,8 +421,11 @@ namespace Markdown.MAML.Transformer
                 // handle applicable tag
                 if (parameter.IsApplicable(this._applicableTag))
                 {
-                    isApplicableForAtLeastOneYaml = true;
-                    
+                    if (firstParameter == null)
+                    {
+                        firstParameter = parameter;
+                    }
+
                     // handle parameter sets
                     if (yaml.ContainsKey(MarkdownStrings.Parameter_Sets))
                     {
@@ -444,11 +449,16 @@ namespace Markdown.MAML.Transformer
                 parameter = parameter.Clone();
             }
 
-            // capture these two piece of information
-            // if no yaml are present it's a special case and we leave it as is
-            if (!isAtLeastOneYaml || isApplicableForAtLeastOneYaml)
+            if (!isAtLeastOneYaml)
             {
-                commmand.Parameters.Add(parameter);
+                // if no yaml are present it's a special case and we leave it as is
+                firstParameter = parameter;
+            }
+
+            // capture these two piece of information
+            if (firstParameter != null)
+            {
+                commmand.Parameters.Add(firstParameter);
                 _parameterName2ParameterSetMap.Add(Tuple.Create(name, parameterSetMap));
             }
 

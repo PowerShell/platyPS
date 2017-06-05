@@ -646,6 +646,7 @@ Required: false
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
+            // Check Syntax
             Assert.Equal(2, mamlCommand.Syntax.Count);
             var syntax1 = mamlCommand.Syntax[0];
             var syntax2 = mamlCommand.Syntax[1];
@@ -661,6 +662,13 @@ Required: false
 
             Assert.Equal(syntax1.Parameters[0].Required, true);
             Assert.Equal(syntax2.Parameters[0].Required, false);
+
+            // Check Parameters
+            Assert.Equal(1, mamlCommand.Parameters.Count);
+            var parameter = mamlCommand.Parameters[0];
+            Assert.Equal("TypeName", parameter.Name);
+            // Required == true because first takes precedence
+            Assert.Equal(true, parameter.Required);
         }
 
         [Fact]
