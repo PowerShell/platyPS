@@ -113,7 +113,8 @@ It closely resembles output of `Get-Help`.
     // for every link
         [{link name}]({link url})
 
-### Version 1.0.0
+### Version 1.0.0 (Deprecated)
+v0.7.6 is the last platyPS version that supports it.
 
     // for every command:
         # {Command name}
