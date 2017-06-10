@@ -17,7 +17,7 @@ It closely resembles output of `Get-Help`.
 
     // Top-level metadata. You can put your own "key: value" statements there
     // unknown values would be ignored by platyPS
-    // You can query this data from markdown file with `Get-PlatyPSYamlHeader`
+    // You can query this data from markdown file with `Get-MarkdownMetadata`
     //
     // Keys that have meaning for platyPS have separate entries
     ---
