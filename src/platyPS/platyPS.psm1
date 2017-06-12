@@ -200,10 +200,13 @@ function New-MarkdownHelp
 
                         $helpFileName = GetHelpFileName (Get-Command @a)    
                     }
+
+					Write-Verbose "Maml things module is: $($mamlObject.ModuleName)"
                     
                     $newMetadata = ($Metadata + @{
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
                         $script:ONLINE_VERSION_YAML_HEADER = $online
+						$script:MODULE_PAGE_MODULE_NAME = $mamlObject.ModuleName
                     })
                 }
 
@@ -456,6 +459,7 @@ function Update-MarkdownHelp
             $metadata = Get-MarkdownMetadata $filePath
             $metadata["external help file"] = GetHelpFileName $command
             $reflectionModel = GetMamlObject -Cmdlet $name
+			$metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
             $newModel = $merger.Merge($reflectionModel, $oldModel)
@@ -597,6 +601,70 @@ function New-MarkdownAboutHelp
             throw "The output folder does not exist."
         }
     }
+}
+
+function New-YamlHelp
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param(
+        [Parameter(Mandatory=$true,
+            Position=1,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
+        [string[]]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputPath,
+
+        [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
+        
+        [switch]$Force
+    )
+	begin 
+	{
+		validateWorkingProvider
+
+		$MarkdownFiles = @()
+
+		if(-not (Test-Path $OutputPath))
+		{
+			mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+		}
+
+		if(-not (Test-Path -PathType Container $OutputPath))
+		{
+			throw "$OutputPath is not a container"
+			return
+		}
+	}
+	process 
+	{
+		$MarkdownFiles += GetMarkdownFilesFromPath $Path
+	}
+	end 
+	{
+		$MarkdownFiles | ForEach-Object {
+            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
+        }
+
+		foreach($markdownFile in $MarkdownFiles)
+		{
+			$mamlModels = GetMamlModelImpl $markdownFile.FullName -Encoding $Encoding
+			if($mamlModels.Count -ne 1)
+			{
+				Write-Error "$($mamlModels.Count) commands registered in $markdownFile insteadn of one which is not supported for Yaml help"
+				continue
+			}
+			$mamlModel = $mamlModels[0]
+			$markdownMetadata = Get-MarkdownMetadata -Path $MarkdownFile.FullName
+			$mamlModel.ModuleName = $markdownMetadata[$script:MODULE_PAGE_MODULE_NAME]
+			$yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
+			$outputFilePath = Join-Path $OutputPath ([System.IO.Path]::GetFileNameWithoutExtension($markdownFile) + ".yml")
+			Write-Verbose "Writing external help to $outputFilePath"
+            MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
+		}
+	}
 }
 
 function New-ExternalHelp
@@ -2049,6 +2117,8 @@ function ConvertPsObjectsToMamlModel
 
     #Get Name
     $MamlCommandObject.Name = $Command.Name
+
+	$MamlCommandObject.ModuleName = $Command.ModuleName
 
     #region Data not provided by the command object
     

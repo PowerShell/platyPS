@@ -70,6 +70,7 @@ FunctionsToExport = @(
     'New-MarkdownHelp', 
     'Get-MarkdownMetadata',
     'New-ExternalHelp', 
+	'New-YamlHelp', 
     'Get-HelpPreview',
     'New-ExternalHelpCab',
     'Update-MarkdownHelp',
