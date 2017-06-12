@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Markdown.MAML.Model.MAML
 {
-    public class MamlSyntax
+    public class MamlSyntax : IEquatable<MamlSyntax>
     {
         public MamlSyntax()
         {
@@ -22,5 +22,29 @@ namespace Markdown.MAML.Model.MAML
         public List<MamlParameter> Parameters { get { return _parameters; } }
 
         private List<MamlParameter> _parameters = new List<MamlParameter>();
+
+        bool IEquatable<MamlSyntax>.Equals(MamlSyntax other)
+        {
+            if (!StringComparer.OrdinalIgnoreCase.Equals(other.ParameterSetName, this.ParameterSetName))
+            {
+                return false;
+            }
+
+            // This is not 100% accurate, we just compare parameter names here
+            var names1 = this.Parameters.Select(p => p.Name).ToList();
+            var names2 = other.Parameters.Select(p => p.Name).ToList();
+
+            if (names1.Count != names2.Count)
+            {
+                return false;
+            }
+
+            if (names1.Except(names2).Any())
+            {
+                return false;
+            }
+
+            return true;
+        }
     }
 }
