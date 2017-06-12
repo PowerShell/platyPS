@@ -422,6 +422,109 @@ function Update-MarkdownHelp
     }
 }
 
+function Merge-MarkdownHelp
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param(
+        [Parameter(Mandatory=$true,
+            ValueFromPipeline=$true)]
+        [string[]]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputPath,
+
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
+
+        [Switch]$IgnoreTagIfAllApplicable,
+
+        [Switch]$Force
+    )
+
+    begin
+    {
+        validateWorkingProvider
+        $MarkdownFiles = @()
+    }
+
+    process
+    {
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
+    }
+
+    end 
+    {
+        function log
+        {
+            param(
+                [string]$message,
+                [switch]$warning
+            )
+
+            $message = "[Update-MarkdownHelp] $([datetime]::now) $message"
+            if ($warning)
+            {
+                Merge-Warning $message
+            }
+            else
+            {
+                Write-Verbose $message
+            }
+        }
+        
+        if (-not $MarkdownFiles)
+        {
+             log -warning "No markdown found in $Path"
+            return
+        }
+
+        function getTags
+        {
+            param($files)
+
+            ($files | Split-Path | Split-Path -Leaf | Group-Object).Name
+        }
+
+        # use parent folder names as tags
+        $allTags = getTags $MarkdownFiles
+        log "Using following tags for the merge: $tags"
+        $fileGroups = $MarkdownFiles | Group-Object -Property Name
+        log "Found $($fileGroups.Count) file groups"
+
+        $fileGroups | ForEach-Object {
+            $files = $_.Group
+            $groupName = $_.Name
+
+            $dict = @{}
+            $files | ForEach-Object {
+                $model = GetMamlModelImpl $_.FullName -ForAnotherMarkdown -Encoding $Encoding
+                # unwrap List of 1 element
+                $model = $model[0]
+                $tag = getTags $_
+                log "Adding tag $tag and $model"
+                $dict[$tag] = $model
+            }
+
+            $tags = $dict.Keys
+            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $IgnoreTagIfAllApplicable)
+            {
+                $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = [string]::Join(", ", $tags) }
+            }
+            else
+            {
+                $newMetadata = @{}
+            }
+
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $IgnoreTagIfAllApplicable
+            $newModel = $merger.MergePS($dict)
+
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
+            $outputFilePath = Join-Path $OutputPath $groupName
+            MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force # yeild
+        }
+    }
+}
+
 function Update-MarkdownHelpModule
 {
     [CmdletBinding()]

@@ -1,7 +1,9 @@
 ﻿using Markdown.MAML.Model.MAML;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Management.Automation;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -28,6 +30,37 @@ namespace Markdown.MAML.Transformer
             _infoCallback = infoCallback;
             _ignoreTagsIfAllApplicable = ignoreTagsIfAllApplicable;
             _mergeMarker = mergeMarker;
+        }
+
+        /// <summary>
+        /// Facade for Merge method that's easier to call from PowerShell
+        /// </summary>
+        /// <param name="applicableTag2Model"></param>
+        /// <returns></returns>
+        public MamlCommand MergePS(Hashtable applicableTag2Model)
+        {
+            Dictionary<string, MamlCommand> dict = new Dictionary<string, MamlCommand>();
+            foreach (DictionaryEntry pair in applicableTag2Model)
+            {
+                MamlCommand value;
+                if (pair.Value is PSObject)
+                {
+                    value = (pair.Value as PSObject).BaseObject as MamlCommand;
+                }
+                else
+                {
+                    value = pair.Value as MamlCommand;
+                }
+
+                if (value == null)
+                {
+                    throw new ArgumentException("Value of hashtable cannot be casted to MamlCommand");
+                }
+
+                dict[pair.Key.ToString()] = pair.Value as MamlCommand;
+            }
+
+            return this.Merge(dict);
         }
 
         public MamlCommand Merge(Dictionary<string, MamlCommand> applicableTag2Model)
