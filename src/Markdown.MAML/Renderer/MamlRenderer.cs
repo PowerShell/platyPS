@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Markdown.MAML.Model.MAML;
 using System.Xml.Linq;
@@ -32,10 +33,15 @@ namespace Markdown.MAML.Renderer
         {
             var document = new XDocument(
                 new XDeclaration("1.0", "utf-8", null),
-                new XElement(mshNS + "helpItems", new XAttribute(mshNS + "schema","maml"),
-                    mamlCommands.Select(mc => CreateCommandElement(mc))));
+                new XElement(mshNS + "helpItems", 
+                    new XAttribute("schema","maml"),
 
-            return document.ToString();
+                    mamlCommands.Select(CreateCommandElement)));
+            using (var writer = new StringWriter())
+            {
+                document.Save(writer, SaveOptions.OmitDuplicateNamespaces);
+                return writer.ToString();
+            }
         }
 
         private static XElement CreateCommandElement(MamlCommand command)
@@ -61,7 +67,7 @@ namespace Markdown.MAML.Renderer
                     new XElement(commandNS + "inputTypes", command.Inputs.Select(input => CreateInput(input))),
                     new XElement(commandNS + "returnValues", command.Outputs.Select(output => CreateOutput(output))),
                     new XElement(mamlNS + "alertSet", 
-                        new XElement(mamlNS + "alert", command.Notes)),
+                        new XElement(mamlNS + "alert", GenerateParagraphs(command.Notes))),
                     new XElement(commandNS + "examples", command.Examples.Select(example => CreateExample(example))),
                     new XElement(commandNS + "relatedLinks", command.Links.Select(link => CreateLink(link))));
         }
@@ -90,12 +96,12 @@ namespace Markdown.MAML.Renderer
             bool isSwitchParameter = mamlType == "SwitchParameter";
 
             return new XElement(commandNS + "parameter",
-                    new XAttribute(commandNS + "required", param.Required),
-                    new XAttribute(commandNS + "variableLength", param.VariableLength),
-                    new XAttribute(commandNS + "globbing", param.Globbing),
-                    new XAttribute(commandNS + "pipelineInput", param.PipelineInput),
-                    new XAttribute(commandNS + "position", param.Position.ToLower()),
-                    new XAttribute(commandNS + "aliases", param.Aliases.Any() ? string.Join(", ", param.Aliases) : "none"),
+                    new XAttribute("required", param.Required),
+                    new XAttribute("variableLength", param.VariableLength),
+                    new XAttribute("globbing", param.Globbing),
+                    new XAttribute("pipelineInput", param.PipelineInput),
+                    new XAttribute("position", param.Position.ToLower()),
+                    new XAttribute("aliases", param.Aliases.Any() ? string.Join(", ", param.Aliases) : "none"),
 
                     new XElement(mamlNS + "name", param.Name),
                     new XElement(mamlNS + "Description", GenerateParagraphs(param.Description)),
@@ -104,14 +110,15 @@ namespace Markdown.MAML.Renderer
                         : null,
                     !syntax || !isSwitchParameter 
                         ? new XElement(commandNS + "parameterValue",
-                            new XAttribute(commandNS + "required", param.ValueRequired),
-                            new XAttribute(commandNS + "variableLength", param.ValueVariableLength))
+                            new XAttribute("required", param.ValueRequired),
+                            new XAttribute("variableLength", param.ValueVariableLength),
+                            mamlType)
                         : null,
                     new XElement(devNS + "type", 
                         new XElement(mamlNS + "name", mamlType),
                         new XElement(mamlNS + "uri")),
                     new XElement(devNS + "defaultValue",
-                        isSwitchParameter && (param.DefaultValue ?? string.Empty) == "None"
+                        isSwitchParameter && (string.IsNullOrEmpty(param.DefaultValue) || param.DefaultValue == "None")
                             ? "False"
                             : param.DefaultValue ?? "None"));
         }
@@ -119,7 +126,7 @@ namespace Markdown.MAML.Renderer
         private static XElement CreateParameterValueGroup(string pvg)
         {
             return new XElement(commandNS + "parameterValue",
-                    new XAttribute(commandNS + "required", "false"), new XAttribute(commandNS + "variableLength", "false"),
+                    new XAttribute("required", "false"), new XAttribute(commandNS + "variableLength", "false"),
                     pvg);
         }
 
@@ -144,7 +151,7 @@ namespace Markdown.MAML.Renderer
             return new XElement(commandNS + "example",
                     new XElement(mamlNS + "title", example.Title),
                     new XElement(devNS + "code", example.Code),
-                    new XElement(devNS + "remarks", example.Remarks));
+                    new XElement(devNS + "remarks", GenerateParagraphs(example.Remarks)));
         }
 
         private static XElement CreateLink(MamlLink link)
