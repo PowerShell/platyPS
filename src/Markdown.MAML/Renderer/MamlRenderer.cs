@@ -51,16 +51,8 @@ namespace Markdown.MAML.Renderer
         private static XElement CreateCommandElement(MamlCommand command)
         {
             var commandParts = command.Name.Split('-');
-            string verb = null, noun;
-            if (commandParts.Length > 1)
-            {
-                verb = commandParts[0];
-                noun = commandParts[1];
-            }
-            else
-            {
-                noun = commandParts[0];
-            }
+            var verb = commandParts[0];
+            var noun = command.Name.Substring(Math.Min(verb.Length + 1, command.Name.Length));
 
             return new XElement(commandNS + "command",
                     new XAttribute(XNamespace.Xmlns + "maml", mamlNS),
