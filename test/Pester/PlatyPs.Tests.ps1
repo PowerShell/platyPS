@@ -7,6 +7,10 @@ $outFolder = "$root\out"
 Import-Module $outFolder\platyPS -Force
 
 Describe 'New-MarkdownHelp' {
+    function normalizeEnds([string]$text)
+    {
+        $text -replace "`r`n?|`n", "`r`n"
+    }
 
     Context 'errors' {
         It 'throw when cannot find module' {
@@ -122,9 +126,8 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'uses alphabetic order when specified' {
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
-            ($files | Measure-Object).Count | Should Be 1
-            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be @'
+            
+            $expectedOrder = normalizeEnds @'
 ### -AAA
 ### -BBB
 ### -CCC
@@ -132,6 +135,9 @@ Describe 'New-MarkdownHelp' {
 ### -WhatIf
 
 '@
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be $expectedOrder
         }
     }
 
@@ -377,6 +383,54 @@ Describe 'New-MarkdownHelp' {
 
             $LandingPage | Should Not Be $null
 
+        }
+    }
+	
+	Context 'Full Type Name' {
+        function global:Get-Alpha
+        {
+            param(
+                [Switch]
+                [Parameter(Position=1)]
+                $WhatIf,
+                [string]
+                [Parameter(Position=2)]
+                $CCC
+            )
+        }
+
+        It 'use full type name when specified' {
+            $expectedParameters = normalizeEnds @'
+Type: System.String
+Type: System.Management.Automation.SwitchParameter
+
+'@ 
+            $expectedSyntax = normalizeEnds @'
+Get-Alpha [[-WhatIf] <System.Management.Automation.SwitchParameter>] [[-CCC] <System.String>]
+
+'@
+
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder -UseFullTypeName
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
+        }
+
+        It 'not use full type name when specified' {
+            $expectedParameters = normalizeEnds @'
+Type: String
+Type: SwitchParameter
+
+'@ 
+            $expectedSyntax = normalizeEnds @'
+Get-Alpha [-WhatIf] [[-CCC] <String>]
+
+'@
+
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
         }
     }
 }
@@ -806,6 +860,44 @@ It has mutlilines. And hyper (http://link.com).
         Copy-Item -Path (Join-Path $outputOriginal Add-Computer.md) -Destination (Join-Path $outputUpdated Add-Computer.md)
         Update-MarkdownHelp -Path $outputFolder
         (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
+    }
+
+    It 'parameter type should not be fullname' {
+        $expectedParameters = normalizeEnds @'
+Type: String
+Type: String
+
+'@ 
+        $expectedSyntax = normalizeEnds @'
+Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
+
+'@
+        $v2md | Get-Content | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+        $v2md | Get-Content | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+    }
+
+    $v3md = Update-MarkdownHelp $v2md -Verbose -AlphabeticParamsOrder -UseFullTypeName
+
+    $v3markdown = $v3md | Get-Content
+
+    It 'parameter type should be fullname' {
+        $expectedParameters = normalizeEnds @'
+Type: System.String
+Type: System.String
+
+'@ 
+        $expectedSyntax = normalizeEnds @'
+Get-MyCoolStuff [[-Foo] <System.String>] [[-Bar] <System.String>] [<CommonParameters>]
+
+'@
+        $v3markdown | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+        $v3markdown | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+    }
+
+    It 'all the other part should be the same except line with parameters' {
+        $expectedContent = $v2md | Get-Content | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String
+        $v3markdown | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String | Should Be $expectedContent
+    
     }
 }
 
