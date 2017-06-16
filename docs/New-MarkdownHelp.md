@@ -14,22 +14,23 @@ Creates help in markdown format.
 ### FromModule
 ```
 New-MarkdownHelp -Module <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
- -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>]
- [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
+ -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>] [-WithModulePage]
+ [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
 New-MarkdownHelp -Command <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
- [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>] [<CommonParameters>]
+ [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
+ [<CommonParameters>]
 ```
 
 ### FromMaml
 ```
 New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
- [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-Encoding <Encoding>]
- [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [-ModuleName <String>]
- [-ModuleGuid <String>] [<CommonParameters>]
+ [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
+ [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -426,6 +427,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -UseFullTypeName
+{{Fill UseFullTypeName Description}}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -447,3 +463,4 @@ This cmdlet returns a **FileInfo[]** object for created files.
 [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx)
 
 [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)
+
