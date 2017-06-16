@@ -71,7 +71,6 @@
     <Compile Include="Renderer\TextRendererTests.cs" />
     <Compile Include="Renderer\YamlRendererTests.cs" />
     <Compile Include="Transformer\MamlModelMergerTests.cs" />
-    <Compile Include="Transformer\ParserAndTransformerTestsV1.cs" />
     <Compile Include="Parser\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Transformer\ParserAndTransformerTestsV2.cs" />

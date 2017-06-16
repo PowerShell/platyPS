@@ -17,13 +17,14 @@ It closely resembles output of `Get-Help`.
 
     // Top-level metadata. You can put your own "key: value" statements there
     // unknown values would be ignored by platyPS
-    // You can query this data from markdown file with `Get-PlatyPSYamlHeader`
+    // You can query this data from markdown file with `Get-MarkdownMetadata`
     //
     // Keys that have meaning for platyPS have separate entries
     ---
     schema: 2.0.0
     external help file: {file name for `New-ExternalHelp`}.xml
     online version: {url for `Get-Help -Online`}
+    applicable: {comma-separated list of tags where this cmdlet exists} // if omitted then applicable for any tag
     {{ User-specific key-value pairs }}
     ---
 
@@ -80,6 +81,7 @@ It closely resembles output of `Get-Help`.
             Parameter sets: {comma-separated list of names, i.e. "SetName1, SetName2" or "(All)" for all parameter sets}
             Aliases: {comma-separated list of aliases, i.e. EA, ERR} // if ommitted => default
             Accepted values: {ValidateSet, comma-separated list of valid values, i.e. Foo, Bar} // if ommitted => everything is accepted
+            Applicable: {comma-separated list of tags where this cmdlet exists} // if omitted then applicable for any tag
             // break line to improve readability and separate metadata block
                                     
             Required: {true | false}
@@ -111,7 +113,8 @@ It closely resembles output of `Get-Help`.
     // for every link
         [{link name}]({link url})
 
-### Version 1.0.0
+### Version 1.0.0 (Deprecated)
+v0.7.6 is the last platyPS version that supports it.
 
     // for every command:
         # {Command name}

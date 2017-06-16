@@ -93,7 +93,7 @@ Accept wildcard characters: False
 ```
 
 ### -IncrementHelpVersion
-{{Fill IncrementHelpVersion Description}}
+Automatically increment the help version in the module markdown file.
 
 ```yaml
 Type: SwitchParameter

@@ -94,7 +94,6 @@
     <Compile Include="Transformer\MamlModelMerger.cs" />
     <Compile Include="Transformer\MamlComparer.cs" />
     <Compile Include="Transformer\ModelTransformerBase.cs" />
-    <Compile Include="Transformer\ModelTransformerVersion1.cs" />
     <Compile Include="Transformer\ModelTransformerVersion2.cs" />
   </ItemGroup>
   <ItemGroup>

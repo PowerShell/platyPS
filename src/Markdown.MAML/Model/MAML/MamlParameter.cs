@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using Markdown.MAML.Model.Markdown;
 using System;
+using System.Linq;
 
 namespace Markdown.MAML.Model.MAML
 {
@@ -30,6 +31,8 @@ namespace Markdown.MAML.Model.MAML
         public string Position { get; set; }
 
         public string[] Aliases { get; set; }
+
+        public string[] Applicable { get; set; }
 
         public bool ValueRequired { get; set; }
 
@@ -82,6 +85,18 @@ namespace Markdown.MAML.Model.MAML
         {
             return string.IsNullOrWhiteSpace(this.Position) ||
                 StringComparer.OrdinalIgnoreCase.Equals(this.Position, "Named");
+        }
+
+        public bool IsApplicable(string[] applicableTag)
+        {
+            if (applicableTag != null && this.Applicable != null)
+            {
+                // applicable if intersect is not empty
+                return applicableTag.Intersect(this.Applicable, StringComparer.OrdinalIgnoreCase).Any();
+            }
+
+            // if one is null then it's applicable
+            return true;
         }
 
         object ICloneable.Clone()
