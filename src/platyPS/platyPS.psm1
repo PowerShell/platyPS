@@ -651,18 +651,18 @@ function New-YamlHelp
         foreach($markdownFile in $MarkdownFiles)
         {
             $mamlModels = GetMamlModelImpl $markdownFile.FullName -Encoding $Encoding
-            if($mamlModels.Count -ne 1)
+            foreach($mamlModel in $mamlModels)
             {
-                Write-Error "$($mamlModels.Count) commands registered in $markdownFile instead of one which is not supported for Yaml help"
-                continue
+                $markdownMetadata = Get-MarkdownMetadata -Path $MarkdownFile.FullName
+
+                ## We set the module here in the PowerShell since the Yaml block is not read by the parser
+                $mamlModel.ModuleName = $markdownMetadata[$script:MODULE_PAGE_MODULE_NAME]
+
+                $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
+                $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
+                Write-Verbose "Writing external help to $outputFilePath"
+                MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
             }
-            $mamlModel = $mamlModels[0]
-            $markdownMetadata = Get-MarkdownMetadata -Path $MarkdownFile.FullName
-            $mamlModel.ModuleName = $markdownMetadata[$script:MODULE_PAGE_MODULE_NAME]
-            $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
-            $outputFilePath = Join-Path $OutputFolder ([System.IO.Path]::GetFileNameWithoutExtension($markdownFile) + ".yml")
-            Write-Verbose "Writing external help to $outputFilePath"
-            MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
         }
     }
 }
