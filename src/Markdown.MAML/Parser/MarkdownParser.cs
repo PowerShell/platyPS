@@ -32,6 +32,7 @@ namespace Markdown.MAML.Parser
         ParserMode _parserMode;
         List<ParagraphSpan> _currentParagraphSpans;
         Action<int, int> _progressCallback;
+        Action<string> _infoCallback;
         int _reportByteCount;
 
         private static readonly string[] LINE_BREAKS = new[] { "\r\n", "\n" };
@@ -42,6 +43,11 @@ namespace Markdown.MAML.Parser
         #region Public Methods
 
         public MarkdownParser() : this(null) {}
+
+        public MarkdownParser(Action<int, int> progressCallback, Action<string> infoCallback) : this(progressCallback)
+        {
+            _infoCallback = infoCallback;
+        }
 
         public MarkdownParser(Action<int, int> progressCallback) : this(progressCallback, 3000) { }
 
@@ -607,6 +613,19 @@ namespace Markdown.MAML.Parser
             }
 
             return g2 + " ";
+        }
+
+        /// <summary>
+        /// Callback to PowerShell host session to display reporting info on the console.
+        /// </summary>
+        /// <param name="format"></param>
+        /// <param name="objects"></param>
+        private void Report(string format, params object[] objects)
+        {
+            if (_infoCallback != null)
+            {
+                _infoCallback.Invoke(string.Format(format, objects));
+            }
         }
 
         #endregion

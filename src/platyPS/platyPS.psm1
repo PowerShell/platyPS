@@ -20,6 +20,7 @@
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
 $script:ONLINE_VERSION_YAML_HEADER = 'online version'
 $script:SCHEMA_VERSION_YAML_HEADER = 'schema'
+$script:APPLICABLE_YAML_HEADER = 'applicable'
 
 $script:UTF8_NO_BOM = New-Object System.Text.UTF8Encoding -ArgumentList $False
 $script:SET_NAME_PLACEHOLDER = 'UNNAMED_PARAMETER_SET'
@@ -326,56 +327,6 @@ function Get-MarkdownMetadata
     }
 }
 
-function Update-MarkdownHelpSchema
-{
-    [CmdletBinding()]
-    [OutputType([System.IO.FileInfo[]])]
-    
-    param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true)]
-        [string[]]$Path,
-
-        [Parameter(Mandatory=$true)]
-        [string]$OutputFolder,
-
-        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-        
-        [switch]$Force
-    )
-    
-    begin
-    {
-        $MarkdownFiles = @()
-        if ($OutputFolder)
-        {
-            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
-        }
-    }
-    
-    process
-    {
-        $MarkdownFiles += GetMarkdownFilesFromPath $Path
-    }
-    
-    end
-    {
-        $model = GetMamlModelImpl $MarkdownFiles -ForAnotherMarkdown -Encoding $Encoding
-        $parseMode = GetParserMode -PreserveFormatting
-        $r = New-Object -TypeName Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
-
-        $model | ForEach-Object {
-            $name = $_.Name
-            # TODO: can we pass some metadata here?
-            # skipYamlHeader -eq $false
-            $md = $r.MamlModelToString($_, $false)
-            $outPath = Join-Path $OutputFolder "$name.md"
-            Write-Verbose "[Update-Markdown] Writing updated markdown to $outPath"
-            MySetContent -path $outPath -value $md -Encoding $Encoding -Force:$Force # yeild
-        }
-    }
-}
-
 function Update-MarkdownHelp
 {
     [CmdletBinding()]
@@ -613,6 +564,8 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true)]
         [string]$OutputPath,
 
+        [string[]]$ApplicableTag,
+
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
         
         [switch]$Force
@@ -653,12 +606,26 @@ function New-ExternalHelp
 
     end 
     { 
+        # write verbose output and filter out files based on applicable tag
         $MarkdownFiles | ForEach-Object {
             Write-Verbose "[New-ExternalHelp] Input markdown file $_"
         }
 
-        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
-        
+        if ($ApplicableTag) {
+            Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
+            $MarkdownFiles = $MarkdownFiles | ForEach-Object {
+                $applicableList = GetApplicableList -Path $_.FullName
+                # this Compare-Object call is getting the intersection of two string[]
+                if ((-not $applicableList) -or (Compare-Object $applicableList $ApplicableTag -IncludeEqual -ExcludeDifferent)) {
+                    # yeild
+                    $_
+                } else {
+                    Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
+                }
+            }
+        }
+
+        # group the files based on the output xml path metadata tag
         if ($IsOutputContainer)
         {
             $defaultPath = Join-Path $OutputPath $script:DEFAULT_MAML_XML_OUTPUT_NAME
@@ -681,14 +648,19 @@ function New-ExternalHelp
             $groups = $MarkdownFiles | Group-Object { $OutputPath }
         }
 
+        # generate the xml content
+        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+
         foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding
+            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
             $xml = $r.MamlModelToString($maml)
+            
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
         }
         
+        # handle about topics
         if($AboutFiles.Count -gt 0)
         {
             foreach($About in $AboutFiles)
@@ -1027,6 +999,20 @@ function New-ExternalHelpCab
 #                                   p:::::::p
 #                                   ppppppppp
 
+# parse out the list "applicable" tags from yaml header
+function GetApplicableList
+{
+    param(
+        [Parameter(Mandatory=$true)]
+        $Path
+    )
+
+    $h = Get-MarkdownMetadata -Path $Path
+    if ($h -and $h[$script:APPLICABLE_YAML_HEADER]) {
+        return $h[$script:APPLICABLE_YAML_HEADER].Split(',').Trim()
+    }
+}
+
 function SortParamsAlphabetically
 {
     param(
@@ -1106,6 +1092,16 @@ function GetInfoCallback
         }
     }
     return $infoCallback
+}
+
+function GetWarningCallback
+{
+    $warningCallback = {
+        param([string]$message)
+        Write-Warning $message
+    }
+    
+    return $warningCallback
 }
 
 function GetAboutTopicsFromPath
@@ -1238,8 +1234,13 @@ function GetMamlModelImpl
         [string[]]$markdownFiles,
         [Parameter(Mandatory=$true)]
         [System.Text.Encoding]$Encoding,
-        [switch]$ForAnotherMarkdown
+        [switch]$ForAnotherMarkdown,
+        [String[]]$ApplicableTag
     )
+
+    if ($ForAnotherMarkdown -and $ApplicableTag) {
+        throw '[ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag'
+    }
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
     $res = New-Object 'System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]'
@@ -1248,7 +1249,7 @@ function GetMamlModelImpl
         $mdText = MyGetContent $_ -Encoding $Encoding
         $schema = GetSchemaVersion $mdText
         $p = NewMarkdownParser
-        $t = NewModelTransformer -schema $schema
+        $t = NewModelTransformer -schema $schema $ApplicableTag
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($mdText, $parseMode, $_)
@@ -1272,32 +1273,34 @@ function GetMamlModelImpl
 
 function NewMarkdownParser
 {
-    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList {
+    $warningCallback = GetWarningCallback
+    $progressCallback = {
         param([int]$current, [int]$all) 
         Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
     }
+    return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ($progressCallback, $warningCallback)
 }
 
 function NewModelTransformer
 {
     param(
         [ValidateSet('1.0.0', '2.0.0')]
-        [string]$schema
+        [string]$schema,
+        [string[]]$ApplicableTag
     )
 
     if ($schema -eq '1.0.0')
     {
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion1' -ArgumentList {
-            param([string]$message)
-            Write-Verbose $message
-        }
+        throw "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version."
     }
     elseif ($schema -eq '2.0.0')
     {
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList {
+        $infoCallback = {
             param([string]$message)
             Write-Verbose $message
         }
+        $warningCallback = GetWarningCallback
+        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback, $ApplicableTag)
     }
 }
 

@@ -61,9 +61,7 @@ If you have ideas or concerns about the Markdown schema, feel free to open a Git
 
  -  **src\platyPS** - sources to create the final PowerShell module.
  -  **src\Markdown.MAML, Markdown.MAML.sln** - source code for C# Markdown to MAML converter.
- -  **Examples** - misc files, showcases, etc.
  -  **[platyPS.schema.md](platyPS.schema.md)** - description of Markdown that platyPS expects.
- -  **[TagsMapping.md](TagsMapping.md)** - MAML schema description and its mapping to Markdown sections.
 
 ## Data transformations
 
@@ -122,6 +120,7 @@ Under the hood, the following tranformations happen:
 1. Make sure that `CHANGELOG.md` is up-to-date, move section from `UNRELEASED` to new section `<release name>`.
 1. Make sure platyPS help itself (content in .\docs folder) is up to date. 
    `Update-MarkdownHelp -Path .\docs` should result in no changes.
+1. Do not change the version in platyps.psd1. Git tag will update this version for release.
 1. From master, tag the release.
 1. Push tag to GitHub.
 1. Find the corresponding build on AppVeyor.
