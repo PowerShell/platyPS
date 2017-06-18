@@ -9,7 +9,7 @@ namespace Markdown.MAML.Model.MAML
     /// <summary>
     /// This class represents the related links properties for MAML
     /// </summary>
-    public class MamlLink
+    public class MamlLink : IEquatable<MamlLink>
     {
         /// <summary>
         /// This is a workaround for PreserveFormatting
@@ -26,6 +26,21 @@ namespace Markdown.MAML.Model.MAML
         public MamlLink(bool isSimplifiedTextLink)
         {
             this.IsSimplifiedTextLink = isSimplifiedTextLink;
+        }
+
+        bool IEquatable<MamlLink>.Equals(MamlLink other)
+        {
+            if (!StringComparer.OrdinalIgnoreCase.Equals(other.LinkName, this.LinkName))
+            {
+                return false;
+            }
+
+            if (!StringComparer.OrdinalIgnoreCase.Equals(other.LinkUri, this.LinkUri))
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }
