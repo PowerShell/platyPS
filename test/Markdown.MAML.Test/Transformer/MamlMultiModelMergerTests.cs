@@ -18,7 +18,7 @@ namespace Markdown.MAML.Test.Transformer
             input["Second"] = GetModel2();
             input["Third"] = GetModel3();
 
-            var result = merger.Merge(input);
+             var result = merger.Merge(input);
 
             Assert.Equal(result.Synopsis, @"! First, Second
 
@@ -54,8 +54,8 @@ Third Command
 
             // Links
             Assert.Equal(2, result.Links.Count);
-            Assert.Equal("", result.Links.ElementAt(0).LinkName);
-            Assert.Equal("foo", result.Links.ElementAt(1).LinkName);
+            Assert.Equal("[foo]()\r\n\r\n", result.Links.ElementAt(0).LinkName);
+            Assert.Equal("[bar]()\r\n\r\n", result.Links.ElementAt(1).LinkName);
 
             // Examples
             Assert.Equal(2, result.Examples.Count);
@@ -103,10 +103,9 @@ Third Command
                 Notes = "This is a multiline note.\r\nSecond line.\r\nFirst Command"
             };
 
-            command.Links.Add(new MamlLink()
+            command.Links.Add(new MamlLink(true)
             {
-                LinkName = "", // if name is empty, it would be populated with uri
-                LinkUri = "http://foo.com"
+                LinkName = "[foo]()\r\n",
             });
 
             command.Inputs.Add(new MamlInputOutput()
@@ -160,16 +159,9 @@ Third Command
                 Notes = "This is a multiline note.\r\nSecond line.\r\nSecond Command"
             };
 
-            command.Links.Add(new MamlLink()
+            command.Links.Add(new MamlLink(true)
             {
-                LinkName = "", // if name is empty, it would be populated with uri
-                LinkUri = "http://foo.com"
-            });
-
-            command.Links.Add(new MamlLink()
-            {
-                LinkName = "foo",
-                LinkUri = ""
+                LinkName = "[foo]()\r\n[bar]()",
             });
 
             command.Examples.Add(new MamlExample()
@@ -224,10 +216,9 @@ Third Command
                 Notes = "This is a multiline note.\r\nSecond line.\r\nThird Command"
             };
 
-            command.Links.Add(new MamlLink()
+            command.Links.Add(new MamlLink(true)
             {
-                LinkName = "foo",
-                LinkUri = ""
+                LinkName = "[bar]()",
             });
 
             command.Examples.Add(new MamlExample()
