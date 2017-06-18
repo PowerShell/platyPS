@@ -1100,4 +1100,33 @@ Describe 'Merge-MarkdownHelp' {
             ($helpNew2 | Out-String) | Should Be ($help2 | Out-String)
         }
     }
+
+    Context 'two file' {
+        function global:Test-PlatyPSMergeFunction1() {}
+        function global:Test-PlatyPSMergeFunction2() {}
+        
+        $files = @()
+        $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1 -OutputFolder TestDrive:\mergePath1 -Force
+        $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1, Test-PlatyPSMergeFunction2 -OutputFolder TestDrive:\mergePath2 -Force
+
+        It 'generates merged markdown with applicable tags' {
+            $fileNew = Merge-MarkdownHelp -Path $files -OutputPath TestDrive:\mergePathOut -Force
+
+            $mamlNew1 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\1new.xml -Force -ApplicableTag('mergePath1')
+            $helpNew1 = Get-HelpPreview -Path $mamlNew1
+
+            $mamlNew2 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\2new.xml -Force -ApplicableTag('mergePath2')
+            $helpNew2 = Get-HelpPreview -Path $mamlNew2
+
+            $names1 = $helpNew1.Name 
+            $names2 = $helpNew2.Name
+
+            ($names1 | measure).Count | Should Be 1
+            $names1 | Should Be 'Test-PlatyPSMergeFunction1'
+
+            ($names2 | measure).Count | Should Be 2
+            $names2[0] | Should Be 'Test-PlatyPSMergeFunction1'
+            $names2[1] | Should Be 'Test-PlatyPSMergeFunction2'
+        }
+    }
 }

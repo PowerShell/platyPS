@@ -436,7 +436,7 @@ function Merge-MarkdownHelp
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
-        [Switch]$IgnoreTagIfAllApplicable,
+        [Switch]$ExplicitApplicableIfAll,
 
         [Switch]$Force,
 
@@ -508,16 +508,16 @@ function Merge-MarkdownHelp
             }
 
             $tags = $dict.Keys
-            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $IgnoreTagIfAllApplicable)
+            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $ExplicitApplicableIfAll)
             {
-                $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = [string]::Join(", ", $tags) }
+                $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = $tags -join ', ' }
             }
             else
             {
                 $newMetadata = @{}
             }
 
-            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $IgnoreTagIfAllApplicable, $MergeMarker
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $ExplicitApplicableIfAll, $MergeMarker
             $newModel = $merger.MergePS($dict)
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
