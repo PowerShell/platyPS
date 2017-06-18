@@ -1,5 +1,6 @@
 ﻿using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Transformer;
+using Markdown.MAML.Renderer;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -25,7 +26,9 @@ This is the synopsis
 
 ! Third
 
-This is the synopsis 3");
+This is the synopsis 3
+
+");
 
             Assert.Equal(result.Description, "This is a long description.\r\nWith two paragraphs.");
 
@@ -45,7 +48,9 @@ Second Command
 
 This is a multiline note.
 Second line.
-Third Command");
+Third Command
+
+");
 
             // Links
             Assert.Equal(2, result.Links.Count);
@@ -70,10 +75,13 @@ Third Command");
             Assert.Equal(null, result.Outputs.ElementAt(0).Description);
 
             // Syntax
-            Assert.Equal(3, result.Syntax.Count);
+            Assert.Equal(2, result.Syntax.Count);
             Assert.Equal("ByName", result.Syntax.ElementAt(0).ParameterSetName);
-            Assert.Equal("ByName", result.Syntax.ElementAt(1).ParameterSetName);
-            Assert.Equal("BySomethingElse", result.Syntax.ElementAt(2).ParameterSetName);
+            Assert.Equal(2, result.Syntax.ElementAt(0).Parameters.Count);
+            Assert.Equal("Name", result.Syntax.ElementAt(0).Parameters[0].Name);
+            Assert.Equal("Remove", result.Syntax.ElementAt(0).Parameters[1].Name);
+
+            Assert.Equal("BySomethingElse", result.Syntax.ElementAt(1).ParameterSetName);
 
             // Parameters
             Assert.Equal(2, result.Parameters.Count);
@@ -84,7 +92,6 @@ Third Command");
             Assert.Equal("Remove", result.Parameters[1].Name);
             Assert.Equal(new string[] { "Third" }, result.Parameters[1].Applicable);
         }
-
 
         private MamlCommand GetModel1()
         {
@@ -292,6 +299,107 @@ Third Command");
             };
             syntax2.Parameters.Add(parameterName);
             command.Syntax.Add(syntax2);
+
+            return command;
+        }
+    }
+
+    public class MamlMultiModelMergerSyntaxTests
+    {
+        [Fact]
+        public void MergeDefaultSyntaxAndCreateMarkdown()
+        {
+            // First merge two models with default syntax names 
+
+            var merger = new MamlMultiModelMerger(null, false, "! ");
+            var input = new Dictionary<string, MamlCommand>();
+            input["First"] = GetModel1();
+            input["Second"] = GetModel2();
+
+            var result = merger.Merge(input);
+
+            // Syntax
+            Assert.Equal(1, result.Syntax.Count);
+            Assert.Equal(null, result.Syntax.ElementAt(0).ParameterSetName);
+            Assert.Equal(true, result.Syntax.ElementAt(0).IsDefault);
+
+            // Parameters
+            Assert.Equal(2, result.Parameters.Count);
+
+            Assert.Equal("Name1", result.Parameters[0].Name);
+            Assert.Equal(new string[] { "First" }, result.Parameters[0].Applicable);
+
+            Assert.Equal("Name2", result.Parameters[1].Name);
+            Assert.Equal(new string[] { "Second" }, result.Parameters[1].Applicable);
+
+            // next render it as markdown and make sure that we don't crash
+
+            var renderer = new MarkdownV2Renderer(MAML.Parser.ParserMode.FormattingPreserve);
+            string markdown = renderer.MamlModelToString(result, true);
+        }
+
+        private MamlCommand GetModel1()
+        {
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                Synopsis = "This is the synopsis",
+                Description = "This is a long description.\r\nWith two paragraphs.",
+                Notes = "This is a multiline note.\r\nSecond line.\r\nFirst Command"
+            };
+
+            var parameterName = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name1",
+                Required = true,
+                Description = "Parameter Description.",
+                VariableLength = true,
+                Globbing = true,
+                PipelineInput = "True (ByValue)",
+                Position = "1",
+                DefaultValue = "trololo",
+                Aliases = new string[] { "GF", "Foos", "Do" },
+            };
+
+            command.Parameters.Add(parameterName);
+
+            var syntax1 = new MamlSyntax() { IsDefault = true };
+            syntax1.Parameters.Add(parameterName);
+            command.Syntax.Add(syntax1);
+
+            return command;
+        }
+
+        private MamlCommand GetModel2()
+        {
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                Synopsis = "This is the synopsis",
+                Description = "This is a long description.\r\nWith two paragraphs.",
+                Notes = "This is a multiline note.\r\nSecond line.\r\nSecond Command"
+            };
+
+            var parameterName = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name2",
+                Required = true,
+                Description = "Parameter Description.",
+                VariableLength = true,
+                Globbing = true,
+                PipelineInput = "True (ByValue)",
+                Position = "1",
+                DefaultValue = "trololo",
+                Aliases = new string[] { "GF", "Foos", "Do" },
+            };
+
+            command.Parameters.Add(parameterName);
+
+            var syntax1 = new MamlSyntax() { IsDefault = true };
+            syntax1.Parameters.Add(parameterName);
+            command.Syntax.Add(syntax1);
 
             return command;
         }

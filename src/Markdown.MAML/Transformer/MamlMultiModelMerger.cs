@@ -19,13 +19,13 @@ namespace Markdown.MAML.Transformer
         private bool _ignoreTagsIfAllApplicable;
         private string _mergeMarker;
 
-        public MamlMultiModelMerger() : this(null, true) { }
+        public MamlMultiModelMerger() : this(null, true, "!!! ") { }
 
         /// <summary>
         /// </summary>
         /// <param name="infoCallback">Report string information to some channel</param>
         /// <param name="ignoreTagsIfAllApplicable">if True merger will skip adding applicable tags if it's applicable to all</param>
-        public MamlMultiModelMerger(Action<string> infoCallback, bool ignoreTagsIfAllApplicable, string mergeMarker = "!!!!!! ")
+        public MamlMultiModelMerger(Action<string> infoCallback, bool ignoreTagsIfAllApplicable, string mergeMarker)
         {
             _infoCallback = infoCallback;
             _ignoreTagsIfAllApplicable = ignoreTagsIfAllApplicable;
@@ -132,6 +132,39 @@ namespace Markdown.MAML.Transformer
         }
 
         /// <summary>
+        /// Merge Parameter lists, exclude duplicates by name and preserve the order.
+        /// </summary>
+        /// <param name="links"></param>
+        /// <returns></returns>
+        private List<MamlParameter> MergeParameterList(IEnumerable<List<MamlParameter>> parameterLists)
+        {
+            List<MamlParameter> result = new List<MamlParameter>();
+            foreach (var list in parameterLists)
+            {
+                foreach (var candidate in list)
+                {
+                    // this cycle can be optimized but that's fine
+                    bool found = false;
+                    foreach (var added in result)
+                    {
+                        if (StringComparer.OrdinalIgnoreCase.Equals(added.Name, candidate.Name))
+                        {
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)
+                    {
+                        result.Add(candidate);
+                    }
+                }
+            }
+
+            return result;
+        }
+
+        /// <summary>
         /// Combine examples together. Don't perform any reduction, but group the examples after each other and add tag name to the title.
         /// TODO can we combine examples better perhaps?
         /// </summary>
@@ -162,9 +195,37 @@ namespace Markdown.MAML.Transformer
         private void MergeParameters(MamlCommand result, Dictionary<string, MamlCommand> applicableTag2Model)
         {
             // First handle syntax.
-            // TODO: we can do it better probably
+            // To avoid dealing with complicated applicableTag + ParameterSetName pairs.
+            // They already serve very similar purpose.
+            // 
+            // We simply merge syntaxes of the same name. That way all possible parameter names from all applicable tags
+            // apearing in the syntax. This is not ideal, but alternative would be introducing "applicable" for syntax.
+            // That would make it even more complicated.
             var tagsModel = applicableTag2Model.ToList();
-            result.Syntax.AddRange(MergeEntityList(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Syntax)));
+            var syntaxes = tagsModel.SelectMany(pair => pair.Value.Syntax);
+            var syntaxNames = syntaxes.Select(syntax => syntax.ParameterSetName).Distinct(StringComparer.OrdinalIgnoreCase);
+            var defaultSyntaxNames = syntaxes.Where(syntax => syntax.IsDefault).Select(syntax => syntax.ParameterSetName).Distinct(StringComparer.OrdinalIgnoreCase);
+            if (defaultSyntaxNames.Count() > 1)
+            {
+                // reporting warning and continue
+                Report("Found conflicting default ParameterSets ({0}) in applicableTags ({1})", 
+                    string.Join(", ", defaultSyntaxNames), string.Join(", ", applicableTag2Model.Keys));
+            }
+            string defaultSyntaxName = defaultSyntaxNames.FirstOrDefault();
+
+            foreach (string syntaxName in syntaxNames)
+            {
+                var newSyntax = new MamlSyntax()
+                {
+                    ParameterSetName = syntaxName,
+                    IsDefault = StringComparer.OrdinalIgnoreCase.Equals(defaultSyntaxName, syntaxName),
+                };
+
+                var paramSetsToMerge = syntaxes.Where(syntax => StringComparer.OrdinalIgnoreCase.Equals(syntax.ParameterSetName, syntaxName));
+
+                newSyntax.Parameters.AddRange(MergeParameterList(paramSetsToMerge.Select(syntax => syntax.Parameters)));
+                result.Syntax.Add(newSyntax);
+            }
 
             // Then merge individual parameters
 
@@ -224,7 +285,7 @@ namespace Markdown.MAML.Transformer
                 result.AppendFormat("{0}{1}{2}{2}{3}{2}{2}", _mergeMarker, tagsString, Environment.NewLine, pair.Key);
             }
 
-            return result.ToString().Trim();
+            return result.ToString();
         }
 
         private void Report(string format, params object[] objects)
