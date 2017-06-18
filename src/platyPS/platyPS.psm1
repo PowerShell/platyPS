@@ -517,7 +517,7 @@ function Merge-MarkdownHelp
                 $newMetadata = @{}
             }
 
-            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $ExplicitApplicableIfAll, $MergeMarker
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, !$ExplicitApplicableIfAll, $MergeMarker
             $newModel = $merger.MergePS($dict)
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
