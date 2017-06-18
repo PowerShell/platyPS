@@ -304,6 +304,7 @@ function Get-MarkdownMetadata
             ValueFromPipelineByPropertyName=$true,
             Position=1,
             ParameterSetName="FromPath")]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true,
@@ -334,6 +335,7 @@ function Update-MarkdownHelp
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
@@ -429,6 +431,7 @@ function Merge-MarkdownHelp
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true)]
@@ -534,6 +537,7 @@ function Update-MarkdownHelpModule
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
         
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
@@ -664,6 +668,7 @@ function New-ExternalHelp
             Position=1,
             ValueFromPipeline=$true,
             ValueFromPipelineByPropertyName=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true)]
@@ -794,6 +799,7 @@ function Get-HelpPreview
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true,
             Position=1)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [switch]$ConvertNotesToList,
@@ -1279,6 +1285,7 @@ function GetMarkdownFilesFromPath
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
         
         [switch]$IncludeModulePage
