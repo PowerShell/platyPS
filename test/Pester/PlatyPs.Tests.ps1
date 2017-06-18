@@ -1057,3 +1057,47 @@ Describe 'Create About Topic Markdown and Txt' {
         Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $content
     }
 }
+
+Describe 'Merge-MarkdownHelp' {
+
+    Context 'single file, ignore examples' {
+        function global:Test-PlatyPSMergeFunction
+        {
+            param(
+                [string]$First
+            )
+        }
+        
+        $file1 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile1 -Force
+        $maml1 = $file1 | New-ExternalHelp -OutputPath TestDrive:\1.xml -Force
+        $help1 = Get-HelpPreview -Path $maml1
+        $help1.examples = @()
+
+        function global:Test-PlatyPSMergeFunction
+        {
+            param(
+                [string]$Second
+            )
+        }
+        
+        $file2 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile2 -Force
+        $maml2 = $file2 | New-ExternalHelp -OutputPath TestDrive:\2.xml -Force
+        $help2 = Get-HelpPreview -Path $maml2
+        $help2.examples = @()
+
+        It 'generates merged markdown with applicable tags' {
+            $fileNew = Merge-MarkdownHelp -Path @($file1, $file2) -OutputPath TestDrive:\mergeFileOut -Force
+
+            $mamlNew1 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\1new.xml -Force -ApplicableTag('mergeFile1')
+            $helpNew1 = Get-HelpPreview -Path $mamlNew1
+            $helpNew1.examples = @()
+
+            $mamlNew2 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\2new.xml -Force -ApplicableTag('mergeFile2')
+            $helpNew2 = Get-HelpPreview -Path $mamlNew2
+            $helpNew2.examples = @()
+
+            ($helpNew1 | Out-String) | Should Be ($help1 | Out-String)
+            ($helpNew2 | Out-String) | Should Be ($help2 | Out-String)
+        }
+    }
+}

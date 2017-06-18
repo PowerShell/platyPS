@@ -263,7 +263,7 @@ namespace Markdown.MAML.Transformer
             var reverseMap = new Dictionary<string, List<string>>();
             foreach (var pair in applicableTag2Text)
             {
-                string pretty = pair.Value != null ? pair.Value.Trim() : "";
+                string pretty = pair.Value != null ? pair.Value : "";
                 List<string> tags;
                 if (!reverseMap.TryGetValue(pretty, out tags))
                 {

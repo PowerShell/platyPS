@@ -438,7 +438,9 @@ function Merge-MarkdownHelp
 
         [Switch]$IgnoreTagIfAllApplicable,
 
-        [Switch]$Force
+        [Switch]$Force,
+
+        [string]$MergeMarker = "!!! "
     )
 
     begin
@@ -515,7 +517,7 @@ function Merge-MarkdownHelp
                 $newMetadata = @{}
             }
 
-            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $IgnoreTagIfAllApplicable
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, $IgnoreTagIfAllApplicable, $MergeMarker
             $newModel = $merger.MergePS($dict)
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting

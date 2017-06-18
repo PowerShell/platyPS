@@ -336,6 +336,10 @@ Third Command
 
             var renderer = new MarkdownV2Renderer(MAML.Parser.ParserMode.FormattingPreserve);
             string markdown = renderer.MamlModelToString(result, true);
+
+            int yamlLinesCount = markdown.Split('\n').Select(s => s.Trim()).Where(s => s.Equals("```yaml")).Count();
+            // verify that ```yaml are all on a separate line
+            Assert.Equal(2, yamlLinesCount);
         }
 
         private MamlCommand GetModel1()
@@ -353,7 +357,7 @@ Third Command
                 Type = "String",
                 Name = "Name1",
                 Required = true,
-                Description = "Parameter Description.",
+                Description = "Parameter Description.\r\n",
                 VariableLength = true,
                 Globbing = true,
                 PipelineInput = "True (ByValue)",
@@ -386,7 +390,7 @@ Third Command
                 Type = "String",
                 Name = "Name2",
                 Required = true,
-                Description = "Parameter Description.",
+                Description = "Parameter Description.\r\n",
                 VariableLength = true,
                 Globbing = true,
                 PipelineInput = "True (ByValue)",
