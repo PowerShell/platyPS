@@ -85,16 +85,41 @@ namespace Markdown.MAML.Transformer
                 Extent = referenceModel.Extent
             };
 
-            // post all links, exclude dups
-            result.Links.AddRange(MergeEntityList(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Links)));
+            result.Links.AddRange(MergeSimplifiedLinks(tagsModel.Select(pair => pair.Value.Links)));
 
             MergeExamples(result, applicableTag2Model);
 
-            result.Inputs.AddRange(MergeEntityList(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Inputs)));
-            result.Outputs.AddRange(MergeEntityList(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Outputs)));
+            result.Inputs.AddRange(MergeEntityList(tagsModel.Select(pair => pair.Value.Inputs)));
+            result.Outputs.AddRange(MergeEntityList(tagsModel.Select(pair => pair.Value.Outputs)));
 
             MergeParameters(result, applicableTag2Model);
             return result;
+        }
+
+        private IEnumerable<MamlLink> MergeSimplifiedLinks(IEnumerable<List<MamlLink>> linksList)
+        {
+            // In theory we could simply use MergeEntityList, but we have this SimplifiedLinks hack:
+            // we just put whole paragraphs of text into LinkName.
+
+            // To acoount for it we should
+            // split any simplified link into separate ones.
+            // Then we can combine them and return in the form of simplified links.
+
+            List<List<MamlLink>> candidates = new List<List<MamlLink>>();
+            foreach (var links in linksList)
+            {
+                foreach (var link in links)
+                {
+                    if (!link.IsSimplifiedTextLink)
+                    {
+                        throw new ArgumentException("All links are expected in simplified form");
+                    }
+                    string[] segments = link.LinkName.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    candidates.Add(segments.Select(s => new MamlLink(isSimplifiedTextLink: true) { LinkName = s.Trim() + "\r\n\r\n" }).ToList());
+                }
+            }
+
+            return MergeEntityList(candidates);
         }
 
         /// <summary>
@@ -102,13 +127,13 @@ namespace Markdown.MAML.Transformer
         /// </summary>
         /// <param name="links"></param>
         /// <returns></returns>
-        private List<TEntity> MergeEntityList<TEntity>(Dictionary<string, List<TEntity>> applicableTag2Model) 
+        private List<TEntity> MergeEntityList<TEntity>(IEnumerable<List<TEntity>> entities) 
             where TEntity : IEquatable<TEntity>
         {
             List<TEntity> result = new List<TEntity>();
-            foreach(var pair in applicableTag2Model)
+            foreach(var entity in entities)
             {
-                foreach (var candidate in pair.Value)
+                foreach (var candidate in entity)
                 {
                     // this cycle can be optimized but that's fine
                     bool found = false; 
