@@ -663,7 +663,8 @@ function New-ExternalHelp
         [Parameter(Mandatory=$true,
             Position=1,
             ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true)]
+            ValueFromPipelineByPropertyName = $true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true)]
