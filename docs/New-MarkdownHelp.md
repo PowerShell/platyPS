@@ -428,7 +428,7 @@ Accept wildcard characters: False
 ```
 
 ### -UseFullTypeName
-{{Fill UseFullTypeName Description}}
+Indicates that the target document will use a full type name instead of a short name for parameters.
 
 ```yaml
 Type: SwitchParameter
