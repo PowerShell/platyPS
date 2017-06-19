@@ -288,6 +288,12 @@ namespace Markdown.MAML.Renderer
                 {
                     _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accepted_values, JoinWithComma(parameter.ParameterValueGroup), Environment.NewLine);
                 }
+
+                if (parameter.Applicable != null)
+                {
+                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Applicable, JoinWithComma(parameter.Applicable), Environment.NewLine);
+                }
+
                 _stringBuilder.AppendLine();
 
                 _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);

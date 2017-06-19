@@ -377,7 +377,7 @@ This example demonstrates the process of registering a snap-in on your system an
         public static string MarkdownStringToMamlString(string markdown)
         {
             var parser = new MarkdownParser();
-            var transformer = new ModelTransformerVersion1();
+            var transformer = new ModelTransformerVersion2();
             var renderer = new MamlRenderer();
 
             var markdownModel = parser.ParseString(new string[] { markdown });

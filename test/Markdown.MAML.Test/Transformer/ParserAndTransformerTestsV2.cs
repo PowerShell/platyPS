@@ -155,6 +155,73 @@ Accept wildcard characters: true
             Assert.Equal(param[0].Globbing, true);
         }
 
+        [Fact]
+        public void SingleYamlApplicableParameter()
+        {
+
+            var doc = ParseString(@"
+# Get-Foo
+## Parameters
+### Bar1
+This is bar parameter
+
+```yaml
+Required: true
+Position: named
+Default value: Fooo
+Accept pipeline input: false
+Accept wildcard characters: true
+Applicable: fOo, bAr
+```
+### Bar2
+This is bar parameter
+
+```yaml
+Required: true
+Position: named
+Default value: Fooo
+Accept pipeline input: false
+Accept wildcard characters: true
+Applicable: baz
+```
+
+### Bar3
+This is bar parameter
+
+```yaml
+Required: true
+Position: named
+Default value: Fooo
+Accept pipeline input: false
+Accept wildcard characters: true
+```
+
+### Bar4
+This is bar parameter
+
+```yaml
+Required: true
+Position: named
+Default value: Fooo
+Accept pipeline input: false
+Accept wildcard characters: true
+Applicable: tag
+```
+
+");
+            var mamlCommand = NodeModelToMamlModelV2(doc, new[] { "foo", "tag" }).ToArray();
+            Assert.Equal(mamlCommand.Count(), 1);
+            var param = mamlCommand[0].Parameters.ToArray();
+            Assert.Equal(param.Count(), 3);
+            // Bar1 has Applicable "foo"
+            Assert.Equal(param[0].Name, "Bar1");
+            // Bar2 should not match
+            // Bar3 has no applicable
+            Assert.Equal(param[1].Name, "Bar3");
+            // Bar4 has Applicable "tag"
+            Assert.Equal(param[2].Name, "Bar4");
+        }
+
         // For more context see https://github.com/PowerShell/platyPS/issues/239
         [Fact]
         public void SingleParameterWithCodesnippet()
@@ -579,6 +646,7 @@ Required: false
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Get-Foo");
 
+            // Check Syntax
             Assert.Equal(2, mamlCommand.Syntax.Count);
             var syntax1 = mamlCommand.Syntax[0];
             var syntax2 = mamlCommand.Syntax[1];
@@ -594,6 +662,52 @@ Required: false
 
             Assert.Equal(syntax1.Parameters[0].Required, true);
             Assert.Equal(syntax2.Parameters[0].Required, false);
+
+            // Check Parameters
+            Assert.Equal(1, mamlCommand.Parameters.Count);
+            var parameter = mamlCommand.Parameters[0];
+            Assert.Equal("TypeName", parameter.Name);
+            // Required == true because first takes precedence
+            Assert.Equal(true, parameter.Required);
+        }
+
+        [Fact]
+        public void ApplicableAndSyntaxForTwoSetsInterraction()
+        {
+            // we are mixing together two yaml definitions and applicable tag
+
+            const string docFormatString = @"
+# Get-Foo
+## PARAMETERS
+
+### TypeName
+
+```yaml
+Type: string
+Parameter sets: Set 1
+Required: true
+applicable: foo
+```
+
+```yaml
+Type: string
+Parameter sets: Set 2
+Required: false
+Applicable: bar
+```
+";
+            var doc = ParseString(docFormatString);
+
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc, new[] { "bar" }).First();
+            Assert.Equal(mamlCommand.Name, "Get-Foo");
+
+            Assert.Equal(1, mamlCommand.Syntax.Count);
+            var syntax1 = mamlCommand.Syntax[0];
+
+            Assert.Equal(syntax1.Parameters.Count, 1);
+            Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
+            Assert.Equal(syntax1.Parameters[0].Type, "string");
+            Assert.Equal(syntax1.Parameters[0].Required, false);
         }
 
         [Fact]
@@ -930,9 +1044,9 @@ This is the documentation for {0}
             return string.Format(paramFormatString, paramName, paramAttributes);
         }
 
-        private IEnumerable<MamlCommand> NodeModelToMamlModelV2(DocumentNode doc)
+        private IEnumerable<MamlCommand> NodeModelToMamlModelV2(DocumentNode doc, string[] applicableTag = null)
         {
-            return (new ModelTransformerVersion2()).NodeModelToMamlModel(doc);
+            return (new ModelTransformerVersion2(null, null, applicableTag)).NodeModelToMamlModel(doc);
         }
     }
 }

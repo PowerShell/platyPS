@@ -50,7 +50,7 @@ Describe 'New-MarkdownHelp' {
     Context 'from platyPS module' {
         It 'creates few help files for platyPS' {
             $files = New-MarkdownHelp -Module PlatyPS -OutputFolder TestDrive:\platyPS -Force
-            ($files | measure).Count | Should BeGreaterThan 4
+            ($files | Measure-Object).Count | Should BeGreaterThan 4
         }
     }
 
@@ -90,7 +90,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown files only for exported functions' {
-            ($files | measure).Count | Should Be 1
+            ($files | Measure-Object).Count | Should Be 1
             $files.Name | Should Be 'Get-AAAA.md'
         }        
     }
@@ -98,7 +98,7 @@ Describe 'New-MarkdownHelp' {
     Context 'from command' {
         It 'creates 2 markdown files from command names' {
             $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder TestDrive:\commands -Force
-            ($files | measure).Count | Should Be 2
+            ($files | Measure-Object).Count | Should Be 2
         }
     }
 
@@ -123,8 +123,8 @@ Describe 'New-MarkdownHelp' {
 
         It 'uses alphabetic order when specified' {
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
-            ($files | measure).Count | Should Be 1
-            Get-Content $files | ? {$_.StartsWith('### -')} | Out-String | Should Be @'
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be @'
 ### -AAA
 ### -BBB
 ### -CCC
@@ -144,7 +144,7 @@ Describe 'New-MarkdownHelp' {
             #>
         }
 
-        @('https://github.com/PowerShell/platyPS', 'http://www.fabrikam.com/extension.html', $null) | % {
+        @('https://github.com/PowerShell/platyPS', 'http://www.fabrikam.com/extension.html', $null) | ForEach-Object {
             $uri = $_
             It "generates passed online url '$uri'" {
                 $a = @{
@@ -160,12 +160,12 @@ Describe 'New-MarkdownHelp' {
                 $link = $help.relatedLinks.navigationLink
                 if ($uri) {
                     if ($uri -eq 'http://www.fabrikam.com/extension.html') {
-                        ($link | measure).Count | Should Be 1
+                        ($link | Measure-Object).Count | Should Be 1
                         $link[0].linkText | Should Be $uri
                         $link[0].uri | Should Be 'http://www.fabrikam.com/extension.html'
                     }
                     else {
-                        ($link | measure).Count | Should Be 2
+                        ($link | Measure-Object).Count | Should Be 2
                         $link[0].linkText | Should Be 'Online Version:'
                         $link[0].uri | Should Be $uri
                     }
@@ -188,17 +188,17 @@ Describe 'New-MarkdownHelp' {
         $help = Get-HelpPreview -Path $maml
 
         It 'generates well-known stub descriptions for -WhatIf' {
-            $param = $help.parameters.parameter | ? { $_.Name -eq 'WhatIf' }
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'WhatIf' }
             $param.description.text | Should Be 'Shows what would happen if the cmdlet runs. The cmdlet is not run.'
         }
 
         It 'generates well-known stub descriptions for -Confirm' {
-            $param = $help.parameters.parameter | ? { $_.Name -eq 'Confirm' }
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Confirm' }
             $param.description.text | Should Be 'Prompts you for confirmation before running the cmdlet.'
         }
 
         It 'generates well-known stub descriptions for -Foo' {
-            $param = $help.parameters.parameter | ? { $_.Name -eq 'Foo' }
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Foo' }
             $param.description.text | Should Be '{{Fill Foo Description}}'
         }
     }
@@ -247,28 +247,28 @@ Describe 'New-MarkdownHelp' {
         }
         
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll1 -Force
-        $content = cat $file
+        $content = Get-Content $file
 
         It 'generates markdown with correct parameter set names' {
-            ($content | ? {$_ -eq 'Parameter Sets: (All)'} | measure).Count | Should Be 1
-            ($content | ? {$_ -eq 'Parameter Sets: First'} | measure).Count | Should Be 1
-            ($content | ? {$_ -eq 'Parameter Sets: Second'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Parameter Sets: (All)'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Parameter Sets: First'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Parameter Sets: Second'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct synopsis' {
-            ($content | ? {$_ -eq 'Adds a file name extension to a supplied name.'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
-            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'First parameter help description'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct help description specified by comment-based help' {
-            ($content | ? {$_ -eq 'Second parameter help description'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Second parameter help description'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with placeholder for parameter with no description' {
-            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq '{{Fill Common Description}}'} | Measure-Object).Count | Should Be 1
         }
     }
 
@@ -287,18 +287,18 @@ Describe 'New-MarkdownHelp' {
         }
         
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll2 -Force
-        $content = cat $file
+        $content = Get-Content $file
 
         It 'generates markdown with correct synopsis placeholder' {
-            ($content | ? {$_ -eq '{{Fill in the Synopsis}}'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq '{{Fill in the Synopsis}}'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
-            ($content | ? {$_ -eq 'First parameter help description'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'First parameter help description'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with placeholder for parameter with no description' {
-            ($content | ? {$_ -eq '{{Fill Common Description}}'} | measure).Count | Should Be 1
+            ($content | Where-Object {$_ -eq '{{Fill Common Description}}'} | Measure-Object).Count | Should Be 1
         }
     }
 
@@ -343,8 +343,8 @@ Describe 'New-MarkdownHelp' {
             $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\"
             $help = Get-HelpPreview -Path $maml 
             $help.Syntax.syntaxItem.Count | Should Be 2
-            $dynamicParam = $help.parameters.parameter | ? {$_.name -eq 'DynamicParameter'}
-            ($dynamicParam | measure).Count | Should Be 1
+            $dynamicParam = $help.parameters.parameter | Where-Object {$_.name -eq 'DynamicParameter'}
+            ($dynamicParam | Measure-Object).Count | Should Be 1
         }
     }
 
@@ -367,7 +367,7 @@ Describe 'New-MarkdownHelp' {
 
         It "generates a landing page from MAML"{
 
-            New-MarkdownHelp -MamlFile (ls "$outFolder\platyPS\en-US\platy*xml") `
+            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder\platyPS\en-US\platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
                         -ModuleName "PlatyPS" `
@@ -400,9 +400,9 @@ Describe 'New-ExternalHelp' {
     
     It "generates right order for syntax" {
         $help = Get-HelpPreview -Path $maml 
-        ($help.Syntax.syntaxItem | measure).Count | Should Be 1
+        ($help.Syntax.syntaxItem | Measure-Object).Count | Should Be 1
         $names = $help.Syntax.syntaxItem.parameter.Name
-        ($names | measure).Count | Should Be 3
+        ($names | Measure-Object).Count | Should Be 3
         $names[0] | Should Be 'First'        
         $names[1] | Should Be 'Third'
         $names[2] | Should Be 'Named'
@@ -411,6 +411,80 @@ Describe 'New-ExternalHelp' {
     It "checks that xmlns 'http://msh' is present" {
         $xml = [xml] (Get-Content (Join-Path $TestDrive 'TestOrderFunction.xml'))
         $xml.helpItems.namespaceuri | Should Be 'http://msh'
+    }
+}
+
+Describe 'New-ExternalHelp -ApplicableTag for cmdlet level' {
+    BeforeAll {
+        function global:Test-Applicable12 {}
+        function global:Test-ApplicableNone {}
+        function global:Test-Applicable32 {}
+        function global:Test-Applicable4 {}
+    }
+
+    It 'ignores cmdlet when applicable tag doesn''t match' {
+        $files = @()
+        $files += New-MarkdownHelp -Metadata @{ applicable = 'tag 1, tag 2'} -Command Test-Applicable12 -OutputFolder $TestDrive -Force -WarningAction SilentlyContinue
+        $files += New-MarkdownHelp -Metadata @{ applicable = 'tag 3, tag 2'} -Command Test-Applicable32 -OutputFolder $TestDrive -Force -WarningAction SilentlyContinue
+        $files += New-MarkdownHelp -Command Test-ApplicableNone -OutputFolder $TestDrive -Force -WarningAction SilentlyContinue
+        $files += New-MarkdownHelp -Metadata @{ applicable = 'tag 4'} -Command Test-Applicable4 -OutputFolder $TestDrive -Force -WarningAction SilentlyContinue
+
+        $maml = $files | New-ExternalHelp -ApplicableTag @('tag 1', 'tag 4') -OutputPath "$TestDrive\TestApplicable.xml" -Force
+        $help = Get-HelpPreview -Path $maml
+        ($help | Measure-Object).Count | Should Be 3
+        $names = $help.Name
+        $names[0] | Should Be 'Test-Applicable12'
+        $names[1] | Should Be 'Test-ApplicableNone'
+        $names[2] | Should Be 'Test-Applicable4'
+    }
+}
+
+Describe 'New-ExternalHelp -ApplicableTag for parameters level' {
+    It 'ignores parameters when applicable tag doesn''t match' {
+        $md = @'
+---
+schema: 2.0.0
+---
+
+# Get-Foo
+## PARAMETERS
+
+### -P1
+
+```yaml
+Type: String
+Applicable: tag 1, tag 2
+```
+
+### -P2
+
+```yaml
+Type: String
+Applicable: tag 3
+```
+
+### -P3
+
+```yaml
+Type: String
+```
+
+### -P4
+
+```yaml
+Type: String
+Applicable: tag 4
+```
+'@
+        $path = "$outFolder\Get-Foo.md"
+        Set-Content -Path $path -Value $md
+        $maml = $path | New-ExternalHelp -ApplicableTag @('tag 1', 'tag 4') -OutputPath "$TestDrive\TestApplicable.xml" -Force
+        $help = Get-HelpPreview -Path $maml
+        $names = $help.Parameters.parameter.Name
+        ($names | Measure-Object).Count | Should Be 3
+        $names[0] | Should Be 'P1'
+        $names[1] | Should Be 'P3'
+        $names[2] | Should Be 'P4'
     }
 }
 
@@ -429,7 +503,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             foreach($path in $paths)
             {
             $path = Split-Path $path -Parent
-            $foundHelp += Get-ChildItem -Path $path -Recurse | Where { $_.Name -like "*$HelpFileName"} | Select Name
+            $foundHelp += Get-ChildItem -Path $path -Recurse | Where-Object { $_.Name -like "*$HelpFileName"} | Select-Object Name
             }
 
             $foundHelp.Count | Should BeGreaterThan 0
@@ -456,7 +530,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         
         It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
 
-            $Parameter = $mamlModelObject.Syntax[0].Parameters | ? { $_.Name -eq "ComputerName" }
+            $Parameter = $mamlModelObject.Syntax[0].Parameters | Where-Object { $_.Name -eq "ComputerName" }
             $Parameter.Name | Should be "ComputerName"
             $Parameter.Type | Should be "string[]"
             $Parameter.Required | Should be $false
@@ -464,7 +538,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         
         It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
             
-            $DefaultParameterSet = $mamlModelObject.Syntax | ? {$_.IsDefault}
+            $DefaultParameterSet = $mamlModelObject.Syntax | Where-Object {$_.IsDefault}
             $count = 0
             foreach($set in $DefaultParameterSet)
             {
@@ -472,7 +546,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
             }
             $count | Should be 1
             
-            $DefaultParameterSetName = $mamlModelObject.Syntax | ? {$_.IsDefault} | Select ParameterSetName
+            $DefaultParameterSetName = $mamlModelObject.Syntax | Where-Object {$_.IsDefault} | Select-Object ParameterSetName
             $DefaultParameterSetName.ParameterSetName | Should be "Domain"
         }        
     }
@@ -482,14 +556,14 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Member" }
 
         It 'Fetch MemberSet set name' {
-            $MemberSet = $mamlModelObject.Syntax | ? {$_.ParameterSetName -eq 'MemberSet'}
-            ($MemberSet | measure).Count | Should Be 1
+            $MemberSet = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'MemberSet'}
+            ($MemberSet | Measure-Object).Count | Should Be 1
         }
 
         It 'populates ParameterValueGroup for MemberType' {
-            $Parameters = $mamlModelObject.Syntax.Parameters | ? { $_.Name -eq "MemberType" }
-            ($Parameters | measure).Count | Should Be 1
-            $Parameters | % {
+            $Parameters = $mamlModelObject.Syntax.Parameters | Where-Object { $_.Name -eq "MemberType" }
+            ($Parameters | Measure-Object).Count | Should Be 1
+            $Parameters | ForEach-Object {
                 $_.Name | Should be "MemberType"
                 $_.ParameterValueGroup.Count | Should be 16
             }
@@ -567,7 +641,7 @@ Describe 'New-ExternalHelpCab' {
             New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
             [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
             $Count = 0
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | % {$Count++}
+            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | ForEach-Object {$Count++}
             
             $Count | Should Be 3
         }
@@ -580,7 +654,7 @@ Describe 'Update-MarkdownHelp -LogPath' {
     
     It 'checks the log exists' {
         $drop = "TestDrive:\MD\SingleCommand"
-        rm -rec $drop -ErrorAction SilentlyContinue
+        Remove-Item -rec $drop -ErrorAction SilentlyContinue
         New-MarkdownHelp -Command Add-History -OutputFolder $drop | Out-Null
         Update-MarkdownHelp -Path $drop -LogPath "$drop\platyPSLog.txt"
         (Get-Childitem $drop\platyPsLog.txt).Name | Should Be 'platyPsLog.txt'
@@ -618,31 +692,12 @@ Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
         
     It 'creates markdown in the first place' {
         $originalFiles | Should Not Be $null
-        $originalFiles | Select -First 2 | rm
+        $originalFiles | Select-Object -First 2 | Remove-Item
     }
 
     It 'updates markdown and creates removed files again' {
         $updatedFiles = Update-MarkdownHelpModule -Path $OutputFolder
-        ($updatedFiles | measure).Count | Should Be (($originalFiles | measure).Count - 1)
-    }
-}
-
-Describe 'Update-MarkdownHelpSchema' {
-    $v1md = ls $PSScriptRoot\..\..\Examples\PSReadline.dll-help.md
-    $OutputFolder = 'TestDrive:\PSReadline'
-
-    $v1maml = New-ExternalHelp -Path $v1md.FullName -OutputPath "$OutputFolder\v1.xml"
-    $v2md = Update-MarkdownHelpSchema -Path $v1md -OutputFolder $outFolder -Force
-    $v2maml = New-ExternalHelp $v2md.FullName -OutputPath "$OutputFolder\v2.xml"
-
-    It 'help preview is the same before and after upgrade' {
-        Get-HelpPreview -Path $v1maml > TestDrive:\1.txt
-        Get-HelpPreview -Path $v2maml > TestDrive:\2.txt
-    
-        $v1txt = cat -Raw TestDrive:\1.txt
-        $v2txt = cat -Raw TestDrive:\2.txt
-
-        $v2txt | Should Be $v1txt
+        ($updatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count - 1)
     }
 }
 
@@ -673,7 +728,7 @@ Describe 'Update-MarkdownHelp reflection scenario' {
         $v1md.FullName | Should Contain '### Example 1'
     }
 
-    $v1markdown = $v1md | cat -Raw
+    $v1markdown = $v1md | Get-Content -Raw
 
     $newFooDescription = normalizeEnds @'
 ThisIsFooDescription
@@ -707,12 +762,12 @@ And [hyper](http://link.com).
     }
 
     $v2maml = New-ExternalHelp -Path $v2md.FullName -OutputPath "$OutputFolder\v2"
-    $v2markdown = $v2md | cat -raw 
+    $v2markdown = $v2md | Get-Content -raw 
     $help = Get-HelpPreview -Path $v2maml 
     
     It 'has both parameters' {
         $names = $help.Parameters.parameter.Name
-        ($names | measure).Count | Should Be 2
+        ($names | Measure-Object).Count | Should Be 2
         $names[0] | Should Be 'Bar'
         $names[1] | Should Be 'Foo'
     }
@@ -722,7 +777,7 @@ And [hyper](http://link.com).
     }
 
     It 'has updated description for Foo' {
-        $fooParam = $help.Parameters.parameter | ? {$_.Name -eq 'Foo'}
+        $fooParam = $help.Parameters.parameter | Where-Object {$_.Name -eq 'Foo'}
         $fooParam.Description.Text | Out-String | Should Be (normalizeEnds @'
 ThisIsFooDescription
 
@@ -736,7 +791,7 @@ It has mutlilines. And hyper (http://link.com).
     }
 
     It 'has a placeholder for example' {
-        ($Help.examples.example | measure).Count | Should Be 1
+        ($Help.examples.example | Measure-Object).Count | Should Be 1
         $e = $Help.examples.example
         $e.Title | Should Be 'Example 1'
         $e.Code | Should Match 'PS C:\>*'
@@ -931,7 +986,7 @@ You can pipe a string that contains a path to an existing archive file.
         $MetaData["external help file"] | Should Be $ValidHelpFileName
     }
 
-    @('## ', '### ') | % {
+    @('## ', '### ') | ForEach-Object {
         It "use a single spacing for $_ sections" {
             $lineStart = $_
             for ($i=2; $i -lt $updatedMd.Count; $i++)
@@ -981,14 +1036,14 @@ Describe 'Create About Topic Markdown and Txt' {
 
         $AboutContent = Get-Content $AboutTxtFilePath
         
-        $AboutContent | % {
+        $AboutContent | ForEach-Object {
             if($_.Length -gt 80)
             {
                 $lineWidthCheck = $false
             } 
         }
         
-        (Get-ChildItem $AboutTxtFilePath | measure).Count | Should Be 1 
+        (Get-ChildItem $AboutTxtFilePath | Measure-Object).Count | Should Be 1 
         $lineWidthCheck | Should Be $true
     }
 
