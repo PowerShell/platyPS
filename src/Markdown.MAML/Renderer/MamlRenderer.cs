@@ -62,7 +62,7 @@ namespace Markdown.MAML.Renderer
 
                     new XElement(commandNS + "details",
                         new XElement(commandNS + "name", command.Name),
-                        verb != null ? new XElement(commandNS + "verb", verb) : null,
+                        new XElement(commandNS + "verb", verb),
                         new XElement(commandNS + "noun", noun),
                         new XElement(mamlNS + "description", GenerateParagraphs(command.Synopsis))),
                     new XElement(mamlNS + "description", GenerateParagraphs(command.Description)),
@@ -94,8 +94,13 @@ namespace Markdown.MAML.Renderer
                     syntaxItem.Parameters.Select(param => CreateParameter(param, isSyntax: true)));
         }
 
-        // We pass a syntax flag due to a weired quirk inside <syntax>:
-        // we don't add [switch] info to make it appear good
+        
+        /// <summary>
+        /// Creates a command:parameter element 
+        /// </summary>
+        /// <param name="param">The parsed parameter object</param>
+        /// <param name="isSyntax">Render using the format for syntax blocks where we do not render [switch]</param>
+        /// <returns></returns>
         private static XElement CreateParameter(MamlParameter param, bool isSyntax = false) 
         {
             string mamlType = ConvertPSTypeToMamlType(param);
@@ -114,6 +119,7 @@ namespace Markdown.MAML.Renderer
                     isSyntax && param.ParameterValueGroup.Any() 
                         ? new XElement(commandNS + "parameterValueGroup", param.ParameterValueGroup.Select(pvg => CreateParameterValueGroup(pvg))) 
                         : null,
+                    // we don't add [switch] info to make it appear good
                     !isSyntax || !isSwitchParameter 
                         ? new XElement(commandNS + "parameterValue",
                             new XAttribute("required", param.ValueRequired),
