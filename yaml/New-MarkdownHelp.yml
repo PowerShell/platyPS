@@ -1,0 +1,345 @@
+﻿examples:
+- name: 'Example 1: Create help from a command'
+  preCode: ''
+  code: >-
+    PS C:\> function Command03 {param([string]$Value)}
+
+    PS C:\> New-MarkdownHelp -Command "Command03" -OutputFolder ".\docs"
+
+
+
+
+
+        Directory: D:\Working\docs
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/22/2016   6:53 PM            664 Command03.md
+  postCode: >-
+    The first command creates a function named Command03 by using standard Windows PowerShell syntax.
+
+    The second command creates help for that stub function in the .\docs folder.
+- name: 'Example 2: Create help from a module'
+  preCode: ''
+  code: >-
+    PS C:\> Import-Module -Module "PlatyPS"
+
+    PS C:\> New-MarkdownHelp -Module "PlatyPS" -OutputFolder ".\docs" -Force
+
+
+
+
+
+        Directory: D:\Working\PlatyPS\docs
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/22/2016   6:54 PM           1496 Get-HelpPreview.md
+
+    -a----        5/22/2016   6:54 PM           3208 Get-MarkdownMetadata.md
+
+    -a----        5/22/2016   6:54 PM           3059 New-ExternalHelp.md
+
+    -a----        5/22/2016   6:54 PM           2702 New-ExternalHelpCab.md
+
+    -a----        5/22/2016   6:54 PM           6234 New-MarkdownHelp.md
+
+    -a----        5/22/2016   6:54 PM           2346 Update-MarkdownHelp.md
+
+    -a----        5/22/2016   6:54 PM           1633 Update-MarkdownHelpModule.md
+
+    -a----        5/22/2016   6:54 PM           1630 Update-MarkdownHelpSchema.md
+  postCode: >-
+    The first command loads the PlatyPS module into the current session by using the Import-Module cmdlet.
+
+    The second command creates help for all the cmdlets in the PlatyPS module. It stores them in the .\docs folder. This command specifies the Force parameter. Therefore, it overwrites existing help markdown files that have the same name.
+- name: 'Example 3: Create help from an existing MAML file'
+  preCode: ''
+  code: >-
+    PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml'
+
+
+
+        Directory: D:\PSReadline\docs
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/22/2016   6:56 PM           7443 Get-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:56 PM           3586 Get-PSReadlineOption.md
+
+    -a----        5/22/2016   6:56 PM           1549 Remove-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:56 PM           5947 Set-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:56 PM          15320 Set-PSReadlineOption.md
+  postCode: This command creates help in markdown format for the specified help MAML file. You do not have to load the module, as in the previous example. If the module is already loaded, this command creates help based on the MAML file, not on the currently installed module.
+- name: 'Example 4: Create help from an existing MAML file for use in a CAB file'
+  preCode: ''
+  code: >-
+    PS C:\> New-MarkdownHelp -OutputFolder "D:\PSReadline\docs" -MamlFile 'C:\Program Files\WindowsPowerShell\Modules\PSReadline\1.1\en-US\Microsoft.PowerShell.PSReadline.dll-help.xml' -WithModulePage  -Force -ModuleName "PSReadLine"
+
+
+
+
+
+        Directory: D:\PSReadline\docs
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/22/2016   6:59 PM           7443 Get-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:59 PM           3586 Get-PSReadlineOption.md
+
+    -a----        5/22/2016   6:59 PM           1549 Remove-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:59 PM           5947 Set-PSReadlineKeyHandler.md
+
+    -a----        5/22/2016   6:59 PM          15320 Set-PSReadlineOption.md
+
+    -a----        5/22/2016   6:59 PM            942 PSReadLine.md
+  postCode: This command creates help in markdown format for the specified help MAML file, as in the previous example. This command also specifies the WithModulePage parameter and the ModuleName parameter. The command creates a file named PSReadLine.md that contains links to the other markdown files in this module and metadata that can be used to create .cab files.
+inputs:
+- type: String[]
+  description: You can pipe module names to this cmdlet. These are the modules from which this cmdlet creates help markdown.
+links:
+- href: https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownHelp.md
+  text: 'Online Version:'
+- href: https://msdn.microsoft.com/en-us/library/ms404377.aspx
+  text: Character Encoding in the .NET Framework
+- href: http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom
+  text: Using PowerShell to write a file in UTF-8 without the BOM
+module:
+  name: platyPS
+name: New-MarkdownHelp
+notes: ''
+optionalParameters:
+- name: Encoding
+  aliases: []
+  defaultValue: UTF8 without BOM
+  description: Specifies the character encoding for your markdown help files. Specify a System.Text.Encoding object. For more information, see Character Encoding in the .NET Framework (https://msdn.microsoft.com/en-us/library/ms404377.aspx)in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see Using PowerShell to write a file in UTF-8 without the BOM (http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)at the Stack Overflow community.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: Encoding
+- name: Force
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmdlet overwrites existing files that have the same names.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: FwLink
+  aliases: []
+  defaultValue: None
+  description: Specifies the forward link for the module page. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: HelpVersion
+  aliases: []
+  defaultValue: None
+  description: Specifies the version of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: Locale
+  aliases: []
+  defaultValue: None
+  description: Specifies the locale of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: Metadata
+  aliases: []
+  defaultValue: None
+  description: >-
+    Specifies metadata that this cmdlet includes in the help markdown files as a hash table of string-to-sting key-value pairs. This cmdlet writes the metadata in the header of each markdown help file.
+
+    The New-ExternalHelp cmdlet does not use this metadata. External tools can use this metadata.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: Hashtable
+- name: ModuleGuid
+  aliases: []
+  defaultValue: None
+  description: Specifies the GUID of the module of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: ModuleName
+  aliases: []
+  defaultValue: None
+  description: Specifies the name of the module of your help. This value is required for .cab file creation. This value is used as markdown header metadata in the module page.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: NoMetadata
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmdlet does not write any metadata in the generated markdown.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: OnlineVersionUrl
+  aliases: []
+  defaultValue: None
+  description: Specifies the URL where the updatable help function downloads updated help. If you do not specify a value, the cmdlet uses an empty string.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: WithModulePage
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmdlet creates a module page in the output folder. This file has the name that the ModuleName parameter specifies. If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: ConvertNotesToList
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmldet formats multiple paragraph items in the NOTES section as single list items.  This output follows TechNet formatting.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: ConvertDoubleDashLists
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets.  Double-hyphen lists are common in Windows PowerShell documentation.  Markdown accepts single-hyphens for lists.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: AlphabeticParamsOrder
+  aliases: []
+  defaultValue: None
+  description: 'Order parameters alphabetically by name in PARAMETERS section. There are 2 exceptions: -Confirm and -WhatIf parameters will be the last.  These parameters are common and hence have well-defined behavior.'
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: UseFullTypeName
+  aliases: []
+  defaultValue: None
+  description: Indicates that the target document will use a full type name instead of a short name for parameters.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+outputs:
+- type: System.IO.FileInfo[]
+  description: This cmdlet returns a FileInfo[] object for created files.
+requiredParameters:
+- name: Command
+  aliases: []
+  defaultValue: None
+  description: Specifies the name of a command in your current session. This can be any command supported by Windows PowerShell help, such as a cmdlet or a function.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String[]
+- name: MamlFile
+  aliases: []
+  defaultValue: None
+  description: Specifies an array of paths path of MAML .xml help files.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String[]
+- name: Module
+  aliases: []
+  defaultValue: None
+  description: Specifies an array of names of modules for which this cmdlet creates help in markdown format.
+  parameterValueGroup: []
+  pipelineInput: True (ByValue)
+  position: Named
+  type: String[]
+- name: OutputFolder
+  aliases: []
+  defaultValue: None
+  description: Specifies the path of the folder where this cmdlet creates the markdown help files.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+remarks: The New-MarkdownHelp cmdlet creates help in markdown format based on a module, a command, or a file in Microsoft Assistance Markup Language (MAML) format.
+summary: Creates help in markdown format.
+syntaxes:
+- parameterValueGroup: FromCommand
+  parameters:
+  - Command
+  - Encoding
+  - Force
+  - Metadata
+  - NoMetadata
+  - OnlineVersionUrl
+  - OutputFolder
+  - AlphabeticParamsOrder
+  - UseFullTypeName
+- parameterValueGroup: FromModule
+  parameters:
+  - Encoding
+  - Force
+  - FwLink
+  - HelpVersion
+  - Locale
+  - Metadata
+  - Module
+  - NoMetadata
+  - OutputFolder
+  - WithModulePage
+  - AlphabeticParamsOrder
+  - UseFullTypeName
+- parameterValueGroup: FromMaml
+  parameters:
+  - Encoding
+  - Force
+  - FwLink
+  - HelpVersion
+  - Locale
+  - MamlFile
+  - Metadata
+  - ModuleGuid
+  - ModuleName
+  - NoMetadata
+  - OutputFolder
+  - WithModulePage
+  - ConvertNotesToList
+  - ConvertDoubleDashLists
+  - AlphabeticParamsOrder
+  - UseFullTypeName

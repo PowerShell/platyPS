@@ -1,0 +1,125 @@
+﻿examples:
+- name: 'Example 1: Get metadata from a file'
+  preCode: ''
+  code: >-
+    PS C:\> Get-MarkdownMetadata -Path ".\docs\Get-MarkdownMetadata.md"
+
+
+
+    Key                Value
+
+    ---                -----
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+  postCode: This command retrieves metadata from a markdown file.
+- name: 'Example 2: Get metadata from a markdown string'
+  preCode: ''
+  code: >-
+    PS C:\> $Markdown = Get-Content -Path ".\docs\Get-MarkdownMetadata.md" -Raw
+
+    PS C:\> Get-MarkdownMetadata -Markdown $Markdown
+
+
+
+    Key                Value
+
+    ---                -----
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+  postCode: >-
+    The first command gets the contents of a file, and stores them in the $Markdown variable.
+
+    The second command retrieves metadata from the string in $Metadata.
+- name: 'Example 3: Get metadata from all files in a folder'
+  preCode: ''
+  code: >-
+    PS C:\> Get-MarkdownMetadata -Path ".\docs"
+
+
+
+    Key                Value
+
+    ---                -----
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+
+    external help file platyPS-help.xml
+
+    schema             2.0.0
+  postCode: This command gets metadata from each of the markdown files in the .\docs folder.
+inputs:
+- type: String[]
+  description: You can pipe an array of paths to this cmdlet.
+links:
+- href: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
+  text: 'Online Version:'
+module:
+  name: platyPS
+name: Get-MarkdownMetadata
+notes: ''
+optionalParameters: []
+outputs:
+- type: Dictionary[String, String]
+  description: The cmdlet returns a Dictionary[String, String] object. The dictionary contains key-value pairs found in the markdown metadata block.
+requiredParameters:
+- name: Path
+  acceptWildcardCharacters: true
+  aliases: []
+  defaultValue: None
+  description: Specifies an array of paths of markdown files or folders.
+  parameterValueGroup: []
+  pipelineInput: True (ByPropertyName, ByValue)
+  position: Named
+  type: String[]
+- name: Markdown
+  aliases: []
+  defaultValue: None
+  description: Specifies a string that contains markdown formatted text.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+remarks: >-
+  The Get-MarkdownMetadata cmdlet gets the metadata from the header of a markdown file that is supported by PlatyPS. The command returns the metadata as a hash table.
+
+  PlatyPS stores metadata in the header block of a markdown file as key-value pairs of strings. By default, PlatyPS stores help file name and markdown schema version.
+
+  Metadata section can contain user-provided values for use with external tools. The New-ExternalHelp (New-ExternalHelp.md)cmdlet ignores this metadata.
+summary: Gets metadata from the header of a markdown file.
+syntaxes:
+- parameterValueGroup: FromPath
+  parameters:
+  - Path
+- parameterValueGroup: FromMarkdownString
+  parameters:
+  - Markdown

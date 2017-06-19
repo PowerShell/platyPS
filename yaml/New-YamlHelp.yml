@@ -1,0 +1,130 @@
+﻿examples:
+- name: 'Example 1: Create YAML files'
+  preCode: ''
+  code: >-
+    PS C:\> New-YamlHelp -Path .\docs -OutputFolder .\out\yaml
+
+
+
+        Directory: D:\Working\PlatyPS\out\yaml
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        6/15/2017  11:13 AM           2337 Get-HelpPreview.yml
+
+    -a----        6/15/2017  11:13 AM           3502 Get-MarkdownMetadata.yml
+
+    -a----        6/15/2017  11:13 AM           4143 New-ExternalHelp.yml
+
+    -a----        6/15/2017  11:13 AM           3082 New-ExternalHelpCab.yml
+
+    -a----        6/15/2017  11:13 AM           2581 New-MarkdownAboutHelp.yml
+
+    -a----        6/15/2017  11:13 AM          12356 New-MarkdownHelp.yml
+
+    -a----        6/15/2017  11:13 AM           1681 New-YamlHelp.yml
+
+    -a----        6/15/2017  11:13 AM           5053 Update-MarkdownHelp.yml
+
+    -a----        6/15/2017  11:13 AM           4661 Update-MarkdownHelpModule.yml
+
+    -a----        6/15/2017  11:13 AM           3350 Update-MarkdownHelpSchema.yml
+  postCode: This creates one YAML file for each cmdlet so external tools can read the structured data for each cmdlet.
+- name: 'Example 2: Create YAML files with specific encoding'
+  preCode: ''
+  code: >-
+    PS C:\> New-YamlHelp -Path .\docs -OutputFolder .\out\yaml -Force -Encoding ([System.Text.Encoding]::Unicode)
+
+
+
+        Directory: D:\Working\PlatyPS\out\yaml
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        6/15/2017  11:13 AM           2337 Get-HelpPreview.yml
+
+    -a----        6/15/2017  11:13 AM           3502 Get-MarkdownMetadata.yml
+
+    -a----        6/15/2017  11:13 AM           4143 New-ExternalHelp.yml
+
+    -a----        6/15/2017  11:13 AM           3082 New-ExternalHelpCab.yml
+
+    -a----        6/15/2017  11:13 AM           2581 New-MarkdownAboutHelp.yml
+
+    -a----        6/15/2017  11:13 AM          12356 New-MarkdownHelp.yml
+
+    -a----        6/15/2017  11:13 AM           1681 New-YamlHelp.yml
+
+    -a----        6/15/2017  11:13 AM           5053 Update-MarkdownHelp.yml
+
+    -a----        6/15/2017  11:13 AM           4661 Update-MarkdownHelpModule.yml
+
+    -a----        6/15/2017  11:13 AM           3350 Update-MarkdownHelpSchema.yml
+  postCode: This will both read and write the files in the specified -Encoding. The -Force parameter will overwrite files that already exist.
+inputs:
+- type: System.String[]
+  description: You can pipe an array of paths to this cmdlet.
+links:
+- href: https://github.com/PowerShell/platyPS/blob/master/docs/New-YamlHelp.md
+  text: 'Online Version:'
+module:
+  name: platyPS
+name: New-YamlHelp
+notes: ''
+optionalParameters:
+- name: Encoding
+  aliases: []
+  defaultValue: None
+  description: Specifies the character encoding for your external help file. Specify a System.Text.Encoding object. For more information, see Character Encoding in the .NET Framework (https://msdn.microsoft.com/en-us/library/ms404377.aspx)in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see Using PowerShell to write a file in UTF-8 without the BOM (http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)at the Stack Overflow community.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: Encoding
+- name: Force
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmdlet overwrites an existing file that has the same name.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+outputs:
+- type: System.IO.FileInfo[]
+  description: This cmdlet returns a FileInfo[] object for created files.
+requiredParameters:
+- name: Path
+  aliases: []
+  defaultValue: None
+  description: Specifies an array of paths of markdown files or folders. This cmdlet creates external help based on these files and folders.
+  parameterValueGroup: []
+  pipelineInput: True (ByPropertyName, ByValue)
+  position: 1
+  type: String[]
+- name: OutputFolder
+  aliases: []
+  defaultValue: None
+  description: Specifies the folder to create the YAML files in
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+remarks: The New-YamlHelp cmdlet works similarly to the New-ExternalHelp cmdlet but rather than creating a MAML file to support Get-Help , it creates a set of YAML files that can be read by external tools to provide custom rendering of help pages.
+summary: Converts Markdown help into YAML to be read easily by external tools
+syntaxes:
+- parameters:
+  - Path
+  - Encoding
+  - Force
+  - OutputFolder

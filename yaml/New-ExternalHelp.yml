@@ -1,0 +1,113 @@
+﻿examples:
+- name: 'Example 1: Create external help based on the contents of a folder'
+  preCode: ''
+  code: >-
+    PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\platyPS\en-US"
+
+
+
+        Directory: D:\Working\PlatyPS\out\platyPS\en-US
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
+  postCode: This command creates an external help file in the specified location. This command uses the best practice that the folder name includes the locale.
+- name: 'Example 2: Create help that uses custom encoding'
+  preCode: ''
+  code: >-
+    PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\PlatyPS\en-US" -Force -Encoding ([System.Text.Encoding]::Unicode)
+
+
+
+
+
+        Directory: D:\Working\PlatyPS\out\PlatyPS\en-US
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        5/22/2016   6:34 PM         132942 platyPS-help.xml
+  postCode: This command creates an external help file in the specified location. This command specifies the Force parameter, therefore, it overwrites an existing file. The command specifies Unicode encoding for the created file.
+inputs:
+- type: String[]
+  description: You can pipe an array of paths to this cmdlet.
+links:
+- href: https://github.com/PowerShell/platyPS/blob/master/docs/New-ExternalHelp.md
+  text: 'Online Version:'
+- href: https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/
+  text: PowerShell V2 External MAML Help
+- href: https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md
+  text: Schema
+module:
+  name: platyPS
+name: New-ExternalHelp
+notes: ''
+optionalParameters:
+- name: Encoding
+  aliases: []
+  defaultValue: UTF8 without BOM
+  description: Specifies the character encoding for your external help file. Specify a System.Text.Encoding object. For more information, see Character Encoding in the .NET Framework (https://msdn.microsoft.com/en-us/library/ms404377.aspx)in the Microsoft Developer Network. For example, you can control Byte Order Mark (BOM) preferences. For more information, see Using PowerShell to write a file in UTF-8 without the BOM (http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)at the Stack Overflow community.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: Encoding
+- name: Force
+  aliases: []
+  defaultValue: None
+  description: Indicates that this cmdlet overwrites an existing file that has the same name.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: SwitchParameter
+- name: ApplicableTag
+  aliases: []
+  defaultValue: None
+  description: Specify array of tags to use as a filter. If cmdlet has `applicable` in the yaml metadata and none of the passed tags is mentioned there, cmdlet would be ignored in the generated help. Same applies to the Parameter level `applicable` yaml metadata. If `applicable` is ommited, cmdlet or parameter would be always present. See design issue (https://github.com/PowerShell/platyPS/issues/273)for more details.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String[]
+outputs:
+- type: System.IO.FileInfo[]
+  description: This cmdlet returns a FileInfo[] object for created files.
+requiredParameters:
+- name: OutputPath
+  aliases: []
+  defaultValue: None
+  description: 'Specifies the path of a folder where this cmdlet saves your external help file. The folder name should end with a locale folder, as in the following example: `.\out\PlatyPS\en-US`.'
+  parameterValueGroup: []
+  pipelineInput: False
+  position: Named
+  type: String
+- name: Path
+  acceptWildcardCharacters: true
+  aliases: []
+  defaultValue: None
+  description: Specifies an array of paths of markdown files or folders. This cmdlet creates external help based on these files and folders.
+  parameterValueGroup: []
+  pipelineInput: True (ByPropertyName, ByValue)
+  position: Named
+  type: String[]
+remarks: >-
+  The New-ExternalHelp cmdlet creates an external help file based on markdown help files supported by PlatyPS. You can ship this with a module to provide help by using the Get-Help cmdlet.
+
+  If the markdown files that you specify do not follow the PlatyPS Schema (https://github.com/PowerShell/platyPS/blob/master/platyPS.schema.md), this cmdlet returns error messages.
+summary: Creates external help file based on markdown supported by PlatyPS.
+syntaxes:
+- parameters:
+  - OutputPath
+  - Encoding
+  - Force
+  - Path
+  - ApplicableTag

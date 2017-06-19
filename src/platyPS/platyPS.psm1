@@ -698,7 +698,6 @@ function New-YamlHelp
         if(-not (Test-Path -PathType Container $OutputFolder))
         {
             throw "$OutputFolder is not a container"
-            return
         }
     }
     process 
@@ -723,7 +722,7 @@ function New-YamlHelp
 
                 $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
                 $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
-                Write-Verbose "Writing external help to $outputFilePath"
+                Write-Verbose "Writing Yaml help to $outputFilePath"
                 MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
             }
         }

@@ -1,0 +1,70 @@
+﻿examples:
+- name: Example 1
+  preCode: ''
+  code: "PS C:\\> New-MarkdownAboutHelp -OutputFolder C:\\Test -AboutName \r\nPS C:\\> Get-ChildItem C:\\Test\r\n\r\n    Directory: C:\\Test\r\n\r\n\r\nMode                LastWriteTime         Length Name\r\n----                -------------         ------ ----\r\n-a----        7/13/2016   2:12 PM           1491 TestAboutTopic.md"
+  postCode: Create and display file info for PowerShell About Topic Markdown File.
+- name: Example 2
+  preCode: ''
+  code: >-
+    PS C:\> New-ExternalHelp -Path C:\Test\ -OutputPath C:\Test
+
+
+
+
+
+        Directory: C:\Test
+
+
+
+
+
+    Mode                LastWriteTime         Length Name
+
+    ----                -------------         ------ ----
+
+    -a----        7/13/2016   2:15 PM           1550 TestAboutTopic.txt
+  postCode: Create PowerShell About Topic Txt file from existing Markdown About file.
+inputs:
+- type: None
+  description: ''
+links:
+- href: https://github.com/PowerShell/platyPS/blob/master/docs/New-MarkdownAboutHelp.md
+  text: 'Online Version:'
+- href: New-ExternalHelp.md
+  text: New-ExternalHelp
+- href: New-ExternalHelpCab.md
+  text: New-ExternalHelpCab
+module:
+  name: platyPS
+name: New-MarkdownAboutHelp
+notes: The about topics will need to be added to a cab file to leverage updatable help.
+optionalParameters:
+- name: AboutName
+  aliases: []
+  defaultValue: None
+  description: The name of the about topic.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: 1
+  type: String
+outputs:
+- type: System.Object
+  description: This cmdlet returns a object for created files.
+requiredParameters:
+- name: OutputFolder
+  aliases: []
+  defaultValue: None
+  description: The directory to create the about topic in.
+  parameterValueGroup: []
+  pipelineInput: False
+  position: 0
+  type: String
+remarks: >-
+  The New-MarkdownAboutHelp cmdlet generates a Markdown file that is prepopulated with the standard elements of an About Topic. The cmdlet copies the template MD, renames headers and file name according to the AboutName parameter, and deposits the file in the directory designated by the OutputFoler parameter.
+
+  The About Topic can be converted to Txt format.  About topics must be in txt format or the PowerShell Help engine will not be able to parse the document.  Use the New-ExternalHelp (New-ExternalHelp.md)cmdlet to convert About Topic markdown files into About Topic txt files.
+summary: Generates a new About Topic MD file from template.
+syntaxes:
+- parameters:
+  - OutputFolder
+  - AboutName

@@ -1222,3 +1222,33 @@ Describe 'Merge-MarkdownHelp' {
         }
     }
 }
+
+Describe 'New-YamlHelp' {
+
+    New-YamlHelp "$root\docs\New-YamlHelp.md" -OutputFolder "$outFolder\yaml" -Force
+
+    $yamlContent = Get-Content "$outFolder\yaml\New-YamlHelp.yml" -Raw
+
+    $deserializer = (New-Object -TypeName 'YamlDotNet.Serialization.DeserializerBuilder').WithNamingConvention((New-Object -TypeName 'YamlDotNet.Serialization.NamingConventions.CamelCaseNamingConvention')).Build()
+
+    $yamlModel = $deserializer.Deserialize($yamlContent, [type]"Markdown.MAML.Model.YAML.YamlCommand")
+
+    It 'serializes key properties correctly' {
+        $yamlModel.Name | Should Be 'New-YamlHelp'
+        $yamlModel.Module.Name | Should Be 'platyPS'
+
+        $yamlModel.RequiredParameters.Count | Should Be 2
+
+        $yamlModel.RequiredParameters[0].Name | Should Be 'Path'
+        $yamlModel.RequiredParameters[1].Name | Should Be 'OutputFolder'
+
+        $yamlModel.OptionalParameters.Count | Should Be 2
+
+        $yamlModel.OptionalParameters[0].Name | Should Be 'Encoding'
+        $yamlModel.OptionalParameters[1].Name | Should Be 'Force'
+    }
+
+    It 'throws for OutputFolder that is a file'{
+        { New-YamlHelp "$root\docs\New-YamlHelp.md" -OutputFolder "$outFolder\yaml\New-YamlHelp.yml" } | Should Throw
+    }
+}
