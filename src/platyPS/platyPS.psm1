@@ -74,6 +74,8 @@ function New-MarkdownHelp
         [string]$OutputFolder,
 
         [switch]$NoMetadata,
+        
+        [switch]$UseFullTypeName,
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
@@ -230,7 +232,7 @@ function New-MarkdownHelp
                     throw "Command $_ not found in the session."
                 }
 
-                GetMamlObject -Cmdlet $_ | processMamlObjectToFile
+                GetMamlObject -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
             }
         }
         else 
@@ -252,7 +254,7 @@ function New-MarkdownHelp
                         throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
                     }
                     
-                    GetMamlObject -Module $_ | processMamlObjectToFile
+                    GetMamlObject -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
                     
                     $ModuleName = $_
                     $ModuleGuid = (Get-Module $ModuleName).Guid
@@ -307,6 +309,7 @@ function Get-MarkdownMetadata
             ValueFromPipelineByPropertyName=$true,
             Position=1,
             ParameterSetName="FromPath")]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true,
@@ -337,13 +340,15 @@ function Update-MarkdownHelp
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
         [string]$LogPath,
         [switch]$LogAppend,
-        [switch]$AlphabeticParamsOrder
+        [switch]$AlphabeticParamsOrder,
+        [switch]$UseFullTypeName
     )
 
     begin
@@ -409,7 +414,7 @@ function Update-MarkdownHelp
             # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
             $metadata["external help file"] = GetHelpFileName $command
-            $reflectionModel = GetMamlObject -Cmdlet $name
+            $reflectionModel = GetMamlObject -Cmdlet $name -UseFullTypeName:$UseFullTypeName
             $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
@@ -426,6 +431,112 @@ function Update-MarkdownHelp
     }
 }
 
+function Merge-MarkdownHelp
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param(
+        [Parameter(Mandatory=$true,
+            ValueFromPipeline=$true)]
+        [SupportsWildcards()]
+        [string[]]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputPath,
+
+        [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
+
+        [Switch]$ExplicitApplicableIfAll,
+
+        [Switch]$Force,
+
+        [string]$MergeMarker = "!!! "
+    )
+
+    begin
+    {
+        validateWorkingProvider
+        $MarkdownFiles = @()
+    }
+
+    process
+    {
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
+    }
+
+    end 
+    {
+        function log
+        {
+            param(
+                [string]$message,
+                [switch]$warning
+            )
+
+            $message = "[Update-MarkdownHelp] $([datetime]::now) $message"
+            if ($warning)
+            {
+                Merge-Warning $message
+            }
+            else
+            {
+                Write-Verbose $message
+            }
+        }
+        
+        if (-not $MarkdownFiles)
+        {
+             log -warning "No markdown found in $Path"
+            return
+        }
+
+        function getTags
+        {
+            param($files)
+
+            ($files | Split-Path | Split-Path -Leaf | Group-Object).Name
+        }
+
+        # use parent folder names as tags
+        $allTags = getTags $MarkdownFiles
+        log "Using following tags for the merge: $tags"
+        $fileGroups = $MarkdownFiles | Group-Object -Property Name
+        log "Found $($fileGroups.Count) file groups"
+
+        $fileGroups | ForEach-Object {
+            $files = $_.Group
+            $groupName = $_.Name
+
+            $dict = @{}
+            $files | ForEach-Object {
+                $model = GetMamlModelImpl $_.FullName -ForAnotherMarkdown -Encoding $Encoding
+                # unwrap List of 1 element
+                $model = $model[0]
+                $tag = getTags $_
+                log "Adding tag $tag and $model"
+                $dict[$tag] = $model
+            }
+
+            $tags = $dict.Keys
+            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $ExplicitApplicableIfAll)
+            {
+                $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = $tags -join ', ' }
+            }
+            else
+            {
+                $newMetadata = @{}
+            }
+
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, !$ExplicitApplicableIfAll, $MergeMarker
+            $newModel = $merger.MergePS($dict)
+
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
+            $outputFilePath = Join-Path $OutputPath $groupName
+            MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force # yeild
+        }
+    }
+}
+
 function Update-MarkdownHelpModule
 {
     [CmdletBinding()]
@@ -433,6 +544,7 @@ function Update-MarkdownHelpModule
     param(
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
         
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
@@ -627,6 +739,7 @@ function New-ExternalHelp
             Position=1,
             ValueFromPipeline=$true,
             ValueFromPipelineByPropertyName=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [Parameter(Mandatory=$true)]
@@ -757,6 +870,7 @@ function Get-HelpPreview
         [Parameter(Mandatory=$true,
             ValueFromPipeline=$true,
             Position=1)]
+        [SupportsWildcards()]
         [string[]]$Path,
 
         [switch]$ConvertNotesToList,
@@ -1242,6 +1356,7 @@ function GetMarkdownFilesFromPath
     [CmdletBinding()]
     param(
         [Parameter(Mandatory=$true)]
+        [SupportsWildcards()]
         [string[]]$Path,
         
         [switch]$IncludeModulePage
@@ -1882,7 +1997,8 @@ function GetMamlObject
         [parameter(parametersetname="Maml")]
         [switch] $ConvertNotesToList,
         [parameter(parametersetname="Maml")]
-        [switch] $ConvertDoubleDashLists
+        [switch] $ConvertDoubleDashLists,
+        [switch] $UseFullTypeName
     )
 
     function CommandHasAutogeneratedSynopsis
@@ -1897,7 +2013,7 @@ function GetMamlObject
         Write-Verbose ("Processing: " + $Cmdlet)
         $Help = Get-Help $Cmdlet
         $Command = Get-Command $Cmdlet
-        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)
+        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName
     }
     elseif ($Module)
     {
@@ -1909,7 +2025,7 @@ function GetMamlObject
             Write-Verbose ("`tProcessing: " + $Command.Name)
             $Help = Get-Help $Command.Name
             # yeild
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName
         }
     }
     else # Maml
@@ -1930,7 +2046,7 @@ function GetMamlObject
             }
             
             # yeild
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata  -UseFullTypeName:$UseFullTypeName
         }
     }
 }
@@ -1992,7 +2108,8 @@ function ConvertPsObjectsToMamlModel
         [Parameter(Mandatory=$true)]
         [object]$Help,
         [switch]$UseHelpForParametersMetadata,
-        [switch]$UsePlaceholderForSynopsis
+        [switch]$UsePlaceholderForSynopsis,
+        [switch]$UseFullTypeName
     )
 
     function isCommonParameterName
@@ -2197,12 +2314,18 @@ function ConvertPsObjectsToMamlModel
                 }
 
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
-                $ParameterType = $Parameter.ParameterType
-                $ParameterObject.Type = getTypeString -typeObject $ParameterType
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
-
+                $ParameterType = $Parameter.ParameterType
+                $ParameterObject.Type = if ($UseFullTypeName)
+                {
+                    $ParameterType.FullName
+                }
+                else
+                {
+                    getTypeString -typeObject $ParameterType
+                }
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
                 foreach($Alias in $Parameter.Aliases)
