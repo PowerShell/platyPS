@@ -3,6 +3,17 @@ CHANGELOG
 
 ## Not released
 
+## 0.8.0
+
+* Removing the auto increment of help version [#269](https://github.com/PowerShell/platyPS/issues/269)
+* Schema version v1 is not longer supported. Update-MarkdownHelpSchema cmdlet removed.
+* Enhanced error reporting for New-ExternalHelp [#270](https://github.com/PowerShell/platyPS/issues/270)
+* New schema feature: applicable tag [#273](https://github.com/PowerShell/platyPS/issues/273)
+  - You can now combine different version / flavours of the same cmdlet into a single markdown file.
+  - Applicable entry in yaml metadata controls what is applicable for each module on two levels: cmdlet and parameter.
+  - New cmdlet [Merge-MarkdownHelp](https://github.com/PowerShell/platyPS/blob/master/docs/Merge-MarkdownHelp.md)
+* Fix WildcardSupport for -Path parameter for multiply comments in our help.
+
 ## 0.7.6
 
 * Updated artifact name to 0.7.6

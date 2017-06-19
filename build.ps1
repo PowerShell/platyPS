@@ -2,7 +2,8 @@
 
 param(
     [ValidateSet('Debug', 'Release')]
-    $Configuration = "Debug"
+    $Configuration = "Debug",
+    [switch]$SkipDocs
 )
 
 # build .dll
@@ -46,7 +47,9 @@ if ($env:APPVEYOR_REPO_TAG_NAME)
 # dogfooding: generate help for the module
 Remove-Module platyPS -ErrorAction SilentlyContinue
 Import-Module $pwd\out\platyPS
-New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
 
-# reload module, to apply generated help
-Import-Module $pwd\out\platyPS -Force
+if (-not $SkipDocs) {
+    New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
+    # reload module, to apply generated help
+    Import-Module $pwd\out\platyPS -Force
+}

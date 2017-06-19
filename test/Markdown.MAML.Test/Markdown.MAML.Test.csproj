@@ -68,6 +68,7 @@
     <Compile Include="Transformer\MamlModelMergerTests.cs" />
     <Compile Include="Parser\ParserTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Transformer\MamlMultiModelMergerTests.cs" />
     <Compile Include="Transformer\ParserAndTransformerTestsV2.cs" />
   </ItemGroup>
   <ItemGroup>

@@ -206,7 +206,16 @@ namespace Markdown.MAML.Renderer
                 {
                     if (StringComparer.OrdinalIgnoreCase.Equals(parameterName, param.Name))
                     {
-                        result[syntax.ParameterSetName] = param;
+                        if (string.IsNullOrEmpty(syntax.ParameterSetName))
+                        {
+                            // Note (vors) : I guess that means it's applicable to all parameter sets,
+                            // but it's hard to tell anymore...
+                            result[ModelTransformerVersion2.ALL_PARAM_SETS_MONIKER] = param;
+                        }
+                        else
+                        {
+                            result[syntax.ParameterSetName] = param;
+                        }
                         // there could be only one parameter in the param set with the same name
                         break;
                     }

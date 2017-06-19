@@ -7,6 +7,10 @@ $outFolder = "$root\out"
 Import-Module $outFolder\platyPS -Force
 
 Describe 'New-MarkdownHelp' {
+    function normalizeEnds([string]$text)
+    {
+        $text -replace "`r`n?|`n", "`r`n"
+    }
 
     Context 'errors' {
         It 'throw when cannot find module' {
@@ -122,9 +126,8 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'uses alphabetic order when specified' {
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
-            ($files | Measure-Object).Count | Should Be 1
-            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be @'
+            
+            $expectedOrder = normalizeEnds @'
 ### -AAA
 ### -BBB
 ### -CCC
@@ -132,6 +135,9 @@ Describe 'New-MarkdownHelp' {
 ### -WhatIf
 
 '@
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be $expectedOrder
         }
     }
 
@@ -377,6 +383,54 @@ Describe 'New-MarkdownHelp' {
 
             $LandingPage | Should Not Be $null
 
+        }
+    }
+	
+	Context 'Full Type Name' {
+        function global:Get-Alpha
+        {
+            param(
+                [Switch]
+                [Parameter(Position=1)]
+                $WhatIf,
+                [string]
+                [Parameter(Position=2)]
+                $CCC
+            )
+        }
+
+        It 'use full type name when specified' {
+            $expectedParameters = normalizeEnds @'
+Type: System.String
+Type: System.Management.Automation.SwitchParameter
+
+'@ 
+            $expectedSyntax = normalizeEnds @'
+Get-Alpha [[-WhatIf] <System.Management.Automation.SwitchParameter>] [[-CCC] <System.String>]
+
+'@
+
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder -UseFullTypeName
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
+        }
+
+        It 'not use full type name when specified' {
+            $expectedParameters = normalizeEnds @'
+Type: String
+Type: SwitchParameter
+
+'@ 
+            $expectedSyntax = normalizeEnds @'
+Get-Alpha [-WhatIf] [[-CCC] <String>]
+
+'@
+
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
+            ($files | Measure-Object).Count | Should Be 1
+            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
         }
     }
 }
@@ -807,6 +861,44 @@ It has mutlilines. And hyper (http://link.com).
         Update-MarkdownHelp -Path $outputFolder
         (Get-Content (Join-Path $outputOriginal Add-Computer.md)) | Should Be (Get-Content (Join-Path $outputUpdated Add-Computer.md))
     }
+
+    It 'parameter type should not be fullname' {
+        $expectedParameters = normalizeEnds @'
+Type: String
+Type: String
+
+'@ 
+        $expectedSyntax = normalizeEnds @'
+Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
+
+'@
+        $v2md | Get-Content | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+        $v2md | Get-Content | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+    }
+
+    $v3md = Update-MarkdownHelp $v2md -Verbose -AlphabeticParamsOrder -UseFullTypeName
+
+    $v3markdown = $v3md | Get-Content
+
+    It 'parameter type should be fullname' {
+        $expectedParameters = normalizeEnds @'
+Type: System.String
+Type: System.String
+
+'@ 
+        $expectedSyntax = normalizeEnds @'
+Get-MyCoolStuff [[-Foo] <System.String>] [[-Bar] <System.String>] [<CommonParameters>]
+
+'@
+        $v3markdown | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
+        $v3markdown | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+    }
+
+    It 'all the other part should be the same except line with parameters' {
+        $expectedContent = $v2md | Get-Content | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String
+        $v3markdown | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String | Should Be $expectedContent
+    
+    }
 }
 
 Describe 'Update Markdown Help' {
@@ -1055,5 +1147,78 @@ Describe 'Create About Topic Markdown and Txt' {
 
         Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
         Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $content
+    }
+}
+
+Describe 'Merge-MarkdownHelp' {
+
+    Context 'single file, ignore examples' {
+        function global:Test-PlatyPSMergeFunction
+        {
+            param(
+                [string]$First
+            )
+        }
+        
+        $file1 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile1 -Force
+        $maml1 = $file1 | New-ExternalHelp -OutputPath TestDrive:\1.xml -Force
+        $help1 = Get-HelpPreview -Path $maml1
+        $help1.examples = @()
+
+        function global:Test-PlatyPSMergeFunction
+        {
+            param(
+                [string]$Second
+            )
+        }
+        
+        $file2 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile2 -Force
+        $maml2 = $file2 | New-ExternalHelp -OutputPath TestDrive:\2.xml -Force
+        $help2 = Get-HelpPreview -Path $maml2
+        $help2.examples = @()
+
+        It 'generates merged markdown with applicable tags' {
+            $fileNew = Merge-MarkdownHelp -Path @($file1, $file2) -OutputPath TestDrive:\mergeFileOut -Force
+
+            $mamlNew1 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\1new.xml -Force -ApplicableTag('mergeFile1')
+            $helpNew1 = Get-HelpPreview -Path $mamlNew1
+            $helpNew1.examples = @()
+
+            $mamlNew2 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\2new.xml -Force -ApplicableTag('mergeFile2')
+            $helpNew2 = Get-HelpPreview -Path $mamlNew2
+            $helpNew2.examples = @()
+
+            ($helpNew1 | Out-String) | Should Be ($help1 | Out-String)
+            ($helpNew2 | Out-String) | Should Be ($help2 | Out-String)
+        }
+    }
+
+    Context 'two file' {
+        function global:Test-PlatyPSMergeFunction1() {}
+        function global:Test-PlatyPSMergeFunction2() {}
+        
+        $files = @()
+        $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1 -OutputFolder TestDrive:\mergePath1 -Force
+        $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1, Test-PlatyPSMergeFunction2 -OutputFolder TestDrive:\mergePath2 -Force
+
+        It 'generates merged markdown with applicable tags' {
+            $fileNew = Merge-MarkdownHelp -Path $files -OutputPath TestDrive:\mergePathOut -Force
+
+            $mamlNew1 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\1new.xml -Force -ApplicableTag('mergePath1')
+            $helpNew1 = Get-HelpPreview -Path $mamlNew1
+
+            $mamlNew2 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\2new.xml -Force -ApplicableTag('mergePath2')
+            $helpNew2 = Get-HelpPreview -Path $mamlNew2
+
+            $names1 = $helpNew1.Name 
+            $names2 = $helpNew2.Name
+
+            ($names1 | measure).Count | Should Be 1
+            $names1 | Should Be 'Test-PlatyPSMergeFunction1'
+
+            ($names2 | measure).Count | Should Be 2
+            $names2[0] | Should Be 'Test-PlatyPSMergeFunction1'
+            $names2[1] | Should Be 'Test-PlatyPSMergeFunction2'
+        }
     }
 }
