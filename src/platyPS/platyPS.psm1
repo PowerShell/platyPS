@@ -766,7 +766,8 @@ function New-ExternalHelp
 
         foreach ($group in $groups) {
             $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
-            $xml = $r.MamlModelToString($maml, $false) # skipPreambula is not used
+            $xml = $r.MamlModelToString($maml)
+            
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
