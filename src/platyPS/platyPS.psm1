@@ -2249,14 +2249,9 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.Required = $Parameter.IsMandatory
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
                 $ParameterType = $Parameter.ParameterType
-                $ParameterObject.Type = if ($UseFullTypeName)
-                {
-                    $ParameterType.FullName
-                }
-                else
-                {
-                    getTypeString -typeObject $ParameterType
-                }
+                $ParameterObject.Type = getTypeString -typeObject $ParameterType
+                $ParameterObject.FullType = $ParameterType.FullName
+
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
                 foreach($Alias in $Parameter.Aliases)
@@ -2507,6 +2502,11 @@ function ConvertPsObjectsToMamlModel
         $Parameter = Get-ParameterByName $ParameterName
         if ($Parameter)
         {
+            if ($UseFullTypeName)
+            {
+                $Parameter = $Parameter.Clone()
+                $Parameter.Type = $Parameter.FullType
+            }
             $MamlCommandObject.Parameters.Add($Parameter)
         }
         else 

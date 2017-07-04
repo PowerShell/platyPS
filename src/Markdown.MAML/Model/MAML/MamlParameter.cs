@@ -11,6 +11,8 @@ namespace Markdown.MAML.Model.MAML
 
         public string Type { get; set; }
 
+        public string FullType { get; set; }
+
         public string Name { get; set; }
 
         public bool Required { get; set; }
