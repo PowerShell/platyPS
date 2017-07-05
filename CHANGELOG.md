@@ -3,6 +3,14 @@ CHANGELOG
 
 ## Not released
 
+## 0.8.1
+
+* New-MarkdownHelp and Update-MarkdownHelp now support -UseFullTypeName parameter.
+* MamlRenderer now uses XLinq to serialize MAML rather than a Stack and a StringBuilder.
+* Bugfixes for Merge-MarkdownHelp:
+  - Sort tags alphabetically
+  - Fix -ExplicitApplicableIfAll to work as expected
+
 ## 0.8.0
 
 * Removing the auto increment of help version [#269](https://github.com/PowerShell/platyPS/issues/269)
