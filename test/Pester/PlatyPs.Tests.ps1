@@ -406,7 +406,7 @@ Type: System.Management.Automation.SwitchParameter
 
 '@ 
             $expectedSyntax = normalizeEnds @'
-Get-Alpha [[-WhatIf] <System.Management.Automation.SwitchParameter>] [[-CCC] <System.String>]
+Get-Alpha [-WhatIf] [[-CCC] <String>]
 
 '@
 
@@ -887,7 +887,7 @@ Type: System.String
 
 '@ 
         $expectedSyntax = normalizeEnds @'
-Get-MyCoolStuff [[-Foo] <System.String>] [[-Bar] <System.String>] [<CommonParameters>]
+Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 
 '@
         $v3markdown | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
