@@ -503,7 +503,7 @@ function Merge-MarkdownHelp
             $files = $_.Group
             $groupName = $_.Name
 
-            $dict = @{}
+            $dict = New-Object 'System.Collections.Generic.Dictionary[string, Markdown.MAML.Model.MAML.MamlCommand]'
             $files | ForEach-Object {
                 $model = GetMamlModelImpl $_.FullName -ForAnotherMarkdown -Encoding $Encoding
                 # unwrap List of 1 element
@@ -524,7 +524,7 @@ function Merge-MarkdownHelp
             }
 
             $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, !$ExplicitApplicableIfAll, $MergeMarker
-            $newModel = $merger.MergePS($dict)
+            $newModel = $merger.Merge($dict)
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
             $outputFilePath = Join-Path $OutputPath $groupName
