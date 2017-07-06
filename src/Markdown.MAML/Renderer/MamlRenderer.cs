@@ -104,7 +104,7 @@ namespace Markdown.MAML.Renderer
         private static XElement CreateParameter(MamlParameter param, bool isSyntax = false) 
         {
             string mamlType = ConvertPSTypeToMamlType(param);
-            bool isSwitchParameter = mamlType == "SwitchParameter";
+            bool isSwitchParameter = mamlType == "SwitchParameter" || mamlType == "System.Management.Automation.SwitchParameter";
 
             return new XElement(commandNS + "parameter",
                     new XAttribute("required", param.Required),
