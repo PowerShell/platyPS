@@ -19,14 +19,21 @@ Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [-Encoding <Encodin
 ## DESCRIPTION
 Similar modules, or different versions of the same module, often contain duplicate content.
 
-Merge-MarkdownHelp merges the multiple markdown files into a single markdown file. It uses the `applicable:` yaml metadata field to identify what versions or tags are applicable. It acts on two levels: for the whole cmdlet and for individual parameters.
+Merge-MarkdownHelp merges the multiple markdown files into a single markdown file. 
+It uses the `applicable:` yaml metadata field to identify what versions or tags are applicable. 
+It acts on two levels: for the whole cmdlet and for individual parameters.
 
-The resulting markdown contains the `applicable:` tags as well as all of the content of the original markdown files. Duplicate content is simply ignored. Content that is unique to each file is merged using **merge markers**, followed by a comma-separated list of applicable tags. A **merge marker** is a string of text that acts as a marker to describe the content that was merged. The default **merge marker** text consists of three exclamation points !!! however this can be changed to any relevant text using the **-MergeMarker** flag.
+The resulting markdown contains the `applicable:` tags as well as all of the content of the original markdown files. 
+Duplicate content is simply ignored. 
+Content that is unique to each file is merged using **merge markers**, followed by a comma-separated list of applicable tags. 
+A **merge marker** is a string of text that acts as a marker to describe the content that was merged. 
+The default **merge marker** text consists of three exclamation points !!! however this can be changed to any relevant text using the **-MergeMarker** flag.
 
 ## EXAMPLES
 
 ### Example 1
-The Test-CsPhoneBootstrap.md cmdlet is included in both Lync Server 2010 and Lync Server 2013. Much of the content is duplicated and thus we want to have a single file for the cmdlet with unique content merged from each individual file.
+The Test-CsPhoneBootstrap.md cmdlet is included in both Lync Server 2010 and Lync Server 2013. 
+Much of the content is duplicated and thus we want to have a single file for the cmdlet with unique content merged from each individual file.
 ```
 PS C:\> Merge-MarkdownHelp -Path @('Lync Server 2010\Test-CsPhoneBootstrap.md', 'Lync Server 2013\Test-CsPhoneBootstrap.md') -OutputPath lync
 ```
