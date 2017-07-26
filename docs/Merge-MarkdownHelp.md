@@ -7,7 +7,7 @@ schema: 2.0.0
 # Merge-MarkdownHelp
 
 ## SYNOPSIS
-Merge multiply markdown version of the same cmdlets into a single markdown file.
+Merge multiple markdown versions of the same cmdlet into a single markdown file.
 
 ## SYNTAX
 
@@ -17,35 +17,29 @@ Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [-Encoding <Encodin
 ```
 
 ## DESCRIPTION
-If we have similar modules, or different version of the same module,
-we are likely to have a lot of duplicated markdown in them.
+Similar modules, or different versions of the same module, often contain duplicate content.
 
-Merge-MarkdownHelp allows you to keep all of them into a single markdown files.
-It uses `applicable:` yaml metadata field to identify what versions or tags are applicable.
-It acts on two levels: for the whole cmlets and for individual parameters.
+Merge-MarkdownHelp merges the multiple markdown files into a single markdown file. 
+It uses the `applicable:` yaml metadata field to identify what versions or tags are applicable. 
+It acts on two levels: for the whole cmdlet and for individual parameters.
 
-Besides the inserted `applicable:` tags, the result markdown will have all the content from 
-the individual versions.
-Duplicated content would be simple ignored, and different content would be merged using **merge markers**,
-followed by a comma-separated list of applicable tags.
+The resulting markdown contains the `applicable:` tags as well as all of the content of the original markdown files. 
+Duplicate content is simply ignored. 
+Content that is unique to each file is merged using **merge markers**, followed by a comma-separated list of applicable tags. 
+A **merge marker** is a string of text that acts as a marker to describe the content that was merged. 
+The default **merge marker** text consists of three exclamation points !!! however this can be changed to any relevant text using the **-MergeMarker** flag.
 
 ## EXAMPLES
 
 ### Example 1
+The Test-CsPhoneBootstrap.md cmdlet is included in both Lync Server 2010 and Lync Server 2013. 
+Much of the content is duplicated and thus we want to have a single file for the cmdlet with unique content merged from each individual file.
 ```
-PS C:\> Merge-MarkdownHelp -Path @('Lync server 2010\Test-CsPhoneBootstrap.md', 'Lync server 2013
-\Test-CsPhoneBootstrap.md') -OutputPath lync
-```
-
-The result file will be located at lync\Test-CsPhoneBootstrap.md
-
-### Example 1
-```
-PS C:\> Merge-MarkdownHelp -Path @('Lync server 2010\Test-CsPhoneBootstrap.md', 'Lync server 2013
-\Test-CsPhoneBootstrap.md') -OutputPath lync
+PS C:\> Merge-MarkdownHelp -Path @('Lync Server 2010\Test-CsPhoneBootstrap.md', 'Lync Server 2013\Test-CsPhoneBootstrap.md') -OutputPath lync
 ```
 
-The result file will be located at lync\Test-CsPhoneBootstrap.md
+The resulting file will be located at lync\Test-CsPhoneBootstrap.md
+
 
 ## PARAMETERS
 
