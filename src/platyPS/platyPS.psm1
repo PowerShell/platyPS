@@ -203,10 +203,13 @@ function New-MarkdownHelp
 
                         $helpFileName = GetHelpFileName (Get-Command @a)    
                     }
+
+                    Write-Verbose "Maml things module is: $($mamlObject.ModuleName)"
                     
                     $newMetadata = ($Metadata + @{
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
                         $script:ONLINE_VERSION_YAML_HEADER = $online
+                        $script:MODULE_PAGE_MODULE_NAME = $mamlObject.ModuleName
                     })
                 }
 
@@ -412,6 +415,7 @@ function Update-MarkdownHelp
             $metadata = Get-MarkdownMetadata $filePath
             $metadata["external help file"] = GetHelpFileName $command
             $reflectionModel = GetMamlObject -Cmdlet $name -UseFullTypeName:$UseFullTypeName
+            $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
             $newModel = $merger.Merge($reflectionModel, $oldModel)
@@ -658,6 +662,69 @@ function New-MarkdownAboutHelp
         else 
         {
             throw "The output folder does not exist."
+        }
+    }
+}
+
+function New-YamlHelp
+{
+    [CmdletBinding()]
+    [OutputType([System.IO.FileInfo[]])]
+    param(
+        [Parameter(Mandatory=$true,
+            Position=1,
+            ValueFromPipeline=$true,
+            ValueFromPipelineByPropertyName=$true)]
+        [string[]]$Path,
+
+        [Parameter(Mandatory=$true)]
+        [string]$OutputFolder,
+
+        [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
+        
+        [switch]$Force
+    )
+    begin 
+    {
+        validateWorkingProvider
+
+        $MarkdownFiles = @()
+
+        if(-not (Test-Path $OutputFolder))
+        {
+            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        }
+
+        if(-not (Test-Path -PathType Container $OutputFolder))
+        {
+            throw "$OutputFolder is not a container"
+        }
+    }
+    process 
+    {
+        $MarkdownFiles += GetMarkdownFilesFromPath $Path
+    }
+    end 
+    {
+        $MarkdownFiles | ForEach-Object {
+            Write-Verbose "[New-YamlHelp] Input markdown file $_"
+        }
+
+        foreach($markdownFile in $MarkdownFiles)
+        {
+            $mamlModels = GetMamlModelImpl $markdownFile.FullName -Encoding $Encoding
+            foreach($mamlModel in $mamlModels)
+            {
+                $markdownMetadata = Get-MarkdownMetadata -Path $MarkdownFile.FullName
+
+                ## We set the module here in the PowerShell since the Yaml block is not read by the parser
+                $mamlModel.ModuleName = $markdownMetadata[$script:MODULE_PAGE_MODULE_NAME]
+
+                $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
+                $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
+                Write-Verbose "Writing Yaml help to $outputFilePath"
+                MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
+            }
         }
     }
 }
@@ -2169,6 +2236,8 @@ function ConvertPsObjectsToMamlModel
 
     #Get Name
     $MamlCommandObject.Name = $Command.Name
+
+    $MamlCommandObject.ModuleName = $Command.ModuleName
 
     #region Data not provided by the command object
     

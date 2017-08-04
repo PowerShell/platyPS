@@ -31,6 +31,8 @@ namespace Markdown.MAML.Model.MAML
 
         public bool SupportCommonParameters { get; set; }
 
+        public string ModuleName { get; set; }
+
         public List<MamlExample> Examples
         {
             get { return _examples; }

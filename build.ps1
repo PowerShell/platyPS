@@ -14,17 +14,22 @@ if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
 }
 
 msbuild Markdown.MAML.sln /p:Configuration=$Configuration
-$assemblyPath = (Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path
+$assemblyPaths = ((Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path, (Resolve-Path "src\Markdown.MAML\bin\$Configuration\YamlDotNet.dll").Path)
 
 # copy artifacts
 mkdir out -ErrorAction SilentlyContinue > $null
 cp -Rec -Force src\platyPS out
-if (-not (Test-Path out\platyPS\Markdown.MAML.dll) -or 
-    (ls out\platyPS\Markdown.MAML.dll).LastWriteTime -lt (ls $assemblyPath).LastWriteTime)
+foreach($assemblyPath in $assemblyPaths)
 {
-    cp $assemblyPath out\platyPS
-} else {
-    Write-Host -Foreground Yellow 'Skip Markdown.MAML.dll copying'
+	$assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
+	$outputPath = "out\platyPS\$assemblyFileName"
+	if ((-not (Test-Path $outputPath)) -or
+		(Test-Path $outputPath -OlderThan (ls $assemblyPath).LastWriteTime))
+	{
+		cp $assemblyPath out\platyPS
+	} else {
+		Write-Host -Foreground Yellow "Skip $assemblyFileName copying"
+	}
 }
 
 # copy schema file and docs
