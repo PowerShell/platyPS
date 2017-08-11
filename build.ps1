@@ -10,7 +10,33 @@ param(
 # msbuild is part of .NET Framework, we can try to get it from well-known location.
 if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
     Write-Warning "Appending probable msbuild path"
-    $env:path += ";${env:SystemRoot}\Microsoft.Net\Framework\v4.0.30319"
+    $env:path += ";${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\bin"
+}
+
+if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
+    throw "The msbuild command is not available."
+}
+
+if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
+    # No packages... better restore or things won't go well.
+
+    $nugetCmd = 'nuget'
+    if (-not (Get-Command -Name $nugetCmd -ErrorAction Ignore)) {
+        $nugetCmd = "$PSScriptRoot\.nuget\NuGet.exe"
+    }
+
+    Write-Host -Foreground Cyan 'Attempting nuget package restore'
+
+    try
+    {
+        Push-Location $PSScriptRoot
+
+        & $nugetCmd restore
+    }
+    finally
+    {
+        Pop-Location
+    }
 }
 
 msbuild Markdown.MAML.sln /p:Configuration=$Configuration
