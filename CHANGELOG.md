@@ -6,7 +6,7 @@ CHANGELOG
 ## 0.8.2
 
 * Help content for Merge-MarkdownHelp is updated.
-* Added New-YamlHelp cmdlet to convert markdown help into Yaml format.
+* Added New-YamlHelp cmdlet to convert Markdown help into YAML format.
 
 ## 0.8.1
 
