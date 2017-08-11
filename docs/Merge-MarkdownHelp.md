@@ -1,5 +1,6 @@
 ---
 external help file: platyPS-help.xml
+Module Name: platyPS
 online version: 
 schema: 2.0.0
 ---
@@ -34,12 +35,13 @@ The default **merge marker** text consists of three exclamation points !!! howev
 ### Example 1
 The Test-CsPhoneBootstrap.md cmdlet is included in both Lync Server 2010 and Lync Server 2013. 
 Much of the content is duplicated and thus we want to have a single file for the cmdlet with unique content merged from each individual file.
+
+
 ```
 PS C:\> Merge-MarkdownHelp -Path @('Lync Server 2010\Test-CsPhoneBootstrap.md', 'Lync Server 2013\Test-CsPhoneBootstrap.md') -OutputPath lync
 ```
 
 The resulting file will be located at lync\Test-CsPhoneBootstrap.md
-
 
 ## PARAMETERS
 

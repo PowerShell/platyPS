@@ -3,6 +3,11 @@ CHANGELOG
 
 ## Not released
 
+## 0.8.2
+
+* Help content for Merge-MarkdownHelp is updated.
+* Added New-YamlHelp cmdlet to convert markdown help into Yaml format.
+
 ## 0.8.1
 
 * New-MarkdownHelp and Update-MarkdownHelp now support -UseFullTypeName parameter.
