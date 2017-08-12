@@ -1,5 +1,8 @@
-# script to create the final package in out\platyPS
-
+<#
+.SYNOPSIS
+    Builds the MarkDown/MAML DLL and assembles the final package in out\platyPS.
+#>
+[CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')]
     $Configuration = "Debug",
@@ -7,14 +10,33 @@ param(
 )
 
 # build .dll
-# msbuild is part of .NET Framework, we can try to get it from well-known location.
-if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
-    Write-Warning "Appending probable msbuild path"
-    $env:path += ";${env:ProgramFiles(x86)}\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\bin"
-}
+[string] $msbuildPath = $null
 
-if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
-    throw "The msbuild command is not available."
+$msbuildCmd = Get-Command -Name msbuild -ErrorAction Ignore
+
+if ($msbuildCmd) {
+    $msbuildPath = $msbuildCmd.Path
+} else {
+    Write-Warning 'Searching for msbuild'
+
+    # For more info on vswhere.exe:
+    #    https://blogs.msdn.microsoft.com/heaths/2017/02/25/vswhere-available/
+    #    https://github.com/Microsoft/vswhere/wiki/Find-MSBuild
+    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+    if (Test-Path $vswherePath) {
+
+        $vsInstallPath = & $vswherePath -latest `
+                                        -requires Microsoft.VisualStudio.Component.Roslyn.Compiler, Microsoft.Component.MSBuild `
+                                        -property installationPath
+
+        if ($? -and $vsInstallPath) {
+            $msbuildPath = Join-Path $vsInstallPath 'MSBuild\15.0\Bin\MSBuild.exe'
+        }
+    }
+
+    if ((-not $msbuildPath) -or (-not (Test-Path $msbuildPath))) {
+        throw "I don't know where msbuild is."
+    }
 }
 
 if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
@@ -39,7 +61,7 @@ if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
     }
 }
 
-msbuild Markdown.MAML.sln /p:Configuration=$Configuration
+& $msbuildPath Markdown.MAML.sln /p:Configuration=$Configuration
 $assemblyPaths = ((Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path, (Resolve-Path "src\Markdown.MAML\bin\$Configuration\YamlDotNet.dll").Path)
 
 # copy artifacts
