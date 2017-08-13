@@ -1370,6 +1370,8 @@ function GetMarkdownFilesFromPath
     {
         $filter = '*-*.md'
     }
+
+    $aboutFilePrefixPattern = 'about_*'
     
 
     $MarkdownFiles = @()
@@ -1377,11 +1379,14 @@ function GetMarkdownFilesFromPath
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
-                $MarkdownFiles += Get-ChildItem $_
+                if ((Split-Path -Leaf $_) -notlike $aboutFilePrefixPattern)
+                {
+                    $MarkdownFiles += Get-ChildItem $_
+                }
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike "*about_*"}
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike $aboutFilePrefixPattern}
             }
             else 
             {
