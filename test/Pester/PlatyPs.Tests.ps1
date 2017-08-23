@@ -1098,6 +1098,8 @@ Describe 'Create About Topic Markdown and Txt' {
     $output = "TestDrive:\"
     $aboutTopicName = "PlatyPS"
     $templateLocation = (Split-Path ((Get-Module $aboutTopicName).Path) -Parent) + "\templates\aboutTemplate.md"
+    $AboutTopicsOutputFolder = Join-Path $output "About"
+    New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
     
     
     It 'Checks the about topic is created with proper file name, and the content is correctly written' {
@@ -1111,12 +1113,21 @@ Describe 'Create About Topic Markdown and Txt' {
         Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
         Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $aboutContent
     }
-    
+
+    It 'Can generate external help for a directly-specified "about" markdown file' {
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName 'JustOne'
+
+        $aboutMdPath = Join-Path $output "about_JustOne.md"
+
+        New-ExternalHelp -Path $aboutMdPath -OutputPath $AboutTopicsOutputFolder
+
+        $aboutExternalHelpPath = Join-Path $AboutTopicsOutputFolder 'about_JustOne.help.txt'
+
+        Test-Path $aboutExternalHelpPath | Should Be $true
+    }
+
     It 'Takes constructed markdown about topics and converts them to text with proper character width'{
-
-        $AboutTopicsOutputFolder = Join-Path $output "About"
-
-        New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
 
         New-MarkdownAboutHelp -OutputFolder $AboutTopicsOutputFolder -AboutName "AboutTopic"
 
