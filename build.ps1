@@ -9,34 +9,48 @@ param(
     [switch]$SkipDocs
 )
 
-# build .dll
-[string] $msbuildPath = $null
+# Attempts to find the (verified to exist) path to msbuild.exe; returns an empty string if
+# not found.
+function Find-MsBuildPath()
+{
+    [string] $msbuildPath = ''
 
-$msbuildCmd = Get-Command -Name msbuild -ErrorAction Ignore
+    $msbuildCmd = Get-Command -Name msbuild -ErrorAction Ignore
 
-if ($msbuildCmd) {
-    $msbuildPath = $msbuildCmd.Path
-} else {
-    Write-Warning 'Searching for msbuild'
+    if ($msbuildCmd) {
+        $msbuildPath = $msbuildCmd.Path
+    } else {
+        Write-Warning 'Searching for msbuild'
 
-    # For more info on vswhere.exe:
-    #    https://blogs.msdn.microsoft.com/heaths/2017/02/25/vswhere-available/
-    #    https://github.com/Microsoft/vswhere/wiki/Find-MSBuild
-    $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-    if (Test-Path $vswherePath) {
+        # For more info on vswhere.exe:
+        #    https://blogs.msdn.microsoft.com/heaths/2017/02/25/vswhere-available/
+        #    https://github.com/Microsoft/vswhere/wiki/Find-MSBuild
+        $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (Test-Path $vswherePath) {
 
-        $vsInstallPath = & $vswherePath -latest `
-                                        -requires Microsoft.VisualStudio.Component.Roslyn.Compiler, Microsoft.Component.MSBuild `
-                                        -property installationPath
+            $vsInstallPath = & $vswherePath -latest `
+                                            -requires Microsoft.VisualStudio.Component.Roslyn.Compiler, Microsoft.Component.MSBuild `
+                                            -property installationPath
 
-        if ($? -and $vsInstallPath) {
-            $msbuildPath = Join-Path $vsInstallPath 'MSBuild\15.0\Bin\MSBuild.exe'
+            if (($LASTEXITCODE -eq 0) -and $vsInstallPath) {
+                $msbuildPath = Join-Path $vsInstallPath 'MSBuild\15.0\Bin\MSBuild.exe'
+            }
+        }
+
+        if ($msbuildPath -and (-not (Test-Path $msbuildPath))) {
+            $msbuildPath = ''
         }
     }
 
-    if ((-not $msbuildPath) -or (-not (Test-Path $msbuildPath))) {
-        throw "I don't know where msbuild is."
-    }
+    return $msbuildPath
+}
+
+
+# build .dll
+[string] $msbuildPath = Find-MsBuildPath
+
+if (-not $msbuildPath) {
+    throw "I don't know where msbuild is."
 }
 
 if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
