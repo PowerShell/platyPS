@@ -3,14 +3,15 @@
 ## DEVELOPERS NOTES & CONVENTIONS
 ##
 ##  1. Non-exported functions (subroutines) should avoid using 
-##     PowerShell standart Verb-Noun naming convention.
-##     They should use camalCase or CamalCase instead.
+##     PowerShell standard Verb-Noun naming convention.
+##     They should use camalCase or PascalCase instead.
 ##  2. SMALL subroutines, used only from ONE function 
 ##     should be placed inside the parent function body.
 ##     They should use camalCase for the name.
 ##  3. LARGE subroutines and subroutines used from MORE THEN ONE function 
-##     should be placed after the IMPLEMENTATION text block in the midle of this module.
-##     They should use CamalCase for the name.
+##     should be placed after the IMPLEMENTATION text block in the middle 
+##     of this module.
+##     They should use PascalCase for the name.
 ##  4. Add comment "# yeild" on subroutine calls that write values to pipeline.
 ##     It would help keep code maintainable and simplify ramp up for others.
 ## 
