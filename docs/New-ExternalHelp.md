@@ -14,7 +14,7 @@ Creates external help file based on markdown supported by PlatyPS.
 
 ```
 New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
- [-Force] [<CommonParameters>]
+ -OutputFile <String> [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -56,6 +56,22 @@ Mode                LastWriteTime         Length Name
 This command creates an external help file in the specified location.
 This command specifies the *Force* parameter, therefore, it overwrites an existing file.
 The command specifies Unicode encoding for the created file.
+
+### Example 3: Write warnings and errors to file
+```
+PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\platyPS\en-US" -OutputFile ".\WarningsAndErrors.json"
+
+    Directory: D:\Working\PlatyPS\out\platyPS\en-US
+
+
+Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        5/19/2016  12:32 PM          46776 platyPS-help.xml
+```
+
+This command creates an external help file in the specified location.
+This command uses the best practice that the folder name includes the locale.
+This command writes the warnings and errors to the WarningsAndErrors.json file.
 
 ## PARAMETERS
 
@@ -136,6 +152,27 @@ See [design issue](https://github.com/PowerShell/platyPS/issues/273) for more de
 
 ```yaml
 Type: String[]
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OutputFile
+The path where this cmdlet will save formatted results log file.
+
+The path must include the location and name of the folder and file name with
+the json extension. The JSON object contains three properties, Message, FilePath,
+and Severity (Warning or Error).
+
+If this path is not provided, no log will be generated.
+
+```yaml
+Type: String
 Parameter Sets: (All)
 Aliases: 
 
