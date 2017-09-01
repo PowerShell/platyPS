@@ -29,7 +29,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     
     Context 'markdown metadata' {
         $h = Get-MarkdownMetadata $file
-        It 'online version is available in metadata and metadat is case-insensitive' {
+        It 'online version is available in metadata and metadata is case-insensitive' {
             $h['oNline vErsion'] | Should Be $originalHelpObject.relatedLinks.navigationLink[0].uri
         }
     }
