@@ -5,7 +5,7 @@ CHANGELOG
 
 ## 0.8.3
 
-* New-ExternalHelp can log warnings and errors as JSON to file using new -OutputFile parameter. The output file can be used by CI systems to report warnings and errors to the build summary.
+* New-ExternalHelp can log warnings and errors as JSON to file using new -ErrorLogFile parameter. The file can be used by CI systems to report warnings and errors to the build summary.
 
 ## 0.8.2
 

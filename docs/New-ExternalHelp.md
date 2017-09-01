@@ -14,7 +14,7 @@ Creates external help file based on markdown supported by PlatyPS.
 
 ```
 New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
- -OutputFile <String> [-Force] [<CommonParameters>]
+ -ErrorLogFile <String> [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -59,7 +59,7 @@ The command specifies Unicode encoding for the created file.
 
 ### Example 3: Write warnings and errors to file
 ```
-PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\platyPS\en-US" -OutputFile ".\WarningsAndErrors.json"
+PS C:\> New-ExternalHelp -Path ".\docs" -OutputPath "out\platyPS\en-US" -ErrorLogFile ".\WarningsAndErrors.json"
 
     Directory: D:\Working\PlatyPS\out\platyPS\en-US
 
@@ -162,7 +162,7 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -OutputFile
+### -ErrorLogFile
 The path where this cmdlet will save formatted results log file.
 
 The path must include the location and name of the folder and file name with

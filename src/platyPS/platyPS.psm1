@@ -749,7 +749,7 @@ function New-ExternalHelp
 
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
 
-        [string]$OutputFile,
+        [string]$ErrorLogFile,
         
         [switch]$Force
     )
@@ -880,8 +880,8 @@ function New-ExternalHelp
          throw
        }
        finally {
-         if ($OutputFile) {
-            ConvertTo-Json $warningsAndErrors | Out-File $OutputFile
+         if ($ErrorLogFile) {
+            ConvertTo-Json $warningsAndErrors | Out-File $ErrorLogFile
          }
        }        
     }
