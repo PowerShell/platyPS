@@ -3,14 +3,15 @@
 ## DEVELOPERS NOTES & CONVENTIONS
 ##
 ##  1. Non-exported functions (subroutines) should avoid using 
-##     PowerShell standart Verb-Noun naming convention.
-##     They should use camalCase or CamalCase instead.
+##     PowerShell standard Verb-Noun naming convention.
+##     They should use camalCase or PascalCase instead.
 ##  2. SMALL subroutines, used only from ONE function 
 ##     should be placed inside the parent function body.
 ##     They should use camalCase for the name.
 ##  3. LARGE subroutines and subroutines used from MORE THEN ONE function 
-##     should be placed after the IMPLEMENTATION text block in the midle of this module.
-##     They should use CamalCase for the name.
+##     should be placed after the IMPLEMENTATION text block in the middle 
+##     of this module.
+##     They should use PascalCase for the name.
 ##  4. Add comment "# yeild" on subroutine calls that write values to pipeline.
 ##     It would help keep code maintainable and simplify ramp up for others.
 ## 
@@ -750,7 +751,9 @@ function New-ExternalHelp
 
         [ValidateRange(80, [int]::MaxValue)]
         [int] $MaxAboutWidth = 80,
-        
+
+        [string]$ErrorLogFile,
+
         [switch]$Force
     )
 
@@ -789,79 +792,101 @@ function New-ExternalHelp
 
     end 
     { 
-        # write verbose output and filter out files based on applicable tag
-        $MarkdownFiles | ForEach-Object {
-            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
-        }
+       # Tracks all warnings and errors 
+       $warningsAndErrors = New-Object System.Collections.Generic.List[System.Object]
 
-        if ($ApplicableTag) {
+       try {
+         # write verbose output and filter out files based on applicable tag
+         $MarkdownFiles | ForEach-Object {
+            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
+         }
+
+         if ($ApplicableTag) {
             Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
             $MarkdownFiles = $MarkdownFiles | ForEach-Object {
-                $applicableList = GetApplicableList -Path $_.FullName
-                # this Compare-Object call is getting the intersection of two string[]
-                if ((-not $applicableList) -or (Compare-Object $applicableList $ApplicableTag -IncludeEqual -ExcludeDifferent)) {
-                    # yeild
-                    $_
-                } else {
-                    Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
-                }
+               $applicableList = GetApplicableList -Path $_.FullName
+               # this Compare-Object call is getting the intersection of two string[]
+               if ((-not $applicableList) -or (Compare-Object $applicableList $ApplicableTag -IncludeEqual -ExcludeDifferent)) {
+                  # yeild
+                  $_
+               }
+               else {
+                  Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
+               }
             }
-        }
+         }
 
-        # group the files based on the output xml path metadata tag
-        if ($IsOutputContainer)
-        {
+         # group the files based on the output xml path metadata tag
+         if ($IsOutputContainer) {
             $defaultPath = Join-Path $OutputPath $script:DEFAULT_MAML_XML_OUTPUT_NAME
             $groups = $MarkdownFiles | Group-Object { 
-                $h = Get-MarkdownMetadata -Path $_.FullName
-                if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) 
-                {
-                    Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
-                }
-                else 
-                {
-                    Write-Warning "[New-ExternalHelp] cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
-                    Write-Warning "[New-ExternalHelp] $defaultPath would be used"
-                    $defaultPath
-                }
+               $h = Get-MarkdownMetadata -Path $_.FullName
+               if ($h -and $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]) {
+                  Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
+               }
+               else {
+                  $msgLine1 = "cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
+                  $msgLine2 = "$defaultPath would be used"
+                  $warningsAndErrors.Add(@{
+                        Severity = "Warning"
+                        Message  = "$msgLine1 $msgLine2"
+                        FilePath = "$($_.FullName)"
+                     })
+
+                  Write-Warning "[New-ExternalHelp] $msgLine1"
+                  Write-Warning "[New-ExternalHelp] $msgLine2"
+                  $defaultPath
+               }
             }
-        }
-        else 
-        {
+         }
+         else {
             $groups = $MarkdownFiles | Group-Object { $OutputPath }
-        }
+         }
 
-        # generate the xml content
-        $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
+         # generate the xml content
+         $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
 
-        foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ($group.Group | %{$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
+         foreach ($group in $groups) {
+            $maml = GetMamlModelImpl ($group.Group | % {$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
             $xml = $r.MamlModelToString($maml)
-            
+         
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
-        }
-        
-        # handle about topics
-        if($AboutFiles.Count -gt 0)
-        {
-            foreach($About in $AboutFiles)
-            {
-                $r = New-Object -TypeName 'Markdown.MAML.Renderer.TextRenderer' -ArgumentList($MaxAboutWidth)
-                $Content = Get-Content -Raw $About.FullName
-                $p = NewMarkdownParser
-                $model = $p.ParseString($Content)
-                $value = $r.AboutMarkDownToString($model)
+         }
+     
+         # handle about topics
+         if ($AboutFiles.Count -gt 0) {
+            foreach ($About in $AboutFiles) {
+               $r = New-Object -TypeName 'Markdown.MAML.Renderer.TextRenderer' -ArgumentList($MaxAboutWidth)
+               $Content = Get-Content -Raw $About.FullName
+               $p = NewMarkdownParser
+               $model = $p.ParseString($Content)
+               $value = $r.AboutMarkDownToString($model)
 
-                $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".help.txt")
-                if(!(Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_",$true,$null))
-                {
-                    $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
-                }
-                MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
+               $outPath = Join-Path $OutputPath ([io.path]::GetFileNameWithoutExtension($About.FullName) + ".help.txt")
+               if (!(Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_", $true, $null)) {
+                  $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
+               }
+               MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
             }
-        }
+         }
+       }
+       catch {
+          # Log error and rethrow
+          $warningsAndErrors.Add(@{
+               Severity = "Error"
+               Message  = "$_.Exception.Message"
+               FilePath = ""
+            })
+
+         throw
+       }
+       finally {
+         if ($ErrorLogFile) {
+            ConvertTo-Json $warningsAndErrors | Out-File $ErrorLogFile
+         }
+       }        
     }
 }
 
@@ -1373,6 +1398,8 @@ function GetMarkdownFilesFromPath
     {
         $filter = '*-*.md'
     }
+
+    $aboutFilePrefixPattern = 'about_*'
     
 
     $MarkdownFiles = @()
@@ -1380,11 +1407,14 @@ function GetMarkdownFilesFromPath
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
-                $MarkdownFiles += Get-ChildItem $_
+                if ((Split-Path -Leaf $_) -notlike $aboutFilePrefixPattern)
+                {
+                    $MarkdownFiles += Get-ChildItem $_
+                }
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike "*about_*"}
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike $aboutFilePrefixPattern}
             }
             else 
             {

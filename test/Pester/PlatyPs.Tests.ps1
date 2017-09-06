@@ -468,6 +468,38 @@ Describe 'New-ExternalHelp' {
     }
 }
 
+Describe 'New-ExternalHelp -ErrorLogFile' {
+   BeforeAll {
+      function global:Test-OrderFunction {
+         param ([Parameter(Position = 3)]$Third, [Parameter(Position = 1)]$First, [Parameter()]$Named) 
+         $First
+         $Third
+         $Named
+      }
+
+      try {
+         # Don't add metadata so the file has an error
+         $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force -NoMetadata
+         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -ErrorLogFile "$TestDrive\warningsAndErrors.json" -Force      
+      }
+      catch {
+         # Ignore the error. I just needed an error to write to the log file.
+         # If I don't catch this the test will fail.
+      }
+   }
+  
+   It "generates error log file" {
+      Test-Path  "$TestDrive\warningsAndErrors.json" | Should Be $true
+   }
+
+   It "error log file is valid JSON" {
+      $r = (Get-Content "$TestDrive\warningsAndErrors.json" | ConvertFrom-Json)
+      $r[0].Message | Should Be "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version..Exception.Message" 
+      $r[0].Severity | Should Be "Error" 
+      $r[0].FilePath | Should Be "" 
+   }
+}
+
 Describe 'New-ExternalHelp -ApplicableTag for cmdlet level' {
     BeforeAll {
         function global:Test-Applicable12 {}
@@ -1098,6 +1130,8 @@ Describe 'Create About Topic Markdown and Txt' {
     $output = "TestDrive:\"
     $aboutTopicName = "PlatyPS"
     $templateLocation = (Split-Path ((Get-Module $aboutTopicName).Path) -Parent) + "\templates\aboutTemplate.md"
+    $AboutTopicsOutputFolder = Join-Path $output "About"
+    New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
     
     
     It 'Checks the about topic is created with proper file name, and the content is correctly written' {
@@ -1111,12 +1145,21 @@ Describe 'Create About Topic Markdown and Txt' {
         Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
         Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $aboutContent
     }
-    
+
+    It 'Can generate external help for a directly-specified "about" markdown file' {
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName 'JustOne'
+
+        $aboutMdPath = Join-Path $output "about_JustOne.md"
+
+        New-ExternalHelp -Path $aboutMdPath -OutputPath $AboutTopicsOutputFolder
+
+        $aboutExternalHelpPath = Join-Path $AboutTopicsOutputFolder 'about_JustOne.help.txt'
+
+        Test-Path $aboutExternalHelpPath | Should Be $true
+    }
+
     It 'Takes constructed markdown about topics and converts them to text with proper character width'{
-
-        $AboutTopicsOutputFolder = Join-Path $output "About"
-
-        New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
 
         New-MarkdownAboutHelp -OutputFolder $AboutTopicsOutputFolder -AboutName "AboutTopic"
 

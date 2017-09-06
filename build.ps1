@@ -1,19 +1,81 @@
-# script to create the final package in out\platyPS
-
+<#
+.SYNOPSIS
+    Builds the MarkDown/MAML DLL and assembles the final package in out\platyPS.
+#>
+[CmdletBinding()]
 param(
     [ValidateSet('Debug', 'Release')]
     $Configuration = "Debug",
     [switch]$SkipDocs
 )
 
-# build .dll
-# msbuild is part of .NET Framework, we can try to get it from well-known location.
-if (-not (Get-Command -Name msbuild -ErrorAction Ignore)) {
-    Write-Warning "Appending probable msbuild path"
-    $env:path += ";${env:SystemRoot}\Microsoft.Net\Framework\v4.0.30319"
+# Attempts to find the (verified to exist) path to msbuild.exe; returns an empty string if
+# not found.
+function Find-MsBuildPath()
+{
+    [string] $msbuildPath = ''
+
+    $msbuildCmd = Get-Command -Name msbuild -ErrorAction Ignore
+
+    if ($msbuildCmd) {
+        $msbuildPath = $msbuildCmd.Path
+    } else {
+        Write-Warning 'Searching for msbuild'
+
+        # For more info on vswhere.exe:
+        #    https://blogs.msdn.microsoft.com/heaths/2017/02/25/vswhere-available/
+        #    https://github.com/Microsoft/vswhere/wiki/Find-MSBuild
+        $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+        if (Test-Path $vswherePath) {
+
+            $vsInstallPath = & $vswherePath -latest `
+                                            -requires Microsoft.VisualStudio.Component.Roslyn.Compiler, Microsoft.Component.MSBuild `
+                                            -property installationPath
+
+            if (($LASTEXITCODE -eq 0) -and $vsInstallPath) {
+                $msbuildPath = Join-Path $vsInstallPath 'MSBuild\15.0\Bin\MSBuild.exe'
+            }
+        }
+
+        if ($msbuildPath -and (-not (Test-Path $msbuildPath))) {
+            $msbuildPath = ''
+        }
+    }
+
+    return $msbuildPath
 }
 
-msbuild Markdown.MAML.sln /p:Configuration=$Configuration
+
+# build .dll
+[string] $msbuildPath = Find-MsBuildPath
+
+if (-not $msbuildPath) {
+    throw "I don't know where msbuild is."
+}
+
+if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
+    # No packages... better restore or things won't go well.
+
+    $nugetCmd = 'nuget'
+    if (-not (Get-Command -Name $nugetCmd -ErrorAction Ignore)) {
+        $nugetCmd = "$PSScriptRoot\.nuget\NuGet.exe"
+    }
+
+    Write-Host -Foreground Cyan 'Attempting nuget package restore'
+
+    try
+    {
+        Push-Location $PSScriptRoot
+
+        & $nugetCmd restore
+    }
+    finally
+    {
+        Pop-Location
+    }
+}
+
+& $msbuildPath Markdown.MAML.sln /p:Configuration=$Configuration
 $assemblyPaths = ((Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path, (Resolve-Path "src\Markdown.MAML\bin\$Configuration\YamlDotNet.dll").Path)
 
 # copy artifacts
