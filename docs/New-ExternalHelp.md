@@ -14,7 +14,7 @@ Creates external help file based on markdown supported by PlatyPS.
 
 ```
 New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
- -ErrorLogFile <String> [-Force] [<CommonParameters>]
+ [-MaxAboutWidth <Int>] [-ErrorLogFile <String>] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -158,6 +158,26 @@ Aliases:
 Required: False
 Position: Named
 Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -MaxAboutWidth
+Specifies the maximimum line length when generating "about" help text files.
+(See New-MarkdownAboutHelp.) Other help file types are not affected by this
+parameter.
+
+Lines inside code blocks are not wrapped at all and are not affected by the
+MaxAboutWidth parameter.
+
+```yaml
+Type: Int
+Parameter Sets: (All)
+Aliases: 
+
+Required: False
+Position: Named
+Default value: 80
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
