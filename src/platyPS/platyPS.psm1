@@ -749,8 +749,11 @@ function New-ExternalHelp
 
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
 
+        [ValidateRange(80, [int]::MaxValue)]
+        [int] $MaxAboutWidth = 80,
+
         [string]$ErrorLogFile,
-        
+
         [switch]$Force
     )
 
@@ -855,7 +858,7 @@ function New-ExternalHelp
          # handle about topics
          if ($AboutFiles.Count -gt 0) {
             foreach ($About in $AboutFiles) {
-               $r = New-Object -TypeName 'Markdown.MAML.Renderer.TextRenderer' -ArgumentList(80)
+               $r = New-Object -TypeName 'Markdown.MAML.Renderer.TextRenderer' -ArgumentList($MaxAboutWidth)
                $Content = Get-Content -Raw $About.FullName
                $p = NewMarkdownParser
                $model = $p.ParseString($Content)
