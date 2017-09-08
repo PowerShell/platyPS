@@ -2352,7 +2352,7 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
                 $ParameterType = $Parameter.ParameterType
                 $ParameterObject.Type = getTypeString -typeObject $ParameterType
-                $ParameterObject.FullType = $ParameterType.FullName
+                $ParameterObject.FullType = $ParameterType.ToString()
 
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 

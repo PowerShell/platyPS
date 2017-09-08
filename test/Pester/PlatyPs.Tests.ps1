@@ -395,18 +395,22 @@ Describe 'New-MarkdownHelp' {
                 $WhatIf,
                 [string]
                 [Parameter(Position=2)]
-                $CCC
+                $CCC,
+                [System.Nullable`1[System.Int32]]
+                [Parameter(Position=3)]
+                $ddd
             )
         }
 
         It 'use full type name when specified' {
             $expectedParameters = normalizeEnds @'
 Type: System.String
+Type: System.Nullable`1[System.Int32]
 Type: System.Management.Automation.SwitchParameter
 
 '@ 
             $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>]
+Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>]
 
 '@
 
@@ -419,11 +423,12 @@ Get-Alpha [-WhatIf] [[-CCC] <String>]
         It 'not use full type name when specified' {
             $expectedParameters = normalizeEnds @'
 Type: String
+Type: Int32
 Type: SwitchParameter
 
 '@ 
             $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>]
+Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>]
 
 '@
 
