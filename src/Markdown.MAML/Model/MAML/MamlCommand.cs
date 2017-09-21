@@ -10,7 +10,7 @@ namespace Markdown.MAML.Model.MAML
         public string Synopsis { get; set; }
         public string Description { get; set; }
 
-        public List<MamlInputOutput> Inputs 
+        public List<MamlInputOutput> Inputs
         {
             get { return _inputs; }
         }
@@ -20,9 +20,9 @@ namespace Markdown.MAML.Model.MAML
             get { return _outputs; }
         }
 
-        public List<MamlParameter> Parameters 
+        public List<MamlParameter> Parameters
         {
-            get { return _parameters; } 
+            get { return _parameters; }
         }
 
         public string Notes { get; set; }
@@ -36,7 +36,7 @@ namespace Markdown.MAML.Model.MAML
         public List<MamlExample> Examples
         {
             get { return _examples; }
-        } 
+        }
 
         public List<MamlLink> Links
         {
@@ -46,6 +46,11 @@ namespace Markdown.MAML.Model.MAML
         public List<MamlSyntax> Syntax
         {
             get { return _syntax; }
+        }
+
+        public Dictionary<string, string> ParameterSetNameToSyntaxRaw
+        {
+            get { return _parameterSetNameToSyntaxRaw; }
         }
 
         private List<MamlParameter> _parameters = new List<MamlParameter>();
@@ -59,6 +64,8 @@ namespace Markdown.MAML.Model.MAML
         private List<MamlLink> _links = new List<MamlLink>();
 
         private List<MamlSyntax> _syntax = new List<MamlSyntax>();
+
+        private Dictionary<string, string> _parameterSetNameToSyntaxRaw = new Dictionary<string, string>();
 
         public MamlCommand()
         {

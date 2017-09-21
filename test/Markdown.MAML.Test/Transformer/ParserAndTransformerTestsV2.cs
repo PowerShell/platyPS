@@ -1017,6 +1017,60 @@ This description block test formatting preservance.
             Assert.Equal(description, mamlCommand.Description);
         }
 
+        [Fact]
+        public void SyntaxRawStringInTheRightOrder()
+        {
+
+            var doc = ParseString(@"
+# New-MarkdownHelp
+
+## SYNTAX
+
+### FromModule
+```
+New-MarkdownHelp -Module <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>] [-WithModulePage]
+ [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
+```
+
+### FromCommand
+```
+New-MarkdownHelp -Command <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
+ [<CommonParameters>]
+```
+
+### FromMaml
+```
+New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
+ [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
+ [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+```
+## DESCRIPTION
+The **New-MarkdownHelp** cmdlet creates help in markdown format based on a module, a command, or a file in Microsoft Assistance Markup Language (MAML) format.
+
+");
+            var mamlCommands = NodeModelToMamlModelV2(doc).ToArray();
+            Assert.Equal(mamlCommands.Count(), 1);
+
+            var mamlCommand = mamlCommands.First();
+            Assert.Equal(mamlCommand.ParameterSetNameToSyntaxRaw.Count(), 3);
+            Assert.Equal(mamlCommand.ParameterSetNameToSyntaxRaw["FromModule"],
+                @"New-MarkdownHelp -Module <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>] [-WithModulePage]
+ [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]");
+            Assert.Equal(mamlCommand.ParameterSetNameToSyntaxRaw["FromCommand"],
+                @"New-MarkdownHelp -Command <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
+ [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
+ [<CommonParameters>]");
+            Assert.Equal(mamlCommand.ParameterSetNameToSyntaxRaw["FromMaml"],
+                @"New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
+ [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
+ [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]");
+        }
+
         private DocumentNode ParseString(string markdown)
         {
             var parser = new MarkdownParser();

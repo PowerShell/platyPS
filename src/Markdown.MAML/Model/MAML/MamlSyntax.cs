@@ -17,6 +17,8 @@ namespace Markdown.MAML.Model.MAML
         
         public string ParameterSetName { get; set; }
 
+        public string RawSyntaxString { get; set; }
+
         public bool IsDefault { get; set; }
 
         public List<MamlParameter> Parameters { get { return _parameters; } }
