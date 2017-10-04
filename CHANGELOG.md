@@ -3,8 +3,15 @@ CHANGELOG
 
 ## Not released
 
-* New-ExternalHelp can log warnings and errors as JSON to file using new -ErrorLogFile parameter. The file can be used by CI systems to report warnings and errors to the build summary.
-* Added a -MaxAboutWidth parameter to New-ExternalHelp, to allow controlling the wrapping boundary of "about" text files (default is 80).
+
+## 0.8.3
+
+* New-ExternalHelp support 'about' help topics. (Thanks @jazzdelightsme)
+* Improve first build experience. (Thanks @jazzdelightsme)
+* Fixed spellings and casing in developer notes. (Thanks @DarqueWarrior)
+* Added ErrorLogFile parameter to New-ExternalHelp cmdlet. (Thanks @DarqueWarrior)
+* Added -MaxAboutWidth parameter to New-ExternalHelp cmdlet. (Thanks @jazzdelightsme)
+* Use ToString to get full type name for parameters. (Thanks @yishengjin1413)
 
 ## 0.8.2
 
