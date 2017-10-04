@@ -37,6 +37,8 @@ The Test-CsPhoneBootstrap.md cmdlet is included in both Lync Server 2010 and Lyn
 Much of the content is duplicated and thus we want to have a single file for the cmdlet with unique content merged from each individual file.
 
 
+
+
 ```
 PS C:\> Merge-MarkdownHelp -Path @('Lync Server 2010\Test-CsPhoneBootstrap.md', 'Lync Server 2013\Test-CsPhoneBootstrap.md') -OutputPath lync
 ```

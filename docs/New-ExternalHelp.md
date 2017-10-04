@@ -14,7 +14,7 @@ Creates external help file based on markdown supported by PlatyPS.
 
 ```
 New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
- [-MaxAboutWidth <Int>] [-ErrorLogFile <String>] [-Force] [<CommonParameters>]
+ [-MaxAboutWidth <Int32>] [-ErrorLogFile <String>] [-Force] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -171,7 +171,7 @@ Lines inside code blocks are not wrapped at all and are not affected by the
 MaxAboutWidth parameter.
 
 ```yaml
-Type: Int
+Type: Int32
 Parameter Sets: (All)
 Aliases: 
 
