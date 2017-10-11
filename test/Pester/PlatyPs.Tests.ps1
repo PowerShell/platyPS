@@ -262,7 +262,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown with correct synopsis' {
-            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 2
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
@@ -816,7 +816,7 @@ Describe 'Update-MarkdownHelp reflection scenario' {
     }
 
     It 'produce a dummy example' {
-        $v1md.FullName | Should Contain '### Example 1'
+        $v1md.FullName | Should FileContentMatch '### Example 1'
     }
 
     $v1markdown = $v1md | Get-Content -Raw
