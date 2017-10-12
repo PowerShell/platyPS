@@ -389,7 +389,7 @@ Write-Host 'Hello World!'
         }
 
         It 'generates markdown with correct synopsis' {
-            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 2
+            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
