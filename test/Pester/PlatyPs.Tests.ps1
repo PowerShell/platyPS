@@ -816,7 +816,7 @@ Describe 'Update-MarkdownHelp reflection scenario' {
     }
 
     It 'produce a dummy example' {
-        $v1md.FullName | Should Contain '### Example 1'
+        $v1md.FullName | Should FileContentMatch '### Example 1'
     }
 
     $v1markdown = $v1md | Get-Content -Raw
