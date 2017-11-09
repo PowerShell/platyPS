@@ -253,7 +253,7 @@ Get-Foo [-Name] <String> [<CommonParameters>]
 ## DESCRIPTION
 This is a long description.
 
-With two paragraphs.
+With two paragraphs. 
 And the second one contains of few line!
 They should be auto-wrapped.
 Because, why not?
