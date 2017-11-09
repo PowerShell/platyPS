@@ -235,7 +235,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             string markdown = renderer.MamlModelToString(command, metadata);
             Assert.Equal(@"---
 foo: bar
-null: 
+null:
 schema: 2.0.0
 ---
 
@@ -414,7 +414,7 @@ Get-Foo -Common <String> -Second <String> [<CommonParameters>]
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -427,7 +427,7 @@ Accept wildcard characters: False
 ```yaml
 Type: String
 Parameter Sets: FirstSyntax
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -440,7 +440,7 @@ Accept wildcard characters: False
 ```yaml
 Type: String
 Parameter Sets: SecondSyntax
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named

@@ -92,7 +92,7 @@ namespace Markdown.MAML.Renderer
             
             foreach (var pair in sortedHeader)
             {
-                _stringBuilder.AppendFormat("{0}: {1}{2}", pair.Key, pair.Value, Environment.NewLine);
+                AppendYamlKeyValue(pair.Key, pair.Value);
             }
 
             _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
@@ -276,7 +276,7 @@ namespace Markdown.MAML.Renderer
             {
                 _stringBuilder.AppendFormat("```yaml{0}", Environment.NewLine);
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Type, parameter.Type, Environment.NewLine);
+                AppendYamlKeyValue(MarkdownStrings.Type, parameter.Type);
 
                 string parameterSetsString;
                 if (command.Syntax.Count == 1 || set.Item1.Count == command.Syntax.Count)
@@ -290,29 +290,41 @@ namespace Markdown.MAML.Renderer
                     parameterSetsString = JoinWithComma(set.Item1);
                 }
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Parameter_Sets, parameterSetsString, Environment.NewLine);
+                AppendYamlKeyValue(MarkdownStrings.Parameter_Sets, parameterSetsString);
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Aliases, JoinWithComma(parameter.Aliases), Environment.NewLine);
+                AppendYamlKeyValue(MarkdownStrings.Aliases, JoinWithComma(parameter.Aliases));
                 if (parameter.ParameterValueGroup.Count > 0)
                 {
-                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accepted_values, JoinWithComma(parameter.ParameterValueGroup), Environment.NewLine);
+                    AppendYamlKeyValue(MarkdownStrings.Accepted_values, JoinWithComma(parameter.ParameterValueGroup));
                 }
 
                 if (parameter.Applicable != null)
                 {
-                    _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Applicable, JoinWithComma(parameter.Applicable), Environment.NewLine);
+                    AppendYamlKeyValue(MarkdownStrings.Applicable, JoinWithComma(parameter.Applicable));
                 }
 
                 _stringBuilder.AppendLine();
 
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Required, set.Item2.Required, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Position, set.Item2.IsNamed() ? "Named" : set.Item2.Position, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Default_value, string.IsNullOrWhiteSpace(parameter.DefaultValue) ? "None" : parameter.DefaultValue, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_pipeline_input, parameter.PipelineInput, Environment.NewLine);
-                _stringBuilder.AppendFormat("{0}: {1}{2}", MarkdownStrings.Accept_wildcard_characters, parameter.Globbing, Environment.NewLine);
+                AppendYamlKeyValue(MarkdownStrings.Required, set.Item2.Required.ToString());
+                AppendYamlKeyValue(MarkdownStrings.Position, set.Item2.IsNamed() ? "Named" : set.Item2.Position);
+                AppendYamlKeyValue(MarkdownStrings.Default_value, string.IsNullOrWhiteSpace(parameter.DefaultValue) ? "None" : parameter.DefaultValue);
+                AppendYamlKeyValue(MarkdownStrings.Accept_pipeline_input, parameter.PipelineInput);
+                AppendYamlKeyValue(MarkdownStrings.Accept_wildcard_characters, parameter.Globbing.ToString());
 
                 _stringBuilder.AppendFormat("```{0}{0}", Environment.NewLine);
             }
+        }
+
+        private void AppendYamlKeyValue(string key, string value)
+        {
+            if (string.IsNullOrEmpty(value))
+            {
+                _stringBuilder.AppendFormat("{0}:{1}", key, Environment.NewLine);
+
+                return;
+            }
+
+            _stringBuilder.AppendFormat("{0}: {1}{2}", key, value, Environment.NewLine);
         }
 
         private void AddExamples(MamlCommand command)

@@ -3,6 +3,7 @@ CHANGELOG
 
 ## Not released
 
+* Clean up trailing whitespace during markdown generation [#225](https://github.com/PowerShell/platyPS/issues/225)
 
 ## 0.8.3
 
