@@ -60,8 +60,13 @@ namespace Markdown.MAML.Renderer
             return text;
         }
 
-        public static string NormalizeLineBreaks(string text)
+        public static string NormalizeLineBreaks(string text, bool trimSpaces = false)
         {
+            if (trimSpaces)
+            {
+                return Regex.Replace(text, " *(\r\n?|\n)", "\r\n");
+            }
+
             return Regex.Replace(text, "\r\n?|\n", "\r\n");
         }
     }
