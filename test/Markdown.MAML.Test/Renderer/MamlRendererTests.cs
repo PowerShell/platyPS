@@ -20,7 +20,7 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Name = "Get-Foo",
                 Synopsis = "This is the synopsis",
-                Description = "This is a long description."
+                Description = "\r\nThis is a long description."
             };
 
             command.Parameters.Add(new MamlParameter()
@@ -73,6 +73,10 @@ namespace Markdown.MAML.Test.Renderer
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is the synopsis", synopsis[0]);
+
+            string[] description = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
+            Assert.Equal(1, description.Length);
+            Assert.Equal("This is a long description.", description[0]);
         }
 
         [Fact]

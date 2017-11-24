@@ -47,12 +47,12 @@ namespace Markdown.MAML.Transformer
             {
                 case "DESCRIPTION":
                     {
-                        command.Description = SimpleTextSectionRule();
+                        command.Description = SimpleTextSectionRule(headingNode.BreakAfterHeader);
                         break;
                     }
                 case "SYNOPSIS":
                     {
-                        command.Synopsis = SimpleTextSectionRule();
+                        command.Synopsis = SimpleTextSectionRule(headingNode.BreakAfterHeader);
                         break;
                     }
                 case "SYNTAX":
@@ -82,7 +82,7 @@ namespace Markdown.MAML.Transformer
                     }
                 case "NOTES":
                     {
-                        command.Notes = SimpleTextSectionRule();
+                        command.Notes = SimpleTextSectionRule(headingNode.BreakAfterHeader);
                         break;
                     }
                 case "RELATED LINKS":

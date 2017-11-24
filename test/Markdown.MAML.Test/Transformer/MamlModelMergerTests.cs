@@ -35,15 +35,15 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Contains("Parameter Deleted: Remove", _reportStream);
             Assert.Contains("---- UPDATING Cmdlet : Get-Foo ----", _reportStream);
             Assert.Contains("---- COMPLETED UPDATING Cmdlet : Get-Foo ----\r\n\r\n", _reportStream);
-            
 
+            Assert.Equal(originalCommand.Synopsis, result.Synopsis);
+            Assert.Equal(originalCommand.Description, result.Description);
+            Assert.Equal(originalCommand.Notes, result.Notes);
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
 
             Assert.Equal(originalCommand.Links.Count, result.Links.Count);
             Assert.Equal(originalCommand.Links[0].LinkName, result.Links[0].LinkName);
             Assert.Equal(originalCommand.Links[0].LinkUri, result.Links[0].LinkUri);
-
-            
         }
 
         private void WriteMessage(string message)
@@ -151,8 +151,8 @@ namespace Markdown.MAML.Test.Transformer
             {
                 Name = "Get-Foo",
                 Description = "This is a long description.\r\nWith two paragraphs.",
-                Synopsis = "This is a old synopsis.",
-                Notes = "These are old notes"
+                Synopsis = "This is a old synopsis.", // DIFF!!
+                Notes = "These are old notes" // DIFF!!
             };
 
             var parameterName1 = new MamlParameter()

@@ -61,7 +61,7 @@ This is Synopsis
         [Fact]
         public void TransformCommandWithExtraLine()
         {
-            
+
             var doc = ParseString(@"
 #Add-Member
 
@@ -72,6 +72,20 @@ Adds custom properties and methods to an instance of a Windows PowerShell object
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal(mamlCommand.Name, "Add-Member");
             Assert.Equal(mamlCommand.Synopsis, "Adds custom properties and methods to an instance of a Windows PowerShell object.");
+        }
+
+        [Fact]
+        public void TransformCommandWithHeaderLineBreak()
+        {
+            var doc = ParseString(@"
+#Add-Member
+
+##SYNOPSIS
+
+Adds custom properties and methods to an instance of a Windows PowerShell object.");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal(mamlCommand.Name, "Add-Member");
+            Assert.Equal(mamlCommand.Synopsis, "\r\nAdds custom properties and methods to an instance of a Windows PowerShell object.");
         }
 
         [Fact]
@@ -358,49 +372,43 @@ Remarks
         [Fact]
         public void HandlesHyperLinksInsideText()
         {
-            
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the [Set-WSManQuickConfig]() cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis);
         }
 
         [Fact]
         public void HandlesItalicInsideText()
         {
-
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the *Set-WSManQuickConfig* cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis);
         }
 
         [Fact]
         public void HandlesBoldInsideText()
         {
-
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the **Set-WSManQuickConfig** cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis);
         }
 
         [Fact]

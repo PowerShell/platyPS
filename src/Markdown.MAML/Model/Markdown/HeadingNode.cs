@@ -9,10 +9,13 @@
 
         public int HeadingLevel { get; private set; }
 
-        public HeadingNode(string headingText, int headingLevel, SourceExtent sourceExtent) 
+        public bool BreakAfterHeader { get; private set; }
+
+        public HeadingNode(string headingText, int headingLevel, SourceExtent sourceExtent, bool breakAfterHeader) 
             : base(headingText, sourceExtent)
         {
             this.HeadingLevel = headingLevel;
+            this.BreakAfterHeader = breakAfterHeader;
         }
     }
 }

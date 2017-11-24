@@ -307,7 +307,8 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[2].Value,
                     regexMatch.Groups[1].Value.Length,
-                    sourceExtent));
+                    sourceExtent,
+                    (regexMatch.Groups[3].Captures.Count > 1) ? true : false));
         }
 
         private void CreateHashHeader2(Match regexMatch, SourceExtent sourceExtent)
@@ -318,7 +319,8 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[3].Value,
                     regexMatch.Groups[2].Value.Length,
-                    sourceExtent));
+                    sourceExtent,
+                    (regexMatch.Groups[3].Captures.Count > 1) ? true : false));
         }
 
         private void CreateUnderlineHeader(Match regexMatch, SourceExtent sourceExtent)
@@ -333,7 +335,8 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[1].Value,
                     headerLevel,
-                    sourceExtent));
+                    sourceExtent,
+                    (regexMatch.Groups[3].Captures.Count > 1) ? true : false));
         }
 
         private void CreateTickCodeBlock(Match regexMatch, SourceExtent sourceExtent)

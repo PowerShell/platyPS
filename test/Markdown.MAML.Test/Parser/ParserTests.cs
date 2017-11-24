@@ -589,6 +589,58 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.Equal(descriptionText, paragraphNode.Spans.First().Text);
         }
 
+        [Fact]
+        public void PreservesLineBreakAfterHeaderWithHashPrefix()
+        {
+            var expected = "This is the description text.";
+            var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n\r\n{expected}");
+
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(true, hasLineBreak);
+        }
+
+        [Fact]
+        public void PreservesNoLineBreakAfterHeaderWithHashPrefix()
+        {
+            var expected = "This is the description text.";
+            var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n{expected}");
+
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(false, hasLineBreak);
+        }
+
+        [Fact]
+        public void PreservesLineBreakAfterHeaderWithUnderlines()
+        {
+            var expected = "This is the description text.";
+            var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n\r\n{expected}");
+
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(true, hasLineBreak);
+        }
+
+        [Fact]
+        public void PreservesNoLineBreakAfterHeaderWithUnderlines()
+        {
+            var expected = "This is the description text.";
+            var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n{expected}");
+
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(false, hasLineBreak);
+        }
+
         private TNode ParseAndGetExpectedChild<TNode>(
             string markdownString, 
             MarkdownNodeType expectedNodeType)
