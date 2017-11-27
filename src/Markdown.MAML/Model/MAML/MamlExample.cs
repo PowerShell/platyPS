@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Markdown.MAML.Model.Markdown;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,5 +13,6 @@ namespace Markdown.MAML.Model.MAML
         public string Code { get; set; }
         public string Remarks { get; set; }
         public string Introduction { get; set; }
+        public SectionFormatOption FormatOption { get; set; }
     }
 }

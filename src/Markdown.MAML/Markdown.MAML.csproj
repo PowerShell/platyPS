@@ -61,6 +61,8 @@
     <Compile Include="Model\Markdown\MarkdownNode.cs" />
     <Compile Include="Model\Markdown\MarkdownNodeType.cs" />
     <Compile Include="Model\Markdown\ParagraphNode.cs" />
+    <Compile Include="Model\Markdown\SectionBody.cs" />
+    <Compile Include="Model\Markdown\SectionFormatOption.cs" />
     <Compile Include="Model\Markdown\SourceExtent.cs" />
     <Compile Include="Model\Markdown\TextNode.cs" />
     <Compile Include="Model\Markdown\HyperlinkSpan.cs" />

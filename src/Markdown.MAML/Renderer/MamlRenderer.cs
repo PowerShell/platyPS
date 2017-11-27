@@ -80,7 +80,18 @@ namespace Markdown.MAML.Renderer
         {
             if (text != null)
             {
-                return text.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries)
+                return text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                    .Select(para => new XElement(mamlNS + "para", para));
+            }
+
+            return Enumerable.Empty<XElement>();
+        }
+
+        private static IEnumerable<XElement> GenerateParagraphs(Markdown.MAML.Model.Markdown.SectionBody body)
+        {
+            if (body != null && !string.IsNullOrEmpty(body.Text))
+            {
+                return body.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
                     .Select(para => new XElement(mamlNS + "para", para));
             }
 

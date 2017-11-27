@@ -9,13 +9,16 @@
 
         public int HeadingLevel { get; private set; }
 
-        public bool BreakAfterHeader { get; private set; }
+        /// <summary>
+        /// Format options that control markdown generation.
+        /// </summary>
+        public SectionFormatOption FormatOption { get; private set; }
 
-        public HeadingNode(string headingText, int headingLevel, SourceExtent sourceExtent, bool breakAfterHeader) 
+        public HeadingNode(string headingText, int headingLevel, SourceExtent sourceExtent, SectionFormatOption formatOption) 
             : base(headingText, sourceExtent)
         {
             this.HeadingLevel = headingLevel;
-            this.BreakAfterHeader = breakAfterHeader;
+            this.FormatOption = formatOption;
         }
     }
 }

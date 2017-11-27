@@ -432,17 +432,24 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private void AddEntryHeaderWithText(string header, string text)
+        private void AddEntryHeaderWithText(string header, SectionBody body)
         {
+            // Add header
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+
             // to correctly handle empty text case, we are adding new-line here
-            if (string.IsNullOrEmpty(text))
+            if (body == null || string.IsNullOrEmpty(body.Text))
             {
                 _stringBuilder.Append(Environment.NewLine);
             }
             else
             {
-                AddParagraphs(text);
+                if (body.FormatOption == SectionFormatOption.LineBreakAfterHeader)
+                {
+                    _stringBuilder.Append(Environment.NewLine);
+                }
+
+                AddParagraphs(body.Text);
             }
         }
 

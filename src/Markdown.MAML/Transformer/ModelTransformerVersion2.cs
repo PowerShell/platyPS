@@ -47,12 +47,12 @@ namespace Markdown.MAML.Transformer
             {
                 case "DESCRIPTION":
                     {
-                        command.Description = SimpleTextSectionRule(headingNode.BreakAfterHeader);
+                        command.Description = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "SYNOPSIS":
                     {
-                        command.Synopsis = SimpleTextSectionRule(headingNode.BreakAfterHeader);
+                        command.Synopsis = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "SYNTAX":
@@ -82,7 +82,7 @@ namespace Markdown.MAML.Transformer
                     }
                 case "NOTES":
                     {
-                        command.Notes = SimpleTextSectionRule(headingNode.BreakAfterHeader);
+                        command.Notes = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "RELATED LINKS":
@@ -378,6 +378,7 @@ namespace Markdown.MAML.Transformer
             };
 
             parameter.Description = ParagraphOrCodeBlockNodeRule("yaml");
+            parameter.FormatOption = headingNode.FormatOption;
 
             if (StringComparer.OrdinalIgnoreCase.Equals(parameter.Name, MarkdownStrings.CommonParametersToken))
             {

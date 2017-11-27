@@ -118,15 +118,10 @@ namespace Markdown.MAML.Transformer
             _ungotNode = node;
         }
 
-        protected string SimpleTextSectionRule(bool breakBeforeSection)
+        protected string SimpleTextSectionRule()
         {
             // grammar:
             // Simple paragraph Text
-            if (breakBeforeSection)
-            {
-                return string.Concat("\r\n", GetTextFromParagraphNode(ParagraphNodeRule()));
-            }
-
             return GetTextFromParagraphNode(ParagraphNodeRule());
         }
         
@@ -181,6 +176,7 @@ namespace Markdown.MAML.Transformer
                     Title = headingNode.Text
                 };
                 example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
+                example.FormatOption = headingNode.FormatOption;
                 CodeBlockNode codeBlock;
                 while ((codeBlock = CodeBlockRule()) != null)
                 {
@@ -260,7 +256,7 @@ namespace Markdown.MAML.Transformer
                 TypeName = headingNode.Text
             };
 
-            typeEntity.Description = SimpleTextSectionRule(false);
+            typeEntity.Description = SimpleTextSectionRule();
 
             return typeEntity;
         }

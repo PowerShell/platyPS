@@ -1,4 +1,5 @@
 ﻿using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Transformer;
 using System;
 using System.Collections.Generic;
@@ -36,9 +37,9 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Contains("---- UPDATING Cmdlet : Get-Foo ----", _reportStream);
             Assert.Contains("---- COMPLETED UPDATING Cmdlet : Get-Foo ----\r\n\r\n", _reportStream);
 
-            Assert.Equal(originalCommand.Synopsis, result.Synopsis);
-            Assert.Equal(originalCommand.Description, result.Description);
-            Assert.Equal(originalCommand.Notes, result.Notes);
+            Assert.Equal(originalCommand.Synopsis.Text, result.Synopsis.Text);
+            Assert.Equal(originalCommand.Description.Text, result.Description.Text);
+            Assert.Equal(originalCommand.Notes.Text, result.Notes.Text);
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
 
             Assert.Equal(originalCommand.Links.Count, result.Links.Count);
@@ -56,9 +57,9 @@ namespace Markdown.MAML.Test.Transformer
             MamlCommand originalCommand = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line."
+                Synopsis = SectionBody.New("This is the synopsis"),
+                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs."),
+                Notes = SectionBody.New("This is a multiline note.\r\nSecond line.")
             };
 
             var parameterName = new MamlParameter()
@@ -150,9 +151,9 @@ namespace Markdown.MAML.Test.Transformer
             MamlCommand metadataCommand = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Synopsis = "This is a old synopsis.", // DIFF!!
-                Notes = "These are old notes" // DIFF!!
+                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs."),
+                Synopsis = SectionBody.New("This is a old synopsis."), // DIFF!!
+                Notes = SectionBody.New("These are old notes") // DIFF!!
             };
 
             var parameterName1 = new MamlParameter()

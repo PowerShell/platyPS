@@ -9,6 +9,8 @@ namespace Markdown.MAML.Model.MAML
     {
         public SourceExtent Extent { get; set; }
 
+        public SectionFormatOption FormatOption { get; set; }
+
         public string Type { get; set; }
 
         public string FullType { get; set; }

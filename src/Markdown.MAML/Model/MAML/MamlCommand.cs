@@ -6,9 +6,12 @@ namespace Markdown.MAML.Model.MAML
     public class MamlCommand
     {
         public SourceExtent Extent { get; set; }
+
         public string Name { get; set; }
-        public string Synopsis { get; set; }
-        public string Description { get; set; }
+
+        public SectionBody Synopsis { get; set; }
+
+        public SectionBody Description { get; set; }
 
         public List<MamlInputOutput> Inputs 
         {
@@ -25,7 +28,7 @@ namespace Markdown.MAML.Model.MAML
             get { return _parameters; } 
         }
 
-        public string Notes { get; set; }
+        public SectionBody Notes { get; set; }
 
         public bool IsWorkflow { get; set; }
 

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Collections;
 using Markdown.MAML.Parser;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -54,6 +55,21 @@ namespace Markdown.MAML.Test.Renderer
 
             string syntaxString = MarkdownV2Renderer.GetSyntaxString(command, syntax);
             Assert.Equal("Get-Foo [-Bar <BarObject>] [<CommonParameters>]", syntaxString);
+        }
+
+        [Fact]
+        public void RendererIgnoresLineBreakWhenBodyIsEmpty()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Notes = SectionBody.New("", SectionFormatOption.LineBreakAfterHeader)
+            };
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.DoesNotContain("\r\n\r\n\r\n", markdown);
         }
 
         [Fact]
@@ -115,7 +131,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Test-Quotes",
-                Description = @"”“‘’––-"
+                Description = SectionBody.New(@"”“‘’––-")
             };
 
             string markdown = renderer.MamlModelToString(command, null);
@@ -158,9 +174,9 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces",
-                Notes = "This is a multiline note.\r\nSecond line."
+                Synopsis = SectionBody.New("This is the synopsis"),
+                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
+                Notes = SectionBody.New("This is a multiline note.\r\nSecond line.")
             };
 
             var parameter = new MamlParameter()

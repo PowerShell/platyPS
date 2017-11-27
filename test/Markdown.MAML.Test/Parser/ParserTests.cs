@@ -596,7 +596,7 @@ Deletes commands with the specified text strings. If you enter more than one str
             var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n\r\n{expected}");
 
             var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
             Assert.Equal(expected, actual);
             Assert.Equal(true, hasLineBreak);
@@ -608,8 +608,8 @@ Deletes commands with the specified text strings. If you enter more than one str
             var expected = "This is the description text.";
             var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n{expected}");
 
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
             var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
             Assert.Equal(expected, actual);
             Assert.Equal(false, hasLineBreak);
@@ -622,7 +622,7 @@ Deletes commands with the specified text strings. If you enter more than one str
             var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n\r\n{expected}");
 
             var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
             Assert.Equal(expected, actual);
             Assert.Equal(true, hasLineBreak);
@@ -634,8 +634,8 @@ Deletes commands with the specified text strings. If you enter more than one str
             var expected = "This is the description text.";
             var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n{expected}");
 
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).BreakAfterHeader;
             var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
             Assert.Equal(expected, actual);
             Assert.Equal(false, hasLineBreak);
