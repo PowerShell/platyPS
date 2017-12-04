@@ -308,6 +308,8 @@ namespace Markdown.MAML.Parser
                     regexMatch.Groups[2].Value,
                     regexMatch.Groups[1].Value.Length,
                     sourceExtent,
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one.
                     (regexMatch.Groups[3].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 
@@ -320,7 +322,9 @@ namespace Markdown.MAML.Parser
                     regexMatch.Groups[3].Value,
                     regexMatch.Groups[2].Value.Length,
                     sourceExtent,
-                    (regexMatch.Groups[3].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one.
+                    (regexMatch.Groups[4].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 
         private void CreateUnderlineHeader(Match regexMatch, SourceExtent sourceExtent)

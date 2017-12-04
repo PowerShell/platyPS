@@ -616,6 +616,35 @@ Deletes commands with the specified text strings. If you enter more than one str
         }
 
         [Fact]
+        public void PreservesLineBreakAfterParameter()
+        {
+            var p1 = "Name parameter description.";
+            var p2 = "Path parameter description.";
+            var documentNode = MarkdownStringToDocumentNode($"## PARAMETERS\r\n\r\n### -Name\r\n\r\n{p1}\r\n\r\n```yaml\r\n```\r\n\r\n### -Path\r\n\r\n{p2}");
+
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreakP1 = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Name") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            var hasLineBreakP2 = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Path") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+
+            Assert.Equal(p1, actual);
+            Assert.Equal(true, hasLineBreakP1);
+            Assert.Equal(true, hasLineBreakP2);
+        }
+
+        [Fact]
+        public void PreservesNoLineBreakAfterParameter()
+        {
+            var expected = "This is the parameter description text.";
+            var documentNode = MarkdownStringToDocumentNode($"## PARAMETERS\r\n\r\n### -Name\r\n{expected}");
+
+            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
+            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Name") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+
+            Assert.Equal(expected, actual);
+            Assert.Equal(false, hasLineBreak);
+        }
+
+        [Fact]
         public void PreservesLineBreakAfterHeaderWithUnderlines()
         {
             var expected = "This is the description text.";

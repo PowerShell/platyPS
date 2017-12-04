@@ -216,6 +216,16 @@ namespace Markdown.MAML.Transformer
                             _cmdletUpdated = true;
                         }
 
+                        try
+                        {
+                            param.FormatOption = strParam.FormatOption;
+                        }
+                        catch (Exception ex)
+                        {
+                            Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                            Report($"    Exception {param.Name} FormatOption merge: \r\n{ex.Message}\r\n");
+                            _cmdletUpdated = true;
+                        }
                     }
 
                     result.Parameters.Add(param);

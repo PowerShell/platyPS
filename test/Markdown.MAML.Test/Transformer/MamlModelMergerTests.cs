@@ -23,8 +23,8 @@ namespace Markdown.MAML.Test.Transformer
 
             var result = merger.Merge(metadataCommand, originalCommand);
 
-            Assert.Equal(2, result.Parameters.Count);
-            Assert.Equal(2, originalCommand.Parameters.Count);
+            Assert.Equal(3, result.Parameters.Count);
+            Assert.Equal(3, originalCommand.Parameters.Count);
             Assert.Equal("Name", result.Parameters[0].Name);
             Assert.Equal("NewParam", result.Parameters[1].Name);
             Assert.Contains("Parameter Updated: Name", _reportStream);
@@ -41,6 +41,9 @@ namespace Markdown.MAML.Test.Transformer
             Assert.Equal(originalCommand.Description.Text, result.Description.Text);
             Assert.Equal(originalCommand.Notes.Text, result.Notes.Text);
             Assert.Equal(originalCommand.Parameters[0].Description, result.Parameters[0].Description);
+            Assert.Equal(originalCommand.Parameters[0].FormatOption, result.Parameters[0].FormatOption);
+            Assert.Equal(originalCommand.Parameters[2].Description, result.Parameters[2].Description);
+            Assert.Equal(originalCommand.Parameters[2].FormatOption, result.Parameters[2].FormatOption);
 
             Assert.Equal(originalCommand.Links.Count, result.Links.Count);
             Assert.Equal(originalCommand.Links[0].LinkName, result.Links[0].LinkName);
@@ -88,9 +91,19 @@ namespace Markdown.MAML.Test.Transformer
                 DefaultValue = "dodododo",
                 Aliases = new string[] { "Pa1", "RemovedParam", "Gone" },
             };
+            var parameterPath = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                Required = true,
+                Description = "Parameter path description.",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Globbing = true
+            };
 
             originalCommand.Parameters.Add(parameterName);
             originalCommand.Parameters.Add(removedParameterName);
+            originalCommand.Parameters.Add(parameterPath);
 
             var syntax1 = new MamlSyntax()
             {
@@ -98,6 +111,7 @@ namespace Markdown.MAML.Test.Transformer
             };
             syntax1.Parameters.Add(parameterName);
             syntax1.Parameters.Add(removedParameterName);
+            syntax1.Parameters.Add(parameterPath);
             originalCommand.Syntax.Add(syntax1);
 
             var syntax2 = new MamlSyntax()
@@ -106,9 +120,8 @@ namespace Markdown.MAML.Test.Transformer
                 IsDefault = true
             };
             syntax2.Parameters.Add(parameterName);
+            syntax2.Parameters.Add(parameterPath);
             originalCommand.Syntax.Add(syntax2);
-
-
 
             originalCommand.Inputs.Add(new MamlInputOutput()
             {
@@ -176,8 +189,18 @@ namespace Markdown.MAML.Test.Transformer
                 Description = "Old Param Description" 
             };
 
+            var parameterPath = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                Required = true,
+                Description = "Parameter path description.",
+                Globbing = true
+            };
+
             metadataCommand.Parameters.Add(parameterName1);
             metadataCommand.Parameters.Add(parameterNew);
+            metadataCommand.Parameters.Add(parameterPath);
 
             var syntax3 = new MamlSyntax()
             {
@@ -186,6 +209,7 @@ namespace Markdown.MAML.Test.Transformer
 
             syntax3.Parameters.Add(parameterName1);
             syntax3.Parameters.Add(parameterNew);
+            syntax3.Parameters.Add(parameterPath);
             metadataCommand.Syntax.Add(syntax3);
 
             var syntax4 = new MamlSyntax()
@@ -195,6 +219,7 @@ namespace Markdown.MAML.Test.Transformer
             };
 
             syntax4.Parameters.Add(parameterName1);
+            syntax4.Parameters.Add(parameterPath);
             metadataCommand.Syntax.Add(syntax4);
 
             return metadataCommand;

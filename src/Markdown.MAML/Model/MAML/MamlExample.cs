@@ -13,6 +13,10 @@ namespace Markdown.MAML.Model.MAML
         public string Code { get; set; }
         public string Remarks { get; set; }
         public string Introduction { get; set; }
+
+        /// <summary>
+        /// Additional options that determine how the section will be formated when rendering markdown.
+        /// </summary>
         public SectionFormatOption FormatOption { get; set; }
     }
 }

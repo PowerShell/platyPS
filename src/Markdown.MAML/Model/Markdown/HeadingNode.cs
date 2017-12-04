@@ -10,7 +10,7 @@
         public int HeadingLevel { get; private set; }
 
         /// <summary>
-        /// Format options that control markdown generation.
+        /// Additional options that determine how the section will be formated when rendering markdown. This options will be passed on to MAML models when they are generated.
         /// </summary>
         public SectionFormatOption FormatOption { get; private set; }
 

@@ -11,11 +11,6 @@ namespace Markdown.MAML.Model.Markdown
     /// </summary>
     public sealed class SectionBody
     {
-        public SectionBody()
-        {
-            FormatOption = SectionFormatOption.None;
-        }
-
         public SectionBody(string text, SectionFormatOption formatOption)
         {
             Text = text;
@@ -28,7 +23,7 @@ namespace Markdown.MAML.Model.Markdown
         public string Text { get; private set; }
 
         /// <summary>
-        /// Format options that control markdown generation.
+        /// Additional options that determine how the section will be formated when rendering markdown.
         /// </summary>
         public SectionFormatOption FormatOption { get; private set; }
 

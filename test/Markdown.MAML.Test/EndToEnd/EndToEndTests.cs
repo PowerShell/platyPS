@@ -5,6 +5,7 @@ using Markdown.MAML.Renderer;
 using Xunit;
 using Markdown.MAML.Parser;
 using Markdown.MAML.Transformer;
+using System.Linq;
 
 namespace Markdown.MAML.Test.EndToEnd
 {
@@ -45,6 +46,105 @@ And this is my last line.
 
             string[] description = GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
             Assert.Equal(3, description.Length);
+        }
+
+        [Fact]
+        public void PreserveMarkdownWhenUpdatingMarkdownHelp()
+        {
+            var expected = @"# Update-MarkdownHelp
+
+## SYNOPSIS
+
+Example markdown to test that markdown is preserved.
+
+## SYNTAX
+
+```
+Update-MarkdownHelp [-Name] <String> [-Path <String>]
+```
+
+## DESCRIPTION
+
+When calling Update-MarkdownHelp line breaks should be preserved.
+
+## EXAMPLES
+
+### Example 1: Update all files in a folder
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 1 remark.
+
+### Example 2: Update one file and capture log
+
+This is an example description.
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 2 remark.
+
+## PARAMETERS
+
+### -Name
+
+Parameter name description.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+
+Parameter path description.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+## INPUTS
+
+### String[]
+
+This is an input description.
+
+## OUTPUTS
+
+### System.Object
+
+This is an output description.
+
+## NOTES
+
+## RELATED LINKS
+";
+            var parser = new MarkdownParser();
+            var transformer = new ModelTransformerVersion2();
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            var markdownModel = parser.ParseString(new string[] { expected });
+            var mamlModel = transformer.NodeModelToMamlModel(markdownModel).FirstOrDefault();
+            var actual = renderer.MamlModelToString(mamlModel, true);
+
+            Assert.Equal(expected, actual);
         }
 
         [Fact]

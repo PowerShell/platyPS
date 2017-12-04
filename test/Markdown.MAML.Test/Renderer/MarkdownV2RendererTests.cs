@@ -73,6 +73,152 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
+        public void RendererAddLineBreakAfterParameter()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Synopsis = SectionBody.New("This is the synopsis"),
+                Description = SectionBody.New("This is a long description"),
+                Notes = SectionBody.New("This is a note")
+            };
+
+            var parameter1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Required = true,
+                Description = "Name description.",
+                Globbing = true
+            };
+
+            var parameter2 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Required = true,
+                Description = "Path description.",
+                Globbing = true
+            };
+
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "ByName"
+            };
+
+            syntax1.Parameters.Add(parameter1);
+            syntax1.Parameters.Add(parameter2);
+            command.Syntax.Add(syntax1);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.Contains("### -Name\r\n\r\nName description.", markdown);
+            Assert.Contains("### -Path\r\n\r\nPath description.", markdown);
+        }
+
+        [Fact]
+        public void RendererIgnoredLineBreakAfterParameter()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Synopsis = SectionBody.New("This is the synopsis"),
+                Description = SectionBody.New("This is a long description"),
+                Notes = SectionBody.New("This is a note")
+            };
+
+            var parameter = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name",
+                Required = true,
+                Description = "Parameter description.",
+                Globbing = true
+            };
+
+            command.Parameters.Add(parameter);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "ByName"
+            };
+
+            syntax1.Parameters.Add(parameter);
+            command.Syntax.Add(syntax1);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.Contains("### -Name\r\nParameter description.", markdown);
+        }
+
+        [Fact]
+        public void RendererAddLineBreakAfterExample()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+            };
+
+            var example1 = new MamlExample()
+            {
+                Title = "Example 1",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Code = "PS C:\\> Get-Help",
+                Remarks = "This is an example to get help."
+            };
+
+            var example2 = new MamlExample()
+            {
+                Title = "Example 2",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Intro"
+            };
+
+            command.Examples.Add(example1);
+            command.Examples.Add(example2);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.Contains("### Example 1\r\n\r\n```", markdown);
+            Assert.Contains("### Example 2\r\n\r\nIntro\r\n\r\n```", markdown);
+        }
+
+        [Fact]
+        public void RendererIgnoredLineBreakAfterExample()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+
+            };
+
+            var example1 = new MamlExample()
+            {
+                Title = "Example 1",
+                Code = "PS C:\\> Get-Help"
+            };
+
+            command.Examples.Add(example1);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.Contains("### Example 1\r\n```", markdown);
+        }
+
+        [Fact]
         public void RendererCreatesWorkflowParametersEntry()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
@@ -120,7 +266,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 
@@ -163,7 +308,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 
@@ -476,7 +620,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 

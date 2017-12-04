@@ -253,10 +253,10 @@ namespace Markdown.MAML.Transformer
 
             MamlInputOutput typeEntity = new MamlInputOutput()
             {
-                TypeName = headingNode.Text
+                TypeName = headingNode.Text,
+                Description = SimpleTextSectionRule(),
+                FormatOption = headingNode.FormatOption
             };
-
-            typeEntity.Description = SimpleTextSectionRule();
 
             return typeEntity;
         }
