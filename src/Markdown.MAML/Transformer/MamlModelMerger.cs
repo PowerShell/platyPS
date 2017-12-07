@@ -87,8 +87,6 @@ namespace Markdown.MAML.Transformer
             //Result takes in the merged parameter results.
             MergeParameters(result, metadataModel, stringModel);
 
-
-
             if (!_cmdletUpdated)
             {
                 Report("\tNo updates done\r\n");
@@ -216,16 +214,8 @@ namespace Markdown.MAML.Transformer
                             _cmdletUpdated = true;
                         }
 
-                        try
-                        {
-                            param.FormatOption = strParam.FormatOption;
-                        }
-                        catch (Exception ex)
-                        {
-                            Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
-                            Report($"    Exception {param.Name} FormatOption merge: \r\n{ex.Message}\r\n");
-                            _cmdletUpdated = true;
-                        }
+                        // Update the parameter with the merged in FormatOption
+                        param.FormatOption = strParam.FormatOption;
                     }
 
                     result.Parameters.Add(param);

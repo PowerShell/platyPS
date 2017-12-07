@@ -4,6 +4,7 @@ using Markdown.MAML.Model;
 using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Parser;
 using Xunit;
+using System.Collections.Generic;
 
 namespace Markdown.MAML.Test.Parser
 {
@@ -592,82 +593,78 @@ Deletes commands with the specified text strings. If you enter more than one str
         [Fact]
         public void PreservesLineBreakAfterHeaderWithHashPrefix()
         {
-            var expected = "This is the description text.";
-            var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n\r\n{expected}");
+            var expectedSynopsis = "This is the synopsis text.";
+            var expectedDescription = "This is the description text.";
 
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            // Parse markdown
+            var documentNode = MarkdownStringToDocumentNode($"## SYNOPSIS\r\n{expectedSynopsis}\r\n\r\n## DESCRIPTION\r\n\r\n{expectedDescription}");
 
-            Assert.Equal(expected, actual);
-            Assert.Equal(true, hasLineBreak);
-        }
+            // Get results
+            var actualSynopsis = GetParagraph(documentNode, "SYNOPSIS").Spans.FirstOrDefault().Text;
+            var actualDescription = GetParagraph(documentNode, "DESCRIPTION").Spans.FirstOrDefault().Text;
+            var synopsisHasLineBreak = GetHeading(documentNode, "SYNOPSIS").FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            var descriptionHasLineBreak = GetHeading(documentNode, "DESCRIPTION").FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
-        [Fact]
-        public void PreservesNoLineBreakAfterHeaderWithHashPrefix()
-        {
-            var expected = "This is the description text.";
-            var documentNode = MarkdownStringToDocumentNode($"## DESCRIPTION\r\n{expected}");
+            // Check that text matches and line breaks haven't been captured as text
+            Assert.Equal(expectedSynopsis, actualSynopsis);
+            Assert.Equal(expectedDescription, actualDescription);
 
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            // Does not use line break and should not be added
+            Assert.Equal(false, synopsisHasLineBreak);
 
-            Assert.Equal(expected, actual);
-            Assert.Equal(false, hasLineBreak);
+            // Uses line break and should be preserved
+            Assert.Equal(true, descriptionHasLineBreak);
         }
 
         [Fact]
         public void PreservesLineBreakAfterParameter()
         {
-            var p1 = "Name parameter description.";
-            var p2 = "Path parameter description.";
-            var documentNode = MarkdownStringToDocumentNode($"## PARAMETERS\r\n\r\n### -Name\r\n\r\n{p1}\r\n\r\n```yaml\r\n```\r\n\r\n### -Path\r\n\r\n{p2}");
+            var expectedP1 = "Name parameter description.";
+            var expectedP2 = "Path parameter description.";
 
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreakP1 = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Name") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
-            var hasLineBreakP2 = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Path") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            // Parse markdown
+            var documentNode = MarkdownStringToDocumentNode($"## PARAMETERS\r\n\r\n### -Name\r\n{expectedP1}\r\n\r\n```yaml\r\n```\r\n\r\n### -Path\r\n\r\n{expectedP2}");
 
-            Assert.Equal(p1, actual);
-            Assert.Equal(true, hasLineBreakP1);
+            var actualP1 = GetParagraph(documentNode, "-Name").Spans.FirstOrDefault().Text;
+            var actualP2 = GetParagraph(documentNode, "-Path").Spans.FirstOrDefault().Text;
+            var hasLineBreakP1 = GetHeading(documentNode, "-Name").FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            var hasLineBreakP2 = GetHeading(documentNode, "-Path").FormatOption == SectionFormatOption.LineBreakAfterHeader;
+
+            // Check that text matches and line breaks haven't been captured as text
+            Assert.Equal(expectedP1, actualP1);
+            Assert.Equal(expectedP2, actualP2);
+
+            // Does not use line break and should not be added
+            Assert.Equal(false, hasLineBreakP1);
+
+            // Uses line break and should be preserved
             Assert.Equal(true, hasLineBreakP2);
-        }
-
-        [Fact]
-        public void PreservesNoLineBreakAfterParameter()
-        {
-            var expected = "This is the parameter description text.";
-            var documentNode = MarkdownStringToDocumentNode($"## PARAMETERS\r\n\r\n### -Name\r\n{expected}");
-
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading && (node as HeadingNode).Text == "-Name") as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
-
-            Assert.Equal(expected, actual);
-            Assert.Equal(false, hasLineBreak);
         }
 
         [Fact]
         public void PreservesLineBreakAfterHeaderWithUnderlines()
         {
-            var expected = "This is the description text.";
-            var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n\r\n{expected}");
+            var expectedSynopsis = "This is the synopsis text.";
+            var expectedDescription = "This is the description text.";
 
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            // Parse markdown
+            var documentNode = MarkdownStringToDocumentNode($"SYNOPSIS\r\n---\r\n{expectedSynopsis}\r\n\r\nDESCRIPTION\r\n---\r\n\r\n{expectedDescription}");
 
-            Assert.Equal(expected, actual);
-            Assert.Equal(true, hasLineBreak);
-        }
+            // Get results
+            var actualSynopsis = GetParagraph(documentNode, "SYNOPSIS").Spans.FirstOrDefault().Text;
+            var actualDescription = GetParagraph(documentNode, "DESCRIPTION").Spans.FirstOrDefault().Text;
+            var synopsisHasLineBreak = GetHeading(documentNode, "SYNOPSIS").FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            var descriptionHasLineBreak = GetHeading(documentNode, "DESCRIPTION").FormatOption == SectionFormatOption.LineBreakAfterHeader;
 
-        [Fact]
-        public void PreservesNoLineBreakAfterHeaderWithUnderlines()
-        {
-            var expected = "This is the description text.";
-            var documentNode = MarkdownStringToDocumentNode($"DESCRIPTION\r\n---\r\n{expected}");
+            // Check that text matches and line breaks haven't been captured as text
+            Assert.Equal(expectedSynopsis, actualSynopsis);
+            Assert.Equal(expectedDescription, actualDescription);
 
-            var actual = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Paragraph) as ParagraphNode).Spans.FirstOrDefault().Text;
-            var hasLineBreak = (documentNode.Children.FirstOrDefault(node => node.NodeType == MarkdownNodeType.Heading) as HeadingNode).FormatOption == SectionFormatOption.LineBreakAfterHeader;
+            // Does not use line break and should not be added
+            Assert.Equal(false, synopsisHasLineBreak);
 
-            Assert.Equal(expected, actual);
-            Assert.Equal(false, hasLineBreak);
+            // Uses line break and should be preserved
+            Assert.Equal(true, descriptionHasLineBreak);
         }
 
         private TNode ParseAndGetExpectedChild<TNode>(
@@ -688,6 +685,30 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.NotNull(markdownNode);
             Assert.Equal(expectedNodeType, markdownNode.NodeType);
             return Assert.IsType<TNode>(markdownNode);
+        }
+
+        private ParagraphNode GetParagraph(DocumentNode documentNode, string heading)
+        {
+            return documentNode
+                .Children
+
+                // Skip until we reach the heading
+                .SkipWhile(node => node.NodeType != MarkdownNodeType.Heading || (node as HeadingNode).Text != heading)
+
+                // Get the next paragraph after the heading
+                .Skip(1)
+                .OfType<ParagraphNode>()
+                .FirstOrDefault();
+        }
+
+        private HeadingNode GetHeading(DocumentNode documentNode, string text = null)
+        {
+            return documentNode
+                .Children
+                .OfType<HeadingNode>()
+
+                // If heading was specified, get the specific heading
+                .FirstOrDefault(node => string.IsNullOrEmpty(text) || node.Text == text);
         }
 
         private DocumentNode MarkdownStringToDocumentNode(string markdown)

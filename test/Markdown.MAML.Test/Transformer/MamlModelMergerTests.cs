@@ -60,9 +60,9 @@ namespace Markdown.MAML.Test.Transformer
             MamlCommand originalCommand = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = SectionBody.New("This is the synopsis"),
-                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs."),
-                Notes = SectionBody.New("This is a multiline note.\r\nSecond line.")
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.")
             };
 
             var parameterName = new MamlParameter()
@@ -164,9 +164,9 @@ namespace Markdown.MAML.Test.Transformer
             MamlCommand metadataCommand = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs."),
-                Synopsis = SectionBody.New("This is a old synopsis."), // DIFF!!
-                Notes = SectionBody.New("These are old notes") // DIFF!!
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Synopsis = new SectionBody("This is a old synopsis."), // DIFF!!
+                Notes = new SectionBody("These are old notes") // DIFF!!
             };
 
             var parameterName1 = new MamlParameter()

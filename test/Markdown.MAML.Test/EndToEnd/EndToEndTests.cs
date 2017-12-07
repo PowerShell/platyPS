@@ -64,21 +64,18 @@ Update-MarkdownHelp [-Name] <String> [-Path <String>]
 ```
 
 ## DESCRIPTION
-
 When calling Update-MarkdownHelp line breaks should be preserved.
 
 ## EXAMPLES
 
-### Example 1: Update all files in a folder
-
+### Example 1: With no line break or description
 ```
 PS C:\> Update-MarkdownHelp
 ```
 
 This is example 1 remark.
 
-### Example 2: Update one file and capture log
-
+### Example 2: With no line break
 This is an example description.
 
 ```
@@ -87,11 +84,29 @@ PS C:\> Update-MarkdownHelp
 
 This is example 2 remark.
 
+### Example 3: With line break and no description
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 3 remark.
+
+### Example 4: With line break and description
+
+This is an example description.
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 4 remark.
+
 ## PARAMETERS
 
 ### -Name
 
-Parameter name description.
+Parameter name description with line break.
 
 ```yaml
 Type: String
@@ -106,8 +121,7 @@ Accept wildcard characters: False
 ```
 
 ### -Path
-
-Parameter path description.
+Parameter path description with no line break.
 
 ```yaml
 Type: String
@@ -137,14 +151,13 @@ This is an output description.
 
 ## RELATED LINKS
 ";
-            var parser = new MarkdownParser();
-            var transformer = new ModelTransformerVersion2();
-            var renderer = new MarkdownV2Renderer(ParserMode.Full);
-            var markdownModel = parser.ParseString(new string[] { expected });
-            var mamlModel = transformer.NodeModelToMamlModel(markdownModel).FirstOrDefault();
-            var actual = renderer.MamlModelToString(mamlModel, true);
+            
+            // Parse markdown and convert back to markdown to make sure there are no changes
+            var actualFull = MarkdownStringToMarkdownString(expected, ParserMode.Full);
+            var actualFormattingPreserve = MarkdownStringToMarkdownString(expected, ParserMode.FormattingPreserve);
 
-            Assert.Equal(expected, actual);
+            Assert.Equal(expected, actualFull);
+            Assert.Equal(expected, actualFormattingPreserve);
         }
 
         [Fact]
@@ -485,6 +498,21 @@ This example demonstrates the process of registering a snap-in on your system an
             string maml = renderer.MamlModelToString(mamlModel);
 
             return maml;
+        }
+
+        private string MarkdownStringToMarkdownString(string markdown, ParserMode parserMode)
+        {
+            // Parse
+            var parser = new MarkdownParser();
+            var markdownModel = parser.ParseString(new string[] { markdown }, ParserMode.FormattingPreserve, null);
+
+            // Convert model to Maml
+            var transformer = new ModelTransformerVersion2();
+            var mamlModel = transformer.NodeModelToMamlModel(markdownModel).FirstOrDefault();
+
+            // Render as markdown
+            var renderer = new MarkdownV2Renderer(parserMode);
+            return renderer.MamlModelToString(mamlModel, true);
         }
     }
 }

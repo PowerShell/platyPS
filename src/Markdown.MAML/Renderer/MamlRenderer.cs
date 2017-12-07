@@ -64,14 +64,14 @@ namespace Markdown.MAML.Renderer
                         new XElement(commandNS + "name", command.Name),
                         new XElement(commandNS + "verb", verb),
                         new XElement(commandNS + "noun", noun),
-                        new XElement(mamlNS + "description", GenerateParagraphs(command.Synopsis))),
-                    new XElement(mamlNS + "description", GenerateParagraphs(command.Description)),
+                        new XElement(mamlNS + "description", GenerateParagraphs(command.Synopsis?.Text))),
+                    new XElement(mamlNS + "description", GenerateParagraphs(command.Description?.Text)),
                     new XElement(commandNS + "syntax", command.Syntax.Select(syn => CreateSyntaxItem(syn, command))),
                     new XElement(commandNS + "parameters", command.Parameters.Select(param => CreateParameter(param))),
                     new XElement(commandNS + "inputTypes", command.Inputs.Select(input => CreateInput(input))),
                     new XElement(commandNS + "returnValues", command.Outputs.Select(output => CreateOutput(output))),
                     new XElement(mamlNS + "alertSet", 
-                        new XElement(mamlNS + "alert", GenerateParagraphs(command.Notes))),
+                        new XElement(mamlNS + "alert", GenerateParagraphs(command.Notes?.Text))),
                     new XElement(commandNS + "examples", command.Examples.Select(example => CreateExample(example))),
                     new XElement(commandNS + "relatedLinks", command.Links.Select(link => CreateLink(link))));
         }
@@ -81,17 +81,6 @@ namespace Markdown.MAML.Renderer
             if (text != null)
             {
                 return text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
-                    .Select(para => new XElement(mamlNS + "para", para));
-            }
-
-            return Enumerable.Empty<XElement>();
-        }
-
-        private static IEnumerable<XElement> GenerateParagraphs(Markdown.MAML.Model.Markdown.SectionBody body)
-        {
-            if (body != null && !string.IsNullOrEmpty(body.Text))
-            {
-                return body.Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
                     .Select(para => new XElement(mamlNS + "para", para));
             }
 

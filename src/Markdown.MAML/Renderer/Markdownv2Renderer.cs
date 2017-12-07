@@ -269,7 +269,8 @@ namespace Markdown.MAML.Renderer
 
         private bool ShouldBreak(SectionFormatOption formatOption)
         {
-            return ((formatOption & SectionFormatOption.LineBreakAfterHeader) == SectionFormatOption.LineBreakAfterHeader);
+            // If the line break flag is set return true.
+            return formatOption.HasFlag(SectionFormatOption.LineBreakAfterHeader);
         }
 
         private void AddParameter(MamlParameter parameter, MamlCommand command)
@@ -536,6 +537,12 @@ namespace Markdown.MAML.Renderer
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
+            }
+
+            // The the body already ended in a line break don't add extra lines on to the end
+            if (body.EndsWith("\r\n\r\n"))
+            {
+                noNewLines = true;
             }
 
             _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : Environment.NewLine);

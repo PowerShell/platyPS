@@ -49,9 +49,9 @@ namespace Markdown.MAML.Transformer
             result = new MamlCommand()
             {
                 Name = referenceModel.Name,
-                Synopsis = SectionBody.New(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis.Text))),
-                Description = SectionBody.New(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description.Text))),
-                Notes = SectionBody.New(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes.Text))),
+                Synopsis = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis.Text))),
+                Description = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description.Text))),
+                Notes = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes.Text))),
                 Extent = referenceModel.Extent
             };
 

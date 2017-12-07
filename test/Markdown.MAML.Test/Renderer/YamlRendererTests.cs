@@ -207,9 +207,9 @@ namespace Markdown.MAML.Test.Renderer
             var command = new MamlCommand
             {
                 Name = "Test-Unit",
-                Description = SectionBody.New("A test cmdlet"),
-                Synopsis = SectionBody.New("A cmdlet to test"),
-                Notes = SectionBody.New("This is just a test"),
+                Description = new SectionBody("A test cmdlet"),
+                Synopsis = new SectionBody("A cmdlet to test"),
+                Notes = new SectionBody("This is just a test"),
                 ModuleName = "TestModule"
             };
 

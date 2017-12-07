@@ -4,6 +4,7 @@ using Markdown.MAML.Renderer;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Transformer
 {
@@ -98,9 +99,9 @@ Third Command
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line.\r\nFirst Command"
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.\r\nFirst Command")
             };
 
             command.Links.Add(new MamlLink(true)
@@ -154,9 +155,9 @@ Third Command
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line.\r\nSecond Command"
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.\r\nSecond Command")
             };
 
             command.Links.Add(new MamlLink(true)
@@ -211,9 +212,9 @@ Third Command
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis 3",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line.\r\nThird Command"
+                Synopsis = new SectionBody("This is the synopsis 3"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.\r\nThird Command")
             };
 
             command.Links.Add(new MamlLink(true)
@@ -338,9 +339,9 @@ Third Command
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line.\r\nFirst Command"
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.\r\nFirst Command")
             };
 
             var parameterName = new MamlParameter()
@@ -371,9 +372,9 @@ Third Command
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.",
-                Notes = "This is a multiline note.\r\nSecond line.\r\nSecond Command"
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs."),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.\r\nSecond Command")
             };
 
             var parameterName = new MamlParameter()

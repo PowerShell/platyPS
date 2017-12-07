@@ -340,6 +340,8 @@ namespace Markdown.MAML.Parser
                     regexMatch.Groups[1].Value,
                     headerLevel,
                     sourceExtent,
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one. 
                     (regexMatch.Groups[3].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 

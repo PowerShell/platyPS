@@ -17,6 +17,10 @@ namespace Markdown.MAML.Model.Markdown
             FormatOption = formatOption;
         }
 
+        public SectionBody(string text)
+            : this(text, SectionFormatOption.None)
+        { }
+
         /// <summary>
         /// The text of the section body.
         /// </summary>
@@ -30,16 +34,6 @@ namespace Markdown.MAML.Model.Markdown
         public override string ToString()
         {
             return Text;
-        }
-
-        public static SectionBody New(string text, SectionFormatOption formatOption = SectionFormatOption.None)
-        {
-            return new SectionBody(text, formatOption);
-        }
-
-        public static implicit operator SectionBody(string text)
-        {
-            return new SectionBody(text, SectionFormatOption.None);
         }
     }
 }

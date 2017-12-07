@@ -7,6 +7,7 @@ using Markdown.MAML.Transformer;
 using Xunit;
 using Markdown.MAML.Test.EndToEnd;
 using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -19,8 +20,8 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description."
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.")
             };
 
             command.Parameters.Add(new MamlParameter()
@@ -159,7 +160,7 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "<port&number>" // < and > should be properly escaped
+                Synopsis = new SectionBody("<port&number>") // < and > should be properly escaped
             };
             
             string maml = renderer.MamlModelToString(new[] { command });

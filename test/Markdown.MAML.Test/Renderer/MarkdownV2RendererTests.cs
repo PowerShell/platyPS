@@ -64,7 +64,7 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Test-LineBreak",
-                Notes = SectionBody.New("", SectionFormatOption.LineBreakAfterHeader)
+                Notes = new SectionBody("", SectionFormatOption.LineBreakAfterHeader)
             };
 
             string markdown = renderer.MamlModelToString(command, null);
@@ -73,23 +73,22 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
-        public void RendererAddLineBreakAfterParameter()
+        public void RendererLineBreakAfterParameter()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
 
             MamlCommand command = new MamlCommand()
             {
                 Name = "Test-LineBreak",
-                Synopsis = SectionBody.New("This is the synopsis"),
-                Description = SectionBody.New("This is a long description"),
-                Notes = SectionBody.New("This is a note")
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description"),
+                Notes = new SectionBody("This is a note")
             };
 
             var parameter1 = new MamlParameter()
             {
                 Type = "String",
                 Name = "Name",
-                FormatOption = SectionFormatOption.LineBreakAfterHeader,
                 Required = true,
                 Description = "Name description.",
                 Globbing = true
@@ -119,49 +118,15 @@ namespace Markdown.MAML.Test.Renderer
 
             string markdown = renderer.MamlModelToString(command, null);
 
-            Assert.Contains("### -Name\r\n\r\nName description.", markdown);
+            // Does not use line break and should not be added
+            Assert.Contains("### -Name\r\nName description.", markdown);
+
+            // Uses line break and should be preserved
             Assert.Contains("### -Path\r\n\r\nPath description.", markdown);
         }
 
         [Fact]
-        public void RendererIgnoredLineBreakAfterParameter()
-        {
-            var renderer = new MarkdownV2Renderer(ParserMode.Full);
-
-            MamlCommand command = new MamlCommand()
-            {
-                Name = "Test-LineBreak",
-                Synopsis = SectionBody.New("This is the synopsis"),
-                Description = SectionBody.New("This is a long description"),
-                Notes = SectionBody.New("This is a note")
-            };
-
-            var parameter = new MamlParameter()
-            {
-                Type = "String",
-                Name = "Name",
-                Required = true,
-                Description = "Parameter description.",
-                Globbing = true
-            };
-
-            command.Parameters.Add(parameter);
-
-            var syntax1 = new MamlSyntax()
-            {
-                ParameterSetName = "ByName"
-            };
-
-            syntax1.Parameters.Add(parameter);
-            command.Syntax.Add(syntax1);
-
-            string markdown = renderer.MamlModelToString(command, null);
-
-            Assert.Contains("### -Name\r\nParameter description.", markdown);
-        }
-
-        [Fact]
-        public void RendererAddLineBreakAfterExample()
+        public void RendererLineBreakAfterExample()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
 
@@ -173,7 +138,6 @@ namespace Markdown.MAML.Test.Renderer
             var example1 = new MamlExample()
             {
                 Title = "Example 1",
-                FormatOption = SectionFormatOption.LineBreakAfterHeader,
                 Code = "PS C:\\> Get-Help",
                 Remarks = "This is an example to get help."
             };
@@ -181,6 +145,21 @@ namespace Markdown.MAML.Test.Renderer
             var example2 = new MamlExample()
             {
                 Title = "Example 2",
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Intro"
+            };
+
+            var example3 = new MamlExample()
+            {
+                Title = "Example 3",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Code = "PS C:\\> Get-Help",
+                Remarks = "This is an example to get help."
+            };
+
+            var example4 = new MamlExample()
+            {
+                Title = "Example 4",
                 FormatOption = SectionFormatOption.LineBreakAfterHeader,
                 Code = "PS C:\\> Get-Help -Full",
                 Introduction = "Intro"
@@ -188,34 +167,18 @@ namespace Markdown.MAML.Test.Renderer
 
             command.Examples.Add(example1);
             command.Examples.Add(example2);
+            command.Examples.Add(example3);
+            command.Examples.Add(example4);
 
             string markdown = renderer.MamlModelToString(command, null);
 
-            Assert.Contains("### Example 1\r\n\r\n```", markdown);
-            Assert.Contains("### Example 2\r\n\r\nIntro\r\n\r\n```", markdown);
-        }
-
-        [Fact]
-        public void RendererIgnoredLineBreakAfterExample()
-        {
-            var renderer = new MarkdownV2Renderer(ParserMode.Full);
-            MamlCommand command = new MamlCommand()
-            {
-                Name = "Test-LineBreak",
-
-            };
-
-            var example1 = new MamlExample()
-            {
-                Title = "Example 1",
-                Code = "PS C:\\> Get-Help"
-            };
-
-            command.Examples.Add(example1);
-
-            string markdown = renderer.MamlModelToString(command, null);
-
+            // Does not use line break and should not be added
             Assert.Contains("### Example 1\r\n```", markdown);
+            Assert.Contains("### Example 2\r\nIntro\r\n\r\n```", markdown);
+
+            // Uses line break and should be preserved
+            Assert.Contains("### Example 3\r\n\r\n```", markdown);
+            Assert.Contains("### Example 4\r\n\r\nIntro\r\n\r\n```", markdown);
         }
 
         [Fact]
@@ -276,7 +239,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Test-Quotes",
-                Description = SectionBody.New(@"”“‘’––-")
+                Description = new SectionBody(@"”“‘’––-")
             };
 
             string markdown = renderer.MamlModelToString(command, null);
@@ -318,9 +281,9 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = SectionBody.New("This is the synopsis"),
-                Description = SectionBody.New("This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
-                Notes = SectionBody.New("This is a multiline note.\r\nSecond line.")
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.")
             };
 
             var parameter = new MamlParameter()
@@ -631,7 +594,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             {
                 Name = "Get-Foo",
                 SupportCommonParameters = false,
-                Description = @"Hello
+                Description = new SectionBody(@"Hello
 This \<description \> should be preserved by renderer
 With all [hyper](https://links.com) and yada
   -- yada
@@ -642,7 +605,7 @@ weired
 * [ ] But
 
 * [ ] It should be left"
-            };
+            )};
 
             command.Links.Add(
                 new MamlLink(isSimplifiedTextLink: true)

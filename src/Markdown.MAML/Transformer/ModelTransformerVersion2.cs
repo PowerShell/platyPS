@@ -47,12 +47,12 @@ namespace Markdown.MAML.Transformer
             {
                 case "DESCRIPTION":
                     {
-                        command.Description = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
+                        command.Description = new SectionBody(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "SYNOPSIS":
                     {
-                        command.Synopsis = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
+                        command.Synopsis = new SectionBody(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "SYNTAX":
@@ -82,7 +82,7 @@ namespace Markdown.MAML.Transformer
                     }
                 case "NOTES":
                     {
-                        command.Notes = SectionBody.New(SimpleTextSectionRule(), headingNode.FormatOption);
+                        command.Notes = new SectionBody(SimpleTextSectionRule(), headingNode.FormatOption);
                         break;
                     }
                 case "RELATED LINKS":

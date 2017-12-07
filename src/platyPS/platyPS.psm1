@@ -427,7 +427,7 @@ function Update-MarkdownHelp
             }
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting
-            MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yeild
+            MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yield
         }
     }
 }
@@ -2276,7 +2276,7 @@ function ConvertPsObjectsToMamlModel
     
     #Get Description
     #Not provided by the command object.
-    $MamlCommandObject.Description = "{{Fill in the Description}}"
+    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Description}}")
 
     #endregion 
 
@@ -2457,24 +2457,24 @@ function ConvertPsObjectsToMamlModel
         # Help object ALWAYS contains SYNOPSIS.
         # If it's not available, it's auto-generated.
         # We don't want to include auto-generated SYNOPSIS (see https://github.com/PowerShell/platyPS/issues/110)
-        $MamlCommandObject.Synopsis = "{{Fill in the Synopsis}}"
+        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Synopsis}}")
     }
     else 
     {
-        $MamlCommandObject.Synopsis = $Help.Synopsis.Trim()    
+        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($Help.Synopsis.Trim())
     }
 
     #Get Description
     if($Help.description -ne $null)
     {
-        $MamlCommandObject.Description = $Help.description.Text | AddLineBreaksForParagraphs
+        $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($Help.description.Text | AddLineBreaksForParagraphs)
     }
 
     #Add to Notes
     #From the Help AlertSet data
     if($help.alertSet)
     {
-        $MamlCommandObject.Notes = $help.alertSet.alert.Text | AddLineBreaksForParagraphs
+        $MamlCommandObject.Notes =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($help.alertSet.alert.Text | AddLineBreaksForParagraphs)
     }
     
     # Not provided by the command object. Using the Command Type to create a note declaring it's type.
