@@ -269,7 +269,6 @@ namespace Markdown.MAML.Renderer
 
         private bool ShouldBreak(SectionFormatOption formatOption)
         {
-            // If the line break flag is set return true.
             return formatOption.HasFlag(SectionFormatOption.LineBreakAfterHeader);
         }
 

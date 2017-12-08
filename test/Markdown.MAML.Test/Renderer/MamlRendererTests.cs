@@ -74,7 +74,6 @@ namespace Markdown.MAML.Test.Renderer
             {
                     LinkName = "PowerShell made by Microsoft Hackathon",
                     LinkUri = "www.microsoft.com"
-                    
             }
             );
 
@@ -100,7 +99,7 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Equal(1, parameter2.Length);
             Assert.Equal("This is the path parameter description.", parameter2[0]);
 
-            string[] example1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[maml:title='Example 1']/dev:code");
+            string[] example1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 1')]/dev:code");
             Assert.Equal(1, example1.Length);
             Assert.Equal("PS:> Get-Help -YouNeedIt", example1[0]);
         }
@@ -167,9 +166,65 @@ namespace Markdown.MAML.Test.Renderer
 
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
-            Assert.Equal(synopsis[0], command.Synopsis.Text);
+            Assert.Equal(command.Synopsis.Text, synopsis[0]);
         }
 
+        [Fact]
+        public void RendererProducePaddedExampleTitle()
+        {
+            MamlRenderer renderer = new MamlRenderer();
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+                Synopsis = new SectionBody("This is a description")
+            };
+
+            var example1 = new MamlExample()
+            {
+                Title = "Example 1",
+                Code = "PS:> Get-Help -YouNeedIt",
+                Remarks = "This does stuff!"
+            };
+
+            var example10 = new MamlExample()
+            {
+                Title = "Example 10",
+                Code = "PS:> Get-Help -YouNeedIt",
+                Remarks = "This does stuff!"
+            };
+
+            var exampleWithTitle = new MamlExample()
+            {
+                Title = "Example 11: With a title",
+                Code = "PS:> Get-Help -YouNeedIt",
+                Remarks = "This does stuff!"
+            };
+
+            var exampleWithLongTitle = new MamlExample()
+            {
+                Title = "Example 12: ".PadRight(66, 'A'),
+                Code = "PS:> Get-Help -YouNeedIt",
+                Remarks = "This does stuff!"
+            };
+
+            command.Examples.Add(example1);
+            command.Examples.Add(example10);
+            command.Examples.Add(exampleWithTitle);
+            command.Examples.Add(exampleWithLongTitle);
+
+            string maml = renderer.MamlModelToString(new[] { command });
+
+            // Check that example header is padded by dashes (-) unless to long
+            string[] example = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example/maml:title");
+            Assert.Equal(4, example.Length);
+            Assert.Equal(63, example[0].Length);
+            Assert.Equal(64, example[1].Length);
+            Assert.Equal(66, example[3].Length);
+            Assert.Matches($"^-+ {example1.Title} -+$", example[0]);
+            Assert.Matches($"^-+ {example10.Title} -+$", example[1]);
+            Assert.Matches($"^-+ {exampleWithTitle.Title} -+$", example[2]);
+            Assert.Matches($"^{exampleWithLongTitle.Title}$", example[3]);
+        }
     }
 
 }

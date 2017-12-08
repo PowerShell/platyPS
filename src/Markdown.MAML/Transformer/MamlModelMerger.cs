@@ -214,7 +214,6 @@ namespace Markdown.MAML.Transformer
                             _cmdletUpdated = true;
                         }
 
-                        // Update the parameter with the merged in FormatOption
                         param.FormatOption = strParam.FormatOption;
                     }
 

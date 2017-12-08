@@ -12,12 +12,28 @@ namespace Markdown.MAML.Test.EndToEnd
     public class EndToEndTests
     {
         [Fact]
-        public void ProduceNameAndSynopsis()
+        public void ProduceMamlFromMarkdown()
         {
             string maml = MarkdownStringToMamlString(@"
 # Get-Foo
 ## Synopsis
 This is Synopsis
+## Examples
+### Example 1
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 1 remark.
+
+### Example 2: With a long title
+This is an example description.
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 2 remark.
 ");
             string[] name = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/command:name");
             Assert.Equal(1, name.Length);
@@ -26,6 +42,13 @@ This is Synopsis
             string[] synopsis = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is Synopsis", synopsis[0]);
+
+            // Check that example title is reproduced with dash (-) padding
+            string[] example = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example/maml:title");
+            Assert.Equal(63, example[0].Length);
+            Assert.Equal(64, example[1].Length);
+            Assert.Matches($"^-+ Example 1 -+$", example[0]);
+            Assert.Matches($"^-+ Example 2: With a long title -+$", example[1]);
         }
 
         [Fact]
@@ -457,14 +480,12 @@ This example demonstrates the process of registering a snap-in on your system an
             Assert.Equal(5 + 3, examples.Length);
         }
 
-
         public static string[] GetXmlContent(string xml, string xpath)
         {
             List<string> result = new List<string>(); 
             XmlDocument xmlDoc = new XmlDocument();
             xmlDoc.LoadXml(xml);
             var nav = xmlDoc.CreateNavigator();
-
 
             XmlNamespaceManager xmlns = new XmlNamespaceManager(nav.NameTable);
             xmlns.AddNamespace("command", "http://schemas.microsoft.com/maml/dev/command/2004/10");

@@ -884,7 +884,7 @@ It has mutlilines. And hyper (http://link.com).
     It 'has a placeholder for example' {
         ($Help.examples.example | Measure-Object).Count | Should Be 1
         $e = $Help.examples.example
-        $e.Title | Should Be 'Example 1'
+        $e.Title | Should Match '-+ Example 1 -+'
         $e.Code | Should Match 'PS C:\>*'
     }
     
