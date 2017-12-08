@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Xunit;
 using System.Collections;
 using Markdown.MAML.Parser;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -54,6 +55,130 @@ namespace Markdown.MAML.Test.Renderer
 
             string syntaxString = MarkdownV2Renderer.GetSyntaxString(command, syntax);
             Assert.Equal("Get-Foo [-Bar <BarObject>] [<CommonParameters>]", syntaxString);
+        }
+
+        [Fact]
+        public void RendererIgnoresLineBreakWhenBodyIsEmpty()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Notes = new SectionBody("", SectionFormatOption.LineBreakAfterHeader)
+            };
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            Assert.DoesNotContain("\r\n\r\n\r\n", markdown);
+        }
+
+        [Fact]
+        public void RendererLineBreakAfterParameter()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description"),
+                Notes = new SectionBody("This is a note")
+            };
+
+            var parameter1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name",
+                Required = true,
+                Description = "Name description.",
+                Globbing = true
+            };
+
+            var parameter2 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Required = true,
+                Description = "Path description.",
+                Globbing = true
+            };
+
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "ByName"
+            };
+
+            syntax1.Parameters.Add(parameter1);
+            syntax1.Parameters.Add(parameter2);
+            command.Syntax.Add(syntax1);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            // Does not use line break and should not be added
+            Assert.Contains("### -Name\r\nName description.", markdown);
+
+            // Uses line break and should be preserved
+            Assert.Contains("### -Path\r\n\r\nPath description.", markdown);
+        }
+
+        [Fact]
+        public void RendererLineBreakAfterExample()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+            };
+
+            var example1 = new MamlExample()
+            {
+                Title = "Example 1",
+                Code = "PS C:\\> Get-Help",
+                Remarks = "This is an example to get help."
+            };
+
+            var example2 = new MamlExample()
+            {
+                Title = "Example 2",
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Intro"
+            };
+
+            var example3 = new MamlExample()
+            {
+                Title = "Example 3",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Code = "PS C:\\> Get-Help",
+                Remarks = "This is an example to get help."
+            };
+
+            var example4 = new MamlExample()
+            {
+                Title = "Example 4",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Intro"
+            };
+
+            command.Examples.Add(example1);
+            command.Examples.Add(example2);
+            command.Examples.Add(example3);
+            command.Examples.Add(example4);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            // Does not use line break and should not be added
+            Assert.Contains("### Example 1\r\n```", markdown);
+            Assert.Contains("### Example 2\r\nIntro\r\n\r\n```", markdown);
+
+            // Uses line break and should be preserved
+            Assert.Contains("### Example 3\r\n\r\n```", markdown);
+            Assert.Contains("### Example 4\r\n\r\nIntro\r\n\r\n```", markdown);
         }
 
         [Fact]
@@ -104,7 +229,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 
@@ -115,7 +239,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Test-Quotes",
-                Description = @"”“‘’––-"
+                Description = new SectionBody(@"”“‘’––-")
             };
 
             string markdown = renderer.MamlModelToString(command, null);
@@ -147,7 +271,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 
@@ -158,9 +281,9 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces",
-                Notes = "This is a multiline note.\r\nSecond line."
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
+                Notes = new SectionBody("This is a multiline note.\r\nSecond line.")
             };
 
             var parameter = new MamlParameter()
@@ -460,7 +583,6 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
 ## NOTES
 
 ## RELATED LINKS
-
 ", markdown);
         }
 
@@ -472,7 +594,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             {
                 Name = "Get-Foo",
                 SupportCommonParameters = false,
-                Description = @"Hello
+                Description = new SectionBody(@"Hello
 This \<description \> should be preserved by renderer
 With all [hyper](https://links.com) and yada
   -- yada
@@ -483,7 +605,7 @@ weired
 * [ ] But
 
 * [ ] It should be left"
-            };
+            )};
 
             command.Links.Add(
                 new MamlLink(isSimplifiedTextLink: true)

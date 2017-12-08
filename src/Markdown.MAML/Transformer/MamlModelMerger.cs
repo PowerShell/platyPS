@@ -1,4 +1,5 @@
 ﻿using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Model.Markdown;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,18 +37,9 @@ namespace Markdown.MAML.Transformer
                 result = new MamlCommand()
                 {
                     Name = metadataModel.Name,
-                    Synopsis = metadataStringCompare(metadataModel.Synopsis,
-                        stringModel.Synopsis,
-                        metadataModel.Name,
-                        "synopsis"),
-                    Description = metadataStringCompare(metadataModel.Description,
-                        stringModel.Description,
-                        metadataModel.Name,
-                        "description"),
-                    Notes = metadataStringCompare(metadataModel.Notes,
-                        stringModel.Notes,
-                        metadataModel.Name,
-                        "notes"),
+                    Synopsis = stringModel.Synopsis,
+                    Description = stringModel.Description,
+                    Notes = stringModel.Notes,
                     Extent = stringModel.Extent
                 };
             }
@@ -94,8 +86,6 @@ namespace Markdown.MAML.Transformer
 
             //Result takes in the merged parameter results.
             MergeParameters(result, metadataModel, stringModel);
-
-
 
             if (!_cmdletUpdated)
             {
@@ -192,11 +182,7 @@ namespace Markdown.MAML.Transformer
                     {
                         try
                         {
-                            param.Description = metadataStringCompare(param.Description,
-                                strParam.Description,
-                                metadataModel.Name,
-                                param.Name,
-                                "parameter description");
+                            param.Description = strParam.Description;
                         }
                         catch (Exception ex)
                         {
@@ -228,6 +214,8 @@ namespace Markdown.MAML.Transformer
                             _cmdletUpdated = true;
                         }
 
+                        // Update the parameter with the merged in FormatOption
+                        param.FormatOption = strParam.FormatOption;
                     }
 
                     result.Parameters.Add(param);
@@ -286,42 +274,6 @@ namespace Markdown.MAML.Transformer
                 Report($"    Exception parameter merge: \r\n{ex.Message}\r\n");
                 _cmdletUpdated = true;
             }
-
-
-        }
-
-        /// <summary>
-        /// Compares parameters
-        /// </summary>
-        private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string paramName, string contentItemName)
-        {
-            var pretifiedStringContent = stringContent == null ? "" : Pretify(stringContent).TrimEnd(' ');
-            var pretifiedMetadataContent = metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' ');
-
-            return stringContent;
-        }
-
-        /// <summary>
-        /// Cleans the extra \r\n and inserts a tab at the beginning of new lines, mid paragraphs
-        /// </summary>
-        private static string Pretify(string multiLineText)
-        {
-            if(string.IsNullOrEmpty(multiLineText))
-            {
-                multiLineText = "";
-            }
-            return Regex.Replace(multiLineText, "(\r\n)+", "\r\n    ");
-        }
-
-        /// <summary>
-        /// Compares Cmdlet values: Synopsis, Description, and Notes. Preserves the content from the string model (old) or the metadata model (new).
-        /// </summary>
-        private string metadataStringCompare(string metadataContent, string stringContent, string moduleName, string contentItemName)
-        {
-            var metadataContentPretified = (metadataContent == null ? "" : Pretify(metadataContent).TrimEnd(' '));
-            var stringContentPretified = (stringContent == null ? "" : Pretify(stringContent).TrimEnd(' '));
-
-            return stringContent;
         }
 
         private void Report(string format, params object[] objects)

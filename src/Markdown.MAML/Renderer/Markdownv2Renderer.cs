@@ -114,7 +114,9 @@ namespace Markdown.MAML.Renderer
 
         private void AddLinks(MamlCommand command)
         {
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.RELATED_LINKS);
+            var extraNewLine = command.Links != null && command.Links.Count > 0;
+
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.RELATED_LINKS, extraNewLine);
             foreach (var link in command.Links)
             {
                 if (link.IsSimplifiedTextLink)
@@ -143,7 +145,7 @@ namespace Markdown.MAML.Renderer
                 return;
             }
 
-            var extraNewLine = string.IsNullOrEmpty(io.Description);
+            var extraNewLine = string.IsNullOrEmpty(io.Description) || ShouldBreak(io.FormatOption);
             AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }
@@ -265,9 +267,18 @@ namespace Markdown.MAML.Renderer
             return string.Join(", ", args);
         }
 
+        private bool ShouldBreak(SectionFormatOption formatOption)
+        {
+            // If the line break flag is set return true.
+            return formatOption.HasFlag(SectionFormatOption.LineBreakAfterHeader);
+        }
+
         private void AddParameter(MamlParameter parameter, MamlCommand command)
         {
-            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: false);
+            var extraNewLine = ShouldBreak(parameter.FormatOption);
+
+            AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: extraNewLine);
+
             // for some reason, in the update mode parameters produces extra newline.
             AddParagraphs(parameter.Description, this._mode == ParserMode.FormattingPreserve);
             
@@ -332,7 +343,10 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.EXAMPLES);
             foreach (var example in command.Examples)
             {
-                AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: false);
+                var extraNewLine = ShouldBreak(example.FormatOption);
+
+                AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: extraNewLine);
+
                 if (!string.IsNullOrEmpty(example.Introduction))
                 {
                     AddParagraphs(example.Introduction);
@@ -432,17 +446,17 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private void AddEntryHeaderWithText(string header, string text)
+        private void AddEntryHeaderWithText(string header, SectionBody body)
         {
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: false);
+            var extraNewLine = body == null || string.IsNullOrEmpty(body.Text) || ShouldBreak(body.FormatOption);
+
+            // Add header
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, header, extraNewLine: extraNewLine);
+
             // to correctly handle empty text case, we are adding new-line here
-            if (string.IsNullOrEmpty(text))
+            if (body != null && !string.IsNullOrEmpty(body.Text))
             {
-                _stringBuilder.Append(Environment.NewLine);
-            }
-            else
-            {
-                AddParagraphs(text);
+                AddParagraphs(body.Text);
             }
         }
 
@@ -523,6 +537,12 @@ namespace Markdown.MAML.Renderer
             {
                 string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
                 body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
+            }
+
+            // The the body already ended in a line break don't add extra lines on to the end
+            if (body.EndsWith("\r\n\r\n"))
+            {
+                noNewLines = true;
             }
 
             _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : Environment.NewLine);

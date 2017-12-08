@@ -9,6 +9,7 @@ using Markdown.MAML.Renderer;
 using Xunit;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -27,9 +28,9 @@ namespace Markdown.MAML.Test.Renderer
 
             Assert.NotNull(writtenModel);
             Assert.Equal(model.Name, writtenModel.Name);
-            Assert.Equal(model.Description, writtenModel.Remarks);
-            Assert.Equal(model.Synopsis, writtenModel.Summary);
-            Assert.Equal(model.Notes, writtenModel.Notes);
+            Assert.Equal(model.Description.Text, writtenModel.Remarks);
+            Assert.Equal(model.Synopsis.Text, writtenModel.Summary);
+            Assert.Equal(model.Notes.Text, writtenModel.Notes);
         }
 
         [Fact]
@@ -206,9 +207,9 @@ namespace Markdown.MAML.Test.Renderer
             var command = new MamlCommand
             {
                 Name = "Test-Unit",
-                Description = "A test cmdlet",
-                Synopsis = "A cmdlet to test",
-                Notes = "This is just a test",
+                Description = new SectionBody("A test cmdlet"),
+                Synopsis = new SectionBody("A cmdlet to test"),
+                Notes = new SectionBody("This is just a test"),
                 ModuleName = "TestModule"
             };
 

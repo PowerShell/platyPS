@@ -7,6 +7,7 @@ using Markdown.MAML.Transformer;
 using Xunit;
 using Markdown.MAML.Test.EndToEnd;
 using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Model.Markdown;
 
 namespace Markdown.MAML.Test.Renderer
 {
@@ -19,8 +20,8 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "This is the synopsis",
-                Description = "This is a long description."
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description.")
             };
 
             command.Parameters.Add(new MamlParameter()
@@ -28,12 +29,25 @@ namespace Markdown.MAML.Test.Renderer
                 Type = "String",
                 Name = "Name",
                 Required = true,
-                Description = "Parameter Description.",
+                Description = "This is the name parameter description.",
                 VariableLength = true,
                 Globbing = true,
                 PipelineInput = "True (ByValue)",
                 Position = "1",
                 Aliases = new string []{"GF","Foos","Do"},
+            }
+            );
+            command.Parameters.Add(new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                Required = true,
+                Description = "This is the path parameter description.",
+                VariableLength = true,
+                Globbing = true,
+                PipelineInput = "True (ByValue)",
+                Position = "2",
+                Aliases = new string[] {  },
             }
             );
             command.Inputs.Add(new MamlInputOutput()
@@ -73,6 +87,22 @@ namespace Markdown.MAML.Test.Renderer
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
             Assert.Equal("This is the synopsis", synopsis[0]);
+
+            string[] description = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
+            Assert.Equal(1, description.Length);
+            Assert.Equal("This is a long description.", description[0]);
+
+            string[] parameter1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Name']/maml:Description/maml:para");
+            Assert.Equal(1, parameter1.Length);
+            Assert.Equal("This is the name parameter description.", parameter1[0]);
+
+            string[] parameter2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Path']/maml:Description/maml:para");
+            Assert.Equal(1, parameter2.Length);
+            Assert.Equal("This is the path parameter description.", parameter2[0]);
+
+            string[] example1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[maml:title='Example 1']/dev:code");
+            Assert.Equal(1, example1.Length);
+            Assert.Equal("PS:> Get-Help -YouNeedIt", example1[0]);
         }
 
         [Fact]
@@ -130,14 +160,14 @@ namespace Markdown.MAML.Test.Renderer
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
-                Synopsis = "<port&number>" // < and > should be properly escaped
+                Synopsis = new SectionBody("<port&number>") // < and > should be properly escaped
             };
             
             string maml = renderer.MamlModelToString(new[] { command });
 
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
             Assert.Equal(1, synopsis.Length);
-            Assert.Equal(synopsis[0], command.Synopsis);
+            Assert.Equal(synopsis[0], command.Synopsis.Text);
         }
 
     }

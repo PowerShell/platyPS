@@ -20,8 +20,8 @@ namespace Markdown.MAML.Test.Transformer
 This is Synopsis
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
-            Assert.Equal(mamlCommand.Synopsis, "This is Synopsis");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
+            Assert.Equal("This is Synopsis", mamlCommand.Synopsis.Text);
         }
 
         [Fact]
@@ -34,8 +34,8 @@ This is Synopsis
 Here is a [hyperlink](http://non-existing-uri).
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
-            Assert.Equal(mamlCommand.Synopsis, "Here is a hyperlink (http://non-existing-uri).");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
+            Assert.Equal("Here is a hyperlink (http://non-existing-uri).", mamlCommand.Synopsis.Text);
         }
 
         [Fact]
@@ -54,14 +54,13 @@ schema: 2.0.0
 This is Synopsis
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
-            Assert.Equal(mamlCommand.Synopsis, "This is Synopsis");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
+            Assert.Equal("This is Synopsis", mamlCommand.Synopsis.Text);
         }
 
         [Fact]
         public void TransformCommandWithExtraLine()
         {
-            
             var doc = ParseString(@"
 #Add-Member
 
@@ -70,8 +69,73 @@ Adds custom properties and methods to an instance of a Windows PowerShell object
 
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Add-Member");
-            Assert.Equal(mamlCommand.Synopsis, "Adds custom properties and methods to an instance of a Windows PowerShell object.");
+            Assert.Equal("Add-Member", mamlCommand.Name);
+            Assert.Equal("Adds custom properties and methods to an instance of a Windows PowerShell object.", mamlCommand.Synopsis.Text);
+        }
+
+        [Fact]
+        public void TransformCommandWithHeaderLineBreak()
+        {
+            var doc = ParseString(@"
+#Add-Member
+
+##SYNOPSIS
+
+Adds custom properties and methods to an instance of a Windows PowerShell object.");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal("Add-Member", mamlCommand.Name);
+            Assert.Equal("Adds custom properties and methods to an instance of a Windows PowerShell object.", mamlCommand.Synopsis.Text);
+            Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Synopsis.FormatOption);
+        }
+
+        [Fact]
+        public void TransformCommandWithParameterHeaderLineBreak()
+        {
+            var doc = ParseString(@"
+# Add-Member
+
+## PARAMETERS
+
+### -Name
+
+This is the name parameter.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal("This is the name parameter.", mamlCommand.Parameters[0].Description);
+            Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Parameters[0].FormatOption);
+        }
+
+        [Fact]
+        public void TransformCommandWithExampleHeaderLineBreak()
+        {
+            var doc = ParseString(@"
+# Add-Member
+
+## EXAMPLES
+
+### Example 1
+
+This is an example.
+
+```powershell
+PS C:\> Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
+```
+");
+            MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+            Assert.Equal("This is an example.", mamlCommand.Examples[0].Introduction);
+            Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Examples[0].FormatOption);
         }
 
         [Fact]
@@ -91,7 +155,7 @@ I'm a multiline description.
 And this is my last line.
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            string[] description = mamlCommand.Description.Split('\n').Select(x => x.Trim()).ToArray();
+            string[] description = mamlCommand.Description.Text.Split('\n').Select(x => x.Trim()).ToArray();
             Assert.Equal(3, description.Length);
             Assert.Equal("Hello,", description[0]);
             Assert.Equal("I'm a multiline description.", description[1]);
@@ -358,49 +422,43 @@ Remarks
         [Fact]
         public void HandlesHyperLinksInsideText()
         {
-            
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the [Set-WSManQuickConfig]() cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
         [Fact]
         public void HandlesItalicInsideText()
         {
-
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the *Set-WSManQuickConfig* cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
         [Fact]
         public void HandlesBoldInsideText()
         {
-
             var doc = ParseString(@"
 # Get-Foo
 ## SYNOPSIS
-
 Runs the **Set-WSManQuickConfig** cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
             Assert.Equal(mamlCommand.Count(), 1);
-            Assert.Equal(mamlCommand[0].Synopsis, "Runs the Set-WSManQuickConfig cmdlet");
+            Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
         [Fact]
@@ -504,7 +562,6 @@ Accept wildcard characters: false
 ## PARAMETERS
 
 ### NonExistingTypeParam
-
 This is NonExistingTypeParam description.
 
 ```yaml
@@ -1014,7 +1071,7 @@ This description block test formatting preservance.
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(description, mamlCommand.Description);
+            Assert.Equal(description, mamlCommand.Description.Text);
         }
 
         private DocumentNode ParseString(string markdown)

@@ -307,7 +307,10 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[2].Value,
                     regexMatch.Groups[1].Value.Length,
-                    sourceExtent));
+                    sourceExtent,
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one.
+                    (regexMatch.Groups[3].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 
         private void CreateHashHeader2(Match regexMatch, SourceExtent sourceExtent)
@@ -318,7 +321,10 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[3].Value,
                     regexMatch.Groups[2].Value.Length,
-                    sourceExtent));
+                    sourceExtent,
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one.
+                    (regexMatch.Groups[4].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 
         private void CreateUnderlineHeader(Match regexMatch, SourceExtent sourceExtent)
@@ -333,7 +339,10 @@ namespace Markdown.MAML.Parser
                 new HeadingNode(
                     regexMatch.Groups[1].Value,
                     headerLevel,
-                    sourceExtent));
+                    sourceExtent,
+
+                    // Detect if a line break after the header exists. Mutiple line breaks will be reduced to one. 
+                    (regexMatch.Groups[3].Captures.Count > 1) ? SectionFormatOption.LineBreakAfterHeader : SectionFormatOption.None));
         }
 
         private void CreateTickCodeBlock(Match regexMatch, SourceExtent sourceExtent)

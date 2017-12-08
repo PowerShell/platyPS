@@ -1,4 +1,5 @@
 ﻿using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Model.Markdown;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -48,9 +49,9 @@ namespace Markdown.MAML.Transformer
             result = new MamlCommand()
             {
                 Name = referenceModel.Name,
-                Synopsis = MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis)),
-                Description = MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description)),
-                Notes = MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes)),
+                Synopsis = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis.Text))),
+                Description = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description.Text))),
+                Notes = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes.Text))),
                 Extent = referenceModel.Extent
             };
 

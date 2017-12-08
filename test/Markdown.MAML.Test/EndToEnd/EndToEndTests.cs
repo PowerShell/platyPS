@@ -5,6 +5,7 @@ using Markdown.MAML.Renderer;
 using Xunit;
 using Markdown.MAML.Parser;
 using Markdown.MAML.Transformer;
+using System.Linq;
 
 namespace Markdown.MAML.Test.EndToEnd
 {
@@ -45,6 +46,118 @@ And this is my last line.
 
             string[] description = GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
             Assert.Equal(3, description.Length);
+        }
+
+        [Fact]
+        public void PreserveMarkdownWhenUpdatingMarkdownHelp()
+        {
+            var expected = @"# Update-MarkdownHelp
+
+## SYNOPSIS
+
+Example markdown to test that markdown is preserved.
+
+## SYNTAX
+
+```
+Update-MarkdownHelp [-Name] <String> [-Path <String>]
+```
+
+## DESCRIPTION
+When calling Update-MarkdownHelp line breaks should be preserved.
+
+## EXAMPLES
+
+### Example 1: With no line break or description
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 1 remark.
+
+### Example 2: With no line break
+This is an example description.
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 2 remark.
+
+### Example 3: With line break and no description
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 3 remark.
+
+### Example 4: With line break and description
+
+This is an example description.
+
+```
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 4 remark.
+
+## PARAMETERS
+
+### -Name
+
+Parameter name description with line break.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Parameter path description with no line break.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+## INPUTS
+
+### String[]
+
+This is an input description.
+
+## OUTPUTS
+
+### System.Object
+
+This is an output description.
+
+## NOTES
+
+## RELATED LINKS
+";
+            
+            // Parse markdown and convert back to markdown to make sure there are no changes
+            var actualFull = MarkdownStringToMarkdownString(expected, ParserMode.Full);
+            var actualFormattingPreserve = MarkdownStringToMarkdownString(expected, ParserMode.FormattingPreserve);
+
+            Assert.Equal(expected, actualFull);
+            Assert.Equal(expected, actualFormattingPreserve);
         }
 
         [Fact]
@@ -385,6 +498,21 @@ This example demonstrates the process of registering a snap-in on your system an
             string maml = renderer.MamlModelToString(mamlModel);
 
             return maml;
+        }
+
+        private string MarkdownStringToMarkdownString(string markdown, ParserMode parserMode)
+        {
+            // Parse
+            var parser = new MarkdownParser();
+            var markdownModel = parser.ParseString(new string[] { markdown }, ParserMode.FormattingPreserve, null);
+
+            // Convert model to Maml
+            var transformer = new ModelTransformerVersion2();
+            var mamlModel = transformer.NodeModelToMamlModel(markdownModel).FirstOrDefault();
+
+            // Render as markdown
+            var renderer = new MarkdownV2Renderer(parserMode);
+            return renderer.MamlModelToString(mamlModel, true);
         }
     }
 }

@@ -9,6 +9,11 @@ namespace Markdown.MAML.Model.MAML
     {
         public SourceExtent Extent { get; set; }
 
+        /// <summary>
+        /// Additional options that determine how the section will be formated when rendering markdown.
+        /// </summary>
+        public SectionFormatOption FormatOption { get; set; }
+
         public string Type { get; set; }
 
         public string FullType { get; set; }

@@ -176,6 +176,7 @@ namespace Markdown.MAML.Transformer
                     Title = headingNode.Text
                 };
                 example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
+                example.FormatOption = headingNode.FormatOption;
                 CodeBlockNode codeBlock;
                 while ((codeBlock = CodeBlockRule()) != null)
                 {
@@ -252,10 +253,10 @@ namespace Markdown.MAML.Transformer
 
             MamlInputOutput typeEntity = new MamlInputOutput()
             {
-                TypeName = headingNode.Text
+                TypeName = headingNode.Text,
+                Description = SimpleTextSectionRule(),
+                FormatOption = headingNode.FormatOption
             };
-
-            typeEntity.Description = SimpleTextSectionRule();
 
             return typeEntity;
         }
