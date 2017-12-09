@@ -10,7 +10,7 @@ namespace Markdown.MAML.Transformer
 {
     public class ModelTransformerVersion2 : ModelTransformerBase
     {
-        List<Tuple<string, Dictionary<string, MamlParameter>>> _parameterName2ParameterSetMap = 
+        List<Tuple<string, Dictionary<string, MamlParameter>>> _parameterName2ParameterSetMap =
             new List<Tuple<string, Dictionary<string, MamlParameter>>>();
 
         public static readonly string ALL_PARAM_SETS_MONIKER = "(All)";
@@ -106,6 +106,7 @@ namespace Markdown.MAML.Transformer
                 //this is the only way to retain information on which syntax is the default 
                 // without adding new members to command object.
                 //Though the cmdlet object, does have a member which contains the default syntax name only.
+                commmand.ParameterSetNameToSyntaxRaw[syntax.ParameterSetName] = syntax.RawSyntaxString;
                 if (syntax.IsDefault) { commmand.Syntax.Add(syntax); }
             }
         }
@@ -127,11 +128,12 @@ namespace Markdown.MAML.Transformer
                 syntax = new MamlSyntax()
                 {
                     ParameterSetName = ALL_PARAM_SETS_MONIKER,
-                    IsDefault = true
+                    IsDefault = true,
+                    RawSyntaxString = (node as CodeBlockNode).Text
                 };
             }
             else
-            { 
+            {
                 var headingNode = GetHeadingWithExpectedLevel(node, PARAMETERSET_NAME_HEADING_LEVEL);
                 if (headingNode == null)
                 {
@@ -146,6 +148,7 @@ namespace Markdown.MAML.Transformer
                 };
 
                 var codeBlock = CodeBlockRule();
+                syntax.RawSyntaxString = codeBlock.Text;
             }
             // we don't use the output of it
             // TODO: we should capture syntax and verify that it's complient.
@@ -164,7 +167,7 @@ namespace Markdown.MAML.Transformer
         private void FillUpSyntax(MamlSyntax syntax, string name)
         {
             var parametersList = new List<MamlParameter>();
-            
+
             foreach (var pair in _parameterName2ParameterSetMap)
             {
                 MamlParameter param = null;
@@ -201,7 +204,7 @@ namespace Markdown.MAML.Transformer
                 defaultSetName = command.Syntax[0].ParameterSetName;
                 command.Syntax.Remove(command.Syntax[0]);
             }
-            
+
             if (parameterSetNames.Count == 0)
             {
                 // special case: there are no parameters and hence there is only one parameter set
@@ -222,12 +225,12 @@ namespace Markdown.MAML.Transformer
                     else
                     {
                         continue;
-                    }                    
+                    }
                 }
                 else
                 {
-                    syntax.ParameterSetName = StringComparer.OrdinalIgnoreCase.Equals(syntax.ParameterSetName, defaultSetName) 
-                        ? string.Format("{0}{1}", setName, MarkdownStrings.DefaultParameterSetModifier) 
+                    syntax.ParameterSetName = StringComparer.OrdinalIgnoreCase.Equals(syntax.ParameterSetName, defaultSetName)
+                        ? string.Format("{0}{1}", setName, MarkdownStrings.DefaultParameterSetModifier)
                         : setName;
                 }
 
@@ -245,7 +248,7 @@ namespace Markdown.MAML.Transformer
                 foreach (var pair2 in pair.Item2)
                 {
                     var paramSetName = pair2.Key;
-                    
+
                     bool found = false;
                     foreach (var candidate in parameterSetNames)
                     {
