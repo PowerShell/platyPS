@@ -19,6 +19,9 @@ namespace Markdown.MAML.Renderer
         private static XNamespace devNS = XNamespace.Get("http://schemas.microsoft.com/maml/dev/2004/10");
         private static XNamespace msHelpNS = XNamespace.Get("http://msdn.microsoft.com/mshelp");
 
+        private static char examplePadChar = '-';
+        private static char space = ' ';
+
         /// <summary>
         /// 
         /// </summary>
@@ -161,7 +164,7 @@ namespace Markdown.MAML.Renderer
         private static XElement CreateExample(MamlExample example)
         {
             return new XElement(commandNS + "example",
-                    new XElement(mamlNS + "title", example.Title),
+                    new XElement(mamlNS + "title", PadExampleTitle(example.Title)),
                     new XElement(devNS + "code", example.Code),
                     new XElement(devNS + "remarks", GenerateParagraphs(example.Remarks)));
         }
@@ -187,6 +190,30 @@ namespace Markdown.MAML.Renderer
             return new XElement(mamlNS + "navigationLink",
                     new XElement(mamlNS + "linkText", link.LinkName),
                     new XElement(mamlNS + "uri", uriValue));
+        }
+
+        /// <summary>
+        /// Generate (-) padding for example title
+        /// </summary>
+        /// <param name="title">The title to pa.</param>
+        /// <returns>The title padded by dashes</returns>
+        private static string PadExampleTitle(string title)
+        {
+            // Filter out edge cases where title is too long or empty
+            if (string.IsNullOrWhiteSpace(title) || title.Length >= 62)
+            {
+                return title;
+            }
+
+            // Pad example title with dash (-) to increase readability up to 64 characters
+
+            int padLength = (64 - title.Length - 2) / 2;
+
+            return title
+                .PadLeft(title.Length + 1, space)
+                .PadRight(title.Length + 2, space)
+                .PadLeft(title.Length + 2 + padLength, examplePadChar)
+                .PadRight(title.Length + 2 + 2 * padLength, examplePadChar);
         }
 
         private static string ConvertPSTypeToMamlType(MamlParameter parameter)

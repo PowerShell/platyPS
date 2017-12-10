@@ -73,9 +73,19 @@ Describe 'Full loop for Add-Member cmdlet' {
         # this '-' before force could be screwed up
         0..($generatedHelpObject.examples.example.Count - 1) | ForEach-Object {
             It ('generate correct example ' + ($generatedHelpObject.examples.example[$_].title)) -Skip:($_ -eq 5) {
-                ($generatedHelpObject.examples.example[$_] | Out-String).TrimEnd() | Should Be ($originalHelpObject.examples.example[$_] | Out-String).TrimEnd()
+                
+                $exampleExtractionRegex = '^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}(\r|\n){1,}(?<body>(\S|\s)+)';
+                $generatedMatches = [Regex]::Match(($generatedHelpObject.examples.example[$_] | Out-String).Trim(), $exampleExtractionRegex)
+                $originalMatches = [Regex]::Match(($originalHelpObject.examples.example[$_] | Out-String).Trim(), $exampleExtractionRegex)
+                
+                # Confirm match completed successfully
+                $generatedMatches.Success | Should Be $True
+                $originalMatches.Success | Should Be $True
+
+                # Match clean title and clean body seperately
+                $generatedMatches.Groups['title'].Value | Should Be $originalMatches.Groups['title'].Value
+                $generatedMatches.Groups['body'].Value | Should Be $originalMatches.Groups['body'].Value
             }
-            #($generatedHelpObject.examples | Out-String) | Should Be ($originalHelpObject.examples | Out-String)
         }
     }
 
