@@ -344,7 +344,7 @@ namespace Markdown.MAML.Renderer
             {
                 var extraNewLine = ShouldBreak(example.FormatOption);
 
-                AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, example.Title, extraNewLine: extraNewLine);
+                AddHeader(ModelTransformerBase.EXAMPLE_HEADING_LEVEL, GetExampleTitle(example.Title), extraNewLine: extraNewLine);
 
                 if (!string.IsNullOrEmpty(example.Introduction))
                 {
@@ -363,11 +363,22 @@ namespace Markdown.MAML.Renderer
             }
         }
 
+        private static string GetExampleTitle(string title)
+        {
+            var match = Regex.Match(title, @"^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}$");
+            
+            if (match.Success)
+            {
+                return match.Groups["title"].Value;
+            }
+
+            return title;
+        }
+
         public static string GetSyntaxString(MamlCommand command, MamlSyntax syntax)
         {
             return GetSyntaxString(command, syntax, DEFAULT_SYNTAX_WIDTH);
         }
-
 
         public static string GetSyntaxString(MamlCommand command, MamlSyntax syntax, int maxSyntaxWidth)
         {

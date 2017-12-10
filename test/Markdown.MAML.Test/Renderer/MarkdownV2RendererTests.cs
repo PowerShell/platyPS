@@ -126,7 +126,7 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
-        public void RendererLineBreakAfterExample()
+        public void RendersExamplesFromMaml()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
 
@@ -165,10 +165,34 @@ namespace Markdown.MAML.Test.Renderer
                 Introduction = "Intro"
             };
 
+            var example5 = new MamlExample()
+            {
+                Title = "---Example 5---",
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "With some dashes and no spaces"
+            };
+
+            var example6 = new MamlExample()
+            {
+                Title = "------------------ Example 6: With extra info ------------------",
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Padded to 64 characters and spaces"
+            };
+
+            var example7 = new MamlExample()
+            {
+                Title = "Example 7: ".PadRight(66, 'A'),
+                Code = "PS C:\\> Get-Help -Full",
+                Introduction = "Greater then 64 characters"
+            };
+
             command.Examples.Add(example1);
             command.Examples.Add(example2);
             command.Examples.Add(example3);
             command.Examples.Add(example4);
+            command.Examples.Add(example5);
+            command.Examples.Add(example6);
+            command.Examples.Add(example7);
 
             string markdown = renderer.MamlModelToString(command, null);
 
@@ -179,6 +203,11 @@ namespace Markdown.MAML.Test.Renderer
             // Uses line break and should be preserved
             Assert.Contains("### Example 3\r\n\r\n```", markdown);
             Assert.Contains("### Example 4\r\n\r\nIntro\r\n\r\n```", markdown);
+
+            // Includes title padding that should be removed
+            Assert.Contains("### Example 5\r\n", markdown);
+            Assert.Contains("### Example 6: With extra info\r\n", markdown);
+            Assert.Contains($"### {example7.Title}\r\n", markdown);
         }
 
         [Fact]
