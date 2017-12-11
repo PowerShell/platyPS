@@ -51,7 +51,7 @@ Specifies an array of paths of MAML external help files.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -67,7 +67,7 @@ This output follows TechNet formatting.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -84,7 +84,7 @@ Markdown accepts single-hyphens for lists.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -109,4 +109,3 @@ This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
 ## NOTES
 
 ## RELATED LINKS
-

@@ -82,7 +82,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -98,7 +98,7 @@ Indicates that this cmdlet appends information to the log instead overwriting it
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -116,7 +116,7 @@ If you specify the *Verbose* parameter, this cmdlet also writes that information
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
@@ -132,7 +132,7 @@ Specifies an array of paths of markdown files and folders to update.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0
@@ -149,7 +149,7 @@ These parameters are common and hence have well-defined behavior.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -164,7 +164,7 @@ Indicates that the target document will use a full type name instead of a short 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named

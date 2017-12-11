@@ -136,7 +136,7 @@ This can be any command supported by Windows PowerShell help, such as a cmdlet o
 ```yaml
 Type: String[]
 Parameter Sets: FromCommand
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -155,7 +155,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -170,7 +170,7 @@ Indicates that this cmdlet overwrites existing files that have the same names.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -187,7 +187,7 @@ This value is used as markdown header metadata in the module page.
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -204,7 +204,7 @@ This value is used as markdown header metadata in the module page.
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -221,7 +221,7 @@ This value is used as markdown header metadata in the module page.
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -236,7 +236,7 @@ Specifies an array of paths path of MAML .xml help files.
 ```yaml
 Type: String[]
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -256,7 +256,7 @@ External tools can use this metadata.
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -271,7 +271,7 @@ Specifies an array of names of modules for which this cmdlet creates help in mar
 ```yaml
 Type: String[]
 Parameter Sets: FromModule
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -288,7 +288,7 @@ This value is used as markdown header metadata in the module page.
 ```yaml
 Type: String
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -305,7 +305,7 @@ This value is used as markdown header metadata in the module page.
 ```yaml
 Type: String
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -320,7 +320,7 @@ Indicates that this cmdlet does not write any metadata in the generated markdown
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -336,7 +336,7 @@ If you do not specify a value, the cmdlet uses an empty string.
 ```yaml
 Type: String
 Parameter Sets: FromCommand
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -351,7 +351,7 @@ Specifies the path of the folder where this cmdlet creates the markdown help fil
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -369,7 +369,7 @@ If you did not specify that parameter, the cmdlet supplies the default name Maml
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromModule, FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -385,7 +385,7 @@ This output follows TechNet formatting.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -402,7 +402,7 @@ Markdown accepts single-hyphens for lists.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: FromMaml
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -419,7 +419,7 @@ These parameters are common and hence have well-defined behavior.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -434,7 +434,7 @@ Indicates that the target document will use a full type name instead of a short 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named

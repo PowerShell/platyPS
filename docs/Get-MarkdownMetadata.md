@@ -96,7 +96,7 @@ Specifies an array of paths of markdown files or folders.
 ```yaml
 Type: String[]
 Parameter Sets: FromPath
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -112,7 +112,7 @@ Specifies a string that contains markdown formatted text.
 ```yaml
 Type: String
 Parameter Sets: FromMarkdownString
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -138,4 +138,3 @@ The dictionary contains key-value pairs found in the markdown metadata block.
 ## NOTES
 
 ## RELATED LINKS
-
