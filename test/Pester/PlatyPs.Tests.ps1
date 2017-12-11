@@ -67,8 +67,27 @@ Describe 'New-MarkdownHelp' {
 
                 }
 
+                function Get-AdvancedFn
+                {
+                    [CmdletBinding()]
+                    param (
+
+                    )
+                }
+
+                function Get-SimpleFn
+                {
+                    param (
+                    
+                    )
+                }
+
                 function Set-BBBB 
                 {
+
+                }
+
+                Workflow FromCommandWorkflow {
 
                 }
 
@@ -82,7 +101,7 @@ Describe 'New-MarkdownHelp' {
                 Export-ModuleMember -Alias Fork-AAAA
                 Export-ModuleMember -Alias aaaaalias
                 Export-ModuleMember -Alias bbbbalias
-                Export-ModuleMember -Function Get-AAAA
+                Export-ModuleMember -Function 'Get-AAAA','Get-AdvancedFn','Get-SimpleFn','FromCommandWorkflow'
 
             } | Import-Module -Force
 
@@ -94,9 +113,21 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown files only for exported functions' {
-            ($files | Measure-Object).Count | Should Be 1
-            $files.Name | Should Be 'Get-AAAA.md'
-        }        
+            ($files | Measure-Object).Count | Should Be 4
+            $files.Name | Should -BeIn 'Get-AAAA.md','Get-AdvancedFn.md','Get-SimpleFn.md','FromCommandWorkflow.md'
+        }
+
+        It 'generates markdown that includes CommonParameters in advanced functions' {
+            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-AdvancedFn.md' }).FullName | Should -FileContentMatch '### CommonParameters'
+        }
+
+        It 'generates markdown that excludes CommonParameters from simple functions' {
+            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.md' }).FullName | Should -FileContentMatch -Not '### CommonParameters'
+        }
+
+        It 'generates markdown for workflows with CommonParameters' {
+            ($files | Where-Object -FilterScript { $_.Name -eq 'FromCommandWorkflow.md' }).FullName | Should -FileContentMatch '### CommonParameters'
+        }
     }
     
     Context 'from command' {
@@ -410,7 +441,7 @@ Type: System.Management.Automation.SwitchParameter
 
 '@ 
             $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>]
+Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
@@ -428,7 +459,7 @@ Type: SwitchParameter
 
 '@ 
             $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>]
+Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
