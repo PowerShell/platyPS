@@ -1,0 +1,20 @@
+# Auto detect text files and perform LF normalization
+* text=auto eol=crlf
+*.ps1 text
+*.psm1 text
+*.psd1 text
+*.ps1xml text
+*.md text
+*.sln text
+*.cs text
+*.css text
+*.js text
+*.Config text
+*.targets text
+*.yml text
+*.txt text
+*.png binary
+*.dll binary
+*.exe binary
+
+
