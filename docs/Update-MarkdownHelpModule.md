@@ -58,7 +58,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -74,7 +74,7 @@ Indicates that this cmdlet appends information to the log instead overwriting it
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -92,7 +92,7 @@ If you specify the *Verbose* parameter, this cmdlet also writes that information
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
@@ -109,7 +109,7 @@ The folder must contain a module page from which this cmdlet can get the module 
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0
@@ -124,7 +124,7 @@ Update module page when updating the help module.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -141,7 +141,7 @@ These parameters are common and hence have well-defined behavior.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named

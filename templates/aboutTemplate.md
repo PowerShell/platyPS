@@ -14,7 +14,7 @@ This will be transformed into the text file
 as `about_SomeHelpTopicFileName`.
 Do not include file extensions.
 The second header should have no spaces.
-```              
+```
 
 # SHORT DESCRIPTION
 {{ Short Description Placeholder }}
@@ -54,4 +54,4 @@ The generated about topic will be encoded UTF-8.
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}
 - {{ Keyword Placeholder }}
-- {{ Keyword Placeholder }}    
+- {{ Keyword Placeholder }}

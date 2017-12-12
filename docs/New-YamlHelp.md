@@ -80,7 +80,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -95,7 +95,7 @@ Indicates that this cmdlet overwrites an existing file that has the same name.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -111,7 +111,7 @@ This cmdlet creates external help based on these files and folders.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -126,7 +126,7 @@ Specifies the folder to create the YAML files in
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: Named
@@ -151,4 +151,3 @@ This cmdlet returns a **FileInfo[]** object for created files.
 ## NOTES
 
 ## RELATED LINKS
-

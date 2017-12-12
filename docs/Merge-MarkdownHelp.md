@@ -1,7 +1,7 @@
 ---
 external help file: platyPS-help.xml
 Module Name: platyPS
-online version: 
+online version:
 schema: 2.0.0
 ---
 
@@ -58,7 +58,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -74,7 +74,7 @@ By default cmdlets and parameters that are present in all variations don't get a
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -89,7 +89,7 @@ Indicates that this cmdlet overwrites an existing file that has the same name.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -105,7 +105,7 @@ Applicable tag list would be included after the marker
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 3
@@ -120,7 +120,7 @@ Specifies the path of the folder where this cmdlet creates the combined markdown
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
@@ -136,7 +136,7 @@ This cmdlet creates combined markdown help based on these files and folders.
 ```yaml
 Type: String[]
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: True
 Position: 0
@@ -159,4 +159,3 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 ## NOTES
 
 ## RELATED LINKS
-
