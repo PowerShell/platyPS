@@ -181,7 +181,8 @@ namespace Markdown.MAML.Renderer
                 AddWorkflowParameters();
             }
 
-            if (command.SupportCommonParameters)
+            // Workflows always support CommonParameters
+            if (command.SupportCommonParameters || command.IsWorkflow)
             {
                 AddCommonParameters();
             }
