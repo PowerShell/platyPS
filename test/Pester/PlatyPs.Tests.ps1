@@ -219,7 +219,7 @@ Describe 'New-MarkdownHelp' {
             Adds a file name extension to a supplied name.
 
             .DESCRIPTION
-            Adds a file name extension to a supplied name. 
+            Adds a file name extension to a supplied name.
             Takes any strings for the file name or extension.
 
             .PARAMETER Second
@@ -262,7 +262,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown with correct synopsis' {
-            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Measure-Object).Count | Should Be 2
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
