@@ -352,9 +352,9 @@ namespace Markdown.MAML.Renderer
                     AddParagraphs(example.Introduction);
                 }
 
-                if (example.Code != null)
+                for (var i = 0; example.Code != null && i < example.Code.Length; i++)
                 {
-                    AddCodeSnippet(example.Code);
+                    AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker);
                 }
 
                 if (!string.IsNullOrEmpty(example.Remarks))

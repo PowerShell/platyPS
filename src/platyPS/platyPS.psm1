@@ -134,7 +134,9 @@ function New-MarkdownHelp
                 $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
                 $MamlExampleObject.Title = 'Example 1'
-                $MamlExampleObject.Code = 'PS C:\> {{ Add example code here }}'
+                $MamlExampleObject.Code = @(
+                    New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ('PS C:\> {{ Add example code here }}', 'powershell')
+                )
                 $MamlExampleObject.Remarks = '{{ Add example description here }}'
 
                 $MamlCommandObject.Examples.Add($MamlExampleObject)
@@ -2500,7 +2502,9 @@ function ConvertPsObjectsToMamlModel
 
         $MamlExampleObject.Introduction = $Example.introduction
         $MamlExampleObject.Title = $Example.title
-        $MamlExampleObject.Code = $Example.code
+        $MamlExampleObject.Code = @(
+            New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($Example.code, '')
+        )
 
         $RemarkText = $Example.remarks.text | AddLineBreaksForParagraphs
         

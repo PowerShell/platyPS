@@ -165,7 +165,7 @@ namespace Markdown.MAML.Renderer
         {
             return new XElement(commandNS + "example",
                     new XElement(mamlNS + "title", PadExampleTitle(example.Title)),
-                    new XElement(devNS + "code", example.Code),
+                    new XElement(devNS + "code", string.Join("\r\n\r\n", example.Code.Select(block => block.Text))),
                     new XElement(devNS + "remarks", GenerateParagraphs(example.Remarks)));
         }
 

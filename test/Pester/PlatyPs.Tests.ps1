@@ -645,7 +645,7 @@ Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
         It 'Validates the examples by checking Add-Computer Example 1' {
 
             $mamlModelObject.Examples[0].Title | Should be "Example 1: Add a local computer to a domain then restart the computer"
-            $mamlModelObject.Examples[0].Code | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
+            $mamlModelObject.Examples[0].Code[0].Text | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
             $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
 
         }

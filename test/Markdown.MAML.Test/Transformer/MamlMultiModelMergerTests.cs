@@ -168,7 +168,7 @@ Third Command
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             }
             );
@@ -225,7 +225,7 @@ Third Command
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff too!"
             }
             );

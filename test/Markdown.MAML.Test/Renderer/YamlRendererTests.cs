@@ -49,7 +49,7 @@ namespace Markdown.MAML.Test.Renderer
             var example = writtenModel.Examples.Single();
 
             Assert.Equal(model.Examples.Single().Introduction, example.PreCode);
-            Assert.Equal(model.Examples.Single().Code, example.Code);
+            Assert.Equal(model.Examples.Single().Code.Single().Text, example.Code);
             Assert.Equal(model.Examples.Single().Remarks, example.PostCode);
             Assert.Equal(model.Examples.Single().Title, example.Name);
         }
@@ -216,7 +216,7 @@ namespace Markdown.MAML.Test.Renderer
             command.Examples.Add(new MamlExample
             {
                 Remarks = "Example 1 remarks",
-                Code = "Example 1 code",
+                Code = new [] { new MamlCodeBlock("Example 1 code") },
                 Introduction = "Example 1 intro",
                 Title = "Example 1 title"
             });

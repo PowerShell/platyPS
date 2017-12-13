@@ -49,7 +49,7 @@ namespace Markdown.MAML.Renderer
             {
                 Name = mamlExample.Title,
                 PreCode = mamlExample.Introduction,
-                Code = mamlExample.Code,
+                Code = string.Join("\r\n\r\n", mamlExample.Code.Select(block => block.Text)),
                 PostCode = mamlExample.Remarks
             };
         }
