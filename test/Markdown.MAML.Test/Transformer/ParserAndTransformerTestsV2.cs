@@ -132,10 +132,42 @@ This is an example.
 ```powershell
 PS C:\> Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
 ```
+
+```
+Output
+```
+
+### Example 2
+This is an example.
+
+```
+PS C:\> Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
+```
+
+```
+Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
+```
+
+```
+Output
+```
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+
+            // Check the number of examples
+            Assert.Equal(2, mamlCommand.Examples.Count);
+
+            // Confirm example fields and code block language is read
             Assert.Equal("This is an example.", mamlCommand.Examples[0].Introduction);
             Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Examples[0].FormatOption);
+            Assert.Equal("powershell", mamlCommand.Examples[0].Code[0].LanguageMoniker);
+            Assert.Equal(string.Empty, mamlCommand.Examples[0].Code[1].LanguageMoniker);
+
+            // Confirm example fields and code block language is detected
+            Assert.Equal(SectionFormatOption.None, mamlCommand.Examples[1].FormatOption);
+            Assert.Equal("powershell", mamlCommand.Examples[1].Code[0].LanguageMoniker);
+            Assert.Equal("powershell", mamlCommand.Examples[1].Code[1].LanguageMoniker);
+            Assert.Equal(string.Empty, mamlCommand.Examples[1].Code[2].LanguageMoniker);
         }
 
         [Fact]

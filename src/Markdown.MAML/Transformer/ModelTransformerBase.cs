@@ -6,6 +6,7 @@ using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
 using System.Management.Automation;
 using Markdown.MAML.Parser;
+using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Transformer
 {
@@ -22,6 +23,8 @@ namespace Markdown.MAML.Transformer
         internal const int INPUT_OUTPUT_TYPENAME_HEADING_LEVEL = 3;
         internal const int EXAMPLE_HEADING_LEVEL = 3;
         internal const int PARAMETERSET_NAME_HEADING_LEVEL = 3;
+
+        private static Regex DetectPSLanguageExpression = new Regex(@"^(PS C:\\>| {0,}[a-z]{3,11}-[a-z0-9]{2,}|#)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         public ModelTransformerBase(Action<string> infoCallback, Action<string> warningCallback)
         {
@@ -182,7 +185,10 @@ namespace Markdown.MAML.Transformer
 
                 while ((codeBlockNode = CodeBlockRule()) != null)
                 {
-                    codeBlocks.Add(new MamlCodeBlock(codeBlockNode.Text, codeBlockNode.LanguageMoniker));
+                    codeBlocks.Add(new MamlCodeBlock(
+                        codeBlockNode.Text,
+                        string.IsNullOrEmpty(codeBlockNode.LanguageMoniker) ? DetectLanguage(codeBlockNode.Text) : codeBlockNode.LanguageMoniker
+                    ));
                 }
 
                 example.Code = codeBlocks.ToArray();
@@ -198,6 +204,20 @@ namespace Markdown.MAML.Transformer
                 throw headingException;
             }
             
+        }
+
+        private string DetectLanguage(string hint)
+        {
+            // Detect PowerShell based on first line
+            // - Look PS C:\> prefix followed 
+            // - Look for standalone PowerShell verbs-noun, current verbs use 3-11 characters
+            // - Look for inline help # character
+            if (DetectPSLanguageExpression.IsMatch(hint))
+            {
+                return "powershell";
+            }
+
+            return string.Empty;
         }
 
         protected void RelatedLinksRule(MamlCommand commmand)

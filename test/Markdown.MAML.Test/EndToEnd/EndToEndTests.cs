@@ -92,7 +92,7 @@ When calling Update-MarkdownHelp line breaks should be preserved.
 ## EXAMPLES
 
 ### Example 1: With no line break or description
-```
+```powershell
 PS C:\> Write-Host 'This is output.'
 ```
 
@@ -105,7 +105,7 @@ This is example 1 remark.
 ### Example 2: With no line break
 This is an example description.
 
-```
+```powershell
 PS C:\> Update-MarkdownHelp
 ```
 
@@ -113,7 +113,7 @@ This is example 2 remark.
 
 ### Example 3: With line break and no description
 
-```
+```powershell
 PS C:\> Update-MarkdownHelp
 ```
 
@@ -123,7 +123,7 @@ This is example 3 remark.
 
 This is an example description.
 
-```powershell
+```preserve
 PS C:\> Update-MarkdownHelp
 ```
 
