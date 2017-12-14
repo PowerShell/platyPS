@@ -14,7 +14,7 @@ namespace Markdown.MAML.Model.MAML
         public MamlCodeBlock(string text, string languageMoniker = null)
         {
             Text = text;
-            LanguageMoniker = languageMoniker;
+            LanguageMoniker = languageMoniker ?? string.Empty;
         }
 
         /// <summary>

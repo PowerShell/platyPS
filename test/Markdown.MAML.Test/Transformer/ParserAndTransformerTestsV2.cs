@@ -160,14 +160,12 @@ Output
             // Confirm example fields and code block language is read
             Assert.Equal("This is an example.", mamlCommand.Examples[0].Introduction);
             Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Examples[0].FormatOption);
+            Assert.Equal(2, mamlCommand.Examples[0].Code.Length);
             Assert.Equal("powershell", mamlCommand.Examples[0].Code[0].LanguageMoniker);
             Assert.Equal(string.Empty, mamlCommand.Examples[0].Code[1].LanguageMoniker);
 
-            // Confirm example fields and code block language is detected
+            // Confirm example fields
             Assert.Equal(SectionFormatOption.None, mamlCommand.Examples[1].FormatOption);
-            Assert.Equal("powershell", mamlCommand.Examples[1].Code[0].LanguageMoniker);
-            Assert.Equal("powershell", mamlCommand.Examples[1].Code[1].LanguageMoniker);
-            Assert.Equal(string.Empty, mamlCommand.Examples[1].Code[2].LanguageMoniker);
         }
 
         [Fact]

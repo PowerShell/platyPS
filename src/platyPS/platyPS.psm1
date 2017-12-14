@@ -204,7 +204,7 @@ function New-MarkdownHelp
                             $a['Module'] = $module
                         }
 
-                        $helpFileName = GetHelpFileName (Get-Command @a)    
+                        $helpFileName = GetHelpFileName (Get-Command @a)
                     }
 
                     Write-Verbose "Maml things module is: $($mamlObject.ModuleName)"
