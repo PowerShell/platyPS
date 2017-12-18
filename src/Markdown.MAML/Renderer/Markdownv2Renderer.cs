@@ -20,11 +20,7 @@ namespace Markdown.MAML.Renderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
-        private static Regex DetectPSLanguageExpression = new Regex(@"^(PS C:\\>| {0,}[a-z]{3,11}-[a-z0-9]{2,}|#)", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
         private ParserMode _mode;
-
-        private int _maxLineWidth { get; set; }
 
         public int MaxSyntaxWidth { get; private set; }
 
@@ -39,11 +35,6 @@ namespace Markdown.MAML.Renderer
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
             this._mode = mode;
-        }
-
-        public MarkdownV2Renderer(int maxLineWidth)
-        {
-            _maxLineWidth = maxLineWidth;
         }
 
         public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
@@ -354,9 +345,12 @@ namespace Markdown.MAML.Renderer
                     AddParagraphs(example.Introduction);
                 }
 
-                for (var i = 0; example.Code != null && i < example.Code.Length; i++)
+                if (example.Code != null)
                 {
-                    AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker, true);
+                    for (var i = 0; i < example.Code.Length; i++)
+                    {
+                        AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(example.Remarks))
@@ -473,13 +467,8 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private void AddCodeSnippet(string code, string lang = "", bool detectLanguage = false)
+        private void AddCodeSnippet(string code, string lang = "")
         {
-            if (detectLanguage && string.IsNullOrEmpty(lang))
-            {
-                lang = DetectLanguage(code);
-            }
-
             _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, Environment.NewLine);
         }
 
@@ -611,23 +600,7 @@ namespace Markdown.MAML.Renderer
                 // per https://github.com/PowerShell/platyPS/issues/121 we don't perform escaping for () in markdown renderer, but we do in the parser
                 //.Replace(@"(", @"\(")
                 //.Replace(@")", @"\)")
-                .Replace(@"`", @"\`")
-
-                ;
-        }
-
-        private string DetectLanguage(string hint)
-        {
-            // Detect PowerShell based on first line
-            // - Look PS C:\> prefix followed 
-            // - Look for standalone PowerShell verbs-noun, current verbs use 3-11 characters
-            // - Look for inline help # character
-            if (DetectPSLanguageExpression.IsMatch(hint))
-            {
-                return "powershell";
-            }
-
-            return string.Empty;
+                .Replace(@"`", @"\`");
         }
     }
 }

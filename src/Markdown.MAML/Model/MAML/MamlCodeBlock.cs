@@ -19,6 +19,7 @@ namespace Markdown.MAML.Model.MAML
 
         /// <summary>
         /// An optional language or info-string. If no language string is suppled plain text is assumed.
+        /// For more information see: http://spec.commonmark.org/0.28/#info-string
         /// </summary>
         public string LanguageMoniker { get; private set; }
 

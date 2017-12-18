@@ -307,10 +307,6 @@ Describe 'New-MarkdownHelp' {
         It 'generates markdown with placeholder for parameter with no description' {
             ($content | Where-Object {$_ -eq '{{Fill Common Description}}'} | Measure-Object).Count | Should Be 1
         }
-
-        It 'generates markdown example powershell code blocks' {
-            $content | Out-String | Should Match '(\w|\W)+\r\n### EXAMPLE 1\r\n```powershell\r\nTest-PlatyPSFunction "File"\r\n```'
-        }
     }
 
     Context 'Generated markdown features: no comment-based help' {

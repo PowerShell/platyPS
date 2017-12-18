@@ -4,11 +4,10 @@ CHANGELOG
 ## Not released
 
 * Clean up trailing whitespace during markdown generation [#225](https://github.com/PowerShell/platyPS/issues/225)
-* Preserve line breaks after headers when Update-MarkdownHelp is used [#319](https://github.com/PowerShell/platyPS/issues/319)
+* Preserve line breaks after headers when `Update-MarkdownHelp` is used [#319](https://github.com/PowerShell/platyPS/issues/319)
 * MAML generation now pads example titles with dash (-) to improve readability [#119](https://github.com/PowerShell/platyPS/issues/119)
-* Fixed issue with New-MarkdownHelp preventing CommonParameter being added for advanced functions and workflows [#223](https://github.com/PowerShell/platyPS/issues/223) [#253](https://github.com/PowerShell/platyPS/issues/253)
-* Fixed issue with Update-MarkdownHelp removing named info-string from code fence [#318](https://github.com/PowerShell/platyPS/issues/318)
-* Update-MarkdownHelp and New-MarkdownHelp will now add PowerShell language info-string to code blocks [#294](https://github.com/PowerShell/platyPS/issues/294)
+* Fixed issue with `New-MarkdownHelp` preventing CommonParameter being added for advanced functions and workflows [#223](https://github.com/PowerShell/platyPS/issues/223) [#253](https://github.com/PowerShell/platyPS/issues/253)
+* Fixed issue with `Update-MarkdownHelp` removing named info-string from code fence [#318](https://github.com/PowerShell/platyPS/issues/318)
 
 ## 0.8.3
 
