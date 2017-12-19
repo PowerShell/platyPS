@@ -138,14 +138,14 @@ namespace Markdown.MAML.Test.Renderer
             var example1 = new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS C:\\> Get-Help",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help") },
                 Remarks = "This is an example to get help."
             };
 
             var example2 = new MamlExample()
             {
                 Title = "Example 2",
-                Code = "PS C:\\> Get-Help -Full",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help -Full") },
                 Introduction = "Intro"
             };
 
@@ -153,7 +153,7 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Title = "Example 3",
                 FormatOption = SectionFormatOption.LineBreakAfterHeader,
-                Code = "PS C:\\> Get-Help",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help", "powershell") },
                 Remarks = "This is an example to get help."
             };
 
@@ -161,28 +161,28 @@ namespace Markdown.MAML.Test.Renderer
             {
                 Title = "Example 4",
                 FormatOption = SectionFormatOption.LineBreakAfterHeader,
-                Code = "PS C:\\> Get-Help -Full",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help -Full") },
                 Introduction = "Intro"
             };
 
             var example5 = new MamlExample()
             {
                 Title = "---Example 5---",
-                Code = "PS C:\\> Get-Help -Full",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help -Full") },
                 Introduction = "With some dashes and no spaces"
             };
 
             var example6 = new MamlExample()
             {
                 Title = "------------------ Example 6: With extra info ------------------",
-                Code = "PS C:\\> Get-Help -Full",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help -Full") },
                 Introduction = "Padded to 64 characters and spaces"
             };
 
             var example7 = new MamlExample()
             {
                 Title = "Example 7: ".PadRight(66, 'A'),
-                Code = "PS C:\\> Get-Help -Full",
+                Code = new[] { new MamlCodeBlock("PS C:\\> Get-Help -Full") },
                 Introduction = "Greater then 64 characters"
             };
 
@@ -201,7 +201,7 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Contains("### Example 2\r\nIntro\r\n\r\n```", markdown);
 
             // Uses line break and should be preserved
-            Assert.Contains("### Example 3\r\n\r\n```", markdown);
+            Assert.Contains("### Example 3\r\n\r\n```powershell", markdown);
             Assert.Contains("### Example 4\r\n\r\nIntro\r\n\r\n```", markdown);
 
             // Includes title padding that should be removed
@@ -353,18 +353,18 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             });
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 2",
-                Code = "PS:> Get-Help -YouNeedTwo",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedTwo") },
             });
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 3",
-                Code = "PS:> Get-Help -YouNeedTwo",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedTwo") },
             });
             command.Links.Add(new MamlLink()
             {

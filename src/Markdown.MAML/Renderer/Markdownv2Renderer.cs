@@ -22,8 +22,6 @@ namespace Markdown.MAML.Renderer
 
         private ParserMode _mode;
 
-        private int _maxLineWidth { get; set; }
-
         public int MaxSyntaxWidth { get; private set; }
 
         /// <summary>
@@ -37,11 +35,6 @@ namespace Markdown.MAML.Renderer
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
             this._mode = mode;
-        }
-
-        public MarkdownV2Renderer(int maxLineWidth)
-        {
-            _maxLineWidth = maxLineWidth;
         }
 
         public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
@@ -354,7 +347,10 @@ namespace Markdown.MAML.Renderer
 
                 if (example.Code != null)
                 {
-                    AddCodeSnippet(example.Code);
+                    for (var i = 0; i < example.Code.Length; i++)
+                    {
+                        AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker);
+                    }
                 }
 
                 if (!string.IsNullOrEmpty(example.Remarks))
@@ -604,9 +600,7 @@ namespace Markdown.MAML.Renderer
                 // per https://github.com/PowerShell/platyPS/issues/121 we don't perform escaping for () in markdown renderer, but we do in the parser
                 //.Replace(@"(", @"\(")
                 //.Replace(@")", @"\)")
-                .Replace(@"`", @"\`")
-
-                ;
+                .Replace(@"`", @"\`");
         }
     }
 }

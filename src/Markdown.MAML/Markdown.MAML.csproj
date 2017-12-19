@@ -50,6 +50,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Model\MAML\MamlCodeBlock.cs" />
     <Compile Include="Model\MAML\MamlExample.cs" />
     <Compile Include="Model\MAML\MamlInputOutput.cs" />
     <Compile Include="Model\MAML\MamlLink.cs" />

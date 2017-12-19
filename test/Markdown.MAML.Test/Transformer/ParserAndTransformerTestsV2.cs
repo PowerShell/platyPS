@@ -132,10 +132,40 @@ This is an example.
 ```powershell
 PS C:\> Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
 ```
+
+```
+Output
+```
+
+### Example 2
+This is an example.
+
+```
+PS C:\> Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
+```
+
+```
+Get-PSDocumentHeader -Path '.\build\Default\Server1.md';
+```
+
+```
+Output
+```
 ");
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
+
+            // Check the number of examples
+            Assert.Equal(2, mamlCommand.Examples.Count);
+
+            // Confirm example fields and code block language is read
             Assert.Equal("This is an example.", mamlCommand.Examples[0].Introduction);
             Assert.Equal(SectionFormatOption.LineBreakAfterHeader, mamlCommand.Examples[0].FormatOption);
+            Assert.Equal(2, mamlCommand.Examples[0].Code.Length);
+            Assert.Equal("powershell", mamlCommand.Examples[0].Code[0].LanguageMoniker);
+            Assert.Equal(string.Empty, mamlCommand.Examples[0].Code[1].LanguageMoniker);
+
+            // Confirm example fields
+            Assert.Equal(SectionFormatOption.None, mamlCommand.Examples[1].FormatOption);
         }
 
         [Fact]
@@ -368,21 +398,23 @@ Introduction
 ```
 # PS code here
 ```
-```PowerShell
+```powershell
 # PS More code here
 ```
 Remarks
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Equal(1, mamlCommand.Count());
             var examples = mamlCommand[0].Examples.ToArray();
-            Assert.Equal(examples.Count(), 2);
-            Assert.Equal(examples[0].Title, "--EXAMPLE1--");
-            Assert.Equal(examples[0].Code, "# PS code here");
-            Assert.Equal(examples[0].Remarks, "Remarks");
-            Assert.Equal(examples[0].Introduction, "Introduction");
-            Assert.Equal(examples[1].Code, "# PS code here\r\n\r\n# PS More code here");
+            Assert.Equal(2, examples.Count());
+            Assert.Equal("--EXAMPLE1--", examples[0].Title);
+            Assert.Equal("# PS code here", examples[0].Code[0].Text);
+            Assert.Equal("Remarks", examples[0].Remarks);
+            Assert.Equal("Introduction", examples[0].Introduction);
+            Assert.Equal("# PS code here", examples[1].Code[0].Text);
+            Assert.Equal("# PS More code here", examples[1].Code[1].Text);
+            Assert.Equal("powershell", examples[1].Code[1].LanguageMoniker);
         }
 
         [Fact]

@@ -66,10 +66,17 @@ namespace Markdown.MAML.Test.Renderer
             command.Examples.Add(new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
-            }
-            );
+            });
+            command.Examples.Add(new MamlExample()
+            {
+                Title = "Example 2",
+                Code = new[] {
+                    new MamlCodeBlock("PS:> Get-Help -YouNeedIt", "powershell"),
+                    new MamlCodeBlock("Output")},
+                Remarks = "This does stuff!"
+            });
             command.Links.Add(new MamlLink()
             {
                     LinkName = "PowerShell made by Microsoft Hackathon",
@@ -102,6 +109,11 @@ namespace Markdown.MAML.Test.Renderer
             string[] example1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 1')]/dev:code");
             Assert.Equal(1, example1.Length);
             Assert.Equal("PS:> Get-Help -YouNeedIt", example1[0]);
+
+            // Check that multiple code blocks in the same example merge together when rendering maml
+            string[] example2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 2')]/dev:code");
+            Assert.Equal(1, example2.Length);
+            Assert.Equal("PS:> Get-Help -YouNeedIt\r\n\r\nOutput", example2[0]);
         }
 
         [Fact]
@@ -182,28 +194,28 @@ namespace Markdown.MAML.Test.Renderer
             var example1 = new MamlExample()
             {
                 Title = "Example 1",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             };
 
             var example10 = new MamlExample()
             {
                 Title = "Example 10",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             };
 
             var exampleWithTitle = new MamlExample()
             {
                 Title = "Example 11: With a title",
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             };
 
             var exampleWithLongTitle = new MamlExample()
             {
                 Title = "Example 12: ".PadRight(66, 'A'),
-                Code = "PS:> Get-Help -YouNeedIt",
+                Code = new[] { new MamlCodeBlock("PS:> Get-Help -YouNeedIt") },
                 Remarks = "This does stuff!"
             };
 

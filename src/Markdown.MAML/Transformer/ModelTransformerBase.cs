@@ -6,6 +6,7 @@ using Markdown.MAML.Model.Markdown;
 using Markdown.MAML.Model.MAML;
 using System.Management.Automation;
 using Markdown.MAML.Parser;
+using System.Text.RegularExpressions;
 
 namespace Markdown.MAML.Transformer
 {
@@ -177,18 +178,18 @@ namespace Markdown.MAML.Transformer
                 };
                 example.Introduction = GetTextFromParagraphNode(ParagraphNodeRule());
                 example.FormatOption = headingNode.FormatOption;
-                CodeBlockNode codeBlock;
-                while ((codeBlock = CodeBlockRule()) != null)
+                CodeBlockNode codeBlockNode;
+                List<MamlCodeBlock> codeBlocks = new List<MamlCodeBlock>();
+
+                while ((codeBlockNode = CodeBlockRule()) != null)
                 {
-                    if (example.Code == null)
-                    {
-                        example.Code = codeBlock.Text;
-                    }
-                    else
-                    {
-                        example.Code += "\r\n\r\n" + codeBlock.Text;
-                    }
+                    codeBlocks.Add(new MamlCodeBlock(
+                        codeBlockNode.Text,
+                        codeBlockNode.LanguageMoniker
+                    ));
                 }
+
+                example.Code = codeBlocks.ToArray();
 
                 example.Remarks = GetTextFromParagraphNode(ParagraphNodeRule());
 

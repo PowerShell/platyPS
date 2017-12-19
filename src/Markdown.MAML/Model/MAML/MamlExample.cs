@@ -10,7 +10,7 @@ namespace Markdown.MAML.Model.MAML
     public class MamlExample
     {
         public string Title { get; set; }
-        public string Code { get; set; }
+        public MamlCodeBlock[] Code { get; set; }
         public string Remarks { get; set; }
         public string Introduction { get; set; }
 
