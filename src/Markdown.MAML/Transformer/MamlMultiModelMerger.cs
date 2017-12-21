@@ -83,7 +83,7 @@ namespace Markdown.MAML.Transformer
                     {
                         throw new ArgumentException("All links are expected in simplified form");
                     }
-                    string[] segments = link.LinkName.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                    string[] segments = link.LinkName.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                     candidates.Add(segments.Select(s => new MamlLink(isSimplifiedTextLink: true) { LinkName = s.Trim() + "\r\n\r\n" }).ToList());
                 }
             }
@@ -276,7 +276,7 @@ namespace Markdown.MAML.Transformer
             foreach (var pair in reverseMap)
             {
                 var tagsString = string.Join(", ", pair.Value);
-                result.AppendFormat("{0}{1}{2}{2}{3}{2}{2}", _mergeMarker, tagsString, Environment.NewLine, pair.Key);
+                result.AppendFormat("{0}{1}{2}{2}{3}{2}{2}", _mergeMarker, tagsString, "\r\n", pair.Key);
             }
 
             return result.ToString();

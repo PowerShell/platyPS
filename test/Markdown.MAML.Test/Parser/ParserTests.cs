@@ -332,7 +332,7 @@ New paragraph
                     documentNode.Children.ElementAtOrDefault(0),
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(@"-- This is a list
+            Common.AssertMultilineEqual(@"-- This is a list
 -- Yes, with double-dashes
 -- Because that's how it happens a lot in PS docs
 
@@ -363,7 +363,7 @@ Valid values are:
                     documentNode.Children.ElementAtOrDefault(0),
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(@"Valid values are:
+            Common.AssertMultilineEqual(@"Valid values are:
 -- Block: When the output buffer is full, execution is suspended until the buffer is clear. 
 -- Drop: When the output buffer is full, execution continues. As new output is saved, the oldest output is discarded.
 -- None: No output buffering mode is specified. The value of the OutputBufferingMode property of the session configuration is used for the disconnected session.", text.Spans.First().Text);
@@ -390,7 +390,7 @@ It's up
                     documentNode.Children.ElementAtOrDefault(0),
                     MarkdownNodeType.Paragraph);
 
-            Assert.Equal(text, outText.Spans.First().Text);
+            Common.AssertMultilineEqual(text, outText.Spans.First().Text);
         }
 
         [Fact]
@@ -581,13 +581,13 @@ Deletes commands with the specified text strings. If you enter more than one str
                     documentNode.Children.ElementAtOrDefault(1),
                     MarkdownNodeType.CodeBlock);
 
-            Assert.Equal(codeblockText, codeBlockNode.Text);
+            Common.AssertMultilineEqual(codeblockText, codeBlockNode.Text);
 
             ParagraphNode paragraphNode =
                 this.AssertNodeType<ParagraphNode>(
                     documentNode.Children.ElementAtOrDefault(2),
                     MarkdownNodeType.Paragraph);
-            Assert.Equal(descriptionText, paragraphNode.Spans.First().Text);
+            Common.AssertMultilineEqual(descriptionText, paragraphNode.Spans.First().Text);
         }
 
         [Fact]

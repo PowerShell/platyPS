@@ -131,7 +131,7 @@ KEYWORDS
     - {{Keyword Placeholder}}
 
 ";
-            Assert.Equal(expectedOut, content);
+            Common.AssertMultilineEqual(expectedOut, content);
         }
 
 
@@ -418,7 +418,7 @@ SEE ALSO
     - about_Try_Catch_Finally
 
 ";
-            Assert.Equal(expectedOut, content);
+            Common.AssertMultilineEqual(expectedOut, content);
         }
     }
 }
