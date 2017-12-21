@@ -11,76 +11,31 @@ param(
 
 # Attempts to find the (verified to exist) path to msbuild.exe; returns an empty string if
 # not found.
-function Find-MsBuildPath()
+function Find-DotnetCli()
 {
-    [string] $msbuildPath = ''
-
-    $msbuildCmd = Get-Command -Name msbuild -ErrorAction Ignore
-
-    if ($msbuildCmd) {
-        $msbuildPath = $msbuildCmd.Path
-    } else {
-        Write-Warning 'Searching for msbuild'
-
-        # For more info on vswhere.exe:
-        #    https://blogs.msdn.microsoft.com/heaths/2017/02/25/vswhere-available/
-        #    https://github.com/Microsoft/vswhere/wiki/Find-MSBuild
-        $vswherePath = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
-        if (Test-Path $vswherePath) {
-
-            $vsInstallPath = & $vswherePath -latest `
-                                            -requires Microsoft.VisualStudio.Component.Roslyn.Compiler, Microsoft.Component.MSBuild `
-                                            -property installationPath
-
-            if (($LASTEXITCODE -eq 0) -and $vsInstallPath) {
-                $msbuildPath = Join-Path $vsInstallPath 'MSBuild\15.0\Bin\MSBuild.exe'
-            }
-        }
-
-        if ($msbuildPath -and (-not (Test-Path $msbuildPath))) {
-            $msbuildPath = ''
-        }
-    }
-
-    return $msbuildPath
+    [string] $DotnetCli = ''
+    $dotnetCmd = Get-Command dotnet
+    return $dotnetCmd.Path
 }
 
 
 # build .dll
-[string] $msbuildPath = Find-MsBuildPath
+[string] $DotnetCli = Find-DotnetCli
 
-if (-not $msbuildPath) {
-    throw "I don't know where msbuild is."
+if (-not $DotnetCli) {
+    throw "I don't know where dotnet cli is."
 }
 
-if (-not (Get-ChildItem "$PSScriptRoot\packages\*" -ErrorAction Ignore)) {
-    # No packages... better restore or things won't go well.
+& $DotnetCli publish ./src/Markdown.MAML --output=$pwd/out /p:Configuration=$Configuration
 
-    $nugetCmd = 'nuget'
-    if (-not (Get-Command -Name $nugetCmd -ErrorAction Ignore)) {
-        $nugetCmd = "$PSScriptRoot\.nuget\NuGet.exe"
-    }
-
-    Write-Host -Foreground Cyan 'Attempting nuget package restore'
-
-    try
-    {
-        Push-Location $PSScriptRoot
-
-        & $nugetCmd restore
-    }
-    finally
-    {
-        Pop-Location
-    }
-}
-
-& $msbuildPath Markdown.MAML.sln /p:Configuration=$Configuration
-$assemblyPaths = ((Resolve-Path "src\Markdown.MAML\bin\$Configuration\Markdown.MAML.dll").Path, (Resolve-Path "src\Markdown.MAML\bin\$Configuration\YamlDotNet.dll").Path)
+$assemblyPaths = (
+    (Resolve-Path "src/Markdown.MAML/out/Markdown.MAML.dll").Path,
+    (Resolve-Path "src/Markdown.MAML/out/YamlDotNet.NetStandard.dll").Path
+)
 
 # copy artifacts
-mkdir out -ErrorAction SilentlyContinue > $null
-cp -Rec -Force src\platyPS out
+New-Item -Type Directory out -ErrorAction SilentlyContinue > $null
+Copy-Item -Rec -Force src\platyPS out
 foreach($assemblyPath in $assemblyPaths)
 {
 	$assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
@@ -88,20 +43,20 @@ foreach($assemblyPath in $assemblyPaths)
 	if ((-not (Test-Path $outputPath)) -or
 		(Test-Path $outputPath -OlderThan (ls $assemblyPath).LastWriteTime))
 	{
-		cp $assemblyPath out\platyPS
+		Copy-Item $assemblyPath out\platyPS
 	} else {
 		Write-Host -Foreground Yellow "Skip $assemblyFileName copying"
 	}
 }
 
 # copy schema file and docs
-cp .\platyPS.schema.md out\platyPS
-mkdir out\platyPS\docs -ErrorAction SilentlyContinue > $null
-cp .\docs\* out\platyPS\docs\
+Copy-Item .\platyPS.schema.md out\platyPS
+New-Item -Type Directory out\platyPS\docs -ErrorAction SilentlyContinue > $null
+Copy-Item .\docs\* out\platyPS\docs\
 
 # copy template files
-mkdir out\platyPS\templates -ErrorAction SilentlyContinue > $null
-cp .\templates\* out\platyps\templates\
+New-Item -Type Directory out\platyPS\templates -ErrorAction SilentlyContinue > $null
+Copy-Item .\templates\* out\platyps\templates\
 
 # put the right module version
 if ($env:APPVEYOR_REPO_TAG_NAME)
