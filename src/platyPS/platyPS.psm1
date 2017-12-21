@@ -112,7 +112,7 @@ function New-MarkdownHelp
     begin
     {
         validateWorkingProvider
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+        New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
     }
 
     process
@@ -163,7 +163,7 @@ function New-MarkdownHelp
                 if (-not $OnlineVersionUrl)
                 {
                     # if it's not passed, we should get it from the existing help
-                    $onlineLink = $mamlObject.Links | Select -First 1
+                    $onlineLink = $mamlObject.Links | Select-Object -First 1
                     if ($onlineLink)
                     {
                         $online = $onlineLink.LinkUri
@@ -695,7 +695,7 @@ function New-YamlHelp
 
         if(-not (Test-Path $OutputFolder))
         {
-            mkdir $OutputFolder -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
         }
 
         if(-not (Test-Path -PathType Container $OutputFolder))
@@ -773,7 +773,7 @@ function New-ExternalHelp
         }
         else 
         {
-            mkdir $OutputPath -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $OutputPath -ErrorAction SilentlyContinue > $null
             Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
         }
     }
@@ -849,7 +849,7 @@ function New-ExternalHelp
          $r = new-object -TypeName 'Markdown.MAML.Renderer.MamlRenderer'
 
          foreach ($group in $groups) {
-            $maml = GetMamlModelImpl ($group.Group | % {$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
+            $maml = GetMamlModelImpl ($group.Group | ForEach-Object {$_.FullName}) -Encoding $Encoding -ApplicableTag $ApplicableTag
             $xml = $r.MamlModelToString($maml)
          
             $outPath = $group.Name # group name
@@ -951,13 +951,13 @@ function Get-HelpPreview
                         ForEach-Object { 
                             # make first <para> a list item
                             # add indentations to other <para> to make them continuation of list item
-                            $_.ChildNodes | Select -First 1 | 
+                            $_.ChildNodes | Select-Object -First 1 | 
                             ForEach-Object {
                                 $newInnerXml = '* ' + $_.get_InnerXml()
                                 $_.set_InnerXml($newInnerXml)
                             }
 
-                            $_.ChildNodes | Select -Skip 1 | 
+                            $_.ChildNodes | Select-Object -Skip 1 | 
                             ForEach-Object {
                                 # this character is not a valid space.
                                 # We have to use some odd character here, becasue help engine strips out
@@ -1018,7 +1018,7 @@ Microsoft.PowerShell.Core\Export-ModuleMember -Function @()
                     $help.relatedLinks | ForEach-Object {
                         if ($_)
                         {
-                            $_.navigationLink = $_.navigationLink | Select -Skip 1
+                            $_.navigationLink = $_.navigationLink | Select-Object -Skip 1
                         }
                     }
                     $help # yeild
@@ -1072,7 +1072,7 @@ function New-ExternalHelpCab
     begin
     {
         validateWorkingProvider 
-        mkdir $OutputFolder -ErrorAction SilentlyContinue > $null  
+        New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null  
     }
     process
     {
@@ -1233,8 +1233,8 @@ function SortParamsAlphabetically
 
     # sort parameters alphabetically with minor exceptions
     # https://github.com/PowerShell/platyPS/issues/142
-    $confirm = $MamlCommandObject.Parameters | ? { $_.Name -eq 'Confirm' }
-    $whatif = $MamlCommandObject.Parameters | ? { $_.Name -eq 'WhatIf' }
+    $confirm = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'Confirm' }
+    $whatif = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'WhatIf' }
 
     if ($confirm)
     {
@@ -1249,7 +1249,7 @@ function SortParamsAlphabetically
     $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
     $MamlCommandObject.Parameters.Clear()
 
-    $sortedParams | % {
+    $sortedParams | ForEach-Object {
         $MamlCommandObject.Parameters.Add($_)
     }
 
@@ -1280,7 +1280,7 @@ function GetInfoCallback
             if ($containerFolder)
             {
                 # this if is for $LogPath -eq foo.log  case
-                mkdir $containerFolder -ErrorAction SilentlyContinue > $null
+                New-Item -Type Directory $containerFolder -ErrorAction SilentlyContinue > $null
             }
 
             if (-not $Append)
@@ -1362,11 +1362,11 @@ function GetAboutTopicsFromPath
             {
                 if($MarkDownFilesAlreadyFound)
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName))}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object {($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName))}
                 }
                 else
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where {ConfirmAboutBySecondHeaderText($_.FullName)}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object {ConfirmAboutBySecondHeaderText($_.FullName)}
                 }
             }
             else 
@@ -1416,7 +1416,7 @@ function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | WHERE {$_.BaseName -notlike $aboutFilePrefixPattern}
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
             }
             else 
             {
@@ -1573,7 +1573,7 @@ function SetOnlineVersionUrlLink
     )
 
     # Online Version URL
-    $currentFirstLink = $MamlCommandObject.Links | Select -First 1
+    $currentFirstLink = $MamlCommandObject.Links | Select-Object -First 1
 
     if ($OnlineVersionUrl -and ((-not $currentFirstLink) -or ($currentFirstLink.LinkUri -ne $OnlineVersionUrl))) {
         $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
@@ -1797,7 +1797,7 @@ function MySetContent
         $dir = Split-Path $Path
         if ($dir) 
         {
-            mkdir $dir -ErrorAction SilentlyContinue > $null
+            New-Item -Type Directory $dir -ErrorAction SilentlyContinue > $null
         }
     }
 
@@ -1896,7 +1896,7 @@ function NewModuleLandingPage
 
                 $p = NewMarkdownParser
                 $model = $p.ParseString($OldLandingPageContent)
-                $index = $model.Children.IndexOf(($model.Children | WHERE {$_.Text -eq "Description"}))
+                $index = $model.Children.IndexOf(($model.Children | Where-Object {$_.Text -eq "Description"}))
                 $i = 1
                 $stillParagraph = $true
                 $Description = ""
@@ -1929,7 +1929,7 @@ function NewModuleLandingPage
  
         if($RefreshModulePage)
         {
-            $Module | % {
+            $Module | ForEach-Object {
                 $command = $_
                 if(-not $command.Synopsis)
                 {
@@ -2642,7 +2642,7 @@ function validateWorkingProvider
     if((Get-Location).Drive.Provider.Name -ne 'FileSystem')
     {
         Write-Verbose 'PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to filesystem.'
-        $AvailableFileSystemDrives = Get-PSDrive | Where {$_.Provider.Name -eq "FileSystem"} | Select Root
+        $AvailableFileSystemDrives = Get-PSDrive | Where-Object {$_.Provider.Name -eq "FileSystem"} | Select-Object Root
         if($AvailableFileSystemDrives.Count -gt 0)
         {
            Set-Location $AvailableFileSystemDrives[0].Root
