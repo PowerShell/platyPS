@@ -13,7 +13,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     $file = New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
 
     It 'generate correct file name' {
-        $file.FullName | Should Be "$outFolder\$cmdlet.md"
+        $file.FullName | Should Be (Join-Path $outFolder "$cmdlet.md")
     }
 
     # test -MarkdownFile piping
@@ -175,6 +175,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
             $mdFiles = New-MarkdownHelp @newMarkdownArgs
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
+            $SkipNotPresent = (-not $IsMaml) -and ($IsLinux -or $IsMacOS)
 
             It 'transforms Markdown to MAML with no errors' {
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
@@ -206,7 +207,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 $param.type.name | Should Be 'Int32'
             }
 
-            It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' {
+            It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' -Skip:$SkipNotPresent {
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Enter-PSHostProcess'}
                 $h | Should Not BeNullOrEmpty
                 $h.syntax.syntaxItem | ForEach-Object {
@@ -214,17 +215,18 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 }
             }
 
-            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
+            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' -Skip:$SkipNotPresent {
                 $listItemMark = '- '
+                $newLineX3 = [System.Environment]::NewLine * 3
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | Where-Object {$_.Name -eq 'OutputBufferingMode'}
-                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop. When") | Should Be $true
-                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None. No") | Should Be $true
+                ($param.description | Out-String).Contains("clear.$newLineX3$($listItemMark)Drop. When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.$newLineX3$($listItemMark)None. No") | Should Be $true
             }
 
             if (-not $IsMaml)
             {
-                It 'preserve formatting for Connect-PSSession NOTES' {
+                It 'preserve formatting for Connect-PSSession NOTES' -Skip:$SkipNotPresent {
 
                     # We are cheating a little bit here :(
                     function NormalizeEndings
