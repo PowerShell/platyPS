@@ -5,6 +5,7 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
+$global:IsUnix = $IsLinux -or $IsMacOS
 
 Describe 'New-MarkdownHelp' {
     function normalizeEnds([string]$text)
@@ -86,9 +87,12 @@ Describe 'New-MarkdownHelp' {
                 {
 
                 }
+                
 
-                Workflow FromCommandWorkflow {
-
+                if (-not $global:IsUnix) {
+                    # just declaring workflow is a parse-time error on unix
+                    Invoke-Expression "Workflow FromCommandWorkflow {}"
+                    Export-ModuleMember -Function 'FromCommandWorkflow'
                 }
 
                 # Set-Alias and New-Alias provide two different results
@@ -101,7 +105,7 @@ Describe 'New-MarkdownHelp' {
                 Export-ModuleMember -Alias Fork-AAAA
                 Export-ModuleMember -Alias aaaaalias
                 Export-ModuleMember -Alias bbbbalias
-                Export-ModuleMember -Function 'Get-AAAA','Get-AdvancedFn','Get-SimpleFn','FromCommandWorkflow'
+                Export-ModuleMember -Function 'Get-AAAA','Get-AdvancedFn','Get-SimpleFn'
 
             } | Import-Module -Force
 
@@ -112,7 +116,7 @@ Describe 'New-MarkdownHelp' {
             Remove-Module PlatyPSTestModule -ErrorAction SilentlyContinue
         }
 
-        It 'generates markdown files only for exported functions' {
+        It 'generates markdown files only for exported functions' -Skip:$IsUnix {
             ($files | Measure-Object).Count | Should Be 4
             $files.Name | Should -BeIn 'Get-AAAA.md','Get-AdvancedFn.md','Get-SimpleFn.md','FromCommandWorkflow.md'
         }
@@ -125,7 +129,7 @@ Describe 'New-MarkdownHelp' {
             ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.md' }).FullName | Should -FileContentMatch -Not '### CommonParameters'
         }
 
-        It 'generates markdown for workflows with CommonParameters' {
+        It 'generates markdown for workflows with CommonParameters' -Skip:$IsUnix {
             ($files | Where-Object -FilterScript { $_.Name -eq 'FromCommandWorkflow.md' }).FullName | Should -FileContentMatch '### CommonParameters'
         }
     }
@@ -168,7 +172,7 @@ Describe 'New-MarkdownHelp' {
 '@
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
             ($files | Measure-Object).Count | Should Be 1
-            Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String | Should Be $expectedOrder
+            normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should Be $expectedOrder
         }
     }
 
@@ -447,8 +451,8 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder -UseFullTypeName
             ($files | Measure-Object).Count | Should Be 1
-            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
-            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
+            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
+            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
         }
 
         It 'not use full type name when specified' {
@@ -465,8 +469,8 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
             ($files | Measure-Object).Count | Should Be 1
-            Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
-            Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String | Should Be $expectedSyntax
+            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
+            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
         }
     }
 }
@@ -610,167 +614,168 @@ Applicable: tag 4
     }
 }
 
+if (-not $global:IsUnix) {
 #region PS Objects to MAML Model Tests
+    Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
-Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
+        Context 'Add-Computer' {
+            
+            It 'Checks that Help Exists on Computer Running Tests' {
 
-    Context 'Add-Computer' {
-        
-        It 'Checks that Help Exists on Computer Running Tests' {
+                $Command = Get-Command Add-Computer
+                $HelpFileName = Split-Path $Command.HelpFile -Leaf
+                $foundHelp = @()
+                $paths = $env:PsModulePath.Split(';')
+                foreach($path in $paths)
+                {
+                $path = Split-Path $path -Parent
+                $foundHelp += Get-ChildItem -Path $path -Recurse | Where-Object { $_.Name -like "*$HelpFileName"} | Select-Object Name
+                }
 
-            $Command = Get-Command Add-Computer
-            $HelpFileName = Split-Path $Command.HelpFile -Leaf
-            $foundHelp = @()
-            $paths = $env:PsModulePath.Split(';')
-            foreach($path in $paths)
-            {
-            $path = Split-Path $path -Parent
-            $foundHelp += Get-ChildItem -Path $path -Recurse | Where-Object { $_.Name -like "*$HelpFileName"} | Select-Object Name
+                $foundHelp.Count | Should BeGreaterThan 0
             }
 
-            $foundHelp.Count | Should BeGreaterThan 0
-        }
+            # call non-exported function in the module scope
+            $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
-        # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
-
-        It 'Validates attributes by checking several sections of the single attributes for Add-Computer' {
-            
-            $mamlModelObject.Name | Should be "Add-Computer"
-            $mamlModelObject.Synopsis.Text | Should be "Add the local computer to a domain or workgroup."
-            $mamlModelObject.Description.Text.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
-            $mamlModelObject.Notes.Text.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
-        }
-
-        It 'Validates the examples by checking Add-Computer Example 1' {
-
-            $mamlModelObject.Examples[0].Title | Should be "Example 1: Add a local computer to a domain then restart the computer"
-            $mamlModelObject.Examples[0].Code[0].Text | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
-            $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
-
-        }
-        
-        It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
-
-            $Parameter = $mamlModelObject.Syntax[0].Parameters | Where-Object { $_.Name -eq "ComputerName" }
-            $Parameter.Name | Should be "ComputerName"
-            $Parameter.Type | Should be "string[]"
-            $Parameter.Required | Should be $false
-        }
-        
-        It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
-            
-            $DefaultParameterSet = $mamlModelObject.Syntax | Where-Object {$_.IsDefault}
-            $count = 0
-            foreach($set in $DefaultParameterSet)
-            {
-                $count = $count +1
+            It 'Validates attributes by checking several sections of the single attributes for Add-Computer' {
+                
+                $mamlModelObject.Name | Should be "Add-Computer"
+                $mamlModelObject.Synopsis.Text | Should be "Add the local computer to a domain or workgroup."
+                $mamlModelObject.Description.Text.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
+                $mamlModelObject.Notes.Text.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
             }
-            $count | Should be 1
+
+            It 'Validates the examples by checking Add-Computer Example 1' {
+
+                $mamlModelObject.Examples[0].Title | Should be "Example 1: Add a local computer to a domain then restart the computer"
+                $mamlModelObject.Examples[0].Code[0].Text | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
+                $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
+
+            }
             
-            $DefaultParameterSetName = $mamlModelObject.Syntax | Where-Object {$_.IsDefault} | Select-Object ParameterSetName
-            $DefaultParameterSetName.ParameterSetName | Should be "Domain"
-        }        
+            It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
+
+                $Parameter = $mamlModelObject.Syntax[0].Parameters | Where-Object { $_.Name -eq "ComputerName" }
+                $Parameter.Name | Should be "ComputerName"
+                $Parameter.Type | Should be "string[]"
+                $Parameter.Required | Should be $false
+            }
+            
+            It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
+                
+                $DefaultParameterSet = $mamlModelObject.Syntax | Where-Object {$_.IsDefault}
+                $count = 0
+                foreach($set in $DefaultParameterSet)
+                {
+                    $count = $count +1
+                }
+                $count | Should be 1
+                
+                $DefaultParameterSetName = $mamlModelObject.Syntax | Where-Object {$_.IsDefault} | Select-Object ParameterSetName
+                $DefaultParameterSetName.ParameterSetName | Should be "Domain"
+            }        
+        }
+
+        Context 'Add-Member' {
+            # call non-exported function in the module scope
+            $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Member" }
+
+            It 'Fetch MemberSet set name' {
+                $MemberSet = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'MemberSet'}
+                ($MemberSet | Measure-Object).Count | Should Be 1
+            }
+
+            It 'populates ParameterValueGroup for MemberType' {
+                $Parameters = $mamlModelObject.Syntax.Parameters | Where-Object { $_.Name -eq "MemberType" }
+                ($Parameters | Measure-Object).Count | Should Be 1
+                $Parameters | ForEach-Object {
+                    $_.Name | Should be "MemberType"
+                    $_.ParameterValueGroup.Count | Should be 16
+                }
+            }
+        }
     }
-
-    Context 'Add-Member' {
-        # call non-exported function in the module scope
-        $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Member" }
-
-        It 'Fetch MemberSet set name' {
-            $MemberSet = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'MemberSet'}
-            ($MemberSet | Measure-Object).Count | Should Be 1
-        }
-
-        It 'populates ParameterValueGroup for MemberType' {
-            $Parameters = $mamlModelObject.Syntax.Parameters | Where-Object { $_.Name -eq "MemberType" }
-            ($Parameters | Measure-Object).Count | Should Be 1
-            $Parameters | ForEach-Object {
-                $_.Name | Should be "MemberType"
-                $_.ParameterValueGroup.Count | Should be 16
-            }
-        }
-    }
-}
 
 #endregion 
 #########################################################
 #region Checking Cab and File Naming Cmdlets
 
-Describe 'New-ExternalHelpCab' {
-    $OutputPath = "$TestDrive\CabTesting"
+    Describe 'New-ExternalHelpCab' {
+        $OutputPath = "$TestDrive\CabTesting"
 
-    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\Xml\") -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\ModuleMd\") -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml") -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml2") -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\Xml\") -Name "HelpXml.xml" -force | Out-Null
-    New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\ModuleMd\") -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
-    New-Item -ItemType File -Path $OutputPath -Name "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml" -ErrorAction SilentlyContinue | Out-Null
-    Set-Content -Path (Join-Path $OutputPath "\Source\Xml\HelpXml.xml") -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
-    Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\Xml\") -ErrorAction SilentlyContinue | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $OutputPath "\Source\ModuleMd\") -ErrorAction SilentlyContinue | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml") -ErrorAction SilentlyContinue | Out-Null
+        New-Item -ItemType Directory -Path (Join-Path $OutputPath "\OutXml2") -ErrorAction SilentlyContinue | Out-Null
+        New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\Xml\") -Name "HelpXml.xml" -force | Out-Null
+        New-Item -ItemType File -Path (Join-Path $OutputPath "\Source\ModuleMd\") -Name "Module.md" -ErrorAction SilentlyContinue | Out-Null
+        New-Item -ItemType File -Path $OutputPath -Name "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml" -ErrorAction SilentlyContinue | Out-Null
+        Set-Content -Path (Join-Path $OutputPath "\Source\Xml\HelpXml.xml") -Value "<node><test>Adding test content to ensure cab builds correctly.</test></node>" | Out-Null
+        Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`n---" | Out-Null
 
-    Context 'MakeCab.exe' {
+        Context 'MakeCab.exe' {
 
-        It 'Validates that MakeCab.exe & Expand.exe exists'{
+            It 'Validates that MakeCab.exe & Expand.exe exists'{
 
-            (Get-Command MakeCab) -ne $null | Should Be $True
-            (Get-Command Expand) -ne $null | Should Be $True
+                (Get-Command MakeCab) -ne $null | Should Be $True
+                (Get-Command Expand) -ne $null | Should Be $True
 
+            }
+        }
+
+        Context 'New-ExternalHelpCab function, External Help & HelpInfo' {
+
+            $CmdletContentFolder = (Join-Path $OutputPath "\Source\Xml\")
+            $ModuleMdPageFullPath = (Join-Path $OutputPath "\Source\ModuleMd\Module.md")
+
+            It 'validates the output of Cab creation' {
+
+                New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
+                $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab")).FullName
+                $cabExtract = (Join-Path (Split-Path $cab -Parent) "OutXml")
+
+                $cabExtract = Join-Path $cabExtract "HelpXml.xml"
+
+                expand $cab /f:* $cabExtract
+                
+                (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab"
+                (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
+                (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
+                (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.zip"
+            }
+
+            It 'Creates a help info file'{
+                [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+
+                $PlatyPSHelpInfo | Should Not Be $null
+                $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
+                $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
+            }
+
+            It 'validates the version is incremented when the switch is used' {
+                New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath -IncrementHelpVersion
+                [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+                $PlatyPSHelpInfo | Should Not Be $null
+                $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
+                $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.2"
+            }
+
+            It 'Adds another help locale'{
+            
+                Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`nAdditional Locale: fr-FR,ja-JP`r`nfr-FR Version: 1.2.3.4`r`nja-JP Version: 2.3.4.5`r`n---" | Out-Null
+                New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
+                [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
+                $Count = 0
+                $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | ForEach-Object {$Count++}
+                
+                $Count | Should Be 3
+            }
         }
     }
-
-    Context 'New-ExternalHelpCab function, External Help & HelpInfo' {
-
-        $CmdletContentFolder = (Join-Path $OutputPath "\Source\Xml\")
-        $ModuleMdPageFullPath = (Join-Path $OutputPath "\Source\ModuleMd\Module.md")
-
-        It 'validates the output of Cab creation' {
-
-            New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
-            $cab = (Get-ChildItem (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab")).FullName
-            $cabExtract = (Join-Path (Split-Path $cab -Parent) "OutXml")
-
-            $cabExtract = Join-Path $cabExtract "HelpXml.xml"
-
-            expand $cab /f:* $cabExtract
-            
-            (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab"
-            (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
-            (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
-            (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.zip"
-        }
-
-        It 'Creates a help info file'{
-            [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
-
-            $PlatyPSHelpInfo | Should Not Be $null
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.1"
-        }
-
-        It 'validates the version is incremented when the switch is used' {
-            New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath -IncrementHelpVersion
-            [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
-            $PlatyPSHelpInfo | Should Not Be $null
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureName | Should Be "en-US"
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture.UICultureVersion | Should Be "5.0.0.2"
-        }
-
-        It 'Adds another help locale'{
-        
-            Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`nAdditional Locale: fr-FR,ja-JP`r`nfr-FR Version: 1.2.3.4`r`nja-JP Version: 2.3.4.5`r`n---" | Out-Null
-            New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
-            [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
-            $Count = 0
-            $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | ForEach-Object {$Count++}
-            
-            $Count | Should Be 3
-        }
-    }
-}
 
 #endregion
+}
 
 Describe 'Update-MarkdownHelp -LogPath' {
     
@@ -900,7 +905,7 @@ And [hyper](http://link.com).
 
     It 'has updated description for Foo' {
         $fooParam = $help.Parameters.parameter | Where-Object {$_.Name -eq 'Foo'}
-        $fooParam.Description.Text | Out-String | Should Be (normalizeEnds @'
+        normalizeEnds($fooParam.Description.Text | Out-String) | Should Be (normalizeEnds @'
 ThisIsFooDescription
 
 It has mutlilines. And hyper (http://link.com).
@@ -919,7 +924,7 @@ It has mutlilines. And hyper (http://link.com).
         $e.Code | Should Match 'PS C:\>*'
     }
     
-    It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' {
+    It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' -Skip:$global:IsUnix {
         $outputOriginal = "TestDrive:\MarkDownOriginal"
         $outputUpdated = "TestDrive:\MarkDownUpdated"
         New-Item -ItemType Directory -Path $outputOriginal
@@ -940,8 +945,8 @@ Type: String
 Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 
 '@
-        $v2md | Get-Content | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
-        $v2md | Get-Content | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+        normalizeEnds($v2md | Get-Content | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
+        normalizeEnds($v2md | Get-Content | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String) | Should Be $expectedSyntax
     }
 
     $v3md = Update-MarkdownHelp $v2md -Verbose -AlphabeticParamsOrder -UseFullTypeName
@@ -958,8 +963,8 @@ Type: System.String
 Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 
 '@
-        $v3markdown | Where-Object {$_.StartsWith('Type: ')} | Out-String | Should Be $expectedParameters
-        $v3markdown | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String | Should Be $expectedSyntax
+        normalizeEnds($v3markdown | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
+        normalizeEnds($v3markdown | Where-Object {$_.StartsWith('Get-MyCoolStuff')} | Out-String) | Should Be $expectedSyntax
     }
 
     It 'all the other part should be the same except line with parameters' {
