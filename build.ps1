@@ -6,11 +6,10 @@
 param(
     [ValidateSet('Debug', 'Release')]
     $Configuration = "Debug",
-    [switch]$SkipDocs
+    [switch]$SkipDocs,
+    [string]$DotnetCli
 )
 
-# Attempts to find the (verified to exist) path to msbuild.exe; returns an empty string if
-# not found.
 function Find-DotnetCli()
 {
     [string] $DotnetCli = ''
@@ -19,18 +18,21 @@ function Find-DotnetCli()
 }
 
 
-# build .dll
-[string] $DotnetCli = Find-DotnetCli
-
 if (-not $DotnetCli) {
-    throw "I don't know where dotnet cli is."
+    $DotnetCli = Find-DotnetCli
 }
 
-& $DotnetCli publish ./src/Markdown.MAML --output=$pwd/out /p:Configuration=$Configuration
+if (-not $DotnetCli) {
+    throw "dotnet cli is not found in PATH, install it from https://docs.microsoft.com/en-us/dotnet/core/tools"
+} else {
+    Write-Host "Using dotnet from $DotnetCli"
+}
+
+& $DotnetCli publish ./src/Markdown.MAML --output=$pwd/publish /p:Configuration=$Configuration
 
 $assemblyPaths = (
-    (Resolve-Path "src/Markdown.MAML/out/Markdown.MAML.dll").Path,
-    (Resolve-Path "src/Markdown.MAML/out/YamlDotNet.NetStandard.dll").Path
+    (Resolve-Path "publish/Markdown.MAML.dll").Path,
+    (Resolve-Path "publish/YamlDotNet.NetStandard.dll").Path
 )
 
 # copy artifacts
@@ -41,7 +43,7 @@ foreach($assemblyPath in $assemblyPaths)
 	$assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
 	$outputPath = "out\platyPS\$assemblyFileName"
 	if ((-not (Test-Path $outputPath)) -or
-		(Test-Path $outputPath -OlderThan (ls $assemblyPath).LastWriteTime))
+		(Test-Path $outputPath -OlderThan (Get-ChildItem $assemblyPath).LastWriteTime))
 	{
 		Copy-Item $assemblyPath out\platyPS
 	} else {
