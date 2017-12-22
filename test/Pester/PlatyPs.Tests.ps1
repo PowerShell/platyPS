@@ -5,6 +5,8 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
+$IsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
+$IsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
 $global:IsUnix = $IsLinux -or $IsMacOS
 
 Describe 'New-MarkdownHelp' {
