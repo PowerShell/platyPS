@@ -10,22 +10,14 @@ There are two parts:
 
 - `Markdown.MAML.dll`, a .NET library written in C#.
   It does the heavy lifting, like parsing Markdown, transforming it into XML, and so on.
-  You can open `.\Markdown.MAML.sln` in Visual Studio 2015.
+  You can open `.\Markdown.MAML.sln` in Visual Studio on any platform.
 - A PowerShell module in `.\src\platyPS`.
   This module provides the user CLI.
-
-## First-time setup
-
-Restore NuGet packages.
-You can do this from Visual Studio, or from the command line.
-
-```
-.\.nuget\NuGet.exe restore
-```
 
 ## Build
 
 To build the whole project, use the `build.ps1` helper script.
+It depends on the [dotnet cli](https://docs.microsoft.com/en-us/dotnet/core/tools/) build tool.
 
 ```
 .\build.ps1
@@ -44,12 +36,9 @@ If you know a better workflow, please suggest it in the Issues.
 Each part of the project has a test set:
 
 - The C# part has xUnit tests.
-  You can run them with xUnit from Visual Studio.
+  You can run them from Visual Studio or from command line with `dotnet test ./test/Markdown.MAML.Test`.
 - The PowerShell part has [Pester](https://github.com/pester/Pester) tests.
-  You can run them using:
-  ```
-  Invoke-Pester
-  ```
+  You can run them with `Invoke-Pester`.
 
 **Note**: Pester tests always force-import the module from the output location of `.\build.ps1`.
 
