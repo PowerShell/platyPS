@@ -5,8 +5,8 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
-$IsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
-$IsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
+$MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
+$MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
 
 Describe 'Full loop for Add-Member cmdlet' {
 
@@ -177,7 +177,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
             $mdFiles = New-MarkdownHelp @newMarkdownArgs
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
-            $SkipNotPresent = (-not $IsMaml) -and ($IsLinux -or $IsMacOS)
+            $SkipNotPresent = (-not $IsMaml) -and ($MyIsLinux -or $MyIsMacOS)
 
             It 'transforms Markdown to MAML with no errors' {
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force

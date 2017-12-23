@@ -5,9 +5,9 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
-$IsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
-$IsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
-$global:IsUnix = $IsLinux -or $IsMacOS
+$MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
+$MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
+$global:IsUnix = $MyIsLinux -or $MyIsMacOS
 
 Describe 'New-MarkdownHelp' {
     function normalizeEnds([string]$text)
