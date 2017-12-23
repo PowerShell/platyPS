@@ -37,6 +37,12 @@ $script:MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
 $script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
 
+# Write-Progress is not very useful on coreclr
+if (Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) {
+    # silent Write-Progress
+    function Write-Progress() {}
+}
+
 function New-MarkdownHelp
 {
     [CmdletBinding()]
