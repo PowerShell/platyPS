@@ -58,7 +58,7 @@ Copy-Item .\docs\* out\platyPS\docs\
 
 # copy template files
 New-Item -Type Directory out\platyPS\templates -ErrorAction SilentlyContinue > $null
-Copy-Item .\templates\* out\platyps\templates\
+Copy-Item .\templates\* out\platyPS\templates\
 
 # put the right module version
 if ($env:APPVEYOR_REPO_TAG_NAME)

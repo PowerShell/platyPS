@@ -785,7 +785,7 @@ Describe 'Update-MarkdownHelp -LogPath' {
         $drop = "TestDrive:\MD\SingleCommand"
         Remove-Item -rec $drop -ErrorAction SilentlyContinue
         New-MarkdownHelp -Command Add-History -OutputFolder $drop | Out-Null
-        Update-MarkdownHelp -Path $drop -LogPath "$drop\platyPSLog.txt"
+        Update-MarkdownHelp -Path $drop -LogPath "$drop\platyPsLog.txt"
         (Get-Childitem $drop\platyPsLog.txt).Name | Should Be 'platyPsLog.txt'
     }
 }

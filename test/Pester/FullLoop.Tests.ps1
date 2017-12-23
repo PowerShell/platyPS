@@ -149,7 +149,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     Context 'produce the real help' {
         $textOutputFile = "$outFolder\SMA.original.txt"
-        $help = Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml | Out-String
+        $help = Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-Help.xml | Out-String
         OutFileAndStripped -path $textOutputFile -content $help
     }
 
@@ -157,7 +157,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     @( 
         
         [psobject]@{
-            MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
+            MamlFile = "$pshome\en-US\System.Management.Automation.dll-Help.xml"
             OutputFolder = "$outFolder\sma-maml"
             Force = $true
             ConvertNotesToList = $true
@@ -181,7 +181,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             It 'transforms Markdown to MAML with no errors' {
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
-                $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
+                $generatedMaml.Name | Should Be 'System.Management.Automation.dll-Help.xml'
 
                 # add artifacts to out
                 $textOutputFile = Join-Path $newMarkdownArgs.OutputFolder 'SMA.generated.txt'
@@ -190,7 +190,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             }
 
             # this our regression suite for SMA
-            $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+            $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-Help.xml')
             
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Get-Help'}
