@@ -28,11 +28,17 @@ if (-not $DotnetCli) {
     Write-Host "Using dotnet from $DotnetCli"
 }
 
-& $DotnetCli publish ./src/Markdown.MAML --output=$pwd/publish /p:Configuration=$Configuration
+if (Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) {
+    $framework = 'netstandard1.6'
+} else {
+    $framework = 'net451'
+}
+
+& $DotnetCli publish ./src/Markdown.MAML -f $framework --output=$pwd/publish /p:Configuration=$Configuration
 
 $assemblyPaths = (
     (Resolve-Path "publish/Markdown.MAML.dll").Path,
-    (Resolve-Path "publish/YamlDotNet.NetStandard.dll").Path
+    (Resolve-Path "publish/YamlDotNet.dll").Path
 )
 
 # copy artifacts
