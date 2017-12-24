@@ -3,6 +3,8 @@ CHANGELOG
 
 ## Not released
 
+## 0.8.4
+
 * Clean up trailing whitespace during markdown generation [#225](https://github.com/PowerShell/platyPS/issues/225)
 * Preserve line breaks after headers when `Update-MarkdownHelp` is used [#319](https://github.com/PowerShell/platyPS/issues/319)
 * MAML generation now pads example titles with dash (-) to improve readability [#119](https://github.com/PowerShell/platyPS/issues/119)
