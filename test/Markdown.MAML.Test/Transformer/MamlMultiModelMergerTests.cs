@@ -21,7 +21,7 @@ namespace Markdown.MAML.Test.Transformer
 
              var result = merger.Merge(input);
 
-            Assert.Equal(result.Synopsis.Text, @"! First, Second
+            Common.AssertMultilineEqual(result.Synopsis.Text, @"! First, Second
 
 This is the synopsis
 
@@ -33,7 +33,7 @@ This is the synopsis 3
 
             Assert.Equal(result.Description.Text, "This is a long description.\r\nWith two paragraphs.");
 
-            Assert.Equal(result.Notes.Text, @"! First
+            Common.AssertMultilineEqual(result.Notes.Text, @"! First
 
 This is a multiline note.
 Second line.

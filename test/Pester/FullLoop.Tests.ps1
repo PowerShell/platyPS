@@ -5,6 +5,8 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 
 Import-Module $outFolder\platyPS -Force
+$MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
+$MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
 
 Describe 'Full loop for Add-Member cmdlet' {
 
@@ -13,7 +15,7 @@ Describe 'Full loop for Add-Member cmdlet' {
     $file = New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Force -Encoding ([System.Text.Encoding]::UTF8)
 
     It 'generate correct file name' {
-        $file.FullName | Should Be "$outFolder\$cmdlet.md"
+        $file.FullName | Should Be (Join-Path $outFolder "$cmdlet.md")
     }
 
     # test -MarkdownFile piping
@@ -147,7 +149,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
     Context 'produce the real help' {
         $textOutputFile = "$outFolder\SMA.original.txt"
-        $help = Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-help.xml | Out-String
+        $help = Get-HelpPreview $pshome\en-US\System.Management.Automation.dll-Help.xml | Out-String
         OutFileAndStripped -path $textOutputFile -content $help
     }
 
@@ -155,7 +157,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     @( 
         
         [psobject]@{
-            MamlFile = "$pshome\en-US\System.Management.Automation.dll-help.xml"
+            MamlFile = "$pshome\en-US\System.Management.Automation.dll-Help.xml"
             OutputFolder = "$outFolder\sma-maml"
             Force = $true
             ConvertNotesToList = $true
@@ -175,10 +177,11 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
             $mdFiles = New-MarkdownHelp @newMarkdownArgs
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
+            $SkipNotPresent = (-not $IsMaml) -and ($MyIsLinux -or $MyIsMacOS)
 
             It 'transforms Markdown to MAML with no errors' {
                 $generatedMaml = $mdFiles | New-ExternalHelp -Verbose -OutputPath $newMarkdownArgs.OutputFolder -Force
-                $generatedMaml.Name | Should Be 'System.Management.Automation.dll-help.xml'
+                $generatedMaml.Name | Should Be 'System.Management.Automation.dll-Help.xml'
 
                 # add artifacts to out
                 $textOutputFile = Join-Path $newMarkdownArgs.OutputFolder 'SMA.generated.txt'
@@ -187,7 +190,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
             }
 
             # this our regression suite for SMA
-            $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-help.xml')
+            $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-Help.xml')
             
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Get-Help'}
@@ -206,7 +209,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 $param.type.name | Should Be 'Int32'
             }
 
-            It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' {
+            It 'Enter-PSHostProcess first argument is not -AppDomainName in all syntaxes' -Skip:$SkipNotPresent {
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Enter-PSHostProcess'}
                 $h | Should Not BeNullOrEmpty
                 $h.syntax.syntaxItem | ForEach-Object {
@@ -214,17 +217,18 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 }
             }
 
-            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' {
+            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' -Skip:$SkipNotPresent {
                 $listItemMark = '- '
+                $newLineX3 = [System.Environment]::NewLine * 3
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Disconnect-PSSession'}
                 $param = $h.parameters.parameter | Where-Object {$_.Name -eq 'OutputBufferingMode'}
-                ($param.description | Out-String).Contains("clear.`r`n`r`n`r`n$($listItemMark)Drop. When") | Should Be $true
-                ($param.description | Out-String).Contains("discarded.`r`n`r`n`r`n$($listItemMark)None. No") | Should Be $true
+                ($param.description | Out-String).Contains("clear.$newLineX3$($listItemMark)Drop. When") | Should Be $true
+                ($param.description | Out-String).Contains("discarded.$newLineX3$($listItemMark)None. No") | Should Be $true
             }
 
             if (-not $IsMaml)
             {
-                It 'preserve formatting for Connect-PSSession NOTES' {
+                It 'preserve formatting for Connect-PSSession NOTES' -Skip:$SkipNotPresent {
 
                     # We are cheating a little bit here :(
                     function NormalizeEndings

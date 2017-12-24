@@ -24,6 +24,8 @@ namespace Markdown.MAML.Renderer
 
         public int MaxSyntaxWidth { get; private set; }
 
+        private const string NewLine = "\r\n";
+
         /// <summary>
         /// 110 is a good width value, because it doesn't cause github to add horizontal scroll bar
         /// </summary>
@@ -74,7 +76,7 @@ namespace Markdown.MAML.Renderer
         
         private void AddYamlHeader(Hashtable yamlHeader)
         {
-            _stringBuilder.AppendFormat("---{0}", Environment.NewLine);
+            _stringBuilder.AppendFormat("---{0}", NewLine);
             
             // Use a sorted dictionary to force the metadata into alphabetical order by key for consistency.
             var sortedHeader = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -88,7 +90,7 @@ namespace Markdown.MAML.Renderer
                 AppendYamlKeyValue(pair.Key, pair.Value);
             }
 
-            _stringBuilder.AppendFormat("---{0}{0}", Environment.NewLine);
+            _stringBuilder.AppendFormat("---{0}{0}", NewLine);
         }
 
         private void AddCommand(MamlCommand command)
@@ -125,7 +127,7 @@ namespace Markdown.MAML.Renderer
                         name = link.LinkUri;
                     }
 
-                    _stringBuilder.AppendFormat("[{0}]({1}){2}{2}", name, link.LinkUri, Environment.NewLine);
+                    _stringBuilder.AppendFormat("[{0}]({1}){2}{2}", name, link.LinkUri, NewLine);
                 }
             }
         }
@@ -278,7 +280,7 @@ namespace Markdown.MAML.Renderer
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
             {
-                _stringBuilder.AppendFormat("```yaml{0}", Environment.NewLine);
+                _stringBuilder.AppendFormat("```yaml{0}", NewLine);
 
                 AppendYamlKeyValue(MarkdownStrings.Type, parameter.Type);
 
@@ -315,7 +317,7 @@ namespace Markdown.MAML.Renderer
                 AppendYamlKeyValue(MarkdownStrings.Accept_pipeline_input, parameter.PipelineInput);
                 AppendYamlKeyValue(MarkdownStrings.Accept_wildcard_characters, parameter.Globbing.ToString());
 
-                _stringBuilder.AppendFormat("```{0}{0}", Environment.NewLine);
+                _stringBuilder.AppendFormat("```{0}{0}", NewLine);
             }
         }
 
@@ -323,12 +325,12 @@ namespace Markdown.MAML.Renderer
         {
             if (string.IsNullOrEmpty(value))
             {
-                _stringBuilder.AppendFormat("{0}:{1}", key, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}:{1}", key, NewLine);
 
                 return;
             }
 
-            _stringBuilder.AppendFormat("{0}: {1}{2}", key, value, Environment.NewLine);
+            _stringBuilder.AppendFormat("{0}: {1}{2}", key, value, NewLine);
         }
 
         private void AddExamples(MamlCommand command)
@@ -469,7 +471,7 @@ namespace Markdown.MAML.Renderer
 
         private void AddCodeSnippet(string code, string lang = "")
         {
-            _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, Environment.NewLine);
+            _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, NewLine);
         }
 
         private void AddHeader(int level, string header, bool extraNewLine = true)
@@ -479,10 +481,10 @@ namespace Markdown.MAML.Renderer
                 _stringBuilder.Append('#');
             }
             _stringBuilder.Append(' ');
-            _stringBuilder.AppendFormat("{0}{1}", header, Environment.NewLine);
+            _stringBuilder.AppendFormat("{0}{1}", header, NewLine);
             if (extraNewLine)
             {
-                _stringBuilder.Append(Environment.NewLine);
+                _stringBuilder.Append(NewLine);
             }
         }
 
@@ -509,7 +511,7 @@ namespace Markdown.MAML.Renderer
                     if (i > 0 && !MarkdownParser.HasListPrefix(lines[i - 1]))
                     {
                         // we are in a list and it just started
-                        newLines.Add(Environment.NewLine + lines[i]);
+                        newLines.Add(NewLine + lines[i]);
                     }
                     else
                     {
@@ -521,7 +523,7 @@ namespace Markdown.MAML.Renderer
                     if (i > 0)
                     {
                         // we are just finished a list
-                        newLines.Add(Environment.NewLine + GetAutoWrappingForNonListLine(lines[i]));
+                        newLines.Add(NewLine + GetAutoWrappingForNonListLine(lines[i]));
                     }
                     else
                     {
@@ -530,7 +532,7 @@ namespace Markdown.MAML.Renderer
                 }
             }
 
-            return string.Join(Environment.NewLine, newLines);
+            return string.Join(NewLine, newLines);
         }
 
         private void AddParagraphs(string body, bool noNewLines = false)
@@ -542,7 +544,7 @@ namespace Markdown.MAML.Renderer
 
             if (this._mode != ParserMode.FormattingPreserve)
             {
-                string[] paragraphs = body.Split(new string[] { Environment.NewLine }, StringSplitOptions.RemoveEmptyEntries);
+                string[] paragraphs = body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
             }
 
@@ -552,7 +554,7 @@ namespace Markdown.MAML.Renderer
                 noNewLines = true;
             }
 
-            _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : Environment.NewLine);
+            _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : NewLine);
         }
 
         private static string BackSlashMatchEvaluater(Match match)

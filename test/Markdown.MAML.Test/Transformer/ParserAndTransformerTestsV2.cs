@@ -1103,7 +1103,7 @@ This description block test formatting preservance.
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
             Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(description, mamlCommand.Description.Text);
+            Common.AssertMultilineEqual(description, mamlCommand.Description.Text);
         }
 
         private DocumentNode ParseString(string markdown)

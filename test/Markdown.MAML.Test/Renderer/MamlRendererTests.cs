@@ -113,7 +113,7 @@ namespace Markdown.MAML.Test.Renderer
             // Check that multiple code blocks in the same example merge together when rendering maml
             string[] example2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 2')]/dev:code");
             Assert.Equal(1, example2.Length);
-            Assert.Equal("PS:> Get-Help -YouNeedIt\r\n\r\nOutput", example2[0]);
+            Common.AssertMultilineEqual("PS:> Get-Help -YouNeedIt\r\n\r\nOutput", example2[0]);
         }
 
         [Fact]

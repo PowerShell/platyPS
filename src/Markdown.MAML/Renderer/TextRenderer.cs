@@ -12,6 +12,8 @@ namespace Markdown.MAML.Renderer
         private StringBuilder _stringBuilder = new StringBuilder();
 
         private const string AboutIndentation = "    ";
+        
+        private const string NewLine = "\r\n";
 
         private int _maxLineWidth { get; set; }
 
@@ -89,7 +91,7 @@ namespace Markdown.MAML.Renderer
             }
             else if (headingNode.HeadingLevel == level2Heading && document.Children.ElementAt(1) == headingNode)
             {
-                _stringBuilder.AppendFormat("{0}{1}{2}{3}", AboutIndentation, headingNode.Text.ToLower(), Environment.NewLine, Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}{2}{3}", AboutIndentation, headingNode.Text.ToLower(), NewLine, NewLine);
             }
             else if (headingNode.HeadingLevel == level2Heading)
             {
@@ -97,7 +99,7 @@ namespace Markdown.MAML.Renderer
             }
             else
             {
-                _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, headingNode.Text.ToUpper(), Environment.NewLine);
+                _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, headingNode.Text.ToUpper(), NewLine);
             }
         }
 
@@ -117,7 +119,7 @@ namespace Markdown.MAML.Renderer
                 }
                 else
                 {
-                    _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, lineContent, Environment.NewLine);
+                    _stringBuilder.AppendFormat("{0}{1}{2}", AboutIndentation, lineContent, NewLine);
                 }
             }
             _stringBuilder.AppendLine();
@@ -145,7 +147,7 @@ namespace Markdown.MAML.Renderer
                         else
                         {
                             text += part;
-                            sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, Environment.NewLine);
+                            sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, NewLine);
                             text = "";
                         }
                     }
@@ -156,7 +158,7 @@ namespace Markdown.MAML.Renderer
                     {
                         text = text.Substring(0, text.Length - 1);
                     }
-                    sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, Environment.NewLine);
+                    sb.AppendFormat("{0}{1}{2}", AboutIndentation, text, NewLine);
 
                     text = word + singleSpace;
                 }

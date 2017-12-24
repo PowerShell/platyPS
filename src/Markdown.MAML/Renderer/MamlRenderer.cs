@@ -83,7 +83,7 @@ namespace Markdown.MAML.Renderer
         {
             if (text != null)
             {
-                return text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)
+                return text.Split(new string[] { "\r\n" }, StringSplitOptions.None)
                     .Select(para => new XElement(mamlNS + "para", para));
             }
 

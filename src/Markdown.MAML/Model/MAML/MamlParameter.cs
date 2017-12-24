@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Markdown.MAML.Model.MAML
 {
-    public class MamlParameter : ICloneable
+    public class MamlParameter
     {
         public SourceExtent Extent { get; set; }
 
@@ -104,11 +104,6 @@ namespace Markdown.MAML.Model.MAML
 
             // if one is null then it's applicable
             return true;
-        }
-
-        object ICloneable.Clone()
-        {
-            return this.Clone();
         }
     }
 }

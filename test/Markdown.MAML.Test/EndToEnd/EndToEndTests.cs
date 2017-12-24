@@ -187,8 +187,8 @@ This is an output description.
             var actualFull = MarkdownStringToMarkdownString(expected, ParserMode.Full);
             var actualFormattingPreserve = MarkdownStringToMarkdownString(expected, ParserMode.FormattingPreserve);
 
-            Assert.Equal(expected, actualFull);
-            Assert.Equal(expected, actualFormattingPreserve);
+            Common.AssertMultilineEqual(expected, actualFull);
+            Common.AssertMultilineEqual(expected, actualFormattingPreserve);
         }
 
         [Fact]

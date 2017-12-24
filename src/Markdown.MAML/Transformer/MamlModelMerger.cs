@@ -3,7 +3,6 @@ using Markdown.MAML.Model.Markdown;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Management.Automation.Language;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;

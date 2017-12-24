@@ -1,0 +1,24 @@
+# that gives us dotnet cli installed on the box
+language: csharp
+
+dist: trusty
+sudo: required
+
+mono: none
+dotnet: 2.0.0
+
+# instruction from https://github.com/PowerShell/PowerShell/blob/master/docs/installation/linux.md#ubuntu-1404
+
+install:
+  - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+  - curl https://packages.microsoft.com/config/ubuntu/14.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
+  - sudo apt-get update
+  - sudo apt-get install -y powershell
+
+script:
+  - pwsh ./build.ps1
+  - dotnet test ./test/Markdown.MAML.Test
+  - sudo pwsh -C 'Install-Module Pester -Force'
+  # updated help is needed for tests, run as a Job to avoid Write-Progress output
+  - sudo pwsh -C '(update-help &) | Wait-Job'
+  - pwsh -C 'Invoke-Pester -EnableExit'

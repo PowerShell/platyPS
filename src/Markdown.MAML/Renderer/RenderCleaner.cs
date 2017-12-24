@@ -4,11 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Text.RegularExpressions;
-using Microsoft.PowerShell.Commands;
 
 namespace Markdown.MAML.Renderer
 {
-    static class RenderCleaner
+    static public class RenderCleaner
     {
         /// <summary>
         /// This method runs all of the normalization tools in the cleaner. This allows full normalization without needing to call

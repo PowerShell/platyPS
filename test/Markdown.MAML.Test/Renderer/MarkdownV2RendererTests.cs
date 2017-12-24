@@ -223,7 +223,7 @@ namespace Markdown.MAML.Test.Renderer
             command.Syntax.Add(new MamlSyntax());
 
             string markdown = renderer.MamlModelToString(command, null);
-            Assert.Equal(@"---
+            Common.AssertMultilineEqual(@"---
 schema: 2.0.0
 ---
 
@@ -272,7 +272,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             };
 
             string markdown = renderer.MamlModelToString(command, null);
-            Assert.Equal(@"---
+            Common.AssertMultilineEqual(@"---
 schema: 2.0.0
 ---
 
@@ -385,7 +385,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             metadata["foo"] = "bar";
             metadata["null"] = null;
             string markdown = renderer.MamlModelToString(command, metadata);
-            Assert.Equal(@"---
+            Common.AssertMultilineEqual(@"---
 foo: bar
 null:
 schema: 2.0.0
@@ -536,7 +536,7 @@ Second line.
             command.Syntax.Add(syntax2);
 
             string markdown = renderer.MamlModelToString(command, null);
-            Assert.Equal(@"---
+            Common.AssertMultilineEqual(@"---
 schema: 2.0.0
 ---
 
@@ -644,7 +644,7 @@ weired
             );
 
             string markdown = renderer.MamlModelToString(command, null);
-            Assert.Equal(@"---
+            Common.AssertMultilineEqual(@"---
 schema: 2.0.0
 ---
 
