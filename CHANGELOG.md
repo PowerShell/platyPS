@@ -3,6 +3,8 @@ CHANGELOG
 
 ## Not released
 
+* platyPS is now cross platform and works on powershell 6.0 as well as previous versions of powershell.
+
 ## 0.8.4
 
 * Clean up trailing whitespace during markdown generation [#225](https://github.com/PowerShell/platyPS/issues/225)
