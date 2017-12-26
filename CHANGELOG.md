@@ -3,6 +3,8 @@ CHANGELOG
 
 ## Not released
 
+## 0.9.0
+
 * platyPS is now cross platform and works on powershell 6.0 as well as previous versions of powershell.
 
 ## 0.8.4
