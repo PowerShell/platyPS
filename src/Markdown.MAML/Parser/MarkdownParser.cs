@@ -58,6 +58,7 @@ namespace Markdown.MAML.Parser
         public MarkdownParser(Action<int, int> progressCallback, int reportByteCount)
         {
             _progressCallback = progressCallback;
+            _reportByteCount = reportByteCount;
         }
 
         public DocumentNode ParseString(string[] markdownStrings)

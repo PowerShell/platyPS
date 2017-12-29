@@ -1,3 +1,5 @@
+# Contributing to platyPS
+
 ## Get the code
 
 ```
@@ -6,7 +8,7 @@ git clone https://github.com/PowerShell/platyPS
 
 ## Understand code layout
 
-There are two parts: 
+There are two parts:
 
 - `Markdown.MAML.dll`, a .NET library written in C#.
   It does the heavy lifting, like parsing Markdown, transforming it into XML, and so on.
@@ -19,7 +21,7 @@ There are two parts:
 To build the whole project, use the `build.ps1` helper script.
 It depends on the [dotnet cli](https://docs.microsoft.com/en-us/dotnet/core/tools/) build tool.
 
-```
+```powershell
 .\build.ps1
 ```
 As part of the build, platyPS generates help for itself.
@@ -48,9 +50,9 @@ If you have ideas or concerns about the Markdown schema, feel free to open a Git
 
 ## Repo structure
 
- -  **src\platyPS** - sources to create the final PowerShell module.
- -  **src\Markdown.MAML, Markdown.MAML.sln** - source code for C# Markdown to MAML converter.
- -  **[platyPS.schema.md](platyPS.schema.md)** - description of Markdown that platyPS expects.
+- **src\platyPS** - sources to create the final PowerShell module.
+- **src\Markdown.MAML, Markdown.MAML.sln** - source code for C# Markdown to MAML converter.
+- **[platyPS.schema.md](platyPS.schema.md)** - description of Markdown that platyPS expects.
 
 ## Data transformations
 
@@ -92,11 +94,11 @@ This chart describes these simple transformations:
 +----------------------+            +---------------------------+
 ```
 
-##### Example `New-MarkdownHelp`
+### Example `New-MarkdownHelp`
 
-A user creates a platyPS Markdown for the first time with `New-MarkdownHelp`: 
+A user creates a platyPS Markdown for the first time with `New-MarkdownHelp`:
 
-```
+```powershell
 New-MarkdownHelp -Command New-MyCommandHelp
 ```
 
@@ -104,7 +106,7 @@ Under the hood, the following tranformations happen:
 
 [MAML XML file] --> [Help Object + Get-Command object] --> [MAML Model] --> [Markdown file]
 
-# Making a new release
+## Making a new release
 
 1. Make sure that `CHANGELOG.md` is up-to-date, move section from `UNRELEASED` to new section `<release name>`.
 1. Make sure platyPS help itself (content in .\docs folder) is up to date. 
