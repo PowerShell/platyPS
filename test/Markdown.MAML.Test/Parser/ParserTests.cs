@@ -610,10 +610,10 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.Equal(expectedDescription, actualDescription);
 
             // Does not use line break and should not be added
-            Assert.Equal(false, synopsisHasLineBreak);
+            Assert.False(synopsisHasLineBreak);
 
             // Uses line break and should be preserved
-            Assert.Equal(true, descriptionHasLineBreak);
+            Assert.True(descriptionHasLineBreak);
         }
 
         [Fact]
@@ -635,10 +635,10 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.Equal(expectedP2, actualP2);
 
             // Does not use line break and should not be added
-            Assert.Equal(false, hasLineBreakP1);
+            Assert.False(hasLineBreakP1);
 
             // Uses line break and should be preserved
-            Assert.Equal(true, hasLineBreakP2);
+            Assert.True(hasLineBreakP2);
         }
 
         [Fact]
@@ -661,10 +661,10 @@ Deletes commands with the specified text strings. If you enter more than one str
             Assert.Equal(expectedDescription, actualDescription);
 
             // Does not use line break and should not be added
-            Assert.Equal(false, synopsisHasLineBreak);
+            Assert.False(synopsisHasLineBreak);
 
             // Uses line break and should be preserved
-            Assert.Equal(true, descriptionHasLineBreak);
+            Assert.True(descriptionHasLineBreak);
         }
 
         private TNode ParseAndGetExpectedChild<TNode>(

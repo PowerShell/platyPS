@@ -292,7 +292,7 @@ namespace Markdown.MAML.Transformer
             {
                 result = MarkdownParser.ParseYamlKeyValuePairs(yamlSnippet.Text);
             }
-            catch (ArgumentException e)
+            catch (ArgumentException)
             {
                 throw new HelpSchemaException(yamlSnippet.SourceExtent, "Invalid yaml: expected simple key-value pairs");
             }
