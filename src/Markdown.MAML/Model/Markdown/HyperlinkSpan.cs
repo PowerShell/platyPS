@@ -1,5 +1,4 @@
 ﻿using Markdown.MAML.Parser;
-using System;
 
 namespace Markdown.MAML.Model.Markdown
 {

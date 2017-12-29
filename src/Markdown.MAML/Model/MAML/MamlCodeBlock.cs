@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Markdown.MAML.Model.MAML
+﻿namespace Markdown.MAML.Model.MAML
 {
     /// <summary>
     /// A section of code such as PowerShell commands or command output.

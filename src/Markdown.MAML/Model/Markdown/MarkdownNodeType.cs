@@ -1,5 +1,4 @@
-﻿
-namespace Markdown.MAML.Model.Markdown
+﻿namespace Markdown.MAML.Model.Markdown
 {
     public enum MarkdownNodeType
     {

@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Markdown.MAML.Model.MAML;
 using System.Collections.Generic;
-using Markdown.MAML.Model.MAML;
 
 namespace Markdown.MAML.Transformer
 {
