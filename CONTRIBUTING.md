@@ -116,6 +116,7 @@ Under the hood, the following tranformations happen:
 1. Download ZIP archive with the module from Appveyor's Artifacts tab.
 1. Unblock the ZIP archive (`Unblock-File foo.zip`), and copy the ZIP's contents to `$env:PSMODULEPATH` so it's available to `Publish-Module`.
 1. Publish the module to the Gallery: `Publish-Module -RequiredVersion <version> -Verbose -NuGetApiKey $apiKey`.
-10. Check that https://www.powershellgallery.com/packages/platyPS/ updated.
+1. Check that https://www.powershellgallery.com/packages/platyPS/ updated.
+1. Publish a new github release from https://github.com/PowerShell/platyPS/releases to move "Latest release" label to the new tag.
 
 Congratulations! You just made a release.
