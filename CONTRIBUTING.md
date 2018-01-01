@@ -106,7 +106,7 @@ Under the hood, the following tranformations happen:
 
 [MAML XML file] --> [Help Object + Get-Command object] --> [MAML Model] --> [Markdown file]
 
-## Making a new release
+# Making a new release
 
 1. Make sure that `CHANGELOG.md` is up-to-date, move section from `UNRELEASED` to new section `<release name>`.
 1. Make sure platyPS help itself (content in .\docs folder) is up to date. 
