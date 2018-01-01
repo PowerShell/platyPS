@@ -190,7 +190,7 @@ And this is my last line.
             Assert.Equal("Hello,", description[0]);
             Assert.Equal("I'm a multiline description.", description[1]);
             Assert.Equal("And this is my last line.", description[2]);
-            Assert.Equal(false, mamlCommand.SupportCommonParameters);
+            Assert.False(mamlCommand.SupportCommonParameters);
         }
 
         [Fact]
@@ -212,7 +212,7 @@ This is Synopsis, but it doesn't matter in this test
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 2);
+            Assert.Equal(2, mamlCommand.Count());
             Assert.NotNull(mamlCommand[0].Description);
             Assert.NotNull(mamlCommand[0].Synopsis);
             Assert.NotNull(mamlCommand[1].Description);
@@ -239,14 +239,14 @@ Accept wildcard characters: true
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             var param = mamlCommand[0].Parameters.ToArray();
-            Assert.Equal(param.Count(), 1);
-            Assert.Equal(param[0].Name, "Bar");
-            Assert.Equal(param[0].Description, "This is bar parameter");
-            Assert.Equal(param[0].DefaultValue, "Fooo");
-            Assert.Equal(param[0].PipelineInput, "false");
-            Assert.Equal(param[0].Globbing, true);
+            Assert.Single(param);
+            Assert.Equal("Bar", param[0].Name);
+            Assert.Equal("This is bar parameter", param[0].Description);
+            Assert.Equal("Fooo", param[0].DefaultValue);
+            Assert.Equal("false", param[0].PipelineInput);
+            Assert.True(param[0].Globbing);
         }
 
         [Fact]
@@ -304,16 +304,16 @@ Applicable: tag
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc, new[] { "foo", "tag" }).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             var param = mamlCommand[0].Parameters.ToArray();
-            Assert.Equal(param.Count(), 3);
+            Assert.Equal(3, param.Count());
             // Bar1 has Applicable "foo"
-            Assert.Equal(param[0].Name, "Bar1");
+            Assert.Equal("Bar1", param[0].Name);
             // Bar2 should not match
             // Bar3 has no applicable
-            Assert.Equal(param[1].Name, "Bar3");
+            Assert.Equal("Bar3", param[1].Name);
             // Bar4 has Applicable "tag"
-            Assert.Equal(param[2].Name, "Bar4");
+            Assert.Equal("Bar4", param[2].Name);
         }
 
         // For more context see https://github.com/PowerShell/platyPS/issues/239
@@ -343,11 +343,11 @@ Accept wildcard characters: true
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             var param = mamlCommand[0].Parameters.ToArray();
-            Assert.Equal(param.Count(), 1);
-            Assert.Equal(param[0].Name, "Bar");
-            Assert.Equal(param[0].Description, "This is bar parameter\r\n\r\n// With a codesnippet\r\n\r\nAnd something else");
+            Assert.Single(param);
+            Assert.Equal("Bar", param[0].Name);
+            Assert.Equal("This is bar parameter\r\n\r\n// With a codesnippet\r\n\r\nAnd something else", param[0].Description);
         }
 
         [Fact]
@@ -365,14 +365,14 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             var inputs = mamlCommand[0].Inputs.ToArray();
             var outputs = mamlCommand[0].Outputs.ToArray();
-            Assert.Equal(inputs.Count(), 1);
-            Assert.Equal(outputs.Count(), 1);
-            Assert.Equal(inputs[0].TypeName, "System.String");
-            Assert.Equal(outputs[0].TypeName, "Microsoft.PowerShell.Commands.ComputerChangeInfo");
-            Assert.Equal(inputs[0].Description, "You can pipe computer names and new names to the Add-ComputerCmdlet.");
+            Assert.Single(inputs);
+            Assert.Single(outputs);
+            Assert.Equal("System.String", inputs[0].TypeName);
+            Assert.Equal("Microsoft.PowerShell.Commands.ComputerChangeInfo", outputs[0].TypeName);
+            Assert.Equal("You can pipe computer names and new names to the Add-ComputerCmdlet.", inputs[0].Description);
             Assert.Empty(outputs[0].Description);
         }
 
@@ -405,7 +405,7 @@ Remarks
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(1, mamlCommand.Count());
+            Assert.Single(mamlCommand);
             var examples = mamlCommand[0].Examples.ToArray();
             Assert.Equal(2, examples.Count());
             Assert.Equal("--EXAMPLE1--", examples[0].Title);
@@ -442,12 +442,12 @@ Remarks
 [Test-Connection]()
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             var links = mamlCommand[0].Links.ToArray();
-            Assert.Equal(links.Count(), 8);
-            Assert.Equal(links[0].LinkName, "Online Version:");
-            Assert.Equal(links[0].LinkUri, "http://go.microsoft.com/fwlink/p/?linkid=289795");
-            Assert.Equal(links[1].LinkName, "Checkpoint-Computer");
+            Assert.Equal(8, links.Count());
+            Assert.Equal("Online Version:", links[0].LinkName);
+            Assert.Equal("http://go.microsoft.com/fwlink/p/?linkid=289795", links[0].LinkUri);
+            Assert.Equal("Checkpoint-Computer", links[1].LinkName);
             Assert.Empty(links[1].LinkUri);
         }
 
@@ -461,7 +461,7 @@ Runs the [Set-WSManQuickConfig]() cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
@@ -475,7 +475,7 @@ Runs the *Set-WSManQuickConfig* cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
@@ -489,7 +489,7 @@ Runs the **Set-WSManQuickConfig** cmdlet
 
 ");
             var mamlCommand = NodeModelToMamlModelV2(doc).ToArray();
-            Assert.Equal(mamlCommand.Count(), 1);
+            Assert.Single(mamlCommand);
             Assert.Equal("Runs the Set-WSManQuickConfig cmdlet", mamlCommand[0].Synopsis.Text);
         }
 
@@ -552,7 +552,7 @@ Accept wildcard characters: false
                         GetParameterText(bazParamName, bazAttributes)));
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
             Assert.Equal(3, mamlCommand.Parameters.Count);
 
@@ -560,13 +560,13 @@ Accept wildcard characters: false
             Assert.Equal(fooParamName, fooParam.Name);
             Assert.Equal("string", fooParam.Type);
             Assert.True(fooParam.Required);
-            Assert.Equal(0, fooParam.Aliases.Length);
+            Assert.Empty(fooParam.Aliases);
 
             var barParam = mamlCommand.Parameters[1];
             Assert.Equal(barParamName, barParam.Name);
             Assert.Equal("double", barParam.Type);
             Assert.True(barParam.Required);
-            Assert.Equal(1, barParam.Aliases.Length);
+            Assert.Single(barParam.Aliases);
             Assert.Contains("br", barParam.Aliases);
 
             var bazParam = mamlCommand.Parameters[2];
@@ -616,7 +616,7 @@ NoTypeParam description.
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
             Assert.Equal(3, mamlCommand.Parameters.Count);
 
@@ -629,14 +629,14 @@ NoTypeParam description.
             Assert.Equal("NoDescriptionParam", noDescriptionParam.Name);
             Assert.Equal("string", noDescriptionParam.Type);
             Assert.Equal("", noDescriptionParam.Description);
-            Assert.Equal(true, noDescriptionParam.ValueRequired);
+            Assert.True(noDescriptionParam.ValueRequired);
 
             var noTypeParam = mamlCommand.Parameters[2];
             Assert.Equal("NoTypeParam", noTypeParam.Name);
-            Assert.Equal(null, noTypeParam.Type);
+            Assert.Null(noTypeParam.Type);
             Assert.Equal("NoTypeParam description.", noTypeParam.Description);
 
-            Assert.Equal(true, mamlCommand.SupportCommonParameters);
+            Assert.True(mamlCommand.SupportCommonParameters);
         }
 
         [Fact]
@@ -660,19 +660,19 @@ Required: false
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
             Assert.Equal(2, mamlCommand.Parameters.Count);
 
             var informationVariable = mamlCommand.Parameters[0];
             Assert.Equal("informationVariable", informationVariable.Name);
-            Assert.Equal(null, informationVariable.Type);
-            Assert.Equal(true, informationVariable.ValueRequired);
+            Assert.Null(informationVariable.Type);
+            Assert.True(informationVariable.ValueRequired);
 
             var force = mamlCommand.Parameters[1];
             Assert.Equal("force", force.Name);
             Assert.Equal("SwitchParameter", force.Type);
-            Assert.Equal(false, force.ValueRequired);
+            Assert.False(force.ValueRequired);
         }
 
         [Fact]
@@ -693,10 +693,10 @@ Accepted values: a, b, c
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(1, mamlCommand.Syntax.Count);
-            Assert.Equal(1, mamlCommand.Syntax[0].Parameters.Count);
+            Assert.Single(mamlCommand.Syntax);
+            Assert.Single(mamlCommand.Syntax[0].Parameters);
 
             var fooParam = mamlCommand.Syntax[0].Parameters[0];
             Assert.Equal("foo", fooParam.Name);
@@ -733,31 +733,31 @@ Required: false
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
             // Check Syntax
             Assert.Equal(2, mamlCommand.Syntax.Count);
             var syntax1 = mamlCommand.Syntax[0];
             var syntax2 = mamlCommand.Syntax[1];
 
-            Assert.Equal(syntax1.Parameters.Count, 1);
-            Assert.Equal(syntax2.Parameters.Count, 1);
+            Assert.Single(syntax1.Parameters);
+            Assert.Single(syntax2.Parameters);
 
-            Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
-            Assert.Equal(syntax2.Parameters[0].Name, "TypeName");
+            Assert.Equal("TypeName", syntax1.Parameters[0].Name);
+            Assert.Equal("TypeName", syntax2.Parameters[0].Name);
 
-            Assert.Equal(syntax1.Parameters[0].Type, "string");
-            Assert.Equal(syntax2.Parameters[0].Type, "string");
+            Assert.Equal("string", syntax1.Parameters[0].Type);
+            Assert.Equal("string", syntax2.Parameters[0].Type);
 
-            Assert.Equal(syntax1.Parameters[0].Required, true);
-            Assert.Equal(syntax2.Parameters[0].Required, false);
+            Assert.True(syntax1.Parameters[0].Required);
+            Assert.False(syntax2.Parameters[0].Required);
 
             // Check Parameters
-            Assert.Equal(1, mamlCommand.Parameters.Count);
+            Assert.Single(mamlCommand.Parameters);
             var parameter = mamlCommand.Parameters[0];
             Assert.Equal("TypeName", parameter.Name);
             // Required == true because first takes precedence
-            Assert.Equal(true, parameter.Required);
+            Assert.True(parameter.Required);
         }
 
         [Fact]
@@ -788,15 +788,15 @@ Applicable: bar
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc, new[] { "bar" }).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(1, mamlCommand.Syntax.Count);
+            Assert.Single(mamlCommand.Syntax);
             var syntax1 = mamlCommand.Syntax[0];
 
-            Assert.Equal(syntax1.Parameters.Count, 1);
-            Assert.Equal(syntax1.Parameters[0].Name, "TypeName");
-            Assert.Equal(syntax1.Parameters[0].Type, "string");
-            Assert.Equal(syntax1.Parameters[0].Required, false);
+            Assert.Single(syntax1.Parameters);
+            Assert.Equal("TypeName", syntax1.Parameters[0].Name);
+            Assert.Equal("string", syntax1.Parameters[0].Type);
+            Assert.False(syntax1.Parameters[0].Required);
         }
 
         [Fact]
@@ -826,17 +826,17 @@ Parameter sets: Set 1
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
             var syntax1 = mamlCommand.Syntax[0];
             var syntax2 = mamlCommand.Syntax[1];
 
-            Assert.Equal(syntax1.Parameters.Count, 1);
-            Assert.Equal(syntax2.Parameters.Count, 1);
+            Assert.Single(syntax1.Parameters);
+            Assert.Single(syntax2.Parameters);
 
-            Assert.Equal(syntax2.Parameters[0].Name, "FirstSetParam");
-            Assert.Equal(syntax1.Parameters[0].Name, "SecondSetParam");
+            Assert.Equal("FirstSetParam", syntax2.Parameters[0].Name);
+            Assert.Equal("SecondSetParam", syntax1.Parameters[0].Name);
         }
 
         [Fact]
@@ -873,12 +873,12 @@ Position: 1
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(1, mamlCommand.Syntax.Count);
+            Assert.Single(mamlCommand.Syntax);
             var syntax = mamlCommand.Syntax[0];
 
-            Assert.Equal(syntax.Parameters.Count, 3);
+            Assert.Equal(3, syntax.Parameters.Count);
 
             Assert.Equal("First", syntax.Parameters[0].Name);
             Assert.Equal("Third", syntax.Parameters[1].Name);
@@ -912,12 +912,12 @@ Accept wildcard characters: False
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(1, mamlCommand.Parameters.Count);
+            Assert.Single(mamlCommand.Parameters);
             var parameter = mamlCommand.Parameters[0];
 
-            Assert.Equal(parameter.DefaultValue, "PowerShell");
+            Assert.Equal("PowerShell", parameter.DefaultValue);
         }
 
         [Fact]
@@ -940,20 +940,18 @@ Accept wildcard characters: true
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Get-Foo");
+            Assert.Equal("Get-Foo", mamlCommand.Name);
 
-            Assert.Equal(1, mamlCommand.Parameters.Count);
+            Assert.Single(mamlCommand.Parameters);
             var parameter = mamlCommand.Parameters[0];
 
             Assert.True(parameter.Globbing);
-            Assert.Equal(parameter.Type, "string");
+            Assert.Equal("string", parameter.Type);
         }
 
         [Fact]
         public void ParseClearHistorySyntaxInTheRightOrder()
         {
-            
-
             const string docFormatString = @"
 
 # Clear-History
@@ -1063,17 +1061,17 @@ Accept wildcard characters: True
             var doc = ParseString(docFormatString);
 
             MamlCommand mamlCommand = NodeModelToMamlModelV2(doc).First();
-            Assert.Equal(mamlCommand.Name, "Clear-History");
+            Assert.Equal("Clear-History", mamlCommand.Name);
 
             Assert.Equal(2, mamlCommand.Syntax.Count);
             var syntax1 = mamlCommand.Syntax[0];
             var syntax2 = mamlCommand.Syntax[1];
 
-            Assert.Equal(syntax1.Parameters.Count, 5);
-            Assert.Equal(syntax2.Parameters.Count, 5);
+            Assert.Equal(5, syntax1.Parameters.Count);
+            Assert.Equal(5, syntax2.Parameters.Count);
 
-            Assert.Equal(syntax1.Parameters[0].Name, "Id");
-            Assert.Equal(syntax2.Parameters[0].Name, "Count");
+            Assert.Equal("Id", syntax1.Parameters[0].Name);
+            Assert.Equal("Count", syntax2.Parameters[0].Name);
         }
 
         [Fact]

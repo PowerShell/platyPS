@@ -44,7 +44,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.Examples.Count);
+            Assert.Single(writtenModel.Examples);
 
             var example = writtenModel.Examples.Single();
 
@@ -65,7 +65,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.Inputs.Count);
+            Assert.Single(writtenModel.Inputs);
 
             var input = writtenModel.Inputs.Single();
 
@@ -84,7 +84,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.Links.Count);
+            Assert.Single(writtenModel.Links);
 
             var link = writtenModel.Links.Single();
 
@@ -119,7 +119,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.OptionalParameters.Count);
+            Assert.Single(writtenModel.OptionalParameters);
 
             var optionalParameter = writtenModel.OptionalParameters.Single();
             var expectedParameter = model.Parameters.Single(p => !p.Required);
@@ -146,7 +146,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.Outputs.Count);
+            Assert.Single(writtenModel.Outputs);
 
             var outputItem = writtenModel.Outputs.Single();
 
@@ -165,7 +165,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.RequiredParameters.Count);
+            Assert.Single(writtenModel.RequiredParameters);
 
             var requiredParameter = writtenModel.RequiredParameters.Single();
             var expectedParameter = model.Parameters.Single(p => p.Required);
@@ -192,13 +192,13 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Equal(1, writtenModel.Syntaxes.Count);
+            Assert.Single(writtenModel.Syntaxes);
 
             var syntax = writtenModel.Syntaxes.Single();
 
             Assert.Equal(model.Syntax.Single().ParameterSetName, syntax.ParameterValueGroup);
             
-            Assert.Equal(1, syntax.Parameters.Count);
+            Assert.Single(syntax.Parameters);
             Assert.Equal(model.Syntax.Single().Parameters.Single().Name, syntax.Parameters.Single());
         }
 

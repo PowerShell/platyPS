@@ -87,32 +87,32 @@ namespace Markdown.MAML.Test.Renderer
             string maml = renderer.MamlModelToString(new [] {command});
 
             string[] name = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/command:name");
-            Assert.Equal(1, name.Length);
+            Assert.Single(name);
             Assert.Equal("Get-Foo", name[0]);
 
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
-            Assert.Equal(1, synopsis.Length);
+            Assert.Single(synopsis);
             Assert.Equal("This is the synopsis", synopsis[0]);
 
             string[] description = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(1, description.Length);
+            Assert.Single(description);
             Assert.Equal("This is a long description.", description[0]);
 
             string[] parameter1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Name']/maml:Description/maml:para");
-            Assert.Equal(1, parameter1.Length);
+            Assert.Single(parameter1);
             Assert.Equal("This is the name parameter description.", parameter1[0]);
 
             string[] parameter2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Path']/maml:Description/maml:para");
-            Assert.Equal(1, parameter2.Length);
+            Assert.Single(parameter2);
             Assert.Equal("This is the path parameter description.", parameter2[0]);
 
             string[] example1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 1')]/dev:code");
-            Assert.Equal(1, example1.Length);
+            Assert.Single(example1);
             Assert.Equal("PS:> Get-Help -YouNeedIt", example1[0]);
 
             // Check that multiple code blocks in the same example merge together when rendering maml
             string[] example2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:examples/command:example[contains(maml:title,'Example 2')]/dev:code");
-            Assert.Equal(1, example2.Length);
+            Assert.Single(example2);
             Common.AssertMultilineEqual("PS:> Get-Help -YouNeedIt\r\n\r\nOutput", example2[0]);
         }
 
@@ -150,7 +150,7 @@ namespace Markdown.MAML.Test.Renderer
             string maml = renderer.MamlModelToString(new[] { command });
 
             string[] syntaxItemName = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:syntax/command:syntaxItem/maml:name");
-            Assert.Equal(1, syntaxItemName.Length);
+            Assert.Single(syntaxItemName);
             Assert.Equal("Get-Foo", syntaxItemName[0]);
 
             string[] nameSyntax = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:syntax/command:syntaxItem/command:parameter/maml:name");
@@ -177,7 +177,7 @@ namespace Markdown.MAML.Test.Renderer
             string maml = renderer.MamlModelToString(new[] { command });
 
             string[] synopsis = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
-            Assert.Equal(1, synopsis.Length);
+            Assert.Single(synopsis);
             Assert.Equal(command.Synopsis.Text, synopsis[0]);
         }
 

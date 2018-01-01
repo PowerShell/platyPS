@@ -31,7 +31,7 @@ This is the synopsis 3
 
 ");
 
-            Assert.Equal(result.Description.Text, "This is a long description.\r\nWith two paragraphs.");
+            Assert.Equal("This is a long description.\r\nWith two paragraphs.", result.Description.Text);
 
             Common.AssertMultilineEqual(result.Notes.Text, @"! First
 
@@ -71,9 +71,9 @@ Third Command
             Assert.Equal("Foo 2", result.Inputs.ElementAt(1).Description);
 
             // Output
-            Assert.Equal(1, result.Outputs.Count);
+            Assert.Single(result.Outputs);
             Assert.Equal("String", result.Outputs.ElementAt(0).TypeName);
-            Assert.Equal(null, result.Outputs.ElementAt(0).Description);
+            Assert.Null(result.Outputs.ElementAt(0).Description);
 
             // Syntax
             Assert.Equal(2, result.Syntax.Count);
@@ -311,9 +311,9 @@ Third Command
             var result = merger.Merge(input);
 
             // Syntax
-            Assert.Equal(1, result.Syntax.Count);
-            Assert.Equal(null, result.Syntax.ElementAt(0).ParameterSetName);
-            Assert.Equal(true, result.Syntax.ElementAt(0).IsDefault);
+            Assert.Single(result.Syntax);
+            Assert.Null(result.Syntax.ElementAt(0).ParameterSetName);
+            Assert.True(result.Syntax.ElementAt(0).IsDefault);
 
             // Parameters
             Assert.Equal(2, result.Parameters.Count);

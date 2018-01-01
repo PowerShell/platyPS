@@ -5,13 +5,13 @@
 
 # PlatyPS
 
-PlatyPS provides a way to 
+PlatyPS provides a way to:
 
 * Write PowerShell External Help in Markdown
 * Generate markdown help ([example](docs/Update-MarkdownHelp.md)) for your existing modules
 * Keep markdown help up-to-date with your code
 
-Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.  
+Markdown help docs can be generated from old external help files (also known as MAML-xml help), the command objects (reflection), or both.
 
 PlatyPS can also generate cab files for [`Update-Help`](https://technet.microsoft.com/en-us/library/hh849720.aspx).
 
@@ -24,7 +24,6 @@ An additional challange PlatyPS tackles, is to handle PowerShell documentation f
 
 Markdown is designed to be human-readable, without rendering. This makes writing and editing easy and efficient. 
 Many editors support it ([Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](http://www.sublimetext.com/), etc), and many tools and collaboration platforms (GitHub, Visual Studio Online) render the Markdown nicely.
-
 
 ## Quick start
 

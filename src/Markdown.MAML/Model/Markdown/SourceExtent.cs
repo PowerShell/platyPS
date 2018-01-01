@@ -1,5 +1,5 @@
-﻿
-using System.Diagnostics;
+﻿using System.Diagnostics;
+
 namespace Markdown.MAML.Model.Markdown
 {
     public class SourceRange

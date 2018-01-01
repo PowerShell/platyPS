@@ -36,11 +36,11 @@ PS C:\> Update-MarkdownHelp
 This is example 2 remark.
 ");
             string[] name = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/command:name");
-            Assert.Equal(1, name.Length);
+            Assert.Single(name);
             Assert.Equal("Get-Foo", name[0]);
 
             string[] synopsis = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
-            Assert.Equal(1, synopsis.Length);
+            Assert.Single(synopsis);
             Assert.Equal("This is Synopsis", synopsis[0]);
 
             // Check that example title is reproduced with dash (-) padding
@@ -204,11 +204,11 @@ I'm description
 ");
 
             string[] description = GetXmlContent(maml, "/msh:helpItems/command:command/maml:description/maml:para");
-            Assert.Equal(1, description.Length);
+            Assert.Single(description);
             Assert.Equal("I'm description", description[0]);
 
             string[] synopsis = GetXmlContent(maml, "/msh:helpItems/command:command/command:details/maml:description/maml:para");
-            Assert.Equal(1, synopsis.Length);
+            Assert.Single(synopsis);
             Assert.Equal("This is Synopsis #hashtagNotAHeader.", synopsis[0]);
         }
 

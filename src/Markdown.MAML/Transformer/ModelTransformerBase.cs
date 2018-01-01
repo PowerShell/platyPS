@@ -1,11 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Collections.Generic;
-using System.Text;
+﻿using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Model.Markdown;
-using Markdown.MAML.Model.MAML;
 using Markdown.MAML.Parser;
-using System.Text.RegularExpressions;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 
 namespace Markdown.MAML.Transformer
 {

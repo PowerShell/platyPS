@@ -1,6 +1,4 @@
-﻿
-using Markdown.MAML.Parser;
-using System.Text.RegularExpressions;
+﻿using Markdown.MAML.Parser;
 
 namespace Markdown.MAML.Model.Markdown
 {
