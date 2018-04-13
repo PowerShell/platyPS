@@ -485,7 +485,7 @@ function Merge-MarkdownHelp
             $message = "[Update-MarkdownHelp] $([datetime]::now) $message"
             if ($warning)
             {
-                Merge-Warning $message
+                Write-Warning $message
             }
             else
             {
