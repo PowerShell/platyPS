@@ -25,6 +25,16 @@ An additional challenge PlatyPS tackles, is to handle PowerShell documentation f
 Markdown is designed to be human-readable, without rendering. This makes writing and editing easy and efficient. 
 Many editors support it ([Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](http://www.sublimetext.com/), etc), and many tools and collaboration platforms (GitHub, Visual Studio Online) render the Markdown nicely.
 
+## Common setups
+
+There are 2 common setups that are used:
+
+1. Use markdown as the source of truth and remove other types of help.
+2. Keep comment based help as the source of truth and periodically generate markdown for web-site publishing.
+
+They both have advantages and use-cases, you should decide what's right for you.
+There is slight preference toward number 1 (markdown as the source).
+
 ## Quick start
 
 * Install platyPS module from the [PowerShell Gallery](https://powershellgallery.com):
