@@ -630,8 +630,9 @@ if (-not $global:IsUnix) {
                 $paths = $env:PsModulePath.Split(';')
                 foreach($path in $paths)
                 {
-                $path = Split-Path $path -Parent
-                $foundHelp += Get-ChildItem -Path $path -Recurse | Where-Object { $_.Name -like "*$HelpFileName"} | Select-Object Name
+                    $path = Split-Path $path -Parent
+                    $foundHelp += Get-ChildItem -ErrorAction SilentlyContinue -Path $path -Recurse |
+                        Where-Object { $_.Name -like "*$HelpFileName"} | Select-Object Name
                 }
 
                 $foundHelp.Count | Should BeGreaterThan 0
