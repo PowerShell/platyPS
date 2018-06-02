@@ -26,9 +26,9 @@ Describe 'Full loop for Add-Member cmdlet' {
     }
 
     $generatedHelpObject = Get-HelpPreview $generatedMaml
-    
+
     $originalHelpObject = Get-Help -Name "Microsoft.PowerShell.Utility\$cmdlet"
-    
+
     Context 'markdown metadata' {
         $h = Get-MarkdownMetadata $file
         It 'online version is available in metadata and metadata is case-insensitive' {
@@ -75,11 +75,11 @@ Describe 'Full loop for Add-Member cmdlet' {
         # this '-' before force could be screwed up
         0..($generatedHelpObject.examples.example.Count - 1) | ForEach-Object {
             It ('generate correct example ' + ($generatedHelpObject.examples.example[$_].title)) -Skip:($_ -eq 5) {
-                
+
                 $exampleExtractionRegex = '^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}(\r|\n){1,}(?<body>(\S|\s)+)';
                 $generatedMatches = [Regex]::Match(($generatedHelpObject.examples.example[$_] | Out-String).Trim(), $exampleExtractionRegex)
                 $originalMatches = [Regex]::Match(($originalHelpObject.examples.example[$_] | Out-String).Trim(), $exampleExtractionRegex)
-                
+
                 # Confirm match completed successfully
                 $generatedMatches.Success | Should Be $True
                 $originalMatches.Success | Should Be $True
@@ -139,7 +139,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 function OutFileAndStripped
 {
     param([string]$path, [string]$content)
-    
+
     $strippedContent = ((((($content) -replace '\[<', '<') -replace '\[<', '<') -replace '>\]', '>') -replace '>\]', '>')
     Set-Content -Path "$path.stripped" -Value $strippedContent
     Set-Content -Path $path -Value $content
@@ -154,8 +154,8 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     }
 
     # parameters for New-Markdown
-    @( 
-        
+    @(
+
         [psobject]@{
             MamlFile = "$pshome\en-US\System.Management.Automation.dll-Help.xml"
             OutputFolder = "$outFolder\sma-maml"
@@ -173,7 +173,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
     ) | ForEach-Object {
 
         $newMarkdownArgs = $_
-        
+
         Context "Output SMA into $($newMarkdownArgs.OutputFolder)" {
             $mdFiles = New-MarkdownHelp @newMarkdownArgs
             $IsMaml = (Split-Path -Leaf $newMarkdownArgs.OutputFolder) -eq 'sma-maml'
@@ -191,7 +191,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
             # this our regression suite for SMA
             $generatedHelp = Get-HelpPreview (Join-Path $newMarkdownArgs.OutputFolder 'System.Management.Automation.dll-Help.xml')
-            
+
             It 'has right number of outputs for Get-Help' {
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Get-Help'}
                 ($h.returnValues.returnValue | Measure-Object).Count | Should Be 3
@@ -243,7 +243,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
 
                     $h = $generatedHelp | Where-Object {$_.Name -eq 'Connect-PSSession'}
                     $expected = NormalizeEndings ( (Get-Help Connect-PSSession).alertSet | Out-String )
-                    NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected 
+                    NormalizeEndings ( $h.alertSet | Out-String ) | Should Be $expected
                 }
             }
         }

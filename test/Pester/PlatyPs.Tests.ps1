@@ -17,12 +17,12 @@ Describe 'New-MarkdownHelp' {
 
     Context 'errors' {
         It 'throw when cannot find module' {
-            { New-MarkdownHelp -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } | 
+            { New-MarkdownHelp -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } |
                 Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
         }
 
         It 'throw when cannot find module' {
-            { New-MarkdownHelp -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } | 
+            { New-MarkdownHelp -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } |
                 Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
         }
     }
@@ -34,7 +34,7 @@ Describe 'New-MarkdownHelp' {
             } -command New-MarkdownHelp -OutputFolder TestDrive:\
 
             $h = Get-MarkdownMetadata $file
-            $h['FOO'] | Should Be 'BAR' 
+            $h['FOO'] | Should Be 'BAR'
         }
 
         It 'respects -NoMetadata' {
@@ -47,7 +47,7 @@ Describe 'New-MarkdownHelp' {
                 Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
         }
     }
-    
+
     Context 'encoding' {
         $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -Force -Encoding ([System.Text.Encoding]::UTF32)
         $content = $file | Get-Content -Encoding UTF32 -Raw
@@ -64,8 +64,8 @@ Describe 'New-MarkdownHelp' {
     Context 'from module' {
         try
         {
-            New-Module -Name PlatyPSTestModule -ScriptBlock { 
-                function Get-AAAA 
+            New-Module -Name PlatyPSTestModule -ScriptBlock {
+                function Get-AAAA
                 {
 
                 }
@@ -81,15 +81,15 @@ Describe 'New-MarkdownHelp' {
                 function Get-SimpleFn
                 {
                     param (
-                    
+
                     )
                 }
 
-                function Set-BBBB 
+                function Set-BBBB
                 {
 
                 }
-                
+
 
                 if (-not $global:IsUnix) {
                     # just declaring workflow is a parse-time error on unix
@@ -135,7 +135,7 @@ Describe 'New-MarkdownHelp' {
             ($files | Where-Object -FilterScript { $_.Name -eq 'FromCommandWorkflow.md' }).FullName | Should -FileContentMatch '### CommonParameters'
         }
     }
-    
+
     Context 'from command' {
         It 'creates 2 markdown files from command names' {
             $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder TestDrive:\commands -Force
@@ -163,7 +163,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'uses alphabetic order when specified' {
-            
+
             $expectedOrder = normalizeEnds @'
 ### -AAA
 ### -BBB
@@ -179,7 +179,7 @@ Describe 'New-MarkdownHelp' {
     }
 
     Context 'Online version link' {
-        
+
         function global:Test-PlatyPSFunction {
             <#
             .LINK
@@ -199,7 +199,7 @@ Describe 'New-MarkdownHelp' {
 
                 $file = New-MarkdownHelp @a
                 $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\" -Force
-                $help = Get-HelpPreview -Path $maml 
+                $help = Get-HelpPreview -Path $maml
                 $link = $help.relatedLinks.navigationLink
                 if ($uri) {
                     if ($uri -eq 'http://www.fabrikam.com/extension.html') {
@@ -245,14 +245,14 @@ Describe 'New-MarkdownHelp' {
             $param.description.text | Should Be '{{Fill Foo Description}}'
         }
     }
-    
+
     Context 'Generated markdown features: comment-based help' {
         function global:Test-PlatyPSFunction
         {
             # comment-based help template from https://technet.microsoft.com/en-us/library/hh847834.aspx
 
              <#
-            .SYNOPSIS 
+            .SYNOPSIS
             Adds a file name extension to a supplied name.
 
             .DESCRIPTION
@@ -288,7 +288,7 @@ Describe 'New-MarkdownHelp' {
                 [string]$Second
             )
         }
-        
+
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll1 -Force
         $content = Get-Content $file
 
@@ -319,7 +319,7 @@ Describe 'New-MarkdownHelp' {
         function global:Test-PlatyPSFunction
         {
             # there is a help-engine behavior difference for functions with comment-based help (or maml help)
-            # and no-comment based help, we test both 
+            # and no-comment based help, we test both
             param(
                 [Switch]$Common,
                 [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
@@ -328,7 +328,7 @@ Describe 'New-MarkdownHelp' {
                 [string]$Second
             )
         }
-        
+
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder TestDrive:\testAll2 -Force
         $content = Get-Content $file
 
@@ -346,7 +346,7 @@ Describe 'New-MarkdownHelp' {
     }
 
     Context 'Dynamic parameters' {
-        
+
         function global:Test-DynamicParameterSet {
             [CmdletBinding()]
             [OutputType()]
@@ -384,7 +384,7 @@ Describe 'New-MarkdownHelp' {
 
             $file = New-MarkdownHelp @a
             $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\"
-            $help = Get-HelpPreview -Path $maml 
+            $help = Get-HelpPreview -Path $maml
             $help.Syntax.syntaxItem.Count | Should Be 2
             $dynamicParam = $help.parameters.parameter | Where-Object {$_.name -eq 'DynamicParameter'}
             ($dynamicParam | Measure-Object).Count | Should Be 1
@@ -392,7 +392,7 @@ Describe 'New-MarkdownHelp' {
     }
 
     Context 'Module Landing Page'{
-            
+
         $OutputFolder = "TestDrive:\LandingPageMD\"
 
         New-Item -ItemType Directory $OutputFolder
@@ -422,7 +422,7 @@ Describe 'New-MarkdownHelp' {
 
         }
     }
-	
+
 	Context 'Full Type Name' {
         function global:Get-Alpha
         {
@@ -445,7 +445,7 @@ Type: System.String
 Type: System.Nullable`1[System.Int32]
 Type: System.Management.Automation.SwitchParameter
 
-'@ 
+'@
             $expectedSyntax = normalizeEnds @'
 Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
@@ -463,7 +463,7 @@ Type: String
 Type: Int32
 Type: SwitchParameter
 
-'@ 
+'@
             $expectedSyntax = normalizeEnds @'
 Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
@@ -485,7 +485,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 Describe 'New-ExternalHelp' {
     BeforeAll {
         function global:Test-OrderFunction {
-          param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named) 
+          param ([Parameter(Position=3)]$Third, [Parameter(Position=1)]$First, [Parameter()]$Named)
           $First
           $Third
           $Named
@@ -493,13 +493,13 @@ Describe 'New-ExternalHelp' {
         $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force
         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -Force
     }
-    
+
     It "generates right order for syntax" {
-        $help = Get-HelpPreview -Path $maml 
+        $help = Get-HelpPreview -Path $maml
         ($help.Syntax.syntaxItem | Measure-Object).Count | Should Be 1
         $names = $help.Syntax.syntaxItem.parameter.Name
         ($names | Measure-Object).Count | Should Be 3
-        $names[0] | Should Be 'First'        
+        $names[0] | Should Be 'First'
         $names[1] | Should Be 'Third'
         $names[2] | Should Be 'Named'
     }
@@ -513,7 +513,7 @@ Describe 'New-ExternalHelp' {
 Describe 'New-ExternalHelp -ErrorLogFile' {
    BeforeAll {
       function global:Test-OrderFunction {
-         param ([Parameter(Position = 3)]$Third, [Parameter(Position = 1)]$First, [Parameter()]$Named) 
+         param ([Parameter(Position = 3)]$Third, [Parameter(Position = 1)]$First, [Parameter()]$Named)
          $First
          $Third
          $Named
@@ -522,23 +522,23 @@ Describe 'New-ExternalHelp -ErrorLogFile' {
       try {
          # Don't add metadata so the file has an error
          $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force -NoMetadata
-         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -ErrorLogFile "$TestDrive\warningsAndErrors.json" -Force      
+         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -ErrorLogFile "$TestDrive\warningsAndErrors.json" -Force
       }
       catch {
          # Ignore the error. I just needed an error to write to the log file.
          # If I don't catch this the test will fail.
       }
    }
-  
+
    It "generates error log file" {
       Test-Path  "$TestDrive\warningsAndErrors.json" | Should Be $true
    }
 
    It "error log file is valid JSON" {
       $r = (Get-Content "$TestDrive\warningsAndErrors.json" | ConvertFrom-Json)
-      $r[0].Message | Should Be "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version..Exception.Message" 
-      $r[0].Severity | Should Be "Error" 
-      $r[0].FilePath | Should Be "" 
+      $r[0].Message | Should Be "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version..Exception.Message"
+      $r[0].Severity | Should Be "Error"
+      $r[0].FilePath | Should Be ""
    }
 }
 
@@ -621,7 +621,7 @@ if (-not $global:IsUnix) {
     Describe 'Get-Help & Get-Command on Add-Computer to build MAML Model Object' {
 
         Context 'Add-Computer' {
-            
+
             It 'Checks that Help Exists on Computer Running Tests' {
 
                 $Command = Get-Command Add-Computer
@@ -642,7 +642,7 @@ if (-not $global:IsUnix) {
             $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Add-Computer" }
 
             It 'Validates attributes by checking several sections of the single attributes for Add-Computer' {
-                
+
                 $mamlModelObject.Name | Should be "Add-Computer"
                 $mamlModelObject.Synopsis.Text | Should be "Add the local computer to a domain or workgroup."
                 $mamlModelObject.Description.Text.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
@@ -656,7 +656,7 @@ if (-not $global:IsUnix) {
                 $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
 
             }
-            
+
             It 'Validates Parameters by checking Add-Computer Computer Name and Local Credential in Domain ParameterSet'{
 
                 $Parameter = $mamlModelObject.Syntax[0].Parameters | Where-Object { $_.Name -eq "ComputerName" }
@@ -664,9 +664,9 @@ if (-not $global:IsUnix) {
                 $Parameter.Type | Should be "string[]"
                 $Parameter.Required | Should be $false
             }
-            
+
             It 'Validates there is only 1 default parameterset and that it is the domain parameterset for Add-Computer'{
-                
+
                 $DefaultParameterSet = $mamlModelObject.Syntax | Where-Object {$_.IsDefault}
                 $count = 0
                 foreach($set in $DefaultParameterSet)
@@ -674,10 +674,10 @@ if (-not $global:IsUnix) {
                     $count = $count +1
                 }
                 $count | Should be 1
-                
+
                 $DefaultParameterSetName = $mamlModelObject.Syntax | Where-Object {$_.IsDefault} | Select-Object ParameterSetName
                 $DefaultParameterSetName.ParameterSetName | Should be "Domain"
-            }        
+            }
         }
 
         Context 'Add-Member' {
@@ -700,7 +700,7 @@ if (-not $global:IsUnix) {
         }
     }
 
-#endregion 
+#endregion
 #########################################################
 #region Checking Cab and File Naming Cmdlets
 
@@ -741,7 +741,7 @@ if (-not $global:IsUnix) {
                 $cabExtract = Join-Path $cabExtract "HelpXml.xml"
 
                 expand $cab /f:* $cabExtract
-                
+
                 (Get-ChildItem -Filter "*.cab" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.cab"
                 (Get-ChildItem -Filter "*.xml" -Path "$OutputPath").Name | Should Be "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml"
                 (Get-ChildItem -Filter "*.xml" -Path "$OutputPath\OutXml").Name | Should Be "HelpXml.xml"
@@ -765,13 +765,13 @@ if (-not $global:IsUnix) {
             }
 
             It 'Adds another help locale'{
-            
+
                 Set-Content -Path (Join-Path $OutputPath "\Source\ModuleMd\Module.md") -Value "---`r`nModule Name: PlatyPs`r`nModule Guid: 00000000-0000-0000-0000-000000000000`r`nDownload Help Link: Somesite.com`r`nHelp Version: 5.0.0.1`r`nLocale: en-US`r`nAdditional Locale: fr-FR,ja-JP`r`nfr-FR Version: 1.2.3.4`r`nja-JP Version: 2.3.4.5`r`n---" | Out-Null
                 New-ExternalHelpCab -CabFilesFolder $CmdletContentFolder -OutputFolder $OutputPath -LandingPagePath $ModuleMdPageFullPath
                 [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
                 $Count = 0
                 $PlatyPSHelpInfo.HelpInfo.SupportedUICultures.UICulture | ForEach-Object {$Count++}
-                
+
                 $Count | Should Be 3
             }
         }
@@ -781,7 +781,7 @@ if (-not $global:IsUnix) {
 }
 
 Describe 'Update-MarkdownHelp -LogPath' {
-    
+
     It 'checks the log exists' {
         $drop = "TestDrive:\MD\SingleCommand"
         Remove-Item -rec $drop -ErrorAction SilentlyContinue
@@ -799,12 +799,12 @@ Describe 'Get-MarkdownMetadata' {
 ---
 a : 1
 
-b: 2 
+b: 2
 foo: bar
 ---
 
 this text would be ignored
-'@        
+'@
         It 'can parse out yaml snippet' {
             $d = Get-MarkdownMetadata TestDrive:\foo.md
             $d.Count | Should Be 3
@@ -818,8 +818,8 @@ this text would be ignored
 Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
     $OutputFolder = 'TestDrive:\update-new'
 
-    $originalFiles = New-MarkdownHelp -Module platyPS -OutputFolder $OutputFolder -WithModulePage 
-        
+    $originalFiles = New-MarkdownHelp -Module platyPS -OutputFolder $OutputFolder -WithModulePage
+
     It 'creates markdown in the first place' {
         $originalFiles | Should Not Be $null
         $originalFiles | Select-Object -First 2 | Remove-Item
@@ -832,12 +832,12 @@ Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
 }
 
 Describe 'Update-MarkdownHelp reflection scenario' {
-    
+
     function normalizeEnds([string]$text)
     {
         $text -replace "`r`n?|`n", "`r`n"
     }
-    
+
     $OutputFolder = 'TestDrive:\CoolStuff'
 
     # bootstraping docs from some code
@@ -892,16 +892,16 @@ And [hyper](http://link.com).
     }
 
     $v2maml = New-ExternalHelp -Path $v2md.FullName -OutputPath "$OutputFolder\v2"
-    $v2markdown = $v2md | Get-Content -raw 
-    $help = Get-HelpPreview -Path $v2maml 
-    
+    $v2markdown = $v2md | Get-Content -raw
+    $help = Get-HelpPreview -Path $v2maml
+
     It 'has both parameters' {
         $names = $help.Parameters.parameter.Name
         ($names | Measure-Object).Count | Should Be 2
         $names[0] | Should Be 'Bar'
         $names[1] | Should Be 'Foo'
     }
-    
+
     It 'preserves hyperlinks' {
         $v2markdown.Contains($newFooDescription) | Should Be $true
     }
@@ -926,7 +926,7 @@ It has mutlilines. And hyper (http://link.com).
         $e.Title | Should Match '-+ Example 1 -+'
         $e.Code | Should Match 'PS C:\>*'
     }
-    
+
     It 'Confirms that Update-MarkdownHelp correctly populates the Default Parameterset' -Skip:$global:IsUnix {
         $outputOriginal = "TestDrive:\MarkDownOriginal"
         $outputUpdated = "TestDrive:\MarkDownUpdated"
@@ -943,7 +943,7 @@ It has mutlilines. And hyper (http://link.com).
 Type: String
 Type: String
 
-'@ 
+'@
         $expectedSyntax = normalizeEnds @'
 Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 
@@ -961,7 +961,7 @@ Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 Type: System.String
 Type: System.String
 
-'@ 
+'@
         $expectedSyntax = normalizeEnds @'
 Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
 
@@ -973,12 +973,12 @@ Get-MyCoolStuff [[-Foo] <String>] [[-Bar] <String>] [<CommonParameters>]
     It 'all the other part should be the same except line with parameters' {
         $expectedContent = $v2md | Get-Content | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String
         $v3markdown | Select-String -pattern "Type: |Get-MyCoolStuff" -notmatch | Out-String | Should Be $expectedContent
-    
+
     }
 }
 
 Describe 'Update Markdown Help' {
-    
+
     $output = "TestDrive:\"
 
     $ValidHelpFileName = "Microsoft.PowerShell.Archive-help.xml"
@@ -991,7 +991,7 @@ schema: 2.0.0
 
 # Expand-Archive
 ## SYNOPSIS
-Extracts files from a specified archive (zipped) file.          
+Extracts files from a specified archive (zipped) file.
 
 ## SYNTAX
 
@@ -1037,11 +1037,11 @@ This parameter is required.
 ```yaml
 Type: String
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -1052,11 +1052,11 @@ Forces the command to run without asking for user confirmation.
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: False
 ```
@@ -1074,7 +1074,7 @@ Aliases: PSPath
 
 Required: True
 Position: Named
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName)
 Accept wildcard characters: False
 ```
@@ -1085,11 +1085,11 @@ Specifies the path to the archive file.
 ```yaml
 Type: String
 Parameter Sets: Path
-Aliases: 
+Aliases:
 
 Required: True
 Position: 1
-Default value: 
+Default value:
 Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
@@ -1144,7 +1144,7 @@ You can pipe a string that contains a path to an existing archive file.
 
 [Compress-Archive]()
 '@
-    
+
     Set-Content -Path "$outFolder\Expand-Archive.md" -Value $md
     Update-MarkdownHelp -Path "$outFolder\Expand-Archive.md"
     $updatedMd = Get-Content "$outFolder\Expand-Archive.md"
@@ -1170,16 +1170,16 @@ You can pipe a string that contains a path to an existing archive file.
 }
 
 Describe 'Create About Topic Markdown and Txt' {
-    
+
     $output = "TestDrive:\"
     $aboutTopicName = "PlatyPS"
     $templateLocation = (Split-Path ((Get-Module $aboutTopicName).Path) -Parent) + "\templates\aboutTemplate.md"
     $AboutTopicsOutputFolder = Join-Path $output "About"
     New-Item -Path $AboutTopicsOutputFolder -ItemType Directory
-    
-    
+
+
     It 'Checks the about topic is created with proper file name, and the content is correctly written' {
-        
+
         $aboutContent = Get-Content $templateLocation
         $aboutContent = $aboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $aboutTopicName))
         $aboutContent = $aboutContent.Replace("{{TOPIC NAME}}",$aboutTopicName)
@@ -1208,21 +1208,21 @@ Describe 'Create About Topic Markdown and Txt' {
         New-MarkdownAboutHelp -OutputFolder $AboutTopicsOutputFolder -AboutName "AboutTopic"
 
         New-ExternalHelp -Path $AboutTopicsOutputFolder -OutputPath $AboutTopicsOutputFolder
-        
+
         $lineWidthCheck = $true;
-        
+
         $AboutTxtFilePath = Join-Path $AboutTopicsOutputFolder "about_AboutTopic.help.txt"
 
         $AboutContent = Get-Content $AboutTxtFilePath
-        
+
         $AboutContent | ForEach-Object {
             if($_.Length -gt 80)
             {
                 $lineWidthCheck = $false
-            } 
+            }
         }
-        
-        (Get-ChildItem $AboutTxtFilePath | Measure-Object).Count | Should Be 1 
+
+        (Get-ChildItem $AboutTxtFilePath | Measure-Object).Count | Should Be 1
         $lineWidthCheck | Should Be $true
     }
 
@@ -1246,7 +1246,7 @@ Describe 'Merge-MarkdownHelp' {
                 [string]$First
             )
         }
-        
+
         $file1 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile1 -Force
         $maml1 = $file1 | New-ExternalHelp -OutputPath TestDrive:\1.xml -Force
         $help1 = Get-HelpPreview -Path $maml1
@@ -1258,7 +1258,7 @@ Describe 'Merge-MarkdownHelp' {
                 [string]$Second
             )
         }
-        
+
         $file2 = New-MarkdownHelp -Command Test-PlatyPSMergeFunction -OutputFolder TestDrive:\mergeFile2 -Force
         $maml2 = $file2 | New-ExternalHelp -OutputPath TestDrive:\2.xml -Force
         $help2 = Get-HelpPreview -Path $maml2
@@ -1283,7 +1283,7 @@ Describe 'Merge-MarkdownHelp' {
     Context 'two file' {
         function global:Test-PlatyPSMergeFunction1() {}
         function global:Test-PlatyPSMergeFunction2() {}
-        
+
         $files = @()
         $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1 -OutputFolder TestDrive:\mergePath1 -Force
         $files += New-MarkdownHelp -Command Test-PlatyPSMergeFunction1, Test-PlatyPSMergeFunction2 -OutputFolder TestDrive:\mergePath2 -Force
@@ -1297,7 +1297,7 @@ Describe 'Merge-MarkdownHelp' {
             $mamlNew2 = $fileNew | New-ExternalHelp -OutputPath TestDrive:\2new.xml -Force -ApplicableTag('mergePath2')
             $helpNew2 = Get-HelpPreview -Path $mamlNew2
 
-            $names1 = $helpNew1.Name 
+            $names1 = $helpNew1.Name
             $names2 = $helpNew2.Name
 
             ($names1 | measure).Count | Should Be 1
