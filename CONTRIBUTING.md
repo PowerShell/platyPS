@@ -21,6 +21,8 @@ There are two parts:
 To build the whole project, use the `build.ps1` helper script.
 It depends on the [dotnet cli](https://docs.microsoft.com/en-us/dotnet/core/tools/) build tool.
 
+On Windows you would also need to [install full dotnet framework](https://docs.microsoft.com/en-us/dotnet/framework/install/guide-for-developers) if it's not installed already.
+
 ```powershell
 .\build.ps1
 ```
