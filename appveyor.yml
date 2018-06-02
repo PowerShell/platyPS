@@ -28,9 +28,20 @@ after_test:
         $pesterTestResultsFile = ".\TestsResults.xml"
         $res = Invoke-Pester -OutputFormat NUnitXml -OutputFile $pesterTestResultsFile -PassThru
         (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", (Resolve-Path $pesterTestResultsFile))
-        # Trying to fail the build
+        # Trying to fail the build, if there are problems
+        $errorString = ''
+        # All tests should pass
         if ($res.FailedCount -gt 0) {
-            throw "$($res.FailedCount) tests failed."
+            $errorString += "$($res.FailedCount) tests failed.`n"
+        }
+        # Documentation itself should be up-to-date
+        Update-MarkdownHelp -Path ./docs
+        $diff = git diff
+        if ($diff) {
+            $errorString += "Help is not up-to-date, run Update-MarkdownHelp: $diff`n"
+        }
+        if ($errorString) {
+            throw $errorString
         }
 
 on_finish:
