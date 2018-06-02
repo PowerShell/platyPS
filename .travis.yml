@@ -13,7 +13,7 @@ install:
   - curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
   - curl https://packages.microsoft.com/config/ubuntu/14.04/prod.list | sudo tee /etc/apt/sources.list.d/microsoft.list
   - sudo apt-get update
-  - sudo apt-get install -y powershell
+  - sudo apt-get install -y powershell=6.0.2-1.ubuntu.14.04
 
 script:
   - pwsh ./build.ps1
