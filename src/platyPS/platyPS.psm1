@@ -37,12 +37,6 @@ $script:MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
 $script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
 
-# Write-Progress is not very useful on coreclr
-if (Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) {
-    # silent Write-Progress
-    function Write-Progress() {}
-}
-
 function New-MarkdownHelp
 {
     [CmdletBinding()]
@@ -762,7 +756,9 @@ function New-ExternalHelp
 
         [string]$ErrorLogFile,
 
-        [switch]$Force
+        [switch]$Force,
+
+        [switch]$ShowProgress
     )
 
     begin
@@ -781,6 +777,11 @@ function New-ExternalHelp
         {
             New-Item -Type Directory $OutputPath -ErrorAction SilentlyContinue > $null
             Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
+        }
+
+        if ( -not $ShowProgress.IsPresent -or $(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) )
+        {
+            Function Write-Progress() {}
         }
     }
 

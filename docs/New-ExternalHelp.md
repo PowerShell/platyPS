@@ -14,7 +14,7 @@ Creates external help file based on markdown supported by PlatyPS.
 
 ```
 New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
- [-MaxAboutWidth <Int32>] [-ErrorLogFile <String>] [-Force] [<CommonParameters>]
+ [-MaxAboutWidth <Int32>] [-ErrorLogFile <String>] [-Force] [-ShowProgress] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -193,6 +193,23 @@ If this path is not provided, no log will be generated.
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ShowProgress
+Display progress bars under parsing existing markdown files.
+
+If this is used generating of help is much slower.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 

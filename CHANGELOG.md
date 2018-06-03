@@ -3,6 +3,8 @@ CHANGELOG
 
 ## Not released
 
+* The ShowProgress parameter was added to the New-ExternalHelp function. By default progress bars are not display to increase speed of files processing.
+
 ## 0.9.0
 
 * platyPS is now cross platform and works on powershell 6.0 as well as previous versions of powershell.
