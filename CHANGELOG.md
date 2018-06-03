@@ -3,6 +3,7 @@ CHANGELOG
 
 ## Not released
 
+* Support for remote modules.
 * The ShowProgress parameter was added to the New-ExternalHelp function. By default progress bars are not display to increase speed of files processing.
 
 ## 0.9.0
