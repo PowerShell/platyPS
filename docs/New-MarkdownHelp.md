@@ -14,16 +14,16 @@ Creates help in markdown format.
 
 ### FromModule
 ```
-New-MarkdownHelp -Module <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
- -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>] [-WithModulePage]
- [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
+New-MarkdownHelp -Module <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
+ [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
+ [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
-New-MarkdownHelp -Command <String[]> [-Force] [-AlphabeticParamsOrder] [-Metadata <Hashtable>]
- [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
- [<CommonParameters>]
+New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
+ [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
+ [-Encoding <Encoding>] [<CommonParameters>]
 ```
 
 ### FromMaml
@@ -434,6 +434,23 @@ Indicates that the target document will use a full type name instead of a short 
 ```yaml
 Type: SwitchParameter
 Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Session
+Provides support for remote commands.
+Pass the session that you used to create the commands with `Import-PSSession`.
+This is required to get accurate parameters metadata from the remote session.
+
+```yaml
+Type: PSSession
+Parameter Sets: FromModule, FromCommand
 Aliases:
 
 Required: False
