@@ -2008,25 +2008,36 @@ function GetCommands
         [Parameter(Mandatory=$true)]
         [string]$Module,
         # return names, instead of objects
-        [switch]$AsNames
+        [switch]$AsNames,
+        # use Session for remoting support
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
-    # Get-Module doesn't know about Microsoft.PowerShell.Core, so we don't use (Get-Module).ExportedCommands
+    process {
+        # Get-Module doesn't know about Microsoft.PowerShell.Core, so we don't use (Get-Module).ExportedCommands
 
-    # We use: & (dummy module) {...} syntax to workaround
-    # the case `GetMamlObject -Module platyPS`
-    # because in this case, we are in the module context and Get-Command returns all commands,
-    # not only exported ones.
-    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
-        Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
+        # We use: & (dummy module) {...} syntax to workaround
+        # the case `GetMamlObject -Module platyPS`
+        # because in this case, we are in the module context and Get-Command returns all commands,
+        # not only exported ones.
+        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
+            Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
 
-    if ($AsNames)
-    {
-        $commands.Name
-    }
-    else
-    {
-        $commands
+        if ($AsNames)
+        {
+            $commands.Name
+        }
+        else
+        {
+            if ($Session) {
+                $commands.Name | % {
+                    # yeild
+                    MyGetCommand -Cmdlet $_ -Session $Session
+                }
+            } else {
+                $commands
+            }
+        }
     }
 }
 
@@ -2257,9 +2268,9 @@ function GetMamlObject
     {
         Write-Verbose ("Processing: " + $Module)
 
-        $commands = GetCommands $Module
-        foreach ($Command in $commands)
-        {
+        # GetCommands is slow over remoting, piping here is important for good UX
+        GetCommands $Module -Session $Session | ForEach-Object {
+            $Command = $_
             Write-Verbose ("`tProcessing: " + $Command.Name)
             $Help = Get-Help $Command.Name
             # yield
