@@ -14,7 +14,7 @@ Update PlatyPS markdown help files.
 
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
- [-AlphabeticParamsOrder] [-UseFullTypeName] [<CommonParameters>]
+ [-AlphabeticParamsOrder] [-UseFullTypeName] [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -163,6 +163,23 @@ Indicates that the target document will use a full type name instead of a short 
 
 ```yaml
 Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Session
+Provides support for remote commands.
+Pass the session that you used to create the commands with `Import-PSSession`.
+This is required to get accurate parameters metadata from the remote session.
+
+```yaml
+Type: PSSession
 Parameter Sets: (All)
 Aliases:
 

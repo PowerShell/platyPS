@@ -55,6 +55,10 @@ function New-MarkdownHelp
             ParameterSetName="FromMaml")]
         [string[]]$MamlFile,
 
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromCommand")]
+        [System.Management.Automation.Runspaces.PSSession]$Session,
+
         [Parameter(ParameterSetName="FromMaml")]
         [switch]$ConvertNotesToList,
 
@@ -235,7 +239,7 @@ function New-MarkdownHelp
                     throw "Command $_ not found in the session."
                 }
 
-                GetMamlObject -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
+                GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
             }
         }
         else
@@ -257,7 +261,7 @@ function New-MarkdownHelp
                         throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
                     }
 
-                    GetMamlObject -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
+                    GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
 
                     $ModuleName = $_
                     $ModuleGuid = (Get-Module $ModuleName).Guid
@@ -351,7 +355,9 @@ function Update-MarkdownHelp
         [string]$LogPath,
         [switch]$LogAppend,
         [switch]$AlphabeticParamsOrder,
-        [switch]$UseFullTypeName
+        [switch]$UseFullTypeName,
+
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
     begin
@@ -417,7 +423,7 @@ function Update-MarkdownHelp
             # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
             $metadata["external help file"] = GetHelpFileName $command
-            $reflectionModel = GetMamlObject -Cmdlet $name -UseFullTypeName:$UseFullTypeName
+            $reflectionModel = GetMamlObject -Session $Session -Cmdlet $name -UseFullTypeName:$UseFullTypeName
             $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
@@ -554,7 +560,9 @@ function Update-MarkdownHelpModule
         [switch]$RefreshModulePage,
         [string]$LogPath,
         [switch]$LogAppend,
-        [switch]$AlphabeticParamsOrder
+        [switch]$AlphabeticParamsOrder,
+
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
     begin
@@ -607,7 +615,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
@@ -2000,26 +2008,222 @@ function GetCommands
         [Parameter(Mandatory=$true)]
         [string]$Module,
         # return names, instead of objects
-        [switch]$AsNames
+        [switch]$AsNames,
+        # use Session for remoting support
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
-    # Get-Module doesn't know about Microsoft.PowerShell.Core, so we don't use (Get-Module).ExportedCommands
+    process {
+        # Get-Module doesn't know about Microsoft.PowerShell.Core, so we don't use (Get-Module).ExportedCommands
 
-    # We use: & (dummy module) {...} syntax to workaround
-    # the case `GetMamlObject -Module platyPS`
-    # because in this case, we are in the module context and Get-Command returns all commands,
-    # not only exported ones.
-    $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
-        Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
+        # We use: & (dummy module) {...} syntax to workaround
+        # the case `GetMamlObject -Module platyPS`
+        # because in this case, we are in the module context and Get-Command returns all commands,
+        # not only exported ones.
+        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
+            Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
 
-    if ($AsNames)
-    {
-        $commands.Name
+        if ($AsNames)
+        {
+            $commands.Name
+        }
+        else
+        {
+            if ($Session) {
+                $commands.Name | % {
+                    # yeild
+                    MyGetCommand -Cmdlet $_ -Session $Session
+                }
+            } else {
+                $commands
+            }
+        }
     }
-    else
-    {
-        $commands
+}
+
+<#
+    Get a compact string representation from TypeInfo or TypeInfo-like object
+
+    The typeObjectHash api is provided for the remoting support.
+    We use two different parameter sets ensure the tupe of -TypeObject
+#>
+function GetTypeString
+{
+    param(
+        [Parameter(ValueFromPipeline=$true, ParameterSetName='typeObject')]
+        [System.Reflection.TypeInfo]
+        $TypeObject,
+
+        [Parameter(ValueFromPipeline=$true, ParameterSetName='typeObjectHash')]
+        [PsObject]
+        $TypeObjectHash
+    )
+
+    if ($TypeObject) {
+        $TypeObjectHash = $TypeObject
     }
+
+    # special case for nullable value types
+    if ($TypeObjectHash.Name -eq 'Nullable`1')
+    {
+        return $TypeObjectHash.GenericTypeArguments.Name
+    }
+
+    if ($TypeObjectHash.IsGenericType)
+    {
+        # keep information about generic parameters
+        return $TypeObjectHash.ToString()
+    }
+
+    return $TypeObjectHash.Name
+}
+
+<#
+    This function proxies Get-Command call.
+
+    In case of the Remote module, we need to jump thru some hoops
+    to get the actual Command object with proper fields.
+    Remoting doesn't properly serialize command objects, so we need to be creative
+    while extracting all the required metadata from the remote session
+    See https://github.com/PowerShell/platyPS/issues/338 for historical context.
+#>
+function MyGetCommand
+{
+    Param(
+        [CmdletBinding()]
+        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [string] $Cmdlet,
+        [System.Management.Automation.Runspaces.PSSession]$Session
+    )
+    # if there is no remoting, just proxy to Get-Command
+    if (-not $Session) {
+        return Get-Command $Cmdlet
+    }
+
+    # Here is the structure that we use in ConvertPsObjectsToMamlModel
+    # we fill it up from the remote with some workarounds
+    #
+    # $Command.CommandType
+    # $Command.Name
+    # $Command.ModuleName
+    # $Command.DefaultParameterSet
+    # $Command.CmdletBinding
+    # $ParameterSet in $Command.ParameterSets
+    #     $ParameterSet.Name
+    #     $ParameterSet.IsDefault
+    #     $Parameter in $ParameterSet.Parameters
+    #         $Parameter.Name
+    #         $Parameter.IsMandatory
+    #         $Parameter.Aliases
+    #         $Parameter.HelpMessage
+    #         $Parameter.Type
+    #         $Parameter.ParameterType
+    #            $Parameter.ParameterType.Name
+    #            $Parameter.ParameterType.GenericTypeArguments.Name
+    #            $Parameter.ParameterType.IsGenericType
+    #            $Parameter.ParameterType.ToString() - we get that for free from expand
+
+    # expand first layer of properties
+    function expand([string]$property) {
+        Invoke-Command -Session $Session -ScriptBlock {
+            Get-Command $using:Cmdlet |
+            Select-Object -ExpandProperty $using:property
+        }
+    }
+
+    # This Select-Object -Skip | Select-Object -SkipLast
+    # looks a little crazy, but this is just a workaround for
+    # https://github.com/PowerShell/PowerShell/issues/6979
+    # -First and -Index breaks the subsequent Get-Help calls
+
+    # expand second layer of properties on the selected item
+    function expand2([string]$property1, [int]$num, [int]$totalNum, [string]$property2) {
+        $skipLast = $totalNum - $num - 1
+        Invoke-Command -Session $Session -ScriptBlock {
+            Get-Command $using:Cmdlet |
+            Select-Object -ExpandProperty $using:property1 |
+            Select-Object -Skip $using:num |
+            Select-Object -SkipLast $using:skipLast |
+            Select-Object -ExpandProperty $using:property2
+        }
+    }
+
+    # expand second and 3rd layer of properties on the selected item
+    function expand3(
+        [string]$property1,
+        [int]$num,
+        [int]$totalNum,
+        [string]$property2,
+        [string]$property3
+        ) {
+        $skipLast = $totalNum - $num - 1
+        Invoke-Command -Session $Session -ScriptBlock {
+            Get-Command $using:Cmdlet |
+            Select-Object -ExpandProperty $using:property1 |
+            Select-Object -Skip $using:num |
+            Select-Object -SkipLast $using:skipLast |
+            Select-Object -ExpandProperty $using:property2 |
+            Select-Object -ExpandProperty $using:property3
+        }
+    }
+
+    function local([string]$property) {
+        Get-Command $Cmdlet | select-object -ExpandProperty $property
+    }
+
+    # helper function to fill up the parameters metadata
+    function getParams([int]$num, [int]$totalNum) {
+        # this call we need to fill-up ParameterSets.Parameters.ParameterType with metadata
+        $parameterType = expand3 'ParameterSets' $num $totalNum 'Parameters' 'ParameterType'
+        # this call we need to fill-up ParameterSets.Parameters with metadata
+        $parameters = expand2 'ParameterSets' $num $totalNum 'Parameters'
+        if ($parameters.Length -ne $parameterType.Length) {
+            $errStr = "Metadata for $Cmdlet doesn't match length.`n" +
+            "This should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues"
+            Write-Error $errStr
+        }
+
+        foreach ($i in 0..($parameters.Length - 1)) {
+            $typeObjectHash = New-Object -TypeName pscustomobject -Property @{
+                Name = $parameterType[$i].Name
+                IsGenericType = $parameterType[$i].IsGenericType
+                # almost .ParameterType.GenericTypeArguments.Name
+                # TODO: doesn't it worth another round-trip to make it more accurate
+                # and query for the Name?
+                GenericTypeArguments = @{ Name = $parameterType[$i].GenericTypeArguments }
+            }
+            Add-Member -Type NoteProperty -InputObject $parameters[$i] -Name 'ParameterTypeName' -Value (GetTypeString -TypeObjectHash $typeObjectHash)
+        }
+        return $parameters
+    }
+
+    # we cannot use the nested properties from this $remote command.
+    # ps remoting doesn't serialize all of them properly.
+    # but we can use the top-level onces
+    $remote = Invoke-Command -Session $Session { Get-Command $using:Cmdlet }
+
+    $psets = expand 'ParameterSets'
+    $psetsArray = @()
+    foreach ($i in 0..($psets.Count - 1)) {
+        $parameters = getParams $i $psets.Count
+        $psetsArray += @(New-Object -TypeName pscustomobject -Property @{
+            Name = $psets[$i].Name
+            IsDefault = $psets[$i].IsDefault
+            Parameters = $parameters
+        })
+    }
+
+    $commandHash = @{
+        Name = $Cmdlet
+        CommandType = $remote.CommandType
+        DefaultParameterSet = $remote.DefaultParameterSet
+        CmdletBinding = $remote.CmdletBinding
+        # for office we cannot get the module name from the remote, grab the local one instead
+        ModuleName = local 'ModuleName'
+        ParameterSets = $psetsArray
+    }
+
+    return New-Object -TypeName pscustomobject -Property $commandHash
 }
 
 <#
@@ -2040,7 +2244,10 @@ function GetMamlObject
         [switch] $ConvertNotesToList,
         [parameter(parametersetname="Maml")]
         [switch] $ConvertDoubleDashLists,
-        [switch] $UseFullTypeName
+        [switch] $UseFullTypeName,
+        [parameter(parametersetname="Cmdlet")]
+        [parameter(parametersetname="Module")]
+        [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
     function CommandHasAutogeneratedSynopsis
@@ -2054,16 +2261,16 @@ function GetMamlObject
     {
         Write-Verbose ("Processing: " + $Cmdlet)
         $Help = Get-Help $Cmdlet
-        $Command = Get-Command $Cmdlet
+        $Command = MyGetCommand -Session $Session -Cmdlet $Cmdlet
         return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName
     }
     elseif ($Module)
     {
         Write-Verbose ("Processing: " + $Module)
 
-        $commands = GetCommands $Module
-        foreach ($Command in $commands)
-        {
+        # GetCommands is slow over remoting, piping here is important for good UX
+        GetCommands $Module -Session $Session | ForEach-Object {
+            $Command = $_
             Write-Verbose ("`tProcessing: " + $Command.Name)
             $Help = Get-Help $Command.Name
             # yield
@@ -2230,29 +2437,6 @@ function ConvertPsObjectsToMamlModel
         }
     }
 
-    function getTypeString
-    {
-        param(
-            [Parameter(ValueFromPipeline=$true)]
-            [System.Reflection.TypeInfo]
-            $typeObject
-        )
-
-        # special case for nullable value types
-        if ($typeObject.Name -eq 'Nullable`1')
-        {
-            return $typeObject.GenericTypeArguments.Name
-        }
-
-        if ($typeObject.IsGenericType)
-        {
-            # keep information about generic parameters
-            return $typeObject.ToString()
-        }
-
-        return $typeObject.Name
-    }
-
     function normalizeFirstLatter
     {
         param(
@@ -2359,9 +2543,16 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
-                $ParameterType = $Parameter.ParameterType
-                $ParameterObject.Type = getTypeString -typeObject $ParameterType
-                $ParameterObject.FullType = $ParameterType.ToString()
+                # the ParameterType could be just a string in case of remoting
+                # or a TypeInfo object, in the regular case
+                if ($Session) {
+                    # in case of remoting we already pre-calcuated the Type string
+                    $ParameterObject.Type = $Parameter.ParameterTypeName
+                } else {
+                    $ParameterObject.Type = GetTypeString -TypeObject $Parameter.ParameterType
+                }
+                # ToString() works in both cases
+                $ParameterObject.FullType = $Parameter.ParameterType.ToString()
 
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
