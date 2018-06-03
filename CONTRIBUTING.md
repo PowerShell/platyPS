@@ -74,9 +74,9 @@ This chart describes these simple transformations:
  +------^---+
         |
  +------+------------+           +-----------------+
- |  Markdown v1 file |           |  Markdown Model |
- |                   +----------->                 |
- |  Markdown v2 file |           +-+---------------+
+ |                   |           |  Markdown Model |
+ |  Markdown file    +----------->                 |
+ |                   |           +-+---------------+
  |                   |             |
  +---------------^---+             |
                  |                 |
