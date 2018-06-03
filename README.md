@@ -105,7 +105,10 @@ Supported scenarios:
 
 *  Preview help from generated maml file.
 
-*  Update the [schema](platyPS.schema.md) of existing PlatyPS generated markdown files (Currently version 1.0.0 to version 2.0.0)
+## Remoting
+
+PlatyPS supports working with [`Import-PSSession`](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/import-pssession?view=powershell-6) aka implicit remoting.
+Just pass `-Session $Session` parameter to the platyPS cmdlets and it will do the rest.
 
 ## Build
 
