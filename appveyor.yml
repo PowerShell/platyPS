@@ -51,7 +51,7 @@ on_finish:
             $stagingDirectory = (Resolve-Path ..).Path
             $zipFile = Join-Path $stagingDirectory "platyPS-$($env:APPVEYOR_BUILD_VERSION).zip"
             Add-Type -assemblyname System.IO.Compression.FileSystem
-            [System.IO.Compression.ZipFile]::CreateFromDirectory("$pwd\out\platyPS", $zipFile)
+            7z a -tzip $zipFile "$pwd\out\platyPS"
             @(
                 # You can add other artifacts here
                 (ls $zipFile),
