@@ -2325,6 +2325,22 @@ function AddLineBreaksForParagraphs
     }
 }
 
+function DescriptionToPara
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        $description
+    )
+
+    process
+    {
+        # on some old maml modules description uses Tag to store *-bullet-points
+        # one example of it is Exchange
+        $description.Tag + "" + $description.Text
+    }
+}
+
 function IncrementHelpVersion
 {
     param(
@@ -2493,13 +2509,16 @@ function ConvertPsObjectsToMamlModel
         {
             if ($HelpEntry.description.text)
             {
-                $ParameterObject.Description = $HelpEntry.description.text | AddLineBreaksForParagraphs
+                $ParameterObject.Description = $HelpEntry.description |
+                    DescriptionToPara |
+                    AddLineBreaksForParagraphs
             }
             else
             {
                 # this case happens, when there is HelpMessage in 'Parameter' attribute,
                 # but there is no maml or comment-based help.
                 # then help engine put string outside of 'text' property
+                # In this case there is no DescriptionToPara call needed
                 $ParameterObject.Description = $HelpEntry.description | AddLineBreaksForParagraphs
             }
         }
@@ -2667,14 +2686,22 @@ function ConvertPsObjectsToMamlModel
     #Get Description
     if($Help.description -ne $null)
     {
-        $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($Help.description.Text | AddLineBreaksForParagraphs)
+        $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
+            $Help.description |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
+        )
     }
 
     #Add to Notes
     #From the Help AlertSet data
     if($help.alertSet)
     {
-        $MamlCommandObject.Notes =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($help.alertSet.alert.Text | AddLineBreaksForParagraphs)
+        $MamlCommandObject.Notes =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
+            $help.alertSet.alert |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
+        )
     }
 
     # Not provided by the command object. Using the Command Type to create a note declaring it's type.
@@ -2704,7 +2731,9 @@ function ConvertPsObjectsToMamlModel
             New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($Example.code, '')
         )
 
-        $RemarkText = $Example.remarks.text | AddLineBreaksForParagraphs
+        $RemarkText = $Example.remarks |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
 
         $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
@@ -2718,7 +2747,10 @@ function ConvertPsObjectsToMamlModel
     $Help.inputTypes.inputType | ForEach-Object {
         $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
         $InputObject.TypeName = $_.type.name
-        $InputObject.Description = $_.description.Text | AddLineBreaksForParagraphs
+        $InputObject.Description = $_.description |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
+
         $Inputs += $InputObject
     }
 
@@ -2734,7 +2766,9 @@ function ConvertPsObjectsToMamlModel
     $Help.returnValues.returnValue | ForEach-Object {
         $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
         $OutputObject.TypeName = $_.type.name
-        $OutputObject.Description = $_.description.Text | AddLineBreaksForParagraphs
+        $OutputObject.Description = $_.description |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
         $Outputs += $OutputObject
     }
 
