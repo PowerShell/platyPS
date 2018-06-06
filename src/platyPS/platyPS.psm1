@@ -2680,7 +2680,13 @@ function ConvertPsObjectsToMamlModel
     }
     else
     {
-        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($Help.Synopsis.Trim())
+        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
+            # $Help.Synopsis only contains the first paragraph
+            # https://github.com/PowerShell/platyPS/issues/328
+            $Help.details.description |
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
+        )
     }
 
     #Get Description
