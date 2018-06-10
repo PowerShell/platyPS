@@ -3,7 +3,10 @@ CHANGELOG
 
 ## Not released
 
-* Support for remote modules.
+## 0.10.0
+
+* Add basic deduplication for Examples in `Merge-MarkdownHelp` [#331](https://github.com/PowerShell/platyPS/issues/331)
+* Support for remote modules. Pass `-Session` parameter in supported cmdlets to retrieve accurate metadata from the remote session.
 * The ShowProgress parameter was added to the New-ExternalHelp function. By default progress bars are not display to increase speed of files processing.
 
 ## 0.9.0
