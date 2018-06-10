@@ -46,9 +46,9 @@ namespace Markdown.MAML.Transformer
             result = new MamlCommand()
             {
                 Name = referenceModel.Name,
-                Synopsis = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis.Text))),
-                Description = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description.Text))),
-                Notes = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes.Text))),
+                Synopsis = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Synopsis?.Text))),
+                Description = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Description?.Text))),
+                Notes = new SectionBody(MergeText(tagsModel.ToDictionary(pair => pair.Key, pair => pair.Value.Notes?.Text))),
                 Extent = referenceModel.Extent
             };
 
@@ -157,13 +157,39 @@ namespace Markdown.MAML.Transformer
         }
 
         /// <summary>
-        /// Combine examples together. Don't perform any reduction, but group the examples after each other and add tag name to the title.
-        /// TODO can we combine examples better perhaps?
+        /// Combine examples together.
+        /// If examples are identical, we deduplicate them.
+        /// If example is not found in all the models, add the applicable tags in parentheses.
         /// </summary>
         /// <param name="result"></param>
         /// <param name="applicableTag2Model"></param>
         private void MergeExamples(MamlCommand result, Dictionary<string, MamlCommand> applicableTag2Model)
         {
+            // We want to more or less keep the order of the original examples.
+            // To do it, we use the following algorithm:
+            // We are adding examples sequentially:
+            // 1st from every model, 2nd from every model, etc.
+            // At the same time we are doing deduplication by hashcode.
+
+            // this dictonary gives the mapping between example hashes and applicable tags
+            var hash2tag = new Dictionary<int, List<String>>();
+            foreach (var pair in applicableTag2Model)
+            {
+                foreach (var example in pair.Value.Examples) {
+                    List<String> tagList;
+                    int hash = example.GetHashCode();
+                    if (!hash2tag.TryGetValue(hash, out tagList))
+                    {
+                        tagList = new List<string>();
+                        hash2tag[hash] = tagList;
+                    }
+                    tagList.Add(pair.Key);
+                }
+            }
+
+            // this hashset contains the example hashes for already used examples
+            var usedHashes = new HashSet<int>();
+
             int max = applicableTag2Model.Select(pair => pair.Value.Examples.Count).Max();
             for (int i = 0; i < max; i++)
             {
@@ -172,7 +198,19 @@ namespace Markdown.MAML.Transformer
                     if (pair.Value.Examples.Count > i)
                     {
                         var example = pair.Value.Examples.ElementAt(i);
-                        example.Title += string.Format(" ({0})", pair.Key);
+                        int hash = example.GetHashCode();
+                        if (usedHashes.Contains(hash)) {
+                            continue;
+                        }
+                        // if all tags are covered, don't add anything
+                        if (hash2tag[hash].Count < applicableTag2Model.Count)
+                        {
+                            // we will sort the same list few times, but that's fine
+                            hash2tag[hash].Sort();
+                            string listString = string.Join(", ", hash2tag[hash]);
+                            example.Title += string.Format(" ({0})", listString);
+                        }
+                        usedHashes.Add(hash);
                         result.Examples.Add(example);
                     }
                 }
