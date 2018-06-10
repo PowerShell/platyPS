@@ -21,5 +21,17 @@
         /// The text of the code block.
         /// </summary>
         public string Text { get; private set; }
+
+        /// <summary>
+        /// Serves as a hash function for a <see cref="T:Markdown.MAML.Model.MAML.MamlCodeBlock"/> object.
+        /// </summary>
+        /// <returns>A hash code for this instance that is suitable for use in hashing algorithms and data structures such as a
+        /// hash table.</returns>
+        public override int GetHashCode()
+        {
+            return
+                (Text == null ? 679 : Text.GetHashCode()) ^
+                (LanguageMoniker == null ? 765679 : LanguageMoniker.GetHashCode());
+        }
     }
 }

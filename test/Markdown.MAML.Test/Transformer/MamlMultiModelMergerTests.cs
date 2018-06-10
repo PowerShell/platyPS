@@ -301,7 +301,7 @@ Third Command
         [Fact]
         public void MergeDefaultSyntaxAndCreateMarkdown()
         {
-            // First merge two models with default syntax names 
+            // First merge two models with default syntax names
 
             var merger = new MamlMultiModelMerger(null, false, "! ");
             var input = new Dictionary<string, MamlCommand>();
@@ -397,6 +397,144 @@ Third Command
             syntax1.Parameters.Add(parameterName);
             command.Syntax.Add(syntax1);
 
+            return command;
+        }
+    }
+
+    public class MamlMultiModelMergerExampleTest
+    {
+        [Fact]
+        public void Merge2ExamplesInOne()
+        {
+            // First merge two models with default syntax names
+
+            var merger = new MamlMultiModelMerger(null, false, "! ");
+            var input = new Dictionary<string, MamlCommand>();
+
+            input["First"] = GetModel(
+                title: "Example 1",
+                code: "PS:> 1+1",
+                remarks: "Hello"
+            );
+            input["Second"] = GetModel(
+                title: "Example 1",
+                code: "PS:> 1+1",
+                remarks: "Hello"
+            );
+
+            var result = merger.Merge(input);
+
+             // Examples
+            Assert.Single(result.Examples);
+            Assert.Equal("Example 1", result.Examples.ElementAt(0).Title);
+
+            // next render it as markdown and make sure that we don't crash
+            var renderer = new MarkdownV2Renderer(MAML.Parser.ParserMode.FormattingPreserve);
+            string markdown = renderer.MamlModelToString(result, true);
+        }
+
+        [Fact]
+        public void MergeExamplesOrder()
+        {
+            // First merge two models with default syntax names
+
+            var merger = new MamlMultiModelMerger(null, false, "! ");
+            var input = new Dictionary<string, MamlCommand>();
+
+            input["First"] = GetModel(
+                new []
+                {
+                    new MamlExample() { Title = "E1" },
+                    new MamlExample() { Title = "E2" },
+                }
+            );
+            input["Second"] = GetModel(
+                new []
+                {
+                    new MamlExample() { Title = "E2" },
+                    new MamlExample() { Title = "E1" },
+                    new MamlExample() { Title = "E3" },
+                }
+            );
+
+            var result = merger.Merge(input);
+
+             // Examples
+            Assert.Equal(3, result.Examples.Count);
+            Assert.Equal("E1", result.Examples.ElementAt(0).Title);
+            Assert.Equal("E2", result.Examples.ElementAt(1).Title);
+            Assert.Equal("E3 (Second)", result.Examples.ElementAt(2).Title);
+
+            // next render it as markdown and make sure that we don't crash
+            var renderer = new MarkdownV2Renderer(MAML.Parser.ParserMode.FormattingPreserve);
+            string markdown = renderer.MamlModelToString(result, true);
+        }
+
+        [Fact]
+        public void Merge3ExamplesIn2()
+        {
+            // First merge two models with default syntax names
+
+            var merger = new MamlMultiModelMerger(null, false, "! ");
+            var input = new Dictionary<string, MamlCommand>();
+
+            input["First"] = GetModel(
+                title: "Example 1",
+                code: "PS:> 1+1",
+                remarks: "Hello"
+            );
+            input["Second"] = GetModel(
+                title: "Example 1",
+                code: "PS:> 1+1",
+                remarks: "Hello"
+            );
+
+            input["Third"] = GetModel(
+                title: "Example 1",
+                code: "PS:> 1+1",
+                remarks: "Hello world"
+            );
+
+            var result = merger.Merge(input);
+
+             // Examples
+            Assert.Equal(2, result.Examples.Count);
+            Assert.Equal("Example 1 (First, Second)", result.Examples.ElementAt(0).Title);
+            Assert.Equal("Hello", result.Examples.ElementAt(0).Remarks);
+            Assert.Equal("Example 1 (Third)", result.Examples.ElementAt(1).Title);
+            Assert.Equal("Hello world", result.Examples.ElementAt(1).Remarks);
+
+            // next render it as markdown and make sure that we don't crash
+            var renderer = new MarkdownV2Renderer(MAML.Parser.ParserMode.FormattingPreserve);
+            string markdown = renderer.MamlModelToString(result, true);
+        }
+
+        private MamlCommand GetModel(string title, string code, string remarks)
+        {
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            command.Examples.Add(new MamlExample()
+            {
+                Title = title,
+                Code = new[] { new MamlCodeBlock(code) },
+                Remarks = remarks,
+            }
+            );
+
+            return command;
+        }
+
+        private MamlCommand GetModel(MamlExample[] examples)
+        {
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            command.Examples.AddRange(examples);
             return command;
         }
     }
