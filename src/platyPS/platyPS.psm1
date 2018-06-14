@@ -656,6 +656,7 @@ function New-MarkdownAboutHelp
 
     begin
     {
+        if ($AboutName.StartsWith('about_')) {$AboutName = $AboutName.Substring(6,$($AboutName.Length - 6))}
         validateWorkingProvider
         $templatePath =  Join-Path $PSScriptRoot "templates\aboutTemplate.md"
     }
