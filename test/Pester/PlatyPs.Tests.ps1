@@ -1190,6 +1190,20 @@ Describe 'Create About Topic Markdown and Txt' {
         Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $aboutContent
     }
 
+    It 'Checks the about topic is created with proper file name, and the content is correctly written - avoiding doubled about' {
+
+        $aboutTopicName = "PlatyPS_about_doubled"
+
+        $aboutContent = Get-Content $templateLocation
+        $aboutContent = $aboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $aboutTopicName))
+        $aboutContent = $aboutContent.Replace("{{TOPIC NAME}}",$aboutTopicName)
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName $("about_" + $aboutTopicName)
+
+        Test-Path (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $true
+        Get-Content (Join-Path $output ("about_$($aboutTopicName).md")) | Should Be $aboutContent
+    }
+
     It 'Can generate external help for a directly-specified "about" markdown file' {
 
         New-MarkdownAboutHelp -OutputFolder $output -AboutName 'JustOne'
@@ -1199,6 +1213,19 @@ Describe 'Create About Topic Markdown and Txt' {
         New-ExternalHelp -Path $aboutMdPath -OutputPath $AboutTopicsOutputFolder
 
         $aboutExternalHelpPath = Join-Path $AboutTopicsOutputFolder 'about_JustOne.help.txt'
+
+        Test-Path $aboutExternalHelpPath | Should Be $true
+    }
+
+    It 'Can generate external help for a directly-specified "about" markdown file - avoiding doubled about_' {
+
+        New-MarkdownAboutHelp -OutputFolder $output -AboutName 'about_JustSecond'
+
+        $aboutMdPath = Join-Path $output "about_JustSecond.md"
+
+        New-ExternalHelp -Path $aboutMdPath -OutputPath $AboutTopicsOutputFolder
+
+        $aboutExternalHelpPath = Join-Path $AboutTopicsOutputFolder 'about_JustSecond.help.txt'
 
         Test-Path $aboutExternalHelpPath | Should Be $true
     }
