@@ -3,6 +3,11 @@ CHANGELOG
 
 ## Not released
 
+## 0.10.1
+
+* Fix remote module support for PowerShell version 3.0 and 4.0.
+* Avoid doubling `about_` when user provide it in the `AboutName` parameter.
+
 ## 0.10.0
 
 * Add basic deduplication for Examples in `Merge-MarkdownHelp` [#331](https://github.com/PowerShell/platyPS/issues/331)
