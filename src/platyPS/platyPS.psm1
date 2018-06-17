@@ -2132,19 +2132,12 @@ function MyGetCommand
         }
     }
 
-    # This Select-Object -Skip | Select-Object -SkipLast
-    # looks a little crazy, but this is just a workaround for
-    # https://github.com/PowerShell/PowerShell/issues/6979
-    # -First and -Index breaks the subsequent Get-Help calls
-
     # expand second layer of properties on the selected item
-    function expand2([string]$property1, [int]$num, [int]$totalNum, [string]$property2) {
-        $skipLast = $totalNum - $num - 1
+    function expand2([string]$property1, [int]$num, [string]$property2) {
         Invoke-Command -Session $Session -ScriptBlock {
             Get-Command $using:Cmdlet |
             Select-Object -ExpandProperty $using:property1 |
-            Select-Object -Skip $using:num |
-            Select-Object -SkipLast $using:skipLast |
+            Select-Object -Index $using:num -Wait |
             Select-Object -ExpandProperty $using:property2
         }
     }
@@ -2153,16 +2146,13 @@ function MyGetCommand
     function expand3(
         [string]$property1,
         [int]$num,
-        [int]$totalNum,
         [string]$property2,
         [string]$property3
         ) {
-        $skipLast = $totalNum - $num - 1
         Invoke-Command -Session $Session -ScriptBlock {
             Get-Command $using:Cmdlet |
             Select-Object -ExpandProperty $using:property1 |
-            Select-Object -Skip $using:num |
-            Select-Object -SkipLast $using:skipLast |
+            Select-Object -Index $using:num -Wait |
             Select-Object -ExpandProperty $using:property2 |
             Select-Object -ExpandProperty $using:property3
         }
@@ -2173,11 +2163,11 @@ function MyGetCommand
     }
 
     # helper function to fill up the parameters metadata
-    function getParams([int]$num, [int]$totalNum) {
+    function getParams([int]$num) {
         # this call we need to fill-up ParameterSets.Parameters.ParameterType with metadata
-        $parameterType = expand3 'ParameterSets' $num $totalNum 'Parameters' 'ParameterType'
+        $parameterType = expand3 'ParameterSets' $num 'Parameters' 'ParameterType'
         # this call we need to fill-up ParameterSets.Parameters with metadata
-        $parameters = expand2 'ParameterSets' $num $totalNum 'Parameters'
+        $parameters = expand2 'ParameterSets' $num 'Parameters'
         if ($parameters.Length -ne $parameterType.Length) {
             $errStr = "Metadata for $Cmdlet doesn't match length.`n" +
             "This should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues"
