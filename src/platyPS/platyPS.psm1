@@ -2080,6 +2080,26 @@ function GetTypeString
 }
 
 <#
+    You cannot just write 0..($n-1) because if $n == 0 you are screwed.
+    Hence this helper.
+#>
+function GetRange
+{
+    Param(
+        [CmdletBinding()]
+        [parameter(mandatory=$true)]
+        [int]$n
+    )
+    if ($n -lt 0) {
+        throw "GetRange $n is unsupported: value less then 0"
+    }
+    if ($n -eq 0) {
+        return
+    }
+    0..($n - 1)
+}
+
+<#
     This function proxies Get-Command call.
 
     In case of the Remote module, we need to jump thru some hoops
@@ -2174,7 +2194,7 @@ function MyGetCommand
             Write-Error $errStr
         }
 
-        foreach ($i in 0..($parameters.Length - 1)) {
+        foreach ($i in (GetRange $parameters.Length)) {
             $typeObjectHash = New-Object -TypeName pscustomobject -Property @{
                 Name = $parameterType[$i].Name
                 IsGenericType = $parameterType[$i].IsGenericType
@@ -2195,8 +2215,8 @@ function MyGetCommand
 
     $psets = expand 'ParameterSets'
     $psetsArray = @()
-    foreach ($i in 0..($psets.Count - 1)) {
-        $parameters = getParams $i $psets.Count
+    foreach ($i in (GetRange $psets.Count)) {
+        $parameters = getParams $i
         $psetsArray += @(New-Object -TypeName pscustomobject -Property @{
             Name = $psets[$i].Name
             IsDefault = $psets[$i].IsDefault
