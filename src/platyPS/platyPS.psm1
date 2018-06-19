@@ -561,6 +561,7 @@ function Update-MarkdownHelpModule
         [string]$LogPath,
         [switch]$LogAppend,
         [switch]$AlphabeticParamsOrder,
+        [switch]$UseFullTypeName,
 
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
@@ -615,7 +616,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
@@ -629,7 +630,7 @@ function Update-MarkdownHelpModule
                 if ( -not ($updatedCommands -contains $_) )
                 {
                     log "Creating new markdown for command $_"
-                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
+                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName
                     $newFiles # yeild
                 }
             }
