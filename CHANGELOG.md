@@ -3,6 +3,10 @@ CHANGELOG
 
 ## Not released
 
+## 0.10.2
+
+* Fix remote module support to work correctly with parameter sets with no parameters.
+
 ## 0.10.1
 
 * Fix remote module support for PowerShell version 3.0 and 4.0.
