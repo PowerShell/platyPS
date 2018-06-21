@@ -664,7 +664,7 @@ function New-MarkdownAboutHelp
 
     process
     {
-        if(Test-Path $OutputFolder)
+        if(Test-Path $OutputFolder -PathType Container)
         {
             $AboutContent = Get-Content $templatePath
             $AboutContent = $AboutContent.Replace("{{FileNameForHelpSystem}}",("about_" + $AboutName))

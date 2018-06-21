@@ -13,7 +13,7 @@ Displays your generated external help as **Get-Help** output.
 ## SYNTAX
 
 ```
-Get-HelpPreview -Path <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [<CommonParameters>]
+Get-HelpPreview [-Path] <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -45,19 +45,21 @@ The second command displays the **Name** property for each of the objects in $He
 
 ## PARAMETERS
 
-### -Path
-Specifies an array of paths of MAML external help files.
+### -ConvertDoubleDashLists
+Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
+Double-hyphen lists are common in Windows PowerShell documentation. 
+Markdown accepts single-hyphens for lists.
 
 ```yaml
-Type: String[]
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
-Accept pipeline input: True (ByValue)
-Accept wildcard characters: True
+Accept pipeline input: False
+Accept wildcard characters: False
 ```
 
 ### -ConvertNotesToList
@@ -76,20 +78,18 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ConvertDoubleDashLists
-Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
-Double-hyphen lists are common in Windows PowerShell documentation. 
-Markdown accepts single-hyphens for lists.
+### -Path
+Specifies an array of paths of MAML external help files.
 
 ```yaml
-Type: SwitchParameter
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: False
-Position: Named
+Required: True
+Position: 1
 Default value: None
-Accept pipeline input: False
+Accept pipeline input: True (ByValue)
 Accept wildcard characters: False
 ```
 

@@ -13,8 +13,8 @@ Merge multiple markdown versions of the same cmdlet into a single markdown file.
 ## SYNTAX
 
 ```
-Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [-Encoding <Encoding>] [-ExplicitApplicableIfAll]
- [-Force] [[-MergeMarker] <String>] [<CommonParameters>]
+Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [[-Encoding] <Encoding>]
+ [-ExplicitApplicableIfAll] [-Force] [[-MergeMarker] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -61,7 +61,7 @@ Parameter Sets: (All)
 Aliases:
 
 Required: False
-Position: Named
+Position: 2
 Default value: UTF8 without BOM
 Accept pipeline input: False
 Accept wildcard characters: False
@@ -142,7 +142,7 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: True
+Accept wildcard characters: False
 ```
 
 ### CommonParameters

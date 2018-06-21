@@ -14,7 +14,8 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-Session <PSSession>] [<CommonParameters>]
+ [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [[-Session] <PSSession>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -46,6 +47,23 @@ This command updates all the files in the specified folder based on the cmdlets 
 The command creates markdown help topics for any cmdlets that are not already included in the .\docs folder.
 
 ## PARAMETERS
+
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Encoding
 Specifies the character encoding for your markdown help files.
@@ -115,28 +133,11 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: True
+Accept wildcard characters: False
 ```
 
 ### -RefreshModulePage
 Update module page when updating the help module.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AlphabeticParamsOrder
-Order parameters alphabetically by name in PARAMETERS section.
-There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
-These parameters are common and hence have well-defined behavior.
 
 ```yaml
 Type: SwitchParameter
@@ -157,6 +158,21 @@ This is required to get accurate parameters metadata from the remote session.
 
 ```yaml
 Type: PSSession
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseFullTypeName
+{{Fill UseFullTypeName Description}}
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 

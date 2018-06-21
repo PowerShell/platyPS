@@ -13,7 +13,7 @@ Creates external help file based on markdown supported by PlatyPS.
 ## SYNTAX
 
 ```
-New-ExternalHelp -Path <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
+New-ExternalHelp [-Path] <String[]> -OutputPath <String> [-ApplicableTag <String[]>] [-Encoding <Encoding>]
  [-MaxAboutWidth <Int32>] [-ErrorLogFile <String>] [-Force] [-ShowProgress] [<CommonParameters>]
 ```
 
@@ -75,16 +75,20 @@ This command writes the warnings and errors to the WarningsAndErrors.json file.
 
 ## PARAMETERS
 
-### -OutputPath
-Specifies the path of a folder where this cmdlet saves your external help file.
-The folder name should end with a locale folder, as in the following example: `.\out\PlatyPS\en-US\`.
+### -ApplicableTag
+Specify array of tags to use as a filter.
+If cmdlet has `applicable` in the yaml metadata and none of the passed tags is
+mentioned there, cmdlet would be ignored in the generated help.
+Same applies to the Parameter level `applicable` yaml metadata.
+If `applicable` is ommited, cmdlet or parameter would be always present.
+See [design issue](https://github.com/PowerShell/platyPS/issues/273) for more details.
 
 ```yaml
-Type: String
+Type: String[]
 Parameter Sets: (All)
 Aliases:
 
-Required: True
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -111,11 +115,17 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Force
-Indicates that this cmdlet overwrites an existing file that has the same name.
+### -ErrorLogFile
+The path where this cmdlet will save formatted results log file.
+
+The path must include the location and name of the folder and file name with
+the json extension. The JSON object contains three properties, Message, FilePath,
+and Severity (Warning or Error).
+
+If this path is not provided, no log will be generated.
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
@@ -126,32 +136,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Path
-Specifies an array of paths of markdown files or folders.
-This cmdlet creates external help based on these files and folders.
+### -Force
+Indicates that this cmdlet overwrites an existing file that has the same name.
 
 ```yaml
-Type: String[]
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: True
-```
-
-### -ApplicableTag
-Specify array of tags to use as a filter.
-If cmdlet has `applicable` in the yaml metadata and none of the passed tags is
-mentioned there, cmdlet would be ignored in the generated help.
-Same applies to the Parameter level `applicable` yaml metadata.
-If `applicable` is ommited, cmdlet or parameter would be always present.
-See [design issue](https://github.com/PowerShell/platyPS/issues/273) for more details.
-
-```yaml
-Type: String[]
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
@@ -182,24 +171,35 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -ErrorLogFile
-The path where this cmdlet will save formatted results log file.
-
-The path must include the location and name of the folder and file name with
-the json extension. The JSON object contains three properties, Message, FilePath,
-and Severity (Warning or Error).
-
-If this path is not provided, no log will be generated.
+### -OutputPath
+Specifies the path of a folder where this cmdlet saves your external help file.
+The folder name should end with a locale folder, as in the following example: `.\out\PlatyPS\en-US\`.
 
 ```yaml
 Type: String
 Parameter Sets: (All)
 Aliases:
 
-Required: False
+Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Specifies an array of paths of markdown files or folders.
+This cmdlet creates external help based on these files and folders.
+
+```yaml
+Type: String[]
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 

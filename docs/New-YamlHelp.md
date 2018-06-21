@@ -104,6 +104,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -OutputFolder
+Specifies the folder to create the YAML files in
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Path
 Specifies an array of paths of markdown files or folders.
 This cmdlet creates external help based on these files and folders.
@@ -117,21 +132,6 @@ Required: True
 Position: 1
 Default value: None
 Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: False
-```
-
-### -OutputFolder
-Specifies the folder to create the YAML files in
-
-```yaml
-Type: String
-Parameter Sets: (All)
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
