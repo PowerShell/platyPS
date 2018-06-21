@@ -14,7 +14,7 @@ Update PlatyPS markdown help files.
 
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
- [-AlphabeticParamsOrder] [-UseFullTypeName] [-Session <PSSession>] [<CommonParameters>]
+ [-AlphabeticParamsOrder] [-UseFullTypeName] [[-Session] <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -70,6 +70,23 @@ This command updates a markdown help file.
 It writes log information to the markdown.log file.
 
 ## PARAMETERS
+
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
 
 ### -Encoding
 Specifies the character encoding for your markdown help files.
@@ -138,38 +155,6 @@ Required: True
 Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
-Accept wildcard characters: True
-```
-
-### -AlphabeticParamsOrder
-Order parameters alphabetically by name in PARAMETERS section.
-There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
-These parameters are common and hence have well-defined behavior.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -UseFullTypeName
-Indicates that the target document will use a full type name instead of a short name for parameters.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
@@ -180,6 +165,21 @@ This is required to get accurate parameters metadata from the remote session.
 
 ```yaml
 Type: PSSession
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseFullTypeName
+Indicates that the target document will use a full type name instead of a short name for parameters.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
