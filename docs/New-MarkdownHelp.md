@@ -129,6 +129,23 @@ The command creates a file named PSReadLine.md that contains links to the other 
 
 ## PARAMETERS
 
+### -AlphabeticParamsOrder
+Order parameters alphabetically by name in PARAMETERS section.
+There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+These parameters are common and hence have well-defined behavior.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -Command
 Specifies the name of a command in your current session.
 This can be any command supported by Windows PowerShell help, such as a cmdlet or a function.
@@ -139,6 +156,39 @@ Parameter Sets: FromCommand
 Aliases:
 
 Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertDoubleDashLists
+Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
+Double-hyphen lists are common in Windows PowerShell documentation. 
+Markdown accepts single-hyphens for lists. 
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: FromMaml
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ConvertNotesToList
+Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items. 
+This output follows TechNet formatting. 
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: FromMaml
+Aliases:
+
+Required: False
 Position: Named
 Default value: None
 Accept pipeline input: False
@@ -360,65 +410,14 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -WithModulePage
-Indicates that this cmdlet creates a module page in the output folder.
-This file has the name that the *ModuleName* parameter specifies.
-If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
-
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: FromModule, FromMaml
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ConvertNotesToList
-Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items. 
-This output follows TechNet formatting. 
+### -Session
+Provides support for remote commands.
+Pass the session that you used to create the commands with `Import-PSSession`.
+This is required to get accurate parameters metadata from the remote session.
 
 ```yaml
-Type: SwitchParameter
-Parameter Sets: FromMaml
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -ConvertDoubleDashLists
-Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
-Double-hyphen lists are common in Windows PowerShell documentation. 
-Markdown accepts single-hyphens for lists. 
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: FromMaml
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -AlphabeticParamsOrder
-Order parameters alphabetically by name in PARAMETERS section.
-There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
-These parameters are common and hence have well-defined behavior.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: (All)
+Type: PSSession
+Parameter Sets: FromModule, FromCommand
 Aliases:
 
 Required: False
@@ -443,14 +442,15 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Session
-Provides support for remote commands.
-Pass the session that you used to create the commands with `Import-PSSession`.
-This is required to get accurate parameters metadata from the remote session.
+### -WithModulePage
+Indicates that this cmdlet creates a module page in the output folder.
+This file has the name that the *ModuleName* parameter specifies.
+If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
+
 
 ```yaml
-Type: PSSession
-Parameter Sets: FromModule, FromCommand
+Type: SwitchParameter
+Parameter Sets: FromModule, FromMaml
 Aliases:
 
 Required: False

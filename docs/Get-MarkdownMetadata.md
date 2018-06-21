@@ -14,7 +14,7 @@ Gets metadata from the header of a markdown file.
 
 ### FromPath (Default)
 ```
-Get-MarkdownMetadata -Path <String[]> [<CommonParameters>]
+Get-MarkdownMetadata [-Path] <String[]> [<CommonParameters>]
 ```
 
 ### FromMarkdownString
@@ -89,22 +89,6 @@ This command gets metadata from each of the markdown files in the .\docs folder.
 
 ## PARAMETERS
 
-### -Path
-Specifies an array of paths of markdown files or folders.
-
-
-```yaml
-Type: String[]
-Parameter Sets: FromPath
-Aliases:
-
-Required: True
-Position: Named
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: True
-```
-
 ### -Markdown
 Specifies a string that contains markdown formatted text.
 
@@ -118,6 +102,22 @@ Required: True
 Position: Named
 Default value: None
 Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Specifies an array of paths of markdown files or folders.
+
+
+```yaml
+Type: String[]
+Parameter Sets: FromPath
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByPropertyName, ByValue)
 Accept wildcard characters: False
 ```
 
