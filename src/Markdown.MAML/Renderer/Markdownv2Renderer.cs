@@ -64,7 +64,7 @@ namespace Markdown.MAML.Renderer
                 yamlHeader["schema"] = "2.0.0";
                 AddYamlHeader(yamlHeader);
             }
-            
+
             AddCommand(mamlCommand);
 
             // at the end, just normalize all ends
@@ -140,7 +140,7 @@ namespace Markdown.MAML.Renderer
                 return;
             }
 
-            var extraNewLine = ShouldBreak(io.FormatOption);
+            var extraNewLine = string.IsNullOrEmpty(io.Description) || ShouldBreak(io.FormatOption);
             AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }
