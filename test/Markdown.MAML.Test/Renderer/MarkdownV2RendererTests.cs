@@ -126,6 +126,59 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
+        public void RendererLineBreakAfterParameterForUpdate()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.FormattingPreserve);
+
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-LineBreak",
+                Synopsis = new SectionBody("This is the synopsis"),
+                Description = new SectionBody("This is a long description"),
+                Notes = new SectionBody("This is a note")
+            };
+
+            var parameter1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Name",
+                Required = true,
+                Description = "Name description.",
+                Globbing = true
+            };
+
+            var parameter2 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Path",
+                FormatOption = SectionFormatOption.LineBreakAfterHeader,
+                Required = true,
+                Description = "Path description.",
+                Globbing = true
+            };
+
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "ByName"
+            };
+
+            syntax1.Parameters.Add(parameter1);
+            syntax1.Parameters.Add(parameter2);
+            command.Syntax.Add(syntax1);
+
+            string markdown = renderer.MamlModelToString(command, null);
+
+            // Does not use line break and should not be added
+            Assert.Contains("### -Name\r\nName description.\r\n\r\n```yaml", markdown);
+
+            // Uses line break and should be preserved
+            Assert.Contains("### -Path\r\n\r\nPath description.\r\n\r\n```yaml", markdown);
+        }
+
+        [Fact]
         public void RendersExamplesFromMaml()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
