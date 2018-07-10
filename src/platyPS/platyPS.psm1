@@ -356,6 +356,7 @@ function Update-MarkdownHelp
         [switch]$LogAppend,
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
+        [switch]$UpdateInputOutput,
 
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
@@ -427,7 +428,7 @@ function Update-MarkdownHelp
             $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
-            $newModel = $merger.Merge($reflectionModel, $oldModel)
+            $newModel = $merger.Merge($reflectionModel, $oldModel, $UpdateInputOutput)
 
             if ($AlphabeticParamsOrder)
             {
@@ -562,6 +563,7 @@ function Update-MarkdownHelpModule
         [switch]$LogAppend,
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
+        [switch]$UpdateInputOutput,
 
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
@@ -616,7 +618,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
@@ -2763,13 +2765,28 @@ function ConvertPsObjectsToMamlModel
     $Inputs = @()
 
     $Help.inputTypes.inputType | ForEach-Object {
-        $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-        $InputObject.TypeName = $_.type.name
-        $InputObject.Description = $_.description |
-            DescriptionToPara |
-            AddLineBreaksForParagraphs
+        if ($_.description -eq $null)
+        {
+            $inputtypes = $_.type.name.split("`n")
+            $inputtypes | ForEach-Object {
+                if (![string]::IsNullOrEmpty($_))
+                {
+                    $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+                    $InputObject.TypeName = $_
+                    $Inputs += $InputObject
+                }
+            }
+        }
+        else
+        {
+            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+            $InputObject.TypeName = $_.type.name
+            $InputObject.Description = $_.description |
+                DescriptionToPara |
+                AddLineBreaksForParagraphs
 
-        $Inputs += $InputObject
+            $Inputs += $InputObject
+        }
     }
 
     foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
@@ -2782,12 +2799,28 @@ function ConvertPsObjectsToMamlModel
     $Outputs = @()
 
     $Help.returnValues.returnValue | ForEach-Object {
-        $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-        $OutputObject.TypeName = $_.type.name
-        $OutputObject.Description = $_.description |
-            DescriptionToPara |
-            AddLineBreaksForParagraphs
-        $Outputs += $OutputObject
+        if ($_.description -eq $null)
+        {
+            $Outputtypes = $_.type.name.split("`n")
+            $Outputtypes | ForEach-Object {
+                if (![string]::IsNullOrEmpty($_))
+                {
+                    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+                    $OutputObject.TypeName = $_
+                    $Outputs += $OutputObject
+                }
+            }
+        }
+        else
+        {
+            $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+            $OutputObject.TypeName = $_.type.name
+            $OutputObject.Description = $_.description |
+                DescriptionToPara |
+                AddLineBreaksForParagraphs
+
+            $Outputs += $OutputObject
+        }
     }
 
     foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
