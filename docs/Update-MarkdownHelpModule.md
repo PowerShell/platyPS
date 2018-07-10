@@ -14,7 +14,8 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-Session <PSSession>] [<CommonParameters>]
+ [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-Session <PSSession>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -157,6 +158,21 @@ This is required to get accurate parameters metadata from the remote session.
 
 ```yaml
 Type: PSSession
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UseFullTypeName
+Indicates that the target document will use a full type name instead of a short name for parameters.
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
