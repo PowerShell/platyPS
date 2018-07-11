@@ -274,8 +274,7 @@ namespace Markdown.MAML.Renderer
 
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: extraNewLine);
 
-            // for some reason, in the update mode parameters produces extra newline.
-            AddParagraphs(parameter.Description, this._mode == ParserMode.FormattingPreserve);
+            AddParagraphs(parameter.Description);
             
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
