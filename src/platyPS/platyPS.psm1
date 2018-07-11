@@ -2765,7 +2765,7 @@ function ConvertPsObjectsToMamlModel
     $Inputs = @()
 
     $Help.inputTypes.inputType | ForEach-Object {
-        if ($_.description -eq $null)
+        if ($_.description -eq $null -and $_.type.name -ne $null)
         {
             $inputtypes = $_.type.name.split("`n")
             $inputtypes | ForEach-Object {
@@ -2799,7 +2799,7 @@ function ConvertPsObjectsToMamlModel
     $Outputs = @()
 
     $Help.returnValues.returnValue | ForEach-Object {
-        if ($_.description -eq $null)
+        if ($_.description -eq $null -and $_.type.name -ne $null)
         {
             $Outputtypes = $_.type.name.split("`n")
             $Outputtypes | ForEach-Object {

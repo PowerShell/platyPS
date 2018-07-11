@@ -64,7 +64,7 @@ namespace Markdown.MAML.Renderer
                 yamlHeader["schema"] = "2.0.0";
                 AddYamlHeader(yamlHeader);
             }
-            
+
             AddCommand(mamlCommand);
 
             // at the end, just normalize all ends
