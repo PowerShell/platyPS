@@ -140,7 +140,7 @@ namespace Markdown.MAML.Renderer
                 return;
             }
 
-            var extraNewLine = string.IsNullOrEmpty(io.Description) || ShouldBreak(io.FormatOption);
+            var extraNewLine = ShouldBreak(io.FormatOption);
             AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
             AddParagraphs(io.Description);
         }

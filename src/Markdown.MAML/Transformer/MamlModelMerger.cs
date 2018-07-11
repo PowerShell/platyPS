@@ -21,7 +21,7 @@ namespace Markdown.MAML.Transformer
             _infoCallback = infoCallback;
         }
 
-        public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
+        public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel, bool updateInputOutput)
         {
             MamlCommand result = null;
             _cmdletUpdated = false;
@@ -66,17 +66,35 @@ namespace Markdown.MAML.Transformer
                 Report($"    Exception Examples: \r\n{ex.Message}\r\n");
                 _cmdletUpdated = true;
             }
-            try
+            if (updateInputOutput)
             {
-                // TODO: figure out what's the right thing for MamlInputOutput
-                result.Inputs.AddRange(stringModel.Inputs);
-                result.Outputs.AddRange(stringModel.Outputs);
+                try
+                {
+                    // TODO: figure out what's the right thing for MamlInputOutput
+                    result.Inputs.AddRange(metadataModel.Inputs);
+                    result.Outputs.AddRange(metadataModel.Outputs);
+                }
+                catch (Exception ex)
+                {
+                    Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                    Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
+                    _cmdletUpdated = true;
+                }
             }
-            catch (Exception ex)
+            else
             {
-                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
-                Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
-                _cmdletUpdated = true;
+                try
+                {
+                    // TODO: figure out what's the right thing for MamlInputOutput
+                    result.Inputs.AddRange(stringModel.Inputs);
+                    result.Outputs.AddRange(stringModel.Outputs);
+                }
+                catch (Exception ex)
+                {
+                    Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                    Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
+                    _cmdletUpdated = true;
+                }
             }
 
             //Result takes in the merged parameter results.
