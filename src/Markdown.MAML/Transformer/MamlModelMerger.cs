@@ -66,35 +66,24 @@ namespace Markdown.MAML.Transformer
                 Report($"    Exception Examples: \r\n{ex.Message}\r\n");
                 _cmdletUpdated = true;
             }
+            
+            var model = stringModel;
             if (updateInputOutput)
             {
-                try
-                {
-                    // TODO: figure out what's the right thing for MamlInputOutput
-                    result.Inputs.AddRange(metadataModel.Inputs);
-                    result.Outputs.AddRange(metadataModel.Outputs);
-                }
-                catch (Exception ex)
-                {
-                    Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
-                    Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
-                    _cmdletUpdated = true;
-                }
+                model = metadataModel;
             }
-            else
+
+            try
             {
-                try
-                {
-                    // TODO: figure out what's the right thing for MamlInputOutput
-                    result.Inputs.AddRange(stringModel.Inputs);
-                    result.Outputs.AddRange(stringModel.Outputs);
-                }
-                catch (Exception ex)
-                {
-                    Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
-                    Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
-                    _cmdletUpdated = true;
-                }
+                // TODO: figure out what's the right thing for MamlInputOutput
+                result.Inputs.AddRange(model.Inputs);
+                result.Outputs.AddRange(model.Outputs);
+            }
+            catch (Exception ex)
+            {
+                Report($"---- ERROR UPDATING Cmdlet : {model.Name}----\r\n");
+                Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
+                _cmdletUpdated = true;
             }
 
             //Result takes in the merged parameter results.
