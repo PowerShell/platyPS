@@ -67,11 +67,7 @@ namespace Markdown.MAML.Transformer
                 _cmdletUpdated = true;
             }
             
-            var model = stringModel;
-            if (updateInputOutput)
-            {
-                model = metadataModel;
-            }
+            var model = updateInputOutput ? metadataModel : stringModel;
 
             try
             {
