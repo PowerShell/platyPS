@@ -145,7 +145,7 @@ namespace Markdown.MAML.Renderer
                     pvg);
         }
 
-        private static XElement CreateInput(MamlInputOutput input)
+        private static XElement CreateInput(MamlInput input)
         {
             return new XElement(commandNS + "inputType",
                     new XElement(devNS + "type",
@@ -153,7 +153,7 @@ namespace Markdown.MAML.Renderer
                     new XElement(mamlNS + "description", GenerateParagraphs(input.Description)));
         }
 
-        private static XElement CreateOutput(MamlInputOutput output)
+        private static XElement CreateOutput(MamlOutput output)
         {
             return new XElement(commandNS + "returnValue",
                     new XElement(devNS + "type",

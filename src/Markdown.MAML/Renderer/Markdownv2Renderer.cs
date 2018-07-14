@@ -132,25 +132,20 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private void AddInputOutput(MamlInputOutput io)
-        {
-            if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
-            {
-                // in this case ignore
-                return;
-            }
-
-            var extraNewLine = ShouldBreak(io.FormatOption);
-            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
-            AddParagraphs(io.Description);
-        }
-
         private void AddOutputs(MamlCommand command)
         {
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.OUTPUTS);
             foreach (var io in command.Outputs)
             {
-                AddInputOutput(io);
+                if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
+                {
+                    // in this case ignore
+                    return;
+                }
+
+                var extraNewLine = ShouldBreak(io.FormatOption);
+                AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
+                AddParagraphs(io.Description);
             }
         }
 
@@ -159,8 +154,53 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.INPUTS);
             foreach (var io in command.Inputs)
             {
-                AddInputOutput(io);
+                if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
+                {
+                    // in this case ignore
+                    return;
+                }
+
+                if (io.Parameters == null)
+                {
+                    io.Parameters = new List<MamlParameter>();
+                }
+                foreach (var param in command.Parameters)
+                {
+                    if (!param.PipelineInput.Trim().Equals("false", StringComparison.CurrentCultureIgnoreCase) && param.FullType != null)
+                    {
+                        if (param.FullType.Equals(io.TypeName.Trim()))
+                        {
+                            io.Parameters.Add(param);
+                        }
+                    }
+                }
+
+                var extraNewLine = io.Parameters.Count == 0 || ShouldBreak(io.FormatOption);
+                AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName.Trim(), extraNewLine);
+                AddInputParameterInfo(io.Parameters);
+                AddParagraphs(io.Description);
             }
+        }
+
+        private void AddInputParameterInfo(List<MamlParameter> parameters)
+        {
+            if (parameters == null || parameters.Count == 0)
+            {
+                return;
+            }
+
+            List<string> formattedParameters = new List<string>();
+            foreach (var param in parameters)
+            {
+                if (param.PipelineInput.StartsWith("True ("))
+                {
+                    formattedParameters.Add(param.Name + " (" + param.PipelineInput.Substring(6));
+                }
+            }
+
+            string output = string.Join(", ", formattedParameters);
+
+            _stringBuilder.AppendFormat("{0}{1}{1}", output, NewLine);
         }
 
         private void AddParameters(MamlCommand command)

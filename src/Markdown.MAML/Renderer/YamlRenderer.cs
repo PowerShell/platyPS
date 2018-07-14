@@ -22,11 +22,11 @@ namespace Markdown.MAML.Renderer
                 Remarks = mamlCommand.Description.Text,
                 Summary = mamlCommand.Synopsis.Text,
                 Examples = mamlCommand.Examples.Select(CreateExample).ToList(),
-                Inputs = mamlCommand.Inputs.Select(CreateInputOutput).ToList(),
+                Inputs = mamlCommand.Inputs.Select(CreateInput).ToList(),
                 Links = mamlCommand.Links.Select(CreateLink).ToList(),
                 Module = new YamlModule { Name = mamlCommand.ModuleName },
                 OptionalParameters = mamlCommand.Parameters.Where(p => !p.Required).Select(CreateParameter).ToList(),
-                Outputs = mamlCommand.Outputs.Select(CreateInputOutput).ToList(),
+                Outputs = mamlCommand.Outputs.Select(CreateOutput).ToList(),
                 RequiredParameters = mamlCommand.Parameters.Where(p => p.Required).Select(CreateParameter).ToList(),
                 Syntaxes = mamlCommand.Syntax.Select(CreateSyntax).ToList()
             };
@@ -50,7 +50,16 @@ namespace Markdown.MAML.Renderer
             };
         }
 
-        private static YamlInputOutput CreateInputOutput(MamlInputOutput mamlInputOutput)
+        private static YamlInputOutput CreateInput(MamlInput mamlInputOutput)
+        {
+            return new YamlInputOutput
+            {
+                Description = mamlInputOutput.Description,
+                Type = mamlInputOutput.TypeName
+            };
+        }
+
+        private static YamlInputOutput CreateOutput(MamlOutput mamlInputOutput)
         {
             return new YamlInputOutput
             {

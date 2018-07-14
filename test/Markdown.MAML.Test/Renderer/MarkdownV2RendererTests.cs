@@ -372,6 +372,7 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             {
                 Type = "String",
                 Name = "Name",
+                FullType = "System.String",
                 Required = true,
                 Description = "Parameter Description.",
                 VariableLength = true,
@@ -393,12 +394,13 @@ For more information, see about_CommonParameters (http://go.microsoft.com/fwlink
             syntax1.Parameters.Add(parameter);
             command.Syntax.Add(syntax1);
 
-            command.Inputs.Add(new MamlInputOutput()
+            command.Inputs.Add(new MamlInput()
             {
                 TypeName = "String",
-                Description = "Input <Description> goes here!"
+                Description = "Input <Description> goes here!",
+                Parameters = new List<MamlParameter>()
             });
-            command.Outputs.Add(new MamlInputOutput()
+            command.Outputs.Add(new MamlOutput()
             {
                 TypeName = "String",
                 Description = "Output Description goes here!"

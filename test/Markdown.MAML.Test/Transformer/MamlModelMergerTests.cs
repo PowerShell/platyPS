@@ -123,14 +123,14 @@ namespace Markdown.MAML.Test.Transformer
             syntax2.Parameters.Add(parameterPath);
             originalCommand.Syntax.Add(syntax2);
 
-            originalCommand.Inputs.Add(new MamlInputOutput()
+            originalCommand.Inputs.Add(new MamlInput()
             {
                 TypeName = "String",
                 Description = "Input <Description> goes here!"
 
             }
             );
-            originalCommand.Outputs.Add(new MamlInputOutput()
+            originalCommand.Outputs.Add(new MamlOutput()
             {
                 TypeName = "String",
                 Description = "Output Description goes here!"
