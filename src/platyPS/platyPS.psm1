@@ -2765,26 +2765,19 @@ function ConvertPsObjectsToMamlModel
     $Inputs = @()
 
     $Help.inputTypes.inputType | ForEach-Object {
+        $InputDescription = $_.description
+        $inputtypes = $_.type.name
         if ($_.description -eq $null -and $_.type.name -ne $null)
         {
-            $inputtypes = $_.type.name.split("`n")
-            $inputtypes | ForEach-Object {
-                if (![string]::IsNullOrEmpty($_))
-                {
-                    $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-                    $InputObject.TypeName = $_
-                    $Inputs += $InputObject
-                }
-            }
+            $inputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }
-        else
-        {
+
+        $inputtypes | ForEach-Object {
             $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-            $InputObject.TypeName = $_.type.name
-            $InputObject.Description = $_.description |
+            $InputObject.TypeName = $_
+            $InputObject.Description = $InputDescription |
                 DescriptionToPara |
                 AddLineBreaksForParagraphs
-
             $Inputs += $InputObject
         }
     }
@@ -2799,26 +2792,19 @@ function ConvertPsObjectsToMamlModel
     $Outputs = @()
 
     $Help.returnValues.returnValue | ForEach-Object {
+        $OuputDescription = $_.description
+        $Outputtypes = $_.type.name
         if ($_.description -eq $null -and $_.type.name -ne $null)
         {
-            $Outputtypes = $_.type.name.split("`n")
-            $Outputtypes | ForEach-Object {
-                if (![string]::IsNullOrEmpty($_))
-                {
-                    $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-                    $OutputObject.TypeName = $_
-                    $Outputs += $OutputObject
-                }
-            }
+            $Outputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }
-        else
-        {
+
+        $Outputtypes | ForEach-Object {
             $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
-            $OutputObject.TypeName = $_.type.name
-            $OutputObject.Description = $_.description |
+            $OutputObject.TypeName = $_
+            $OutputObject.Description = $OuputDescriptionn |
                 DescriptionToPara |
                 AddLineBreaksForParagraphs
-
             $Outputs += $OutputObject
         }
     }
