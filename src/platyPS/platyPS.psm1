@@ -2802,7 +2802,7 @@ function ConvertPsObjectsToMamlModel
         $Outputtypes | ForEach-Object {
             $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
             $OutputObject.TypeName = $_
-            $OutputObject.Description = $OuputDescriptionn |
+            $OutputObject.Description = $OuputDescription |
                 DescriptionToPara |
                 AddLineBreaksForParagraphs
             $Outputs += $OutputObject
