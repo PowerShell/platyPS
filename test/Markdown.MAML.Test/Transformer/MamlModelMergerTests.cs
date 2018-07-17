@@ -21,7 +21,7 @@ namespace Markdown.MAML.Test.Transformer
             var originalCommand = GetOriginal();
             var metadataCommand = GetRegenerated();
 
-            var result = merger.Merge(metadataCommand, originalCommand);
+            var result = merger.Merge(metadataCommand, originalCommand, updateInputOutput: false);
 
             Assert.Equal(3, result.Parameters.Count);
             Assert.Equal(3, originalCommand.Parameters.Count);

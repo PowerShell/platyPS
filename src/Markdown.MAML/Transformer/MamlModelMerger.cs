@@ -21,7 +21,7 @@ namespace Markdown.MAML.Transformer
             _infoCallback = infoCallback;
         }
 
-        public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel)
+        public MamlCommand Merge(MamlCommand metadataModel, MamlCommand stringModel, bool updateInputOutput)
         {
             MamlCommand result = null;
             _cmdletUpdated = false;
@@ -66,15 +66,18 @@ namespace Markdown.MAML.Transformer
                 Report($"    Exception Examples: \r\n{ex.Message}\r\n");
                 _cmdletUpdated = true;
             }
+            
+            var model = updateInputOutput ? metadataModel : stringModel;
+
             try
             {
                 // TODO: figure out what's the right thing for MamlInputOutput
-                result.Inputs.AddRange(stringModel.Inputs);
-                result.Outputs.AddRange(stringModel.Outputs);
+                result.Inputs.AddRange(model.Inputs);
+                result.Outputs.AddRange(model.Outputs);
             }
             catch (Exception ex)
             {
-                Report($"---- ERROR UPDATING Cmdlet : {metadataModel.Name}----\r\n");
+                Report($"---- ERROR UPDATING Cmdlet : {model.Name}----\r\n");
                 Report($"    Exception Inputs and Outputs: \r\n{ex.Message}\r\n");
                 _cmdletUpdated = true;
             }

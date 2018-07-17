@@ -14,8 +14,8 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-Session <PSSession>]
- [<CommonParameters>]
+ [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput]
+ [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -170,6 +170,21 @@ Accept wildcard characters: False
 
 ### -UseFullTypeName
 Indicates that the target document will use a full type name instead of a short name for parameters.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -UpdateInputOutput
+Refreshes the Input and Output sections to reflect the current state of the cmdlet.  WARNING: this parameter will remove any manual additions to these sections.
 
 ```yaml
 Type: SwitchParameter
