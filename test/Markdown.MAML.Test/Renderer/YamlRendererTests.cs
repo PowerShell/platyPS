@@ -221,7 +221,7 @@ namespace Markdown.MAML.Test.Renderer
                 Title = "Example 1 title"
             });
 
-            command.Inputs.Add(new MamlInputOutput
+            command.Inputs.Add(new MamlInput
             {
                 Description = "Input 1",
                 TypeName = "System.String"
@@ -263,7 +263,7 @@ namespace Markdown.MAML.Test.Renderer
 
             command.Parameters.AddRange(new [] {mamlRequiredParameter, mamlOptionalParameter});
 
-            command.Outputs.Add(new MamlInputOutput
+            command.Outputs.Add(new MamlOutput
             {
                 Description = "Output 1",
                 TypeName = "System.String"

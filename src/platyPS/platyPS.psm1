@@ -109,7 +109,10 @@ function New-MarkdownHelp
 
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX"
+        $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
+
+        [switch]
+        $DetailedInput
 
     )
 
@@ -220,7 +223,7 @@ function New-MarkdownHelp
                     })
                 }
 
-                $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
+                $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata -DetailedInput:$DetailedInput
 
                 MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding -Force:$Force
             }
@@ -357,6 +360,7 @@ function Update-MarkdownHelp
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
         [switch]$UpdateInputOutput,
+        [switch]$DetailedInput,
 
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
@@ -435,7 +439,7 @@ function Update-MarkdownHelp
                 SortParamsAlphabetically $newModel
             }
 
-            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting -DetailedInput:$DetailedInput
             MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yield
         }
     }
@@ -460,7 +464,8 @@ function Merge-MarkdownHelp
 
         [Switch]$Force,
 
-        [string]$MergeMarker = "!!! "
+        [string]$MergeMarker = "!!! ",
+        [switch]$DetailedInput
     )
 
     begin
@@ -540,7 +545,7 @@ function Merge-MarkdownHelp
             $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, (-not $ExplicitApplicableIfAll), $MergeMarker
             $newModel = $merger.Merge($dict)
 
-            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting  -DetailedInput:$DetailedInput
             $outputFilePath = Join-Path $OutputPath $groupName
             MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force # yeild
         }
@@ -564,6 +569,7 @@ function Update-MarkdownHelpModule
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
         [switch]$UpdateInputOutput,
+        [switch]$DetailedInput,
 
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
@@ -618,7 +624,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput -DetailedInput:$DetailedInput
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
@@ -1983,7 +1989,9 @@ function ConvertMamlModelToMarkdown
 
         [switch]$NoMetadata,
 
-        [switch]$PreserveFormatting
+        [switch]$PreserveFormatting, 
+
+        [switch]$DetailedInput
     )
 
     begin
@@ -1997,7 +2005,7 @@ function ConvertMamlModelToMarkdown
     {
         if (($count++) -eq 0 -and (-not $NoMetadata))
         {
-            return $r.MamlModelToString($mamlCommand, $metadata)
+            return $r.MamlModelToString($mamlCommand, $metadata, $DetailedInput.IsPresent)
         }
         else
         {
@@ -2773,7 +2781,7 @@ function ConvertPsObjectsToMamlModel
         }
 
         $inputtypes | ForEach-Object {
-            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+            $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInput
             $InputObject.TypeName = $_
             $InputObject.Description = $InputDescription |
                 DescriptionToPara |
@@ -2800,7 +2808,7 @@ function ConvertPsObjectsToMamlModel
         }
 
         $Outputtypes | ForEach-Object {
-            $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
+            $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlOutput
             $OutputObject.TypeName = $_
             $OutputObject.Description = $OuputDescription |
                 DescriptionToPara |

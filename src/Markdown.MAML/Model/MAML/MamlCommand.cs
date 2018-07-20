@@ -13,12 +13,12 @@ namespace Markdown.MAML.Model.MAML
 
         public SectionBody Description { get; set; }
 
-        public List<MamlInputOutput> Inputs 
+        public List<MamlInput> Inputs 
         {
             get { return _inputs; }
         }
 
-        public List<MamlInputOutput> Outputs
+        public List<MamlOutput> Outputs
         {
             get { return _outputs; }
         }
@@ -53,9 +53,9 @@ namespace Markdown.MAML.Model.MAML
 
         private List<MamlParameter> _parameters = new List<MamlParameter>();
 
-        private List<MamlInputOutput> _outputs = new List<MamlInputOutput>();
+        private List<MamlOutput> _outputs = new List<MamlOutput>();
 
-        private List<MamlInputOutput> _inputs = new List<MamlInputOutput>();
+        private List<MamlInput> _inputs = new List<MamlInput>();
 
         private List<MamlExample> _examples = new List<MamlExample>();
 

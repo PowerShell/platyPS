@@ -41,15 +41,25 @@ namespace Markdown.MAML.Renderer
 
         public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader)
         {
-            return MamlModelToString(mamlCommand, null, skipYamlHeader);
+            return MamlModelToString(mamlCommand, null, skipYamlHeader, false);
+        }
+
+        public string MamlModelToString(MamlCommand mamlCommand, bool skipYamlHeader, bool detailedInput)
+        {
+            return MamlModelToString(mamlCommand, null, skipYamlHeader, detailedInput);
         }
 
         public string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader)
         {
-            return MamlModelToString(mamlCommand, yamlHeader, false);
+            return MamlModelToString(mamlCommand, yamlHeader, false, false);
         }
 
-        private string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader, bool skipYamlHeader)
+        public string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader, bool detailedInput)
+        {
+            return MamlModelToString(mamlCommand, yamlHeader, false, detailedInput);
+        }
+
+        private string MamlModelToString(MamlCommand mamlCommand, Hashtable yamlHeader, bool skipYamlHeader, bool detailedInput)
         {
             // clear, so we can re-use this instance
             _stringBuilder.Clear();
@@ -65,7 +75,7 @@ namespace Markdown.MAML.Renderer
                 AddYamlHeader(yamlHeader);
             }
 
-            AddCommand(mamlCommand);
+            AddCommand(mamlCommand, detailedInput);
 
             // at the end, just normalize all ends
             return RenderCleaner.NormalizeLineBreaks(
@@ -93,7 +103,7 @@ namespace Markdown.MAML.Renderer
             _stringBuilder.AppendFormat("---{0}{0}", NewLine);
         }
 
-        private void AddCommand(MamlCommand command)
+        private void AddCommand(MamlCommand command, bool detailedInput)
         {
             AddHeader(ModelTransformerBase.COMMAND_NAME_HEADING_LEVEL, command.Name);
             AddEntryHeaderWithText(MarkdownStrings.SYNOPSIS, command.Synopsis);
@@ -101,7 +111,7 @@ namespace Markdown.MAML.Renderer
             AddEntryHeaderWithText(MarkdownStrings.DESCRIPTION, command.Description);
             AddExamples(command);
             AddParameters(command);
-            AddInputs(command);
+            AddInputs(command, detailedInput);
             AddOutputs(command);
             AddEntryHeaderWithText(MarkdownStrings.NOTES, command.Notes);
             AddLinks(command);
@@ -132,34 +142,94 @@ namespace Markdown.MAML.Renderer
             }
         }
 
-        private void AddInputOutput(MamlInputOutput io)
-        {
-            if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
-            {
-                // in this case ignore
-                return;
-            }
-
-            var extraNewLine = ShouldBreak(io.FormatOption);
-            AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName, extraNewLine);
-            AddParagraphs(io.Description);
-        }
-
         private void AddOutputs(MamlCommand command)
         {
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.OUTPUTS);
             foreach (var io in command.Outputs)
             {
-                AddInputOutput(io);
+                if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
+                {
+                    // in this case ignore
+                    return;
+                }
+
+                var extraNewLine = string.IsNullOrEmpty(io.Description) || ShouldBreak(io.FormatOption);
+                AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName.Trim(), extraNewLine);
+                AddParagraphs(io.Description, removeWhitespace: true);
             }
         }
 
-        private void AddInputs(MamlCommand command)
+        private void AddInputs(MamlCommand command, bool detailedInput)
         {
             AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.INPUTS);
             foreach (var io in command.Inputs)
             {
-                AddInputOutput(io);
+                if (string.IsNullOrEmpty(io.TypeName) && string.IsNullOrEmpty(io.Description))
+                {
+                    // in this case ignore
+                    return;
+                }
+
+                if (io.Parameters == null)
+                {
+                    io.Parameters = new List<MamlParameter>();
+                }
+                foreach (var param in command.Parameters)
+                {
+                    if (!param.PipelineInput.Trim().Equals("false", StringComparison.CurrentCultureIgnoreCase) && param.FullType != null)
+                    {
+                        if (param.FullType.Equals(io.TypeName.Trim()))
+                        {
+                            io.Parameters.Add(param);
+                        }
+                    }
+                }
+
+                var description = io.Description;
+                if (detailedInput && description != null)
+                {
+                    if (io.Description.StartsWith("Parameters: "))
+                    {
+                        if (description.Contains("\n"))
+                        {
+                            description = description.Substring(description.IndexOf('\n') + 1).TrimStart();
+                        }
+                        else
+                        {
+                            description = "";
+                        }
+                    }
+                }
+
+                var extraNewLine = (string.IsNullOrEmpty(description) && (!detailedInput || io.Parameters.Count == 0)) || ShouldBreak(io.FormatOption);
+                AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName.Trim(), extraNewLine);
+                AddInputParameterInfo(io.Parameters, detailedInput, string.IsNullOrEmpty(description));
+                AddParagraphs(description, removeWhitespace: true);
+            }
+        }
+
+        private void AddInputParameterInfo(List<MamlParameter> parameters, bool detailedInput, bool newLine)
+        {
+            if (parameters == null || parameters.Count == 0 || !detailedInput)
+            {
+                return;
+            }
+
+            List<string> formattedParameters = new List<string>();
+            foreach (var param in parameters)
+            {
+                if (param.PipelineInput.StartsWith("True ("))
+                {
+                    formattedParameters.Add(param.Name + " (" + param.PipelineInput.Substring(6));
+                }
+            }
+
+            string output = string.Join(", ", formattedParameters);
+
+            _stringBuilder.AppendFormat("Parameters: {0}{1}", output, NewLine);
+            if (newLine)
+            {
+                _stringBuilder.AppendFormat("{0}", NewLine);
             }
         }
 
@@ -534,26 +604,32 @@ namespace Markdown.MAML.Renderer
             return string.Join(NewLine, newLines);
         }
 
-        private void AddParagraphs(string body, bool noNewLines = false)
+        private void AddParagraphs(string body, bool noNewLines = false, bool removeWhitespace = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
                 return;
             }
 
+            var bodyFormatted = body;
+            if (removeWhitespace)
+            {
+                bodyFormatted = string.Join("\r\n", body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
+            }
+
             if (this._mode != ParserMode.FormattingPreserve)
             {
-                string[] paragraphs = body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
+                string[] paragraphs = bodyFormatted.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                bodyFormatted = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
             }
 
             // The the body already ended in a line break don't add extra lines on to the end
-            if (body.EndsWith("\r\n\r\n"))
+            if (bodyFormatted.EndsWith("\r\n\r\n"))
             {
                 noNewLines = true;
             }
 
-            _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : NewLine);
+            _stringBuilder.AppendFormat("{0}{1}{1}", bodyFormatted, noNewLines ? null : NewLine);
         }
 
         private static string BackSlashMatchEvaluater(Match match)

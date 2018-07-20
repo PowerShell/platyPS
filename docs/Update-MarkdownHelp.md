@@ -14,7 +14,8 @@ Update PlatyPS markdown help files.
 
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
- [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-Session <PSSession>] [<CommonParameters>]
+ [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-DetailedInput] [-Session <PSSession>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -192,6 +193,21 @@ Accept wildcard characters: False
 
 ### -UpdateInputOutput
 Refreshes the Input and Output section to reflect the current state of the cmdlet.  WARNING: this parameter will remove any manual additions to these sections.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DetailedInput
+Include parameter names in input description.
 
 ```yaml
 Type: SwitchParameter

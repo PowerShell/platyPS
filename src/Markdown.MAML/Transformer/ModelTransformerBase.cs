@@ -126,8 +126,8 @@ namespace Markdown.MAML.Transformer
         
         protected void InputsRule(MamlCommand commmand)
         {
-            MamlInputOutput input;
-            while ((input = InputOutputRule()) != null)
+            MamlInput input;
+            while ((input = InputRule()) != null)
             {
                 commmand.Inputs.Add(input);
             }
@@ -135,8 +135,8 @@ namespace Markdown.MAML.Transformer
 
         protected void OutputsRule(MamlCommand commmand)
         {
-            MamlInputOutput output;
-            while ((output = InputOutputRule()) != null)
+            MamlOutput output;
+            while ((output = OutputRule()) != null)
             {
                 commmand.Outputs.Add(output);
             }
@@ -238,7 +238,7 @@ namespace Markdown.MAML.Transformer
             }
         }
 
-        protected MamlInputOutput InputOutputRule()
+        protected MamlInput InputRule()
         {
             // grammar:
             // #### TypeName
@@ -250,7 +250,30 @@ namespace Markdown.MAML.Transformer
                 return null;
             }
 
-            MamlInputOutput typeEntity = new MamlInputOutput()
+            MamlInput typeEntity = new MamlInput()
+            {
+                TypeName = headingNode.Text,
+                Description = SimpleTextSectionRule(),
+                Parameters = new List<MamlParameter>(),
+                FormatOption = headingNode.FormatOption
+            };
+
+            return typeEntity;
+        }
+
+        protected MamlOutput OutputRule()
+        {
+            // grammar:
+            // #### TypeName
+            // Description
+            var node = GetNextNode();
+            var headingNode = GetHeadingWithExpectedLevel(node, INPUT_OUTPUT_TYPENAME_HEADING_LEVEL);
+            if (headingNode == null)
+            {
+                return null;
+            }
+
+            MamlOutput typeEntity = new MamlOutput()
             {
                 TypeName = headingNode.Text,
                 Description = SimpleTextSectionRule(),

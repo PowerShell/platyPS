@@ -6,7 +6,7 @@ namespace Markdown.MAML.Model.MAML
     /// <summary>
     /// This class represent Input and Output properties for MAML.
     /// </summary>
-    public class MamlInputOutput : IEquatable<MamlInputOutput>
+    public class MamlOutput : IEquatable<MamlOutput>
     {
         public string TypeName { get; set; }
         public string Description { get; set; }
@@ -16,7 +16,7 @@ namespace Markdown.MAML.Model.MAML
         /// </summary>
         public SectionFormatOption FormatOption { get; set; }
 
-        bool IEquatable<MamlInputOutput>.Equals(MamlInputOutput other)
+        bool IEquatable<MamlOutput>.Equals(MamlOutput other)
         {
             if (!StringComparer.OrdinalIgnoreCase.Equals(other.TypeName, this.TypeName))
             {

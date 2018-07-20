@@ -50,14 +50,14 @@ namespace Markdown.MAML.Test.Renderer
                 Aliases = new string[] {  },
             }
             );
-            command.Inputs.Add(new MamlInputOutput()
+            command.Inputs.Add(new MamlInput()
             {
                     TypeName = "String",
                     Description = "Input Description goes here!"
                     
             }
             );
-            command.Outputs.Add(new MamlInputOutput()
+            command.Outputs.Add(new MamlOutput()
             {
                 TypeName = "String",
                 Description = "Output Description goes here!"

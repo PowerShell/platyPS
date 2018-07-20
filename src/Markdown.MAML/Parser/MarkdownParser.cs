@@ -569,7 +569,7 @@ namespace Markdown.MAML.Parser
             _PrevString = "foo";
             _InList = false;
 
-            return Regex.Replace(spanText, "([^\r\n]*)(\r\n|$)", new MatchEvaluator(LineBreaksMatchEvaluater)).Replace(" \r\n", "\r\n").Trim();
+            return spanText;
         }
 
         // hacky state for matcher, it would cause race condition if we decided to run in parallel

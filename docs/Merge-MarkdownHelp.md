@@ -14,7 +14,7 @@ Merge multiple markdown versions of the same cmdlet into a single markdown file.
 
 ```
 Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [-Encoding <Encoding>] [-ExplicitApplicableIfAll]
- [-Force] [[-MergeMarker] <String>] [<CommonParameters>]
+ [-Force] [[-MergeMarker] <String>] [-DetailedInput] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -143,6 +143,21 @@ Position: 0
 Default value: None
 Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
+```
+
+### -DetailedInput
+Include parameter names in input description.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
 ```
 
 ### CommonParameters

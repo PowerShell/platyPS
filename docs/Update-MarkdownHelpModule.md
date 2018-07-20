@@ -15,7 +15,7 @@ Update all files in a markdown help module folder.
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
  [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput]
- [-Session <PSSession>] [<CommonParameters>]
+ [-DetailedInput] [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -185,6 +185,21 @@ Accept wildcard characters: False
 
 ### -UpdateInputOutput
 Refreshes the Input and Output sections to reflect the current state of the cmdlet.  WARNING: this parameter will remove any manual additions to these sections.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DetailedInput
+Include parameter names in input description.
 
 ```yaml
 Type: SwitchParameter

@@ -16,14 +16,15 @@ Creates help in markdown format.
 ```
 New-MarkdownHelp -Module <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
  [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
- [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
+ [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [-DetailedInput]
+ [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
 New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
  [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
- [-Encoding <Encoding>] [<CommonParameters>]
+ [-Encoding <Encoding>] [-DetailedInput] [<CommonParameters>]
 ```
 
 ### FromMaml
@@ -31,7 +32,7 @@ New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-Alphabeti
 New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
  [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
  [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+ [-ModuleName <String>] [-ModuleGuid <String>] [-DetailedInput] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -451,6 +452,21 @@ This is required to get accurate parameters metadata from the remote session.
 ```yaml
 Type: PSSession
 Parameter Sets: FromModule, FromCommand
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -DetailedInput
+Include parameter names in input description.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 Aliases:
 
 Required: False

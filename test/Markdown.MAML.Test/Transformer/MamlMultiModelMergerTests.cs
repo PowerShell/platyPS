@@ -109,15 +109,15 @@ Third Command
                 LinkName = "[foo]()\r\n",
             });
 
-            command.Inputs.Add(new MamlInputOutput()
+            command.Inputs.Add(new MamlInput()
             {
                 TypeName = "String",
-                Description = "Foo"
-
+                Description = "Foo",
+                Parameters = new List<MamlParameter>()
             }
             );
 
-            command.Outputs.Add(new MamlInputOutput()
+            command.Outputs.Add(new MamlOutput()
             {
                 TypeName = "String",
                 Description = null
@@ -173,7 +173,7 @@ Third Command
             }
             );
 
-            command.Inputs.Add(new MamlInputOutput()
+            command.Inputs.Add(new MamlInput()
             {
                 TypeName = "String",
                 Description = "Foo"
@@ -230,7 +230,7 @@ Third Command
             }
             );
 
-            command.Inputs.Add(new MamlInputOutput()
+            command.Inputs.Add(new MamlInput()
             {
                 TypeName = "String",
                 Description = "Foo 2"
@@ -238,7 +238,7 @@ Third Command
             }
             );
 
-            command.Outputs.Add(new MamlInputOutput()
+            command.Outputs.Add(new MamlOutput()
             {
                 TypeName = "String",
                 Description = null
