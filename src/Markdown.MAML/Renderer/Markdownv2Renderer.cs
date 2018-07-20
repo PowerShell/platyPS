@@ -155,7 +155,7 @@ namespace Markdown.MAML.Renderer
 
                 var extraNewLine = string.IsNullOrEmpty(io.Description) || ShouldBreak(io.FormatOption);
                 AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName.Trim(), extraNewLine);
-                AddParagraphs(io.Description);
+                AddParagraphs(io.Description, removeWhitespace: true);
             }
         }
 
@@ -186,33 +186,29 @@ namespace Markdown.MAML.Renderer
                 }
 
                 var description = io.Description;
-                Console.Write(description);
-                if (detailedInput)
+                if (detailedInput && description != null)
                 {
-                    Console.Write("here");
                     if (io.Description.StartsWith("Parameters: "))
                     {
                         if (description.Contains("\n"))
                         {
-                            description = description.Substring(description.IndexOf('\n') + 1);
-                            Console.Write("here1" + description);
+                            description = description.Substring(description.IndexOf('\n') + 1).TrimStart();
                         }
                         else
                         {
                             description = "";
-                            Console.Write("here2" + description);
                         }
                     }
                 }
 
-                var extraNewLine = (string.IsNullOrEmpty(io.Description) && (!detailedInput || io.Parameters.Count == 0)) || ShouldBreak(io.FormatOption);
+                var extraNewLine = (string.IsNullOrEmpty(description) && (!detailedInput || io.Parameters.Count == 0)) || ShouldBreak(io.FormatOption);
                 AddHeader(ModelTransformerBase.INPUT_OUTPUT_TYPENAME_HEADING_LEVEL, io.TypeName.Trim(), extraNewLine);
-                AddInputParameterInfo(io.Parameters, detailedInput);
-                AddParagraphs(description);
+                AddInputParameterInfo(io.Parameters, detailedInput, string.IsNullOrEmpty(description));
+                AddParagraphs(description, removeWhitespace: true);
             }
         }
 
-        private void AddInputParameterInfo(List<MamlParameter> parameters, bool detailedInput)
+        private void AddInputParameterInfo(List<MamlParameter> parameters, bool detailedInput, bool newLine)
         {
             if (parameters == null || parameters.Count == 0 || !detailedInput)
             {
@@ -230,7 +226,11 @@ namespace Markdown.MAML.Renderer
 
             string output = string.Join(", ", formattedParameters);
 
-            _stringBuilder.AppendFormat("Parameters: {0}{1}{1}", output, NewLine);
+            _stringBuilder.AppendFormat("Parameters: {0}{1}", output, NewLine);
+            if (newLine)
+            {
+                _stringBuilder.AppendFormat("{0}", NewLine);
+            }
         }
 
         private void AddParameters(MamlCommand command)
@@ -604,26 +604,32 @@ namespace Markdown.MAML.Renderer
             return string.Join(NewLine, newLines);
         }
 
-        private void AddParagraphs(string body, bool noNewLines = false)
+        private void AddParagraphs(string body, bool noNewLines = false, bool removeWhitespace = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
                 return;
             }
 
+            var bodyFormatted = body;
+            if (removeWhitespace)
+            {
+                bodyFormatted = string.Join("\r\n", body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries));
+            }
+
             if (this._mode != ParserMode.FormattingPreserve)
             {
-                string[] paragraphs = body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
-                body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
+                string[] paragraphs = bodyFormatted.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
+                bodyFormatted = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
             }
 
             // The the body already ended in a line break don't add extra lines on to the end
-            if (body.EndsWith("\r\n\r\n"))
+            if (bodyFormatted.EndsWith("\r\n\r\n"))
             {
                 noNewLines = true;
             }
 
-            _stringBuilder.AppendFormat("{0}{1}{1}", body, noNewLines ? null : NewLine);
+            _stringBuilder.AppendFormat("{0}{1}{1}", bodyFormatted, noNewLines ? null : NewLine);
         }
 
         private static string BackSlashMatchEvaluater(Match match)
