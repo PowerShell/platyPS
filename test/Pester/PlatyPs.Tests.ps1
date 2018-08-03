@@ -1,4 +1,4 @@
-﻿Set-StrictMode -Version latest
+Set-StrictMode -Version latest
 $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path $PSScriptRoot\..\..).Path
@@ -148,15 +148,24 @@ Describe 'New-MarkdownHelp' {
         {
             param(
                 [Switch]
-                [Parameter(Position=1)]
+                [Parameter(Position = 1)]
                 $WhatIf,
                 [string]
-                [Parameter(Position=2)]
+                [Parameter(Position = 2)]
                 $CCC,
+                [Parameter(Position = 0)]
+                [uint64]
+                $First,
                 [string]
                 $AAA,
+                [Parameter(Position = 3)]
+                [uint64]
+                $Skip,
                 [string]
                 $BBB,
+                [Parameter(Position = 4)]
+                [switch]
+                $IncludeTotalCount,
                 [Switch]
                 $Confirm
             )
@@ -170,6 +179,9 @@ Describe 'New-MarkdownHelp' {
 ### -CCC
 ### -Confirm
 ### -WhatIf
+### -IncludeTotalCount
+### -Skip
+### -First
 
 '@
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
