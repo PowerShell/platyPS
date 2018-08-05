@@ -3,6 +3,13 @@ CHANGELOG
 
 ## Not released
 
+## 0.11.0
+
+* Add default descriptions for paging parameters (#392).
+* Fix `yaml` new-line bug (#381).
+* Add `-UpdateInputOutput` parameter (#383).
+* Add `-UseFullName` parameter to Update-MarkdownHelpModule (#380)
+
 ## 0.10.2
 
 * Fix remote module support to work correctly with parameter sets with no parameters.
