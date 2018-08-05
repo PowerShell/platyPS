@@ -413,7 +413,7 @@ Accept wildcard characters: False
 
 ### -AlphabeticParamsOrder
 Order parameters alphabetically by name in PARAMETERS section.
-There are 2 exceptions: -Confirm and -WhatIf parameters will be the last. 
+There are 5 exceptions: -Confirm, -WhatIf, -IncludeTotalCount, -Skip, and -First parameters will be the last. 
 These parameters are common and hence have well-defined behavior.
 
 ```yaml

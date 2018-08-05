@@ -1254,6 +1254,9 @@ function SortParamsAlphabetically
     # https://github.com/PowerShell/platyPS/issues/142
     $confirm = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'Confirm' }
     $whatif = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'WhatIf' }
+    $includeTotalCount = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'IncludeTotalCount' }
+    $skip = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'Skip' }
+    $first = $MamlCommandObject.Parameters | Where-Object { $_.Name -eq 'First' }
 
     if ($confirm)
     {
@@ -1263,6 +1266,21 @@ function SortParamsAlphabetically
     if ($whatif)
     {
         $MamlCommandObject.Parameters.Remove($whatif) > $null
+    }
+
+    if ($includeTotalCount)
+    {
+        $MamlCommandObject.Parameters.Remove($includeTotalCount) > $null
+    }
+
+    if ($skip)
+    {
+        $MamlCommandObject.Parameters.Remove($skip) > $null
+    }
+
+    if ($first)
+    {
+        $MamlCommandObject.Parameters.Remove($first) > $null
     }
 
     $sortedParams = $MamlCommandObject.Parameters | Sort-Object -Property Name
@@ -1280,6 +1298,21 @@ function SortParamsAlphabetically
     if ($whatif)
     {
         $MamlCommandObject.Parameters.Add($whatif)
+    }
+
+    if ($includeTotalCount)
+    {
+        $MamlCommandObject.Parameters.Add($includeTotalCount)
+    }
+
+    if ($skip)
+    {
+        $MamlCommandObject.Parameters.Add($skip)
+    }
+
+    if ($first)
+    {
+        $MamlCommandObject.Parameters.Add($first)
     }
 }
 
@@ -2603,6 +2636,9 @@ function ConvertPsObjectsToMamlModel
                         # https://github.com/PowerShell/platyPS/issues/211
                         'Confirm' { "Prompts you for confirmation before running the cmdlet.`r`n`r`n" }
                         'WhatIf' { "Shows what would happen if the cmdlet runs. The cmdlet is not run.`r`n`r`n" }
+                        'IncludeTotalCount' { "Reports the number of objects in the data set (an integer) followed by the objects. If the cmdlet cannot determine the total count, it returns 'Unknown total count'.`r`n`r`n" }
+                        'Skip' { "Ignores the first 'n' objects and then gets the remaining objects.`r`n`r`n" }
+                        'First' { "Gets only the first 'n' objects.`r`n`r`n" }
                         default { "{{Fill $($Parameter.Name) Description}}`r`n`r`n" }
                     }
                 }

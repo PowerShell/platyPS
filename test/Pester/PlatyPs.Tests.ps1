@@ -148,15 +148,24 @@ Describe 'New-MarkdownHelp' {
         {
             param(
                 [Switch]
-                [Parameter(Position=1)]
+                [Parameter(Position = 1)]
                 $WhatIf,
                 [string]
-                [Parameter(Position=2)]
+                [Parameter(Position = 2)]
                 $CCC,
+                [Parameter(Position = 0)]
+                [uint64]
+                $First,
                 [string]
                 $AAA,
+                [Parameter(Position = 3)]
+                [uint64]
+                $Skip,
                 [string]
                 $BBB,
+                [Parameter(Position = 4)]
+                [switch]
+                $IncludeTotalCount,
                 [Switch]
                 $Confirm
             )
@@ -170,6 +179,9 @@ Describe 'New-MarkdownHelp' {
 ### -CCC
 ### -Confirm
 ### -WhatIf
+### -IncludeTotalCount
+### -Skip
+### -First
 
 '@
             $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder TestDrive:\alpha -Force -AlphabeticParamsOrder
@@ -222,7 +234,10 @@ Describe 'New-MarkdownHelp' {
             param(
                 [string]$Foo,
                 [switch]$Confirm,
-                [switch]$WhatIf
+                [switch]$WhatIf,
+                [switch]$IncludeTotalCount,
+                [uint64]$Skip,
+                [uint64]$First
             )
         }
 
@@ -238,6 +253,21 @@ Describe 'New-MarkdownHelp' {
         It 'generates well-known stub descriptions for -Confirm' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Confirm' }
             $param.description.text | Should Be 'Prompts you for confirmation before running the cmdlet.'
+        }
+
+        It 'generates well-known stub descriptions for -IncludeTotalCount' {
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'IncludeTotalCount' }
+            $param.description.text | Should Be "Reports the number of objects in the data set (an integer) followed by the objects. If the cmdlet cannot determine the total count, it returns 'Unknown total count'."
+        }
+
+        It 'generates well-known stub descriptions for -Skip' {
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Skip' }
+            $param.description.text | Should Be "Ignores the first 'n' objects and then gets the remaining objects."
+        }
+
+        It 'generates well-known stub descriptions for -First' {
+            $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'First' }
+            $param.description.text | Should Be "Gets only the first 'n' objects."
         }
 
         It 'generates well-known stub descriptions for -Foo' {
