@@ -414,7 +414,7 @@ function Update-MarkdownHelp
             $oldModel = $oldModels[0]
 
             $name = $oldModel.Name
-            $command = Get-Command $name -ErrorAction SilentlyContinue
+            $command = Get-Command $name
             if (-not $command)
             {
                 log -warning  "command $name not found in the session, skipping upgrade for $filePath"
