@@ -567,6 +567,7 @@ function Update-MarkdownHelpModule
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
         [switch]$RefreshModulePage,
+        [string]$RefreshModulePagePath,
         [string]$LogPath,
         [switch]$LogAppend,
         [switch]$AlphabeticParamsOrder,
@@ -650,7 +651,7 @@ function Update-MarkdownHelpModule
                 $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
                 $files = @()
                 $MamlModel = GetMamlModelImpl $affectedFiles -ForAnotherMarkdown -Encoding $Encoding
-                NewModuleLandingPage  -RefreshModulePage -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force
+                NewModuleLandingPage  -RefreshModulePage -RefreshModulePagePath $RefreshModulePagePath -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force
             }
         }
     }
@@ -1925,6 +1926,7 @@ function NewModuleLandingPage
         [Parameter(ParameterSetName="UpdateLandingPage")]
         [switch]
         $RefreshModulePage,
+        [string]$RefreshModulePagePath,
         [Parameter(mandatory=$true,ParameterSetName="UpdateLandingPage")]
         [System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]]
         $Module,
@@ -1935,8 +1937,12 @@ function NewModuleLandingPage
 
     begin
     {
-        $LandingPageName = $ModuleName + ".md"
-        $LandingPagePath = Join-Path $Path $LandingPageName
+        if ($RefreshModulePagePath) {
+            $LandingPagePath = $RefreshModulePagePath
+        } else {
+            $LandingPageName = $ModuleName + ".md"
+            $LandingPagePath = Join-Path $Path $LandingPageName
+        }
     }
 
     process
