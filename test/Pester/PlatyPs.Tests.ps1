@@ -874,7 +874,7 @@ Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
         ($UpdatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count)
         $UpdatedFiles | Where { $_ -like '*\platyPS.md' } | Should -BeLike '*platyPS.md'
     }
-    it 'update MarkdownHelpFile with -RefreshModulePage with different ModulePage path' {
+    it 'update MarkdownHelpFile with -RefreshModulePage with parameter ModulePagePath' {
         $UpdatedFiles = Update-MarkdownHelpModule -Path $OutputFolder -RefreshModulePage -ModulePagePath $OutputFolderDiff
         ($UpdatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count)
         $UpdatedFiles | Where { $_ -like '*\platyPS.md' } | Should -Be $Null
