@@ -14,8 +14,8 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-Force]
- [-Session <PSSession>] [<CommonParameters>]
+ [-ModulePagePath <String>] [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName]
+ [-UpdateInputOutput] [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -198,11 +198,11 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
-### -Force
-Remove help files that no longer exists within sessions (for example if function was deleted)
+### -ModulePagePath
+When -RefreshModulePage is used by default it puts .md file in same location as all other docs. With this parameter you can specify new name/location providing better placement options.
 
 ```yaml
-Type: SwitchParameter
+Type: String
 Parameter Sets: (All)
 Aliases:
 
