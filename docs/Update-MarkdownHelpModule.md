@@ -14,8 +14,8 @@ Update all files in a markdown help module folder.
 
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
- [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput]
- [-Session <PSSession>] [<CommonParameters>]
+ [-ModulePagePath <String>] [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName]
+ [-UpdateInputOutput] [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -85,9 +85,9 @@ Accept wildcard characters: False
 ```
 
 ### -LogPath
-Specifies a file path for log information. 
-The cmdlet writes the VERBOSE stream to the log. 
-If you specify the *Verbose* parameter, this cmdlet also writes that information to the console. 
+Specifies a file path for log information.
+The cmdlet writes the VERBOSE stream to the log.
+If you specify the *Verbose* parameter, this cmdlet also writes that information to the console.
 
 
 ```yaml
@@ -104,7 +104,7 @@ Accept wildcard characters: False
 
 ### -Path
 Specifies an array of paths of markdown folders to update.
-The folder must contain a module page from which this cmdlet can get the module name. 
+The folder must contain a module page from which this cmdlet can get the module name.
 
 
 ```yaml
@@ -136,7 +136,7 @@ Accept wildcard characters: False
 
 ### -AlphabeticParamsOrder
 Order parameters alphabetically by name in PARAMETERS section.
-There are 5 exceptions: -Confirm, -WhatIf, -IncludeTotalCount, -Skip, and -First parameters will be the last. 
+There are 5 exceptions: -Confirm, -WhatIf, -IncludeTotalCount, -Skip, and -First parameters will be the last.
 These parameters are common and hence have well-defined behavior.
 
 ```yaml
@@ -198,18 +198,33 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ModulePagePath
+When -RefreshModulePage is used by default it puts .md file in same location as all other docs. With this parameter you can specify new name/location providing better placement options.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### System.String[]
-You can pipe an array of paths to this cmdlet. 
+You can pipe an array of paths to this cmdlet.
 
 ## OUTPUTS
 
 ### System.IO.FileInfo[]
-This cmdlet returns a **FileInfo[]** object for updated and new files. 
+This cmdlet returns a **FileInfo[]** object for updated and new files.
 
 ## NOTES
 
