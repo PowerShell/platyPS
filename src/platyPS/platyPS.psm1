@@ -357,7 +357,7 @@ function Update-MarkdownHelp
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
         [switch]$UpdateInputOutput,
-
+        [Switch]$Force,
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
@@ -414,11 +414,19 @@ function Update-MarkdownHelp
             $oldModel = $oldModels[0]
 
             $name = $oldModel.Name
-            $command = Get-Command $name
+            $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
-                log -warning  "command $name not found in the session, skipping upgrade for $filePath"
-                return
+                if ($Force) {
+                    if (Test-Path $filePath) {
+                        Remove-Item -Path $filePath -Confirm:$false
+                        log -warning "command $name not found in the session, removed $filePath"
+                        return
+                    }
+                } else {
+                    log -warning  "command $name not found in the session, skipping upgrade for $filePath"
+                    return
+                }
             }
 
             # update the help file entry in the metadata
@@ -564,7 +572,7 @@ function Update-MarkdownHelpModule
         [switch]$AlphabeticParamsOrder,
         [switch]$UseFullTypeName,
         [switch]$UpdateInputOutput,
-
+        [switch]$Force,
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
@@ -618,7 +626,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput -Force:$Force
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
