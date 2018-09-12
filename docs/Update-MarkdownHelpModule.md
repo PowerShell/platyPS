@@ -15,7 +15,7 @@ Update all files in a markdown help module folder.
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
  [-ModulePagePath <String>] [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName]
- [-UpdateInputOutput] [-Session <PSSession>] [<CommonParameters>]
+ [-UpdateInputOutput] [-Force] [-Session <PSSession>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -203,6 +203,21 @@ When -RefreshModulePage is used by default it puts .md file in same location as 
 
 ```yaml
 Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Force
+{{Fill Force Description}}
+
+```yaml
+Type: SwitchParameter
 Parameter Sets: (All)
 Aliases:
 
