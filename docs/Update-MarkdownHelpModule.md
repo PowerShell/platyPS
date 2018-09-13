@@ -214,7 +214,7 @@ Accept wildcard characters: False
 ```
 
 ### -Force
-{{Fill Force Description}}
+Remove help files that no longer exists within sessions (for example if function was deleted)
 
 ```yaml
 Type: SwitchParameter

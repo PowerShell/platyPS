@@ -414,7 +414,7 @@ function Update-MarkdownHelp
             $oldModel = $oldModels[0]
 
             $name = $oldModel.Name
-            $command = Get-Command $name
+            $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
                 if ($Force) {
