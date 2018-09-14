@@ -859,6 +859,27 @@ Describe 'Update-MarkdownHelp with New-MarkdownHelp inlined functionality' {
         $updatedFiles = Update-MarkdownHelpModule -Path $OutputFolder
         ($updatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count - 1)
     }
+
+    $OutputFolderDiff = 'TestDrive:\update-new\Test-RefreshModuleFunctionality.md'
+
+    it 'remove platyPS.md and make sure its gone' {
+        $File = $originalFiles | Where { $_ -like '*platyPS.md' }
+        Remove-Item -Path $File -Confirm:$false
+        $FileList = Get-ChildItem -Path $OutputFolder | % { Write-Output $_.FullName }
+        ($FileList | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count - 1)
+    }
+
+    it 'update MarkdownHelpFile with -RefreshModulePage' {
+        $UpdatedFiles = Update-MarkdownHelpModule -Path $OutputFolder -RefreshModulePage
+        ($UpdatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count)
+        $UpdatedFiles | Where { $_ -like '*platyPS.md' } | Should -BeLike '*platyPS.md'
+    }
+    it 'update MarkdownHelpFile with -RefreshModulePage with parameter ModulePagePath' {
+        $UpdatedFiles = Update-MarkdownHelpModule -Path $OutputFolder -RefreshModulePage -ModulePagePath $OutputFolderDiff
+        ($UpdatedFiles | Measure-Object).Count | Should Be (($originalFiles | Measure-Object).Count)
+        $UpdatedFiles | Where { $_ -like '*platyPS.md' } | Should -Be $Null
+        $UpdatedFiles | Where { $_ -like '*Test-RefreshModuleFunctionality.md' } | Should -Not -Be $Null
+    }
 }
 
 Describe 'Update-MarkdownHelp reflection scenario' {
