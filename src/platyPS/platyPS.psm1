@@ -2259,7 +2259,7 @@ function MyGetCommand
 
     $psets = expand 'ParameterSets'
     $psetsArray = @()
-    foreach ($i in (GetRange $psets.Count)) {
+    foreach ($i in (GetRange ($psets | measure-object).Count)) {
         $parameters = getParams $i
         $psetsArray += @(New-Object -TypeName pscustomobject -Property @{
             Name = $psets[$i].Name
