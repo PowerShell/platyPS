@@ -3,6 +3,8 @@ CHANGELOG
 
 ## Not released
 
+* Add `Update-MarkdownHelpModule -ModulePagePath` parameter (#397)
+
 ## 0.11.1
 
 * Fix the incorrect metadata retrieval for the single parameter sets in remote sessions (#399).
