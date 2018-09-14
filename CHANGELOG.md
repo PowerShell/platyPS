@@ -3,6 +3,10 @@ CHANGELOG
 
 ## Not released
 
+## 0.11.1
+
+* Fix the incorrect metadata retrieval for the single parameter sets in remote sessions (#399).
+
 ## 0.11.0
 
 * Add default descriptions for paging parameters (#392).
