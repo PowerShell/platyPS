@@ -1116,6 +1116,19 @@ function New-ExternalHelpCab
         {
             throw "The file count in the cab files directory is zero."
         }
+        #Testing for valid help file types
+        $ValidHelpFileTypes = '.xml', '.txt'
+        $HelpFiles = Get-ChildItem -Path $CabFilesFolder -File
+        $ValidHelpFiles = $HelpFiles | Where-Object { $_.Extension -in $ValidHelpFileTypes }
+        $InvalidHelpFiles = $HelpFiles | Where-Object { $_.Extension -notin $ValidHelpFileTypes }
+        if(-not $ValidHelpFiles)
+        {
+            throw "No valid help files."
+        }
+        if($InvalidHelpFiles)
+        {
+            $InvalidHelpFiles | ForEach-Object { Write-Warning -Message ("File '{0}' is not a valid help file type. Excluding from CAB file." -f $_.FullName) }
+        }
 
 
     ###Get Yaml Metadata here
@@ -1166,7 +1179,7 @@ function New-ExternalHelpCab
         Add-Content $DirectiveFile ".Set Compress=on"
 
         #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)
-        foreach($file in Get-ChildItem -Path $CabFilesFolder -File)
+        foreach($file in $ValidHelpFiles)
         {
             Add-Content $DirectiveFile ("'" + ($file).FullName +"'" )
             Compress-Archive -DestinationPath $zipPath -Path $file.FullName -Update
