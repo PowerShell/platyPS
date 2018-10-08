@@ -577,11 +577,17 @@ Accept wildcard characters: false
             Assert.Contains("bz", bazParam.Aliases);
             Assert.Contains("z", bazParam.Aliases);
 
-            Assert.Equal(2, mamlCommand.Syntax.Count);
-            Assert.Equal("FooParam", mamlCommand.Syntax[1].Parameters[0].Name);
-            Assert.Equal("BazParam", mamlCommand.Syntax[1].Parameters[1].Name);
-            Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
-            Assert.Equal("BarParam", mamlCommand.Syntax[0].Parameters[1].Name);
+           Assert.Equal(3, mamlCommand.Syntax.Count);
+           Assert.Null(mamlCommand.Syntax[0].ParameterSetName);
+           Assert.Equal("FooParam", mamlCommand.Syntax[0].Parameters[0].Name);
+
+           Assert.Equal("BarParamSet", mamlCommand.Syntax[1].ParameterSetName);
+           Assert.Equal("FooParam", mamlCommand.Syntax[1].Parameters[0].Name);
+           Assert.Equal("BarParam", mamlCommand.Syntax[1].Parameters[1].Name);
+
+           Assert.Equal("BazParamSet", mamlCommand.Syntax[2].ParameterSetName);
+           Assert.Equal("FooParam", mamlCommand.Syntax[2].Parameters[0].Name);
+           Assert.Equal("BazParam", mamlCommand.Syntax[2].Parameters[1].Name);
         }
 
         [Fact]
