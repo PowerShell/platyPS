@@ -16,6 +16,8 @@
 ##     It would help keep code maintainable and simplify ramp up for others.
 ##
 
+Import-LocalizedData -BindingVariable LocalizedData -FileName platyPS.Resources.psd1
+
 ## Script constants
 
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
@@ -96,12 +98,12 @@ function New-MarkdownHelp
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $HelpVersion = "{{Please enter version of help manually (X.X.X.X) format}}",
+        $HelpVersion = $LocalizedData.HelpVersion,
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $FwLink = "{{Please enter FwLink manually}}",
+        $FwLink = $LocalizedData.FwLink,
 
         [Parameter(ParameterSetName="FromMaml")]
         [string]
@@ -137,11 +139,11 @@ function New-MarkdownHelp
             {
                 $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
-                $MamlExampleObject.Title = 'Example 1'
+                $MamlExampleObject.Title = $LocalizedData.ExampleTitle
                 $MamlExampleObject.Code = @(
-                    New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ('PS C:\> {{ Add example code here }}', 'powershell')
+                    New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($LocalizedData.ExampleCode, 'powershell')
                 )
-                $MamlExampleObject.Remarks = '{{ Add example description here }}'
+                $MamlExampleObject.Remarks = $LocalizedData.ExampleRemark
 
                 $MamlCommandObject.Examples.Add($MamlExampleObject)
             }
@@ -228,7 +230,7 @@ function New-MarkdownHelp
 
         if ($NoMetadata -and $Metadata)
         {
-            throw '-NoMetadata and -Metadata cannot be specified at the same time'
+            throw $LocalizedData.NoMetadataAndMetadata
         }
 
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
@@ -236,7 +238,7 @@ function New-MarkdownHelp
             $command | ForEach-Object {
                 if (-not (Get-Command $_ -EA SilentlyContinue))
                 {
-                    throw "Command $_ not found in the session."
+                    throw $LocalizedData.CommandNotFound -f $_
                 }
 
                 GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
@@ -258,7 +260,7 @@ function New-MarkdownHelp
                 {
                     if (-not (GetCommands -AsNames -module $_))
                     {
-                        throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
+                        throw $LocalizedData.ModuleNotFound -f $_
                     }
 
                     GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
@@ -271,7 +273,7 @@ function New-MarkdownHelp
                 {
                     if (-not (Test-Path $_))
                     {
-                        throw "No file found in $_."
+                        throw $LocalizedData.FileNotFound -f $_
                     }
 
                     GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists | processMamlObjectToFile
@@ -287,7 +289,7 @@ function New-MarkdownHelp
                     }
                     if($ModuleGuid.Count -gt 1)
                     {
-                        Write-Warning -Message "This module has more than 1 guid. This could impact external help creation."
+                        Write-Warning -Message $LocalizedData.MoreThanOneGuid
                     }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
