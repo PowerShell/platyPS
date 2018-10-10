@@ -395,7 +395,7 @@ function Update-MarkdownHelp
 
         if (-not $MarkdownFiles)
         {
-             log -warning "No markdown found in $Path"
+            log -warning $LocalizedData.NoMarkdownFiles -f $Path
             return
         }
 
@@ -408,8 +408,8 @@ function Update-MarkdownHelp
 
             if ($oldModels.Count -gt 1)
             {
-                log -warning "$filePath contains more then 1 command, skipping upgrade."
-                log -warning  "Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first."
+                log -warning $LocalizedData.FileContainsMoreThanOneCommand -f $filePath
+                log -warning $LocalizedData.OneCommandPerFile
                 return
             }
 
@@ -422,11 +422,11 @@ function Update-MarkdownHelp
                 if ($Force) {
                     if (Test-Path $filePath) {
                         Remove-Item -Path $filePath -Confirm:$false
-                        log -warning "command $name not found in the session, removed $filePath"
+                        log -warning $LocalizedData.CommandNotFoundFileRemoved -f $name, $filePath
                         return
                     }
                 } else {
-                    log -warning  "command $name not found in the session, skipping upgrade for $filePath"
+                    log -warning $LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath
                     return
                 }
             }
