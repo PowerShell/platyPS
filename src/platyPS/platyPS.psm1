@@ -1087,7 +1087,7 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ Module Landing Page path is nopt valid."
+                    Throw "$_ Module Landing Page path is not valid."
                 }
             })]
         [string] $LandingPagePath,
