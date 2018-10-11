@@ -218,11 +218,7 @@ namespace Markdown.MAML.Transformer
                     {
                         // special case: there is only one parameter set and it's the default one
                         // we don't specify the name in this case.
-                    }
-                    else
-                    {
-                        continue;
-                    }                    
+                    }                   
                 }
                 else
                 {
