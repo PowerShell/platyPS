@@ -395,7 +395,7 @@ function Update-MarkdownHelp
 
         if (-not $MarkdownFiles)
         {
-            log -warning $LocalizedData.NoMarkdownFiles -f $Path
+            log -warning ($LocalizedData.NoMarkdownFiles -f $Path)
             return
         }
 
@@ -408,7 +408,7 @@ function Update-MarkdownHelp
 
             if ($oldModels.Count -gt 1)
             {
-                log -warning $LocalizedData.FileContainsMoreThanOneCommand -f $filePath
+                log -warning ($LocalizedData.FileContainsMoreThanOneCommand -f $filePath)
                 log -warning $LocalizedData.OneCommandPerFile
                 return
             }
@@ -422,11 +422,11 @@ function Update-MarkdownHelp
                 if ($Force) {
                     if (Test-Path $filePath) {
                         Remove-Item -Path $filePath -Confirm:$false
-                        log -warning $LocalizedData.CommandNotFoundFileRemoved -f $name, $filePath
+                        log -warning ($LocalizedData.CommandNotFoundFileRemoved -f $name, $filePath)
                         return
                     }
                 } else {
-                    log -warning $LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath
+                    log -warning ($LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath)
                     return
                 }
             }
@@ -506,7 +506,7 @@ function Merge-MarkdownHelp
 
         if (-not $MarkdownFiles)
         {
-             log -warning "No markdown found in $Path"
+            log -warning ($LocalizedData.NoMarkdownFiles -f $Path)
             return
         }
 
