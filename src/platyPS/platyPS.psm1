@@ -617,25 +617,25 @@ function Update-MarkdownHelpModule
             if ($h.$script:MODULE_PAGE_MODULE_NAME)
             {
                 $module = $h.$script:MODULE_PAGE_MODULE_NAME | Select-Object -First 1
-                log "Determined module name for $modulePath as $module"
+                log ($LocalizedData.ModuleNameFromPath -f $modulePath, $module)
             }
 
             if (-not $module)
             {
-                Write-Error "Cannot determine module name for $modulePath. You should use New-MarkdownHelp -WithModulePage to create HelpModule"
+                Write-Error -Message ($LocalizedData.ModuleNameNotFoundFromPath -f $modulePath)
                 continue
             }
 
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
-            log ("Updating docs for Module " + $module + " in " + $modulePath)
+            log ($LocalizedData.UpdateDocsForModule -f $module, $modulePath)
             $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput -Force:$Force
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
             if (-not $allCommands)
             {
-                throw "Module $Module is not imported in the session or doesn't have any exported commands"
+                throw $LocalizedData.ModuleOrCommandNotFound -f $Module
             }
 
             $updatedCommands = $affectedFiles.BaseName

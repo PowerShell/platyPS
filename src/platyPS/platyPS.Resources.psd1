@@ -1,11 +1,17 @@
 # Localized data for en-US
 
 ConvertFrom-StringData -StringData @'
+# Log
+ModuleNameFromPath = Determined module name for '{0}' as '{1}'.
+UpdateDocsForModule = Updating documents for module '{0}' in {1}
+
 # Errors
 NoMetadataAndMetadata = -NoMetadata and -Metadata parameters cannot be specified at the same time.
 CommandNotFound = Command '{0}' not found in the session.
-ModuleNotFound = Module '{0}' is not imported in the session. Run 'Import-Module {0}'.
+ModuleNotFound = Module '{0}' is not imported in the session. Use "Import-Module -Name {0}" to import module in the current session.
 FileNotFound = File '{0}' not found.
+ModuleNameNotFoundFromPath = Cannot determine module name for {0}. Use "New-MarkdownHelp -WithModulePage" to create module help.
+ModuleOrCommandNotFound = Module '{0}' is not imported in the session or doesn't have any exported commands.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
