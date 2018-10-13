@@ -687,7 +687,7 @@ function New-MarkdownAboutHelp
         }
         else
         {
-            throw "The output folder does not exist."
+            throw $LocalizedData.OutputFolderNotFound
         }
     }
 }

@@ -12,6 +12,7 @@ ModuleNotFound = Module '{0}' is not imported in the session. Use "Import-Module
 FileNotFound = File '{0}' not found.
 ModuleNameNotFoundFromPath = Cannot determine module name for {0}. Use "New-MarkdownHelp -WithModulePage" to create module help.
 ModuleOrCommandNotFound = Module '{0}' is not imported in the session or doesn't have any exported commands.
+OutputFolderNotFound = The output folder does not exist.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
