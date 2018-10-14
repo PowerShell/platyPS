@@ -13,6 +13,7 @@ FileNotFound = File '{0}' not found.
 ModuleNameNotFoundFromPath = Cannot determine module name for {0}. Use "New-MarkdownHelp -WithModulePage" to create module help.
 ModuleOrCommandNotFound = Module '{0}' is not imported in the session or doesn't have any exported commands.
 OutputFolderNotFound = The output folder does not exist.
+PathIsNotFolder = Path '{0}' is not a folder.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
@@ -21,6 +22,10 @@ FileContainsMoreThanOneCommand = File '{0}' contains more then one command, skip
 OneCommandPerFile = Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first.
 CommandNotFoundFileRemoved = Command '{0}' not found in the session, file '{1}' removed.
 CommandNotFoundSkippingFile = Command '{0}' not found in the session, skipping upgrade for '{1}'.
+
+# Verbose
+InputMarkdownFile = {0} Input markdown file {1}
+WritingYamlToPath = Writing Yaml help to path '{0}'
 
 # Help Placeholders
 HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}

@@ -723,7 +723,7 @@ function New-YamlHelp
 
         if(-not (Test-Path -PathType Container $OutputFolder))
         {
-            throw "$OutputFolder is not a container"
+            throw $LocalizedData.PathIsNotFolder -f $OutputFolder
         }
     }
     process
@@ -733,7 +733,7 @@ function New-YamlHelp
     end
     {
         $MarkdownFiles | ForEach-Object {
-            Write-Verbose "[New-YamlHelp] Input markdown file $_"
+            Write-Verbose -Message ($LocalizedData.InputMarkdownFile -f '[New-YamlHelp]', $_)
         }
 
         foreach($markdownFile in $MarkdownFiles)
@@ -748,7 +748,7 @@ function New-YamlHelp
 
                 $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
                 $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
-                Write-Verbose "Writing Yaml help to $outputFilePath"
+                Write-Verbose -Message ($LocalizedData.WritingYamlToPath -f $outputFilePath)
                 MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
             }
         }
