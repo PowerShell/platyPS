@@ -35,6 +35,8 @@ CommandNotFoundSkippingFile = Command '{0}' not found in the session, skipping u
 CannotFindInMetadataFile = Cannot find '{0}' in metadata for file {1}
 PathWillBeUsed = Path '{0}' will be used.
 VersionNotFoundForLocale = No version found for Locale '{0}'
+ModuleNotFoundFromCommand = {0} Cannot find module for command '{1}'
+MultipleModulesFoundFromCommand = {0} Found {1} modules for command '{1}'
 
 # Verbose
 InputMarkdownFile = {0} Input markdown file {1}

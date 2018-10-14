@@ -1809,13 +1809,13 @@ function GetHelpFileName
 
         if (-not $module)
         {
-            Write-Warning "[GetHelpFileName] Cannot find module for $($CommandInfo.Name)"
+            Write-Warning -Message ($LocalizedData.ModuleNotFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
             return
         }
 
         if ($module.Count -gt 1)
         {
-            Write-Warning "[GetHelpFileName] Found $($module.Count) modules for $($CommandInfo.Name)"
+            Write-Warning -Message ($LocalizedData.MultipleModulesFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
             $module = $module | Select-Object -First 1
         }
 
