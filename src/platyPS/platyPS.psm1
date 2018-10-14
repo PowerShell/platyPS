@@ -943,7 +943,7 @@ function Get-HelpPreview
         {
             if (-not (Test-path -Type Leaf $MamlFilePath))
             {
-                Write-Error "$MamlFilePath is not found, skipping"
+                Write-Error -Message ($LocalizedData.FileNotFoundSkipping -f $MamlFilePath)
                 continue
             }
 

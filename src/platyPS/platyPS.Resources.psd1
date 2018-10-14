@@ -25,6 +25,7 @@ CommandNotFoundFileRemoved = Command '{0}' not found in the session, file '{1}' 
 CommandNotFoundSkippingFile = Command '{0}' not found in the session, skipping upgrade for '{1}'.
 CannotFindInMetadataFile = Cannot find '{0}' in metadata for file {1}
 PathWillBeUsed = Path '{0}' will be used.
+FileNotFoundSkipping = Path '{0}' not found, skipping.
 
 # Verbose
 InputMarkdownFile = {0} Input markdown file {1}
