@@ -23,6 +23,7 @@ FileNotValidHelpFileType = File '{0}' is not a valid help file type. Excluding f
 AboutFileNotFound = {0} about file not found.
 PathNotFound = Path '{0}' not found.
 ForAnotherMarkdownAndApplicableTag = [ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag
+PlatyPS100SchemaDeprecated = PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.

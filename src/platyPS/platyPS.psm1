@@ -1583,7 +1583,7 @@ function NewModelTransformer
 
     if ($schema -eq '1.0.0')
     {
-        throw "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version."
+        throw $LocalizedData.PlatyPS100SchemaDeprecated
     }
     elseif ($schema -eq '2.0.0')
     {
