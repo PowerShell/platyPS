@@ -4,6 +4,7 @@ ConvertFrom-StringData -StringData @'
 # Log
 ModuleNameFromPath = Determined module name for '{0}' as '{1}'.
 UpdateDocsForModule = Updating documents for module '{0}' in {1}
+CreatingNewMarkdownForCommand = Creating new markdown for command '{0}'
 
 # Errors
 NoMetadataAndMetadata = -NoMetadata and -Metadata parameters cannot be specified at the same time.
@@ -22,10 +23,17 @@ FileContainsMoreThanOneCommand = File '{0}' contains more then one command, skip
 OneCommandPerFile = Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first.
 CommandNotFoundFileRemoved = Command '{0}' not found in the session, file '{1}' removed.
 CommandNotFoundSkippingFile = Command '{0}' not found in the session, skipping upgrade for '{1}'.
+CannotFindInMetadataFile = Cannot find '{0}' in metadata for file {1}
+PathWillBeUsed = Path '{0}' will be used.
 
 # Verbose
 InputMarkdownFile = {0} Input markdown file {1}
+SkippingMarkdownFile = {0} Skipping markdown file {1}
 WritingYamlToPath = Writing Yaml help to path '{0}'
+OutputPathAsFile = {0} Use '{1}' as path to a file.
+OutputPathAsDirectory = {0} Use '{1}' as path to a directory.
+FilteringForApplicableTag = {0} Filtering for ApplicableTag {1}
+WritingExternalHelpToPath = Writing external help to path '{0}'
 
 # Help Placeholders
 HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}

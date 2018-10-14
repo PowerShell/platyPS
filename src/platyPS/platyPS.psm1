@@ -642,7 +642,7 @@ function Update-MarkdownHelpModule
             $allCommands | ForEach-Object {
                 if ( -not ($updatedCommands -contains $_) )
                 {
-                    log "Creating new markdown for command $_"
+                    log ($LocalizedData.CreatingNewMarkdownForCommand -f $_)
                     $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
                     $newFiles # yeild
                 }
@@ -794,12 +794,12 @@ function New-ExternalHelp
         if ( $OutputPath.EndsWith('.xml') -and (-not (Test-Path -PathType Container $OutputPath )) )
         {
             $IsOutputContainer = $false
-            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a file"
+            Write-Verbose -Message ($LocalizedData.OutputPathAsFile -f '[New-ExternalHelp]', $OutputPath)
         }
         else
         {
             New-Item -Type Directory $OutputPath -ErrorAction SilentlyContinue > $null
-            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
+            Write-Verbose -Message ($LocalizedData.OutputPathAsDirectory -f '[New-ExternalHelp]', $OutputPath)
         }
 
         if ( -not $ShowProgress.IsPresent -or $(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) )
@@ -830,11 +830,11 @@ function New-ExternalHelp
        try {
          # write verbose output and filter out files based on applicable tag
          $MarkdownFiles | ForEach-Object {
-            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
+            Write-Verbose -Message ($LocalizedData.InputMarkdownFile -f '[New-ExternalHelp]', $_)
          }
 
          if ($ApplicableTag) {
-            Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
+            Write-Verbose -Message ($LocalizedData.FilteringForApplicableTag -f '[New-ExternalHelp]', $ApplicableTag)
             $MarkdownFiles = $MarkdownFiles | ForEach-Object {
                $applicableList = GetApplicableList -Path $_.FullName
                # this Compare-Object call is getting the intersection of two string[]
@@ -843,7 +843,7 @@ function New-ExternalHelp
                   $_
                }
                else {
-                  Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
+                  Write-Verbose -Message ($LocalizedData.SkippingMarkdownFile -f '[New-ExternalHelp]', $_)
                }
             }
          }
@@ -857,16 +857,16 @@ function New-ExternalHelp
                   Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
                }
                else {
-                  $msgLine1 = "cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
-                  $msgLine2 = "$defaultPath would be used"
+                  $msgLine1 = $LocalizedData.CannotFindInMetadataFile -f $script:EXTERNAL_HELP_FILE_YAML_HEADER, $_.FullName
+                  $msgLine2 = $LocalizedData.PathWillBeUsed -f $defaultPath
                   $warningsAndErrors.Add(@{
                         Severity = "Warning"
                         Message  = "$msgLine1 $msgLine2"
                         FilePath = "$($_.FullName)"
                      })
 
-                  Write-Warning "[New-ExternalHelp] $msgLine1"
-                  Write-Warning "[New-ExternalHelp] $msgLine2"
+                  Write-Warning -Message "[New-ExternalHelp] $msgLine1"
+                  Write-Warning -Message "[New-ExternalHelp] $msgLine2"
                   $defaultPath
                }
             }
@@ -883,7 +883,7 @@ function New-ExternalHelp
             $xml = $r.MamlModelToString($maml)
 
             $outPath = $group.Name # group name
-            Write-Verbose "Writing external help to $outPath"
+            Write-Verbose -Message ($LocalizedData.WritingExternalHelpToPath -f $outPath)
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
          }
 
