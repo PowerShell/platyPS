@@ -1408,7 +1408,7 @@ function GetAboutTopicsFromPath
         $MdContent = Get-Content -raw $AboutFilePath
         $MdParser = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
                                 -ArgumentList { param([int]$current, [int]$all)
-                                Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)}
+                                Write-Progress -Activity $LocalizedData.ParsingMarkdown -status $LocalizedData.Progress -percentcomplete ($current/$all*100)}
         $MdObject = $MdParser.ParseString($MdContent)
 
         if($MdObject.Children[1].text.length -gt 5)
@@ -1446,7 +1446,7 @@ function GetAboutTopicsFromPath
             }
             else
             {
-                Write-Error "$_ about file not found"
+                Write-Error -Message ($LocalizedData.AboutFileNotFound -f $_)
             }
         }
     }

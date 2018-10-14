@@ -20,6 +20,7 @@ FileNotFoundSkipping = Path '{0}' not found, skipping.
 FilesNotFoundInFolder = Path '{0}' does not contain any files.
 NoValidHelpFiles = No valid help files.
 FileNotValidHelpFileType = File '{0}' is not a valid help file type. Excluding from Cab file.
+AboutFileNotFound = {0} about file not found.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
@@ -47,6 +48,10 @@ CreatingCabFileDirectives = Creating Cab file directives.
 CreatingCabFile = Creating Cab File.
 MovingCabFile = Moving the Cab to the path '{0}'
 RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
+
+# Progress
+ParsingMarkdown = Parsing markdown
+Progress = Progress:
 
 # Help Placeholders
 HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}
