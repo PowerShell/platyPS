@@ -1076,7 +1076,7 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ content source file folder path is not a valid directory."
+                    Throw $LocalizedData.PathIsNotFolder -f $_
                 }
             })]
         [string] $CabFilesFolder,
@@ -1089,7 +1089,7 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ Module Landing Page path is not valid."
+                    Throw $LocalizedData.PathIsNotFile -f $_
                 }
             })]
         [string] $LandingPagePath,
@@ -1107,16 +1107,16 @@ function New-ExternalHelpCab
     process
     {
         #Testing for MakeCab.exe
-        Write-Verbose "Testing that MakeCab.exe is present on this machine."
+        Write-Verbose -Message ($LocalizedData.TestCommandExists -f 'MakeCab.exe')
         $MakeCab = Get-Command MakeCab
         if(-not $MakeCab)
         {
-            throw "MakeCab.exe is not a registered command."
+            throw $LocalizedData.CommandNotFound -f 'MakeCab.exe'
         }
         #Testing for files in source directory
         if((Get-ChildItem -Path $CabFilesFolder).Count -le 0)
         {
-            throw "The file count in the cab files directory is zero."
+            throw $LocalizedData.FilesNotFoundInFolder -f $CabFilesFolder
         }
         #Testing for valid help file types
         $ValidHelpFileTypes = '.xml', '.txt'
@@ -1125,11 +1125,11 @@ function New-ExternalHelpCab
         $InvalidHelpFiles = $HelpFiles | Where-Object { $_.Extension -notin $ValidHelpFileTypes }
         if(-not $ValidHelpFiles)
         {
-            throw "No valid help files."
+            throw $LocalizedData.NoValidHelpFiles
         }
         if($InvalidHelpFiles)
         {
-            $InvalidHelpFiles | ForEach-Object { Write-Warning -Message ("File '{0}' is not a valid help file type. Excluding from CAB file." -f $_.FullName) }
+            $InvalidHelpFiles | ForEach-Object { Write-Warning -Message ($LocalizedData.FileNotValidHelpFileType -f $_.FullName) }
         }
 
 
@@ -1159,14 +1159,13 @@ function New-ExternalHelpCab
     #Create HelpInfo File
 
         #Testing the destination directories, creating if none exists.
-        Write-Verbose "Checking the output directory"
         if(-not (Test-Path $OutputFolder))
         {
-            Write-Verbose "Output directory does not exist, creating a new directory."
-            New-Item -ItemType Directory -Path $OutputFolder
+            Write-Verbose -Message ($LocalizedData.FolderNotFoundCreating -f $OutputFolder)
+            New-Item -ItemType Directory -Path $OutputFolder | Out-Null
         }
 
-        Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
+        Write-Verbose -Message ($LocalizedData.CabFileInfo -f $ModuleName, $Guid, $Locale)
 
         #Building the cabinet file name.
         $cabName = ("{0}_{1}_{2}_HelpContent.cab" -f $ModuleName,$Guid,$Locale)
@@ -1174,9 +1173,9 @@ function New-ExternalHelpCab
         $zipPath = (Join-Path $OutputFolder $zipName)
 
         #Setting Cab Directives, make a cab is turned on, compression is turned on
-        Write-Verbose "Creating Cab File"
+        Write-Verbose -Message ($LocalizedData.CreatingCabFileDirectives)
         $DirectiveFile = "dir.dff"
-        New-Item -ItemType File -Name $DirectiveFile -Force |Out-Null
+        New-Item -ItemType File -Name $DirectiveFile -Force | Out-Null
         Add-Content $DirectiveFile ".Set Cabinet=on"
         Add-Content $DirectiveFile ".Set Compress=on"
 
@@ -1188,15 +1187,15 @@ function New-ExternalHelpCab
         }
 
         #Making Cab
-        Write-Verbose "Making the cab file"
+        Write-Verbose -Message ($LocalizedData.CreatingCabFile)
         MakeCab.exe /f $DirectiveFile | Out-Null
 
         #Naming CabFile
-        Write-Verbose "Moving the cab to the output directory"
+        Write-Verbose -Message ($LocalizedData.MovingCabFile -f $OutputFolder)
         Copy-Item "disk1/1.cab" (Join-Path $OutputFolder $cabName)
 
         #Remove ExtraFiles created by the cabbing process
-        Write-Verbose "Performing cabbing cleanup"
+        Write-Verbose -Message ($LocalizedData.RemovingExtraCabFileContents)
         Remove-Item "setup.inf" -ErrorAction SilentlyContinue
         Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
         Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
@@ -1216,7 +1215,7 @@ function New-ExternalHelpCab
 
                 if([String]::IsNullOrEmpty($locVersion))
                 {
-                    Write-Warning ("No version found for Locale: {0}" -f $loc)
+                    Write-Warning -Message ($LocalizedData.VersionNotFoundForLocale -f $loc)
                 }
                 else
                 {

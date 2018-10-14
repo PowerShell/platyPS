@@ -15,6 +15,11 @@ ModuleNameNotFoundFromPath = Cannot determine module name for {0}. Use "New-Mark
 ModuleOrCommandNotFound = Module '{0}' is not imported in the session or doesn't have any exported commands.
 OutputFolderNotFound = The output folder does not exist.
 PathIsNotFolder = Path '{0}' is not a folder.
+PathIsNotFile = Path '{0}' is not a file.
+FileNotFoundSkipping = Path '{0}' not found, skipping.
+FilesNotFoundInFolder = Path '{0}' does not contain any files.
+NoValidHelpFiles = No valid help files.
+FileNotValidHelpFileType = File '{0}' is not a valid help file type. Excluding from Cab file.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
@@ -25,7 +30,7 @@ CommandNotFoundFileRemoved = Command '{0}' not found in the session, file '{1}' 
 CommandNotFoundSkippingFile = Command '{0}' not found in the session, skipping upgrade for '{1}'.
 CannotFindInMetadataFile = Cannot find '{0}' in metadata for file {1}
 PathWillBeUsed = Path '{0}' will be used.
-FileNotFoundSkipping = Path '{0}' not found, skipping.
+VersionNotFoundForLocale = No version found for Locale '{0}'
 
 # Verbose
 InputMarkdownFile = {0} Input markdown file {1}
@@ -35,6 +40,13 @@ OutputPathAsFile = {0} Use '{1}' as path to a file.
 OutputPathAsDirectory = {0} Use '{1}' as path to a directory.
 FilteringForApplicableTag = {0} Filtering for ApplicableTag {1}
 WritingExternalHelpToPath = Writing external help to path '{0}'
+TestCommandExists = Testing that '{0}' is present on this machine.
+FolderNotFoundCreating = Path '{0}' does not exist, creating directory.
+CabFileInfo = Creating cab for '{0}', with Guid '{1}', in Locale '{2}'
+CreatingCabFileDirectives = Creating Cab file directives.
+CreatingCabFile = Creating Cab File.
+MovingCabFile = Moving the Cab to the path '{0}'
+RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
 
 # Help Placeholders
 HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}
