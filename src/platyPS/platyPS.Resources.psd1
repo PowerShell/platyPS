@@ -22,6 +22,7 @@ NoValidHelpFiles = No valid help files.
 FileNotValidHelpFileType = File '{0}' is not a valid help file type. Excluding from Cab file.
 AboutFileNotFound = {0} about file not found.
 PathNotFound = Path '{0}' not found.
+ForAnotherMarkdownAndApplicableTag = [ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.

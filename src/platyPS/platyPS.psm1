@@ -1531,7 +1531,7 @@ function GetMamlModelImpl
     )
 
     if ($ForAnotherMarkdown -and $ApplicableTag) {
-        throw '[ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag'
+        throw $LocalizedData.ForAnotherMarkdownAndApplicableTag
     }
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
@@ -1545,7 +1545,7 @@ function GetMamlModelImpl
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($mdText, $parseMode, $_)
-        Write-Progress -Activity "Parsing markdown" -Completed
+        Write-Progress -Activity $LocalizedData.ParsingMarkdown -Completed
         $maml = $t.NodeModelToMamlModel($model)
 
         # flatten
