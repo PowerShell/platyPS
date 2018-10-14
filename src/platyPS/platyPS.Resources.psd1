@@ -21,6 +21,7 @@ FilesNotFoundInFolder = Path '{0}' does not contain any files.
 NoValidHelpFiles = No valid help files.
 FileNotValidHelpFileType = File '{0}' is not a valid help file type. Excluding from Cab file.
 AboutFileNotFound = {0} about file not found.
+PathNotFound = Path '{0}' not found.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.

@@ -1495,7 +1495,7 @@ function GetMarkdownFilesFromPath
             }
             else
             {
-                Write-Error "$_ is not found"
+                Write-Error -Message ($LocalizedData.PathNotFound -f $_)
             }
         }
     }
