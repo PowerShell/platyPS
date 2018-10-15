@@ -63,6 +63,7 @@ ReadingWithEncoding = Reading from '{0}' with encoding = {1}
 # Progress
 ParsingMarkdown = Parsing markdown
 Progress = Progress:
+Processing = Processing: {0}
 
 # Help Placeholders
 HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}
