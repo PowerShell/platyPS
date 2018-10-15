@@ -2422,7 +2422,7 @@ function IncrementHelpVersion
     )
     process
     {
-        if($HelpVersionString -eq "{{Please enter version of help manually (X.X.X.X) format}}")
+        if($HelpVersionString -eq $LocalizedData.HelpVersion)
         {
             return "1.0.0.0"
         }
