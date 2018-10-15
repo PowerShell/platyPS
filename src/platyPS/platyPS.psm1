@@ -2253,9 +2253,7 @@ function MyGetCommand
         # this call we need to fill-up ParameterSets.Parameters with metadata
         $parameters = expand2 'ParameterSets' $num 'Parameters'
         if ($parameters.Length -ne $parameterType.Length) {
-            $errStr = "Metadata for $Cmdlet doesn't match length.`n" +
-            "This should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues"
-            Write-Error $errStr
+            Write-Error -Message ($LocalizedData.MetadataDoesNotMatchLength -f $Cmdlet)
         }
 
         foreach ($i in (GetRange $parameters.Length)) {

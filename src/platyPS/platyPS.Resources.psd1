@@ -27,6 +27,7 @@ PlatyPS100SchemaDeprecated = PlatyPS schema version 1.0.0 is deprecated and not 
 CannotWriteFileDirectoryExists = Cannot write file to '{0}', directory with the same name exists.
 CannotWriteFileWithoutForce = Cannot write to '{0}', file exists. Use -Force to overwrite.
 RangeIsLessThanZero = {0} '{1}' is unsupported: value less than 0
+MetadataDoesNotMatchLength = Metadata for cmdlet '{0}' doesn't match length.\nThis should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
