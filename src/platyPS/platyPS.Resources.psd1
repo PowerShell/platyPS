@@ -56,6 +56,7 @@ CreatingCabFile = Creating Cab File.
 MovingCabFile = Moving the Cab to the path '{0}'
 RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
 WritingWithEncoding = Writing to '{0}' with encoding: {1}
+ReadingWithEncoding = Reading from '{0}' with encoding = {1}
 
 # Progress
 ParsingMarkdown = Parsing markdown

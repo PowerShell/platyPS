@@ -1896,19 +1896,19 @@ function MyGetContent
 
     if (-not(Test-Path $Path))
     {
-        throw "Cannot read from $Path, file does not exist."
+        throw $LocalizedData.FileNotFound
         return
     }
     else
     {
         if (Test-Path $Path -PathType Container)
         {
-            throw "Cannot read from $Path, $Path is a directory."
+            throw $LocalizedData.PathIsNotFile
             return
         }
     }
 
-    Write-Verbose "Reading from $Path with encoding = $($Encoding.EncodingName)"
+    Write-Verbose -Message ($LocalizedData.ReadingWithEncoding -f $Path, $Encoding.EncodingName)
     $resolvedPath = (Get-ChildItem $Path).FullName
     return [System.IO.File]::ReadAllText($resolvedPath, $Encoding)
 }
