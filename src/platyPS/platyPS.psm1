@@ -2095,7 +2095,7 @@ function GetCommands
         else
         {
             if ($Session) {
-                $commands.Name | % {
+                $commands.Name | ForEach-Object {
                     # yeild
                     MyGetCommand -Cmdlet $_ -Session $Session
                 }
