@@ -24,6 +24,8 @@ AboutFileNotFound = {0} about file not found.
 PathNotFound = Path '{0}' not found.
 ForAnotherMarkdownAndApplicableTag = [ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag
 PlatyPS100SchemaDeprecated = PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version.
+CannotWriteFileDirectoryExists = Cannot write file to '{0}', directory with the same name exists.
+CannotWriteFileWithoutForce = Cannot write to '{0}', file exists. Use -Force to overwrite.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
@@ -53,6 +55,7 @@ CreatingCabFileDirectives = Creating Cab file directives.
 CreatingCabFile = Creating Cab File.
 MovingCabFile = Moving the Cab to the path '{0}'
 RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
+WritingWithEncoding = Writing to '{0}' with encoding: {1}
 
 # Progress
 ParsingMarkdown = Parsing markdown

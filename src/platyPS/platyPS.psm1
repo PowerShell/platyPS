@@ -1857,13 +1857,13 @@ function MySetContent
     {
         if (Test-Path $Path -PathType Container)
         {
-            Write-Error "Cannot write file to $Path, directory with the same name exists."
+            Write-Error -Message ($LocalizedData.CannotWriteFileDirectoryExists -f $Path)
             return
         }
 
         if (-not $Force)
         {
-            Write-Error "Cannot write to $Path, file exists. Use -Force to overwrite."
+            Write-Error -Message ($LocalizedData.CannotWriteFileWithoutForce -f $Path)
             return
         }
     }
@@ -1876,7 +1876,7 @@ function MySetContent
         }
     }
 
-    Write-Verbose "Writing to $Path with encoding = $($Encoding.EncodingName)"
+    Write-Verbose -Message ($LocalizedData.WritingWithEncoding -f $Path, $Encoding.EncodingName)
     # just to create a file
     Set-Content -Path $Path -Value ''
     $resolvedPath = (Get-ChildItem $Path).FullName
