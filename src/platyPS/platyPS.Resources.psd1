@@ -26,6 +26,7 @@ ForAnotherMarkdownAndApplicableTag = [ASSERT] Incorrect usage: cannot pass both 
 PlatyPS100SchemaDeprecated = PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version.
 CannotWriteFileDirectoryExists = Cannot write file to '{0}', directory with the same name exists.
 CannotWriteFileWithoutForce = Cannot write to '{0}', file exists. Use -Force to overwrite.
+RangeIsLessThanZero = {0} '{1}' is unsupported: value less than 0
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.

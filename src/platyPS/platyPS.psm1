@@ -2155,7 +2155,7 @@ function GetRange
         [int]$n
     )
     if ($n -lt 0) {
-        throw "GetRange $n is unsupported: value less then 0"
+        throw $LocalizedData.RangeIsLessThanZero -f $n
     }
     if ($n -eq 0) {
         return
