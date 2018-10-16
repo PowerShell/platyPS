@@ -28,6 +28,7 @@ CannotWriteFileDirectoryExists = Cannot write file to '{0}', directory with the 
 CannotWriteFileWithoutForce = Cannot write to '{0}', file exists. Use -Force to overwrite.
 RangeIsLessThanZero = {0} '{1}' is unsupported: value less than 0
 MetadataDoesNotMatchLength = Metadata for cmdlet '{0}' doesn't match length.\nThis should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues
+FailedSettingFileSystemProvider = PlatyPS Cmdlets only work in the FileSystem Provider. Failed setting provider back to FileSystem.
 
 # Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
@@ -59,6 +60,7 @@ MovingCabFile = Moving the Cab to the path '{0}'
 RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
 WritingWithEncoding = Writing to '{0}' with encoding: {1}
 ReadingWithEncoding = Reading from '{0}' with encoding = {1}
+SettingFileSystemProvider = PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to FileSystem.
 
 # Progress
 ParsingMarkdown = Parsing markdown

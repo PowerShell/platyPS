@@ -2972,7 +2972,7 @@ function validateWorkingProvider
 {
     if((Get-Location).Drive.Provider.Name -ne 'FileSystem')
     {
-        Write-Verbose 'PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to filesystem.'
+        Write-Verbose -Message $LocalizedData.SettingFileSystemProvider
         $AvailableFileSystemDrives = Get-PSDrive | Where-Object {$_.Provider.Name -eq "FileSystem"} | Select-Object Root
         if($AvailableFileSystemDrives.Count -gt 0)
         {
@@ -2980,7 +2980,7 @@ function validateWorkingProvider
         }
         else
         {
-             throw 'PlatyPS Cmdlets only work in the FileSystem Provider.'
+             throw $LocalizedData.FailedSettingFileSystemProvider
         }
     }
 }
