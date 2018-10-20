@@ -10,6 +10,6 @@
     <PackageReference Include="System.Collections.NonGeneric" Version="4.3.0" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="YamlDotNet" Version="4.2.3" />
+    <PackageReference Include="YamlDotNet" Version="5.0.0" />
   </ItemGroup>
 </Project>
