@@ -146,7 +146,7 @@ function New-MarkdownHelp
                 $MamlCommandObject.Examples.Add($MamlExampleObject)
             }
 
-            if ($AlphabeticParamsOrder)
+            if ($AlphabeticParamsOrder.IsPresent)
             {
                 SortParamsAlphabetically $MamlCommandObject
             }
@@ -186,7 +186,7 @@ function New-MarkdownHelp
 
                 $commandName = $mamlObject.Name
                 # create markdown
-                if ($NoMetadata)
+                if ($NoMetadata.IsPresent)
                 {
                     $newMetadata = $null
                 }
@@ -220,13 +220,13 @@ function New-MarkdownHelp
                     })
                 }
 
-                $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
+                $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata.IsPresent
 
-                MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding -Force:$Force
+                MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding -Force:$Force.IsPresent
             }
         }
 
-        if ($NoMetadata -and $Metadata)
+        if ($NoMetadata.IsPresent -and $Metadata)
         {
             throw '-NoMetadata and -Metadata cannot be specified at the same time'
         }
@@ -239,7 +239,7 @@ function New-MarkdownHelp
                     throw "Command $_ not found in the session."
                 }
 
-                GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
+                GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName.IsPresent | processMamlObjectToFile
             }
         }
         else
@@ -261,7 +261,7 @@ function New-MarkdownHelp
                         throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
                     }
 
-                    GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
+                    GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName.IsPresent | processMamlObjectToFile
 
                     $ModuleName = $_
                     $ModuleGuid = (Get-Module $ModuleName).Guid
@@ -274,7 +274,7 @@ function New-MarkdownHelp
                         throw "No file found in $_."
                     }
 
-                    GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists | processMamlObjectToFile
+                    GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList.Ispresent -ConvertDoubleDashLists:$ConvertDoubleDashLists.IsPresent | processMamlObjectToFile
 
                     $CmdletNames += GetMamlObject -MamlFile $_ | ForEach-Object {$_.Name}
                 }
@@ -298,7 +298,7 @@ function New-MarkdownHelp
                                         -Version $HelpVersion `
                                         -FwLink $FwLink `
                                         -Encoding $Encoding `
-                                        -Force:$Force
+                                        -Force:$Force.IsPresent
                 }
             }
         }
@@ -364,7 +364,7 @@ function Update-MarkdownHelp
     begin
     {
         validateWorkingProvider
-        $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend
+        $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend.IsPresent
         $MarkdownFiles = @()
     }
 
@@ -383,7 +383,7 @@ function Update-MarkdownHelp
             )
 
             $message = "[Update-MarkdownHelp] $([datetime]::now) $message"
-            if ($warning)
+            if ($warning.IsPresent)
             {
                 Write-Warning $message
             }
@@ -417,7 +417,7 @@ function Update-MarkdownHelp
             $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
-                if ($Force) {
+                if ($Force.IsPresent) {
                     if (Test-Path $filePath) {
                         Remove-Item -Path $filePath -Confirm:$false
                         log -warning "command $name not found in the session, removed $filePath"
@@ -432,13 +432,13 @@ function Update-MarkdownHelp
             # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
             $metadata["external help file"] = GetHelpFileName $command
-            $reflectionModel = GetMamlObject -Session $Session -Cmdlet $name -UseFullTypeName:$UseFullTypeName
+            $reflectionModel = GetMamlObject -Session $Session -Cmdlet $name -UseFullTypeName:$UseFullTypeName.IsPresent
             $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
-            $newModel = $merger.Merge($reflectionModel, $oldModel, $UpdateInputOutput)
+            $newModel = $merger.Merge($reflectionModel, $oldModel, $UpdateInputOutput.IsPresent)
 
-            if ($AlphabeticParamsOrder)
+            if ($AlphabeticParamsOrder.IsPresent)
             {
                 SortParamsAlphabetically $newModel
             }
@@ -536,7 +536,7 @@ function Merge-MarkdownHelp
             }
 
             $tags = $dict.Keys
-            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $ExplicitApplicableIfAll)
+            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $ExplicitApplicableIfAll.IsPresent)
             {
                 $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = $tags -join ', ' }
             }
@@ -545,12 +545,12 @@ function Merge-MarkdownHelp
                 $newMetadata = @{}
             }
 
-            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, (-not $ExplicitApplicableIfAll), $MergeMarker
+            $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, (-not $ExplicitApplicableIfAll.IsPresent), $MergeMarker
             $newModel = $merger.Merge($dict)
 
             $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
             $outputFilePath = Join-Path $OutputPath $groupName
-            MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force # yeild
+            MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force.IsPresent # yeild
         }
     }
 }
@@ -580,7 +580,7 @@ function Update-MarkdownHelpModule
     begin
     {
         validateWorkingProvider
-        $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend
+        $infoCallback = GetInfoCallback $LogPath -Append:$LogAppend.IsPresent
         $MarkdownFiles = @()
     }
 
@@ -627,7 +627,7 @@ function Update-MarkdownHelpModule
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
             log ("Updating docs for Module " + $module + " in " + $modulePath)
-            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput -Force:$Force
+            $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder.IsPresent -UseFullTypeName:$UseFullTypeName.IsPresent -UpdateInputOutput:$UpdateInputOutput.IsPresent -Force:$Force.IsPresent
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
@@ -641,12 +641,12 @@ function Update-MarkdownHelpModule
                 if ( -not ($updatedCommands -contains $_) )
                 {
                     log "Creating new markdown for command $_"
-                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
+                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder.IsPresent
                     $newFiles # yeild
                 }
             }
 
-            if($RefreshModulePage)
+            if($RefreshModulePage.IsPresent)
             {
                 $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
                 $files = @()
@@ -747,7 +747,7 @@ function New-YamlHelp
                 $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
                 $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
                 Write-Verbose "Writing Yaml help to $outputFilePath"
-                MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
+                MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force.IsPresent
             }
         }
     }
@@ -882,7 +882,7 @@ function New-ExternalHelp
 
             $outPath = $group.Name # group name
             Write-Verbose "Writing external help to $outPath"
-            MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
+            MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force.IsPresent
          }
 
          # handle about topics
@@ -898,7 +898,7 @@ function New-ExternalHelp
                if (!(Split-Path -Leaf $outPath).ToUpper().StartsWith("ABOUT_", $true, $null)) {
                   $outPath = Join-Path (Split-Path -Parent $outPath) ("about_" + (Split-Path -Leaf $outPath))
                }
-               MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force
+               MySetContent -Path $outPath -Value $value -Encoding $Encoding -Force:$Force.IsPresent
             }
          }
        }
@@ -961,7 +961,7 @@ function Get-HelpPreview
             $MamlCopyPath = [System.IO.Path]::GetTempFileName()
             try
             {
-                if ($ConvertDoubleDashLists)
+                if ($ConvertDoubleDashLists.IsPresent)
                 {
                     $p = $xml.GetElementsByTagName('maml:para') | ForEach-Object {
                         # Convert "-- "-lists into "- "-lists
@@ -972,7 +972,7 @@ function Get-HelpPreview
                     }
                 }
 
-                if ($ConvertNotesToList)
+                if ($ConvertNotesToList.IsPresent)
                 {
                     # Add inline bullet-list, as described in https://github.com/PowerShell/platyPS/issues/125
                     $xml.helpItems.command.alertSet.alert |
@@ -1141,7 +1141,7 @@ function New-ExternalHelpCab
     $OldHelpVersion = $Metadata[$script:MODULE_PAGE_HELP_VERSION]
     $AdditionalLocale = $Metadata[$script:MODULE_PAGE_ADDITIONAL_LOCALE]
 
-    if($IncrementHelpVersion)
+    if($IncrementHelpVersion.IsPresent)
     {
         #IncrementHelpVersion
         $HelpVersion = IncrementHelpVersion -HelpVersionString $OldHelpVersion
@@ -1357,7 +1357,7 @@ function GetInfoCallback
                 New-Item -Type Directory $containerFolder -ErrorAction SilentlyContinue > $null
             }
 
-            if (-not $Append)
+            if (-not $Append.IsPresent)
             {
                 # wipe the file, so it can be reused
                 Set-Content -Path $LogPath -value '' -Encoding UTF8
@@ -1466,7 +1466,7 @@ function GetMarkdownFilesFromPath
         [switch]$IncludeModulePage
     )
 
-    if ($IncludeModulePage)
+    if ($IncludeModulePage.IsPresent)
     {
         $filter = '*.md'
     }
@@ -1508,7 +1508,7 @@ function GetParserMode
         [switch]$PreserveFormatting
     )
 
-    if ($PreserveFormatting)
+    if ($PreserveFormatting.IsPresent)
     {
         return [Markdown.MAML.Parser.ParserMode]::FormattingPreserve
     }
@@ -1529,7 +1529,7 @@ function GetMamlModelImpl
         [String[]]$ApplicableTag
     )
 
-    if ($ForAnotherMarkdown -and $ApplicableTag) {
+    if ($ForAnotherMarkdown.IsPresent -and $ApplicableTag) {
         throw '[ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag'
     }
 
@@ -1860,7 +1860,7 @@ function MySetContent
             return
         }
 
-        if (-not $Force)
+        if (-not $Force.IsPresent)
         {
             Write-Error "Cannot write to $Path, file exists. Use -Force to overwrite."
             return
@@ -1962,7 +1962,7 @@ function NewModuleLandingPage
     {
         $Description = "{{Manually Enter Description Here}}"
 
-        if($RefreshModulePage)
+        if($RefreshModulePage.IsPresent)
         {
             if(Test-Path $LandingPagePath)
             {
@@ -2006,7 +2006,7 @@ function NewModuleLandingPage
         $Content += "# $ModuleName Module`r`n## Description`r`n"
         $Content += "$Description`r`n`r`n## $ModuleName Cmdlets`r`n"
 
-        if($RefreshModulePage)
+        if($RefreshModulePage.IsPresent)
         {
             $Module | ForEach-Object {
                 $command = $_
@@ -2027,7 +2027,7 @@ function NewModuleLandingPage
             }
         }
 
-        MySetContent -Path $LandingPagePath -value $Content -Encoding $Encoding -Force:$Force # yeild
+        MySetContent -Path $LandingPagePath -value $Content -Encoding $Encoding -Force:$Force.IsPresent # yeild
     }
 
 }
@@ -2048,14 +2048,14 @@ function ConvertMamlModelToMarkdown
 
     begin
     {
-        $parseMode = GetParserMode -PreserveFormatting:$PreserveFormatting
+        $parseMode = GetParserMode -PreserveFormatting:$PreserveFormatting.IsPresent
         $r = New-Object Markdown.MAML.Renderer.MarkdownV2Renderer -ArgumentList $parseMode
         $count = 0
     }
 
     process
     {
-        if (($count++) -eq 0 -and (-not $NoMetadata))
+        if (($count++) -eq 0 -and (-not $NoMetadata.IsPresent))
         {
             return $r.MamlModelToString($mamlCommand, $metadata)
         }
@@ -2087,7 +2087,7 @@ function GetCommands
         $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
             Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
 
-        if ($AsNames)
+        if ($AsNames.IsPresent)
         {
             $commands.Name
         }
@@ -2336,7 +2336,7 @@ function GetMamlObject
         Write-Verbose ("Processing: " + $Cmdlet)
         $Help = Get-Help $Cmdlet
         $Command = MyGetCommand -Session $Session -Cmdlet $Cmdlet
-        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName
+        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName.IsPresent
     }
     elseif ($Module)
     {
@@ -2348,12 +2348,12 @@ function GetMamlObject
             Write-Verbose ("`tProcessing: " + $Command.Name)
             $Help = Get-Help $Command.Name
             # yield
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName.IsPresent
         }
     }
     else # Maml
     {
-        $HelpCollection = Get-HelpPreview -Path $MamlFile -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists
+        $HelpCollection = Get-HelpPreview -Path $MamlFile -ConvertNotesToList:$ConvertNotesToList.IsPresent -ConvertDoubleDashLists:$ConvertDoubleDashLists.IsPresent
 
         #Provides Name, CommandType, and Empty Module name from MAML generated module in the $command object.
         #Otherwise loads the results from Get-Command <Cmdlet> into the $command object
@@ -2369,7 +2369,7 @@ function GetMamlObject
             }
 
             # yield
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata  -UseFullTypeName:$UseFullTypeName
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata  -UseFullTypeName:$UseFullTypeName.IsPresent
         }
     }
 }
@@ -2732,7 +2732,7 @@ function ConvertPsObjectsToMamlModel
         }
     }
 
-    if ($UseHelpForParametersMetadata)
+    if ($UseHelpForParametersMetadata.IsPresent)
     {
         FillUpSyntaxFromHelp
     }
@@ -2748,7 +2748,7 @@ function ConvertPsObjectsToMamlModel
     #region Help-Object processing
 
     #Get Synopsis
-    if ($UsePlaceholderForSynopsis)
+    if ($UsePlaceholderForSynopsis.IsPresent)
     {
         # Help object ALWAYS contains SYNOPSIS.
         # If it's not available, it's auto-generated.
@@ -2940,7 +2940,7 @@ function ConvertPsObjectsToMamlModel
         $Parameter = Get-ParameterByName $ParameterName
         if ($Parameter)
         {
-            if ($UseFullTypeName)
+            if ($UseFullTypeName.IsPresent)
             {
                 $Parameter = $Parameter.Clone()
                 $Parameter.Type = $Parameter.FullType
