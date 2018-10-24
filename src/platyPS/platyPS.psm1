@@ -1863,7 +1863,7 @@ function MySetContent
         if ((MyGetContent -Path $Path -Encoding $Encoding) -eq $value)
         {
             Write-Verbose "Not writing to $Path, because content is not changing."
-            return
+            return (Get-ChildItem $Path)
         }
 
         if (-not $Force)
