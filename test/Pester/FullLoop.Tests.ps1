@@ -18,6 +18,10 @@ Describe 'Full loop for Add-Member cmdlet' {
         $file.FullName | Should Be (Join-Path $outFolder "$cmdlet.md")
     }
 
+    It 'writes nothing if content is not changing' {
+        {New-MarkdownHelp -command $cmdlet -OutputFolder $outFolder -Encoding ([System.Text.Encoding]::UTF8) -ea Stop} | Should -Not -Throw
+    }
+
     # test -MarkdownFile piping
     $generatedMaml = $file | New-ExternalHelp -Verbose -OutputPath $outFolder -Force
 
