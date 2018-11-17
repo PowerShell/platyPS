@@ -16,7 +16,8 @@ Creates help in markdown format.
 ```
 New-MarkdownHelp -Module <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
  [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
- [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>] [<CommonParameters>]
+ [-WithModulePage] [-ModulePagePath <String>] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
+ [<CommonParameters>]
 ```
 
 ### FromCommand
@@ -30,8 +31,8 @@ New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-Alphabeti
 ```
 New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
  [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
- [-Encoding <Encoding>] [-WithModulePage] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+ [-Encoding <Encoding>] [-WithModulePage] [-ModulePagePath <String>] [-Locale <String>] [-HelpVersion <String>]
+ [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -364,6 +365,7 @@ Accept wildcard characters: False
 Indicates that this cmdlet creates a module page in the output folder.
 This file has the name that the *ModuleName* parameter specifies.
 If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
+You can overwrite this setting by using *ModulePagePath* which allows you to define different path for module page
 
 
 ```yaml
@@ -379,8 +381,8 @@ Accept wildcard characters: False
 ```
 
 ### -ConvertNotesToList
-Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items. 
-This output follows TechNet formatting. 
+Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items.
+This output follows TechNet formatting.
 
 ```yaml
 Type: SwitchParameter
@@ -395,9 +397,9 @@ Accept wildcard characters: False
 ```
 
 ### -ConvertDoubleDashLists
-Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
-Double-hyphen lists are common in Windows PowerShell documentation. 
-Markdown accepts single-hyphens for lists. 
+Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets.
+Double-hyphen lists are common in Windows PowerShell documentation.
+Markdown accepts single-hyphens for lists.
 
 ```yaml
 Type: SwitchParameter
@@ -413,7 +415,7 @@ Accept wildcard characters: False
 
 ### -AlphabeticParamsOrder
 Order parameters alphabetically by name in PARAMETERS section.
-There are 5 exceptions: -Confirm, -WhatIf, -IncludeTotalCount, -Skip, and -First parameters will be the last. 
+There are 5 exceptions: -Confirm, -WhatIf, -IncludeTotalCount, -Skip, and -First parameters will be the last.
 These parameters are common and hence have well-defined behavior.
 
 ```yaml
@@ -460,6 +462,21 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -ModulePagePath
+When *WithModule* parameter is used by default it puts .md file in same location as all other docs. With this parameter you can specify new name/location providing better placement options.
+
+```yaml
+Type: String
+Parameter Sets: FromModule, FromMaml
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -481,4 +498,3 @@ This cmdlet returns a **FileInfo[]** object for created files.
 [Character Encoding in the .NET Framework](https://msdn.microsoft.com/en-us/library/ms404377.aspx)
 
 [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom)
-
