@@ -207,6 +207,13 @@ function New-MarkdownHelp
                             Name = $commandName
                         }
 
+                        # fixes https://github.com/PowerShell/platyPS/issues/389 for generating docs using relative script paths
+                        # check if external command and updated command to use a path.
+                        # by defualt Get-Command does not search the current location for scripts
+                        if (Resolve-Path $commandName -Relative -ErrorAction SilentlyContinue -OutVariable script) {
+                            $a['Name'] = $script
+                        }
+
                         if ($module) {
                             # for module case, scope it just to this module
                             $a['Module'] = $module
