@@ -1961,7 +1961,7 @@ function NewModuleLandingPage
 
     process
     {
-        $Description = "{{Manually Enter Description Here}}"
+        $Description = $LocalizedData.Description
 
         if($RefreshModulePage)
         {
@@ -1993,11 +1993,11 @@ function NewModuleLandingPage
             }
             else
             {
-                $ModuleGuid = "{{ Update Module Guid }}"
-                $FwLink = "{{ Update Download Link }}"
-                $Version = "{{ Update Help Version }}"
-                $Locale = "{{ Update Locale }}"
-                $Description = "{{Manually Enter Description Here}}"
+                $ModuleGuid = $LocalizedData.ModuleGuid
+                $FwLink = $LocalizedData.FwLink
+                $Version = $LocalizedData.Version
+                $Locale = $LocalizedData.Locale
+                $Description = $LocalizedData.Description
             }
         }
 
@@ -2013,7 +2013,7 @@ function NewModuleLandingPage
                 $command = $_
                 if(-not $command.Synopsis)
                 {
-                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n{{Manually Enter " + $command.Name + " Description Here}}`r`n`r`n"
+                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
                 }
                 else
                 {
@@ -2024,7 +2024,7 @@ function NewModuleLandingPage
         else
         {
             $CmdletNames | ForEach-Object {
-                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"
+                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
             }
         }
 
@@ -2558,7 +2558,7 @@ function ConvertPsObjectsToMamlModel
 
     #Get Description
     #Not provided by the command object.
-    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Description}}")
+    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Description)
 
     #endregion
 
@@ -2660,12 +2660,12 @@ function ConvertPsObjectsToMamlModel
                     {
                         # we have well-known parameters and can generate a reasonable description for them
                         # https://github.com/PowerShell/platyPS/issues/211
-                        'Confirm' { "Prompts you for confirmation before running the cmdlet.`r`n`r`n" }
-                        'WhatIf' { "Shows what would happen if the cmdlet runs. The cmdlet is not run.`r`n`r`n" }
-                        'IncludeTotalCount' { "Reports the number of objects in the data set (an integer) followed by the objects. If the cmdlet cannot determine the total count, it returns 'Unknown total count'.`r`n`r`n" }
-                        'Skip' { "Ignores the first 'n' objects and then gets the remaining objects.`r`n`r`n" }
-                        'First' { "Gets only the first 'n' objects.`r`n`r`n" }
-                        default { "{{Fill $($Parameter.Name) Description}}`r`n`r`n" }
+                        'Confirm' { $LocalizedData.Confirm + "`r`n`r`n" }
+                        'WhatIf' { $LocalizedData.WhatIf + "`r`n`r`n" }
+                        'IncludeTotalCount' { $LocalizedData.IncludeTotalCount + "`r`n`r`n" }
+                        'Skip' { $LocalizedData.Skip + "`r`n`r`n" }
+                        'First' { $LocalizedData.First + "`r`n`r`n" }
+                        default { $LocalizedData.Description + "`r`n`r`n" }
                     }
                 }
                 else
@@ -2752,7 +2752,7 @@ function ConvertPsObjectsToMamlModel
         # Help object ALWAYS contains SYNOPSIS.
         # If it's not available, it's auto-generated.
         # We don't want to include auto-generated SYNOPSIS (see https://github.com/PowerShell/platyPS/issues/110)
-        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Synopsis}}")
+        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Synopsis)
     }
     else
     {
@@ -2948,7 +2948,7 @@ function ConvertPsObjectsToMamlModel
         }
         else
         {
-            Write-Warning "[Markdown generation] Could not find parameter object for $ParameterName in command $($Command.Name)"
+            Write-Warning -Message ($LocalizedData.ParameterNotFound -f '[Markdown generation]', $ParameterName, $Command.Name)
         }
     }
 

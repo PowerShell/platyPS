@@ -42,6 +42,7 @@ PathWillBeUsed = Path '{0}' will be used.
 VersionNotFoundForLocale = No version found for Locale '{0}'
 ModuleNotFoundFromCommand = {0} Cannot find module for command '{1}'
 MultipleModulesFoundFromCommand = {0} Found {1} modules for command '{1}'
+ParameterNotFound = {0} Could not find parameter object for '{1}' in command '{2}'
 
 # Verbose
 InputMarkdownFile = {0} Input markdown file {1}
@@ -68,9 +69,21 @@ Progress = Progress:
 Processing = Processing: {0}
 
 # Help Placeholders
-HelpVersion = {{Please enter version of help manually (X.X.X.X) format}}
-FwLink = {{Please enter FwLink manually}}
+HelpVersion = {{ Please enter version of help manually (X.X.X.X) format }}
+FwLink = {{ Update Download Link }}
 ExampleTitle = Example 1
 ExampleCode = PS C:\> {{ Add example code here }}
 ExampleRemark = {{ Add example description here }}
+Description = {{ Fill in the Description }}
+Synopsis = {{Fill in the Synopsis}}
+Locale = {{ Update Locale }}
+Version = {{ Update Help Version }}
+ModuleGuid = {{ Update Module Guid }}
+
+# Common Parameter Help
+Confirm = Prompts you for confirmation before running the cmdlet.
+WhatIf = Shows what would happen if the cmdlet runs. The cmdlet is not run.
+Skip = Ignores the specified number of objects and then gets the remaining objects. Enter the number of objects to skip.
+First = Gets only the specified number of objects. Enter the number of objects to get.
+IncludeTotalCount = Reports the total number of objects in the data set (an integer) followed by the selected objects.\r\nIf the cmdlet cannot determine the total count, it displays "Unknown total count."\r\nThe integer has an Accuracy property that indicates the reliability of the total count value.\r\nThe value of Accuracy ranges from 0.0 to 1.0 where 0.0 means that the cmdlet could not count the objects, 1.0 means that the count is exact, and a value between 0.0 and 1.0 indicates an increasingly reliable estimate.
 '@
