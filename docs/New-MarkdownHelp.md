@@ -155,7 +155,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 
 ```yaml
 Type: Encoding
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False
@@ -170,7 +170,7 @@ Indicates that this cmdlet overwrites existing files that have the same names.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False
@@ -256,7 +256,7 @@ External tools can use this metadata.
 
 ```yaml
 Type: Hashtable
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False
@@ -320,7 +320,7 @@ Indicates that this cmdlet does not write any metadata in the generated markdown
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False
@@ -351,7 +351,7 @@ Specifies the path of the folder where this cmdlet creates the markdown help fil
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: True
@@ -420,7 +420,7 @@ These parameters are common and hence have well-defined behavior.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False
@@ -435,7 +435,7 @@ Indicates that the target document will use a full type name instead of a short 
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: FromModule, FromCommand, FromMaml
 Aliases:
 
 Required: False

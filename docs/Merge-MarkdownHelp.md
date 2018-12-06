@@ -57,7 +57,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 
 ```yaml
 Type: Encoding
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -73,7 +73,7 @@ By default cmdlets and parameters that are present in all variations don't get a
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -88,7 +88,7 @@ Indicates that this cmdlet overwrites an existing file that has the same name.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -104,7 +104,7 @@ Applicable tag list would be included after the marker
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -119,7 +119,7 @@ Specifies the path of the folder where this cmdlet creates the combined markdown
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -135,7 +135,7 @@ This cmdlet creates combined markdown help based on these files and folders.
 
 ```yaml
 Type: String[]
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True

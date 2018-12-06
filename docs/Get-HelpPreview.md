@@ -50,7 +50,7 @@ Specifies an array of paths of MAML external help files.
 
 ```yaml
 Type: String[]
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -66,7 +66,7 @@ This output follows TechNet formatting.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -83,7 +83,7 @@ Markdown accepts single-hyphens for lists.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False

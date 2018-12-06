@@ -49,7 +49,7 @@ Specifies the folder that contains the help content that this cmdlet packages in
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -66,7 +66,7 @@ For the required metadata, run **New-MarkdownHelp** with the *WithLandingPage* p
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -82,7 +82,7 @@ Specifies the location of the .cab file and helpinfo.xml file that this cmdlet c
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -97,7 +97,7 @@ Automatically increment the help version in the module markdown file.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False

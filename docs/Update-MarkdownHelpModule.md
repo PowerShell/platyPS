@@ -58,7 +58,7 @@ For more information, see [Using PowerShell to write a file in UTF-8 without the
 
 ```yaml
 Type: Encoding
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -74,7 +74,7 @@ Indicates that this cmdlet appends information to the log instead overwriting it
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -92,7 +92,7 @@ If you specify the *Verbose* parameter, this cmdlet also writes that information
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -109,7 +109,7 @@ The folder must contain a module page from which this cmdlet can get the module 
 
 ```yaml
 Type: String[]
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: True
@@ -124,7 +124,7 @@ Update module page when updating the help module.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -141,7 +141,7 @@ These parameters are common and hence have well-defined behavior.
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -158,7 +158,7 @@ This is required to get accurate parameters metadata from the remote session.
 
 ```yaml
 Type: PSSession
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -173,7 +173,7 @@ Indicates that the target document will use a full type name instead of a short 
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -188,7 +188,7 @@ Refreshes the Input and Output sections to reflect the current state of the cmdl
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -203,7 +203,7 @@ When -RefreshModulePage is used by default it puts .md file in same location as 
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
@@ -218,7 +218,7 @@ Remove help files that no longer exists within sessions (for example if function
 
 ```yaml
 Type: SwitchParameter
-Parameter Sets: (All)
+Parameter Sets: __AllParameterSets
 Aliases:
 
 Required: False
