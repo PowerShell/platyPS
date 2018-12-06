@@ -494,7 +494,7 @@ Parameter Description.
 
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: ByName
 Aliases: GF, Foos, Do
 Accepted values: Value1, Value2
 Applicable: Module1, Module2
@@ -618,7 +618,7 @@ Get-Foo -Common <String> -Second <String> [<CommonParameters>]
 ### -Common
 ```yaml
 Type: String
-Parameter Sets: (All)
+Parameter Sets: FirstSyntax, SecondSyntax
 Aliases:
 
 Required: True
@@ -724,6 +724,158 @@ schema: 2.0.0
 
 Any text [can](go here)
 [any](text)", markdown);
+        }
+
+        [Fact]
+        public void RenderParametersInMoreThanOneParameterSet()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            var parameter1 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "First",
+                Required = true
+            };
+
+            var parameter2 = new MamlParameter()
+            {
+                Type = "String",
+                Name = "Second",
+                Required = true
+            };
+
+            command.Parameters.Add(parameter1);
+            command.Parameters.Add(parameter2);
+
+            var syntax1 = new MamlSyntax()
+            {
+                ParameterSetName = "FirstSyntax"
+            };
+
+            syntax1.Parameters.Add(parameter1);
+            syntax1.Parameters.Add(parameter2);
+
+            var syntax2 = new MamlSyntax()
+            {
+                ParameterSetName = "SecondSyntax",
+                IsDefault = true
+            };
+
+            syntax2.Parameters.Add(parameter2);
+
+            command.Syntax.Add(syntax1);
+            command.Syntax.Add(syntax2);
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Common.AssertMultilineEqual(@"---
+schema: 2.0.0
+---
+
+# Get-Foo
+
+## SYNOPSIS
+
+## SYNTAX
+
+### FirstSyntax
+```
+Get-Foo -First <String> -Second <String> [<CommonParameters>]
+```
+
+### SecondSyntax (Default)
+```
+Get-Foo -Second <String> [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+## EXAMPLES
+
+## PARAMETERS
+
+### -First
+```yaml
+Type: String
+Parameter Sets: FirstSyntax
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: false
+Accept wildcard characters: False
+```
+
+### -Second
+```yaml
+Type: String
+Parameter Sets: FirstSyntax, SecondSyntax
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: false
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
+", markdown);
+        }
+
+        [Fact]
+        public void RenderWithoutParameters()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Get-Foo",
+            };
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Common.AssertMultilineEqual(@"---
+schema: 2.0.0
+---
+
+# Get-Foo
+
+## SYNOPSIS
+
+## SYNTAX
+
+## DESCRIPTION
+
+## EXAMPLES
+
+## PARAMETERS
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+## RELATED LINKS
+", markdown);
         }
     }
 }

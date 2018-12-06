@@ -143,6 +143,69 @@ Describe 'New-MarkdownHelp' {
         }
     }
 
+	Context 'Parameter Set' {
+        function global:Get-TwoParametersFunction {
+            param(
+                [Parameter(ParameterSetName = "ParameterSetName1", Mandatory = $true)]
+                [Parameter(ParameterSetName = "ParameterSetName2", Mandatory = $true)]
+                [string]$parameter1,
+                [Parameter(ParameterSetName = "ParameterSetName2", Mandatory = $true)]
+                [string]$parameter2
+            )
+        }
+    
+    
+        function global:Get-ParameterWithoutParameterSetFunction {
+            param(
+                [Parameter(ParameterSetName = "ParameterSetName1", Mandatory = $true)]
+                [string]$parameter1,
+                [string]$parameter2
+            )
+        }
+    
+    
+        function global:Get-OneParameterFunction {
+            param(
+                [Parameter()]
+                [string]$parameter1
+    
+            )
+        }
+    
+        function global:Get-WithoutParameterFunction {
+            param()
+        }
+    
+        It 'generates markdown with parameter set which have all parameters' {
+            $file = New-MarkdownHelp -Command Get-TwoParametersFunction -OutputFolder TestDrive:\testTwoParametersFunction -Force
+            $content = Get-Content $file
+        
+            ($content | Where-Object {$_ -contains 'Parameter Sets: ParameterSetName2'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -contains 'Parameter Sets: ParameterSetName2, ParameterSetName1'} | Measure-Object).Count | Should Be 1
+        }
+    
+        It 'generates markdown with parameter without parameter set' {
+            $file = New-MarkdownHelp -Command Get-ParameterWithoutParameterSetFunction -OutputFolder TestDrive:\testParameterWithoutParameterSetFunction -Force
+            $content = Get-Content $file
+        
+            ($content | Where-Object {$_ -contains 'Parameter Sets: ParameterSetName1'} | Measure-Object).Count | Should Be 2
+        }
+    
+        It 'generates markdown with one parameter' {
+            $file = New-MarkdownHelp -Command Get-OneParameterFunction -OutputFolder TestDrive:\testOneParameterFunction -Force
+            $content = Get-Content $file
+        
+            ($content | Where-Object {$_ -contains 'Parameter Sets: __AllParameterSets'} | Measure-Object).Count | Should Be 1
+        }
+    
+        It 'generates markdown without parameters' {
+            $file = New-MarkdownHelp -Command Get-WithoutParameterFunction -OutputFolder TestDrive:\testOneParameterFunction -Force
+            $content = Get-Content $file
+        
+            ($content | Where-Object {$_ -contains 'Parameter Sets:'} | Measure-Object).Count | Should Be 0
+        }
+    }
+
     Context 'AlphabeticParamsOrder' {
         function global:Get-Alpha
         {
@@ -323,7 +386,7 @@ Describe 'New-MarkdownHelp' {
         $content = Get-Content $file
 
         It 'generates markdown with correct parameter set names' {
-            ($content | Where-Object {$_ -eq 'Parameter Sets: (All)'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq 'Parameter Sets: First, Second'} | Measure-Object).Count | Should Be 1
             ($content | Where-Object {$_ -eq 'Parameter Sets: First'} | Measure-Object).Count | Should Be 1
             ($content | Where-Object {$_ -eq 'Parameter Sets: Second'} | Measure-Object).Count | Should Be 1
         }

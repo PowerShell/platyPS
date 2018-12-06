@@ -283,17 +283,7 @@ namespace Markdown.MAML.Renderer
 
                 AppendYamlKeyValue(MarkdownStrings.Type, parameter.Type);
 
-                string parameterSetsString;
-                if (command.Syntax.Count == 1 || set.Item1.Count == command.Syntax.Count)
-                {
-                    // ignore, if there is just one parameter set
-                    // or this parameter belongs to All parameter sets, use (All)
-                    parameterSetsString = ModelTransformerVersion2.ALL_PARAM_SETS_MONIKER;
-                }
-                else
-                {
-                    parameterSetsString = JoinWithComma(set.Item1);
-                }
+                string parameterSetsString = JoinWithComma(set.Item1);
 
                 AppendYamlKeyValue(MarkdownStrings.Parameter_Sets, parameterSetsString);
 
