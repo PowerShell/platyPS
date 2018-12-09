@@ -143,6 +143,17 @@ Describe 'New-MarkdownHelp' {
         }
     }
 
+    Context 'from external script' { 
+        It 'creates 2 markdown file from fully qualified and relative scripts' {
+            New-Item -Path TestDrive:\localscript.ps1 -force | Out-Null
+            $fqCommand = "TestDrive:\localscript.ps1"
+            $relCommand = ".\localscript.ps1"
+            Set-Location TestDrive:\
+            $files = New-MarkdownHelp -Command @($fqCommand, $relCommand) -OutputFolder TestDrive:\commands -Force
+            ($files | Measure-Object).Count | Should Be 2
+        }
+    }
+
     Context 'AlphabeticParamsOrder' {
         function global:Get-Alpha
         {

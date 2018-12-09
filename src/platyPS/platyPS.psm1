@@ -203,14 +203,17 @@ function New-MarkdownHelp
                     }
                     else
                     {
+                        
                         $a = @{
                             Name = $commandName
                         }
 
                         # fixes https://github.com/PowerShell/platyPS/issues/389 for generating docs using relative script paths
-                        # check if external command and updated command to use a path.
-                        # by defualt Get-Command does not search the current location for scripts
-                        if (Resolve-Path $commandName -Relative -ErrorAction SilentlyContinue -OutVariable script) {
+                        # check if external command and update command to use the path to the external script.
+                        # By defualt Get-Command does not search the current location for scripts
+                        $isLocalScript = $commandName -match "\\.*.\.ps1\b"
+                        $isLocalPathValid = [bool](Resolve-Path $commandName -Relative -ErrorAction SilentlyContinue -OutVariable script)
+                        if ($isLocalScript -AND $isLocalPathValid) {
                             $a['Name'] = $script
                         }
 
