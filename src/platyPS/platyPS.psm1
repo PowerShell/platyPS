@@ -238,7 +238,7 @@ function New-MarkdownHelp
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
             $command | ForEach-Object {
-                if (-not (Get-Command $_ -EA SilentlyContinue))
+                if (-not (Get-Command $_ -ErrorAction SilentlyContinue))
                 {
                     throw "Command $_ not found in the session."
                 }
@@ -419,6 +419,7 @@ function Update-MarkdownHelp
             $oldModel = $oldModels[0]
 
             $name = $oldModel.Name
+            [Array]$loadedModulesBefore = $(Get-Module | Select-Object -Property Name)
             $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
@@ -432,6 +433,10 @@ function Update-MarkdownHelp
                     log -warning  "command $name not found in the session, skipping upgrade for $filePath"
                     return
                 }
+            }
+            elseif ($loadedModulesBefore.Name -notcontains $command.ModuleName)
+            {
+                log -warning "The module $($command.ModuleName) was imported automatically. It may cause that parameters will be sorted alphabetically even without usage of the parameter AlphabeticParamsOrder. Please be sure that the loaded module instance contains previously generated help to avoid that."
             }
 
             # update the help file entry in the metadata
@@ -2105,7 +2110,7 @@ function GetCommands
         else
         {
             if ($Session) {
-                $commands.Name | % {
+                $commands.Name | ForEach-Object {
                     # yeild
                     MyGetCommand -Cmdlet $_ -Session $Session
                 }
