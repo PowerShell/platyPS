@@ -253,7 +253,6 @@ This cmdlet writes the metadata in the header of each markdown help file.
 The **New-ExternalHelp** cmdlet does not use this metadata.
 External tools can use this metadata.
 
-
 ```yaml
 Type: Hashtable
 Parameter Sets: (All)
@@ -366,7 +365,6 @@ Indicates that this cmdlet creates a module page in the output folder.
 This file has the name that the *ModuleName* parameter specifies.
 If you did not specify that parameter, the cmdlet supplies the default name MamlModule.
 You can overwrite this setting by using *ModulePagePath* which allows you to define different path for module page
-
 
 ```yaml
 Type: SwitchParameter
