@@ -21,15 +21,15 @@ The **New-MarkdownAboutHelp** cmdlet generates a Markdown file that is prepopula
 The cmdlet copies the template MD, renames headers and file name according to the **AboutName** parameter,
 and deposits the file in the directory designated by the **OutputFoler** parameter.
 
-The About Topic can be converted to Txt format. 
-About topics must be in txt format or the PowerShell Help engine will not be able to parse the document. 
+The About Topic can be converted to Txt format.
+About topics must be in txt format or the PowerShell Help engine will not be able to parse the document.
 Use the [New-ExternalHelp](New-ExternalHelp.md) cmdlet to convert About Topic markdown files into About Topic txt files.
 
 ## EXAMPLES
 
 ### Example 1
 ```
-PS C:\> New-MarkdownAboutHelp -OutputFolder C:\Test -AboutName 
+PS C:\> New-MarkdownAboutHelp -OutputFolder C:\Test -AboutName
 PS C:\> Get-ChildItem C:\Test
 
     Directory: C:\Test
