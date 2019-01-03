@@ -2665,7 +2665,7 @@ function ConvertPsObjectsToMamlModel
                         'IncludeTotalCount' { $LocalizedData.IncludeTotalCount + "`r`n`r`n" }
                         'Skip' { $LocalizedData.Skip + "`r`n`r`n" }
                         'First' { $LocalizedData.First + "`r`n`r`n" }
-                        default { $LocalizedData.Description + "`r`n`r`n" }
+                        default { ($LocalizedData.ParameterDescription -f $Parameter.Name) + "`r`n`r`n" }
                     }
                 }
                 else
