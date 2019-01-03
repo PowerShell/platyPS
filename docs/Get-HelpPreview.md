@@ -61,7 +61,7 @@ Accept wildcard characters: True
 ```
 
 ### -ConvertNotesToList
-Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items. 
+Indicates that this cmldet formats multiple paragraph items in the **NOTES** section as single list items.
 This output follows TechNet formatting.
 
 ```yaml
@@ -77,8 +77,8 @@ Accept wildcard characters: False
 ```
 
 ### -ConvertDoubleDashLists
-Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets. 
-Double-hyphen lists are common in Windows PowerShell documentation. 
+Indicates that this cmldet converts double-hyphen list bullets into single-hyphen bullets.
+Double-hyphen lists are common in Windows PowerShell documentation.
 Markdown accepts single-hyphens for lists.
 
 ```yaml

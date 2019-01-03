@@ -92,7 +92,6 @@ This command gets metadata from each of the markdown files in the .\docs folder.
 ### -Path
 Specifies an array of paths of markdown files or folders.
 
-
 ```yaml
 Type: String[]
 Parameter Sets: FromPath
@@ -107,7 +106,6 @@ Accept wildcard characters: True
 
 ### -Markdown
 Specifies a string that contains markdown formatted text.
-
 
 ```yaml
 Type: String

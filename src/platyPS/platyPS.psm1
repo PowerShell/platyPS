@@ -92,6 +92,10 @@ function New-MarkdownHelp
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
+        [string]$ModulePagePath,
+
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
         [string]
         $Locale = "en-US",
 
@@ -293,6 +297,7 @@ function New-MarkdownHelp
                     }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
+                                        -ModulePagePath $ModulePagePath `
                                         -ModuleName $ModuleName `
                                         -ModuleGuid $ModuleGuid `
                                         -CmdletNames $CmdletNames `
@@ -1859,6 +1864,12 @@ function MySetContent
         {
             Write-Error -Message ($LocalizedData.CannotWriteFileDirectoryExists -f $Path)
             return
+        }
+
+        if ((MyGetContent -Path $Path -Encoding $Encoding) -eq $value)
+        {
+            Write-Verbose "Not writing to $Path, because content is not changing."
+            return (Get-ChildItem $Path)
         }
 
         if (-not $Force)
