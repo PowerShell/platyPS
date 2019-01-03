@@ -1,12 +1,9 @@
 # Localized data for en-US
 
 ConvertFrom-StringData -StringData @'
-# Log
 ModuleNameFromPath = Determined module name for '{0}' as '{1}'.
 UpdateDocsForModule = Updating documents for module '{0}' in {1}
 CreatingNewMarkdownForCommand = Creating new markdown for command '{0}'
-
-# Errors
 NoMetadataAndMetadata = -NoMetadata and -Metadata parameters cannot be specified at the same time.
 CommandNotFound = Command '{0}' not found in the session.
 ModuleNotFound = Module '{0}' is not imported in the session. Use "Import-Module -Name {0}" to import module in the current session.
@@ -29,8 +26,6 @@ CannotWriteFileWithoutForce = Cannot write to '{0}', file exists. Use -Force to 
 RangeIsLessThanZero = {0} '{1}' is unsupported: value less than 0
 MetadataDoesNotMatchLength = Metadata for cmdlet '{0}' doesn't match length.\nThis should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues
 FailedSettingFileSystemProvider = PlatyPS Cmdlets only work in the FileSystem Provider. Failed setting provider back to FileSystem.
-
-# Warnings
 MoreThanOneGuid = This module has more than one guid. This could impact external help creation.
 NoMarkdownFiles = Path '{0}' does not contain any markdown files.
 FileContainsMoreThanOneCommand = File '{0}' contains more then one command, skipping upgrade.
@@ -43,8 +38,6 @@ VersionNotFoundForLocale = No version found for Locale '{0}'
 ModuleNotFoundFromCommand = {0} Cannot find module for command '{1}'
 MultipleModulesFoundFromCommand = {0} Found {1} modules for command '{1}'
 ParameterNotFound = {0} Could not find parameter object for '{1}' in command '{2}'
-
-# Verbose
 InputMarkdownFile = {0} Input markdown file {1}
 SkippingMarkdownFile = {0} Skipping markdown file {1}
 WritingYamlToPath = Writing Yaml help to path '{0}'
@@ -62,13 +55,9 @@ RemovingExtraCabFileContents = Removing unnecessary Cab file contents.
 WritingWithEncoding = Writing to '{0}' with encoding: {1}
 ReadingWithEncoding = Reading from '{0}' with encoding = {1}
 SettingFileSystemProvider = PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to FileSystem.
-
-# Progress
 ParsingMarkdown = Parsing markdown
 Progress = Progress:
 Processing = Processing: {0}
-
-# Help Placeholders
 HelpVersion = {{ Please enter version of help manually (X.X.X.X) format }}
 FwLink = {{ Update Download Link }}
 ExampleTitle = Example 1
@@ -80,8 +69,6 @@ Synopsis = {{ Fill in the Synopsis }}
 Locale = {{ Update Locale }}
 Version = {{ Update Help Version }}
 ModuleGuid = {{ Update Module Guid }}
-
-# Common Parameter Help
 Confirm = Prompts you for confirmation before running the cmdlet.
 WhatIf = Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Skip = Ignores the specified number of objects and then gets the remaining objects. Enter the number of objects to skip.
