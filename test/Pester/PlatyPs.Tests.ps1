@@ -3,11 +3,14 @@ $ErrorActionPreference = 'Stop'
 
 $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
+$moduleFolder = "$outFolder\platyPS"
 
-Import-Module $outFolder\platyPS -Force
+Import-Module $moduleFolder -Force
 $MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
 $MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
 $global:IsUnix = $MyIsLinux -or $MyIsMacOS
+
+Import-LocalizedData -BindingVariable LocalizedData -BaseDirectory $moduleFolder -FileName platyPS.Resources.psd1
 
 Describe 'New-MarkdownHelp' {
     function normalizeEnds([string]$text)
@@ -18,12 +21,12 @@ Describe 'New-MarkdownHelp' {
     Context 'errors' {
         It 'throw when cannot find module' {
             { New-MarkdownHelp -Module __NON_EXISTING_MODULE -OutputFolder TestDrive:\ } |
-                Should Throw "Module __NON_EXISTING_MODULE is not imported in the session. Run 'Import-Module __NON_EXISTING_MODULE'."
+                Should Throw ($LocalizedData.ModuleNotFound -f '__NON_EXISTING_MODULE')
         }
 
         It 'throw when cannot find module' {
             { New-MarkdownHelp -command __NON_EXISTING_COMMAND -OutputFolder TestDrive:\ } |
-                Should Throw "Command __NON_EXISTING_COMMAND not found in the session."
+                Should Throw ($LocalizedData.CommandNotFound -f '__NON_EXISTING_COMMAND')
         }
     }
 
@@ -44,7 +47,7 @@ Describe 'New-MarkdownHelp' {
 
         It 'errors on -NoMetadata and -Metadata' {
             { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder TestDrive:\ -NoMetadata -Force -Metadata @{} } |
-                Should Throw '-NoMetadata and -Metadata cannot be specified at the same time'
+                Should Throw $LocalizedData.NoMetadataAndMetadata
         }
     }
 
@@ -247,32 +250,32 @@ Describe 'New-MarkdownHelp' {
 
         It 'generates well-known stub descriptions for -WhatIf' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'WhatIf' }
-            $param.description.text | Should Be 'Shows what would happen if the cmdlet runs. The cmdlet is not run.'
+            $param.description.text | Should Be $LocalizedData.WhatIf
         }
 
         It 'generates well-known stub descriptions for -Confirm' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Confirm' }
-            $param.description.text | Should Be 'Prompts you for confirmation before running the cmdlet.'
+            $param.description.text | Should Be $LocalizedData.Confirm
         }
 
         It 'generates well-known stub descriptions for -IncludeTotalCount' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'IncludeTotalCount' }
-            $param.description.text | Should Be "Reports the number of objects in the data set (an integer) followed by the objects. If the cmdlet cannot determine the total count, it returns 'Unknown total count'."
+            $param.description.text | Should Be $LocalizedData.IncludeTotalCount
         }
 
         It 'generates well-known stub descriptions for -Skip' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Skip' }
-            $param.description.text | Should Be "Ignores the first 'n' objects and then gets the remaining objects."
+            $param.description.text | Should Be $LocalizedData.Skip
         }
 
         It 'generates well-known stub descriptions for -First' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'First' }
-            $param.description.text | Should Be "Gets only the first 'n' objects."
+            $param.description.text | Should Be $LocalizedData.First
         }
 
         It 'generates well-known stub descriptions for -Foo' {
             $param = $help.parameters.parameter | Where-Object { $_.Name -eq 'Foo' }
-            $param.description.text | Should Be '{{Fill Foo Description}}'
+            $param.description.text | Should Be ($LocalizedData.ParameterDescription -f 'Foo')
         }
     }
 
@@ -341,7 +344,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown with placeholder for parameter with no description' {
-            ($content | Where-Object {$_ -eq '{{Fill Common Description}}'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq ($LocalizedData.ParameterDescription -f 'Common')} | Measure-Object).Count | Should Be 1
         }
     }
 
@@ -363,7 +366,7 @@ Describe 'New-MarkdownHelp' {
         $content = Get-Content $file
 
         It 'generates markdown with correct synopsis placeholder' {
-            ($content | Where-Object {$_ -eq '{{Fill in the Synopsis}}'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq $LocalizedData.Synopsis} | Measure-Object).Count | Should Be 1
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
@@ -371,7 +374,7 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'generates markdown with placeholder for parameter with no description' {
-            ($content | Where-Object {$_ -eq '{{Fill Common Description}}'} | Measure-Object).Count | Should Be 1
+            ($content | Where-Object {$_ -eq ($LocalizedData.ParameterDescription -f 'Common')} | Measure-Object).Count | Should Be 1
         }
     }
 
@@ -924,7 +927,7 @@ And [hyper](http://link.com).
 '@
 
     It 'can update stub' {
-        $v15markdown = $v1markdown -replace '{{Fill Foo Description}}', $newFooDescription
+        $v15markdown = $v1markdown -replace ($LocalizedData.ParameterDescription -f 'Foo'), $newFooDescription
         $v15markdown | Should BeLike "*ThisIsFooDescription*"
         Set-Content -Encoding UTF8 -Path $v1md -Value $v15markdown
     }
