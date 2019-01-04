@@ -3,6 +3,11 @@ CHANGELOG
 
 ## Not released
 
+## 0.12.0
+
+* Include proper escaping handing for `\*` and `\_` (#398)
+* Update YamlDotNet dependency to 5.0.0 (CVE-2018-1000210)
+* Add New-ExternalHelpCab File Type Check (#403)
 * Add `Update-MarkdownHelpModule -ModulePagePath` parameter (#397)
 
 ## 0.11.1

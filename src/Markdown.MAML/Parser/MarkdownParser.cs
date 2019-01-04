@@ -563,6 +563,9 @@ namespace Markdown.MAML.Parser
                 .Replace(@"\<", "<")
                 .Replace(@"\>", ">")
 
+                .Replace(@"\_", "_")
+                .Replace(@"\*", "*")
+
                 .Replace(@"\\", @"\");
 
             // any dummy value with length >= 2

@@ -427,6 +427,7 @@ Describe 'New-MarkdownHelp' {
     Context 'Module Landing Page'{
 
         $OutputFolder = "TestDrive:\LandingPageMD\"
+        $OutputFolderReadme = 'TestDrive:\LandingPageMD-ReadMe\Readme.md'
 
         New-Item -ItemType Directory $OutputFolder
 
@@ -454,6 +455,14 @@ Describe 'New-MarkdownHelp' {
             $LandingPage | Should Not Be $null
 
         }
+
+        it 'generate a landing page from Module with parameter ModulePagePath' {
+            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+
+            $LandingPage = Test-Path -Path $OutputFolderReadme
+            $LandingPage | Should Not Be $null
+        }
+
     }
 
 	Context 'Full Type Name' {
@@ -782,7 +791,7 @@ if (-not $global:IsUnix) {
                 (Get-ChildItem -Filter "*.zip" -Path "$OutputPath").Name | Should BeExactly "PlatyPs_00000000-0000-0000-0000-000000000000_en-US_HelpContent.zip"
                 Get-ChildItem -Filter "*.psd1" -Path "$OutputPath\OutXml" | Should BeNullOrEmpty
             }
-            
+
             It 'Creates a help info file'{
                 [xml] $PlatyPSHelpInfo = Get-Content  (Join-Path $OutputPath "PlatyPs_00000000-0000-0000-0000-000000000000_helpinfo.xml")
 
