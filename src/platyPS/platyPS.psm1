@@ -16,6 +16,8 @@
 ##     It would help keep code maintainable and simplify ramp up for others.
 ##
 
+Import-LocalizedData -BindingVariable LocalizedData -FileName platyPS.Resources.psd1
+
 ## Script constants
 
 $script:EXTERNAL_HELP_FILE_YAML_HEADER = 'external help file'
@@ -100,12 +102,12 @@ function New-MarkdownHelp
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $HelpVersion = "{{Please enter version of help manually (X.X.X.X) format}}",
+        $HelpVersion = $LocalizedData.HelpVersion,
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $FwLink = "{{Please enter FwLink manually}}",
+        $FwLink = $LocalizedData.FwLink,
 
         [Parameter(ParameterSetName="FromMaml")]
         [string]
@@ -141,11 +143,11 @@ function New-MarkdownHelp
             {
                 $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
-                $MamlExampleObject.Title = 'Example 1'
+                $MamlExampleObject.Title = $LocalizedData.ExampleTitle
                 $MamlExampleObject.Code = @(
-                    New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ('PS C:\> {{ Add example code here }}', 'powershell')
+                    New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($LocalizedData.ExampleCode, 'powershell')
                 )
-                $MamlExampleObject.Remarks = '{{ Add example description here }}'
+                $MamlExampleObject.Remarks = $LocalizedData.ExampleRemark
 
                 $MamlCommandObject.Examples.Add($MamlExampleObject)
             }
@@ -232,7 +234,7 @@ function New-MarkdownHelp
 
         if ($NoMetadata -and $Metadata)
         {
-            throw '-NoMetadata and -Metadata cannot be specified at the same time'
+            throw $LocalizedData.NoMetadataAndMetadata
         }
 
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
@@ -240,7 +242,7 @@ function New-MarkdownHelp
             $command | ForEach-Object {
                 if (-not (Get-Command $_ -EA SilentlyContinue))
                 {
-                    throw "Command $_ not found in the session."
+                    throw $LocalizedData.CommandNotFound -f $_
                 }
 
                 GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
@@ -262,7 +264,7 @@ function New-MarkdownHelp
                 {
                     if (-not (GetCommands -AsNames -module $_))
                     {
-                        throw "Module $_ is not imported in the session. Run 'Import-Module $_'."
+                        throw $LocalizedData.ModuleNotFound -f $_
                     }
 
                     GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName | processMamlObjectToFile
@@ -275,7 +277,7 @@ function New-MarkdownHelp
                 {
                     if (-not (Test-Path $_))
                     {
-                        throw "No file found in $_."
+                        throw $LocalizedData.FileNotFound -f $_
                     }
 
                     GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists | processMamlObjectToFile
@@ -291,7 +293,7 @@ function New-MarkdownHelp
                     }
                     if($ModuleGuid.Count -gt 1)
                     {
-                        Write-Warning -Message "This module has more than 1 guid. This could impact external help creation."
+                        Write-Warning -Message $LocalizedData.MoreThanOneGuid
                     }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
@@ -398,7 +400,7 @@ function Update-MarkdownHelp
 
         if (-not $MarkdownFiles)
         {
-             log -warning "No markdown found in $Path"
+            log -warning ($LocalizedData.NoMarkdownFiles -f $Path)
             return
         }
 
@@ -411,8 +413,8 @@ function Update-MarkdownHelp
 
             if ($oldModels.Count -gt 1)
             {
-                log -warning "$filePath contains more then 1 command, skipping upgrade."
-                log -warning  "Use 'Update-Markdown -OutputFolder' to convert help to one command per file format first."
+                log -warning ($LocalizedData.FileContainsMoreThanOneCommand -f $filePath)
+                log -warning $LocalizedData.OneCommandPerFile
                 return
             }
 
@@ -425,11 +427,11 @@ function Update-MarkdownHelp
                 if ($Force) {
                     if (Test-Path $filePath) {
                         Remove-Item -Path $filePath -Confirm:$false
-                        log -warning "command $name not found in the session, removed $filePath"
+                        log -warning ($LocalizedData.CommandNotFoundFileRemoved -f $name, $filePath)
                         return
                     }
                 } else {
-                    log -warning  "command $name not found in the session, skipping upgrade for $filePath"
+                    log -warning ($LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath)
                     return
                 }
             }
@@ -509,7 +511,7 @@ function Merge-MarkdownHelp
 
         if (-not $MarkdownFiles)
         {
-             log -warning "No markdown found in $Path"
+            log -warning ($LocalizedData.NoMarkdownFiles -f $Path)
             return
         }
 
@@ -620,32 +622,32 @@ function Update-MarkdownHelpModule
             if ($h.$script:MODULE_PAGE_MODULE_NAME)
             {
                 $module = $h.$script:MODULE_PAGE_MODULE_NAME | Select-Object -First 1
-                log "Determined module name for $modulePath as $module"
+                log ($LocalizedData.ModuleNameFromPath -f $modulePath, $module)
             }
 
             if (-not $module)
             {
-                Write-Error "Cannot determine module name for $modulePath. You should use New-MarkdownHelp -WithModulePage to create HelpModule"
+                Write-Error -Message ($LocalizedData.ModuleNameNotFoundFromPath -f $modulePath)
                 continue
             }
 
             # always append on this call
             log ("[Update-MarkdownHelpModule]" + (Get-Date).ToString())
-            log ("Updating docs for Module " + $module + " in " + $modulePath)
+            log ($LocalizedData.UpdateDocsForModule -f $module, $modulePath)
             $affectedFiles = Update-MarkdownHelp -Session $Session -Path $modulePath -LogPath $LogPath -LogAppend -Encoding $Encoding -AlphabeticParamsOrder:$AlphabeticParamsOrder -UseFullTypeName:$UseFullTypeName -UpdateInputOutput:$UpdateInputOutput -Force:$Force
             $affectedFiles # yeild
 
             $allCommands = GetCommands -AsNames -Module $Module
             if (-not $allCommands)
             {
-                throw "Module $Module is not imported in the session or doesn't have any exported commands"
+                throw $LocalizedData.ModuleOrCommandNotFound -f $Module
             }
 
             $updatedCommands = $affectedFiles.BaseName
             $allCommands | ForEach-Object {
                 if ( -not ($updatedCommands -contains $_) )
                 {
-                    log "Creating new markdown for command $_"
+                    log ($LocalizedData.CreatingNewMarkdownForCommand -f $_)
                     $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
                     $newFiles # yeild
                 }
@@ -690,7 +692,7 @@ function New-MarkdownAboutHelp
         }
         else
         {
-            throw "The output folder does not exist."
+            throw $LocalizedData.OutputFolderNotFound
         }
     }
 }
@@ -726,7 +728,7 @@ function New-YamlHelp
 
         if(-not (Test-Path -PathType Container $OutputFolder))
         {
-            throw "$OutputFolder is not a container"
+            throw $LocalizedData.PathIsNotFolder -f $OutputFolder
         }
     }
     process
@@ -736,7 +738,7 @@ function New-YamlHelp
     end
     {
         $MarkdownFiles | ForEach-Object {
-            Write-Verbose "[New-YamlHelp] Input markdown file $_"
+            Write-Verbose -Message ($LocalizedData.InputMarkdownFile -f '[New-YamlHelp]', $_)
         }
 
         foreach($markdownFile in $MarkdownFiles)
@@ -751,7 +753,7 @@ function New-YamlHelp
 
                 $yaml = [Markdown.MAML.Renderer.YamlRenderer]::MamlModelToString($mamlModel)
                 $outputFilePath = Join-Path $OutputFolder ($mamlModel.Name + ".yml")
-                Write-Verbose "Writing Yaml help to $outputFilePath"
+                Write-Verbose -Message ($LocalizedData.WritingYamlToPath -f $outputFilePath)
                 MySetContent -Path $outputFilePath -Value $yaml -Encoding $Encoding -Force:$Force
             }
         }
@@ -797,12 +799,12 @@ function New-ExternalHelp
         if ( $OutputPath.EndsWith('.xml') -and (-not (Test-Path -PathType Container $OutputPath )) )
         {
             $IsOutputContainer = $false
-            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a file"
+            Write-Verbose -Message ($LocalizedData.OutputPathAsFile -f '[New-ExternalHelp]', $OutputPath)
         }
         else
         {
             New-Item -Type Directory $OutputPath -ErrorAction SilentlyContinue > $null
-            Write-Verbose "[New-ExternalHelp] Use $OutputPath as path to a directory"
+            Write-Verbose -Message ($LocalizedData.OutputPathAsDirectory -f '[New-ExternalHelp]', $OutputPath)
         }
 
         if ( -not $ShowProgress.IsPresent -or $(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) )
@@ -833,11 +835,11 @@ function New-ExternalHelp
        try {
          # write verbose output and filter out files based on applicable tag
          $MarkdownFiles | ForEach-Object {
-            Write-Verbose "[New-ExternalHelp] Input markdown file $_"
+            Write-Verbose -Message ($LocalizedData.InputMarkdownFile -f '[New-ExternalHelp]', $_)
          }
 
          if ($ApplicableTag) {
-            Write-Verbose "[New-ExternalHelp] Filtering for ApplicableTag $ApplicableTag"
+            Write-Verbose -Message ($LocalizedData.FilteringForApplicableTag -f '[New-ExternalHelp]', $ApplicableTag)
             $MarkdownFiles = $MarkdownFiles | ForEach-Object {
                $applicableList = GetApplicableList -Path $_.FullName
                # this Compare-Object call is getting the intersection of two string[]
@@ -846,7 +848,7 @@ function New-ExternalHelp
                   $_
                }
                else {
-                  Write-Verbose "[New-ExternalHelp] Skipping markdown file $_"
+                  Write-Verbose -Message ($LocalizedData.SkippingMarkdownFile -f '[New-ExternalHelp]', $_)
                }
             }
          }
@@ -860,16 +862,16 @@ function New-ExternalHelp
                   Join-Path $OutputPath $h[$script:EXTERNAL_HELP_FILE_YAML_HEADER]
                }
                else {
-                  $msgLine1 = "cannot find '$($script:EXTERNAL_HELP_FILE_YAML_HEADER)' in metadata for file $($_.FullName)"
-                  $msgLine2 = "$defaultPath would be used"
+                  $msgLine1 = $LocalizedData.CannotFindInMetadataFile -f $script:EXTERNAL_HELP_FILE_YAML_HEADER, $_.FullName
+                  $msgLine2 = $LocalizedData.PathWillBeUsed -f $defaultPath
                   $warningsAndErrors.Add(@{
                         Severity = "Warning"
                         Message  = "$msgLine1 $msgLine2"
                         FilePath = "$($_.FullName)"
                      })
 
-                  Write-Warning "[New-ExternalHelp] $msgLine1"
-                  Write-Warning "[New-ExternalHelp] $msgLine2"
+                  Write-Warning -Message "[New-ExternalHelp] $msgLine1"
+                  Write-Warning -Message "[New-ExternalHelp] $msgLine2"
                   $defaultPath
                }
             }
@@ -886,7 +888,7 @@ function New-ExternalHelp
             $xml = $r.MamlModelToString($maml)
 
             $outPath = $group.Name # group name
-            Write-Verbose "Writing external help to $outPath"
+            Write-Verbose -Message ($LocalizedData.WritingExternalHelpToPath -f $outPath)
             MySetContent -Path $outPath -Value $xml -Encoding $Encoding -Force:$Force
          }
 
@@ -946,7 +948,7 @@ function Get-HelpPreview
         {
             if (-not (Test-path -Type Leaf $MamlFilePath))
             {
-                Write-Error "$MamlFilePath is not found, skipping"
+                Write-Error -Message ($LocalizedData.FileNotFoundSkipping -f $MamlFilePath)
                 continue
             }
 
@@ -1079,7 +1081,7 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ content source file folder path is not a valid directory."
+                    Throw $LocalizedData.PathIsNotFolder -f $_
                 }
             })]
         [string] $CabFilesFolder,
@@ -1092,7 +1094,7 @@ function New-ExternalHelpCab
                 }
                 else
                 {
-                    Throw "$_ Module Landing Page path is not valid."
+                    Throw $LocalizedData.PathIsNotFile -f $_
                 }
             })]
         [string] $LandingPagePath,
@@ -1110,16 +1112,16 @@ function New-ExternalHelpCab
     process
     {
         #Testing for MakeCab.exe
-        Write-Verbose "Testing that MakeCab.exe is present on this machine."
+        Write-Verbose -Message ($LocalizedData.TestCommandExists -f 'MakeCab.exe')
         $MakeCab = Get-Command MakeCab
         if(-not $MakeCab)
         {
-            throw "MakeCab.exe is not a registered command."
+            throw $LocalizedData.CommandNotFound -f 'MakeCab.exe'
         }
         #Testing for files in source directory
         if((Get-ChildItem -Path $CabFilesFolder).Count -le 0)
         {
-            throw "The file count in the cab files directory is zero."
+            throw $LocalizedData.FilesNotFoundInFolder -f $CabFilesFolder
         }
         #Testing for valid help file types
         $ValidHelpFileTypes = '.xml', '.txt'
@@ -1128,11 +1130,11 @@ function New-ExternalHelpCab
         $InvalidHelpFiles = $HelpFiles | Where-Object { $_.Extension -notin $ValidHelpFileTypes }
         if(-not $ValidHelpFiles)
         {
-            throw "No valid help files."
+            throw $LocalizedData.NoValidHelpFiles
         }
         if($InvalidHelpFiles)
         {
-            $InvalidHelpFiles | ForEach-Object { Write-Warning -Message ("File '{0}' is not a valid help file type. Excluding from CAB file." -f $_.FullName) }
+            $InvalidHelpFiles | ForEach-Object { Write-Warning -Message ($LocalizedData.FileNotValidHelpFileType -f $_.FullName) }
         }
 
 
@@ -1162,14 +1164,13 @@ function New-ExternalHelpCab
     #Create HelpInfo File
 
         #Testing the destination directories, creating if none exists.
-        Write-Verbose "Checking the output directory"
         if(-not (Test-Path $OutputFolder))
         {
-            Write-Verbose "Output directory does not exist, creating a new directory."
-            New-Item -ItemType Directory -Path $OutputFolder
+            Write-Verbose -Message ($LocalizedData.FolderNotFoundCreating -f $OutputFolder)
+            New-Item -ItemType Directory -Path $OutputFolder | Out-Null
         }
 
-        Write-Verbose ("Creating cab for {0}, with Guid {1}, in Locale {2}" -f $ModuleName,$Guid,$Locale)
+        Write-Verbose -Message ($LocalizedData.CabFileInfo -f $ModuleName, $Guid, $Locale)
 
         #Building the cabinet file name.
         $cabName = ("{0}_{1}_{2}_HelpContent.cab" -f $ModuleName,$Guid,$Locale)
@@ -1177,9 +1178,9 @@ function New-ExternalHelpCab
         $zipPath = (Join-Path $OutputFolder $zipName)
 
         #Setting Cab Directives, make a cab is turned on, compression is turned on
-        Write-Verbose "Creating Cab File"
+        Write-Verbose -Message ($LocalizedData.CreatingCabFileDirectives)
         $DirectiveFile = "dir.dff"
-        New-Item -ItemType File -Name $DirectiveFile -Force |Out-Null
+        New-Item -ItemType File -Name $DirectiveFile -Force | Out-Null
         Add-Content $DirectiveFile ".Set Cabinet=on"
         Add-Content $DirectiveFile ".Set Compress=on"
 
@@ -1191,15 +1192,15 @@ function New-ExternalHelpCab
         }
 
         #Making Cab
-        Write-Verbose "Making the cab file"
+        Write-Verbose -Message ($LocalizedData.CreatingCabFile)
         MakeCab.exe /f $DirectiveFile | Out-Null
 
         #Naming CabFile
-        Write-Verbose "Moving the cab to the output directory"
+        Write-Verbose -Message ($LocalizedData.MovingCabFile -f $OutputFolder)
         Copy-Item "disk1/1.cab" (Join-Path $OutputFolder $cabName)
 
         #Remove ExtraFiles created by the cabbing process
-        Write-Verbose "Performing cabbing cleanup"
+        Write-Verbose -Message ($LocalizedData.RemovingExtraCabFileContents)
         Remove-Item "setup.inf" -ErrorAction SilentlyContinue
         Remove-Item "setup.rpt" -ErrorAction SilentlyContinue
         Remove-Item $DirectiveFile -ErrorAction SilentlyContinue
@@ -1219,7 +1220,7 @@ function New-ExternalHelpCab
 
                 if([String]::IsNullOrEmpty($locVersion))
                 {
-                    Write-Warning ("No version found for Locale: {0}" -f $loc)
+                    Write-Warning -Message ($LocalizedData.VersionNotFoundForLocale -f $loc)
                 }
                 else
                 {
@@ -1412,7 +1413,7 @@ function GetAboutTopicsFromPath
         $MdContent = Get-Content -raw $AboutFilePath
         $MdParser = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
                                 -ArgumentList { param([int]$current, [int]$all)
-                                Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)}
+                                Write-Progress -Activity $LocalizedData.ParsingMarkdown -status $LocalizedData.Progress -percentcomplete ($current/$all*100)}
         $MdObject = $MdParser.ParseString($MdContent)
 
         if($MdObject.Children[1].text.length -gt 5)
@@ -1450,7 +1451,7 @@ function GetAboutTopicsFromPath
             }
             else
             {
-                Write-Error "$_ about file not found"
+                Write-Error -Message ($LocalizedData.AboutFileNotFound -f $_)
             }
         }
     }
@@ -1499,7 +1500,7 @@ function GetMarkdownFilesFromPath
             }
             else
             {
-                Write-Error "$_ is not found"
+                Write-Error -Message ($LocalizedData.PathNotFound -f $_)
             }
         }
     }
@@ -1535,7 +1536,7 @@ function GetMamlModelImpl
     )
 
     if ($ForAnotherMarkdown -and $ApplicableTag) {
-        throw '[ASSERT] Incorrect usage: cannot pass both -ForAnotherMarkdown and -ApplicableTag'
+        throw $LocalizedData.ForAnotherMarkdownAndApplicableTag
     }
 
     # we need to pass it into .NET IEnumerable<MamlCommand> API
@@ -1549,7 +1550,7 @@ function GetMamlModelImpl
 
         $parseMode = GetParserMode -PreserveFormatting:$ForAnotherMarkdown
         $model = $p.ParseString($mdText, $parseMode, $_)
-        Write-Progress -Activity "Parsing markdown" -Completed
+        Write-Progress -Activity $LocalizedData.ParsingMarkdown -Completed
         $maml = $t.NodeModelToMamlModel($model)
 
         # flatten
@@ -1572,7 +1573,7 @@ function NewMarkdownParser
     $warningCallback = GetWarningCallback
     $progressCallback = {
         param([int]$current, [int]$all)
-        Write-Progress -Activity "Parsing markdown" -status "Progress:" -percentcomplete ($current/$all*100)
+        Write-Progress -Activity $LocalizedData.ParsingMarkdown -status $LocalizedData.Progress -percentcomplete ($current/$all*100)
     }
     return new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' -ArgumentList ($progressCallback, $warningCallback)
 }
@@ -1587,7 +1588,7 @@ function NewModelTransformer
 
     if ($schema -eq '1.0.0')
     {
-        throw "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version."
+        throw $LocalizedData.PlatyPS100SchemaDeprecated
     }
     elseif ($schema -eq '2.0.0')
     {
@@ -1813,13 +1814,13 @@ function GetHelpFileName
 
         if (-not $module)
         {
-            Write-Warning "[GetHelpFileName] Cannot find module for $($CommandInfo.Name)"
+            Write-Warning -Message ($LocalizedData.ModuleNotFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
             return
         }
 
         if ($module.Count -gt 1)
         {
-            Write-Warning "[GetHelpFileName] Found $($module.Count) modules for $($CommandInfo.Name)"
+            Write-Warning -Message ($LocalizedData.MultipleModulesFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
             $module = $module | Select-Object -First 1
         }
 
@@ -1861,7 +1862,7 @@ function MySetContent
     {
         if (Test-Path $Path -PathType Container)
         {
-            Write-Error "Cannot write file to $Path, directory with the same name exists."
+            Write-Error -Message ($LocalizedData.CannotWriteFileDirectoryExists -f $Path)
             return
         }
 
@@ -1873,7 +1874,7 @@ function MySetContent
 
         if (-not $Force)
         {
-            Write-Error "Cannot write to $Path, file exists. Use -Force to overwrite."
+            Write-Error -Message ($LocalizedData.CannotWriteFileWithoutForce -f $Path)
             return
         }
     }
@@ -1886,7 +1887,7 @@ function MySetContent
         }
     }
 
-    Write-Verbose "Writing to $Path with encoding = $($Encoding.EncodingName)"
+    Write-Verbose -Message ($LocalizedData.WritingWithEncoding -f $Path, $Encoding.EncodingName)
     # just to create a file
     Set-Content -Path $Path -Value ''
     $resolvedPath = (Get-ChildItem $Path).FullName
@@ -1906,19 +1907,19 @@ function MyGetContent
 
     if (-not(Test-Path $Path))
     {
-        throw "Cannot read from $Path, file does not exist."
+        throw $LocalizedData.FileNotFound
         return
     }
     else
     {
         if (Test-Path $Path -PathType Container)
         {
-            throw "Cannot read from $Path, $Path is a directory."
+            throw $LocalizedData.PathIsNotFile
             return
         }
     }
 
-    Write-Verbose "Reading from $Path with encoding = $($Encoding.EncodingName)"
+    Write-Verbose -Message ($LocalizedData.ReadingWithEncoding -f $Path, $Encoding.EncodingName)
     $resolvedPath = (Get-ChildItem $Path).FullName
     return [System.IO.File]::ReadAllText($resolvedPath, $Encoding)
 }
@@ -1971,7 +1972,7 @@ function NewModuleLandingPage
 
     process
     {
-        $Description = "{{Manually Enter Description Here}}"
+        $Description = $LocalizedData.Description
 
         if($RefreshModulePage)
         {
@@ -2003,11 +2004,11 @@ function NewModuleLandingPage
             }
             else
             {
-                $ModuleGuid = "{{ Update Module Guid }}"
-                $FwLink = "{{ Update Download Link }}"
-                $Version = "{{ Update Help Version }}"
-                $Locale = "{{ Update Locale }}"
-                $Description = "{{Manually Enter Description Here}}"
+                $ModuleGuid = $LocalizedData.ModuleGuid
+                $FwLink = $LocalizedData.FwLink
+                $Version = $LocalizedData.Version
+                $Locale = $LocalizedData.Locale
+                $Description = $LocalizedData.Description
             }
         }
 
@@ -2023,7 +2024,7 @@ function NewModuleLandingPage
                 $command = $_
                 if(-not $command.Synopsis)
                 {
-                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n{{Manually Enter " + $command.Name + " Description Here}}`r`n`r`n"
+                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
                 }
                 else
                 {
@@ -2034,7 +2035,7 @@ function NewModuleLandingPage
         else
         {
             $CmdletNames | ForEach-Object {
-                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n{{Manually Enter $_ Description Here}}`r`n`r`n"
+                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
             }
         }
 
@@ -2105,7 +2106,7 @@ function GetCommands
         else
         {
             if ($Session) {
-                $commands.Name | % {
+                $commands.Name | ForEach-Object {
                     # yeild
                     MyGetCommand -Cmdlet $_ -Session $Session
                 }
@@ -2165,7 +2166,7 @@ function GetRange
         [int]$n
     )
     if ($n -lt 0) {
-        throw "GetRange $n is unsupported: value less then 0"
+        throw $LocalizedData.RangeIsLessThanZero -f $n
     }
     if ($n -eq 0) {
         return
@@ -2263,9 +2264,7 @@ function MyGetCommand
         # this call we need to fill-up ParameterSets.Parameters with metadata
         $parameters = expand2 'ParameterSets' $num 'Parameters'
         if ($parameters.Length -ne $parameterType.Length) {
-            $errStr = "Metadata for $Cmdlet doesn't match length.`n" +
-            "This should never happen! Please report the issue on https://github.com/PowerShell/platyPS/issues"
-            Write-Error $errStr
+            Write-Error -Message ($LocalizedData.MetadataDoesNotMatchLength -f $Cmdlet)
         }
 
         foreach ($i in (GetRange $parameters.Length)) {
@@ -2344,19 +2343,19 @@ function GetMamlObject
 
     if($Cmdlet)
     {
-        Write-Verbose ("Processing: " + $Cmdlet)
+        Write-Verbose -Message ($LocalizedData.Processing -f $Cmdlet)
         $Help = Get-Help $Cmdlet
         $Command = MyGetCommand -Session $Session -Cmdlet $Cmdlet
         return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName
     }
     elseif ($Module)
     {
-        Write-Verbose ("Processing: " + $Module)
+        Write-Verbose -Message ($LocalizedData.Processing -f $Module)
 
         # GetCommands is slow over remoting, piping here is important for good UX
         GetCommands $Module -Session $Session | ForEach-Object {
             $Command = $_
-            Write-Verbose ("`tProcessing: " + $Command.Name)
+            Write-Verbose -Message ("`t" + ($LocalizedData.Processing -f $Command.Name))
             $Help = Get-Help $Command.Name
             # yield
             ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName
@@ -2434,7 +2433,7 @@ function IncrementHelpVersion
     )
     process
     {
-        if($HelpVersionString -eq "{{Please enter version of help manually (X.X.X.X) format}}")
+        if($HelpVersionString -eq $LocalizedData.HelpVersion)
         {
             return "1.0.0.0"
         }
@@ -2570,7 +2569,7 @@ function ConvertPsObjectsToMamlModel
 
     #Get Description
     #Not provided by the command object.
-    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Description}}")
+    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Description)
 
     #endregion
 
@@ -2672,12 +2671,12 @@ function ConvertPsObjectsToMamlModel
                     {
                         # we have well-known parameters and can generate a reasonable description for them
                         # https://github.com/PowerShell/platyPS/issues/211
-                        'Confirm' { "Prompts you for confirmation before running the cmdlet.`r`n`r`n" }
-                        'WhatIf' { "Shows what would happen if the cmdlet runs. The cmdlet is not run.`r`n`r`n" }
-                        'IncludeTotalCount' { "Reports the number of objects in the data set (an integer) followed by the objects. If the cmdlet cannot determine the total count, it returns 'Unknown total count'.`r`n`r`n" }
-                        'Skip' { "Ignores the first 'n' objects and then gets the remaining objects.`r`n`r`n" }
-                        'First' { "Gets only the first 'n' objects.`r`n`r`n" }
-                        default { "{{Fill $($Parameter.Name) Description}}`r`n`r`n" }
+                        'Confirm' { $LocalizedData.Confirm + "`r`n`r`n" }
+                        'WhatIf' { $LocalizedData.WhatIf + "`r`n`r`n" }
+                        'IncludeTotalCount' { $LocalizedData.IncludeTotalCount + "`r`n`r`n" }
+                        'Skip' { $LocalizedData.Skip + "`r`n`r`n" }
+                        'First' { $LocalizedData.First + "`r`n`r`n" }
+                        default { ($LocalizedData.ParameterDescription -f $Parameter.Name) + "`r`n`r`n" }
                     }
                 }
                 else
@@ -2764,7 +2763,7 @@ function ConvertPsObjectsToMamlModel
         # Help object ALWAYS contains SYNOPSIS.
         # If it's not available, it's auto-generated.
         # We don't want to include auto-generated SYNOPSIS (see https://github.com/PowerShell/platyPS/issues/110)
-        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ("{{Fill in the Synopsis}}")
+        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Synopsis)
     }
     else
     {
@@ -2960,7 +2959,7 @@ function ConvertPsObjectsToMamlModel
         }
         else
         {
-            Write-Warning "[Markdown generation] Could not find parameter object for $ParameterName in command $($Command.Name)"
+            Write-Warning -Message ($LocalizedData.ParameterNotFound -f '[Markdown generation]', $ParameterName, $Command.Name)
         }
     }
 
@@ -2984,7 +2983,7 @@ function validateWorkingProvider
 {
     if((Get-Location).Drive.Provider.Name -ne 'FileSystem')
     {
-        Write-Verbose 'PlatyPS Cmdlets only work in the FileSystem Provider. PlatyPS is changing the provider of this session back to filesystem.'
+        Write-Verbose -Message $LocalizedData.SettingFileSystemProvider
         $AvailableFileSystemDrives = Get-PSDrive | Where-Object {$_.Provider.Name -eq "FileSystem"} | Select-Object Root
         if($AvailableFileSystemDrives.Count -gt 0)
         {
@@ -2992,7 +2991,7 @@ function validateWorkingProvider
         }
         else
         {
-             throw 'PlatyPS Cmdlets only work in the FileSystem Provider.'
+             throw $LocalizedData.FailedSettingFileSystemProvider
         }
     }
 }
