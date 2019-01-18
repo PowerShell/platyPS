@@ -67,10 +67,10 @@ NestedModules = @()
 
 # Functions to export from this module
 FunctionsToExport = @(
-    'New-MarkdownHelp', 
+    'New-MarkdownHelp',
     'Get-MarkdownMetadata',
-    'New-ExternalHelp', 
-    'New-YamlHelp', 
+    'New-ExternalHelp',
+    'New-YamlHelp',
     'Get-HelpPreview',
     'New-ExternalHelpCab',
     'Update-MarkdownHelp',
@@ -103,7 +103,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        # Tags = @()
+        Tags = @('help', 'markdown', 'MAML', 'PSEdition_Core', 'PSEdition_Desktop')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/PowerShell/platyPS/blob/master/LICENSE'
@@ -128,4 +128,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-
