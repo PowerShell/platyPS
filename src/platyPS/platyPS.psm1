@@ -434,7 +434,7 @@ function Update-MarkdownHelp
                     return
                 }
             }
-            elseif ($loadedModulesBefore.Name -notcontains $command.ModuleName)
+            elseif (($null -ne $command.ModuleName) -and ($loadedModulesBefore.Name -notcontains $command.ModuleName))
             {
                 log -warning "The module $($command.ModuleName) was imported automatically. It may cause that parameters will be sorted alphabetically even without usage of the parameter AlphabeticParamsOrder. Please be sure that the loaded module instance contains previously generated help to avoid that."
             }
