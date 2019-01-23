@@ -10,8 +10,7 @@ param(
     [string]$DotnetCli
 )
 
-function Find-DotnetCli()
-{
+function Find-DotnetCli() {
     [string] $DotnetCli = ''
     $dotnetCmd = Get-Command dotnet
     return $dotnetCmd.Path
@@ -34,52 +33,53 @@ if (Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) {
     $framework = 'net451'
 }
 
-& $DotnetCli publish ./src/Markdown.MAML -f $framework --output=$pwd/publish /p:Configuration=$Configuration
+[string] $OutFolder = "$PSScriptRoot\out"
+[string] $PublishFolder = "$PSScriptRoot\publish"
+[string] $SourceFolder = "$PSScriptRoot\src"
+
+& $DotnetCli publish $PSScriptRoot/src/Markdown.MAML -f $framework --output=$PublishFolder /p:Configuration=$Configuration
 
 $assemblyPaths = (
-    (Resolve-Path "publish/Markdown.MAML.dll").Path,
-    (Resolve-Path "publish/YamlDotNet.dll").Path
+    (Resolve-Path "$PublishFolder/Markdown.MAML.dll").Path,
+    (Resolve-Path "$PublishFolder/YamlDotNet.dll").Path
 )
 
 # copy artifacts
 New-Item -Type Directory out -ErrorAction SilentlyContinue > $null
-Copy-Item -Rec -Force src\platyPS out
-foreach($assemblyPath in $assemblyPaths)
-{
-	$assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
-	$outputPath = "out\platyPS\$assemblyFileName"
-	if ((-not (Test-Path $outputPath)) -or
-		(Test-Path $outputPath -OlderThan (Get-ChildItem $assemblyPath).LastWriteTime))
-	{
-		Copy-Item $assemblyPath out\platyPS
-	} else {
-		Write-Host -Foreground Yellow "Skip $assemblyFileName copying"
-	}
+Copy-Item -Rec -Force $SourceFolder\platyPS out
+foreach ($assemblyPath in $assemblyPaths) {
+    $assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
+    $outputPath = "$OutFolder\platyPS\$assemblyFileName"
+    if ((-not (Test-Path $outputPath)) -or
+        (Test-Path $outputPath -OlderThan (Get-ChildItem $assemblyPath).LastWriteTime)) {
+        Copy-Item $assemblyPath $OutFolder\platyPS
+    } else {
+        Write-Host -Foreground Yellow "Skip $assemblyFileName copying"
+    }
 }
 
 # copy schema file and docs
-Copy-Item .\platyPS.schema.md out\platyPS
-New-Item -Type Directory out\platyPS\docs -ErrorAction SilentlyContinue > $null
-Copy-Item .\docs\* out\platyPS\docs\
+Copy-Item $PSScriptRoot\platyPS.schema.md $OutFolder\platyPS
+New-Item -Type Directory $OutFolder\platyPS\docs -ErrorAction SilentlyContinue > $null
+Copy-Item $PSScriptRoot\docs\* $OutFolder\platyPS\docs\
 
 # copy template files
-New-Item -Type Directory out\platyPS\templates -ErrorAction SilentlyContinue > $null
-Copy-Item .\templates\* out\platyPS\templates\
+New-Item -Type Directory $OutFolder\platyPS\templates -ErrorAction SilentlyContinue > $null
+Copy-Item $PSScriptRoot\templates\* $OutFolder\platyPS\templates\
 
 # put the right module version
-if ($env:APPVEYOR_REPO_TAG_NAME)
-{
-    $manifest = cat -raw out\platyPS\platyPS.psd1
+if ($env:APPVEYOR_REPO_TAG_NAME) {
+    $manifest = cat -raw $OutFolder\platyPS\platyPS.psd1
     $manifest = $manifest -replace "ModuleVersion = '0.0.1'", "ModuleVersion = '$($env:APPVEYOR_REPO_TAG_NAME)'"
-    Set-Content -Value $manifest -Path out\platyPS\platyPS.psd1 -Encoding Ascii
+    Set-Content -Value $manifest -Path $OutFolder\platyPS\platyPS.psd1 -Encoding Ascii
 }
 
 # dogfooding: generate help for the module
 Remove-Module platyPS -ErrorAction SilentlyContinue
-Import-Module $pwd\out\platyPS
+Import-Module $OutFolder\platyPS
 
 if (-not $SkipDocs) {
-    New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
+    New-ExternalHelp $PSScriptRoot\docs -OutputPath $OutFolder\platyPS\en-US -Force
     # reload module, to apply generated help
-    Import-Module $pwd\out\platyPS -Force
+    Import-Module $OutFolder\platyPS -Force
 }
