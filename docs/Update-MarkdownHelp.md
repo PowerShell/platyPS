@@ -79,7 +79,6 @@ For more information, see [Character Encoding in the .NET Framework](https://msd
 For example, you can control Byte Order Mark (BOM) preferences.
 For more information, see [Using PowerShell to write a file in UTF-8 without the BOM](http://stackoverflow.com/questions/5596982/using-powershell-to-write-a-file-in-utf-8-without-the-bom) at the Stack Overflow community.
 
-
 ```yaml
 Type: Encoding
 Parameter Sets: (All)
@@ -94,7 +93,6 @@ Accept wildcard characters: False
 
 ### -LogAppend
 Indicates that this cmdlet appends information to the log instead overwriting it.
-
 
 ```yaml
 Type: SwitchParameter
@@ -113,7 +111,6 @@ Specifies a file path for log information.
 The cmdlet writes the VERBOSE stream to the log.
 If you specify the *Verbose* parameter, this cmdlet also writes that information to the console.
 
-
 ```yaml
 Type: String
 Parameter Sets: (All)
@@ -128,7 +125,6 @@ Accept wildcard characters: False
 
 ### -Path
 Specifies an array of paths of markdown files and folders to update.
-
 
 ```yaml
 Type: String[]
