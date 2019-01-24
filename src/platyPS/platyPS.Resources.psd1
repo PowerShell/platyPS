@@ -74,4 +74,5 @@ WhatIf = Shows what would happen if the cmdlet runs. The cmdlet is not run.
 Skip = Ignores the specified number of objects and then gets the remaining objects. Enter the number of objects to skip.
 First = Gets only the specified number of objects. Enter the number of objects to get.
 IncludeTotalCount = Reports the total number of objects in the data set (an integer) followed by the selected objects. If the cmdlet cannot determine the total count, it displays "Unknown total count." The integer has an Accuracy property that indicates the reliability of the total count value. The value of Accuracy ranges from 0.0 to 1.0 where 0.0 means that the cmdlet could not count the objects, 1.0 means that the count is exact, and a value between 0.0 and 1.0 indicates an increasingly reliable estimate.
+ModuleImporteAutomaticaly = The module {0} was imported automatically. It may cause that parameters will be sorted alphabetically even without usage of the parameter AlphabeticParamsOrder. Please be sure that the loaded module instance contains previously generated help to avoid that.
 '@
