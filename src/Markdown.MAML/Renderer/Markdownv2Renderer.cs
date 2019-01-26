@@ -186,13 +186,13 @@ namespace Markdown.MAML.Renderer
         private void AddCommonParameters()
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.CommonParametersToken, extraNewLine: false);
-            AddParagraphs(MarkdownStrings.CommonParametersText,false, true);
+            AddParagraphs(MarkdownStrings.CommonParametersText, noNewLines: false, skipAutoWrap: true);
         }
 
         private void AddWorkflowParameters()
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.WorkflowParametersToken, extraNewLine: false);
-            AddParagraphs(MarkdownStrings.WorkflowParametersText, false, true);
+            AddParagraphs(MarkdownStrings.WorkflowParametersText, noNewLines: false, skipAutoWrap: true);
         }
 
         private Dictionary<string, MamlParameter> GetParamSetDictionary(string parameterName, List<MamlSyntax> syntaxes)
