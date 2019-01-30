@@ -387,7 +387,7 @@ namespace Markdown.MAML.Renderer
             sb.Append(command.Name);
 
             var paramStrings = new List<string>();
-            
+                        
             // first we create list of param string we want to add
             foreach (var param in syntax.Parameters)
             {
