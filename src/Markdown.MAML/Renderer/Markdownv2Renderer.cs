@@ -364,6 +364,7 @@ namespace Markdown.MAML.Renderer
         private static string GetExampleTitle(string title)
         {
             var match = Regex.Match(title, @"^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}$");
+            
             if (match.Success)
             {
                 return match.Groups["title"].Value;
@@ -410,7 +411,7 @@ namespace Markdown.MAML.Renderer
                         paramStr = string.Format("[{0}]", paramStr);
                     }
                 }
-                paramStrings.Add(paramStr);
+                paramStrings.Add(paramStr);   
             }
 
             if (command.IsWorkflow)
