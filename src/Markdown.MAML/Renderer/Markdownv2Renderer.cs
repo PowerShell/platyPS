@@ -77,14 +77,12 @@ namespace Markdown.MAML.Renderer
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", NewLine);
-
             // Use a sorted dictionary to force the metadata into alphabetical order by key for consistency.
             var sortedHeader = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry pair in yamlHeader)
             {
                 sortedHeader[pair.Key.ToString()] = pair.Value == null ? "" : pair.Value.ToString();
             }
-
             foreach (var pair in sortedHeader)
             {
                 AppendYamlKeyValue(pair.Key, pair.Value);
@@ -275,7 +273,6 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: extraNewLine);
 
             AddParagraphs(parameter.Description);
-
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
             {
@@ -364,7 +361,6 @@ namespace Markdown.MAML.Renderer
         private static string GetExampleTitle(string title)
         {
             var match = Regex.Match(title, @"^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}$");
-
             if (match.Success)
             {
                 return match.Groups["title"].Value;
@@ -387,7 +383,6 @@ namespace Markdown.MAML.Renderer
             sb.Append(command.Name);
 
             var paramStrings = new List<string>();
-
             // first we create list of param string we want to add
             foreach (var param in syntax.Parameters)
             {
@@ -495,7 +490,6 @@ namespace Markdown.MAML.Renderer
         private string GetAutoWrappingForMarkdown(string[] lines)
         {
             // this is an implementation of https://github.com/PowerShell/platyPS/issues/93
-
             // algorithm: identify chunks that represent lists
             // Every entry in a list should be preserved as is and 1 EOL between them
             // Every entry not in a list should be split with GetAutoWrappingForNonListLine
