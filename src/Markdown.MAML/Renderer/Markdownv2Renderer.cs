@@ -386,6 +386,7 @@ namespace Markdown.MAML.Renderer
             sb.Append(command.Name);
 
             var paramStrings = new List<string>();
+            
             // first we create list of param string we want to add
             foreach (var param in syntax.Parameters)
             {
@@ -424,7 +425,7 @@ namespace Markdown.MAML.Renderer
 
             // then we format them properly with repsect to max width for window.
             int widthBeforeLastBreak = 0;
-            foreach (string paramStr in paramStrings) {
+            foreach (string paramStr in paramStrings) { 
 
                 if (sb.Length - widthBeforeLastBreak + paramStr.Length > maxSyntaxWidth)
                 {
@@ -578,7 +579,7 @@ namespace Markdown.MAML.Renderer
 
             // PS code: (((($text - replace '\\\\','\\\\') -replace '([<>])','\$1') -replace '\\([\[\]\(\)])', '\\$1')
 
-            // examples:
+            // examples: 
             // '\<' -> '\\\<'
             // '\' -> '\'
             // '\\' -> '\\\\'
