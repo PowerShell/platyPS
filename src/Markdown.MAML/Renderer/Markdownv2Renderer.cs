@@ -73,7 +73,6 @@ namespace Markdown.MAML.Renderer
                     RenderCleaner.NormalizeQuotesAndDashes(
                         _stringBuilder.ToString())));
         }
-
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", NewLine);
