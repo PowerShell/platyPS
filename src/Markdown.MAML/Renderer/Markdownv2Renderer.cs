@@ -495,6 +495,7 @@ namespace Markdown.MAML.Renderer
         private string GetAutoWrappingForMarkdown(string[] lines)
         {
             // this is an implementation of https://github.com/PowerShell/platyPS/issues/93
+            
             // algorithm: identify chunks that represent lists
             // Every entry in a list should be preserved as is and 1 EOL between them
             // Every entry not in a list should be split with GetAutoWrappingForNonListLine
