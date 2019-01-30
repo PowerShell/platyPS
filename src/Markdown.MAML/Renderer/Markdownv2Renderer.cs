@@ -84,6 +84,7 @@ namespace Markdown.MAML.Renderer
             {
                 sortedHeader[pair.Key.ToString()] = pair.Value == null ? "" : pair.Value.ToString();
             }
+            
             foreach (var pair in sortedHeader)
             {
                 AppendYamlKeyValue(pair.Key, pair.Value);
@@ -274,6 +275,7 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: extraNewLine);
 
             AddParagraphs(parameter.Description);
+            
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
             {
