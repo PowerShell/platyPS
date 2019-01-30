@@ -240,7 +240,7 @@ function New-MarkdownHelp
         if ($PSCmdlet.ParameterSetName -eq 'FromCommand')
         {
             $command | ForEach-Object {
-                if (-not (Get-Command $_ -EA SilentlyContinue))
+                if (-not (Get-Command $_ -ErrorAction SilentlyContinue))
                 {
                     throw $LocalizedData.CommandNotFound -f $_
                 }
@@ -421,6 +421,7 @@ function Update-MarkdownHelp
             $oldModel = $oldModels[0]
 
             $name = $oldModel.Name
+            [Array]$loadedModulesBefore = $(Get-Module | Select-Object -Property Name)
             $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
@@ -434,6 +435,10 @@ function Update-MarkdownHelp
                     log -warning ($LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath)
                     return
                 }
+            }
+            elseif (($null -ne $command.ModuleName) -and ($loadedModulesBefore.Name -notcontains $command.ModuleName))
+            {
+                log -warning ($LocalizedData.ModuleImporteAutomaticaly -f $($command.ModuleName))
             }
 
             # update the help file entry in the metadata

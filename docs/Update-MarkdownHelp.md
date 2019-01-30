@@ -231,6 +231,8 @@ You can pipe an array of paths to this cmdlet.
 This cmdlet returns a **FileInfo[]** object for updated files.
 
 ## NOTES
+The module for which you want to update the help should first be imported from the location containing the previous version of the help.
+If this condition is not met, the parameter order will be alphabetical in the updated help, even if the parameter *AlphabeticParamsOrder* has not been used.
 
 ## RELATED LINKS
 
