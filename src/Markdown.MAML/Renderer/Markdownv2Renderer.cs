@@ -73,9 +73,11 @@ namespace Markdown.MAML.Renderer
                     RenderCleaner.NormalizeQuotesAndDashes(
                         _stringBuilder.ToString())));
         }
+        
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", NewLine);
+            
             // Use a sorted dictionary to force the metadata into alphabetical order by key for consistency.
             var sortedHeader = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry pair in yamlHeader)
