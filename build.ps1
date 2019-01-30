@@ -83,3 +83,4 @@ if (-not $SkipDocs) {
     # reload module, to apply generated help
     Import-Module $pwd\out\platyPS -Force
 }
+
