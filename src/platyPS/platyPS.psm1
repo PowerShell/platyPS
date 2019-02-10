@@ -73,8 +73,7 @@ function New-MarkdownHelp
 
         [hashtable]$Metadata,
 
-        [Parameter(
-            ParameterSetName="FromCommand")]
+        [Parameter(ParameterSetName="FromCommand")]
         [string]$OnlineVersionUrl = '',
 
         [Parameter(Mandatory=$true)]
@@ -653,7 +652,7 @@ function Update-MarkdownHelpModule
                 if ( -not ($updatedCommands -contains $_) )
                 {
                     log ($LocalizedData.CreatingNewMarkdownForCommand -f $_)
-                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder
+                    $newFiles = New-MarkdownHelp -Command $_ -OutputFolder $modulePath -AlphabeticParamsOrder:$AlphabeticParamsOrder -Force:$Force
                     $newFiles # yeild
                 }
             }
@@ -812,7 +811,7 @@ function New-ExternalHelp
             Write-Verbose -Message ($LocalizedData.OutputPathAsDirectory -f '[New-ExternalHelp]', $OutputPath)
         }
 
-        if ( -not $ShowProgress.IsPresent -or $(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) )
+        if ( -not $ShowProgress -or $(Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) )
         {
             Function Write-Progress() {}
         }
