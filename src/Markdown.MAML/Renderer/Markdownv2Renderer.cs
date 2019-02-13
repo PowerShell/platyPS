@@ -186,13 +186,13 @@ namespace Markdown.MAML.Renderer
         private void AddCommonParameters()
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.CommonParametersToken, extraNewLine: false);
-            AddParagraphs(MarkdownStrings.CommonParametersText);
+            AddParagraphs(MarkdownStrings.CommonParametersText, noNewLines: false, skipAutoWrap: true);
         }
 
         private void AddWorkflowParameters()
         {
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, MarkdownStrings.WorkflowParametersToken, extraNewLine: false);
-            AddParagraphs(MarkdownStrings.WorkflowParametersText);
+            AddParagraphs(MarkdownStrings.WorkflowParametersText, noNewLines: false, skipAutoWrap: true);
         }
 
         private Dictionary<string, MamlParameter> GetParamSetDictionary(string parameterName, List<MamlSyntax> syntaxes)
@@ -534,14 +534,14 @@ namespace Markdown.MAML.Renderer
             return string.Join(NewLine, newLines);
         }
 
-        private void AddParagraphs(string body, bool noNewLines = false)
+        private void AddParagraphs(string body, bool noNewLines = false, bool skipAutoWrap = false)
         {
             if (string.IsNullOrWhiteSpace(body))
             {
                 return;
             }
 
-            if (this._mode != ParserMode.FormattingPreserve)
+            if (this._mode != ParserMode.FormattingPreserve && skipAutoWrap != true)
             {
                 string[] paragraphs = body.Split(new string[] { "\r\n" }, StringSplitOptions.RemoveEmptyEntries);
                 body = GetAutoWrappingForMarkdown(paragraphs.Select(para => GetEscapedMarkdownText(para.Trim())).ToArray());
