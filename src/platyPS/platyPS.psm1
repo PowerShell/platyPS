@@ -2646,6 +2646,20 @@ function ConvertPsObjectsToMamlModel
                     }
                 }
 
+                $hasDontShow = $false
+                foreach($Attribute in $Parameter.Attributes)
+                {
+                    if ($Attribute.TypeId.ToString() -eq 'System.Management.Automation.ParameterAttribute' -and $Attribute.DontShow)
+                    {
+                        $hasDontShow = $true
+                    }
+                }
+
+                if ($hasDontShow)
+                {
+                    continue
+                }
+
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
