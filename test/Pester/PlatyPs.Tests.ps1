@@ -570,19 +570,19 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         }
 
         It 'includes DontShowSet1 excludes Set1' {
-            $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
-            ($set1 | Measure-Object).Count | Should Be 0
-
             $dontShowSet1 = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
             ($dontShowSet1 | Measure-Object).Count | Should Be 1
+
+            $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
+            ($set1 | Measure-Object).Count | Should Be 0
         }
 
-        It 'excludes DontShowSet2 includes Set2' {
+        It 'excludes DontShowSetAll includes Set2' {
+            $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
+            ($dontShowAll | Measure-Object).Count | Should Be 0
+            
             $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
             ($set2 | Measure-Object).Count | Should Be 1
-
-            $dontShowSet2 = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet2'}
-            ($dontShowSet2 | Measure-Object).Count | Should Be 0
         }
     }
 }
