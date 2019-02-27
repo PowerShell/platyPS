@@ -519,35 +519,35 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
     }
 
     Context 'DontShow parameter' {
-        function global:Test-DontShowParameter {
-            [CmdletBinding()]
-            [OutputType()]
-
-            Param (
-                [Switch]
-                $ShowAll,
-
-                [Parameter(DontShow)]
-                [Switch]
-                $DontShowAll,
-
-                [Parameter(ParameterSetName = 'Set1', DontShow)]
-                [Parameter(ParameterSetName = 'Set2')]
-                [Switch]
-                $DontShowSet1,
-
-                [Parameter(ParameterSetName = 'Set1', DontShow)]
-                [Parameter(ParameterSetName = 'Set2', DontShow)]
-                [Switch]
-                $DontShowSetAll
-            )
-
-            Process {
-                Write-Output -InputObject $PSCmdlet.ParameterSetName
-            }
-        }
-
         BeforeAll {
+            function global:Test-DontShowParameter {
+                [CmdletBinding()]
+                [OutputType()]
+
+                Param (
+                    [Switch]
+                    $ShowAll,
+
+                    [Parameter(DontShow)]
+                    [Switch]
+                    $DontShowAll,
+
+                    [Parameter(ParameterSetName = 'Set1', DontShow)]
+                    [Parameter(ParameterSetName = 'Set2')]
+                    [Switch]
+                    $DontShowSet1,
+
+                    [Parameter(ParameterSetName = 'Set1', DontShow)]
+                    [Parameter(ParameterSetName = 'Set2', DontShow)]
+                    [Switch]
+                    $DontShowSetAll
+                )
+
+                Process {
+                    Write-Output -InputObject $PSCmdlet.ParameterSetName
+                }
+            }
+
             $a = @{
                 command = 'Test-DontShowParameter'
                 OutputFolder = 'TestDrive:\'
