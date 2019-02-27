@@ -525,6 +525,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 [OutputType()]
 
                 Param (
+                    [Parameter()]
                     [Switch]
                     $ShowAll,
 
