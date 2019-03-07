@@ -3,6 +3,18 @@ CHANGELOG
 
 ## Not released
 
+# 0.13.0
+
+* Fix `Update-MarkdownHelp` to not rewrite files if there are not updates (#412) (Thanks @iricigor)
+* Add `-ModulePagePath` parameter to `New-MarkdownHelp` for better placement of generated file (#416) (Thanks @PrzemyslawKlys)
+* Remove doubled blank lines and trailing spaces in docs (#425) (Thanks @it-praktyk)
+* Add Localized Data support for strings in `platyPS.psm1` (#426) (Thanks @tnieto88)
+* Add tags to module manifest to improve search on gallery (#428) (Thanks @it-praktyk)
+* Fix `Update-MarkdownHelp` to respect order of parameters (#423) (Thanks @it-praktyk)
+* Fix `Update-MarkdownHelpModule` to respect `-Force` parameter (#438) (Thanks @it-praktyk)
+* Fix for Common and Workflow parameters autowrap (#431) (Thanks @PrzemyslawKlys)
+* Do not generate help content for parameters with `DontShow` attribute if `-ExlcudeDontShow` switch is used (#445) (Thanks @MiYanni)
+
 ## 0.12.0
 
 * Include proper escaping handing for `\*` and `\_` (#398)
