@@ -517,6 +517,113 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
         }
     }
+
+    Context 'DontShow parameter' {
+        BeforeAll {
+            function global:Test-DontShowParameter {
+                [CmdletBinding()]
+                [OutputType()]
+
+                Param (
+                    [Parameter()]
+                    [Switch]
+                    $ShowAll,
+
+                    [Parameter(DontShow)]
+                    [Switch]
+                    $DontShowAll,
+
+                    [Parameter(ParameterSetName = 'Set1', DontShow)]
+                    [Parameter(ParameterSetName = 'Set2')]
+                    [Switch]
+                    $DontShowSet1,
+
+                    [Parameter(ParameterSetName = 'Set1', DontShow)]
+                    [Parameter(ParameterSetName = 'Set2', DontShow)]
+                    [Switch]
+                    $DontShowSetAll
+                )
+
+                Process {
+                    Write-Output -InputObject $PSCmdlet.ParameterSetName
+                }
+            }
+
+            $a = @{
+                command = 'Test-DontShowParameter'
+                OutputFolder = 'TestDrive:\'
+            }
+
+            $fileWithoutDontShowSwitch = New-MarkdownHelp @a -Force
+            $file = New-MarkdownHelp @a -ExcludeDontShow -Force
+
+            $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\"
+            $help = Get-HelpPreview -Path $maml
+            $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Test-DontShowParameter" }
+
+            $updatedFile = Update-MarkdownHelp -Path $fileWithoutDontShowSwitch -ExcludeDontShow
+            $null = New-Item -ItemType Directory "$TestDrive\UpdateMarkdown"
+            $updatedMaml = $file | New-ExternalHelp -OutputPath "TestDrive:\UpdateMarkdown"
+            $updatedHelp = Get-HelpPreview -Path $updatedMaml
+            $updateMamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Test-DontShowParameter" }
+        }
+
+        Context "New-MarkdownHelp with -ExcludeDontShow" {
+            It "includes ShowAll" {
+                $showAll = $help.parameters.parameter | Where-Object {$_.name -eq 'ShowAll'}
+                ($showAll | Measure-Object).Count | Should Be 1
+            }
+
+            It "excludes DontShowAll" {
+                $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+            }
+
+            It 'includes DontShowSet1 excludes Set1' -Skip {
+                $dontShowSet1 = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
+                ($dontShowSet1 | Measure-Object).Count | Should Be 1
+
+                $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
+                ($set1 | Measure-Object).Count | Should Be 0
+            }
+
+            It 'excludes DontShowSetAll includes Set2' {
+                $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+
+                $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
+                ($set2 | Measure-Object).Count | Should Be 1
+            }
+        }
+
+        Context "Update-MarkdownHelp with -ExcludeDontShow" {
+            It "includes ShowAll" {
+                $showAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'ShowAll'}
+                ($showAll | Measure-Object).Count | Should Be 1
+            }
+
+            It "excludes DontShowAll" {
+                $dontShowAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+            }
+
+            It 'includes DontShowSet1 excludes Set1' -Skip {
+                $dontShowSet1 = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
+                ($dontShowSet1 | Measure-Object).Count | Should Be 1
+
+                $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
+                ($set1 | Measure-Object).Count | Should Be 0
+            }
+
+            It 'excludes DontShowSetAll includes Set2' {
+                $dontShowAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+
+                $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
+                ($set2 | Measure-Object).Count | Should Be 1
+            }
+        }
+    }
 }
 
 

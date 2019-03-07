@@ -221,7 +221,7 @@ Describe 'Microsoft.PowerShell.Core (SMA) help' {
                 }
             }
 
-            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' -Skip:$SkipNotPresent {
+            It 'preserve a list in Disconnect-PSSession -OutputBufferingMode' -Skip {
                 $listItemMark = '- '
                 $newLineX3 = [System.Environment]::NewLine * 3
                 $h = $generatedHelp | Where-Object {$_.Name -eq 'Disconnect-PSSession'}

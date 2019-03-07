@@ -17,14 +17,14 @@ Creates help in markdown format.
 New-MarkdownHelp -Module <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
  [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName] [-Encoding <Encoding>]
  [-WithModulePage] [-ModulePagePath <String>] [-Locale <String>] [-HelpVersion <String>] [-FwLink <String>]
- [<CommonParameters>]
+ [-ExcludeDontShow] [<CommonParameters>]
 ```
 
 ### FromCommand
 ```
 New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-AlphabeticParamsOrder]
  [-Metadata <Hashtable>] [-OnlineVersionUrl <String>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
- [-Encoding <Encoding>] [<CommonParameters>]
+ [-Encoding <Encoding>] [-ExcludeDontShow] [<CommonParameters>]
 ```
 
 ### FromMaml
@@ -32,7 +32,7 @@ New-MarkdownHelp -Command <String[]> [-Session <PSSession>] [-Force] [-Alphabeti
 New-MarkdownHelp -MamlFile <String[]> [-ConvertNotesToList] [-ConvertDoubleDashLists] [-Force]
  [-AlphabeticParamsOrder] [-Metadata <Hashtable>] -OutputFolder <String> [-NoMetadata] [-UseFullTypeName]
  [-Encoding <Encoding>] [-WithModulePage] [-ModulePagePath <String>] [-Locale <String>] [-HelpVersion <String>]
- [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>] [<CommonParameters>]
+ [-FwLink <String>] [-ModuleName <String>] [-ModuleGuid <String>] [-ExcludeDontShow] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -466,6 +466,21 @@ When *WithModule* parameter is used by default it puts .md file in same location
 ```yaml
 Type: String
 Parameter Sets: FromModule, FromMaml
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludeDontShow
+Exclude the parameters marked with `DontShow` in the parameter attribute from the help content.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
 Aliases:
 
 Required: False

@@ -15,7 +15,7 @@ Update PlatyPS markdown help files.
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
  [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-Force] [-Session <PSSession>]
- [<CommonParameters>]
+ [-ExcludeDontShow] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -204,6 +204,21 @@ Accept wildcard characters: False
 
 ### -Force
 Remove help files that no longer exists within sessions (for example if function was deleted)
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ExcludeDontShow
+Exclude the parameters marked with `DontShow` in the parameter attribute from the help content.
 
 ```yaml
 Type: SwitchParameter
