@@ -554,36 +554,74 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 OutputFolder = 'TestDrive:\'
             }
 
-            $file = New-MarkdownHelp @a
+            $fileWithoutDontShowSwitch = New-MarkdownHelp @a
+            $file = New-MarkdownHelp @a -ExcludeDontShow
+
             $maml = $file | New-ExternalHelp -OutputPath "TestDrive:\"
             $help = Get-HelpPreview -Path $maml
             $mamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Test-DontShowParameter" }
+
+            $updatedFile = Update-MarkdownHelp -Path $fileWithoutDontShowSwitch -ExcludeDontShow
+            $null = New-Item -ItemType Directory "$TestDrive\UpdateMarkdown"
+            $updatedMaml = $file | New-ExternalHelp -OutputPath "TestDrive:\UpdateMarkdown"
+            $updatedHelp = Get-HelpPreview -Path $updatedMaml
+            $updateMamlModelObject = & (Get-Module platyPS) { GetMamlObject -Cmdlet "Test-DontShowParameter" }
         }
 
-        It "includes ShowAll" {
-            $showAll = $help.parameters.parameter | Where-Object {$_.name -eq 'ShowAll'}
-            ($showAll | Measure-Object).Count | Should Be 1
+        Context "New-MarkdownHelp with -ExcludeDontShow" {
+            It "includes ShowAll" {
+                $showAll = $help.parameters.parameter | Where-Object {$_.name -eq 'ShowAll'}
+                ($showAll | Measure-Object).Count | Should Be 1
+            }
+
+            It "excludes DontShowAll" {
+                $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+            }
+
+            It 'includes DontShowSet1 excludes Set1' {
+                $dontShowSet1 = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
+                ($dontShowSet1 | Measure-Object).Count | Should Be 1
+
+                $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
+                ($set1 | Measure-Object).Count | Should Be 0
+            }
+
+            It 'excludes DontShowSetAll includes Set2' {
+                $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+
+                $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
+                ($set2 | Measure-Object).Count | Should Be 1
+            }
         }
 
-        It "excludes DontShowAll" {
-            $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowAll'}
-            ($dontShowAll | Measure-Object).Count | Should Be 0
-        }
+        Context "Update-MarkdownHelp with -ExcludeDontShow" {
+            It "includes ShowAll" {
+                $showAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'ShowAll'}
+                ($showAll | Measure-Object).Count | Should Be 1
+            }
 
-        It 'includes DontShowSet1 excludes Set1' {
-            $dontShowSet1 = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
-            ($dontShowSet1 | Measure-Object).Count | Should Be 1
+            It "excludes DontShowAll" {
+                $dontShowAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+            }
 
-            $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
-            ($set1 | Measure-Object).Count | Should Be 0
-        }
+            It 'includes DontShowSet1 excludes Set1' {
+                $dontShowSet1 = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowSet1'}
+                ($dontShowSet1 | Measure-Object).Count | Should Be 1
 
-        It 'excludes DontShowSetAll includes Set2' {
-            $dontShowAll = $help.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
-            ($dontShowAll | Measure-Object).Count | Should Be 0
-            
-            $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
-            ($set2 | Measure-Object).Count | Should Be 1
+                $set1 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set1'}
+                ($set1 | Measure-Object).Count | Should Be 0
+            }
+
+            It 'excludes DontShowSetAll includes Set2' {
+                $dontShowAll = $updatedHelp.parameters.parameter | Where-Object {$_.name -eq 'DontShowSetAll'}
+                ($dontShowAll | Measure-Object).Count | Should Be 0
+
+                $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
+                ($set2 | Measure-Object).Count | Should Be 1
+            }
         }
     }
 }
