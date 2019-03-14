@@ -191,7 +191,14 @@ function New-MarkdownHelp
                     $online = $OnlineVersionUrl
                 }
 
-                $commandName = $mamlObject.Name
+                if ($mamlObject.Name -like "*.ps1")
+                {
+                    $commandName = ".\$($mamlObject.Name)"
+                }
+                else
+                {
+                    $commandName = $mamlObject.Name
+                }
                 # create markdown
                 if ($NoMetadata)
                 {
@@ -1813,39 +1820,42 @@ function GetHelpFileName
                 return $CommandInfo.HelpFile
             }
         }
-
-        # overwise, lets guess it
-        $module = @($CommandInfo.Module) + ($CommandInfo.Module.NestedModules) |
-            Where-Object {$_.ModuleType -ne 'Manifest'} |
-            Where-Object {$_.ExportedCommands.Keys -contains $CommandInfo.Name}
-
-        if (-not $module)
+        # only run module evaluations if the input command isn't a script
+        if ($CommandInfo.CommandType -ne "ExternalScript")
         {
-            Write-Warning -Message ($LocalizedData.ModuleNotFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
-            return
-        }
+            # overwise, lets guess it
+            $module = @($CommandInfo.Module) + ($CommandInfo.Module.NestedModules) |
+                Where-Object {$_.ModuleType -ne 'Manifest'} |
+                Where-Object {$_.ExportedCommands.Keys -contains $CommandInfo.Name}
 
-        if ($module.Count -gt 1)
-        {
-            Write-Warning -Message ($LocalizedData.MultipleModulesFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
-            $module = $module | Select-Object -First 1
-        }
-
-        if (Test-Path $module.Path -Type Leaf)
-        {
-            # for regular modules, we can deduct the filename from the module path file
-            $moduleItem = Get-Item -Path $module.Path
-            if ($moduleItem.Extension -eq '.psm1') {
-                $fileName = $moduleItem.BaseName
-            } else {
-                $fileName = $moduleItem.Name
+            if (-not $module)
+            {
+                Write-Warning -Message ($LocalizedData.ModuleNotFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
+                return
             }
-        }
-        else
-        {
-            # if it's something like Dynamic module,
-            # we  guess the desired help file name based on the module name
-            $fileName = $module.Name
+
+            if ($module.Count -gt 1)
+            {
+                Write-Warning -Message ($LocalizedData.MultipleModulesFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
+                $module = $module | Select-Object -First 1
+            }
+
+            if (Test-Path $module.Path -Type Leaf)
+            {
+                # for regular modules, we can deduct the filename from the module path file
+                $moduleItem = Get-Item -Path $module.Path
+                if ($moduleItem.Extension -eq '.psm1') {
+                    $fileName = $moduleItem.BaseName
+                } else {
+                    $fileName = $moduleItem.Name
+                }
+            }
+            else
+            {
+                # if it's something like Dynamic module,
+                # we  guess the desired help file name based on the module name
+                $fileName = $module.Name
+            }
         }
 
         return "$fileName-help.xml"
