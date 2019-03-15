@@ -191,14 +191,8 @@ function New-MarkdownHelp
                     $online = $OnlineVersionUrl
                 }
 
-                if ($mamlObject.Name -like "*.ps1")
-                {
-                    $commandName = ".\$($mamlObject.Name)"
-                }
-                else
-                {
-                    $commandName = $mamlObject.Name
-                }
+                $commandName = $mamlObject.Name
+
                 # create markdown
                 if ($NoMetadata)
                 {
@@ -213,10 +207,20 @@ function New-MarkdownHelp
                     }
                     else
                     {
-                        $a = @{
-                            Name = $commandName
+                        # Get-Command requires that script input be a path
+                        if ($mamlObject.Name.EndsWith(".ps1"))
+                        {
+                            $getCommandName = Resolve-Path $Command
+                        }
+                        # For cmdlets, nothing needs done
+                        else
+                        {
+                            $getCommandName = $commandName
                         }
 
+                        $a = @{
+                            Name = $getCommandName
+                        }
                         if ($module) {
                             # for module case, scope it just to this module
                             $a['Module'] = $module
