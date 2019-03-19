@@ -148,53 +148,53 @@ Describe 'New-MarkdownHelp' {
 
     Context 'from external script' { 
         It 'fully qualified path' {
-            $NL = [System.Environment]::NewLine
-            $SeedData = (
-                "<# $NL" +
-                ".SYNOPSIS$NL" +
-                "    Synopsis Here.$NL" +
-                "$NL" +
-                ".DESCRIPTION $NL" +
-                "    Description Here.$NL" +
-                "$NL" +
-                ".INPUTS$NL" +
-                "    None$NL" +
-                "$NL" +
-                ".OUTPUTS$NL" +
-                "    None$NL" +
-                "$NL" +
-                ".EXAMPLE$NL" +
-                "    .\Invoke-HelloWorld.ps1$NL" +
-                "$NL" +
-                "#>$NL" +
-                "$NL" +
-                "Write-Host 'Hello World!'")
+            $SeedData = @"
+<# 
+.SYNOPSIS
+    Synopsis Here.
+
+.DESCRIPTION 
+    Description Here.
+
+.INPUTS
+    None
+
+.OUTPUTS
+    None
+
+.EXAMPLE
+    .\Invoke-HelloWorld.ps1
+
+#>
+
+Write-Host 'Hello World!'
+"@
             Set-Content -Value $SeedData -Path TestDrive:\Invoke-HelloWorld.ps1 -NoNewline
             $files = New-MarkdownHelp -Command "TestDrive:\Invoke-HelloWorld.ps1" -OutputFolder TestDrive:\output -Force
             ($files | Measure-Object).Count | Should Be 1
         }
         It 'relative path' {
-            $NL = [System.Environment]::NewLine
-            $SeedData = (
-                "<# $NL" +
-                ".SYNOPSIS$NL" +
-                "    Synopsis Here.$NL" +
-                "$NL" +
-                ".DESCRIPTION $NL" +
-                "    Description Here.$NL" +
-                "$NL" +
-                ".INPUTS$NL" +
-                "    None$NL" +
-                "$NL" +
-                ".OUTPUTS$NL" +
-                "    None$NL" +
-                "$NL" +
-                ".EXAMPLE$NL" +
-                "    .\Invoke-HelloWorld.ps1$NL" +
-                "$NL" +
-                "#>$NL" +
-                "$NL" +
-                "Write-Host 'Hello World!'")
+            $SeedData = @"
+<# 
+.SYNOPSIS
+    Synopsis Here.
+
+.DESCRIPTION 
+    Description Here.
+
+.INPUTS
+    None
+
+.OUTPUTS
+    None
+
+.EXAMPLE
+    .\Invoke-HelloWorld.ps1
+
+#>
+
+Write-Host 'Hello World!'
+"@
             Set-Content -Value $SeedData -Path TestDrive:\Invoke-HelloWorld.ps1 -NoNewline
             $Location = Get-Location
             Set-Location TestDrive:\
