@@ -212,7 +212,7 @@ function New-MarkdownHelp
                         {
                             $getCommandName = Resolve-Path $Command
                         }
-                        # For cmdlets, nothing needs done
+                        # For cmdlets, nothing needs to be done
                         else
                         {
                             $getCommandName = $commandName
