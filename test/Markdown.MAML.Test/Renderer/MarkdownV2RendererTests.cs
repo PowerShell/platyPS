@@ -361,7 +361,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
             {
                 Name = "Get-Foo",
                 Synopsis = new SectionBody("This is the synopsis"),
-                Description = new SectionBody("This is a long description.\r\nWith two paragraphs.  And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
+                Description = new SectionBody("This is a long description.\r\nWith two paragraphs. And the second one contains of few line! They should be auto-wrapped. Because, why not? We can do that kind of the things, no problem.\r\n\r\n-- Foo. Bar.\r\n-- Don't break. The list.\r\n-- Into. Pieces"),
                 Notes = new SectionBody("This is a multiline note.\r\nSecond line.")
             };
 
