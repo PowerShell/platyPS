@@ -1512,7 +1512,22 @@ function GetMarkdownFilesFromPath
         }
     }
 
-    return $MarkdownFiles
+    $MarkdownFilesFiltered = @()
+
+    If ($IncludeModulePage) {
+        $MarkdownFilesFiltered = $MarkdownFiles
+    } Else {
+        ForEach ($File in $MarkdownFiles) {
+            $Matches = [regex]::Match((Get-Content $File.FullName -Raw), 'Module Name: (.+)').Captures.Groups
+            if ($Matches.Length -ge 2) {
+                if (($Matches[1].Value.replace("`n","").replace("`r","")) -ne $File.BaseName) {
+                    $MarkdownFilesFiltered += $File
+                }
+            }
+        }
+    }
+
+    return $MarkdownFilesFiltered
 }
 
 function GetParserMode
