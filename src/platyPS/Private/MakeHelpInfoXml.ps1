@@ -1,23 +1,23 @@
 Function MakeHelpInfoXml 
- {
+{
 
     Param(
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $ModuleName,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $GUID,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $HelpCulture,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $HelpVersion,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $URI,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $OutputFolder
 
@@ -27,40 +27,40 @@ Function MakeHelpInfoXml
     $HelpInfoFileNme = $ModuleName + "_" + $GUID + "_HelpInfo.xml"
     $OutputFullPath = Join-Path $OutputFolder $HelpInfoFileNme
 
-    if(Test-Path $OutputFullPath -PathType Leaf)
+    if (Test-Path $OutputFullPath -PathType Leaf)
     {
         [xml] $HelpInfoContent = Get-Content $OutputFullPath
     }
 
     #Create the base XML object for the Helpinfo.xml file.
-    $xml = new-object xml
+    $xml = New-Object xml
 
     $ns = "http://schemas.microsoft.com/powershell/help/2010/05"
-    $declaration = $xml.CreateXmlDeclaration("1.0","utf-8",$null)
+    $declaration = $xml.CreateXmlDeclaration("1.0", "utf-8", $null)
 
-    $rootNode = $xml.CreateElement("HelpInfo",$ns)
-    $xml.InsertBefore($declaration,$xml.DocumentElement)
+    $rootNode = $xml.CreateElement("HelpInfo", $ns)
+    $xml.InsertBefore($declaration, $xml.DocumentElement)
     $xml.AppendChild($rootNode)
 
-    $HelpContentUriNode = $xml.CreateElement("HelpContentURI",$ns)
+    $HelpContentUriNode = $xml.CreateElement("HelpContentURI", $ns)
     $HelpContentUriNode.InnerText = $URI
     $xml["HelpInfo"].AppendChild($HelpContentUriNode)
 
-    $HelpSupportedCulturesNode = $xml.CreateElement("SupportedUICultures",$ns)
+    $HelpSupportedCulturesNode = $xml.CreateElement("SupportedUICultures", $ns)
     $xml["HelpInfo"].AppendChild($HelpSupportedCulturesNode)
 
 
     #If no previous help file
-    if(-not $HelpInfoContent)
+    if (-not $HelpInfoContent)
     {
-        $HelpUICultureNode = $xml.CreateElement("UICulture",$ns)
+        $HelpUICultureNode = $xml.CreateElement("UICulture", $ns)
         $xml["HelpInfo"]["SupportedUICultures"].AppendChild($HelpUICultureNode)
 
-        $HelpUICultureNameNode = $xml.CreateElement("UICultureName",$ns)
+        $HelpUICultureNameNode = $xml.CreateElement("UICultureName", $ns)
         $HelpUICultureNameNode.InnerText = $HelpCulture
         $xml["HelpInfo"]["SupportedUICultures"]["UICulture"].AppendChild($HelpUICultureNameNode)
 
-        $HelpUICultureVersionNode = $xml.CreateElement("UICultureVersion",$ns)
+        $HelpUICultureVersionNode = $xml.CreateElement("UICultureVersion", $ns)
         $HelpUICultureVersionNode.InnerText = $HelpVersion
         $xml["HelpInfo"]["SupportedUICultures"]["UICulture"].AppendChild($HelpUICultureVersionNode)
 
@@ -70,16 +70,16 @@ Function MakeHelpInfoXml
     else
     {
         #Get old culture info
-        $ExistingCultures = @{}
-        foreach($Culture in $HelpInfoContent.HelpInfo.SupportedUICultures.UICulture)
+        $ExistingCultures = @{ }
+        foreach ($Culture in $HelpInfoContent.HelpInfo.SupportedUICultures.UICulture)
         {
             $ExistingCultures.Add($Culture.UICultureName, $Culture.UICultureVersion)
         }
 
         #If culture exists update version, if not, add culture and version
-        if(-not ($HelpCulture -in $ExistingCultures.Keys))
+        if (-not ($HelpCulture -in $ExistingCultures.Keys))
         {
-            $ExistingCultures.Add($HelpCulture,$HelpVersion)
+            $ExistingCultures.Add($HelpCulture, $HelpVersion)
         }
         else
         {
@@ -90,16 +90,16 @@ Function MakeHelpInfoXml
         $cultureNames += $ExistingCultures.GetEnumerator()
 
         #write out cultures to XML
-        for($i=0;$i -lt $ExistingCultures.Count; $i++)
+        for ($i = 0; $i -lt $ExistingCultures.Count; $i++)
         {
-            $HelpUICultureNode = $xml.CreateElement("UICulture",$ns)
+            $HelpUICultureNode = $xml.CreateElement("UICulture", $ns)
 
 
-            $HelpUICultureNameNode = $xml.CreateElement("UICultureName",$ns)
+            $HelpUICultureNameNode = $xml.CreateElement("UICultureName", $ns)
             $HelpUICultureNameNode.InnerText = $cultureNames[$i].Name
             $HelpUICultureNode.AppendChild($HelpUICultureNameNode)
 
-            $HelpUICultureVersionNode = $xml.CreateElement("UICultureVersion",$ns)
+            $HelpUICultureVersionNode = $xml.CreateElement("UICultureVersion", $ns)
             $HelpUICultureVersionNode.InnerText = $cultureNames[$i].Value
             $HelpUICultureNode.AppendChild($HelpUICultureVersionNode)
 
@@ -110,7 +110,7 @@ Function MakeHelpInfoXml
     }
 
     #Commit Help
-        if(!(Test-Path $OutputFullPath))
+    if (!(Test-Path $OutputFullPath))
     {
         New-Item -Path $OutputFolder -ItemType File -Name $HelpInfoFileNme
 

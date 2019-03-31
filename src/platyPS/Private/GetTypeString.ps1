@@ -5,19 +5,20 @@
     We use two different parameter sets ensure the tupe of -TypeObject
 #>
 Function GetTypeString 
- {
+{
 
     param(
-        [Parameter(ValueFromPipeline=$true, ParameterSetName='typeObject')]
+        [Parameter(ValueFromPipeline = $true, ParameterSetName = 'typeObject')]
         [System.Reflection.TypeInfo]
         $TypeObject,
 
-        [Parameter(ValueFromPipeline=$true, ParameterSetName='typeObjectHash')]
+        [Parameter(ValueFromPipeline = $true, ParameterSetName = 'typeObjectHash')]
         [PsObject]
         $TypeObjectHash
     )
 
-    if ($TypeObject) {
+    if ($TypeObject)
+    {
         $TypeObjectHash = $TypeObject
     }
 

@@ -1,8 +1,8 @@
 Function GetCommands 
- {
+{
 
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$Module,
         # return names, instead of objects
         [switch]$AsNames,
@@ -10,15 +10,16 @@ Function GetCommands
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
 
-    process {
+    process
+    {
         # Get-Module doesn't know about Microsoft.PowerShell.Core, so we don't use (Get-Module).ExportedCommands
 
         # We use: & (dummy module) {...} syntax to workaround
         # the case `GetMamlObject -Module platyPS`
         # because in this case, we are in the module context and Get-Command returns all commands,
         # not only exported ones.
-        $commands = & (New-Module {}) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
-            Where-Object {$_.CommandType -ne 'Alias'}  # we don't want aliases in the markdown output for a module
+        $commands = & (New-Module { }) ([scriptblock]::Create("Get-Command -Module '$Module'")) |
+        Where-Object { $_.CommandType -ne 'Alias' }  # we don't want aliases in the markdown output for a module
 
         if ($AsNames)
         {
@@ -26,12 +27,15 @@ Function GetCommands
         }
         else
         {
-            if ($Session) {
+            if ($Session)
+            {
                 $commands.Name | ForEach-Object {
                     # yeild
                     MyGetCommand -Cmdlet $_ -Session $Session
                 }
-            } else {
+            }
+            else
+            {
                 $commands
             }
         }

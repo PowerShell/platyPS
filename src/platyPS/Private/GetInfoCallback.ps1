@@ -1,5 +1,5 @@
 Function GetInfoCallback 
- {
+{
 
     param(
         [string]$LogPath,

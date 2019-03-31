@@ -1,9 +1,9 @@
 Function ConvertMamlModelToMarkdown 
- {
+{
 
     param(
         [ValidateNotNullOrEmpty()]
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [Markdown.MAML.Model.MAML.MamlCommand]$mamlCommand,
 
         [hashtable]$metadata,

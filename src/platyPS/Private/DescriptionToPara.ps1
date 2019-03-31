@@ -1,9 +1,9 @@
 Function DescriptionToPara 
- {
+{
 
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$false, ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true)]
         $description
     )
 

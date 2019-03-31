@@ -2,14 +2,14 @@
     This function converts help and command object (possibly mocked) into a Maml Model
 #>
 Function ConvertPsObjectsToMamlModel 
- {
+{
 
     [CmdletBinding()]
     [OutputType([Markdown.MAML.Model.MAML.MamlCommand])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [object]$Command,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [object]$Help,
         [switch]$UseHelpForParametersMetadata,
         [switch]$UsePlaceholderForSynopsis,
@@ -33,7 +33,8 @@ Function ConvertPsObjectsToMamlModel
                 'OutVariable',
                 'OutBuffer',
                 'PipelineVariable'
-        ) -contains $parameterName) {
+            ) -contains $parameterName)
+        {
             return $true
         }
 
@@ -96,13 +97,13 @@ Function ConvertPsObjectsToMamlModel
     function normalizeFirstLatter
     {
         param(
-            [Parameter(ValueFromPipeline=$true)]
+            [Parameter(ValueFromPipeline = $true)]
             [string]$value
         )
 
         if ($value -and $value.Length -gt 0)
         {
-            return $value.Substring(0,1).ToUpperInvariant() + $value.substring(1)
+            return $value.Substring(0, 1).ToUpperInvariant() + $value.substring(1)
         }
 
         return $value
@@ -135,11 +136,11 @@ Function ConvertPsObjectsToMamlModel
     function FillUpParameterFromHelp
     {
         param(
-            [Parameter(Mandatory=$true)]
+            [Parameter(Mandatory = $true)]
             [Markdown.MAML.Model.MAML.MamlParameter]$ParameterObject
         )
 
-        $HelpEntry = $Help.parameters.parameter | Where-Object {$_.Name -eq $ParameterObject.Name}
+        $HelpEntry = $Help.parameters.parameter | Where-Object { $_.Name -eq $ParameterObject.Name }
 
         $ParameterObject.DefaultValue = $HelpEntry.defaultValue | normalizeFirstLatter
         $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
@@ -150,8 +151,8 @@ Function ConvertPsObjectsToMamlModel
             if ($HelpEntry.description.text)
             {
                 $ParameterObject.Description = $HelpEntry.description |
-                    DescriptionToPara |
-                    AddLineBreaksForParagraphs
+                DescriptionToPara |
+                AddLineBreaksForParagraphs
             }
             else
             {
@@ -163,7 +164,7 @@ Function ConvertPsObjectsToMamlModel
             }
         }
 
-        $syntaxParam = $Help.syntax.syntaxItem.parameter |  Where-Object {$_.Name -eq $Parameter.Name} | Select-Object -First 1
+        $syntaxParam = $Help.syntax.syntaxItem.parameter | Where-Object { $_.Name -eq $Parameter.Name } | Select-Object -First 1
         if ($syntaxParam)
         {
             # otherwise we could potentialy get it from Reflection but not doing it for now
@@ -176,20 +177,20 @@ Function ConvertPsObjectsToMamlModel
 
     function FillUpSyntaxFromCommand
     {
-        foreach($ParameterSet in $Command.ParameterSets)
+        foreach ($ParameterSet in $Command.ParameterSets)
         {
             $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
 
             $SyntaxObject.ParameterSetName = $ParameterSet.Name
             $SyntaxObject.IsDefault = $ParameterSet.IsDefault
 
-            foreach($Parameter in $ParameterSet.Parameters)
+            foreach ($Parameter in $ParameterSet.Parameters)
             {
                 # ignore CommonParameters
                 if (isCommonParameterName $Parameter.Name -Workflow:$IsWorkflow)
                 {
                     # but don't ignore them, if they have explicit help entries
-                    if ($Help.parameters.parameter | Where-Object {$_.Name -eq $Parameter.Name})
+                    if ($Help.parameters.parameter | Where-Object { $_.Name -eq $Parameter.Name })
                     {
                     }
                     else
@@ -221,10 +222,13 @@ Function ConvertPsObjectsToMamlModel
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
                 # the ParameterType could be just a string in case of remoting
                 # or a TypeInfo object, in the regular case
-                if ($Session) {
+                if ($Session)
+                {
                     # in case of remoting we already pre-calcuated the Type string
                     $ParameterObject.Type = $Parameter.ParameterTypeName
-                } else {
+                }
+                else
+                {
                     $ParameterObject.Type = GetTypeString -TypeObject $Parameter.ParameterType
                 }
                 # ToString() works in both cases
@@ -232,7 +236,7 @@ Function ConvertPsObjectsToMamlModel
 
                 $ParameterObject.ValueRequired = -not ($Parameter.Type -eq "SwitchParameter") # thisDefinition is a heuristic
 
-                foreach($Alias in $Parameter.Aliases)
+                foreach ($Alias in $Parameter.Aliases)
                 {
                     $ParameterObject.Aliases += $Alias
                 }
@@ -282,14 +286,14 @@ Function ConvertPsObjectsToMamlModel
         }
 
         $ParamSetCount = 0
-        foreach($ParameterSet in $Help.syntax.syntaxItem)
+        foreach ($ParameterSet in $Help.syntax.syntaxItem)
         {
             $SyntaxObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlSyntax
 
             $ParamSetCount++
             $SyntaxObject.ParameterSetName = $script:SET_NAME_PLACEHOLDER + "_" + $ParamSetCount
 
-            foreach($Parameter in $ParameterSet.Parameter)
+            foreach ($Parameter in $ParameterSet.Parameter)
             {
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
 
@@ -350,9 +354,9 @@ Function ConvertPsObjectsToMamlModel
     }
 
     #Get Description
-    if($Help.description -ne $null)
+    if ($Help.description -ne $null)
     {
-        $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
+        $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
             $Help.description |
             DescriptionToPara |
             AddLineBreaksForParagraphs
@@ -361,9 +365,9 @@ Function ConvertPsObjectsToMamlModel
 
     #Add to Notes
     #From the Help AlertSet data
-    if($help.alertSet)
+    if ($help.alertSet)
     {
-        $MamlCommandObject.Notes =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
+        $MamlCommandObject.Notes = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
             $help.alertSet.alert |
             DescriptionToPara |
             AddLineBreaksForParagraphs
@@ -375,9 +379,9 @@ Function ConvertPsObjectsToMamlModel
 
 
     #Add to relatedLinks
-    if($help.relatedLinks)
+    if ($help.relatedLinks)
     {
-       foreach($link in $Help.relatedLinks.navigationLink)
+        foreach ($link in $Help.relatedLinks.navigationLink)
         {
             $mamlLink = New-Object -TypeName Markdown.MAML.Model.MAML.MamlLink
             $mamlLink.LinkName = $link.linkText
@@ -387,7 +391,7 @@ Function ConvertPsObjectsToMamlModel
     }
 
     #Add Examples
-    foreach($Example in $Help.examples.example)
+    foreach ($Example in $Help.examples.example)
     {
         $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
@@ -398,8 +402,8 @@ Function ConvertPsObjectsToMamlModel
         )
 
         $RemarkText = $Example.remarks |
-            DescriptionToPara |
-            AddLineBreaksForParagraphs
+        DescriptionToPara |
+        AddLineBreaksForParagraphs
 
         $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
@@ -422,13 +426,13 @@ Function ConvertPsObjectsToMamlModel
             $InputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
             $InputObject.TypeName = $_
             $InputObject.Description = $InputDescription |
-                DescriptionToPara |
-                AddLineBreaksForParagraphs
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
             $Inputs += $InputObject
         }
     }
 
-    foreach($Input in $Inputs) {$MamlCommandObject.Inputs.Add($Input)}
+    foreach ($Input in $Inputs) { $MamlCommandObject.Inputs.Add($Input) }
 
     #endregion
 
@@ -449,13 +453,13 @@ Function ConvertPsObjectsToMamlModel
             $OutputObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlInputOutput
             $OutputObject.TypeName = $_
             $OutputObject.Description = $OuputDescription |
-                DescriptionToPara |
-                AddLineBreaksForParagraphs
+            DescriptionToPara |
+            AddLineBreaksForParagraphs
             $Outputs += $OutputObject
         }
     }
 
-    foreach($Output in $Outputs) {$MamlCommandObject.Outputs.Add($Output)}
+    foreach ($Output in $Outputs) { $MamlCommandObject.Outputs.Add($Output) }
     #endregion
     ##########
 
@@ -494,7 +498,7 @@ Function ConvertPsObjectsToMamlModel
         if (-not $helpNames) { $helpNames = @() }
 
         # sort-object unique does case-insensiteve unification
-        $realNames = $MamlCommandObject.Syntax.Parameters.Name | Sort-object -Unique
+        $realNames = $MamlCommandObject.Syntax.Parameters.Name | Sort-Object -Unique
         if (-not $realNames) { $realNames = @() }
 
         $realNamesList = New-Object 'System.Collections.Generic.List[string]'
@@ -518,7 +522,7 @@ Function ConvertPsObjectsToMamlModel
 
     }
 
-    foreach($ParameterName in (Get-ParameterNamesOrder))
+    foreach ($ParameterName in (Get-ParameterNamesOrder))
     {
         $Parameter = Get-ParameterByName $ParameterName
         if ($Parameter)

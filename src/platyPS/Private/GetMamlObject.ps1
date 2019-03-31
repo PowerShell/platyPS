@@ -3,23 +3,23 @@
     and passes it to ConvertPsObjectsToMamlModel, then return results
 #>
 Function GetMamlObject 
- {
+{
 
     Param(
         [CmdletBinding()]
-        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [parameter(mandatory = $true, parametersetname = "Cmdlet")]
         [string] $Cmdlet,
-        [parameter(mandatory=$true, parametersetname="Module")]
+        [parameter(mandatory = $true, parametersetname = "Module")]
         [string] $Module,
-        [parameter(mandatory=$true, parametersetname="Maml")]
+        [parameter(mandatory = $true, parametersetname = "Maml")]
         [string] $MamlFile,
-        [parameter(parametersetname="Maml")]
+        [parameter(parametersetname = "Maml")]
         [switch] $ConvertNotesToList,
-        [parameter(parametersetname="Maml")]
+        [parameter(parametersetname = "Maml")]
         [switch] $ConvertDoubleDashLists,
         [switch] $UseFullTypeName,
-        [parameter(parametersetname="Cmdlet")]
-        [parameter(parametersetname="Module")]
+        [parameter(parametersetname = "Cmdlet")]
+        [parameter(parametersetname = "Module")]
         [System.Management.Automation.Runspaces.PSSession]$Session,
         [switch]$ExcludeDontShow
     )
@@ -31,7 +31,7 @@ Function GetMamlObject
         return (Get-Command $help.Name -Syntax) -eq ($help.Synopsis)
     }
 
-    if($Cmdlet)
+    if ($Cmdlet)
     {
         Write-Verbose -Message ($LocalizedData.Processing -f $Cmdlet)
         $Help = Get-Help $Cmdlet
@@ -63,9 +63,9 @@ Function GetMamlObject
             $Help = $_
 
             $Command = [PsObject] @{
-                Name = $Help.Name
+                Name        = $Help.Name
                 CommandType = $Help.Category
-                HelpFile = (Split-Path $MamlFile -Leaf)
+                HelpFile    = (Split-Path $MamlFile -Leaf)
             }
 
             # yield

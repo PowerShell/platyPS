@@ -1,9 +1,9 @@
 Function GetMarkdownFilesFromPath 
- {
+{
 
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [SupportsWildcards()]
         [string[]]$Path,
 
@@ -23,7 +23,8 @@ Function GetMarkdownFilesFromPath
 
 
     $MarkdownFiles = @()
-    if ($Path) {
+    if ($Path)
+    {
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
@@ -34,7 +35,7 @@ Function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | Where-Object { $_.BaseName -notlike $aboutFilePrefixPattern }
             }
             else
             {

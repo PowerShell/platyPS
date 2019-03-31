@@ -1,5 +1,5 @@
 Function GetParserMode 
- {
+{
 
     param(
         [switch]$PreserveFormatting

@@ -1,8 +1,8 @@
 Function SortParamsAlphabetically 
- {
+{
 
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         $MamlCommandObject
     )
 

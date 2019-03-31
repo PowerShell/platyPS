@@ -1,5 +1,5 @@
 Function GetHelpFileName 
- {
+{
 
     param(
         [System.Management.Automation.CommandInfo]$CommandInfo
@@ -21,8 +21,8 @@ Function GetHelpFileName
 
         # overwise, lets guess it
         $module = @($CommandInfo.Module) + ($CommandInfo.Module.NestedModules) |
-            Where-Object {$_.ModuleType -ne 'Manifest'} |
-            Where-Object {$_.ExportedCommands.Keys -contains $CommandInfo.Name}
+        Where-Object { $_.ModuleType -ne 'Manifest' } |
+        Where-Object { $_.ExportedCommands.Keys -contains $CommandInfo.Name }
 
         if (-not $module)
         {
@@ -40,9 +40,12 @@ Function GetHelpFileName
         {
             # for regular modules, we can deduct the filename from the module path file
             $moduleItem = Get-Item -Path $module.Path
-            if ($moduleItem.Extension -eq '.psm1') {
+            if ($moduleItem.Extension -eq '.psm1')
+            {
                 $fileName = $moduleItem.BaseName
-            } else {
+            }
+            else
+            {
                 $fileName = $moduleItem.Name
             }
         }

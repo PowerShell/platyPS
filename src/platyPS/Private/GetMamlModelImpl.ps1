@@ -1,16 +1,17 @@
 Function GetMamlModelImpl 
- {
+{
 
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string[]]$markdownFiles,
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [System.Text.Encoding]$Encoding,
         [switch]$ForAnotherMarkdown,
         [String[]]$ApplicableTag
     )
 
-    if ($ForAnotherMarkdown -and $ApplicableTag) {
+    if ($ForAnotherMarkdown -and $ApplicableTag)
+    {
         throw $LocalizedData.ForAnotherMarkdownAndApplicableTag
     }
 
@@ -40,6 +41,6 @@ Function GetMamlModelImpl
         }
     }
 
-    return @(,$res)
+    return @(, $res)
 
 }

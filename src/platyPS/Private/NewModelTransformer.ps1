@@ -1,5 +1,5 @@
 Function NewModelTransformer 
- {
+{
 
     param(
         [ValidateSet('1.0.0', '2.0.0')]
@@ -18,7 +18,7 @@ Function NewModelTransformer
             Write-Verbose $message
         }
         $warningCallback = GetWarningCallback
-        return new-object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback, $ApplicableTag)
+        return New-Object -TypeName 'Markdown.MAML.Transformer.ModelTransformerVersion2' -ArgumentList ($infoCallback, $warningCallback, $ApplicableTag)
     }
 
 }

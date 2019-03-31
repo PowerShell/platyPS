@@ -1,9 +1,9 @@
 Function GetAboutTopicsFromPath 
- {
+{
 
     [CmdletBinding()]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string[]]$Path,
         [string[]]$MarkDownFilesAlreadyFound
     )
@@ -15,14 +15,14 @@ Function GetAboutTopicsFromPath
         )
 
         $MdContent = Get-Content -raw $AboutFilePath
-        $MdParser = new-object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
-                                -ArgumentList { param([int]$current, [int]$all)
-                                Write-Progress -Activity $LocalizedData.ParsingMarkdown -status $LocalizedData.Progress -percentcomplete ($current/$all*100)}
+        $MdParser = New-Object -TypeName 'Markdown.MAML.Parser.MarkdownParser' `
+            -ArgumentList { param([int]$current, [int]$all)
+            Write-Progress -Activity $LocalizedData.ParsingMarkdown -status $LocalizedData.Progress -percentcomplete ($current / $all * 100) }
         $MdObject = $MdParser.ParseString($MdContent)
 
-        if($MdObject.Children[1].text.length -gt 5)
+        if ($MdObject.Children[1].text.length -gt 5)
         {
-            if($MdObject.Children[1].text.substring(0,5).ToUpper() -eq "ABOUT")
+            if ($MdObject.Children[1].text.substring(0, 5).ToUpper() -eq "ABOUT")
             {
                 return $true
             }
@@ -33,24 +33,25 @@ Function GetAboutTopicsFromPath
 
     $AboutMarkDownFiles = @()
 
-    if ($Path) {
+    if ($Path)
+    {
         $Path | ForEach-Object {
             if (Test-Path -PathType Leaf $_)
             {
-                if(ConfirmAboutBySecondHeaderText($_))
+                if (ConfirmAboutBySecondHeaderText($_))
                 {
                     $AboutMarkdownFiles += Get-ChildItem $_
                 }
             }
             elseif (Test-Path -PathType Container $_)
             {
-                if($MarkDownFilesAlreadyFound)
+                if ($MarkDownFilesAlreadyFound)
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object {($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName))}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object { ($_.FullName -notin $MarkDownFilesAlreadyFound) -and (ConfirmAboutBySecondHeaderText($_.FullName)) }
                 }
                 else
                 {
-                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object {ConfirmAboutBySecondHeaderText($_.FullName)}
+                    $AboutMarkdownFiles += Get-ChildItem $_ -Filter '*.md' | Where-Object { ConfirmAboutBySecondHeaderText($_.FullName) }
                 }
             }
             else

@@ -1,45 +1,48 @@
 Function NewModuleLandingPage 
- {
+{
 
     Param(
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $Path,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [string]
         $ModuleName,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "NewLandingPage")]
         [string]
         $ModuleGuid,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "NewLandingPage")]
         [string[]]
         $CmdletNames,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "NewLandingPage")]
         [string]
         $Locale,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "NewLandingPage")]
         [string]
         $Version,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "NewLandingPage")]
         [string]
         $FwLink,
-        [Parameter(ParameterSetName="UpdateLandingPage")]
+        [Parameter(ParameterSetName = "UpdateLandingPage")]
         [switch]
         $RefreshModulePage,
         [string]$ModulePagePath,
-        [Parameter(mandatory=$true,ParameterSetName="UpdateLandingPage")]
+        [Parameter(mandatory = $true, ParameterSetName = "UpdateLandingPage")]
         [System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]]
         $Module,
-        [Parameter(mandatory=$true)]
+        [Parameter(mandatory = $true)]
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
         [switch]$Force
     )
 
     begin
     {
-        if ($ModulePagePath) {
+        if ($ModulePagePath)
+        {
             $LandingPagePath = $ModulePagePath
-        } else {
+        }
+        else
+        {
             $LandingPageName = $ModuleName + ".md"
             $LandingPagePath = Join-Path $Path $LandingPageName
         }
@@ -49,9 +52,9 @@ Function NewModuleLandingPage
     {
         $Description = $LocalizedData.Description
 
-        if($RefreshModulePage)
+        if ($RefreshModulePage)
         {
-            if(Test-Path $LandingPagePath)
+            if (Test-Path $LandingPagePath)
             {
                 $OldLandingPageContent = Get-Content -Raw $LandingPagePath
                 $OldMetaData = Get-MarkdownMetadata -Markdown $OldLandingPageContent
@@ -62,16 +65,16 @@ Function NewModuleLandingPage
 
                 $p = NewMarkdownParser
                 $model = $p.ParseString($OldLandingPageContent)
-                $index = $model.Children.IndexOf(($model.Children | Where-Object {$_.Text -eq "Description"}))
+                $index = $model.Children.IndexOf(($model.Children | Where-Object { $_.Text -eq "Description" }))
                 $i = 1
                 $stillParagraph = $true
                 $Description = ""
-                while($stillParagraph -eq $true)
+                while ($stillParagraph -eq $true)
                 {
                     $Description += $model.Children[$index + $i].spans.text
                     $i++
 
-                    if($model.Children[$i].NodeType -eq "Heading")
+                    if ($model.Children[$i].NodeType -eq "Heading")
                     {
                         $stillParagraph = $false
                     }
@@ -93,11 +96,11 @@ Function NewModuleLandingPage
         $Content += "# $ModuleName Module`r`n## Description`r`n"
         $Content += "$Description`r`n`r`n## $ModuleName Cmdlets`r`n"
 
-        if($RefreshModulePage)
+        if ($RefreshModulePage)
         {
             $Module | ForEach-Object {
                 $command = $_
-                if(-not $command.Synopsis)
+                if (-not $command.Synopsis)
                 {
                     $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
                 }

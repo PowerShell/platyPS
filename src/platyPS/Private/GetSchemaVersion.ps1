@@ -1,5 +1,5 @@
 Function GetSchemaVersion 
- {
+{
 
     param(
         [string]$markdown

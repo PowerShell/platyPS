@@ -8,16 +8,17 @@
     See https://github.com/PowerShell/platyPS/issues/338 for historical context.
 #>
 Function MyGetCommand 
- {
+{
 
     Param(
         [CmdletBinding()]
-        [parameter(mandatory=$true, parametersetname="Cmdlet")]
+        [parameter(mandatory = $true, parametersetname = "Cmdlet")]
         [string] $Cmdlet,
         [System.Management.Automation.Runspaces.PSSession]$Session
     )
     # if there is no remoting, just proxy to Get-Command
-    if (-not $Session) {
+    if (-not $Session)
+    {
         return Get-Command $Cmdlet
     }
 
@@ -45,7 +46,8 @@ Function MyGetCommand
     #            $Parameter.ParameterType.ToString() - we get that for free from expand
 
     # expand first layer of properties
-    function expand([string]$property) {
+    function expand([string]$property)
+    {
         Invoke-Command -Session $Session -ScriptBlock {
             Get-Command $using:Cmdlet |
             Select-Object -ExpandProperty $using:property
@@ -53,7 +55,8 @@ Function MyGetCommand
     }
 
     # expand second layer of properties on the selected item
-    function expand2([string]$property1, [int]$num, [string]$property2) {
+    function expand2([string]$property1, [int]$num, [string]$property2)
+    {
         Invoke-Command -Session $Session -ScriptBlock {
             Get-Command $using:Cmdlet |
             Select-Object -ExpandProperty $using:property1 |
@@ -68,7 +71,8 @@ Function MyGetCommand
         [int]$num,
         [string]$property2,
         [string]$property3
-        ) {
+    )
+    {
         Invoke-Command -Session $Session -ScriptBlock {
             Get-Command $using:Cmdlet |
             Select-Object -ExpandProperty $using:property1 |
@@ -78,24 +82,28 @@ Function MyGetCommand
         }
     }
 
-    function local([string]$property) {
-        Get-Command $Cmdlet | select-object -ExpandProperty $property
+    function local([string]$property)
+    {
+        Get-Command $Cmdlet | Select-Object -ExpandProperty $property
     }
 
     # helper function to fill up the parameters metadata
-    function getParams([int]$num) {
+    function getParams([int]$num)
+    {
         # this call we need to fill-up ParameterSets.Parameters.ParameterType with metadata
         $parameterType = expand3 'ParameterSets' $num 'Parameters' 'ParameterType'
         # this call we need to fill-up ParameterSets.Parameters with metadata
         $parameters = expand2 'ParameterSets' $num 'Parameters'
-        if ($parameters.Length -ne $parameterType.Length) {
+        if ($parameters.Length -ne $parameterType.Length)
+        {
             Write-Error -Message ($LocalizedData.MetadataDoesNotMatchLength -f $Cmdlet)
         }
 
-        foreach ($i in (GetRange $parameters.Length)) {
+        foreach ($i in (GetRange $parameters.Length))
+        {
             $typeObjectHash = New-Object -TypeName pscustomobject -Property @{
-                Name = $parameterType[$i].Name
-                IsGenericType = $parameterType[$i].IsGenericType
+                Name                 = $parameterType[$i].Name
+                IsGenericType        = $parameterType[$i].IsGenericType
                 # almost .ParameterType.GenericTypeArguments.Name
                 # TODO: doesn't it worth another round-trip to make it more accurate
                 # and query for the Name?
@@ -111,25 +119,26 @@ Function MyGetCommand
     # but we can use the top-level onces
     $remote = Invoke-Command -Session $Session { Get-Command $using:Cmdlet }
 
-    $psets = expand 'ParameterSets'
+    $psets = expand.exe 'ParameterSets'
     $psetsArray = @()
-    foreach ($i in (GetRange ($psets | measure-object).Count)) {
+    foreach ($i in (GetRange ($psets | Measure-Object).Count))
+    {
         $parameters = getParams $i
         $psetsArray += @(New-Object -TypeName pscustomobject -Property @{
-            Name = $psets[$i].Name
-            IsDefault = $psets[$i].IsDefault
-            Parameters = $parameters
-        })
+                Name       = $psets[$i].Name
+                IsDefault  = $psets[$i].IsDefault
+                Parameters = $parameters
+            })
     }
 
     $commandHash = @{
-        Name = $Cmdlet
-        CommandType = $remote.CommandType
+        Name                = $Cmdlet
+        CommandType         = $remote.CommandType
         DefaultParameterSet = $remote.DefaultParameterSet
-        CmdletBinding = $remote.CmdletBinding
+        CmdletBinding       = $remote.CmdletBinding
         # for office we cannot get the module name from the remote, grab the local one instead
-        ModuleName = local 'ModuleName'
-        ParameterSets = $psetsArray
+        ModuleName          = local 'ModuleName'
+        ParameterSets       = $psetsArray
     }
 
     return New-Object -TypeName pscustomobject -Property $commandHash

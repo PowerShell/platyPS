@@ -1,5 +1,5 @@
 Function GetOnlineVersion 
- {
+{
 
     param(
         [string]$markdown

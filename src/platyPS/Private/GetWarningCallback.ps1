@@ -1,5 +1,5 @@
 Function GetWarningCallback 
- {
+{
 
     $warningCallback = {
         param([string]$message)
