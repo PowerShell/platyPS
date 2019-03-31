@@ -1,11 +1,11 @@
 Function Update-MarkdownHelp 
- {
+{
 
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true)]
         [SupportsWildcards()]
         [string[]]$Path,
 
@@ -78,13 +78,17 @@ Function Update-MarkdownHelp
             $command = Get-Command $name -ErrorAction SilentlyContinue
             if (-not $command)
             {
-                if ($Force) {
-                    if (Test-Path $filePath) {
+                if ($Force)
+                {
+                    if (Test-Path $filePath)
+                    {
                         Remove-Item -Path $filePath -Confirm:$false
                         log -warning ($LocalizedData.CommandNotFoundFileRemoved -f $name, $filePath)
                         return
                     }
-                } else {
+                }
+                else
+                {
                     log -warning ($LocalizedData.CommandNotFoundSkippingFile -f $name, $filePath)
                     return
                 }

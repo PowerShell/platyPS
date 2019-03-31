@@ -1,11 +1,11 @@
 Function Update-MarkdownHelpModule 
- {
+{
 
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true)]
         [SupportsWildcards()]
         [string[]]$Path,
 
@@ -90,7 +90,7 @@ Function Update-MarkdownHelpModule
                 }
             }
 
-            if($RefreshModulePage)
+            if ($RefreshModulePage)
             {
                 $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
                 $files = @()

@@ -1,19 +1,19 @@
 Function Get-MarkdownMetadata 
- {
+{
 
-    [CmdletBinding(DefaultParameterSetName="FromPath")]
+    [CmdletBinding(DefaultParameterSetName = "FromPath")]
 
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true,
-            Position=1,
-            ParameterSetName="FromPath")]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true,
+            Position = 1,
+            ParameterSetName = "FromPath")]
         [SupportsWildcards()]
         [string[]]$Path,
 
-        [Parameter(Mandatory=$true,
-            ParameterSetName="FromMarkdownString")]
+        [Parameter(Mandatory = $true,
+            ParameterSetName = "FromMarkdownString")]
         [string]$Markdown
     )
 

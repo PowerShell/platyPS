@@ -1,12 +1,12 @@
 Function Get-HelpPreview 
- {
+{
 
     [CmdletBinding()]
     [OutputType('MamlCommandHelpInfo')]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true,
-            Position=1)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            Position = 1)]
         [SupportsWildcards()]
         [string[]]$Path,
 
@@ -18,7 +18,7 @@ Function Get-HelpPreview
     {
         foreach ($MamlFilePath in $Path)
         {
-            if (-not (Test-path -Type Leaf $MamlFilePath))
+            if (-not (Test-Path -Type Leaf $MamlFilePath))
             {
                 Write-Error -Message ($LocalizedData.FileNotFoundSkipping -f $MamlFilePath)
                 continue
@@ -55,25 +55,25 @@ Function Get-HelpPreview
                 {
                     # Add inline bullet-list, as described in https://github.com/PowerShell/platyPS/issues/125
                     $xml.helpItems.command.alertSet.alert |
+                    ForEach-Object {
+                        # make first <para> a list item
+                        # add indentations to other <para> to make them continuation of list item
+                        $_.ChildNodes | Select-Object -First 1 |
                         ForEach-Object {
-                            # make first <para> a list item
-                            # add indentations to other <para> to make them continuation of list item
-                            $_.ChildNodes | Select-Object -First 1 |
-                            ForEach-Object {
-                                $newInnerXml = '* ' + $_.get_InnerXml()
-                                $_.set_InnerXml($newInnerXml)
-                            }
-
-                            $_.ChildNodes | Select-Object -Skip 1 |
-                            ForEach-Object {
-                                # this character is not a valid space.
-                                # We have to use some odd character here, becasue help engine strips out
-                                # all legetimate whitespaces.
-                                # Note: powershell doesn't render it properly, it will appear as a non-writable char.
-                                $newInnerXml = ([string][char]0xc2a0) * 2 + $_.get_InnerXml()
-                                $_.set_InnerXml($newInnerXml)
-                            }
+                            $newInnerXml = '* ' + $_.get_InnerXml()
+                            $_.set_InnerXml($newInnerXml)
                         }
+
+                        $_.ChildNodes | Select-Object -Skip 1 |
+                        ForEach-Object {
+                            # this character is not a valid space.
+                            # We have to use some odd character here, becasue help engine strips out
+                            # all legetimate whitespaces.
+                            # Note: powershell doesn't render it properly, it will appear as a non-writable char.
+                            $newInnerXml = ([string][char]0xc2a0) * 2 + $_.get_InnerXml()
+                            $_.set_InnerXml($newInnerXml)
+                        }
+                    }
                 }
 
                 # in PS v5 help engine is not happy, when first non-empty link (== Online version link) is not a valid URI

@@ -59,8 +59,10 @@ foreach ($function in $AllFunctions)
 
 # Register-ArgumentCompleter can be provided thru TabExpansionPlusPlus or with V5 inbox module.
 # We don't care much which one it is, but the inbox one doesn't have -Description parameter
-if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -ErrorAction Ignore) {
-    Function ModuleNameCompleter {
+if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -ErrorAction Ignore)
+{
+    Function ModuleNameCompleter
+    {
         Param (
             $commandName,
             $parameterName,
@@ -70,15 +72,17 @@ if (Get-Command -Name Register-ArgumentCompleter -Module TabExpansionPlusPlus -E
         )
 
         Get-Module -Name "$wordToComplete*" |
-            ForEach-Object {
-                New-CompletionResult -CompletionText $_.Name -ToolTip $_.Description
-            }
+        ForEach-Object {
+            New-CompletionResult -CompletionText $_.Name -ToolTip $_.Description
+        }
     }
 
     Register-ArgumentCompleter -CommandName New-MarkdownHelp -ParameterName Module -ScriptBlock $Function:ModuleNameCompleter -Description 'This argument completer handles the -Module parameter of the New-MarkdownHelp Command.'
 }
-elseif (Get-Command -Name Register-ArgumentCompleter -ErrorAction Ignore) {
-    Function ModuleNameCompleter {
+elseif (Get-Command -Name Register-ArgumentCompleter -ErrorAction Ignore)
+{
+    Function ModuleNameCompleter
+    {
         Param (
             $commandName,
             $parameterName,
@@ -88,9 +92,9 @@ elseif (Get-Command -Name Register-ArgumentCompleter -ErrorAction Ignore) {
         )
 
         Get-Module -Name "$wordToComplete*" |
-            ForEach-Object {
-                $_.Name
-            }
+        ForEach-Object {
+            $_.Name
+        }
     }
 
     Register-ArgumentCompleter -CommandName New-MarkdownHelp -ParameterName Module -ScriptBlock $Function:ModuleNameCompleter

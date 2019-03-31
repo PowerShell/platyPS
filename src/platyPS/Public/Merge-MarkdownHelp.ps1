@@ -1,15 +1,15 @@
 Function Merge-MarkdownHelp 
- {
+{
 
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true)]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true)]
         [SupportsWildcards()]
         [string[]]$Path,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$OutputPath,
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
@@ -86,13 +86,13 @@ Function Merge-MarkdownHelp
             }
 
             $tags = $dict.Keys
-            if (($allTags | measure-object).Count -gt ($tags | measure-object).Count -or $ExplicitApplicableIfAll)
+            if (($allTags | Measure-Object).Count -gt ($tags | Measure-Object).Count -or $ExplicitApplicableIfAll)
             {
                 $newMetadata = @{ $script:APPLICABLE_YAML_HEADER = $tags -join ', ' }
             }
             else
             {
-                $newMetadata = @{}
+                $newMetadata = @{ }
             }
 
             $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, (-not $ExplicitApplicableIfAll), $MergeMarker

@@ -1,30 +1,30 @@
 Function New-MarkdownHelp 
- {
+{
 
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param(
-        [Parameter(Mandatory=$true,
-            ValueFromPipeline=$true,
-            ParameterSetName="FromModule")]
+        [Parameter(Mandatory = $true,
+            ValueFromPipeline = $true,
+            ParameterSetName = "FromModule")]
         [string[]]$Module,
 
-        [Parameter(Mandatory=$true,
-            ParameterSetName="FromCommand")]
+        [Parameter(Mandatory = $true,
+            ParameterSetName = "FromCommand")]
         [string[]]$Command,
 
-        [Parameter(Mandatory=$true,
-            ParameterSetName="FromMaml")]
+        [Parameter(Mandatory = $true,
+            ParameterSetName = "FromMaml")]
         [string[]]$MamlFile,
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromCommand")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromCommand")]
         [System.Management.Automation.Runspaces.PSSession]$Session,
 
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [switch]$ConvertNotesToList,
 
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [switch]$ConvertDoubleDashLists,
 
         [switch]$Force,
@@ -33,10 +33,10 @@ Function New-MarkdownHelp
 
         [hashtable]$Metadata,
 
-        [Parameter(ParameterSetName="FromCommand")]
+        [Parameter(ParameterSetName = "FromCommand")]
         [string]$OnlineVersionUrl = '',
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$OutputFolder,
 
         [switch]$NoMetadata,
@@ -45,34 +45,34 @@ Function New-MarkdownHelp
 
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [switch]$WithModulePage,
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]$ModulePagePath,
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]
         $Locale = "en-US",
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]
         $HelpVersion = $LocalizedData.HelpVersion,
 
-        [Parameter(ParameterSetName="FromModule")]
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]
         $FwLink = $LocalizedData.FwLink,
 
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]
         $ModuleName = "MamlModule",
 
-        [Parameter(ParameterSetName="FromMaml")]
+        [Parameter(ParameterSetName = "FromMaml")]
         [string]
         $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
 
@@ -91,7 +91,7 @@ Function New-MarkdownHelp
         function updateMamlObject
         {
             param(
-                [Parameter(Mandatory=$true)]
+                [Parameter(Mandatory = $true)]
                 [Markdown.MAML.Model.MAML.MamlCommand]$MamlCommandObject
             )
 
@@ -122,7 +122,7 @@ Function New-MarkdownHelp
         function processMamlObjectToFile
         {
             param(
-                [Parameter(ValueFromPipeline=$true)]
+                [Parameter(ValueFromPipeline = $true)]
                 [ValidateNotNullOrEmpty()]
                 [Markdown.MAML.Model.MAML.MamlCommand]$mamlObject
             )
@@ -170,7 +170,8 @@ Function New-MarkdownHelp
                             Name = $commandName
                         }
 
-                        if ($module) {
+                        if ($module)
+                        {
                             # for module case, scope it just to this module
                             $a['Module'] = $module
                         }
@@ -181,10 +182,10 @@ Function New-MarkdownHelp
                     Write-Verbose "Maml things module is: $($mamlObject.ModuleName)"
 
                     $newMetadata = ($Metadata + @{
-                        $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
-                        $script:ONLINE_VERSION_YAML_HEADER = $online
-                        $script:MODULE_PAGE_MODULE_NAME = $mamlObject.ModuleName
-                    })
+                            $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
+                            $script:ONLINE_VERSION_YAML_HEADER     = $online
+                            $script:MODULE_PAGE_MODULE_NAME        = $mamlObject.ModuleName
+                        })
                 }
 
                 $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
@@ -243,30 +244,30 @@ Function New-MarkdownHelp
 
                     GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists  -ExcludeDontShow:$ExcludeDontShow.IsPresent | processMamlObjectToFile
 
-                    $CmdletNames += GetMamlObject -MamlFile $_ -ExcludeDontShow:$ExcludeDontShow.IsPresent | ForEach-Object {$_.Name}
+                    $CmdletNames += GetMamlObject -MamlFile $_ -ExcludeDontShow:$ExcludeDontShow.IsPresent | ForEach-Object { $_.Name }
                 }
 
-                if($WithModulePage)
+                if ($WithModulePage)
                 {
-                    if(-not $ModuleGuid)
+                    if (-not $ModuleGuid)
                     {
                         $ModuleGuid = "00000000-0000-0000-0000-000000000000"
                     }
-                    if($ModuleGuid.Count -gt 1)
+                    if ($ModuleGuid.Count -gt 1)
                     {
                         Write-Warning -Message $LocalizedData.MoreThanOneGuid
                     }
                     # yeild
                     NewModuleLandingPage  -Path $OutputFolder `
-                                        -ModulePagePath $ModulePagePath `
-                                        -ModuleName $ModuleName `
-                                        -ModuleGuid $ModuleGuid `
-                                        -CmdletNames $CmdletNames `
-                                        -Locale $Locale `
-                                        -Version $HelpVersion `
-                                        -FwLink $FwLink `
-                                        -Encoding $Encoding `
-                                        -Force:$Force
+                        -ModulePagePath $ModulePagePath `
+                        -ModuleName $ModuleName `
+                        -ModuleGuid $ModuleGuid `
+                        -CmdletNames $CmdletNames `
+                        -Locale $Locale `
+                        -Version $HelpVersion `
+                        -FwLink $FwLink `
+                        -Encoding $Encoding `
+                        -Force:$Force
                 }
             }
         }

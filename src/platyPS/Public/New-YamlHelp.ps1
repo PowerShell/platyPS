@@ -1,16 +1,16 @@
 Function New-YamlHelp 
- {
+{
 
     [CmdletBinding()]
     [OutputType([System.IO.FileInfo[]])]
     param(
-        [Parameter(Mandatory=$true,
-            Position=1,
-            ValueFromPipeline=$true,
-            ValueFromPipelineByPropertyName=$true)]
+        [Parameter(Mandatory = $true,
+            Position = 1,
+            ValueFromPipeline = $true,
+            ValueFromPipelineByPropertyName = $true)]
         [string[]]$Path,
 
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory = $true)]
         [string]$OutputFolder,
 
         [System.Text.Encoding]$Encoding = [System.Text.Encoding]::UTF8,
@@ -23,12 +23,12 @@ Function New-YamlHelp
 
         $MarkdownFiles = @()
 
-        if(-not (Test-Path $OutputFolder))
+        if (-not (Test-Path $OutputFolder))
         {
             New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
         }
 
-        if(-not (Test-Path -PathType Container $OutputFolder))
+        if (-not (Test-Path -PathType Container $OutputFolder))
         {
             throw $LocalizedData.PathIsNotFolder -f $OutputFolder
         }
@@ -43,10 +43,10 @@ Function New-YamlHelp
             Write-Verbose -Message ($LocalizedData.InputMarkdownFile -f '[New-YamlHelp]', $_)
         }
 
-        foreach($markdownFile in $MarkdownFiles)
+        foreach ($markdownFile in $MarkdownFiles)
         {
             $mamlModels = GetMamlModelImpl $markdownFile.FullName -Encoding $Encoding
-            foreach($mamlModel in $mamlModels)
+            foreach ($mamlModel in $mamlModels)
             {
                 $markdownMetadata = Get-MarkdownMetadata -Path $MarkdownFile.FullName
 
