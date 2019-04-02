@@ -11,8 +11,8 @@
 namespace Markdown.MAML.Resources {
     using System;
     using System.Reflection;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -24,15 +24,15 @@ namespace Markdown.MAML.Resources {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class MarkdownStrings {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal MarkdownStrings() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -46,7 +46,7 @@ namespace Markdown.MAML.Resources {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -60,7 +60,7 @@ namespace Markdown.MAML.Resources {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to TOPIC.
         /// </summary>
@@ -69,7 +69,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("AboutTopicFirstHeader", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Accept pipeline input.
         /// </summary>
@@ -78,7 +78,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Accept_pipeline_input", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Accept wildcard characters.
         /// </summary>
@@ -87,7 +87,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Accept_wildcard_characters", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Accepted values.
         /// </summary>
@@ -96,7 +96,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Accepted_values", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Aliases.
         /// </summary>
@@ -105,7 +105,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Aliases", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Applicable.
         /// </summary>
@@ -114,16 +114,16 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Applicable", resourceCulture);
             }
         }
-        
+
         /// <summary>
-        ///   Looks up a localized string similar to This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216)..
+        ///   Looks up a localized string similar to This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
         /// </summary>
         internal static string CommonParametersText {
             get {
                 return ResourceManager.GetString("CommonParametersText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to CommonParameters.
         /// </summary>
@@ -132,7 +132,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("CommonParametersToken", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Default value.
         /// </summary>
@@ -141,7 +141,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Default_value", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to  (Default).
         /// </summary>
@@ -150,7 +150,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("DefaultParameterSetModifier", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to DESCRIPTION.
         /// </summary>
@@ -159,7 +159,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("DESCRIPTION", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to EXAMPLES.
         /// </summary>
@@ -168,7 +168,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("EXAMPLES", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to INPUTS.
         /// </summary>
@@ -177,7 +177,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("INPUTS", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to NOTES.
         /// </summary>
@@ -186,7 +186,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("NOTES", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to OUTPUTS.
         /// </summary>
@@ -195,7 +195,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("OUTPUTS", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Parameter Sets.
         /// </summary>
@@ -204,7 +204,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Parameter_Sets", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to PARAMETERS.
         /// </summary>
@@ -213,7 +213,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("PARAMETERS", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Position.
         /// </summary>
@@ -222,7 +222,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Position", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to RELATED LINKS.
         /// </summary>
@@ -231,7 +231,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("RELATED_LINKS", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Required.
         /// </summary>
@@ -240,7 +240,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Required", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to SYNOPSIS.
         /// </summary>
@@ -249,7 +249,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("SYNOPSIS", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to SYNTAX.
         /// </summary>
@@ -258,7 +258,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("SYNTAX", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Type.
         /// </summary>
@@ -267,7 +267,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("Type", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and –InputObject. For more information, see about_Workf [rest of string was truncated]&quot;;.
         /// </summary>
@@ -276,7 +276,7 @@ namespace Markdown.MAML.Resources {
                 return ResourceManager.GetString("WorkflowParametersText", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to WorkflowCommonParameters.
         /// </summary>

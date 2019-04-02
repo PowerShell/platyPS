@@ -13,7 +13,7 @@ namespace Markdown.MAML.Test.Transformer
         [Fact]
         public void TransformSimpleCommand()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
@@ -41,7 +41,7 @@ Here is a [hyperlink](http://non-existing-uri).
         [Fact]
         public void SkipYamlMetadataBlock()
         {
-            
+
             var doc = ParseString(@"
 ---
 foo: bar
@@ -171,7 +171,7 @@ Output
         [Fact]
         public void TransformMultilineDescription()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
@@ -196,7 +196,7 @@ And this is my last line.
         [Fact]
         public void RecogniceTwoCommandsWithDifferentOrdersOfEntries()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ## Synopsis
@@ -222,7 +222,7 @@ This is Synopsis, but it doesn't matter in this test
         [Fact]
         public void SingleParameter()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ## Parameters
@@ -353,7 +353,7 @@ Accept wildcard characters: true
         [Fact]
         public void InputAndOutput()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ## INPUTS
@@ -379,7 +379,7 @@ You can pipe computer names and new names to the Add-ComputerCmdlet.
         [Fact]
         public void Produce2Examples()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 
@@ -420,7 +420,7 @@ Remarks
         [Fact]
         public void ProduceRelatedLinks()
         {
-            
+
             var doc = ParseString(@"
 # Get-Foo
 ##RELATED LINKS
@@ -496,7 +496,7 @@ Runs the **Set-WSManQuickConfig** cmdlet
         [Fact]
         public void ProducesParameterAndSyntaxEntries()
         {
-            
+
 
             const string fooParamName = "FooParam";
             const string fooAttributes = @"
@@ -587,7 +587,7 @@ Accept wildcard characters: false
         [Fact]
         public void ProducesParameterEntriesForCornerCases()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -607,7 +607,7 @@ Type: string
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters \(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters]\(http://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ### NoTypeParam
 
@@ -642,7 +642,7 @@ NoTypeParam description.
         [Fact]
         public void ProducesParameterForDefaultParameterName()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -678,7 +678,7 @@ Required: false
         [Fact]
         public void ProducesParameterValueGroup()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -710,7 +710,7 @@ Accepted values: a, b, c
         [Fact]
         public void ProducesSyntaxForTwoSets()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -802,7 +802,7 @@ Applicable: bar
         [Fact]
         public void ProducesSyntaxInTheRightOrder()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -888,7 +888,7 @@ Position: 1
         [Fact]
         public void ProduceDefaultValues()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -899,7 +899,7 @@ Position: 1
 ```yaml
 Type: String
 Parameter Sets: Set1
-Aliases: 
+Aliases:
 
 Required: False
 Position: Named
@@ -923,7 +923,7 @@ Accept wildcard characters: False
         [Fact]
         public void UsesEntryToMarkGlobbing()
         {
-            
+
 
             const string docFormatString = @"
 # Get-Foo
@@ -972,7 +972,7 @@ To find the history ID of a command, use Get-History.
 ```yaml
 Type: Int32[]
 Parameter Sets: IDParameter
-Aliases: 
+Aliases:
 
 Required: False
 Position: 1
@@ -989,11 +989,11 @@ If you use the Count and CommandLine parameters in the same command, Clear-Histo
 ```yaml
 Type: Int32
 Parameter Sets: IDParameter, CommandLineParameter
-Aliases: 
+Aliases:
 
 Required: False
 Position: 2
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: True
 ```
@@ -1004,7 +1004,7 @@ Deletes the newest entries in the history. By default, Clear-History deletes the
 ```yaml
 Type: SwitchParameter
 Parameter Sets: IDParameter, CommandLineParameter
-Aliases: 
+Aliases:
 
 Required: False
 Position: named
@@ -1049,11 +1049,11 @@ Deletes commands with the specified text strings. If you enter more than one str
 ```yaml
 Type: String[]
 Parameter Sets: CommandLineParameter
-Aliases: 
+Aliases:
 
 Required: False
 Position: named
-Default value: 
+Default value:
 Accept pipeline input: False
 Accept wildcard characters: True
 ```
