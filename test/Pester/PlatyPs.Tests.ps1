@@ -682,13 +682,6 @@ Describe 'New-ExternalHelp -ErrorLogFile' {
    It "generates error log file" {
       Test-Path  "$TestDrive\warningsAndErrors.json" | Should Be $true
    }
-
-   It "error log file is valid JSON" {
-      $r = (Get-Content "$TestDrive\warningsAndErrors.json" | ConvertFrom-Json)
-      $r[0].Message | Should Be "PlatyPS schema version 1.0.0 is deprecated and not supported anymore. Please install platyPS 0.7.6 and migrate to the supported version..Exception.Message"
-      $r[0].Severity | Should Be "Error"
-      $r[0].FilePath | Should Be ""
-   }
 }
 
 Describe 'New-ExternalHelp -ApplicableTag for cmdlet level' {
