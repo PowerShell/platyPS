@@ -146,6 +146,63 @@ Describe 'New-MarkdownHelp' {
         }
     }
 
+    Context 'from external script' { 
+        It 'fully qualified path' {
+            $SeedData = @"
+<# 
+.SYNOPSIS
+    Synopsis Here.
+
+.DESCRIPTION 
+    Description Here.
+
+.INPUTS
+    None
+
+.OUTPUTS
+    None
+
+.EXAMPLE
+    .\Invoke-HelloWorld.ps1
+
+#>
+
+Write-Host 'Hello World!'
+"@
+            Set-Content -Value $SeedData -Path TestDrive:\Invoke-HelloWorld.ps1 -NoNewline
+            $files = New-MarkdownHelp -Command "TestDrive:\Invoke-HelloWorld.ps1" -OutputFolder TestDrive:\output -Force
+            ($files | Measure-Object).Count | Should Be 1
+        }
+        It 'relative path' {
+            $SeedData = @"
+<# 
+.SYNOPSIS
+    Synopsis Here.
+
+.DESCRIPTION 
+    Description Here.
+
+.INPUTS
+    None
+
+.OUTPUTS
+    None
+
+.EXAMPLE
+    .\Invoke-HelloWorld.ps1
+
+#>
+
+Write-Host 'Hello World!'
+"@
+            Set-Content -Value $SeedData -Path TestDrive:\Invoke-HelloWorld.ps1 -NoNewline
+            $Location = Get-Location
+            Set-Location TestDrive:\
+            $files = New-MarkdownHelp -Command "TestDrive:\Invoke-HelloWorld.ps1" -OutputFolder TestDrive:\output -Force
+            Set-Location $Location
+            ($files | Measure-Object).Count | Should Be 1
+        }
+    }
     Context 'AlphabeticParamsOrder' {
         function global:Get-Alpha
         {
