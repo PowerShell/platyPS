@@ -3,6 +3,13 @@ CHANGELOG
 
 ## Not released
 
+# 0.14.0
+
+* Fix passing ExcludeDontShow flag to modules (#459)
+* Make CommonParameters text use proper link format (#449)
+* Modified GetSchemaVersion function to assume 2.0.0 if no schema version found (#452)
+* Fix errors for New-MarkdownHelp ps1 input (#450)
+
 # 0.13.0
 
 * Fix `Update-MarkdownHelp` to not rewrite files if there are not updates (#412) (Thanks @iricigor)
@@ -101,7 +108,7 @@ CHANGELOG
 
 * Updated New-ExternalHelpCab.md for removing duplicate word in synopsis.
 * Fixed XML_PREAMBULA to have msh namespace, so provider help works.
-* Updated the names of the generated cab and zip files so that they have correct case sensitivity. 
+* Updated the names of the generated cab and zip files so that they have correct case sensitivity.
 
 ## 0.7.4
 
@@ -192,10 +199,10 @@ Special thanks to [@TimShererAtAquent](https://github.com/TimShererAtAquent) for
 *   Removed APIs:
     -   `Get-ModuleFromMaml`
     -   `New-MarkdownHelp` always produces one md file per cmdlet in `-OutputFolder`.
-*   New APIs:    
+*   New APIs:
     -   `New-ExternalHelpCab` - create updatable help Cab files.
     -   `Get-MarkdownMetadata` - get a hashtable with yaml metadata (new in schema 2.0.0) from the markdown file
-    -   `Update-MarkdownHelp`, `Update-MarkdownHelpModule` - update your markdown with actual parameters metadata using reflection. 
+    -   `Update-MarkdownHelp`, `Update-MarkdownHelpModule` - update your markdown with actual parameters metadata using reflection.
     -   `Update-MarkdowhHelpSchema` - migrate from schema version 1.0.0 to schema version 2.0.0
     -   `Get-HelpPreview` - get preview of help from Maml file. Returns help objects.
 *   Tab-completion support by [@dotps1](https://github.com/dotps1)
