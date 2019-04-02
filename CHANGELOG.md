@@ -5,10 +5,10 @@ CHANGELOG
 
 # 0.14.0
 
-* Fix passing ExcludeDontShow flag to modules (#459)
-* Make CommonParameters text use proper link format (#449)
-* Modified GetSchemaVersion function to assume 2.0.0 if no schema version found (#452)
-* Fix errors for New-MarkdownHelp ps1 input (#450)
+* Fix passing `ExcludeDontShow` flag to modules (#459)
+* Make `CommonParameters` text use proper link format (#449)
+* Modified `GetSchemaVersion` function to assume `2.0.0` if no schema version found (#452)
+* Fix errors for `New-MarkdownHelp` `ps1` input (#450)
 
 # 0.13.0
 
