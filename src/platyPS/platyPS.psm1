@@ -2607,7 +2607,6 @@ function ConvertPsObjectsToMamlModel
 
         $ParameterObject.DefaultValue = $HelpEntry.defaultValue | normalizeFirstLatter
         $ParameterObject.VariableLength = $HelpEntry.variableLength -eq 'True'
-        $ParameterObject.Globbing = $HelpEntry.globbing -eq 'True'
         $ParameterObject.Position = $HelpEntry.position | normalizeFirstLatter
         if ($HelpEntry.description)
         {
@@ -2662,10 +2661,12 @@ function ConvertPsObjectsToMamlModel
                     }
                 }
 
-                if ($ExcludeDontShow)
+                $hasDontShow = $false
+                $hasSupportsWildsCards = $false
+
+                foreach ($Attribute in $Parameter.Attributes)
                 {
-                    $hasDontShow = $false
-                    foreach ($Attribute in $Parameter.Attributes)
+                    if ($ExcludeDontShow)
                     {
                         if ($Attribute.TypeId.ToString() -eq 'System.Management.Automation.ParameterAttribute' -and $Attribute.DontShow)
                         {
@@ -2673,16 +2674,22 @@ function ConvertPsObjectsToMamlModel
                         }
                     }
 
-                    if ($hasDontShow)
+                    if ($Attribute.TypeId.ToString() -eq 'System.Management.Automation.SupportsWildcardsAttribute')
                     {
-                        continue
+                        $hasSupportsWildsCards = $true
                     }
+                }
+
+                if ($hasDontShow)
+                {
+                    continue
                 }
 
                 $ParameterObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlParameter
                 $ParameterObject.Name = $Parameter.Name
                 $ParameterObject.Required = $Parameter.IsMandatory
                 $ParameterObject.PipelineInput = getPipelineValue $Parameter
+                $ParameterObject.Globbing = $hasSupportsWildsCards
                 # the ParameterType could be just a string in case of remoting
                 # or a TypeInfo object, in the regular case
                 if ($Session) {
