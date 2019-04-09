@@ -684,7 +684,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         Context 'SupportsWildCards attribute tests' {
             BeforeAll {
 
-                function Test-WildCardsAttribute {
+                function global:Test-WildCardsAttribute {
                     param (
                         [Parameter()]
                         [SupportsWildcards()]
