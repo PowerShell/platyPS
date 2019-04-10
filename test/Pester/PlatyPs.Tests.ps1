@@ -657,6 +657,90 @@ Describe 'New-ExternalHelp' {
         $xml = [xml] (Get-Content (Join-Path $TestDrive 'TestOrderFunction.xml'))
         $xml.helpItems.namespaceuri | Should Be 'http://msh'
     }
+
+    It "Checks if external help files are generated correctly" {
+        New-Item -ItemType Directory -Path (Join-Path $TestDrive "\docs\")
+        New-Item -ItemType Directory -Path (Join-Path $TestDrive "\en-US\")
+
+        Set-Content -Path (Join-Path $TestDrive "\docs\TestModule.md") -Value @'
+---
+Module Name: TestModule
+Module Guid: 3790ec3e-4ec0-41cb-9ebf-ae083b883b74
+Download Help Link: https://test.com/release/TestModule/docs/TestModule.md
+Help Version: 0.1.0
+Locale: en-US
+---
+
+# TestModule Module
+## Description
+Blablablabla
+
+## TestModule Cmdlets
+### [Invoke-Test](Invoke-Test.md)
+TBD
+
+
+
+'@
+
+        Set-Content -Path (Join-Path $TestDrive "\docs\Invoke-Test.md") -Value @'
+---
+external help file: TestModule-help.xml
+Module Name: TestModule
+online version: https://test.com
+schema: 2.0.0
+---
+
+# Invoke-Test
+
+## SYNOPSIS
+TBD
+
+## SYNTAX
+
+```
+Invoke-Test [<CommonParameters>]
+```
+
+## DESCRIPTION
+TBD
+
+## EXAMPLES
+
+### EXAMPLE 1
+```
+TBD
+```
+
+## PARAMETERS
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable.
+For more information, see about_CommonParameters (http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+Author: Bart
+
+## RELATED LINKS
+
+[https://test.com](https://test.com)
+
+
+'@
+
+        (New-ExternalHelp -Path "$TestDrive\docs" -OutputPath "$TestDrive\en-US" -Force)[0].Name | Should Be 'TestModule-help.xml'
+    }
+
+    It "Checks if external help files are generated correctly with dash in module markdown file" {
+        Rename-Item -Path (Join-Path $TestDrive "\docs\TestModule.md") -NewName "Test-Module.md"
+        (Get-Content "$TestDrive\docs\Test-Module.md") -replace "TestModule", "Test-Module" | Set-Content "$TestDrive\docs\Test-Module.md"
+
+        (New-ExternalHelp -Path "$TestDrive\docs" -OutputPath "$TestDrive\en-US" -Force)[0].Name | Should Be 'TestModule-help.xml'
+    }
 }
 
 Describe 'New-ExternalHelp -ErrorLogFile' {
