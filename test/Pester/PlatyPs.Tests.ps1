@@ -146,14 +146,14 @@ Describe 'New-MarkdownHelp' {
         }
     }
 
-    Context 'from external script' { 
+    Context 'from external script' {
         It 'fully qualified path' {
             $SeedData = @"
-<# 
+<#
 .SYNOPSIS
     Synopsis Here.
 
-.DESCRIPTION 
+.DESCRIPTION
     Description Here.
 
 .INPUTS
@@ -175,11 +175,11 @@ Write-Host 'Hello World!'
         }
         It 'relative path' {
             $SeedData = @"
-<# 
+<#
 .SYNOPSIS
     Synopsis Here.
 
-.DESCRIPTION 
+.DESCRIPTION
     Description Here.
 
 .INPUTS
@@ -678,6 +678,31 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
                 $set2 = $mamlModelObject.Syntax | Where-Object {$_.ParameterSetName -eq 'Set2'}
                 ($set2 | Measure-Object).Count | Should Be 1
+            }
+        }
+
+        Context 'SupportsWildCards attribute tests' {
+            BeforeAll {
+
+                function global:Test-WildCardsAttribute {
+                    param (
+                        [Parameter()]
+                        [SupportsWildcards()]
+                        [string] $Name,
+
+                        [Parameter()]
+                        [string] $NameNoWildCard
+                    )
+                }
+
+                $file = New-MarkdownHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive\NewMarkDownHelp"
+                $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\NewMarkDownHelp"
+                $help = Get-HelpPreview -Path $maml
+            }
+
+            It 'sets accepts wildcards property on parameters as expected' {
+                $help.parameters.parameter | Where-Object { $_.Name -eq 'Name' } | ForEach-Object { $_.globbing -eq 'true'}
+                $help.parameters.parameter | Where-Object { $_.Name -eq 'NameNoWildCard' } | ForEach-Object { $_.globbing -eq 'false'}
             }
         }
     }
