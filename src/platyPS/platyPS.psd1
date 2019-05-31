@@ -18,19 +18,19 @@ ModuleVersion = '0.0.1'
 GUID = '0bdcabef-a4b7-4a6d-bf7e-d879817ebbff'
 
 # Author of this module
-Author = 'PowerShell team'
+Author = 'Microsoft Corporation'
 
 # Company or vendor of this module
-CompanyName = 'Microsoft'
+CompanyName = 'Microsoft Corporation'
 
 # Copyright statement for this module
-Copyright = '(c) 2016 PowerShell team. All rights reserved.'
+Copyright = '(c) Microsoft Corporation. All rights reserved.'
 
 # Description of the functionality provided by this module
 Description = 'Generate PowerShell External Help files from Markdown'
 
 # Minimum version of the Windows PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '3.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
@@ -103,7 +103,7 @@ PrivateData = @{
     PSData = @{
 
         # Tags applied to this module. These help with module discovery in online galleries.
-        Tags = @('help', 'markdown', 'MAML', 'PSEdition_Core', 'PSEdition_Desktop')
+        Tags = @('Help', 'Markdown', 'External', 'CAB', 'Module', 'MAML', 'YAML', 'PSEdition_Core', 'PSEdition_Desktop', 'Windows', 'Linux', 'Mac')
 
         # A URL to the license for this module.
         LicenseUri = 'https://github.com/PowerShell/platyPS/blob/master/LICENSE'
