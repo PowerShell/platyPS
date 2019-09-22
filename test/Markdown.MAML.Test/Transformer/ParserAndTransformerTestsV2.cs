@@ -425,7 +425,7 @@ Remarks
 # Get-Foo
 ##RELATED LINKS
 
-[Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289795)
+[Online Version:](https://go.microsoft.com/fwlink/p/?linkid=289795)
 
 [Checkpoint-Computer]()
 
@@ -446,7 +446,7 @@ Remarks
             var links = mamlCommand[0].Links.ToArray();
             Assert.Equal(8, links.Count());
             Assert.Equal("Online Version:", links[0].LinkName);
-            Assert.Equal("http://go.microsoft.com/fwlink/p/?linkid=289795", links[0].LinkUri);
+            Assert.Equal("https://go.microsoft.com/fwlink/p/?linkid=289795", links[0].LinkUri);
             Assert.Equal("Checkpoint-Computer", links[1].LinkName);
             Assert.Empty(links[1].LinkUri);
         }
@@ -607,7 +607,7 @@ Type: string
 ```
 
 ### CommonParameters
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters]\(http://go.microsoft.com/fwlink/?LinkID=113216\).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters]\(https://go.microsoft.com/fwlink/?LinkID=113216\).
 
 ### NoTypeParam
 

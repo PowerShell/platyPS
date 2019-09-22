@@ -144,13 +144,13 @@ This is a :""text"" with doublequotes
         {
             string documentText = @"
 # Foo
-about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).
+about_Hash_Tables (https://go.microsoft.com/fwlink/?LinkID=135175).
 ";
             DocumentNode documentNode = MarkdownStringToDocumentNode(documentText);
             var children = documentNode.Children.ToArray();
             Assert.Equal(2, children.Count());
             var spans = Assert.IsType<ParagraphNode>(children[1]).Spans.ToArray();
-            Assert.Equal(@"about_Hash_Tables (http://go.microsoft.com/fwlink/?LinkID=135175).", spans[0].Text);
+            Assert.Equal(@"about_Hash_Tables (https://go.microsoft.com/fwlink/?LinkID=135175).", spans[0].Text);
         }
 
         [Fact]
@@ -546,7 +546,7 @@ PS C:\>(get-command set-alias).pssnapin";
 
 
 ### RELATED LINKS
-[Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289570)
+[Online Version:](https://go.microsoft.com/fwlink/p/?linkid=289570)
 [Get-PSSnapin]()
 [Remove-PSSnapin]()
 [about_Profiles]()
