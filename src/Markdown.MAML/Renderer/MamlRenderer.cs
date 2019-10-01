@@ -118,7 +118,7 @@ namespace Markdown.MAML.Renderer
                     new XAttribute("aliases", param.Aliases.Any() ? string.Join(", ", param.Aliases) : "none"),
 
                     new XElement(mamlNS + "name", param.Name),
-                    new XElement(mamlNS + "Description", GenerateParagraphs(param.Description)),
+                    new XElement(mamlNS + "description", GenerateParagraphs(param.Description)),
                     isSyntax && param.ParameterValueGroup.Any() 
                         ? new XElement(commandNS + "parameterValueGroup", param.ParameterValueGroup.Select(pvg => CreateParameterValueGroup(pvg))) 
                         : null,
