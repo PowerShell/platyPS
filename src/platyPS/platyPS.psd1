@@ -30,7 +30,7 @@ Copyright = '(c) 2016 PowerShell team. All rights reserved.'
 Description = 'Generate PowerShell External Help files from Markdown'
 
 # Minimum version of the Windows PowerShell engine required by this module
-# PowerShellVersion = ''
+PowerShellVersion = '3.0'
 
 # Name of the Windows PowerShell host required by this module
 # PowerShellHostName = ''
