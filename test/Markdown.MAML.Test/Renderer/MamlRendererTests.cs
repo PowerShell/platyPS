@@ -98,11 +98,11 @@ namespace Markdown.MAML.Test.Renderer
             Assert.Single(description);
             Assert.Equal("This is a long description.", description[0]);
 
-            string[] parameter1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Name']/maml:Description/maml:para");
+            string[] parameter1 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Name']/maml:description/maml:para");
             Assert.Single(parameter1);
             Assert.Equal("This is the name parameter description.", parameter1[0]);
 
-            string[] parameter2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Path']/maml:Description/maml:para");
+            string[] parameter2 = EndToEndTests.GetXmlContent(maml, "/msh:helpItems/command:command/command:parameters/command:parameter[maml:name='Path']/maml:description/maml:para");
             Assert.Single(parameter2);
             Assert.Equal("This is the path parameter description.", parameter2[0]);
 
