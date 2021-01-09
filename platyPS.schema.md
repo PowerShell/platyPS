@@ -44,7 +44,7 @@ It closely resembles output of `Get-Help`.
         // i.e.: FromPath (Default)
         // This syntax would be ignored during maml generation.
         // syntax would be generated from parameters metadata
-        ```
+        ```{Syntax language, i.e. PowerShell or nothing for plain text}
         {{Output of Get-Command -Syntax}}
         ```
 
