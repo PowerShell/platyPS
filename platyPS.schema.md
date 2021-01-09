@@ -41,10 +41,11 @@ It closely resembles output of `Get-Help`.
 
     // for each parameter set
         ### {Parameter Set Name, if default parameter set, followed by "(Default)"}
+
         // i.e.: FromPath (Default)
         // This syntax would be ignored during maml generation.
         // syntax would be generated from parameters metadata
-        ```
+        ```{Syntax language, i.e. PowerShell or nothing for plain text}
         {{Output of Get-Command -Syntax}}
         ```
 
@@ -73,6 +74,7 @@ It closely resembles output of `Get-Help`.
     // for every parameter
         // default value is non-mandatory
         ### -{Parameter name}
+
         {{Parameter description text. It can also include codesnippets, but they could not be ```yaml}}
 
         // parameter metadata
@@ -94,6 +96,7 @@ It closely resembles output of `Get-Help`.
             Accept pipeline input: {false | true (ByValue, ByPropertyName)}
             Accept wildcard characters: {true | false}
             ```
+
         // if supports workflow parameters
         ### <WorkflowCommonParameters>
 
@@ -105,6 +108,7 @@ It closely resembles output of `Get-Help`.
         {{ Common parameters text, would be ingored during maml generation }}
 
     ## INPUTS
+
     // for every input type
         ### {Input type}
 
@@ -159,11 +163,13 @@ v0.7.6 is the last platyPS version that supports it.
 
         // for every input type
             ### {Input type}
+
             {{Description text}}
 
         ## OUTPUTS
 
         // for every output type
+
             ### {Output type}
             {{Description text}}
 
