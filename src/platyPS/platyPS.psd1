@@ -12,6 +12,7 @@
 RootModule = 'platyPS.psm1'
 
 # Version number of this module.
+# Do not edit the version. The version is updated by the build script.
 ModuleVersion = '0.0.1'
 
 # ID used to uniquely identify this module

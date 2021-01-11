@@ -3,6 +3,13 @@ CHANGELOG
 
 ## Not released
 
+# 0.14.1
+
+- Fix appveyor build script
+  - Update-Help for selected modules only
+  - Pin Pester to version 4.10.1
+- Add makecab directive to set size limit to `CDROM`
+
 # 0.14.0
 
 * Fix passing `ExcludeDontShow` flag to modules (#459)

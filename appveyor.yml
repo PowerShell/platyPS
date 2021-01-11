@@ -4,7 +4,7 @@ install:
     - ps: |
         Write-Host "PowerShell Version:" $PSVersionTable.PSVersion.tostring()
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-        Install-Module Pester -Force
+        Install-Module -Name Pester -RequiredVersion 4.10.1 -Force
 
 init:
     - git config --global core.autocrlf true
@@ -12,7 +12,7 @@ init:
 build_script:
     - ps: |
         $ErrorActionPreference = 'Stop'
-        Update-Help # we need up-to-date help content for tests
+        Update-Help Microsoft.PowerShell.Core, Microsoft.PowerShell.Management, Microsoft.PowerShell.Utility -Force # we need up-to-date help content for tests
         .\build.ps1 -Configuration Release
 
 test_script:

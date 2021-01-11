@@ -1202,6 +1202,7 @@ function New-ExternalHelpCab
         New-Item -ItemType File -Name $DirectiveFile -Force | Out-Null
         Add-Content $DirectiveFile ".Set Cabinet=on"
         Add-Content $DirectiveFile ".Set Compress=on"
+        Add-Content $DirectiveFile ".Set MaxDiskSize=CDROM"
 
         #Creates an entry in the cab directive file for each file in the source directory (uses FullName to get fuly qualified file path and name)
         foreach($file in $ValidHelpFiles)
