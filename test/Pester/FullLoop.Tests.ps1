@@ -7,7 +7,7 @@ $outFolder = "$root\out"
 Import-Module $outFolder\platyPS -Force
 $MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
 $MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
-
+<#
 Describe 'Full loop for Add-Member cmdlet' {
 
     $cmdlet = "Add-Member"
@@ -139,7 +139,7 @@ Describe 'Full loop for Add-Member cmdlet' {
 
     # TODO: rest of properties!!
 }
-
+ #>
 function OutFileAndStripped
 {
     param([string]$path, [string]$content)

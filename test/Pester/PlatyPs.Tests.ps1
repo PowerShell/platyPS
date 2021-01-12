@@ -869,14 +869,14 @@ if (-not $global:IsUnix) {
 
                 $mamlModelObject.Name | Should be "Add-Computer"
                 $mamlModelObject.Synopsis.Text | Should be "Add the local computer to a domain or workgroup."
-                $mamlModelObject.Description.Text.Substring(0,135) | Should be "The Add-Computer cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another."
-                $mamlModelObject.Notes.Text.Substring(0,31) | Should be "In Windows PowerShell 2.0, the "
+                $mamlModelObject.Description.Text.Substring(0,137) | Should be 'The `Add-Computer` cmdlet adds the local computer or remote computers to a domain or workgroup, or moves them from one domain to another.'
+                $mamlModelObject.Notes.Text.Substring(0,33) | Should be "- In Windows PowerShell 2.0, the "
             }
 
             It 'Validates the examples by checking Add-Computer Example 1' {
 
                 $mamlModelObject.Examples[0].Title | Should be "Example 1: Add a local computer to a domain then restart the computer"
-                $mamlModelObject.Examples[0].Code[0].Text | Should be "PS C:\>Add-Computer -DomainName `"Domain01`" -Restart"
+                $mamlModelObject.Examples[0].Code[0].Text | Should be "Add-Computer -DomainName Domain01 -Restart"
                 $mamlModelObject.Examples[0].Remarks.Substring(0,120) | Should be "This command adds the local computer to the Domain01 domain and then restarts the computer to make the change effective."
 
             }
