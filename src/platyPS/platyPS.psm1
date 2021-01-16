@@ -2865,15 +2865,17 @@ function ConvertPsObjectsToMamlModel
 
         $MamlExampleObject.Introduction = $Example.introduction
         $MamlExampleObject.Title = $Example.title
+        
+        $CodeBlock = @"
+$($Example.code.Trim())
+
+$($Example.remarks.text.Trim())
+"@
+        $CodeBlock = $CodeBlock.Trim()
         $MamlExampleObject.Code = @(
-            New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($Example.code, '')
+            New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock($CodeBlock, 'powershell')
         )
 
-        $RemarkText = $Example.remarks |
-            DescriptionToPara |
-            AddLineBreaksForParagraphs
-
-        $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
     }
 
