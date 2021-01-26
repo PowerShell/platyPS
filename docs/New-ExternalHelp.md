@@ -232,8 +232,6 @@ You can pipe an array of paths to this cmdlet.
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for created files.
 
-## NOTES
-
 ## RELATED LINKS
 
 [PowerShell V2 External MAML Help](https://blogs.msdn.microsoft.com/powershell/2008/12/24/powershell-v2-external-maml-help/)

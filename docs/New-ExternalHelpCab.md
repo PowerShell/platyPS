@@ -118,8 +118,6 @@ You cannot pipe values to this cmdlet.
 This cmdlet does not generate output.
 The cmldet saves its results in the output folder that the *OutputPath* parameter specifies.
 
-## NOTES
-
 ## RELATED LINKS
 
 [New-ExternalHelp](New-ExternalHelp.md)

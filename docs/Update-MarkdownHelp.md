@@ -15,7 +15,7 @@ Update PlatyPS markdown help files.
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
  [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-Force] [-Session <PSSession>]
- [-ExcludeDontShow] [<CommonParameters>]
+ [-ExcludeDontShow] [-NoInputOutputFormatting] [-SkipEmptyFields] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -219,6 +219,36 @@ Accept wildcard characters: False
 
 ### -ExcludeDontShow
 Exclude the parameters marked with `DontShow` in the parameter attribute from the help content.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoInputOutputFormatting
+{{ Fill NoInputOutputFormatting Description }}
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipEmptyFields
+{{ Fill SkipEmptyFields Description }}
 
 ```yaml
 Type: SwitchParameter
