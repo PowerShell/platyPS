@@ -403,6 +403,7 @@ function New-MarkdownHelp
                     }
                     else # 'FromMaml'
                     {
+                        # Set ModuleName to MamlModule (since it's set to null at the beginning now)
                         $ModuleName = "MamlModule"
 
                         if (-not (Test-Path $_))
@@ -496,6 +497,7 @@ function New-MarkdownHelp
                     }
                     else # 'FromMaml'
                     {
+                        # Set ModuleName to MamlModule (since it's set to null at the beginning now)
                         $ModuleName = "MamlModule"
 
                         if (-not (Test-Path $_))
