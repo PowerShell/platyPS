@@ -403,6 +403,8 @@ function New-MarkdownHelp
                     }
                     else # 'FromMaml'
                     {
+                        $ModuleName = "MamlModule"
+
                         if (-not (Test-Path $_))
                         {
                             throw $LocalizedData.FileNotFound -f $_
@@ -494,6 +496,8 @@ function New-MarkdownHelp
                     }
                     else # 'FromMaml'
                     {
+                        $ModuleName = "MamlModule"
+
                         if (-not (Test-Path $_))
                         {
                             throw $LocalizedData.FileNotFound -f $_
