@@ -2308,41 +2308,42 @@ function NewModuleLandingPage
             $Content += "Locale: $Locale`r`n"
         }
         $Content += "---`r`n`r`n"
-        $Content += "# $ModuleName Module`r`n"
+        $Content += "# $ModuleName Module`r`n`r`n"
         if(![string]::IsNullOrWhiteSpace($Description)) {
-            $Content += "## Description`r`n$Description`r`n"
+            $Content += "## Description`r`n$Description`r`n`r`n"
         }
         if($null -ne $ModuleMetaData) {
             $Content += "## Module Metadata`r`n"
 
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ModuleVersion)) {
-                $Content += "Module version: " + $ModuleMetaData.ModuleVersion + "`r`n"
+                $Content += "* Module version: " + $ModuleMetaData.ModuleVersion + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.GUID)) {
-                $Content += "Module GUID: " + $ModuleMetaData.GUID + "`r`n"
+                $Content += "* Module GUID: " + $ModuleMetaData.GUID + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.Author)) {
-                $Content += "Author: " + $ModuleMetaData.Author + "`r`n"
+                $Content += "* Author: " + $ModuleMetaData.Author + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.CompanyName)) {
-                $Content += "Company: " + $ModuleMetaData.CompanyName + "`r`n"
+                $Content += "* Company: " + $ModuleMetaData.CompanyName + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.Copyright)) {
-                $Content += "Copyright: " + $ModuleMetaData.Copyright + "`r`n"
+                $Content += "* Copyright: " + $ModuleMetaData.Copyright + "`r`n"
             }
             if($ModuleMetaData.Tags.Count -gt 0) {
-                $Content += "Tags: " + ($ModuleMetaData.Tags -join ", ") + "`r`n"
+                $Content += "* Tags: " + ($ModuleMetaData.Tags -join ", ") + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.LicenseUri)) {
-                $Content += "License Uri: " + $ModuleMetaData.LicenseUri + "`r`n"
+                $Content += "* License Uri: " + $ModuleMetaData.LicenseUri + "`r`n"
             }
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ProjectUri)) {
-                $Content += "Project Uri: " + $ModuleMetaData.ProjectUri + "`r`n"
+                $Content += "* Project Uri: " + $ModuleMetaData.ProjectUri + "`r`n"
             }
+            $Content += "`r`n"
 
             if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ReleaseNotes)) {
                 $Content += "### Release Notes`r`n"
-                $Content += $ModuleMetaData.ReleaseNotes + "`r`n"
+                $Content += ($ModuleMetaData.ReleaseNotes -replace "\r\n", "<br/>`r`n") + "`r`n`r`n"
             }
 
             if($null -ne $ModuleMetaData.RequiredModules -and $ModuleMetaData.RequiredModules.Count -gt 0) {
@@ -2354,12 +2355,14 @@ function NewModuleLandingPage
                     }
                     $Content += "`r`n"
                 }
+                $Content += "`r`n"
             }
             if($null -ne $ModuleMetaData.RequiredAssemblies -and $ModuleMetaData.RequiredAssemblies.Count -gt 0) {
                 $Content += "### Required Assemblies`r`n"
                 $ModuleMetaData.RequiredAssemblies | ForEach-Object {
                     $Content += "* $_`r`n"
                 }
+                $Content += "`r`n"
             }    
         }
         
