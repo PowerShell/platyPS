@@ -241,7 +241,7 @@ Accept wildcard characters: False
 ```
 
 ### -SkipEmptyFields
-{{ Fill SkipEmptyFields Description }}
+Will omit example texts for empty fields which were not provided/found in the documentation and will instead just skip empty sections (example: no "Notes" section if no "Notes" were provided).
 
 ```yaml
 Type: SwitchParameter

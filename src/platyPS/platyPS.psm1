@@ -368,8 +368,9 @@ function New-MarkdownHelp
                             if($null -ne $ModuleMetaData) {
     
                                 $ModuleMetaData.ModuleVersion = $ModuleVersion
-                                if($null -ne $ModuleGuid -and ![string]::IsNullOrWhiteSpace($ModuleGuid.Guid)) {
-                                    $ModuleMetaData.GUID = $ModuleGuid.Guid
+                                $MetaDataGuid = $ModuleGuid.ToString()
+                                if(![string]::IsNullOrWhiteSpace($MetaDataGuid)) {
+                                    $ModuleMetaData.GUID = $MetaDataGuid
                                 }
                                 if(![string]::IsNullOrWhiteSpace($ModObj.Author)) {
                                     $ModuleMetaData.Author = $ModObj.Author
@@ -463,8 +464,9 @@ function New-MarkdownHelp
                         if($null -ne $ModuleMetaData) {
 
                             $ModuleMetaData.ModuleVersion = $ModuleVersion
-                            if($null -ne $ModuleGuid -and ![string]::IsNullOrWhiteSpace($ModuleGuid.Guid)) {
-                                $ModuleMetaData.GUID = $ModuleGuid.Guid
+                            $MetaDataGuid = $ModuleGuid.ToString()
+                            if(![string]::IsNullOrWhiteSpace($MetaDataGuid)) {
+                                $ModuleMetaData.GUID = $MetaDataGuid
                             }
                             if(![string]::IsNullOrWhiteSpace($ModObj.Author)) {
                                 $ModuleMetaData.Author = $ModObj.Author
