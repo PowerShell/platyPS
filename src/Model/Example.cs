@@ -11,7 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToExampleItemString(int serialNumber)
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
             sb.AppendLine();
@@ -19,8 +19,12 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             sb.AppendLine(Constants.CodeBlock);
             sb.AppendLine(Code);
             sb.AppendLine(Constants.CodeBlock);
-            sb.AppendLine();
-            sb.AppendLine(Remarks);
+
+            if (!string.IsNullOrEmpty(Remarks) && !string.Equals(Remarks, Environment.NewLine))
+            {
+                sb.AppendLine();
+                sb.Append(Remarks);
+            }
 
             return sb.ToString();
         }

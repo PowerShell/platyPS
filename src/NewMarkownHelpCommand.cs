@@ -2,6 +2,7 @@
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -9,6 +10,7 @@ using System.Management.Automation.Runspaces;
 namespace Microsoft.PowerShell.PlatyPS
 {
     [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri="https://go.microsoft.com/fwlink/?LinkID=2096483")]
+    [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         public NewMarkdownHelpCommand()
@@ -108,13 +110,39 @@ namespace Microsoft.PowerShell.PlatyPS
 
             CommandHelp cmdHlp = GetMockCommandHelp();
 
-            CommandHelpMarkdownWriter cmdWrt = new CommandHelpMarkdownWriter(@"D:\temp\Get-Help.md", cmdHlp);
-            cmdWrt.Write();
+            //CommandHelpMarkdownWriter cmdWrt = new CommandHelpMarkdownWriter(@"D:\temp\Get-Help.md", cmdHlp);
+            //cmdWrt.Write();
+
+            List<FileInfo> writtentFileList = new();
+
+            if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
+            {
+                TransformCommand transformCommand = new(session: null);
+
+                foreach (var cmdletHelp in transformCommand.Transform(Command))
+                {
+                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
+                    writtentFileList.Add(cmdWrt.Write());
+                }
+            }
+
+            if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
+            {
+                TransformModule transformModule = new(session: null);
+
+                foreach (var cmdletHelp in transformModule.Transform(Module))
+                {
+                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
+                    writtentFileList.Add(cmdWrt.Write());
+                }
+            }
+
+            WriteObject(writtentFileList);
         }
 
         private static CommandHelp GetMockCommandHelp()
         {
-            CommandHelp cmdHlp = new CommandHelp();
+            CommandHelp cmdHlp = new();
             cmdHlp.Title = "Get-Help";
             cmdHlp.Synopsis = "Displays information about PowerShell commands and concepts.";
 
@@ -130,9 +158,9 @@ Conceptual articles are in the HelpFile category."
             };
 
             nameParam.AddAcceptedValues(new string[] { "Alias", "Cmdlet", "Provider" });
-            nameParam.AddRequiredParameterSets(true, new string[] { "a", "b" });
-            nameParam.AddRequiredParameterSets(true, new string[] { "c" });
-            nameParam.AddParameterSets(new string[] { "a", "b", "c" });
+            nameParam.AddRequiredParameterSetsRange(true, new string[] { "a", "b" });
+            nameParam.AddRequiredParameterSetsRange(true, new string[] { "c" });
+            nameParam.AddParameterSetsRange(new string[] { "a", "b", "c" });
 
             var pathParam = new Parameter {
                 Name = "Path",
@@ -147,14 +175,14 @@ Wildcard characters are permitted.
 This parameter has no effect on displays of conceptual ( About_ ) help."
             };
 
-            pathParam.AddRequiredParameterSets(true, new string[] { "a" });
-            pathParam.AddParameterSets(new string[] { "a" });
+            pathParam.AddRequiredParameterSetsRange(true, new string[] { "a" });
+            pathParam.AddParameterSet("a");
 
-            var syntax1 = new SyntaxItem("AllUsersView", isDefaultParameterSet: true);
+            SyntaxItem syntax1 = new("Get-Help", "AllUsersView", isDefaultParameterSet: true);
             syntax1.AddParameter(pathParam);
             syntax1.AddParameter(nameParam);
 
-            var syntax2 = new SyntaxItem("DetailedView", isDefaultParameterSet: false);
+            SyntaxItem syntax2 = new ("Get-Help", "DetailedView", isDefaultParameterSet: false);
             syntax2.AddParameter(pathParam);
             syntax2.AddParameter(nameParam);
 
@@ -183,10 +211,10 @@ The syntax \`\<cmdlet-name\> -?\` works only for cmdlets.";
 
             cmdHlp.AddExampleItem(new Example() { Title = "Display basic help information about a cmdlet", Code = code, Remarks = remarks });
 
-            var input = new InputOutput();
+            InputOutput input = new();
             input.AddInputOutputItem("System.String", "Some string parameter");
 
-            var output = new InputOutput();
+            InputOutput output = new();
             output.AddInputOutputItem("System.String", "Some string parameter");
             output.AddInputOutputItem("MamlCommandHelpInfo", @"If you get a command that has a help file, \`Get-Help\` returns a MamlCommandHelpInfo object.");
             cmdHlp.AddInputItem(input);

@@ -17,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToInputOutputString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             foreach(var item in inputOutputItems)
             {

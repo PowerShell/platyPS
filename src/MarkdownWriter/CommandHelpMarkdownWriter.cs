@@ -28,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        internal void Write()
+        internal FileInfo Write()
         {
             sb ??= new StringBuilder();
 
@@ -48,6 +48,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb.AppendLine();
 
             WriteExamples();
+            sb.AppendLine();
 
             WriteParameters();
 
@@ -59,9 +60,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             WriteRelatedLinks();
 
-            using (StreamWriter mdFileWriter = new StreamWriter(filePath))
+            using (StreamWriter mdFileWriter = new(filePath))
             {
                 mdFileWriter.Write(sb.ToString());
+
+                return new FileInfo(filePath);
             }
         }
 
@@ -124,10 +127,18 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb.AppendLine(Constants.ParametersMdHeader);
             sb.AppendLine();
 
+            // Sort the parameter by name before writing
+            Help.Parameters.Sort((u1, u2) => u1.Name.CompareTo(u2.Name));
+
             foreach(var param in Help.Parameters)
             {
-                sb.Append(param.ToParameterString());
-                sb.AppendLine();
+                string paramString = param.ToParameterString();
+
+                if (!string.IsNullOrEmpty(paramString))
+                {
+                    sb.AppendLine(paramString);
+                    sb.AppendLine();
+                }
             }
 
             sb.AppendLine(Constants.CommonParameters);
@@ -137,6 +148,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(header);
             sb.AppendLine();
+
+            if (inputsoutputs == null)
+            {
+                return;
+            }
 
             foreach (var item in inputsoutputs)
             {
@@ -148,7 +164,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.NotesMdHeader);
             sb.AppendLine();
-            sb.AppendLine("{{ Fill Notes Here}}");
+            sb.AppendLine(Help.Notes);
             sb.AppendLine();
         }
 
@@ -156,8 +172,20 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.RelatedLinksMdHeader);
             sb.AppendLine();
-            sb.AppendLine("{{ Fill Related Links Here}}");
-            sb.AppendLine();
+
+            if (Help.RelatedLinks?.Count > 0)
+            {
+                foreach(var link in Help.RelatedLinks)
+                {
+                    sb.AppendLine(link.ToRelatedLinksString());
+                    sb.AppendLine();
+                }
+            }
+            else
+            {
+                sb.AppendLine("{{ Fill Related Links Here}}");
+                sb.AppendLine();
+            }
         }
     }
 }

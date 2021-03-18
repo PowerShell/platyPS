@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -9,34 +8,43 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         private static System.Management.Automation.PowerShell ps;
 
-        public static Collection<CmdletInfo> GetCmdletInfo(string commandName)
+        public static Collection<CommandInfo> GetCommandInfo(string commandName)
         {
-            ps ??= System.Management.Automation.PowerShell.Create();
+            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
             return ps
                 .AddCommand(@"Microsoft.PowerShell.Core\Get-Command")
                 .AddParameter("Name", commandName)
-                .Invoke<CmdletInfo>();
+                .Invoke<CommandInfo>();
         }
 
-        public static List<CmdletInfo> GetCmdletInfoFromModule(string moduleName)
+        public static Collection<CommandInfo> GetCmdletInfoFromModule(string moduleName)
         {
-            ps ??= System.Management.Automation.PowerShell.Create();
+            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
             Collection<PSModuleInfo> moduleInfo = ps
+                .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
+                .AddParameter("Name", moduleName)
+                .AddStatement()
                 .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
                 .AddParameter("Name", moduleName)
                 .Invoke<PSModuleInfo>();
 
-            List<CmdletInfo> cmdletInfos = new List<CmdletInfo>();
+            Collection<CommandInfo> cmdletInfos = new();
 
             if (moduleInfo != null)
             {
-                foreach(var mod in moduleInfo)
+                foreach (var mod in moduleInfo)
                 {
-                    cmdletInfos.AddRange(mod.ExportedCmdlets.Values);
+                    foreach (var cmdletInfo in mod.ExportedCommands.Values)
+                    {
+                        if (cmdletInfo.CommandType != CommandTypes.Alias)
+                        {
+                            cmdletInfos.Add(cmdletInfo);
+                        }
+                    }
                 }
             }
 
@@ -49,7 +57,7 @@ namespace Microsoft.PowerShell.PlatyPS
             ps.Runspace = session.Runspace;
         }
 
-        internal static Collection<PSCustomObject> GetHelpForCmdlet(string cmdletName)
+        internal static Collection<PSObject> GetHelpForCmdlet(string cmdletName)
         {
             ps ??= System.Management.Automation.PowerShell.Create();
             ps.Commands.Clear();
@@ -58,7 +66,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 .AddCommand(@"Microsoft.PowerShell.Core\Get-Help")
                 .AddParameter("Name", cmdletName)
                 .AddParameter("Full")
-                .Invoke<PSCustomObject>();
+                .Invoke();
         }
     }
 }

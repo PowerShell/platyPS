@@ -28,8 +28,14 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string ExampleItemHeaderTemplate = "### Example {0}: {1}";
 
         internal const string RequiredParamTemplate = "-{0} <{1}>";
-        internal const string OptionalParamTemplate = "[[-{0} <{1}>]";
-        internal const string SingleSpace = " ";
+        internal const string OptionalParamTemplate = "[-{0} <{1}>]";
+        internal const string RequiredPositionalParamTemplate = "[-{0}] <{1}>";
+        internal const string OptionalPositionalParamTemplate = "[[-{0} <{1}>]]";
+        internal const string OptionalSwitchParamTemplate = "[-{0}]";
+        internal const string RequiredSwitchParamTemplate = "-{0}";
+
+
+        internal const char   SingleSpace = ' ';
         internal const string ParameterSetHeaderDefaultTemplate = "### {0} (Default)";
         internal const string ParameterSetHeaderTemplate = "### {0}";
         internal const string CodeBlock = "```";
@@ -39,10 +45,39 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string NoneString = "None";
         internal const string NamedString = "Named";
         internal const string ParameterSetsAll = "(All)";
+        internal const string ParameterSetsAllForRequired = "All";
         internal const string DelimiterComma = ", ";
+        internal const string SystemObjectTypename = "System.Object";
+        internal const string SyntaxCommonParameters = "[<CommonParameters>]";
 
         internal const string RequiredParameterSetsTemplate = "True ({0}) False ({1})";
         internal const string NotesItemHeaderTemplate = "### {0}";
+
+        internal const string FillInDescription = "{{ Fill in the Description }}";
+        internal const string FillInSynopsis = "{{ Fill in the Synopsis }}";
+        internal const string FillInNotes= "{{ Fill in the Notes }}";
+
+        internal const string FillInExampleTitle = "Example 1";
+        internal const string FillInExampleCode = @"PS C:\> {{ Add example code here }}";
+        internal const string FillInExampleDescription = "{{ Add example description here }}";
+        internal const string FillInParameterDescriptionTemplate = "{{ Fill {0} Description }}";
+        internal const string FillInReleatedLinks = "{{ Fill in the related links here }}";
+
+        internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "Debug",
+            "ErrorAction",
+            "ErrorVariable",
+            "InformationAction",
+            "InformationVariable",
+            "OutBuffer",
+            "OutVariable",
+            "PipelineVariable",
+            "Verbose",
+            "WarningAction",
+            "WarningVariable"
+        };
+
 
         internal const string ParameterYmlBlockWithAcceptedValues = @"### -{0}
 

@@ -24,7 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal List<InputOutput> Outputs { get; private set; }
 
-        internal List<Links> RelatedLinks { get; set; }
+        internal List<Links> RelatedLinks { get; private set; }
 
         internal string Notes { get; set; }
 
@@ -34,16 +34,33 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Syntax.Add(syntax);
         }
 
+        internal void AddSyntaxItemRange(IEnumerable<SyntaxItem> syntaxItems)
+        {
+            Syntax ??= new List<SyntaxItem>();
+            Syntax.AddRange(syntaxItems);
+        }
+
         internal void AddExampleItem(Example example)
         {
             Examples ??= new List<Example>();
             Examples.Add(example);
+        }
+        internal void AddExampleItemRange(IEnumerable<Example> example)
+        {
+            Examples ??= new List<Example>();
+            Examples.AddRange(example);
         }
 
         internal void AddParameter(Parameter parameter)
         {
             Parameters ??= new List<Parameter>();
             Parameters.Add(parameter);
+        }
+
+        internal void AddParameterRange(IEnumerable<Parameter> parameters)
+        {
+            Parameters ??= new List<Parameter>();
+            Parameters.AddRange(parameters);
         }
 
         internal void AddInputItem(InputOutput inputItem)
@@ -56,6 +73,18 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             Outputs ??= new List<InputOutput>();
             Outputs.Add(outputItem);
+        }
+
+        internal void AddReleatedLinks(Links relatedLink)
+        {
+            RelatedLinks ??= new List<Links>();
+            RelatedLinks.Add(relatedLink);
+        }
+
+        internal void AddReleatedLinksRange(IEnumerable<Links> relatedLinks)
+        {
+            RelatedLinks ??= new List<Links>();
+            RelatedLinks.AddRange(relatedLinks);
         }
     }
 }

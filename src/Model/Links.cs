@@ -4,7 +4,18 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class Links
     {
-        internal Uri Uri { get; set;}
+        public Links(string uri, string linkText)
+        {
+            Uri = uri;
+            LinkText = linkText;
+        }
+
+        internal string Uri { get; set;}
         internal string LinkText { get; set;}
+
+        internal string ToRelatedLinksString()
+        {
+            return $"[{LinkText}] ({Uri})";
+        }
     }
 }

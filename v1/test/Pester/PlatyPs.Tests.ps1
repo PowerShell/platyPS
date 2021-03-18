@@ -5,12 +5,12 @@ $root = (Resolve-Path $PSScriptRoot\..\..).Path
 $outFolder = "$root\out"
 $moduleFolder = "$outFolder\platyPS"
 
-Import-Module $moduleFolder -Force
+#Import-Module $moduleFolder -Force
 $MyIsLinux = Get-Variable -Name IsLinux -ValueOnly -ErrorAction SilentlyContinue
 $MyIsMacOS = Get-Variable -Name IsMacOS -ValueOnly -ErrorAction SilentlyContinue
 $global:IsUnix = $MyIsLinux -or $MyIsMacOS
 
-Import-LocalizedData -BindingVariable LocalizedData -BaseDirectory $moduleFolder -FileName platyPS.Resources.psd1
+#Import-LocalizedData -BindingVariable LocalizedData -BaseDirectory $moduleFolder -FileName platyPS.Resources.psd1
 
 Describe 'New-MarkdownHelp' {
     function normalizeEnds([string]$text)

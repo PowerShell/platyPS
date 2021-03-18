@@ -7,6 +7,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class SyntaxItem
     {
+        internal string CommandName { get; }
         internal string ParameterSetName { get; }
 
         // Sort parameters by position
@@ -20,10 +21,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal bool IsDefaultParameterSet { get; }
 
-        internal SyntaxItem(string parameterSetName, bool isDefaultParameterSet)
+        internal SyntaxItem(string commandName, string parameterSetName, bool isDefaultParameterSet)
         {
             ParameterSetName = parameterSetName;
             IsDefaultParameterSet = isDefaultParameterSet;
+            CommandName = commandName;
 
             postitionalParameters = new SortedList<int, Parameter>();
             requiredParameters = new SortedList<string, Parameter>();
@@ -34,43 +36,84 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             string name = parameter.Name;
 
-            // First see if the parameter is positional
-            if (!string.IsNullOrEmpty(parameter.Position))
+            if (Constants.CommonParametersNames.Contains(name))
             {
-                int position = -1;
-
-                if (int.TryParse(parameter.Position, out position))
-                {
-                    postitionalParameters.Add(position, parameter);
-                }
-                else
-                {
-                    if (!string.Equals(parameter.Position, "Named", StringComparison.OrdinalIgnoreCase))
-                    {
-                        throw new InvalidCastException($"Invalid value '{parameter.Position}' provided for position for parameter '{name}'");
-                    }
-                }
+                return;
             }
+
+            // First see if the parameter is positional
+
+            int position = int.MinValue;
+
+            if (int.TryParse(parameter.Position, out position))
+            {
+                postitionalParameters.Add(position, parameter);
+                return;
+            }
+
+            // The position should be 'Named' if not a number
+            if (!string.Equals(parameter.Position, "Named", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new InvalidCastException($"Invalid value '{parameter.Position}' provided for position for parameter '{name}'");
+            }
+
             //Next see if the parameter is required
-            else if (parameter.Required)
+            if (parameter.Required)
             {
                 requiredParameters.Add(name, parameter);
+                return;
             }
+
             //Lastly add the parameter to alphabetic sorted list
+            alphabeticOrderParameters.Add(name, parameter);
+        }
+
+        private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)
+        {
+            bool isSwitchParam = string.Equals(paramTypeName, "SwitchParameter", StringComparison.OrdinalIgnoreCase);
+            string paramType = isSwitchParam ? string.Empty : paramTypeName;
+
+            if (isRequired && isPositional && isSwitchParam)
+            {
+                return string.Format(Constants.RequiredSwitchParamTemplate, paramName, paramType);
+            }
+            else if (isRequired && isPositional)
+            {
+                return string.Format(Constants.RequiredPositionalParamTemplate, paramName, paramType);
+            }
+            else if (isRequired && isSwitchParam)
+            {
+                return string.Format(Constants.RequiredSwitchParamTemplate, paramName, paramType);
+            }
+            else if (isRequired)
+            {
+                return string.Format(Constants.RequiredParamTemplate, paramName, paramType);
+            }
+            else if (!isRequired && isSwitchParam)
+            {
+                return string.Format(Constants.OptionalSwitchParamTemplate, paramName, paramType);
+            }
+            else if (isPositional)
+            {
+                return string.Format(Constants.OptionalPositionalParamTemplate, paramName, paramType);
+            }
             else
             {
-                alphabeticOrderParameters.Add(name, parameter);
+                return string.Format(Constants.OptionalParamTemplate, paramName, paramType);
             }
         }
 
         internal string ToSyntaxString()
         {
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = new();
 
             sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
             sb.AppendLine();
             sb.AppendLine();
             sb.AppendLine(Constants.CodeBlock);
+
+            sb.Append(CommandName);
+            sb.Append(Constants.SingleSpace);
 
             // look for all the positional parameters
             foreach (KeyValuePair<int, Parameter> kv in postitionalParameters)
@@ -78,7 +121,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 Parameter param = kv.Value;
 
                 // positional parameters can be required, so chose the template accordingly
-                sb.AppendFormat(param.Required? Constants.RequiredParamTemplate : Constants.OptionalParamTemplate, param.Name, param.Type.Name);
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: true, isRequired: param.Required));
                 sb.Append(Constants.SingleSpace);
             }
 
@@ -86,7 +129,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             foreach(KeyValuePair<string, Parameter> kv in requiredParameters)
             {
                 Parameter param = kv.Value;
-                sb.AppendFormat(Constants.RequiredParamTemplate, param.Name, param.Type.Name);
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: false, isRequired: true));
                 sb.Append(Constants.SingleSpace);
             }
 
@@ -94,12 +137,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             foreach (KeyValuePair<string, Parameter> kv in alphabeticOrderParameters)
             {
                 Parameter param = kv.Value;
-                sb.AppendFormat(Constants.OptionalParamTemplate, param.Name, param.Type.Name);
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: false, isRequired: false));
                 sb.Append(Constants.SingleSpace);
             }
 
-            // trim the last single space
-            sb.Remove(sb.Length - 1, 1);
+            sb.Append(Constants.SyntaxCommonParameters);
 
             // finish syntax
             sb.Append(Environment.NewLine);
