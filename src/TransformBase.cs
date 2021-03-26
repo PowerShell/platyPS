@@ -100,7 +100,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                     descriptionFromHelp;
 
-                param.Type = parameterMetadata.Value.ParameterType;
+                param.Type = parameterMetadata.Value.ParameterType.Name;
 
                 GetParameterAtributeInfo(parameterMetadata.Value.Attributes, ref param);
 
@@ -186,6 +186,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return syntaxItems;
         }
 
+
         protected static Parameter GetParameterInfo(CommandInfo cmdletInfo, dynamic helpItem, CommandParameterInfo paramInfo)
         {
             Parameter param = new Parameter();
@@ -199,7 +200,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Format(Constants.FillInParameterDescriptionTemplate, paramName) :
                 descriptionFromHelp;
 
-            param.Type = paramInfo.ParameterType;
+            param.Type = paramInfo.ParameterType.Name;
 
             param.AddParameterSetsRange(GetParameterSetsOfParameter(paramName, cmdletInfo));
 
@@ -238,7 +239,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         break;
 
                     case ValidateSetAttribute validateSetAttribute:
-                        param.AddAcceptedValues(validateSetAttribute.ValidValues);
+                        param.AddAcceptedValueRange(validateSetAttribute.ValidValues);
                         break;
                 }
             }

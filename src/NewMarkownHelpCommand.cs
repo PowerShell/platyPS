@@ -117,7 +117,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
             {
-                TransformCommand transformCommand = new(session: null);
+                TransformCommand transformCommand = new(session: Session);
 
                 foreach (var cmdletHelp in transformCommand.Transform(Command))
                 {
@@ -128,9 +128,20 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
             {
-                TransformModule transformModule = new(session: null);
+                TransformModule transformModule = new(session: Session);
 
                 foreach (var cmdletHelp in transformModule.Transform(Module))
+                {
+                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
+                    writtentFileList.Add(cmdWrt.Write());
+                }
+            }
+
+            if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
+            {
+                TransformMaml transformMaml = new(session: Session);
+
+                foreach (var cmdletHelp in transformMaml.Transform(MamlFile))
                 {
                     CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
                     writtentFileList.Add(cmdWrt.Write());
@@ -148,7 +159,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             var nameParam = new Parameter {
                 Name = "Name",
-                Type = typeof(string),
+                Type = "string",
                 Required = true,
                 Position = "Named",
                 DefaultValue = "None",
@@ -157,14 +168,14 @@ namespace Microsoft.PowerShell.PlatyPS
 Conceptual articles are in the HelpFile category."
             };
 
-            nameParam.AddAcceptedValues(new string[] { "Alias", "Cmdlet", "Provider" });
+            nameParam.AddAcceptedValueRange(new string[] { "Alias", "Cmdlet", "Provider" });
             nameParam.AddRequiredParameterSetsRange(true, new string[] { "a", "b" });
             nameParam.AddRequiredParameterSetsRange(true, new string[] { "c" });
             nameParam.AddParameterSetsRange(new string[] { "a", "b", "c" });
 
             var pathParam = new Parameter {
                 Name = "Path",
-                Type = typeof(string),
+                Type = "string",
                 Required = false,
                 Position = "0",
                 DefaultValue = "None",

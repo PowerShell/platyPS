@@ -9,7 +9,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string Description { get; set;}
         internal string Name { get; set;}
         internal List<string> ParameterValue { get; set;}
-        internal Type Type { get; set;}
+        internal string Type { get; set;}
 
         internal string DefaultValue { get; set;}
 
@@ -70,7 +70,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal void AddAcceptedValues(IEnumerable<string> values)
+        internal void AddAcceptedValue(string value)
+        {
+            AcceptedValues ??= new List<string>();
+            AcceptedValues.Add(value);
+        }
+
+        internal void AddAcceptedValueRange(IEnumerable<string> values)
         {
             AcceptedValues ??= new List<string>();
             AcceptedValues.AddRange(values);
@@ -108,7 +114,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return string.Format(Constants.ParameterYmlBlock,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
-                    Type?.Name,
+                    Type,
                     string.Join(Constants.DelimiterComma, ParameterSets),
                     Aliases,
                     RequiredString(),
@@ -124,7 +130,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return string.Format(Constants.ParameterYmlBlockWithAcceptedValues,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
-                    Type?.Name,
+                    Type,
                     ParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, ParameterSets) : Constants.ParameterSetsAll,
                     Aliases,
                     AcceptedValues?.Count > 0 ? string.Join(Constants.DelimiterComma, AcceptedValues) : string.Empty,

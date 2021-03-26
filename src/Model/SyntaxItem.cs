@@ -121,7 +121,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 Parameter param = kv.Value;
 
                 // positional parameters can be required, so chose the template accordingly
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: true, isRequired: param.Required));
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: true, isRequired: param.Required));
                 sb.Append(Constants.SingleSpace);
             }
 
@@ -129,7 +129,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             foreach(KeyValuePair<string, Parameter> kv in requiredParameters)
             {
                 Parameter param = kv.Value;
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: false, isRequired: true));
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: true));
                 sb.Append(Constants.SingleSpace);
             }
 
@@ -137,7 +137,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             foreach (KeyValuePair<string, Parameter> kv in alphabeticOrderParameters)
             {
                 Parameter param = kv.Value;
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type.Name, isPositional: false, isRequired: false));
+                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: false));
                 sb.Append(Constants.SingleSpace);
             }
 
