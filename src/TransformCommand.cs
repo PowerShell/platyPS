@@ -10,7 +10,7 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal class TransformCommand : TransformBase
     {
-        public TransformCommand(PSSession session) : base(session)
+        public TransformCommand(TransformSettings settings) : base(settings)
         {
         }
 

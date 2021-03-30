@@ -1,11 +1,20 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class CommandHelp
     {
+        internal CultureInfo Locale { get; set; }
+        internal Guid? ModuleGuid { get; set; }
+        internal string ExternalHelpFile { get; set; }
+
+        internal string OnlineVersionUrl { get; set; }
+
+        internal string SchemaVersion { get; set; }
+
         internal string ModuleName { get; set; }
 
         internal string Title { get; set; }

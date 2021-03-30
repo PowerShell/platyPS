@@ -24,13 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS
             ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
-            Collection<PSModuleInfo> moduleInfo = ps
-                .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
-                .AddParameter("Name", moduleName)
-                .AddStatement()
-                .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
-                .AddParameter("Name", moduleName)
-                .Invoke<PSModuleInfo>();
+            Collection<PSModuleInfo> moduleInfo = GetModuleInfo(moduleName);
 
             Collection<CommandInfo> cmdletInfos = new();
 
@@ -51,6 +45,20 @@ namespace Microsoft.PowerShell.PlatyPS
             return cmdletInfos;
         }
 
+        public static Collection<PSModuleInfo> GetModuleInfo(string moduleName)
+        {
+            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
+            ps.Commands.Clear();
+
+            return ps
+                .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
+                .AddParameter("Name", moduleName)
+                .AddStatement()
+                .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
+                .AddParameter("Name", moduleName)
+                .Invoke<PSModuleInfo>();
+        }
+
         internal static void InitializeRemoteSession(PSSession session)
         {
             ps ??= System.Management.Automation.PowerShell.Create();
@@ -68,5 +76,16 @@ namespace Microsoft.PowerShell.PlatyPS
                 .AddParameter("Full")
                 .Invoke();
         }
+
+        internal static void Reset()
+        {
+            if (ps != null)
+            {
+                ps.Dispose();
+                ps = null;
+            }
+        }
+
+
     }
 }

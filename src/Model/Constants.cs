@@ -92,6 +92,21 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string MamlNavigationLinkTag = "maml:navigationLink";
         internal const string MamlLinkTextTag = "maml:linkText";
         internal const string MamlUriTag = "maml:uri";
+        internal const string Example1 = "Example 1";
+        internal const string MamlFileExtensionSuffix = "-help.xml";
+        internal const string ModuleNameHeaderTemplate = "Module Name: {0}";
+        internal const string DownladHelpLinkTitle = "Download Help Link: ";
+        internal const string FillDownloadHelpLink = "{{ Update Download Link}}";
+        internal const string HelpVersionTitle = "Help Version: ";
+        internal const string FillHelpVersion = "{{ Please enter version of help manually (X.X.X.X) format }}";
+        internal const string LocaleTemplate = "Locale: {0}";
+        internal const string ModulePageModuleNameHeaderTemplate = "# {0} Module";
+        internal const string ModulePageDescriptionHeader = "## Description";
+        internal const string ModulePageCmdletHeaderTemplate = "## {0} Cmdlets";
+        internal const string ModulePageCmdletLinkTemplate = "### [{0}]({1})";
+        internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
+        internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+        internal const string LocaleEnUs = "en-US";
 
         internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

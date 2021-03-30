@@ -10,13 +10,18 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal class TransformModule : TransformBase
     {
-        public TransformModule(PSSession session) : base(session)
+        public TransformModule(TransformSettings settings) : base(settings)
         {
         }
 
         internal override Collection<CommandHelp> Transform(string[] moduleNames)
         {
             Collection<CommandHelp> cmdHelp = new();
+
+            if (Settings.Session != null)
+            {
+                PowerShellAPI.InitializeRemoteSession(Settings.Session);
+            }
 
             foreach (var module in moduleNames)
             {
@@ -27,6 +32,8 @@ namespace Microsoft.PowerShell.PlatyPS
                     cmdHelp.Add(ConvertCmdletInfo(cmdletInfo));
                 }
             }
+
+            PowerShellAPI.Reset();
 
             return cmdHelp;
         }

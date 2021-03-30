@@ -10,14 +10,18 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal abstract class TransformBase
     {
-        protected PSSession Session { get; set; }
-
-        public TransformBase(PSSession session) => Session = session;
+        protected readonly TransformSettings Settings;
+        public TransformBase(TransformSettings settings) => Settings = settings;
 
         internal abstract Collection<CommandHelp> Transform(string[] source);
 
         protected CommandHelp ConvertCmdletInfo(CommandInfo cmdletInfo)
         {
+            if (Settings.Session != null)
+            {
+                PowerShellAPI.InitializeRemoteSession(Settings.Session);
+            }
+
             Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdletInfo.Name);
 
             bool addDefaultStrings = false;
@@ -42,6 +46,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             CommandHelp cmdHelp = new();
 
+            cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
             cmdHelp.Title = cmdletInfo.Name;
             cmdHelp.ModuleName = cmdletInfo.ModuleName;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
@@ -49,6 +54,14 @@ namespace Microsoft.PowerShell.PlatyPS
             cmdHelp.Description = GetDescription(helpItem, addDefaultStrings);
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
             cmdHelp.AddParameterRange(GetParameters(cmdletInfo, helpItem, addDefaultStrings));
+            cmdHelp.Locale = Settings.Locale;
+
+            var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName);
+
+            if (moduleInfos.Count > 0)
+            {
+                cmdHelp.ModuleGuid = moduleInfos[0].Guid;
+            }
 
             // Sometime the help content does not have any input type
             if (helpItem?.inputTypes?.inputType != null)
@@ -117,7 +130,7 @@ namespace Microsoft.PowerShell.PlatyPS
             if (addDefaultString)
             {
                 Example exp = new();
-                exp.Title = "Example 1";
+                exp.Title = Constants.Example1;
                 exp.Code = Constants.FillInExampleCode;
                 exp.Remarks = Constants.FillInExampleDescription;
                 examples.Add(exp);

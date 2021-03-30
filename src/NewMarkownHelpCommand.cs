@@ -3,6 +3,8 @@ using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
@@ -74,7 +76,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter ConvertDoubleDashLists { get; set; }
 
         [Parameter()]
-        public SwitchParameter AlphabeticParamsOrder { get; set; }
+        public SwitchParameter AlphabeticParamsOrder { get; set; } = true;
 
         [Parameter()]
         public SwitchParameter UseFullTypeName { get; set; }
@@ -108,44 +110,54 @@ namespace Microsoft.PowerShell.PlatyPS
                 Directory.CreateDirectory(OutputFolder);
             }
 
-            CommandHelp cmdHlp = GetMockCommandHelp();
+            //CommandHelp cmdHlp = GetMockCommandHelp();
 
             //CommandHelpMarkdownWriter cmdWrt = new CommandHelpMarkdownWriter(@"D:\temp\Get-Help.md", cmdHlp);
             //cmdWrt.Write();
 
             List<FileInfo> writtentFileList = new();
 
+            Collection<CommandHelp> cmdHelpObjs = null;
+
+            TransformSettings transformSettings = new();
+            transformSettings.AlphabeticParamsOrder = AlphabeticParamsOrder;
+            transformSettings.CreateModulePage = WithModulePage;
+            transformSettings.DoubleDashList = ConvertDoubleDashLists;
+            transformSettings.ExcludeDontShow = ExcludeDontShow;
+            transformSettings.FwLink = FwLink;
+            transformSettings.HelpVersion = HelpVersion;
+            transformSettings.Locale = Locale != null ? new CultureInfo(Locale) : null;
+            transformSettings.ModuleGuid = ModuleGuid != null ? Guid.Parse(ModuleGuid) : null;
+            transformSettings.ModuleName = ModuleName;
+            transformSettings.OnlineVersionUrl = OnlineVersionUrl;
+            transformSettings.Session = Session;
+            transformSettings.UseFullTypeName = UseFullTypeName;
+
             if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
             {
-                TransformCommand transformCommand = new(session: Session);
-
-                foreach (var cmdletHelp in transformCommand.Transform(Command))
-                {
-                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
-                    writtentFileList.Add(cmdWrt.Write());
-                }
+                cmdHelpObjs = new TransformCommand(transformSettings).Transform(Command);
+            }
+            else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
+            {
+                cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
+            }
+            else if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
+            {
+                cmdHelpObjs = new TransformMaml(transformSettings).Transform(MamlFile);
             }
 
-            if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
+            foreach (var cmdletHelp in cmdHelpObjs)
             {
-                TransformModule transformModule = new(session: Session);
-
-                foreach (var cmdletHelp in transformModule.Transform(Module))
-                {
-                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
-                    writtentFileList.Add(cmdWrt.Write());
-                }
+                MarkdownWriterSettings settings = new MarkdownWriterSettings(Encoding, $"{OutputFolder}\\{cmdletHelp.Title}.md");
+                CommandHelpMarkdownWriter cmdWrt = new(settings);
+                writtentFileList.Add(cmdWrt.Write(cmdletHelp, !NoMetadata));
             }
 
-            if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
+            if (WithModulePage)
             {
-                TransformMaml transformMaml = new(session: Session);
-
-                foreach (var cmdletHelp in transformMaml.Transform(MamlFile))
-                {
-                    CommandHelpMarkdownWriter cmdWrt = new($"{OutputFolder}\\{cmdletHelp.Title}.md", cmdletHelp);
-                    writtentFileList.Add(cmdWrt.Write());
-                }
+                string modulePagePath = string.IsNullOrEmpty(ModulePagePath) ? OutputFolder : ModulePagePath;
+                ModulePageWriter modulePageWriter = new(modulePagePath, Encoding);
+                writtentFileList.Add(modulePageWriter.Write(cmdHelpObjs));
             }
 
             WriteObject(writtentFileList);

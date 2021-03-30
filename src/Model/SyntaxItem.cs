@@ -10,6 +10,12 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string CommandName { get; }
         internal string ParameterSetName { get; }
 
+        private List<string> parameterNames = new();
+
+        internal ReadOnlyCollection<string> ParameterNames {
+            get => new ReadOnlyCollection<string>(parameterNames);
+        }
+
         // Sort parameters by position
         internal SortedList<int, Parameter> postitionalParameters;
 
@@ -40,6 +46,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 return;
             }
+
+            // Add to the list of the parameter names
+            parameterNames.Add(name);
 
             // First see if the parameter is positional
 
