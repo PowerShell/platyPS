@@ -2358,7 +2358,12 @@ function GetMamlObject
     {
         param([object]$help)
 
-        return (Get-Command $help.Name -Syntax) -eq ($help.Synopsis)
+        try {
+            return (Get-Command $help.Name -Syntax) -eq ($help.Synopsis)
+        }
+        catch {
+            return $False
+        }
     }
 
     if($Cmdlet)
