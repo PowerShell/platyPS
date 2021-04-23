@@ -9,6 +9,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string Code { get; set;}
         internal string Remarks { get; set;}
 
+        public Example(string title, string code, string remarks)
+        {
+            Title = title;
+            Code = code;
+            Remarks = remarks;
+        }
+
         internal string ToExampleItemString(int serialNumber)
         {
             StringBuilder sb = new();

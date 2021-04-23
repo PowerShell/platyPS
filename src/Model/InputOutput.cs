@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
+#nullable enable
+
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class InputOutput
@@ -9,9 +11,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         // tuple<typename, description>
         private List<Tuple<string, string>> inputOutputItems;
 
+        public InputOutput()
+        {
+            inputOutputItems = new List<Tuple<string, string>>();
+        }
+
         internal void AddInputOutputItem(string typeName, string description)
         {
-            inputOutputItems ??= new List<Tuple<string, string>>();
             inputOutputItems.Add(new Tuple<string, string>(typeName, description));
         }
 
@@ -33,6 +39,5 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             return sb.ToString();
         }
-
     }
 }

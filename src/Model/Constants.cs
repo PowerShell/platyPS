@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -107,6 +104,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
+        internal static readonly List<string> EmptyStringList = new();
+        internal static readonly char PathSeparator = System.IO.Path.PathSeparator;
 
         internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

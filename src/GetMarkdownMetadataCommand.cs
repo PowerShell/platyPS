@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -15,12 +11,17 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         #region cmdlet parameters
 
-        [Parameter(Mandatory = true, ParameterSetName = "FromPath")]
+        [Parameter(
+            Mandatory = true,
+            ParameterSetName = "FromPath",
+            ValueFromPipelineByPropertyName = true,
+            Position = 1)]
         [SupportsWildcards]
-        public string[] Path { get; set; }
+        public string[]? Path { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "FromMarkdownString")]
-        public string Markdown { get; set; }
+        [ValidateNotNullOrEmpty()]
+        public string? Markdown { get; set; }
 
         #endregion
 
@@ -28,24 +29,30 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             if (string.Equals(this.ParameterSetName, "FromMarkdownString", StringComparison.OrdinalIgnoreCase))
             {
-                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(Markdown));
+                if (Markdown is not null)
+                {
+                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(Markdown));
+                }
             }
             else if (string.Equals(this.ParameterSetName, "FromPath", StringComparison.OrdinalIgnoreCase))
             {
-                foreach (var filePath in Path)
+                if (Path is not null)
                 {
-                    if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(filePath))
+                    foreach (string? filePath in Path)
                     {
-                        FileInfo fInfo = new FileInfo(filePath);
-
-                        foreach (var file in Directory.GetFiles(fInfo.Directory.FullName, fInfo.Name))
+                        if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(filePath))
                         {
-                            DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                            FileInfo fInfo = new FileInfo(filePath);
+
+                            foreach (var file in Directory.GetFiles(fInfo.Directory.FullName, fInfo.Name))
+                            {
+                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                            }
                         }
-                    }
-                    else if (File.Exists(filePath))
-                    {
-                        DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(filePath)));
+                        else if (File.Exists(filePath))
+                        {
+                            DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(filePath)));
+                        }
                     }
                 }
             }
@@ -65,21 +72,21 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (mdAst.Count < 2)
             {
-                return null;
+                return string.Empty;
             }
 
             if (mdAst[0] is Markdig.Syntax.ThematicBreakBlock)
             {
                 if (mdAst[1] is Markdig.Syntax.HeadingBlock metadata)
                 {
-                    if (metadata.Inline.FirstChild is Markdig.Syntax.Inlines.LiteralInline metadataText)
+                    if (metadata?.Inline?.FirstChild is Markdig.Syntax.Inlines.LiteralInline metadataText)
                     {
                         return metadataText.Content.Text;
                     }
                 }
             }
 
-            return null;
+            return string.Empty;
         }
     }
 }

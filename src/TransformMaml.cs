@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -25,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             Collection<CommandHelp> cmdHelp = new();
 
-            if (Settings.Session != null)
+            if (Settings.Session is not null)
             {
                 PowerShellAPI.InitializeRemoteSession(Settings.Session);
             }
@@ -68,21 +65,25 @@ namespace Microsoft.PowerShell.PlatyPS
 
             while (reader.ReadToFollowing(Constants.MamlCommandCommandTag))
             {
-                var cmdHelp = ReadCommand(reader.ReadSubtree());
-                cmdHelp.ModuleName = moduleName;
-                commandHelps.Add(cmdHelp);
+                var cmdHelp = ReadCommand(moduleName, reader.ReadSubtree());
+
+                if (cmdHelp is not null)
+                {
+                    cmdHelp.ModuleName = moduleName;
+                    commandHelps.Add(cmdHelp);
+                }
             }
 
             return commandHelps;
         }
 
-        private CommandHelp ReadCommand(XmlReader reader)
+        private CommandHelp? ReadCommand(string moduleName, XmlReader reader)
         {
-            CommandHelp cmdHelp = new();
+            CommandHelp cmdHelp;
 
             if (reader.ReadToFollowing(Constants.MamlCommandNameTag))
             {
-                cmdHelp.Title = reader.ReadElementContentAsString();
+                cmdHelp = new(reader.ReadElementContentAsString(), moduleName, Settings.Locale);
 
                 Collection<CommandInfo> cmdInfo = PowerShellAPI.GetCommandInfo(cmdHelp.Title);
 
@@ -91,7 +92,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     throw new InvalidOperationException("Too many command infos");
                 }
 
-                cmdHelp.Synopsis = ReadSynopsis(reader);
+                cmdHelp.Synopsis = ReadSynopsis(reader) ?? string.Empty;
                 cmdHelp.Description = ReadDescription(reader);
                 cmdHelp.AddSyntaxItemRange(ReadSyntaxItems(reader, cmdInfo[0]));
                 cmdHelp.AddParameterRange(ReadParameters(reader, cmdHelp.Syntax.Count));
@@ -100,7 +101,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 cmdHelp.Notes = ReadNotes(reader);
                 cmdHelp.AddExampleItemRange(ReadExamples(reader));
                 cmdHelp.AddReleatedLinksRange(ReadRelatedLinks(reader));
-                cmdHelp.Locale = Settings.Locale;
                 cmdHelp.ModuleGuid = Settings.ModuleGuid;
 
                 paramSetMap.Clear();
@@ -123,8 +123,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
-                        string linkText = null;
-                        string uri = null;
+                        string? linkText = null;
+                        string? uri = null;
 
                         if (reader.ReadToFollowing(Constants.MamlLinkTextTag))
                         {
@@ -136,7 +136,10 @@ namespace Microsoft.PowerShell.PlatyPS
                             uri = reader.ReadElementContentAsString();
                         }
 
-                        relatedLinks.Add(new Links(uri, linkText));
+                        if (linkText != null && uri != null)
+                        {
+                            relatedLinks.Add(new Links(uri, linkText));
+                        }
 
                         reader.ReadEndElement();
 
@@ -173,23 +176,22 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private Example ReadExample(XmlReader reader, int exampleCounter)
         {
-            Example exp = new();
+            string? title = null;
+            StringBuilder remarks = new();
+            string? code = null;
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
             {
-                string title = reader.ReadElementContentAsString();
-                exp.Title = title.Trim(' ', '-').Replace($"Example {exampleCounter}: ", "");
+                title = reader.ReadElementContentAsString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", "");
             }
 
             if (reader.ReadToFollowing(Constants.MamlDevCodeTag))
             {
-                exp.Code = reader.ReadElementContentAsString();
+                code = reader.ReadElementContentAsString();
             }
 
             if (reader.ReadToFollowing(Constants.MamlDevRemarksTag))
             {
-                StringBuilder remarks = new();
-
                 if (reader.ReadToDescendant(Constants.MamlParaTag))
                 {
                     do
@@ -198,7 +200,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         remarks.AppendLine();
                     } while (reader.ReadToNextSibling(Constants.MamlParaTag));
 
-                    exp.Remarks = remarks.ToString();
+
                 }
 
                 if (reader.ReadState != ReadState.EndOfFile)
@@ -206,6 +208,17 @@ namespace Microsoft.PowerShell.PlatyPS
                     reader.ReadEndElement();
                 }
             }
+
+            if (title == null || code == null)
+            {
+                throw new InvalidDataException("Invalid example data");
+            }
+
+            Example exp = new(
+                title,
+                code,
+                remarks.ToString()
+                );
 
             return exp;
         }
@@ -243,8 +256,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
-                        string typeName = null;
-                        string typeDescription = null;
+                        string? typeName = null;
+                        string? typeDescription = null;
 
                         if (reader.ReadToFollowing(Constants.MamlNameTag))
                         {
@@ -256,10 +269,12 @@ namespace Microsoft.PowerShell.PlatyPS
                             typeDescription = reader.ReadElementContentAsString();
                         }
 
-                        inputItem.AddInputOutputItem(typeName, typeDescription);
+                        if (typeName is not null && typeDescription is not null)
+                        {
+                            inputItem.AddInputOutputItem(typeName, typeDescription);
+                        }
 
                     } while (reader.ReadToNextSibling(Constants.MamlCommandInputTypeTag));
-
                 }
             }
 
@@ -276,8 +291,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
-                        string typeName = null;
-                        string typeDescription = null;
+                        string? typeName = null;
+                        string? typeDescription = null;
 
                         if (reader.ReadToFollowing(Constants.MamlNameTag))
                         {
@@ -289,7 +304,10 @@ namespace Microsoft.PowerShell.PlatyPS
                             typeDescription = reader.ReadElementContentAsString();
                         }
 
-                        outputItem.AddInputOutputItem(typeName, typeDescription);
+                        if (typeName is not null && typeDescription is not null)
+                        {
+                            outputItem.AddInputOutputItem(typeName, typeDescription);
+                        }
 
                     } while (reader.ReadToNextSibling(Constants.MamlCommandReturnValueTag));
                 }
@@ -331,7 +349,11 @@ namespace Microsoft.PowerShell.PlatyPS
                         var unnamedParameterSetName = string.Format(Constants.UnnamedParameterSetTemplate, unnamedParameterSetIndex);
 
                         var syn = ReadSyntaxItem(reader.ReadSubtree(), unnamedParameterSetName);
-                        items.Add(syn);
+
+                        if (syn is not null)
+                        {
+                            items.Add(syn);
+                        }
 
                         // needed to go to next command:syntaxitem
                         reader.MoveToElement();
@@ -345,7 +367,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return items;
         }
 
-        private SyntaxItem ReadSyntaxItem(XmlReader reader, string unnamedParameterSetName)
+        private SyntaxItem? ReadSyntaxItem(XmlReader reader, string unnamedParameterSetName)
         {
             if (reader.ReadToDescendant(Constants.MamlNameTag))
             {
@@ -381,7 +403,16 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private Parameter ReadParameter(XmlReader reader, int parameterSetCount)
         {
-            Parameter parameter = new Parameter();
+            string name = string.Empty;
+            string type = string.Empty;
+            string position = Constants.NamedString;
+            string? defaultValue = null;
+            List<string> acceptedValues = new();
+            bool required = false;
+            bool variableLength = false;
+            bool globbing = false;
+            bool pipelineInput = false;
+            string? aliases = null;
 
             reader.Read();
 
@@ -389,46 +420,34 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (reader.MoveToAttribute("required"))
                 {
-                    bool required;
-                    if (bool.TryParse(reader.Value, out required))
-                    {
-                        parameter.Required = required;
-                    }
+                    bool.TryParse(reader.Value, out required);
                 }
 
                 if (reader.MoveToAttribute("variableLength"))
                 {
-                    bool variableLength;
-                    if (bool.TryParse(reader.Value, out variableLength))
-                    {
-                        parameter.VariableLength = variableLength;
-                    }
+                    bool.TryParse(reader.Value, out variableLength);
                 }
 
                 if (reader.MoveToAttribute("globbing"))
                 {
-                    bool globbing;
-                    if (bool.TryParse(reader.Value, out globbing))
-                    {
-                        parameter.Globbing = globbing;
-                    }
+                    bool.TryParse(reader.Value, out globbing);
                 }
 
                 if (reader.MoveToAttribute("pipelineInput"))
                 {
                     // Value is like 'True (ByPropertyName, ByValue)' or 'False'
-                    parameter.PipelineInput = reader.Value.StartsWith(Constants.TrueString, StringComparison.OrdinalIgnoreCase) ? true : false;
+                    pipelineInput = reader.Value.StartsWith(Constants.TrueString, StringComparison.OrdinalIgnoreCase) ? true : false;
                 }
 
                 if (reader.MoveToAttribute("position"))
                 {
                     // Value is like '0' or 'named'
-                    parameter.Position = reader.Value;
+                    position = reader.Value;
                 }
 
                 if (reader.MoveToAttribute("aliases"))
                 {
-                    parameter.Aliases = reader.Value;
+                    aliases = reader.Value;
                 }
 
                 reader.MoveToElement();
@@ -436,10 +455,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (reader.ReadToDescendant(Constants.MamlNameTag))
             {
-                parameter.Name = reader.ReadElementContentAsString();
+                name = reader.ReadElementContentAsString();
             }
 
-            parameter.Description = ReadDescription(reader);
+            string description = ReadDescription(reader);
 
             // We read the next element and check the name as it could parameterValue or parameterGroup or dev:type
             while (reader.Read())
@@ -455,7 +474,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         do
                         {
-                            parameter.AddAcceptedValue(reader.ReadElementContentAsString());
+                            acceptedValues.Add(reader.ReadElementContentAsString());
                         } while (reader.ReadToNextSibling(Constants.MamlCommandParameterValueTag));
                     }
                 }
@@ -463,14 +482,24 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (reader.ReadToDescendant(Constants.MamlNameTag))
                     {
-                        parameter.Type = reader.ReadElementContentAsString();
+                        type = reader.ReadElementContentAsString();
                     }
                 }
                 else if (string.Equals(reader.Name, Constants.MamlDevDefaultValueTag, StringComparison.OrdinalIgnoreCase))
                 {
-                    parameter.DefaultValue = reader.ReadElementContentAsString();
+                    defaultValue = reader.ReadElementContentAsString();
                 }
             }
+
+            Parameter parameter = new Parameter(name, type, position);
+            parameter.DefaultValue = defaultValue;
+            parameter.AddAcceptedValueRange(acceptedValues);
+            parameter.Description = description;
+            parameter.Required = required;
+            parameter.VariableLength = variableLength;
+            parameter.Globbing = globbing;
+            parameter.PipelineInput = pipelineInput;
+            parameter.Aliases = aliases;
 
             // need to go the end of command:parameter
             if (reader.ReadState != ReadState.EndOfFile)
@@ -481,7 +510,7 @@ namespace Microsoft.PowerShell.PlatyPS
             // Update parameter.ParameterSets only if we are reading for parameters. Not for syntax.
             if (parameterSetCount != -1)
             {
-                if (paramSetMap.TryGetValue(parameter.Name, out List<string> paramSetList))
+                if (paramSetMap.TryGetValue(name, out List<string> paramSetList))
                 {
                     // If the parameter is in all parameter sets then dont add.
                     // This ensures it is marked as present in all parameter sets.
@@ -495,9 +524,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameter;
         }
 
-        private string ReadSynopsis(XmlReader reader)
+        private string? ReadSynopsis(XmlReader reader)
         {
-            string synopsis = null;
+            string? synopsis = null;
 
             if (reader.ReadToNextSibling(Constants.MamlDescriptionTag))
             {

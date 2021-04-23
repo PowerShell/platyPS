@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -6,7 +7,7 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal static class PowerShellAPI
     {
-        private static System.Management.Automation.PowerShell ps;
+        private static System.Management.Automation.PowerShell? ps;
 
         public static Collection<CommandInfo> GetCommandInfo(string commandName)
         {
@@ -24,11 +25,11 @@ namespace Microsoft.PowerShell.PlatyPS
             ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
-            Collection<PSModuleInfo> moduleInfo = GetModuleInfo(moduleName);
+            Collection<PSModuleInfo>? moduleInfo = GetModuleInfo(moduleName);
 
             Collection<CommandInfo> cmdletInfos = new();
 
-            if (moduleInfo != null)
+            if (moduleInfo is not null)
             {
                 foreach (var mod in moduleInfo)
                 {
@@ -45,18 +46,45 @@ namespace Microsoft.PowerShell.PlatyPS
             return cmdletInfos;
         }
 
-        public static Collection<PSModuleInfo> GetModuleInfo(string moduleName)
+        public static Collection<PSModuleInfo>? GetModuleInfo(string moduleName)
         {
+            if (moduleName is null || moduleName.Length == 0)
+            {
+                return null;
+            }
+
             ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
-            return ps
-                .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
-                .AddParameter("Name", moduleName)
-                .AddStatement()
-                .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
-                .AddParameter("Name", moduleName)
-                .Invoke<PSModuleInfo>();
+            Collection<PSModuleInfo>? modules = null;
+
+            try
+            {
+                // first try if the module is loaded
+                modules = ps
+                    .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
+                    .AddParameter("Name", moduleName)
+                    .Invoke<PSModuleInfo>();
+
+                if (modules?.Count == 0)
+                {
+                    // if not found try to import first
+
+                    modules = ps
+                        .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
+                        .AddParameter("Name", moduleName)
+                        .AddStatement()
+                        .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
+                        .AddParameter("Name", moduleName)
+                        .Invoke<PSModuleInfo>();
+                }
+            }
+            catch(FileNotFoundException)
+            {
+                // swallow the exception and eventually return null;
+            }
+
+            return modules;
         }
 
         internal static void InitializeRemoteSession(PSSession session)
@@ -79,13 +107,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static void Reset()
         {
-            if (ps != null)
+            if (ps is not null)
             {
                 ps.Dispose();
                 ps = null;
             }
         }
-
-
     }
 }

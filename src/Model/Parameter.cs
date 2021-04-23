@@ -1,25 +1,24 @@
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class Parameter
     {
-        internal string Description { get; set;}
+        internal string? Description { get; set;}
         internal string Name { get; set;}
-        internal List<string> ParameterValue { get; set;}
+        internal List<string>? ParameterValue { get; set;}
         internal string Type { get; set;}
 
-        internal string DefaultValue { get; set;}
+        internal string? DefaultValue { get; set;}
 
         internal bool Required { get; set; }
 
-        private List<string> RequiredTrueParameterSets { get; set; }
-        private List<string> RequiredFalseParameterSets { get; set; }
+        private List<string>? RequiredTrueParameterSets { get; set; }
+        private List<string>? RequiredFalseParameterSets { get; set; }
 
         // @TODO: find out what this is for??
-        internal bool VariableLength { get; set;} = true;
+        internal bool? VariableLength { get; set;} = true;
 
         internal bool Globbing { get; set;}
 
@@ -27,13 +26,25 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string Position { get; set;}
 
-        internal string Aliases { get; set;}
+        internal string? Aliases { get; set;}
 
         internal List<string> ParameterSets { get; private set;}
 
         internal bool DontShow { get; set;}
 
-        internal List<string> AcceptedValues { get; private set; }
+        internal List<string>? AcceptedValues { get; private set; }
+
+        internal string? HelpMessage { get; set; }
+
+        public Parameter(string name,
+                         string type,
+                         string position)
+        {
+            Name = name;
+            Type = type;
+            Position = position;
+            ParameterSets = new();
+        }
 
         internal void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
         {
@@ -106,7 +117,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             if (Constants.CommonParametersNames.Contains(Name))
             {
-                return null;
+                return string.Empty;
             }
 
             if (AcceptedValues?.Count <= 0)

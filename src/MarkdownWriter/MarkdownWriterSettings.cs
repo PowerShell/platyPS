@@ -1,6 +1,6 @@
-﻿using Microsoft.PowerShell.PlatyPS.Model;
-using System.Text;
+﻿using System.Text;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests")]
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
     internal class MarkdownWriterSettings

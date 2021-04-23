@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Text;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -17,15 +16,17 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected CommandHelp ConvertCmdletInfo(CommandInfo cmdletInfo)
         {
-            if (Settings.Session != null)
+            if (Settings.Session is not null)
             {
                 PowerShellAPI.InitializeRemoteSession(Settings.Session);
             }
 
-            Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdletInfo.Name);
+            string cmdName = cmdletInfo is ExternalScriptInfo ? cmdletInfo.Source : cmdletInfo.Name;
+
+            Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdName);
 
             bool addDefaultStrings = false;
-            dynamic helpItem = null;
+            dynamic? helpItem = null;
 
             if (help?.Count == 1)
             {
@@ -44,27 +45,28 @@ namespace Microsoft.PowerShell.PlatyPS
                 addDefaultStrings = true;
             }
 
-            CommandHelp cmdHelp = new();
-
+            CommandHelp cmdHelp = new(cmdletInfo.Name, cmdletInfo.ModuleName, Settings.Locale) ;
             cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
-            cmdHelp.Title = cmdletInfo.Name;
-            cmdHelp.ModuleName = cmdletInfo.ModuleName;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(cmdletInfo, helpItem));
             cmdHelp.Description = GetDescription(helpItem, addDefaultStrings);
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
             cmdHelp.AddParameterRange(GetParameters(cmdletInfo, helpItem, addDefaultStrings));
-            cmdHelp.Locale = Settings.Locale;
+
+            if ((cmdletInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) || cmdletInfo is CmdletInfo)
+            {
+                cmdHelp.HasCmdletBinding = true;
+            }
 
             var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName);
 
-            if (moduleInfos.Count > 0)
+            if (moduleInfos?.Count > 0)
             {
                 cmdHelp.ModuleGuid = moduleInfos[0].Guid;
             }
 
             // Sometime the help content does not have any input type
-            if (helpItem?.inputTypes?.inputType != null)
+            if (helpItem?.inputTypes?.inputType is not null)
             {
                 cmdHelp.AddInputItem(
                     GetInputOutputItem(
@@ -74,7 +76,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             // Sometime the help content does not have any output type
-            if (helpItem?.returnValues?.returnValue != null)
+            if (helpItem?.returnValues?.returnValue is not null)
             {
                 cmdHelp.AddOutputItem(
                     GetInputOutputItem(
@@ -95,8 +97,15 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (KeyValuePair<string, ParameterMetadata> parameterMetadata in cmdletInfo.Parameters)
             {
-                Parameter param = new();
-                param.Name = parameterMetadata.Value.Name;
+                var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
+
+                Parameter param = new(parameterMetadata.Value.Name, parameterMetadata.Value.ParameterType.Name, paramAttribInfo.Position);
+
+                param.DontShow = paramAttribInfo.DontShow;
+                param.Required = paramAttribInfo.Required;
+                param.PipelineInput = paramAttribInfo.PipelineInput;
+                param.Globbing = paramAttribInfo.Globbing;
+                param.HelpMessage = paramAttribInfo.HelpMessage;
 
                 foreach (KeyValuePair<string, ParameterSetMetadata> paramSet in parameterMetadata.Value.ParameterSets)
                 {
@@ -113,10 +122,6 @@ namespace Microsoft.PowerShell.PlatyPS
                     string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                     descriptionFromHelp;
 
-                param.Type = parameterMetadata.Value.ParameterType.Name;
-
-                GetParameterAtributeInfo(parameterMetadata.Value.Attributes, ref param);
-
                 parameters.Add(param);
             }
 
@@ -129,10 +134,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (addDefaultString)
             {
-                Example exp = new();
-                exp.Title = Constants.Example1;
-                exp.Code = Constants.FillInExampleCode;
-                exp.Remarks = Constants.FillInExampleDescription;
+                Example exp = new(
+                    Constants.Example1,
+                    Constants.FillInExampleCode,
+                    Constants.FillInExampleDescription
+                    );
                 examples.Add(exp);
             }
             else
@@ -141,17 +147,19 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 var examplesArray = helpItem?.examples?.example;
 
-                if (examplesArray != null)
+                if (examplesArray is not null)
                 {
                     Collection<PSObject> examplesAsCollection = MakePSObjectEnumerable(examplesArray);
 
                     foreach (dynamic item in examplesAsCollection)
                     {
-                        Example exp = new();
-                        exp.Code = item.code.ToString();
-                        exp.Remarks = GetStringFromDescriptionArray(item.remarks);
                         string title = item.title.ToString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", "");
-                        exp.Title = title;
+
+                        Example exp = new(
+                            title,
+                            item.code.ToString(),
+                            GetStringFromDescriptionArray(item.remarks)
+                            );
 
                         examples.Add(exp);
                         exampleCounter++;
@@ -166,7 +174,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             List<Links> links = new();
 
-            if (helpItem?.relatedLinks?.navigationLink != null)
+            if (helpItem?.relatedLinks?.navigationLink is not null)
             {
                 Collection<PSObject> navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
 
@@ -202,60 +210,90 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected static Parameter GetParameterInfo(CommandInfo cmdletInfo, dynamic helpItem, CommandParameterInfo paramInfo)
         {
-            Parameter param = new Parameter();
+            var paramAttribInfo = GetParameterAtributeInfo(paramInfo.Attributes);
 
-            string paramName = paramInfo.Name;
+            Parameter param = new(paramInfo.Name, paramInfo.ParameterType.Name, paramAttribInfo.Position);
 
-            param.Name = paramName;
-
-            string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, paramName);
+            string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name);
             param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
-                string.Format(Constants.FillInParameterDescriptionTemplate, paramName) :
+                string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
 
-            param.Type = paramInfo.ParameterType.Name;
-
-            param.AddParameterSetsRange(GetParameterSetsOfParameter(paramName, cmdletInfo));
+            param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
 
             param.Aliases = string.Join("-", paramInfo.Aliases);
             param.Required = paramInfo.IsMandatory;
 
-            param.Position = paramInfo.Position == int.MinValue ? Constants.NamedString : paramInfo.Position.ToString();
-
-            string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, paramName);
+            string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
             param.DefaultValue = string.IsNullOrEmpty(defaultValueFromHelp) ?
                 Constants.NoneString :
                 defaultValueFromHelp;
 
             param.PipelineInput = paramInfo.ValueFromPipeline | paramInfo.ValueFromPipelineByPropertyName;
 
-            GetParameterAtributeInfo(paramInfo.Attributes, ref param);
-
             return param;
         }
 
-        protected static void GetParameterAtributeInfo(IEnumerable<Attribute> attributes, ref Parameter param)
+        internal class ParameterAttributeInfo
         {
+            internal bool DontShow { get; set; }
+            internal bool PipelineInput { get; set; }
+            internal bool Required { get; set; }
+            internal bool Globbing { get; set; }
+            internal string Position { get; set; }
+            internal string? HelpMessage { get; set; }
+
+            public ParameterAttributeInfo(
+                bool dontShow,
+                bool pipelineInput,
+                bool required,
+                string position,
+                string? helpMessage,
+                bool globbing)
+            {
+                DontShow = dontShow;
+                PipelineInput = pipelineInput;
+                Required = required;
+                Position = position;
+                HelpMessage = helpMessage;
+                Globbing = globbing;
+            }
+        }
+
+        protected static ParameterAttributeInfo GetParameterAtributeInfo(IEnumerable<Attribute> attributes)
+        {
+            bool dontShow = false;
+            bool pipelineInput = false;
+            string position = Constants.NamedString;
+            bool required = false;
+            string? helpMessage = null;
+            bool globbing = false;
+            IList<string> acceptedValues;
+
             foreach (var attrib in attributes)
             {
                 switch (attrib)
                 {
                     case ParameterAttribute parameterAttribute:
-                        param.DontShow = parameterAttribute.DontShow;
-                        param.PipelineInput = parameterAttribute.ValueFromPipeline | parameterAttribute.ValueFromPipelineByPropertyName;
-                        param.Position = parameterAttribute.Position == int.MinValue ? Constants.NamedString : parameterAttribute.Position.ToString();
-                        param.Required = parameterAttribute.Mandatory;
+                        dontShow = parameterAttribute.DontShow;
+                        pipelineInput = parameterAttribute.ValueFromPipeline | parameterAttribute.ValueFromPipelineByPropertyName;
+                        position = parameterAttribute.Position == int.MinValue ? Constants.NamedString : parameterAttribute.Position.ToString();
+                        required = parameterAttribute.Mandatory;
+                        helpMessage = parameterAttribute.HelpMessage;
+
                         break;
 
-                    case SupportsWildcardsAttribute wildcardsAttribute:
-                        param.Globbing = true;
+                    case SupportsWildcardsAttribute:
+                        globbing = true;
                         break;
 
                     case ValidateSetAttribute validateSetAttribute:
-                        param.AddAcceptedValueRange(validateSetAttribute.ValidValues);
+                        acceptedValues = validateSetAttribute.ValidValues;
                         break;
                 }
             }
+
+            return new ParameterAttributeInfo(dontShow, pipelineInput, required, position, helpMessage, globbing);
         }
 
         protected static IEnumerable<string> GetParameterSetsOfParameter(string parameterName, CommandInfo cmdletInfo)
@@ -265,10 +303,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 return paramMetadata.ParameterSets.Keys;
             }
 
-            return null;
+            return Constants.EmptyStringList;
         }
 
-        protected static string GetParameterDescriptionFromHelp(dynamic helpItem, string parameterName)
+        protected static string? GetParameterDescriptionFromHelp(dynamic helpItem, string parameterName)
         {
             if (helpItem?.parameters?.parameter == null)
             {
@@ -288,7 +326,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-        protected static string GetParameterDefaultValueFromHelp(dynamic helpItem, string parameterName)
+        protected static string? GetParameterDefaultValueFromHelp(dynamic helpItem, string parameterName)
         {
             if (helpItem?.parameters?.parameter == null)
             {
@@ -297,9 +335,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
             Collection<PSObject> parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
 
-            foreach (dynamic parameter in parameterAsCollection)
+            foreach (dynamic? parameter in parameterAsCollection)
             {
-                if (string.Equals(parameter.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(parameter?.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
                 {
                     return parameter?.defaultValue?.ToString();
                 }
@@ -308,7 +346,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-        protected static string GetNotes(dynamic helpItem, bool addDefaultString)
+        protected static string? GetNotes(dynamic helpItem, bool addDefaultString)
         {
             if (addDefaultString)
             {
@@ -316,7 +354,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else
             {
-                return helpItem?.alertSet?.alert != null ?
+                return helpItem?.alertSet?.alert is not null ?
                     GetStringFromDescriptionArray(helpItem.alertSet.alert) :
                     null;
             }
@@ -347,7 +385,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else
             {
-                return helpItem != null ? helpItem.Synopsis.ToString() : throw new ArgumentNullException(nameof(helpItem));
+                return helpItem is not null ? helpItem.Synopsis.ToString() : throw new ArgumentNullException(nameof(helpItem));
             }
         }
 
@@ -379,7 +417,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return inputOutputTypeItem;
         }
 
-        protected static string GetStringFromDescriptionArray(dynamic description)
+        protected static string? GetStringFromDescriptionArray(dynamic description)
         {
             if (description == null)
             {
@@ -399,9 +437,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return sb.ToString();
         }
 
-        private static Collection<PSObject> MakePSObjectEnumerable(dynamic psObject)
+        private static Collection<PSObject>? MakePSObjectEnumerable(dynamic psObject)
         {
-            Collection<PSObject> forceEnumerable = null;
+            Collection<PSObject>? forceEnumerable = null;
 
             if (psObject is PSObject)
             {
@@ -422,6 +460,15 @@ namespace Microsoft.PowerShell.PlatyPS
             else if (psObject is Collection<PSObject>)
             {
                 return psObject;
+            }
+            else if (psObject is object[])
+            {
+                forceEnumerable = new Collection<PSObject>();
+
+                foreach (var item in psObject)
+                {
+                    forceEnumerable.Add(new PSObject(item));
+                }
             }
 
             return forceEnumerable;

@@ -1,17 +1,17 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Microsoft.PowerShell.PlatyPS.Model;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests")]
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
     internal class CommandHelpMarkdownWriter
     {
         private readonly string _filePath;
-        private StringBuilder sb = null;
+        private StringBuilder? sb = null;
         private readonly Encoding _encoding;
 
         public CommandHelpMarkdownWriter(MarkdownWriterSettings settings)
@@ -29,13 +29,13 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        internal FileInfo Write(CommandHelp help, bool includeMetadata)
+        internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
         {
             sb ??= new StringBuilder();
 
-            if (includeMetadata)
+            if (!noMetadata)
             {
-                WriteMetadataHeader(help);
+                WriteMetadataHeader(help, metadata);
                 sb.AppendLine();
             }
 
@@ -56,9 +56,15 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             WriteParameters(help);
 
-            WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
+            if (help.Inputs != null)
+            {
+                WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
+            }
 
-            WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
+            if (help.Outputs != null)
+            {
+                WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
+            }
 
             WriteNotes(help);
 
@@ -72,86 +78,105 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        private void WriteMetadataHeader(CommandHelp help)
+        private void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
-            sb.AppendLine(Constants.YmlHeader);
-            sb.AppendLine($"external help file: {help.ModuleName}-help.xml");
-            sb.AppendLine($"Module Name: {help.ModuleName}");
-            sb.AppendLine($"online version: {help.OnlineVersionUrl}");
-            sb.AppendLine(Constants.SchemaVersionYml);
-            sb.AppendLine(Constants.YmlHeader);
+            sb?.AppendLine(Constants.YmlHeader);
+            sb?.AppendLine($"external help file: {help.ModuleName}-help.xml");
+            sb?.AppendLine($"Module Name: {help.ModuleName}");
+            sb?.AppendLine($"online version: {help.OnlineVersionUrl}");
+            sb?.AppendLine(Constants.SchemaVersionYml);
+
+            if (metadata is not null)
+            {
+                foreach (DictionaryEntry item in metadata)
+                {
+                    sb?.AppendFormat("{0}: {1}", item.Key, item.Value);
+                    sb?.AppendLine();
+                }
+            }
+
+            sb?.AppendLine(Constants.YmlHeader);
         }
 
         private void WriteTitle(CommandHelp help)
         {
-            sb.AppendLine($"# {help.Title}");
+            sb?.AppendLine($"# {help.Title}");
         }
 
         private void WriteSynopsis(CommandHelp help)
         {
-            sb.AppendLine(Constants.SynopsisMdHeader);
-            sb.AppendLine();
-            sb.AppendLine(help.Synopsis);
+            sb?.AppendLine(Constants.SynopsisMdHeader);
+            sb?.AppendLine();
+            sb?.AppendLine(help.Synopsis);
         }
 
         private void WriteSyntax(CommandHelp help)
         {
-            sb.AppendLine(Constants.SyntaxMdHeader);
-            sb.AppendLine();
+            sb?.AppendLine(Constants.SyntaxMdHeader);
+            sb?.AppendLine();
 
-            foreach(SyntaxItem item in help.Syntax)
+            if (help?.Syntax?.Count > 0)
             {
-                sb.AppendLine(item.ToSyntaxString());
+                foreach (SyntaxItem item in help.Syntax)
+                {
+                    sb?.AppendLine(item.ToSyntaxString());
+                }
             }
         }
 
         private void WriteDescription(CommandHelp help)
         {
-            sb.AppendLine(Constants.DescriptionMdHeader);
-            sb.AppendLine();
-            sb.AppendLine(help.Description);
+            sb?.AppendLine(Constants.DescriptionMdHeader);
+            sb?.AppendLine();
+            sb?.AppendLine(help.Description);
         }
 
         private void WriteExamples(CommandHelp help)
         {
-            sb.AppendLine(Constants.ExamplesMdHeader);
-            sb.AppendLine();
+            sb?.AppendLine(Constants.ExamplesMdHeader);
+            sb?.AppendLine();
 
-            int totalExamples = help.Examples.Count;
+            int? totalExamples = help?.Examples?.Count;
 
             for(int i = 0; i < totalExamples; i++)
             {
-                sb.Append(help.Examples[i].ToExampleItemString(i + 1));
-                sb.AppendLine();
+                sb?.Append(help?.Examples?[i].ToExampleItemString(i + 1));
+                sb?.AppendLine();
             }
         }
 
         private void WriteParameters(CommandHelp help)
         {
-            sb.AppendLine(Constants.ParametersMdHeader);
-            sb.AppendLine();
+            sb?.AppendLine(Constants.ParametersMdHeader);
+            sb?.AppendLine();
 
             // Sort the parameter by name before writing
-            help.Parameters.Sort((u1, u2) => u1.Name.CompareTo(u2.Name));
+            help?.Parameters?.Sort((u1, u2) => u1.Name.CompareTo(u2.Name));
 
-            foreach(var param in help.Parameters)
+            if (help?.Parameters?.Count > 0)
             {
-                string paramString = param.ToParameterString();
-
-                if (!string.IsNullOrEmpty(paramString))
+                foreach (Parameter param in help.Parameters)
                 {
-                    sb.AppendLine(paramString);
-                    sb.AppendLine();
+                    string paramString = param.ToParameterString();
+
+                    if (!string.IsNullOrEmpty(paramString))
+                    {
+                        sb?.AppendLine(paramString);
+                        sb?.AppendLine();
+                    }
+                }
+
+                if (help.HasCmdletBinding)
+                {
+                    sb?.AppendLine(Constants.CommonParameters);
                 }
             }
-
-            sb.AppendLine(Constants.CommonParameters);
         }
 
         private void WriteInputsOutputs(List<InputOutput> inputsoutputs, string header)
         {
-            sb.AppendLine(header);
-            sb.AppendLine();
+            sb?.AppendLine(header);
+            sb?.AppendLine();
 
             if (inputsoutputs == null)
             {
@@ -160,35 +185,35 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             foreach (var item in inputsoutputs)
             {
-                sb.Append(item.ToInputOutputString());
+                sb?.Append(item.ToInputOutputString());
             }
         }
 
         private void WriteNotes(CommandHelp help)
         {
-            sb.AppendLine(Constants.NotesMdHeader);
-            sb.AppendLine();
-            sb.AppendLine(help.Notes);
-            sb.AppendLine();
+            sb?.AppendLine(Constants.NotesMdHeader);
+            sb?.AppendLine();
+            sb?.AppendLine(help.Notes);
+            sb?.AppendLine();
         }
 
         private void WriteRelatedLinks(CommandHelp help)
         {
-            sb.AppendLine(Constants.RelatedLinksMdHeader);
-            sb.AppendLine();
+            sb?.AppendLine(Constants.RelatedLinksMdHeader);
+            sb?.AppendLine();
 
             if (help.RelatedLinks?.Count > 0)
             {
                 foreach(var link in help.RelatedLinks)
                 {
-                    sb.AppendLine(link.ToRelatedLinksString());
-                    sb.AppendLine();
+                    sb?.AppendLine(link.ToRelatedLinksString());
+                    sb?.AppendLine();
                 }
             }
             else
             {
-                sb.AppendLine("{{ Fill Related Links Here}}");
-                sb.AppendLine();
+                sb?.AppendLine("{{ Fill Related Links Here}}");
+                sb?.AppendLine();
             }
         }
     }

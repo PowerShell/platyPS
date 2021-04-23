@@ -9,20 +9,17 @@ using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
+[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests,PublicKey=0024000004800000940000000602000000240000525341310004000001000100b5fc90e7027f67871e773a8fde8938c81dd402ba65b9201d60593e96c492651e889cc13f1415ebb53fac1131ae0bd333c5ee6021672d9718ea31a8aebd0da0072f25d87dba6fc90ffd598ed4da35e44c398c454307e8e33b8426143daec9f596836f97c8f74750e5975c64e2189f45def46b2a2b1247adc3652bf5c308055da9")]
 namespace Microsoft.PowerShell.PlatyPS
 {
     [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri="https://go.microsoft.com/fwlink/?LinkID=2096483")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
-        public NewMarkdownHelpCommand()
-        {
-        }
-
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ParameterSetName="FromCommand")]
-        public string[] Command { get; set; }
+        public string[]? Command { get; set; }
 
         [Parameter()]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -32,38 +29,39 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
-        public string FwLink { get; set; }
+        public string? FwLink { get; set; }
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
-        public string HelpVersion { get; set; }
+        public string? HelpVersion { get; set; }
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
-        public string Locale { get; set; }
+        public string? Locale { get; set; }
 
         [Parameter(Mandatory= true, ParameterSetName="FromMaml")]
-        public string[] MamlFile { get; set; }
+        public string[]? MamlFile { get; set; }
 
-        public Hashtable Metadata { get; set; }
+        [Parameter()]
+        public Hashtable? Metadata { get; set; }
 
         [Parameter(Mandatory=true, ValueFromPipeline=true, ParameterSetName="FromModule")]
-        public string[] Module { get; set; }
+        public string[]? Module { get; set; }
 
         [Parameter(ParameterSetName="FromMaml")]
-        public string ModuleGuid { get; set; }
+        public string? ModuleGuid { get; set; }
 
         [Parameter(ParameterSetName="FromMaml")]
-        public string ModuleName { get; set; }
+        public string? ModuleName { get; set; }
 
         [Parameter()]
         public SwitchParameter NoMetadata { get; set; }
 
         [Parameter(ParameterSetName="FromCommand")]
-        public string OnlineVersionUrl { get; set; } = string.Empty;
+        public string? OnlineVersionUrl { get; set; }
 
         [Parameter(Mandatory=true)]
-        public string OutputFolder { get; set; }
+        public string? OutputFolder { get; set; }
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
@@ -83,11 +81,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromCommand")]
-        public PSSession Session { get; set;}
+        public PSSession? Session { get; set;}
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
-        public string ModulePagePath { get; set; }
+        public string? ModulePagePath { get; set; }
 
         public SwitchParameter ExcludeDontShow { get; set; }
 
@@ -95,7 +93,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void BeginProcessing()
         {
-
+            if (Metadata is not null && NoMetadata)
+            {
+                var exception = new InvalidOperationException(Microsoft_PowerShell_PlatyPS_Resources.NoMetadataAndMetadata);
+                ErrorRecord err = new ErrorRecord(exception, "NoMetadataAndMetadata", ErrorCategory.InvalidOperation, Metadata);
+                ThrowTerminatingError(err);
+            }
         }
 
         protected override void ProcessRecord()
@@ -110,140 +113,80 @@ namespace Microsoft.PowerShell.PlatyPS
                 Directory.CreateDirectory(OutputFolder);
             }
 
-            //CommandHelp cmdHlp = GetMockCommandHelp();
-
-            //CommandHelpMarkdownWriter cmdWrt = new CommandHelpMarkdownWriter(@"D:\temp\Get-Help.md", cmdHlp);
-            //cmdWrt.Write();
-
             List<FileInfo> writtentFileList = new();
 
-            Collection<CommandHelp> cmdHelpObjs = null;
+            Collection<CommandHelp>? cmdHelpObjs = null;
 
-            TransformSettings transformSettings = new();
-            transformSettings.AlphabeticParamsOrder = AlphabeticParamsOrder;
-            transformSettings.CreateModulePage = WithModulePage;
-            transformSettings.DoubleDashList = ConvertDoubleDashLists;
-            transformSettings.ExcludeDontShow = ExcludeDontShow;
-            transformSettings.FwLink = FwLink;
-            transformSettings.HelpVersion = HelpVersion;
-            transformSettings.Locale = Locale != null ? new CultureInfo(Locale) : null;
-            transformSettings.ModuleGuid = ModuleGuid != null ? Guid.Parse(ModuleGuid) : null;
-            transformSettings.ModuleName = ModuleName;
-            transformSettings.OnlineVersionUrl = OnlineVersionUrl;
-            transformSettings.Session = Session;
-            transformSettings.UseFullTypeName = UseFullTypeName;
+            TransformSettings transformSettings = new TransformSettings
+            {
+                AlphabeticParamsOrder = AlphabeticParamsOrder,
+                CreateModulePage = WithModulePage,
+                DoubleDashList = ConvertDoubleDashLists,
+                ExcludeDontShow = ExcludeDontShow,
+                FwLink = FwLink,
+                HelpVersion = HelpVersion,
+                Locale = Locale is not null ? new CultureInfo(Locale) : CultureInfo.GetCultureInfo("en-US"),
+                ModuleGuid = ModuleGuid is not null ? Guid.Parse(ModuleGuid) : null,
+                ModuleName = ModuleName,
+                OnlineVersionUrl = OnlineVersionUrl,
+                Session = Session,
+                UseFullTypeName = UseFullTypeName
+            };
 
             if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
             {
-                cmdHelpObjs = new TransformCommand(transformSettings).Transform(Command);
+                if (Command?.Length > 0)
+                {
+                    cmdHelpObjs = new TransformCommand(transformSettings).Transform(Command);
+                }
             }
             else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
             {
-                cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
+                if (Module?.Length > 0)
+                {
+                    cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
+                }
             }
             else if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
             {
-                cmdHelpObjs = new TransformMaml(transformSettings).Transform(MamlFile);
+                if (MamlFile?.Length > 0)
+                {
+                    cmdHelpObjs = new TransformMaml(transformSettings).Transform(MamlFile);
+                }
             }
 
-            foreach (var cmdletHelp in cmdHelpObjs)
+            if (cmdHelpObjs != null)
             {
-                MarkdownWriterSettings settings = new MarkdownWriterSettings(Encoding, $"{OutputFolder}\\{cmdletHelp.Title}.md");
-                CommandHelpMarkdownWriter cmdWrt = new(settings);
-                writtentFileList.Add(cmdWrt.Write(cmdletHelp, !NoMetadata));
+                foreach (var cmdletHelp in cmdHelpObjs)
+                {
+                    MarkdownWriterSettings settings = new MarkdownWriterSettings(Encoding, $"{OutputFolder}{Constants.PathSeparator}{cmdletHelp.Title}.md");
+                    CommandHelpMarkdownWriter cmdWrt = new(settings);
+                    writtentFileList.Add(cmdWrt.Write(cmdletHelp, NoMetadata, Metadata));
+                }
+
+                if (WithModulePage)
+                {
+                    string? modulePagePath;
+
+                    if (ModulePagePath is null && OutputFolder is not null)
+                    {
+                        modulePagePath = OutputFolder;
+                    }
+                    else if (ModulePagePath is not null)
+                    {
+                        modulePagePath = ModulePagePath;
+                    }
+                    else
+                    {
+                        throw new ArgumentNullException("ModulePagePath is null");
+                    }
+
+                    ModulePageWriter modulePageWriter = new(modulePagePath, Encoding);
+                    writtentFileList.Add(modulePageWriter.Write(cmdHelpObjs));
+                }
+
+                WriteObject(writtentFileList);
             }
-
-            if (WithModulePage)
-            {
-                string modulePagePath = string.IsNullOrEmpty(ModulePagePath) ? OutputFolder : ModulePagePath;
-                ModulePageWriter modulePageWriter = new(modulePagePath, Encoding);
-                writtentFileList.Add(modulePageWriter.Write(cmdHelpObjs));
-            }
-
-            WriteObject(writtentFileList);
-        }
-
-        private static CommandHelp GetMockCommandHelp()
-        {
-            CommandHelp cmdHlp = new();
-            cmdHlp.Title = "Get-Help";
-            cmdHlp.Synopsis = "Displays information about PowerShell commands and concepts.";
-
-            var nameParam = new Parameter {
-                Name = "Name",
-                Type = "string",
-                Required = true,
-                Position = "Named",
-                DefaultValue = "None",
-                PipelineInput = false,
-                Description = @"Displays help only for items in the specified category and their aliases.
-Conceptual articles are in the HelpFile category."
-            };
-
-            nameParam.AddAcceptedValueRange(new string[] { "Alias", "Cmdlet", "Provider" });
-            nameParam.AddRequiredParameterSetsRange(true, new string[] { "a", "b" });
-            nameParam.AddRequiredParameterSetsRange(true, new string[] { "c" });
-            nameParam.AddParameterSetsRange(new string[] { "a", "b", "c" });
-
-            var pathParam = new Parameter {
-                Name = "Path",
-                Type = "string",
-                Required = false,
-                Position = "0",
-                DefaultValue = "None",
-                PipelineInput = true,
-                Description = @"Displays commands with the specified component value, such as Exchange .
-Enter a component name.
-Wildcard characters are permitted.
-This parameter has no effect on displays of conceptual ( About_ ) help."
-            };
-
-            pathParam.AddRequiredParameterSetsRange(true, new string[] { "a" });
-            pathParam.AddParameterSet("a");
-
-            SyntaxItem syntax1 = new("Get-Help", "AllUsersView", isDefaultParameterSet: true);
-            syntax1.AddParameter(pathParam);
-            syntax1.AddParameter(nameParam);
-
-            SyntaxItem syntax2 = new ("Get-Help", "DetailedView", isDefaultParameterSet: false);
-            syntax2.AddParameter(pathParam);
-            syntax2.AddParameter(nameParam);
-
-            cmdHlp.AddSyntaxItem(syntax1);
-            cmdHlp.AddSyntaxItem(syntax2);
-
-            cmdHlp.AddParameter(pathParam);
-            cmdHlp.AddParameter(nameParam);
-
-            cmdHlp.Description = @"The \`Get-Help\` cmdlet displays information about PowerShell concepts and commands, including cmdlets, functions, Common Information Model (CIM) commands, workflows, providers, aliases, and scripts.
-
-To get help for a PowerShell cmdlet, type \`Get-Help\` followed by the cmdlet name, such as: \`Get-Help Get-Process\`.
-
-Conceptual help articles in PowerShell begin with about_ , such as about_Comparison_Operators .
-To see all about_ articles, type \`Get-Help about_*\`.
-To see a particular article, type \`Get-Help about_\<article-name\>\`, such as \`Get-Help about_Comparison_Operators\`.";
-
-            string code = @"Get-Help Format-Table
-Get-Help -Name Format-Table
-Format-Table -?";
-
-            string remarks = @"\`Get-Help \<cmdlet-name\>\` is the simplest and default syntax of \`Get-Help\` cmdlet.
-You can omit the Name parameter.
-
-The syntax \`\<cmdlet-name\> -?\` works only for cmdlets.";
-
-            cmdHlp.AddExampleItem(new Example() { Title = "Display basic help information about a cmdlet", Code = code, Remarks = remarks });
-
-            InputOutput input = new();
-            input.AddInputOutputItem("System.String", "Some string parameter");
-
-            InputOutput output = new();
-            output.AddInputOutputItem("System.String", "Some string parameter");
-            output.AddInputOutputItem("MamlCommandHelpInfo", @"If you get a command that has a help file, \`Get-Help\` returns a MamlCommandHelpInfo object.");
-            cmdHlp.AddInputItem(input);
-            cmdHlp.AddOutputItem(output);
-
-            return cmdHlp;
         }
     }
 }

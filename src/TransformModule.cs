@@ -1,9 +1,5 @@
-using System;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Text;
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -18,7 +14,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             Collection<CommandHelp> cmdHelp = new();
 
-            if (Settings.Session != null)
+            if (Settings.Session is not null)
             {
                 PowerShellAPI.InitializeRemoteSession(Settings.Session);
             }
