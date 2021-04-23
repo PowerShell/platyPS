@@ -1,8 +1,4 @@
-﻿using Markdown.MAML.Model.MAML;
-using Markdown.MAML.Parser;
-using Markdown.MAML.Resources;
-using Markdown.MAML.Transformer;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +6,10 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Markdown.MAML.Model.Markdown;
+using Markdown.MAML.Model.MAML;
+using Markdown.MAML.Parser;
+using Markdown.MAML.Resources;
+using Markdown.MAML.Transformer;
 
 namespace Markdown.MAML.Renderer
 {
@@ -62,6 +62,8 @@ namespace Markdown.MAML.Renderer
 
                 // put version there
                 yamlHeader["schema"] = "2.0.0";
+                yamlHeader["wiki"] = "\n    share: true";
+
                 AddYamlHeader(yamlHeader);
             }
 
@@ -73,18 +75,18 @@ namespace Markdown.MAML.Renderer
                     RenderCleaner.NormalizeQuotesAndDashes(
                         _stringBuilder.ToString())));
         }
-        
+
         private void AddYamlHeader(Hashtable yamlHeader)
         {
             _stringBuilder.AppendFormat("---{0}", NewLine);
-            
+
             // Use a sorted dictionary to force the metadata into alphabetical order by key for consistency.
             var sortedHeader = new SortedDictionary<string, string>(StringComparer.OrdinalIgnoreCase);
             foreach (DictionaryEntry pair in yamlHeader)
             {
                 sortedHeader[pair.Key.ToString()] = pair.Value == null ? "" : pair.Value.ToString();
             }
-            
+
             foreach (var pair in sortedHeader)
             {
                 AppendYamlKeyValue(pair.Key, pair.Value);
@@ -275,7 +277,7 @@ namespace Markdown.MAML.Renderer
             AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, '-' + parameter.Name, extraNewLine: extraNewLine);
 
             AddParagraphs(parameter.Description);
-            
+
             var sets = SimplifyParamSets(GetParamSetDictionary(parameter.Name, command.Syntax));
             foreach (var set in sets)
             {
@@ -350,7 +352,7 @@ namespace Markdown.MAML.Renderer
                 {
                     for (var i = 0; i < example.Code.Length; i++)
                     {
-                        AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker);
+                        AddCodeSnippet(example.Code[i].Text, example.Code[i].LanguageMoniker == null ? "ps" : example.Code[i].LanguageMoniker);
                     }
                 }
 
@@ -364,7 +366,7 @@ namespace Markdown.MAML.Renderer
         private static string GetExampleTitle(string title)
         {
             var match = Regex.Match(title, @"^(-| ){0,}(?<title>([^\f\n\r\t\v\x85\p{Z}-][^\f\n\r\t\v\x85]+[^\f\n\r\t\v\x85\p{Z}-]))(-| ){0,}$");
-            
+
             if (match.Success)
             {
                 return match.Groups["title"].Value;
@@ -387,7 +389,7 @@ namespace Markdown.MAML.Renderer
             sb.Append(command.Name);
 
             var paramStrings = new List<string>();
-                        
+
             // first we create list of param string we want to add
             foreach (var param in syntax.Parameters)
             {
@@ -411,7 +413,7 @@ namespace Markdown.MAML.Renderer
                         paramStr = string.Format("[{0}]", paramStr);
                     }
                 }
-                paramStrings.Add(paramStr);   
+                paramStrings.Add(paramStr);
             }
 
             if (command.IsWorkflow)
@@ -426,8 +428,8 @@ namespace Markdown.MAML.Renderer
 
             // then we format them properly with repsect to max width for window.
             int widthBeforeLastBreak = 0;
-            foreach (string paramStr in paramStrings) { 
-
+            foreach (string paramStr in paramStrings)
+            {
                 if (sb.Length - widthBeforeLastBreak + paramStr.Length > maxSyntaxWidth)
                 {
                     sb.AppendLine();
@@ -442,15 +444,15 @@ namespace Markdown.MAML.Renderer
 
         private void AddSyntax(MamlCommand command)
         {
-            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.SYNTAX);
+            AddHeader(ModelTransformerBase.COMMAND_ENTRIES_HEADING_LEVEL, MarkdownStrings.SYNTAX, true);
             foreach (var syntax in command.Syntax)
             {
                 if (command.Syntax.Count > 1)
                 {
-                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, string.Format("{0}{1}",syntax.ParameterSetName,syntax.IsDefault ? MarkdownStrings.DefaultParameterSetModifier : null), extraNewLine: false);
+                    AddHeader(ModelTransformerBase.PARAMETERSET_NAME_HEADING_LEVEL, string.Format("{0}{1}", syntax.ParameterSetName, syntax.IsDefault ? MarkdownStrings.DefaultParameterSetModifier : null), extraNewLine: false);
                 }
 
-                AddCodeSnippet(GetSyntaxString(command, syntax));
+                AddCodeSnippet(GetSyntaxString(command, syntax), "ps");
             }
         }
 
@@ -495,7 +497,7 @@ namespace Markdown.MAML.Renderer
         private string GetAutoWrappingForMarkdown(string[] lines)
         {
             // this is an implementation of https://github.com/PowerShell/platyPS/issues/93
-            
+
             // algorithm: identify chunks that represent lists
             // Every entry in a list should be preserved as is and 1 EOL between them
             // Every entry not in a list should be split with GetAutoWrappingForNonListLine
