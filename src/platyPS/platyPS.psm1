@@ -2359,7 +2359,7 @@ function GetMamlObject
         param([object]$help)
 
         try {
-            return (Get-Command $help.Name -Syntax) -eq ($help.Synopsis)
+            return (Get-Command $help.Name -Syntax -ErrorAction SilentlyContinue) -eq ($help.Synopsis)
         }
         catch {
             return $False
