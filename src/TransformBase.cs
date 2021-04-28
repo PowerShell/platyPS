@@ -298,9 +298,16 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected static IEnumerable<string> GetParameterSetsOfParameter(string parameterName, CommandInfo cmdletInfo)
         {
-            if (cmdletInfo.Parameters.TryGetValue(parameterName, out ParameterMetadata paramMetadata))
+            if (cmdletInfo.Parameters.TryGetValue(parameterName, out ParameterMetadata? paramMetadata))
             {
-                return paramMetadata.ParameterSets.Keys;
+                if (paramMetadata is not null)
+                {
+                    return paramMetadata.ParameterSets.Keys;
+                }
+                else
+                {
+                    return Constants.EmptyStringList;
+                }
             }
 
             return Constants.EmptyStringList;

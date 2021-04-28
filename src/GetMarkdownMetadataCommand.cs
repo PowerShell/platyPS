@@ -38,15 +38,21 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (Path is not null)
                 {
-                    foreach (string? filePath in Path)
+                    foreach (string filePath in Path)
                     {
                         if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(filePath))
                         {
-                            FileInfo fInfo = new FileInfo(filePath);
+                            FileInfo? fInfo = new FileInfo(filePath);
 
-                            foreach (var file in Directory.GetFiles(fInfo.Directory.FullName, fInfo.Name))
+                            string? directoryPath = fInfo?.Directory?.FullName;
+                            string? directoryName = fInfo?.Name;
+
+                            if (directoryPath is not null && directoryName is not null)
                             {
-                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                                foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
+                                {
+                                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                                }
                             }
                         }
                         else if (File.Exists(filePath))

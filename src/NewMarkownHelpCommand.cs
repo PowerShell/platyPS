@@ -108,7 +108,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
-            if (!Directory.Exists(OutputFolder))
+            if (OutputFolder is not null && !Directory.Exists(OutputFolder))
             {
                 Directory.CreateDirectory(OutputFolder);
             }

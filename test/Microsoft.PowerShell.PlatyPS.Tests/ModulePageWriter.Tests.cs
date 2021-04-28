@@ -20,13 +20,6 @@ namespace Microsoft.PowerShell.PlatyPS.Tests
         }
 
         [Fact]
-        public void Write_NullCollection()
-        {
-            ModulePageWriter writer = new("SomePath", Encoding.UTF8);
-            Assert.Throws<ArgumentNullException>(() => writer.Write(null));
-        }
-
-        [Fact]
         public void Construct_NullPath()
         {
             Assert.Throws<ArgumentNullException>(() => new ModulePageWriter(modulePagePath: null, Encoding.UTF8));

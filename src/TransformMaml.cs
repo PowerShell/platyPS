@@ -510,13 +510,16 @@ namespace Microsoft.PowerShell.PlatyPS
             // Update parameter.ParameterSets only if we are reading for parameters. Not for syntax.
             if (parameterSetCount != -1)
             {
-                if (paramSetMap.TryGetValue(name, out List<string> paramSetList))
+                if (paramSetMap.TryGetValue(name, out List<string>? paramSetList))
                 {
-                    // If the parameter is in all parameter sets then dont add.
-                    // This ensures it is marked as present in all parameter sets.
-                    if (paramSetList.Count != parameterSetCount)
+                    if (paramSetList is not null)
                     {
-                        parameter.AddParameterSetsRange(paramSetList);
+                        // If the parameter is in all parameter sets then dont add.
+                        // This ensures it is marked as present in all parameter sets.
+                        if (paramSetList is not null && paramSetList.Count != parameterSetCount)
+                        {
+                            parameter.AddParameterSetsRange(paramSetList);
+                        }
                     }
                 }
             }

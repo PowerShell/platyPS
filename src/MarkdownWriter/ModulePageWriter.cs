@@ -28,19 +28,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal FileInfo Write(Collection<CommandHelp> helpItems)
         {
-            if (helpItems == null)
-            {
-                throw new ArgumentNullException(nameof(helpItems));
-            }
-
             if (helpItems.Count < 1 )
             {
                 throw new ArgumentException("Not enough command help items");
             }
 
             string moduleName = helpItems[0].ModuleName;
-            string? localeString = helpItems[0]?.Locale == null ? Constants.LocaleEnUs : helpItems[0]?.Locale?.ToString();
-            string moduleGuid = helpItems[0].ModuleGuid == null ? Constants.FillInGuid : helpItems[0].ModuleGuid.ToString();
+            string localeString = helpItems[0].Locale.ToString();
+            string? moduleGuid = helpItems[0].ModuleGuid == null ? Constants.FillInGuid : helpItems[0].ModuleGuid.ToString();
 
             var modulePage = new FileInfo(_modulePagePath);
 
