@@ -13,5 +13,3 @@ catch {
         throw $_
     }
 }
-
-Import-Module platyPS # As a check if has been installed
