@@ -57,7 +57,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string FillInExampleTitle = "Example 1";
         internal const string FillInExampleCode = @"PS C:\> {{ Add example code here }}";
         internal const string FillInExampleDescription = "{{ Add example description here }}";
-        internal const string FillInParameterDescriptionTemplate = "{{ Fill {0} Description }}";
+        internal const string FillInParameterDescriptionTemplate = "{{{{ Fill {0} Description }}}}";
         internal const string FillInReleatedLinks = "{{ Fill in the related links here }}";
 
         internal const string MamlCommandCommandTag = "command:command";
@@ -103,9 +103,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string ModulePageCmdletLinkTemplate = "### [{0}]({1})";
         internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+        internal const string FillInRelatedLinks = "Fill Related Links Here";
         internal const string LocaleEnUs = "en-US";
         internal static readonly List<string> EmptyStringList = new();
-        internal static readonly char PathSeparator = System.IO.Path.PathSeparator;
+        internal static readonly char DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
 
         internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

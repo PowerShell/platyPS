@@ -12,17 +12,18 @@ namespace Microsoft.PowerShell.PlatyPS.Tests
         [Fact]
         public void Write_EmptyHelpItems()
         {
-            ModulePageWriter writer = new("SomePath", Encoding.UTF8);
+            MarkdownWriterSettings settings = new(Encoding.UTF8, "SomePath");
+            ModulePageWriter writer = new(settings);
 
             Action action = () => writer.Write(new Collection<CommandHelp>());
-            ArgumentException argumentException = Assert.Throws<ArgumentException>(action);
-            Assert.Equal("Not enough command help items", argumentException.Message);
+            ArgumentException argumentException = Assert.Throws<ArgumentOutOfRangeException>(action);
         }
 
         [Fact]
         public void Construct_NullPath()
         {
-            Assert.Throws<ArgumentNullException>(() => new ModulePageWriter(modulePagePath: null, Encoding.UTF8));
+            MarkdownWriterSettings settings = new(Encoding.UTF8, null);
+            Assert.Throws<ArgumentNullException>(() => new ModulePageWriter(settings));
         }
 
         [Fact]

@@ -45,7 +45,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 addDefaultStrings = true;
             }
 
-            CommandHelp cmdHelp = new(cmdletInfo.Name, cmdletInfo.ModuleName, Settings.Locale) ;
+            CommandHelp cmdHelp = new(cmdletInfo.Name, cmdletInfo.ModuleName, Settings.Locale);
             cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(cmdletInfo, helpItem));
@@ -91,7 +91,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return cmdHelp;
         }
 
-        protected static IEnumerable<Parameter> GetParameters(CommandInfo cmdletInfo, dynamic helpItem, bool addDefaultString)
+        protected IEnumerable<Parameter> GetParameters(CommandInfo cmdletInfo, dynamic helpItem, bool addDefaultString)
         {
             List<Parameter> parameters = new();
 
@@ -99,7 +99,9 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
 
-                Parameter param = new(parameterMetadata.Value.Name, parameterMetadata.Value.ParameterType.Name, paramAttribInfo.Position);
+                string typeName = GetParameterTypeName(parameterMetadata.Value.ParameterType);
+
+                Parameter param = new(parameterMetadata.Value.Name, typeName, paramAttribInfo.Position);
 
                 param.DontShow = paramAttribInfo.DontShow;
                 param.Required = paramAttribInfo.Required;
@@ -117,7 +119,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
                 param.Aliases = string.Join(",", parameterMetadata.Value.Aliases);
 
-                string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name);
+                string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
                     string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                     descriptionFromHelp;
@@ -187,7 +189,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return links;
         }
 
-        protected static IEnumerable<SyntaxItem> GetSyntaxItem(CommandInfo cmdletInfo, dynamic helpItem)
+        protected IEnumerable<SyntaxItem> GetSyntaxItem(CommandInfo cmdletInfo, dynamic helpItem)
         {
             List<SyntaxItem> syntaxItems = new();
 
@@ -207,14 +209,53 @@ namespace Microsoft.PowerShell.PlatyPS
             return syntaxItems;
         }
 
+        private string GetParameterTypeName(Type type)
+        {
+            string typeName = string.Empty;
 
-        protected static Parameter GetParameterInfo(CommandInfo cmdletInfo, dynamic helpItem, CommandParameterInfo paramInfo)
+            if (type.IsGenericType)
+            {
+                StringBuilder sb = new();
+
+                string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
+                    type.GetGenericTypeDefinition().FullName :
+                    type.GetGenericTypeDefinition().Name;
+
+                sb.Append(genericName);
+                sb.Append("[");
+
+                List<string> genericParameters = new();
+
+                foreach (var name in type.GenericTypeArguments)
+                {
+                    genericParameters.Add(name.FullName);
+                }
+
+                sb.Append(string.Join(",", genericParameters));
+
+                sb.Append("]");
+
+                typeName = sb.ToString();
+            }
+            else
+            {
+                typeName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
+                    type.FullName :
+                    type.Name;
+            }
+
+            return typeName;
+        }
+
+        protected Parameter GetParameterInfo(CommandInfo cmdletInfo, dynamic helpItem, CommandParameterInfo paramInfo)
         {
             var paramAttribInfo = GetParameterAtributeInfo(paramInfo.Attributes);
 
-            Parameter param = new(paramInfo.Name, paramInfo.ParameterType.Name, paramAttribInfo.Position);
+            string typeName = GetParameterTypeName(paramInfo.ParameterType);
 
-            string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name);
+            Parameter param = new(paramInfo.Name, typeName, paramAttribInfo.Position);
+
+            string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage;
             param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
@@ -396,7 +437,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        protected static InputOutput GetInputOutputItem(dynamic typesInfo, string defaultTypeName, string defaultDescription)
+        protected InputOutput GetInputOutputItem(dynamic typesInfo, string defaultTypeName, string defaultDescription)
         {
             InputOutput inputOutputTypeItem = new();
 
@@ -408,7 +449,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     foreach (dynamic ioType in typesInfo)
                     {
-                        inputOutputTypeItem.AddInputOutputItem(ioType.type.name.ToString(), GetStringFromDescriptionArray(ioType.description));
+                        string typeName = ioType.type.ToString();
+                        inputOutputTypeItem.AddInputOutputItem(typeName, GetStringFromDescriptionArray(ioType.description));
                     }
                 }
                 else if (ioTypes is PSObject)
@@ -431,14 +473,22 @@ namespace Microsoft.PowerShell.PlatyPS
                 return null;
             }
 
+            if (description is string)
+            {
+                return description;
+            }
+
             StringBuilder sb = new();
 
             foreach (dynamic line in description)
             {
-                string text = line.text.ToString();
+                if (line is not char)
+                {
+                    string text = line.text.ToString();
 
-                // Add semantic line break.
-                sb.AppendLine(text.Replace(". ", $".{Environment.NewLine}"));
+                    // Add semantic line break.
+                    sb.AppendLine(text.Replace(". ", $".{Environment.NewLine}"));
+                }
             }
 
             return sb.ToString();
@@ -459,7 +509,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 forceEnumerable = new Collection<PSObject>();
 
-                foreach(var item in psObject)
+                foreach (var item in psObject)
                 {
                     forceEnumerable.Add(item);
                 }

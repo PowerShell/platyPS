@@ -6,6 +6,9 @@ using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
+    /// <summary>
+    /// Class to represent the properties of a input or and output type in PowerShell help.
+    /// </summary>
     internal class InputOutput
     {
         // tuple<typename, description>

@@ -61,6 +61,42 @@ namespace Microsoft.PowerShell.PlatyPS {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Command &apos;{0}&apos; not found in the session..
+        /// </summary>
+        internal static string CommandNotFound {
+            get {
+                return ResourceManager.GetString("CommandNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to File &apos;{0}&apos; not found..
+        /// </summary>
+        internal static string FileNotFound {
+            get {
+                return ResourceManager.GetString("FileNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Module &apos;{0}&apos; is not imported in the session. Use &quot;Import-Module -Name {0}&quot; to import module in the current session..
+        /// </summary>
+        internal static string ModuleNotFound {
+            get {
+                return ResourceManager.GetString("ModuleNotFound", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No help items provided to write to the specified file: {0}.
+        /// </summary>
+        internal static string NoHelpToWrite {
+            get {
+                return ResourceManager.GetString("NoHelpToWrite", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to -NoMetadata and -Metadata parameters cannot be specified at the same time..
         /// </summary>
         internal static string NoMetadataAndMetadata {

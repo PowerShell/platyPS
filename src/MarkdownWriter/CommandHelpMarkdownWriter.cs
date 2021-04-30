@@ -8,12 +8,19 @@ using Microsoft.PowerShell.PlatyPS.Model;
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests")]
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
+    /// <summary>
+    /// Write the CommandHelp object to a file in markdown format.
+    /// </summary>
     internal class CommandHelpMarkdownWriter
     {
         private readonly string _filePath;
         private StringBuilder? sb = null;
         private readonly Encoding _encoding;
 
+        /// <summary>
+        /// Initialize the writer with settings.
+        /// </summary>
+        /// <param name="settings">Settings needs for the markdown writer.</param>
         public CommandHelpMarkdownWriter(MarkdownWriterSettings settings)
         {
             string path = settings.DestinationPath;
@@ -29,6 +36,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
+        /// <summary>
+        /// Write the CommandHelp object to the specified path in the the settings during initialization.
+        /// The file is overwritten and not appended as we do not expect more than one CommandHelp per file.
+        /// </summary>
+        /// <param name="help">CommandHelp object to write.</param>
+        /// <param name="noMetadata">Specify if the metadata header should be written.</param>
+        /// <param name="metadata">Additional metadata that is appended to the standard metadata header. If nometata is true, additional metadata is not written.</param>
+        /// <returns>FileInfo object of the created file</returns>
         internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
         {
             sb ??= new StringBuilder();
@@ -45,7 +60,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             WriteSynopsis(help);
             sb.AppendLine();
 
-            // this adds an empty line after all parameters
+            // this adds an empty line after all parameters. So no AppendLine needed.
             WriteSyntax(help);
 
             WriteDescription(help);
@@ -212,7 +227,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
             else
             {
-                sb?.AppendLine("{{ Fill Related Links Here}}");
+                sb?.AppendLine(Constants.FillInRelatedLinks);
                 sb?.AppendLine();
             }
         }

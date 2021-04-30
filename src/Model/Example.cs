@@ -3,6 +3,9 @@ using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
+    /// <summary>
+    /// Class to represent the properties of an example in PowerShell help.
+    /// </summary>
     internal class Example
     {
         internal string Title { get; set;}

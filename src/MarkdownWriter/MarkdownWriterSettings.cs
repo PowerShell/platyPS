@@ -3,6 +3,9 @@
 [assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests")]
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
+    /// <summary>
+    /// Settings for the markdown writer
+    /// </summary>
     internal class MarkdownWriterSettings
     {
         internal Encoding Encoding { get; set; }

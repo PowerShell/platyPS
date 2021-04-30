@@ -5,12 +5,18 @@ using System.Management.Automation;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
+    /// <summary>
+    /// Get-MarkdownMetadata reads the YAML header from a markdown file and represents it as an object as a Dictionary
+    /// </summary>
     [Cmdlet(VerbsCommon.Get, "MarkdownMetadata", HelpUri = "", DefaultParameterSetName = "FromPath")]
     [OutputType(typeof(Dictionary<object, object>))]
     public sealed class GetMarkdownMetadataCommand : PSCmdlet
     {
         #region cmdlet parameters
 
+        /// <summary>
+        /// An array of paths to get the markdown metadata from.
+        /// </summary>
         [Parameter(
             Mandatory = true,
             ParameterSetName = "FromPath",
@@ -19,6 +25,9 @@ namespace Microsoft.PowerShell.PlatyPS
         [SupportsWildcards]
         public string[]? Path { get; set; }
 
+        /// <summary>
+        /// Markdown content provided as a string.
+        /// </summary>
         [Parameter(Mandatory = true, ParameterSetName = "FromMarkdownString")]
         [ValidateNotNullOrEmpty()]
         public string? Markdown { get; set; }

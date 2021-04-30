@@ -31,7 +31,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (!File.Exists(file))
                 {
-                    throw new ArgumentNullException($"File {file} does not exist");
+                    throw new FileNotFoundException(file, file);
                 }
 
                 foreach (var command in ReadMaml(file))

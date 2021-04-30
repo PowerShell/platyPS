@@ -15,33 +15,55 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         private StringBuilder? sb = null;
         private readonly Encoding _encoding;
 
-        public ModulePageWriter(string modulePagePath, Encoding encoding)
+        public ModulePageWriter(MarkdownWriterSettings settings)
         {
-            if (string.IsNullOrEmpty(modulePagePath))
+            if (string.IsNullOrEmpty(settings.DestinationPath))
             {
-                throw new ArgumentNullException(nameof(modulePagePath));
+                throw new ArgumentNullException("destinationpath");
             }
 
-            _modulePagePath = modulePagePath;
-            _encoding = encoding;
+            _modulePagePath = settings.DestinationPath;
+            _encoding = settings.Encoding;
         }
 
         internal FileInfo Write(Collection<CommandHelp> helpItems)
         {
-            if (helpItems.Count < 1 )
+            if (helpItems.Count < 1)
             {
-                throw new ArgumentException("Not enough command help items");
+                throw new ArgumentOutOfRangeException(nameof(helpItems));
             }
 
+            // Help items in one module page have the same module name, locale and module GUID.
+            // So we can safely just get these values from the first object.
             string moduleName = helpItems[0].ModuleName;
             string localeString = helpItems[0].Locale.ToString();
             string? moduleGuid = helpItems[0].ModuleGuid == null ? Constants.FillInGuid : helpItems[0].ModuleGuid.ToString();
 
             var modulePage = new FileInfo(_modulePagePath);
 
-            if (!string.Equals(modulePage.Extension, ".xml", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(modulePage.Extension, ".md", StringComparison.OrdinalIgnoreCase))
             {
                 _modulePagePath = $"{_modulePagePath}\\{moduleName}.md";
+            }
+            else
+            {
+                if (!modulePage.Exists)
+                {
+                    var currentDir = modulePage.Directory;
+
+                    while (!currentDir.Exists)
+                    {
+                        try
+                        {
+                            Directory.CreateDirectory(currentDir.FullName);
+                            break;
+                        }
+                        catch (DirectoryNotFoundException)
+                        {
+                            currentDir = currentDir.Parent;
+                        }
+                    }
+                }
             }
 
             sb ??= new StringBuilder();
@@ -58,7 +80,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             List<string> commandNames = new();
 
-            foreach(var help in helpItems)
+            foreach (var help in helpItems)
             {
                 commandNames.Add(help.Title);
             }
@@ -100,7 +122,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal void WriteCmdletBlock(List<string> commandNames)
         {
-            foreach(var command in commandNames)
+            foreach (var command in commandNames)
             {
                 sb?.AppendFormat(Constants.ModulePageCmdletLinkTemplate, command, $"{command}.md");
                 sb?.AppendLine();

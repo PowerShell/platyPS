@@ -14,10 +14,32 @@ namespace Microsoft.PowerShell.PlatyPS
             ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
-            return ps
-                .AddCommand(@"Microsoft.PowerShell.Core\Get-Command")
-                .AddParameter("Name", commandName)
-                .Invoke<CommandInfo>();
+            try
+            {
+                var commandInfos = ps
+                     .AddCommand(@"Microsoft.PowerShell.Core\Get-Command")
+                     .AddParameter("Name", commandName)
+                     .Invoke<CommandInfo>();
+
+                if (commandInfos is not null && commandInfos.Count > 0)
+                {
+                    return commandInfos;
+                }
+                else
+                {
+                    throw new CommandNotFoundException(commandName);
+                }
+            }
+            // This happens when Get-Command throws and ErrorAction is set to Stop
+            catch (System.Management.Automation.ActionPreferenceStopException apse)
+            {
+                if (apse.ErrorRecord.Exception is CommandNotFoundException cnfe)
+                {
+                    throw cnfe;
+                }
+
+                throw apse;
+            }
         }
 
         public static Collection<CommandInfo> GetCmdletInfoFromModule(string moduleName)
@@ -29,7 +51,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             Collection<CommandInfo> cmdletInfos = new();
 
-            if (moduleInfo is not null)
+            if (moduleInfo is not null && moduleInfo.Count > 0)
             {
                 foreach (var mod in moduleInfo)
                 {
@@ -41,6 +63,10 @@ namespace Microsoft.PowerShell.PlatyPS
                         }
                     }
                 }
+            }
+            else
+            {
+                throw new ItemNotFoundException(moduleName);
             }
 
             return cmdletInfos;
@@ -79,7 +105,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         .Invoke<PSModuleInfo>();
                 }
             }
-            catch(FileNotFoundException)
+            catch (FileNotFoundException)
             {
                 // swallow the exception and eventually return null;
             }

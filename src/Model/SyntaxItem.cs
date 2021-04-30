@@ -5,6 +5,9 @@ using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
+    /// <summary>
+    /// Class to represent the properties of a syntax item in PowerShell help.
+    /// </summary>
     internal class SyntaxItem
     {
         internal string CommandName { get; }

@@ -76,14 +76,14 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
     Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
 
-    $xunitTestStatus = $false
+    $xunitTestFailed = $true
 
     try {
         Push-Location $xunitTestRoot
         dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
 
-        if ($LASTEXITCODE -ne 0) {
-            $xunitTestStatus = $true
+        if ($LASTEXITCODE -eq 0) {
+            $xunitTestFailed = $false
         }
     }
     finally {
@@ -95,7 +95,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
 
-    if ($results.FailedCount -ne 0 -or -not $xunitTestStatus)
+    if ($results.FailedCount -ne 0 -or $xunitTestFailed)
     {
         throw "Tests failed."
     }

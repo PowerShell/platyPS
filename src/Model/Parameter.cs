@@ -3,6 +3,9 @@ using System.Collections.Generic;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
+    /// <summary>
+    /// Class to represent the properties of a parameter in PowerShell help.
+    /// </summary>
     internal class Parameter
     {
         internal string? Description { get; set;}
