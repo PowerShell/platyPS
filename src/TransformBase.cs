@@ -10,6 +10,7 @@ namespace Microsoft.PowerShell.PlatyPS
     internal abstract class TransformBase
     {
         protected readonly TransformSettings Settings;
+
         public TransformBase(TransformSettings settings) => Settings = settings;
 
         internal abstract Collection<CommandHelp> Transform(string[] source);
@@ -256,6 +257,7 @@ namespace Microsoft.PowerShell.PlatyPS
             Parameter param = new(paramInfo.Name, typeName, paramAttribInfo.Position);
 
             string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage;
+
             param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
@@ -266,6 +268,7 @@ namespace Microsoft.PowerShell.PlatyPS
             param.Required = paramInfo.IsMandatory;
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
+
             param.DefaultValue = string.IsNullOrEmpty(defaultValueFromHelp) ?
                 Constants.NoneString :
                 defaultValueFromHelp;
