@@ -102,6 +102,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 ErrorRecord err = new ErrorRecord(exception, "NoMetadataAndMetadata", ErrorCategory.InvalidOperation, Metadata);
                 ThrowTerminatingError(err);
             }
+
+            Directory.SetCurrentDirectory(this.SessionState.Path.CurrentLocation.Path);
         }
 
         protected override void ProcessRecord()

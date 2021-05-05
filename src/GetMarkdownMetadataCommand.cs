@@ -34,6 +34,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
+        protected override void BeginProcessing()
+        {
+            Directory.SetCurrentDirectory(this.SessionState.Path.CurrentLocation.Path);
+        }
+
         protected override void ProcessRecord()
         {
             if (string.Equals(this.ParameterSetName, "FromMarkdownString", StringComparison.OrdinalIgnoreCase))
@@ -49,9 +54,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     foreach (string filePath in Path)
                     {
-                        if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(filePath))
+                        string fullPath = System.IO.Path.GetFullPath(filePath);
+
+                        if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(fullPath))
                         {
-                            FileInfo? fInfo = new FileInfo(filePath);
+                            FileInfo? fInfo = new FileInfo(fullPath);
 
                             string? directoryPath = fInfo?.Directory?.FullName;
                             string? directoryName = fInfo?.Name;
@@ -64,9 +71,9 @@ namespace Microsoft.PowerShell.PlatyPS
                                 }
                             }
                         }
-                        else if (File.Exists(filePath))
+                        else if (File.Exists(fullPath))
                         {
-                            DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(filePath)));
+                            DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(fullPath)));
                         }
                     }
                 }
