@@ -7,7 +7,6 @@ param(
     [ValidateSet("Debug", "Release")]
     [string] $Configuration = "Debug",
 
-    [Parameter(ParameterSetName = "Build")]
     [string] $OutputDir = "$PSScriptRoot/out",
 
     [Parameter(ParameterSetName = "Test", Mandatory)]

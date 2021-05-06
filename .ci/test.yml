@@ -1,0 +1,66 @@
+parameters:
+  jobName: TestPkgWin
+  imageName: windows-latest
+  displayName: PowerShell Core on Windows
+  powershellExecutable: pwsh
+
+jobs:
+- job: ${{ parameters.jobName }}
+  pool:
+    vmImage: ${{ parameters.imageName }}
+  displayName: ${{ parameters.displayName }}
+  steps:
+  - ${{ parameters.powershellExecutable }}: |
+      Install-module Pester -Force -MaximumVersion 4.99
+    displayName: Install dependencies - Pester
+    timeoutInMinutes: 10
+
+  - ${{ parameters.powershellExecutable }}: |
+      Get-InstalledModule -Name pester  -AllVersions | Where-Object {$_.Version -ge ([version]::new(5,0,0))} | Uninstall-Module -Force
+    displayName: Remove >= 5.0.0 Pester
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download artifacts'
+    inputs:
+      buildType: current
+      downloadType: specific
+      itemPattern: '**/*.nupkg'
+      downloadPath: '$(System.ArtifactsDirectory)'
+      artifactName: 'nupkg'
+
+  - ${{ parameters.powershellExecutable }}: |
+      $sourceName = 'pspackageproject-local-repo'
+      Register-PSRepository -Name $sourceName -SourceLocation '$(System.ArtifactsDirectory)' -ErrorAction Ignore
+      Save-Module -Repository $sourceName -Name platyPS -Path '$(System.ArtifactsDirectory)/saved' -Verbose
+    displayName: Extract product artifact
+    timeoutInMinutes: 10
+
+  - ${{ parameters.powershellExecutable }}: |
+      '$(Build.SourcesDirectory)/build.ps1' -OutputDir '$(System.ArtifactsDirectory)/saved' -Test
+
+      $pesterResult = '$(Build.SourcesDirectory)/pester.tests.xml'
+
+      if (-not (Test-Path $pesterResult))
+      {
+        throw 'Pester test results not found'
+      }
+
+      Write-Host "##vso[results.publish type=NUnit;mergeResults=true;runTitle=Pester;publishRunAttachments=true;resultFiles=$pesterResult;]"
+
+      $xunitResult = '$(Build.SourcesDirectory)/xunit.tests.xml'
+
+      if (-not (Test-Path $pesterRexunitResultsult))
+      {
+        throw 'xUnit test results not found'
+      }
+
+      Write-Host "##vso[results.publish type=xUnit;mergeResults=true;runTitle=Pester;publishRunAttachments=true;resultFiles=$xunitResult;]"
+
+    displayName: Execute functional tests
+    errorActionPreference: continue
+
+  - ${{ parameters.powershellExecutable }}: |
+      Unregister-PSRepository -Name 'pspackageproject-local-repo' -ErrorAction Ignore
+    displayName: Unregister temporary PSRepository
+    condition: always()
+    timeoutInMinutes: 10

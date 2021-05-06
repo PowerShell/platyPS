@@ -1,0 +1,80 @@
+name: Build-$(System.PullRequest.PullRequestNumber)-$(Date:yyyyMMdd)$(Rev:.rr)
+trigger:
+  # Batch merge builds together while a merge build is running
+  batch: true
+  branches:
+    include:
+    - master
+    - release/*
+pr:
+  branches:
+    include:
+    - master
+    - release/*
+
+stages:
+- stage: Build
+  displayName: Build PowerShell Package
+  jobs:
+  - job: BuildPkg
+    displayName: Build Package
+    pool:
+      vmImage: windows-latest
+    steps:
+    - pwsh: |
+        $(Build.SourcesDirectory)/build.ps1 -Clean
+      displayName: Build
+
+    - pwsh: |
+        $files = (Get-ChildItem -Recurse '$(Build.SourcesDirectory)/out/platyPS' -File).FullName
+
+        $files | ForEach-Object {
+          Write-Host "##vso[artifact.upload containerfolder=platyPS;artifactname=platyPS]$_"
+        }
+      displayName: Publish build artifact
+      timeoutInMinutes: 10
+
+    - pwsh: |
+        Register-PSRepository -Name local -SourceLocation '$(System.ArtifactsDirectory)' -Verbose -ErrorAction Ignore
+        Publish-Module -Repository local -Path '$(Build.SourcesDirectory)/out/platyPS' -Verbose
+        $nupkgFile = Get-ChildItem -Path '$(System.ArtifactsDirectory)/platyPS*.nupkg'
+
+        Write-Verbose -Verbose "Uploading: $nupkgFile"
+        Write-Host "##vso[artifact.upload containerfolder=nupkg;artifactname=nupkg]$nupkgFile"
+
+      displayName: Create module .nupkg and upload
+
+- stage: Test
+  displayName: Test Package
+  jobs:
+  - template: test.yml
+    parameters:
+      jobName: TestPkgWin
+      displayName: PowerShell Core on Windows
+      imageName: windows-2019
+
+  - template: test.yml
+    parameters:
+      jobName: TestPkgWinPS
+      displayName: Windows PowerShell on Windows
+      imageName: windows-2019
+      powershellExecutable: powershell
+
+  - template: test.yml
+    parameters:
+      jobName: TestPkgUbuntu16
+      displayName: PowerShell Core on Ubuntu 16.04
+      imageName: ubuntu-16.04
+
+  - template: test.yml
+    parameters:
+      jobName: TestPkgWinMacOS
+      displayName: PowerShell Core on macOS
+      imageName: macOS-10.14
+
+- stage: Release
+  displayName: Release Package
+  # add `succeeded(),` to the and statement
+  condition: and( eq(variables['Build.Reason'], 'Manual'), eq(variables['Publish'], 'Yes'))
+  jobs:
+  - template: release.yml
