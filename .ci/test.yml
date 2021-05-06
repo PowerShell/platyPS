@@ -37,7 +37,7 @@ jobs:
     timeoutInMinutes: 10
 
   - ${{ parameters.powershellExecutable }}: |
-      '$(Build.SourcesDirectory)/build.ps1' -OutputDir '$(System.ArtifactsDirectory)/saved' -Test
+      $(Build.SourcesDirectory)/build.ps1 -OutputDir '$(System.ArtifactsDirectory)/saved' -Test
 
       $pesterResult = '$(Build.SourcesDirectory)/pester.tests.xml'
 
