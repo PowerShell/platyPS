@@ -72,9 +72,9 @@ stages:
       displayName: PowerShell Core on macOS
       imageName: macOS-10.14
 
-- stage: Release
-  displayName: Release Package
-  # add `succeeded(),` to the and statement
-  condition: and( eq(variables['Build.Reason'], 'Manual'), eq(variables['Publish'], 'Yes'))
-  jobs:
-  - template: release.yml
+#- stage: Release
+#  displayName: Release Package
+#  # add `succeeded(),` to the and statement
+#  condition: and( eq(variables['Build.Reason'], 'Manual'), eq(variables['Publish'], 'Yes'))
+#  jobs:
+#  - template: release.yml
