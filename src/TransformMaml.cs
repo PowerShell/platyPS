@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -177,7 +180,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private Example ReadExample(XmlReader reader, int exampleCounter)
         {
             string? title = null;
-            StringBuilder remarks = new();
+            StringBuilder remarks = Constants.StringBuilderPool.Get();
             string? code = null;
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
@@ -226,7 +229,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private string ReadNotes(XmlReader reader)
         {
-            StringBuilder notes = new();
+            StringBuilder notes = Constants.StringBuilderPool.Get();
 
             if (reader.ReadToFollowing(Constants.MamlAlertSetTag))
             {
@@ -544,7 +547,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private string ReadDescription(XmlReader reader)
         {
-            StringBuilder description = new();
+            StringBuilder description = Constants.StringBuilderPool.Get();
 
             if (reader.ReadToFollowing(Constants.MamlDescriptionTag))
             {

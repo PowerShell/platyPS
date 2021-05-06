@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 
@@ -98,8 +101,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal void AddParameterSet(string parameterSetName)
         {
-            ParameterSets ??= new List<string>();
-
             if (string.Equals(parameterSetName, "__AllParameterSets", StringComparison.OrdinalIgnoreCase))
             {
                 ParameterSets.Add(Constants.ParameterSetsAll);
@@ -112,7 +113,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal void AddParameterSetsRange(IEnumerable<string> values)
         {
-            ParameterSets ??= new List<string>();
             ParameterSets.AddRange(values);
         }
 

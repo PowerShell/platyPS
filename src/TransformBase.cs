@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,21 +18,21 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal abstract Collection<CommandHelp> Transform(string[] source);
 
-        protected CommandHelp ConvertCmdletInfo(CommandInfo cmdletInfo)
+        protected CommandHelp ConvertCmdletInfo(CommandInfo commandInfo)
         {
             if (Settings.Session is not null)
             {
                 PowerShellAPI.InitializeRemoteSession(Settings.Session);
             }
 
-            string cmdName = cmdletInfo is ExternalScriptInfo ? cmdletInfo.Source : cmdletInfo.Name;
+            string cmdName = commandInfo is ExternalScriptInfo ? commandInfo.Source : commandInfo.Name;
 
             Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdName);
 
             bool addDefaultStrings = false;
             dynamic? helpItem = null;
 
-            if (help?.Count == 1)
+            if (help.Count == 1)
             {
                 helpItem = help[0];
 
@@ -46,15 +49,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 addDefaultStrings = true;
             }
 
-            CommandHelp cmdHelp = new(cmdletInfo.Name, cmdletInfo.ModuleName, Settings.Locale);
+            CommandHelp cmdHelp = new(commandInfo.Name, commandInfo.ModuleName, Settings.Locale);
             cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
-            cmdHelp.AddSyntaxItemRange(GetSyntaxItem(cmdletInfo, helpItem));
+            cmdHelp.AddSyntaxItemRange(GetSyntaxItem(commandInfo, helpItem));
             cmdHelp.Description = GetDescription(helpItem, addDefaultStrings);
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
-            cmdHelp.AddParameterRange(GetParameters(cmdletInfo, helpItem, addDefaultStrings));
+            cmdHelp.AddParameterRange(GetParameters(commandInfo, helpItem, addDefaultStrings));
 
-            if ((cmdletInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) || cmdletInfo is CmdletInfo)
+            if ((commandInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) || commandInfo is CmdletInfo)
             {
                 cmdHelp.HasCmdletBinding = true;
             }
@@ -148,11 +151,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 int exampleCounter = 1;
 
-                var examplesArray = helpItem?.examples?.example;
+                var examplesArray = helpItem.examples?.example;
 
                 if (examplesArray is not null)
                 {
-                    Collection<PSObject> examplesAsCollection = MakePSObjectEnumerable(examplesArray);
+                    Collection<PSObject>? examplesAsCollection = MakePSObjectEnumerable(examplesArray);
 
                     foreach (dynamic item in examplesAsCollection)
                     {
@@ -177,13 +180,13 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             List<Links> links = new();
 
-            if (helpItem?.relatedLinks?.navigationLink is not null)
+            if (helpItem.relatedLinks?.navigationLink is not null)
             {
-                Collection<PSObject> navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
+                Collection<PSObject>? navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
 
                 foreach (dynamic navlink in navigationLinkCollection)
                 {
-                    links.Add(new Links(navlink?.uri?.ToString(), navlink?.linkText?.ToString()));
+                    links.Add(new Links(navlink.uri?.ToString(), navlink.linkText?.ToString()));
                 }
             }
 
@@ -216,7 +219,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (type.IsGenericType)
             {
-                StringBuilder sb = new();
+                StringBuilder sb = Constants.StringBuilderPool.Get();
 
                 string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
                     type.GetGenericTypeDefinition().FullName :
@@ -364,7 +367,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 return null;
             }
 
-            Collection<PSObject> parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
+            Collection<PSObject>? parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
 
             foreach (dynamic parameter in parameterAsCollection)
             {
@@ -384,13 +387,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 return null;
             }
 
-            Collection<PSObject> parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
+            Collection<PSObject>? parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
 
-            foreach (dynamic? parameter in parameterAsCollection)
+            foreach (dynamic parameter in parameterAsCollection)
             {
-                if (string.Equals(parameter?.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(parameter.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return parameter?.defaultValue?.ToString();
+                    return parameter.defaultValue?.ToString();
                 }
             }
 
@@ -481,7 +484,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 return description;
             }
 
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
             foreach (dynamic line in description)
             {

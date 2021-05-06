@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -69,14 +72,14 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 throw new InvalidCastException($"Invalid value '{parameter.Position}' provided for position for parameter '{name}'");
             }
 
-            //Next see if the parameter is required
+            // Next see if the parameter is required
             if (parameter.Required)
             {
                 requiredParameters.Add(name, parameter);
                 return;
             }
 
-            //Lastly add the parameter to alphabetic sorted list
+            // Lastly add the parameter to alphabetic sorted list
             alphabeticOrderParameters.Add(name, parameter);
         }
 
@@ -117,7 +120,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToSyntaxString()
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
             sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
             sb.AppendLine();

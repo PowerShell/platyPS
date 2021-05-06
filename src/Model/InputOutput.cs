@@ -1,8 +1,9 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Collections.Generic;
 using System.Text;
-
-#nullable enable
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -26,7 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToInputOutputString()
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
             foreach(var item in inputOutputItems)
             {

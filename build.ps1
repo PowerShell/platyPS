@@ -62,6 +62,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
             "$expectedDllPath"
             "$expectedBuildPath/Markdig.Signed.dll"
             "$expectedBuildPath/YamlDotNet.dll"
+            "$expectedBuildPath/Microsoft.Extensions.ObjectPool.dll"
         )
 
         Copy-Item -Path $fileToCopy -Destination $moduleRoot -Verbose

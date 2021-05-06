@@ -1,3 +1,7 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Management.Automation;
@@ -7,6 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal static class PowerShellAPI
     {
+        [ThreadStatic]
         private static System.Management.Automation.PowerShell? ps;
 
         public static Collection<CommandInfo> GetCommandInfo(string commandName)
@@ -21,7 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
                      .AddParameter("Name", commandName)
                      .Invoke<CommandInfo>();
 
-                if (commandInfos is not null && commandInfos.Count > 0)
+                if (commandInfos.Count > 0)
                 {
                     return commandInfos;
                 }
@@ -38,7 +43,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     throw cnfe;
                 }
 
-                throw apse;
+                throw;
             }
         }
 
@@ -51,7 +56,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             Collection<CommandInfo> cmdletInfos = new();
 
-            if (moduleInfo is not null && moduleInfo.Count > 0)
+            if (moduleInfo?.Count > 0)
             {
                 foreach (var mod in moduleInfo)
                 {
@@ -74,7 +79,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public static Collection<PSModuleInfo>? GetModuleInfo(string moduleName)
         {
-            if (moduleName is null || moduleName.Length == 0)
+            if (string.IsNullOrEmpty(moduleName))
             {
                 return null;
             }
@@ -92,16 +97,14 @@ namespace Microsoft.PowerShell.PlatyPS
                     .AddParameter("Name", moduleName)
                     .Invoke<PSModuleInfo>();
 
-                if (modules?.Count == 0)
+                if (modules.Count == 0)
                 {
                     // if not found try to import first
 
                     modules = ps
                         .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
                         .AddParameter("Name", moduleName)
-                        .AddStatement()
-                        .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
-                        .AddParameter("Name", moduleName)
+                        .AddParameter("PassThru")
                         .Invoke<PSModuleInfo>();
                 }
             }
@@ -115,13 +118,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static void InitializeRemoteSession(PSSession session)
         {
-            ps ??= System.Management.Automation.PowerShell.Create();
+            ps = System.Management.Automation.PowerShell.Create();
             ps.Runspace = session.Runspace;
         }
 
         internal static Collection<PSObject> GetHelpForCmdlet(string cmdletName)
         {
-            ps ??= System.Management.Automation.PowerShell.Create();
+            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
             ps.Commands.Clear();
 
             return ps
@@ -133,11 +136,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static void Reset()
         {
-            if (ps is not null)
-            {
-                ps.Dispose();
-                ps = null;
-            }
+            ps?.Dispose();
+            ps = null;
         }
     }
 }

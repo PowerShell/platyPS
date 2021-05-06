@@ -1,18 +1,19 @@
-﻿using Microsoft.PowerShell.PlatyPS.Model;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 
-#nullable enable
-
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
     internal class ModulePageWriter
     {
         private string _modulePagePath;
-        private StringBuilder? sb = null;
+        private StringBuilder sb = Constants.StringBuilderPool.Get();
         private readonly Encoding _encoding;
 
         public ModulePageWriter(MarkdownWriterSettings settings)
@@ -66,8 +67,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 }
             }
 
-            sb ??= new StringBuilder();
-
             using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
 
             if (localeString is not null && moduleGuid is not null)
@@ -94,41 +93,41 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal void WriteHeader(string moduleName, string locale, string moduleGuid)
         {
-            sb?.AppendLine(Constants.YmlHeader);
-            sb?.AppendFormat(Constants.ModuleNameHeaderTemplate, moduleName);
-            sb?.AppendLine();
-            sb?.AppendFormat(Constants.ModuleGuidHeaderTemplate, moduleGuid);
-            sb?.AppendLine();
-            sb?.Append(Constants.DownladHelpLinkTitle);
-            sb?.AppendLine(Constants.FillDownloadHelpLink);
-            sb?.Append(Constants.HelpVersionTitle);
-            sb?.AppendLine(Constants.FillHelpVersion);
-            sb?.AppendFormat(Constants.LocaleTemplate, locale);
-            sb?.AppendLine();
-            sb?.AppendLine(Constants.YmlHeader);
+            sb.AppendLine(Constants.YmlHeader);
+            sb.AppendFormat(Constants.ModuleNameHeaderTemplate, moduleName);
+            sb.AppendLine();
+            sb.AppendFormat(Constants.ModuleGuidHeaderTemplate, moduleGuid);
+            sb.AppendLine();
+            sb.Append(Constants.DownladHelpLinkTitle);
+            sb.AppendLine(Constants.FillDownloadHelpLink);
+            sb.Append(Constants.HelpVersionTitle);
+            sb.AppendLine(Constants.FillHelpVersion);
+            sb.AppendFormat(Constants.LocaleTemplate, locale);
+            sb.AppendLine();
+            sb.AppendLine(Constants.YmlHeader);
         }
 
         internal void WriteModuleBlock(string moduleName)
         {
-            sb?.AppendFormat(Constants.ModulePageModuleNameHeaderTemplate, moduleName);
-            sb?.AppendLine();
-            sb?.AppendLine();
+            sb.AppendFormat(Constants.ModulePageModuleNameHeaderTemplate, moduleName);
+            sb.AppendLine();
+            sb.AppendLine();
 
-            sb?.AppendLine(Constants.ModulePageDescriptionHeader);
-            sb?.AppendLine();
-            sb?.AppendLine(Constants.FillInDescription);
-            sb?.AppendLine();
+            sb.AppendLine(Constants.ModulePageDescriptionHeader);
+            sb.AppendLine();
+            sb.AppendLine(Constants.FillInDescription);
+            sb.AppendLine();
         }
 
         internal void WriteCmdletBlock(List<string> commandNames)
         {
             foreach (var command in commandNames)
             {
-                sb?.AppendFormat(Constants.ModulePageCmdletLinkTemplate, command, $"{command}.md");
-                sb?.AppendLine();
-                sb?.AppendLine();
-                sb?.AppendLine(Constants.FillInDescription);
-                sb?.AppendLine();
+                sb.AppendFormat(Constants.ModulePageCmdletLinkTemplate, command, $"{command}.md");
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine(Constants.FillInDescription);
+                sb.AppendLine();
             }
         }
 

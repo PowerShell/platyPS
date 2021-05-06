@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Markdig.Signed" Version="[0.18.3]" />
+    <PackageReference Include="Microsoft.Extensions.ObjectPool" Version="5.0.5" />
     <PackageReference Include="PowerShellStandard.Library" Version="5.1.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="YamlDotNet" Version="11.0.1" />

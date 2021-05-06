@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
@@ -6,7 +9,7 @@ using System.Management.Automation;
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
-    /// Get-MarkdownMetadata reads the YAML header from a markdown file and represents it as an object as a Dictionary
+    /// Get-MarkdownMetadata reads the YAML header from a markdown file and represents it as a Dictionary object
     /// </summary>
     [Cmdlet(VerbsCommon.Get, "MarkdownMetadata", HelpUri = "", DefaultParameterSetName = "FromPath")]
     [OutputType(typeof(Dictionary<object, object>))]
@@ -58,17 +61,14 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(fullPath))
                         {
-                            FileInfo? fInfo = new FileInfo(fullPath);
+                            FileInfo fInfo = new FileInfo(fullPath);
 
-                            string? directoryPath = fInfo?.Directory?.FullName;
-                            string? directoryName = fInfo?.Name;
+                            string directoryPath = fInfo.Directory.FullName;
+                            string directoryName = fInfo.Name;
 
-                            if (directoryPath is not null && directoryName is not null)
+                            foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
                             {
-                                foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
-                                {
-                                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
-                                }
+                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
                             }
                         }
                         else if (File.Exists(fullPath))
@@ -101,7 +101,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (mdAst[1] is Markdig.Syntax.HeadingBlock metadata)
                 {
-                    if (metadata?.Inline?.FirstChild is Markdig.Syntax.Inlines.LiteralInline metadataText)
+                    if (metadata.Inline?.FirstChild is Markdig.Syntax.Inlines.LiteralInline metadataText)
                     {
                         return metadataText.Content.Text;
                     }

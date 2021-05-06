@@ -1,6 +1,8 @@
-﻿using System.Text;
+﻿// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
 
-[assembly: System.Runtime.CompilerServices.InternalsVisibleTo("Microsoft.PowerShell.PlatyPS.Tests")]
+using System.Text;
+
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
     /// <summary>

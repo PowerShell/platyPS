@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System;
 using System.Text;
 
@@ -21,7 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToExampleItemString(int serialNumber)
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
             sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
             sb.AppendLine();
