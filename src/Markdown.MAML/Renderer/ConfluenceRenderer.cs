@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace Markdown.MAML.Renderer
     /// <summary>
     /// Renders MamlModel as markdown with schema v 2.0.0
     /// </summary>
-    public class MarkdownV2Renderer
+    public class ConfluenceRenderer
     {
         private StringBuilder _stringBuilder = new StringBuilder();
 
@@ -31,9 +31,9 @@ namespace Markdown.MAML.Renderer
         /// </summary>
         public const int DEFAULT_SYNTAX_WIDTH = 110;
 
-        public MarkdownV2Renderer(ParserMode mode) : this(mode, DEFAULT_SYNTAX_WIDTH) { }
+        public ConfluenceRenderer(ParserMode mode) : this(mode, DEFAULT_SYNTAX_WIDTH) { }
 
-        public MarkdownV2Renderer(ParserMode mode, int maxSyntaxWidth)
+        public ConfluenceRenderer(ParserMode mode, int maxSyntaxWidth)
         {
             this.MaxSyntaxWidth = maxSyntaxWidth;
             this._mode = mode;
@@ -62,10 +62,6 @@ namespace Markdown.MAML.Renderer
 
                 // put version there
                 yamlHeader["schema"] = "2.0.0";
-
-                // TODO
-                // This is for markdown-to-confluence.py, should be deleted next commit
-                // yamlHeader["wiki"] = "\n    share: true";
 
                 AddYamlHeader(yamlHeader);
             }
@@ -475,16 +471,17 @@ namespace Markdown.MAML.Renderer
 
         private void AddCodeSnippet(string code, string lang = "")
         {
-            _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, NewLine);
+            // {code:language=undefined|linenumbers=true|collapse=false}
+            // ```ps
+            // code
+            // ```
+            // _stringBuilder.AppendFormat("```{1}{2}{0}{2}```{2}{2}", code, lang, NewLine);
+            _stringBuilder.AppendFormat("{code:language={1}|linenumbers=true|collapse=false}{2}{0}{2}{code}{2}", code, lang, NewLine);
         }
 
         private void AddHeader(int level, string header, bool extraNewLine = true)
         {
-            for (int i = 0; i < level; i++)
-            {
-                _stringBuilder.Append('#');
-            }
-            _stringBuilder.Append(' ');
+            _stringBuilder.Append('h' + level + ". ");
             _stringBuilder.AppendFormat("{0}{1}", header, NewLine);
             if (extraNewLine)
             {

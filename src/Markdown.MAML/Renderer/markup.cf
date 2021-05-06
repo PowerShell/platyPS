@@ -1,0 +1,94 @@
+h1. Build-Docs.ps1
+h2. SYNOPSIS
+Integrate your wiki continuously!
+h2. SYNTAX
+{code:language=undefined|linenumbers=true|collapse=false}
+Build-Docs.ps1 [-path] <String> [[-docDir] <String>] [[-subdir] <String>] [[-template] <String>]
+ [[-log] <String>] [<CommonParameters>]
+{code}
+h2. DESCRIPTION
+Passes your module into a template and converts it to
+Markdown
+h2. EXAMPLES
+h3. Example 1
+{code:language=powershell|linenumbers=true|collapse=false}
+PS C:\> {{ Add example code here }}
+{code}
+{{ Add example description here }}
+h2. PARAMETERS
+h3. -path
+The path to your repo in the runner
+{code:language=yaml|linenumbers=true|collapse=false}
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+{code}
+h3. -docDir
+The path where you want to save your docs.
+Default is /docs
+{code:language=yaml|linenumbers=true|collapse=false}
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 2
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+{code}
+h3. -subdir
+if your modules are in e.g.
+repo/src
+{code:language=yaml|linenumbers=true|collapse=false}
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 3
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+{code}
+h3. -template
+Choose the output type of the documentation.
+Default is Markdown
+{code:language=yaml|linenumbers=true|collapse=false}
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 4
+Default value: Markdown
+Accept pipeline input: False
+Accept wildcard characters: False
+{code}
+h3. -log
+in case you want logs.
+{code:language=yaml|linenumbers=true|collapse=false}
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: 5
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+{code}
+h3. CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters|http://go.microsoft.com/fwlink/?LinkID=113216].
+h2. INPUTS
+h2. OUTPUTS
+h3. Outputs The Get-Help of modules inside a folder as Markdown
+h2. NOTES
+h2. RELATED LINKS
+[mips-git.materna.de/mips/dx-union/packages/powershell-docs|]
