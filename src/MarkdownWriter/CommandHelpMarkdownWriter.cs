@@ -35,7 +35,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 _filePath = path;
                 _encoding = settings.Encoding;
-                sb = Constants.StringBuilderPool.Get();
+                sb = new StringBuilder();
             }
         }
 
@@ -89,8 +89,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
 
             mdFileWriter.Write(sb.ToString());
-
-            Constants.StringBuilderPool.Return(sb);
 
             return new FileInfo(_filePath);
         }

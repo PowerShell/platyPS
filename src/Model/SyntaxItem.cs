@@ -120,7 +120,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToSyntaxString()
         {
-            StringBuilder sb = Constants.StringBuilderPool.Get();
+            StringBuilder sb = new();
 
             sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
             sb.AppendLine();
@@ -164,10 +164,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             // close code block
             sb.AppendLine(Constants.CodeBlock);
 
-            // remove the last single space
-            var syntaxText = sb.ToString();
-            Constants.StringBuilderPool.Return(sb);
-            return syntaxText;
+            return sb.ToString(); ;
         }
     }
 }

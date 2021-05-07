@@ -27,7 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToInputOutputString()
         {
-            StringBuilder sb = Constants.StringBuilderPool.Get();
+            StringBuilder sb = new();
 
             foreach(var item in inputOutputItems)
             {
@@ -41,9 +41,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             // Remove the last new line
             sb.Remove(sb.Length - 1, 1);
 
-            var ioText = sb.ToString();
-            Constants.StringBuilderPool.Return(sb);
-            return ioText;
+            return sb.ToString();
         }
     }
 }

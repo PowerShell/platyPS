@@ -180,7 +180,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private Example ReadExample(XmlReader reader, int exampleCounter)
         {
             string? title = null;
-            StringBuilder remarks = Constants.StringBuilderPool.Get();
+            StringBuilder remarks = new();
             string? code = null;
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
@@ -223,15 +223,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 remarks.ToString()
                 );
 
-            Constants.StringBuilderPool.Return(remarks);
-
             return exp;
         }
 
 
         private string ReadNotes(XmlReader reader)
         {
-            StringBuilder notes = Constants.StringBuilderPool.Get();
+            StringBuilder notes = new();
 
             if (reader.ReadToFollowing(Constants.MamlAlertSetTag))
             {
@@ -249,7 +247,6 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             var notesText = notes.ToString();
-            Constants.StringBuilderPool.Return(notes);
             return notesText;
         }
 
@@ -551,7 +548,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private string ReadDescription(XmlReader reader)
         {
-            StringBuilder description = Constants.StringBuilderPool.Get();
+            StringBuilder description = new();
 
             if (reader.ReadToFollowing(Constants.MamlDescriptionTag))
             {
@@ -568,7 +565,6 @@ namespace Microsoft.PowerShell.PlatyPS
             reader.ReadEndElement();
 
             var descText = description.ToString().TrimEnd(Environment.NewLine.ToCharArray());
-            Constants.StringBuilderPool.Return(description);
             return descText;
         }
     }
