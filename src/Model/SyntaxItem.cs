@@ -16,20 +16,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string CommandName { get; }
         internal string ParameterSetName { get; }
 
-        private List<string> parameterNames = new();
+        private List<string> _parameterNames = new();
 
         internal ReadOnlyCollection<string> ParameterNames {
-            get => new ReadOnlyCollection<string>(parameterNames);
+            get => new ReadOnlyCollection<string>(_parameterNames);
         }
 
         // Sort parameters by position
-        internal SortedList<int, Parameter> postitionalParameters;
+        private SortedList<int, Parameter> _postitionalParameters;
 
         // Sort parameters by if they are Required by name
-        internal SortedList<string, Parameter> requiredParameters;
+        private SortedList<string, Parameter> _requiredParameters;
 
         // Sort parameters by name
-        internal SortedList<string, Parameter> alphabeticOrderParameters;
+        private SortedList<string, Parameter> _alphabeticOrderParameters;
 
         internal bool IsDefaultParameterSet { get; }
 
@@ -39,9 +39,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsDefaultParameterSet = isDefaultParameterSet;
             CommandName = commandName;
 
-            postitionalParameters = new SortedList<int, Parameter>();
-            requiredParameters = new SortedList<string, Parameter>();
-            alphabeticOrderParameters = new SortedList<string, Parameter>();
+            _postitionalParameters = new SortedList<int, Parameter>();
+            _requiredParameters = new SortedList<string, Parameter>();
+            _alphabeticOrderParameters = new SortedList<string, Parameter>();
         }
 
         internal void AddParameter(Parameter parameter)
@@ -53,8 +53,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return;
             }
 
-            // Add to the list of the parameter names
-            parameterNames.Add(name);
+            _parameterNames.Add(name);
 
             // First see if the parameter is positional
 
@@ -62,7 +61,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (int.TryParse(parameter.Position, out position))
             {
-                postitionalParameters.Add(position, parameter);
+                _postitionalParameters.Add(position, parameter);
                 return;
             }
 
@@ -72,15 +71,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 throw new InvalidCastException($"Invalid value '{parameter.Position}' provided for position for parameter '{name}'");
             }
 
-            // Next see if the parameter is required
             if (parameter.Required)
             {
-                requiredParameters.Add(name, parameter);
+                _requiredParameters.Add(name, parameter);
                 return;
             }
 
-            // Lastly add the parameter to alphabetic sorted list
-            alphabeticOrderParameters.Add(name, parameter);
+            _alphabeticOrderParameters.Add(name, parameter);
         }
 
         private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)
@@ -88,15 +85,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             bool isSwitchParam = string.Equals(paramTypeName, "SwitchParameter", StringComparison.OrdinalIgnoreCase);
             string paramType = isSwitchParam ? string.Empty : paramTypeName;
 
-            if (isRequired && isPositional && isSwitchParam)
+            bool requiredPositionalSwitch = isRequired && isPositional && isSwitchParam;
+            bool requiredPositional = isRequired && isPositional;
+            bool requiredSwitch = isRequired && isSwitchParam;
+            bool optionalSwitch = !isRequired && isSwitchParam;
+
+            if (requiredPositionalSwitch)
             {
                 return string.Format(Constants.RequiredSwitchParamTemplate, paramName, paramType);
             }
-            else if (isRequired && isPositional)
+            else if (requiredPositional)
             {
                 return string.Format(Constants.RequiredPositionalParamTemplate, paramName, paramType);
             }
-            else if (isRequired && isSwitchParam)
+            else if (requiredSwitch)
             {
                 return string.Format(Constants.RequiredSwitchParamTemplate, paramName, paramType);
             }
@@ -104,7 +106,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 return string.Format(Constants.RequiredParamTemplate, paramName, paramType);
             }
-            else if (!isRequired && isSwitchParam)
+            else if (optionalSwitch)
             {
                 return string.Format(Constants.OptionalSwitchParamTemplate, paramName, paramType);
             }
@@ -131,7 +133,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             sb.Append(Constants.SingleSpace);
 
             // look for all the positional parameters
-            foreach (KeyValuePair<int, Parameter> kv in postitionalParameters)
+            foreach (KeyValuePair<int, Parameter> kv in _postitionalParameters)
             {
                 Parameter param = kv.Value;
 
@@ -141,7 +143,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             // look for all the required parameters
-            foreach(KeyValuePair<string, Parameter> kv in requiredParameters)
+            foreach(KeyValuePair<string, Parameter> kv in _requiredParameters)
             {
                 Parameter param = kv.Value;
                 sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: true));
@@ -149,7 +151,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             // look for all the remaining parameters
-            foreach (KeyValuePair<string, Parameter> kv in alphabeticOrderParameters)
+            foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
             {
                 Parameter param = kv.Value;
                 sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: false));
@@ -157,9 +159,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             sb.Append(Constants.SyntaxCommonParameters);
-
-            // finish syntax
-            sb.Append(Environment.NewLine);
+            sb.AppendLine();
 
             // close code block
             sb.AppendLine(Constants.CodeBlock);

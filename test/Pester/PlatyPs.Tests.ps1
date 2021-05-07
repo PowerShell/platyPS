@@ -18,6 +18,12 @@ Describe 'New-MarkdownHelp' {
             { New-MarkdownHelp -MamlFile '__NON_EXISTING_FILE' -OutputFolder $TestDrive } |
             Should -Throw -ErrorId 'FileNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
+
+        It 'throw when cannot find maml file' {
+            $null = New-Item -ItemType File -Path "$TestDrive\somefile.txt"
+            { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive\somefile.txt" } |
+            Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+        }
     }
 
     Context 'metadata' {

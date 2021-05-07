@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Management.Automation;
 using System.Text;
+
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -20,14 +21,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected CommandHelp ConvertCmdletInfo(CommandInfo commandInfo)
         {
-            if (Settings.Session is not null)
-            {
-                PowerShellAPI.InitializeRemoteSession(Settings.Session);
-            }
-
             string cmdName = commandInfo is ExternalScriptInfo ? commandInfo.Source : commandInfo.Name;
 
-            Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdName);
+            Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdName, Settings.Session);
 
             bool addDefaultStrings = false;
             dynamic? helpItem = null;
@@ -57,12 +53,11 @@ namespace Microsoft.PowerShell.PlatyPS
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
             cmdHelp.AddParameterRange(GetParameters(commandInfo, helpItem, addDefaultStrings));
 
-            if ((commandInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) || commandInfo is CmdletInfo)
-            {
-                cmdHelp.HasCmdletBinding = true;
-            }
+            cmdHelp.HasCmdletBinding = (commandInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) ||
+                commandInfo is CmdletInfo ||
+                (commandInfo is ExternalScriptInfo extInfo && extInfo.ScriptBlock.Attributes.Contains(new CmdletBindingAttribute()));
 
-            var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName);
+            var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName, Settings.Session);
 
             if (moduleInfos?.Count > 0)
             {
@@ -121,7 +116,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
-                param.Aliases = string.Join(",", parameterMetadata.Value.Aliases);
+                param.Aliases = string.Join(',', parameterMetadata.Value.Aliases);
 
                 string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
@@ -159,7 +154,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     foreach (dynamic item in examplesAsCollection)
                     {
-                        string title = item.title.ToString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", "");
+                        string title = item.title.ToString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", string.Empty);
 
                         Example exp = new(
                             title,
@@ -226,7 +221,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     type.GetGenericTypeDefinition().Name;
 
                 sb.Append(genericName);
-                sb.Append("[");
+                sb.Append('[');
 
                 List<string> genericParameters = new();
 
@@ -238,9 +233,9 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                 }
 
-                sb.Append(string.Join(",", genericParameters));
+                sb.Append(string.Join(',', genericParameters));
 
-                sb.Append("]");
+                sb.Append(']');
 
                 typeName = sb.ToString();
             }
@@ -270,7 +265,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
 
-            param.Aliases = string.Join("-", paramInfo.Aliases);
+            param.Aliases = string.Join('-', paramInfo.Aliases);
             param.Required = paramInfo.IsMandatory;
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);

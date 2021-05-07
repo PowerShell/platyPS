@@ -1,8 +1,6 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
-using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections;
 using System.Collections.ObjectModel;
@@ -10,6 +8,9 @@ using System.Globalization;
 using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
+
+using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
+using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -108,6 +109,13 @@ namespace Microsoft.PowerShell.PlatyPS
         protected override void EndProcessing()
         {
             string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+
+            if (File.Exists(fullPath))
+            {
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
+                ThrowTerminatingError(err);
+            }
 
             if (!Directory.Exists(fullPath))
             {

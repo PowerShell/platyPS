@@ -6,7 +6,7 @@ using System.Text;
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
     /// <summary>
-    /// Settings for the markdown writer
+    /// Settings for the markdown writer.
     /// </summary>
     internal class MarkdownWriterSettings
     {

@@ -9,7 +9,7 @@ using System.Management.Automation;
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
-    /// Get-MarkdownMetadata reads the YAML header from a markdown file and represents it as a Dictionary object
+    /// Get-MarkdownMetadata reads the YAML header from a markdown file and represents it as a Dictionary object.
     /// </summary>
     [Cmdlet(VerbsCommon.Get, "MarkdownMetadata", HelpUri = "", DefaultParameterSetName = "FromPath")]
     [OutputType(typeof(Dictionary<object, object>))]
@@ -26,7 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
             ValueFromPipelineByPropertyName = true,
             Position = 1)]
         [SupportsWildcards]
-        public string[]? Path { get; set; }
+        public string[] Path { get; set; } = Array.Empty<string>();
 
         /// <summary>
         /// Markdown content provided as a string.
@@ -53,31 +53,28 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else if (string.Equals(this.ParameterSetName, "FromPath", StringComparison.OrdinalIgnoreCase))
             {
-                if (Path is not null)
+                foreach (string filePath in Path)
                 {
-                    foreach (string filePath in Path)
+                    string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(filePath);
+
+                    if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(fullPath))
                     {
-                        string fullPath = System.IO.Path.GetFullPath(filePath);
+                        FileInfo fInfo = new FileInfo(fullPath);
 
-                        if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(fullPath))
+                        string? directoryPath = fInfo.Directory?.FullName;
+                        string directoryName = fInfo.Name;
+
+                        if (directoryPath is not null)
                         {
-                            FileInfo fInfo = new FileInfo(fullPath);
-
-                            string? directoryPath = fInfo.Directory?.FullName;
-                            string directoryName = fInfo.Name;
-
-                            if (directoryPath is not null)
+                            foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
                             {
-                                foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
-                                {
-                                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
-                                }
+                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
                             }
                         }
-                        else if (File.Exists(fullPath))
-                        {
-                            DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(fullPath)));
-                        }
+                    }
+                    else if (File.Exists(fullPath))
+                    {
+                        DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(fullPath)));
                     }
                 }
             }
@@ -93,6 +90,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private string GetMarkdownMetadataHeaderReader(string content)
         {
+            if (string.IsNullOrEmpty(content))
+            {
+                return string.Empty;
+            }
+
             var mdAst = Markdig.Markdown.Parse(content);
 
             if (mdAst.Count < 2)

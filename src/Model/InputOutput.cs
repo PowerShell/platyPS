@@ -13,23 +13,23 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     internal class InputOutput
     {
         // tuple<typename, description>
-        private List<Tuple<string, string>> inputOutputItems;
+        private List<(string, string)> _inputOutputItems;
 
         public InputOutput()
         {
-            inputOutputItems = new List<Tuple<string, string>>();
+            _inputOutputItems = new List<(string, string)>();
         }
 
         internal void AddInputOutputItem(string typeName, string description)
         {
-            inputOutputItems.Add(new Tuple<string, string>(typeName, description));
+            _inputOutputItems.Add((typeName, description));
         }
 
         internal string ToInputOutputString()
         {
             StringBuilder sb = new();
 
-            foreach(var item in inputOutputItems)
+            foreach(var item in _inputOutputItems)
             {
                 sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
                 sb.AppendLine();

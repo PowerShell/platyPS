@@ -24,7 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         private List<string>? RequiredFalseParameterSets { get; set; }
 
         // @TODO: find out what this is for??
-        internal bool? VariableLength { get; set;} = true;
+        internal bool VariableLength { get; set;} = true;
 
         internal bool Globbing { get; set;}
 

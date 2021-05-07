@@ -8,6 +8,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Text;
 using System.Xml;
+
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -15,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS
     internal class TransformMaml : TransformBase
     {
         // Dictionary of parameter name -> parameterset which it belongs
-        private Dictionary<string, List<string>> paramSetMap = new();
+        private Dictionary<string, List<string>> _paramSetMap = new();
 
         public TransformMaml(TransformSettings settings) : base(settings)
         {
@@ -24,11 +25,6 @@ namespace Microsoft.PowerShell.PlatyPS
         internal override Collection<CommandHelp> Transform(string[] mamlFileNames)
         {
             Collection<CommandHelp> cmdHelp = new();
-
-            if (Settings.Session is not null)
-            {
-                PowerShellAPI.InitializeRemoteSession(Settings.Session);
-            }
 
             foreach (var file in mamlFileNames)
             {
@@ -42,8 +38,6 @@ namespace Microsoft.PowerShell.PlatyPS
                     cmdHelp.Add(command);
                 }
             }
-
-            PowerShellAPI.Reset();
 
             return cmdHelp;
         }
@@ -88,7 +82,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 cmdHelp = new(reader.ReadElementContentAsString(), moduleName, Settings.Locale);
 
-                Collection<CommandInfo> cmdInfo = PowerShellAPI.GetCommandInfo(cmdHelp.Title);
+                Collection<CommandInfo> cmdInfo = PowerShellAPI.GetCommandInfo(cmdHelp.Title, Settings.Session);
 
                 if (cmdInfo.Count != 1)
                 {
@@ -106,7 +100,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 cmdHelp.AddReleatedLinksRange(ReadRelatedLinks(reader));
                 cmdHelp.ModuleGuid = Settings.ModuleGuid;
 
-                paramSetMap.Clear();
+                _paramSetMap.Clear();
             }
             else
             {
@@ -185,7 +179,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
             {
-                title = reader.ReadElementContentAsString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", "");
+                title = reader.ReadElementContentAsString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", string.Empty);
             }
 
             if (reader.ReadToFollowing(Constants.MamlDevCodeTag))
@@ -389,13 +383,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 foreach(var paramName in syntaxItem.ParameterNames)
                 {
-                    if (paramSetMap.ContainsKey(paramName))
+                    if (_paramSetMap.ContainsKey(paramName))
                     {
-                        paramSetMap[paramName].Add(unnamedParameterSetName);
+                        _paramSetMap[paramName].Add(unnamedParameterSetName);
                     }
                     else
                     {
-                        paramSetMap.Add(paramName, new List<string>() { unnamedParameterSetName });
+                        _paramSetMap.Add(paramName, new List<string>() { unnamedParameterSetName });
                     }
                 }
 
@@ -514,7 +508,7 @@ namespace Microsoft.PowerShell.PlatyPS
             // Update parameter.ParameterSets only if we are reading for parameters. Not for syntax.
             if (parameterSetCount != -1)
             {
-                if (paramSetMap.TryGetValue(name, out List<string>? paramSetList))
+                if (_paramSetMap.TryGetValue(name, out List<string>? paramSetList))
                 {
                     if (paramSetList is not null)
                     {

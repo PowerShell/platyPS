@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Text;
+
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Xunit;
 

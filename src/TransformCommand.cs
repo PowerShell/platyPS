@@ -19,7 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (var command in commandNames)
             {
-                Collection<CommandInfo> cmdletInfos = PowerShellAPI.GetCommandInfo(command);
+                Collection<CommandInfo> cmdletInfos = PowerShellAPI.GetCommandInfo(command, Settings.Session);
 
                 foreach (var cmdletInfo in cmdletInfos)
                 {

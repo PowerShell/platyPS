@@ -104,5 +104,14 @@ namespace Microsoft.PowerShell.PlatyPS {
                 return ResourceManager.GetString("NoMetadataAndMetadata", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Path &apos;{0}&apos; is not a folder..
+        /// </summary>
+        internal static string PathIsNotFolder {
+            get {
+                return ResourceManager.GetString("PathIsNotFolder", resourceCulture);
+            }
+        }
     }
 }

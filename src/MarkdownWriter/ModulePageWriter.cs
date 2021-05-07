@@ -39,7 +39,9 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             // So we can safely just get these values from the first object.
             string moduleName = helpItems[0].ModuleName;
             string localeString = helpItems[0].Locale.ToString();
-            string? moduleGuid = helpItems[0].ModuleGuid == null ? Constants.FillInGuid : helpItems[0].ModuleGuid.ToString();
+
+            string? helpModuleGuid = helpItems[0].ModuleGuid?.ToString();
+            string moduleGuid = helpModuleGuid is null ? Constants.FillInGuid : helpModuleGuid;
 
             FileInfo modulePage = new FileInfo(_modulePagePath);
 
@@ -78,11 +80,8 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
 
-            if (localeString is not null && moduleGuid is not null)
-            {
-                WriteHeader(moduleName, localeString, moduleGuid);
-                sb.AppendLine();
-            }
+            WriteHeader(moduleName, localeString, moduleGuid);
+            sb.AppendLine();
 
             WriteModuleBlock(moduleName);
 

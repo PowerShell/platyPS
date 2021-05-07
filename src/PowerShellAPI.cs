@@ -9,19 +9,18 @@ using System.Management.Automation.Runspaces;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-    internal static class PowerShellAPI
+    internal class PowerShellAPI
     {
         [ThreadStatic]
         private static System.Management.Automation.PowerShell? ps;
 
-        public static Collection<CommandInfo> GetCommandInfo(string commandName)
+        internal static Collection<CommandInfo> GetCommandInfo(string commandName, PSSession? session = null)
         {
-            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
-            ps.Commands.Clear();
+            System.Management.Automation.PowerShell selectedPS = GetPowerShell(session);
 
             try
             {
-                var commandInfos = ps
+                var commandInfos = selectedPS
                      .AddCommand(@"Microsoft.PowerShell.Core\Get-Command")
                      .AddParameter("Name", commandName)
                      .Invoke<CommandInfo>();
@@ -47,12 +46,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        public static Collection<CommandInfo> GetCmdletInfoFromModule(string moduleName)
+        internal static Collection<CommandInfo> GetCmdletInfoFromModule(string moduleName, PSSession? session = null)
         {
-            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
-            ps.Commands.Clear();
-
-            Collection<PSModuleInfo>? moduleInfo = GetModuleInfo(moduleName);
+            Collection<PSModuleInfo>? moduleInfo = GetModuleInfo(moduleName, session);
 
             Collection<CommandInfo> cmdletInfos = new();
 
@@ -77,22 +73,16 @@ namespace Microsoft.PowerShell.PlatyPS
             return cmdletInfos;
         }
 
-        public static Collection<PSModuleInfo>? GetModuleInfo(string moduleName)
+        internal static Collection<PSModuleInfo>? GetModuleInfo(string moduleName, PSSession? session = null)
         {
-            if (string.IsNullOrEmpty(moduleName))
-            {
-                return null;
-            }
-
-            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
-            ps.Commands.Clear();
+            System.Management.Automation.PowerShell selectedPS = GetPowerShell(session);
 
             Collection<PSModuleInfo>? modules = null;
 
             try
             {
                 // first try if the module is loaded
-                modules = ps
+                modules = selectedPS
                     .AddCommand(@"Microsoft.PowerShell.Core\Get-Module")
                     .AddParameter("Name", moduleName)
                     .Invoke<PSModuleInfo>();
@@ -101,7 +91,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     // if not found try to import first
 
-                    modules = ps
+                    selectedPS.Commands.Clear();
+
+                    modules = selectedPS
                         .AddCommand(@"Microsoft.PowerShell.Core\Import-Module")
                         .AddParameter("Name", moduleName)
                         .AddParameter("PassThru")
@@ -116,28 +108,34 @@ namespace Microsoft.PowerShell.PlatyPS
             return modules;
         }
 
-        internal static void InitializeRemoteSession(PSSession session)
+        internal static Collection<PSObject> GetHelpForCmdlet(string cmdletName, PSSession? session = null)
         {
-            ps = System.Management.Automation.PowerShell.Create();
-            ps.Runspace = session.Runspace;
-        }
+            System.Management.Automation.PowerShell selectedPS = GetPowerShell(session);
 
-        internal static Collection<PSObject> GetHelpForCmdlet(string cmdletName)
-        {
-            ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
-            ps.Commands.Clear();
-
-            return ps
+            return selectedPS
                 .AddCommand(@"Microsoft.PowerShell.Core\Get-Help")
                 .AddParameter("Name", cmdletName)
                 .AddParameter("Full")
                 .Invoke();
         }
 
-        internal static void Reset()
+        private static System.Management.Automation.PowerShell GetPowerShell(PSSession? session)
         {
-            ps?.Dispose();
-            ps = null;
+            System.Management.Automation.PowerShell selectedPS;
+
+            if (session is null)
+            {
+                ps ??= System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace);
+                ps.Commands.Clear();
+                selectedPS = ps;
+            }
+            else
+            {
+                selectedPS = System.Management.Automation.PowerShell.Create();
+                selectedPS.Runspace = session.Runspace;
+            }
+
+            return selectedPS;
         }
     }
 }

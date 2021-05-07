@@ -132,4 +132,7 @@
   <data name="NoMetadataAndMetadata" xml:space="preserve">
     <value>-NoMetadata and -Metadata parameters cannot be specified at the same time.</value>
   </data>
+  <data name="PathIsNotFolder" xml:space="preserve">
+    <value>Path '{0}' is not a folder.</value>
+  </data>
 </root>
