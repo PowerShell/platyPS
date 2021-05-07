@@ -165,7 +165,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             sb.AppendLine(Constants.CodeBlock);
 
             // remove the last single space
-            return sb.ToString();
+            var syntaxText = sb.ToString();
+            Constants.StringBuilderPool.Return(sb);
+            return syntaxText;
         }
     }
 }

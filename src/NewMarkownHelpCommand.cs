@@ -5,7 +5,6 @@ using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -24,7 +23,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ParameterSetName = "FromCommand")]
-        public string[]? Command { get; set; }
+        public string[] Command { get; set; } = Array.Empty<string>();
 
         [Parameter()]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -45,13 +44,13 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? Locale { get; set; }
 
         [Parameter(Mandatory = true, ParameterSetName = "FromMaml")]
-        public string[]? MamlFile { get; set; }
+        public string[] MamlFile { get; set; } = Array.Empty<string>();
 
         [Parameter()]
         public Hashtable? Metadata { get; set; }
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "FromModule")]
-        public string[]? Module { get; set; }
+        public string[] Module { get; set; } = Array.Empty<string>();
 
         [Parameter(ParameterSetName = "FromMaml")]
         public string? ModuleGuid { get; set; }
@@ -66,7 +65,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? OnlineVersionUrl { get; set; }
 
         [Parameter(Mandatory = true)]
-        public string OutputFolder { get; set; }
+        public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
         [Parameter(ParameterSetName = "FromModule")]
         [Parameter(ParameterSetName = "FromMaml")]
@@ -96,11 +95,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        public NewMarkdownHelpCommand()
-        {
-            OutputFolder = Environment.CurrentDirectory;
-        }
-
         protected override void BeginProcessing()
         {
             if (Metadata is not null && NoMetadata)
@@ -109,13 +103,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 ErrorRecord err = new ErrorRecord(exception, "NoMetadataAndMetadata", ErrorCategory.InvalidOperation, Metadata);
                 ThrowTerminatingError(err);
             }
-
-            Directory.SetCurrentDirectory(this.SessionState.Path.CurrentLocation.Path);
         }
 
         protected override void EndProcessing()
         {
-            string fullPath = System.IO.Path.GetFullPath(OutputFolder);
+            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
             if (!Directory.Exists(fullPath))
             {
@@ -144,21 +136,21 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Command?.Length > 0)
+                    if (Command.Length > 0)
                     {
                         cmdHelpObjs = new TransformCommand(transformSettings).Transform(Command);
                     }
                 }
                 else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Module?.Length > 0)
+                    if (Module.Length > 0)
                     {
                         cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
                     }
                 }
                 else if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (MamlFile?.Length > 0)
+                    if (MamlFile.Length > 0)
                     {
                         cmdHelpObjs = new TransformMaml(transformSettings).Transform(MamlFile);
                     }

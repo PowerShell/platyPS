@@ -16,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
     internal class CommandHelpMarkdownWriter
     {
         private readonly string _filePath;
-        private StringBuilder sb = Constants.StringBuilderPool.Get();
+        private StringBuilder sb;
         private readonly Encoding _encoding;
 
         /// <summary>
@@ -35,6 +35,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 _filePath = path;
                 _encoding = settings.Encoding;
+                sb = Constants.StringBuilderPool.Get();
             }
         }
 
@@ -85,12 +86,13 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             WriteRelatedLinks(help);
 
-            using (StreamWriter mdFileWriter = new(_filePath, append: false, _encoding))
-            {
-                mdFileWriter.Write(sb.ToString());
+            using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
 
-                return new FileInfo(_filePath);
-            }
+            mdFileWriter.Write(sb.ToString());
+
+            Constants.StringBuilderPool.Return(sb);
+
+            return new FileInfo(_filePath);
         }
 
         private void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)

@@ -41,7 +41,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             // Remove the last new line
             sb.Remove(sb.Length - 1, 1);
 
-            return sb.ToString();
+            var ioText = sb.ToString();
+            Constants.StringBuilderPool.Return(sb);
+            return ioText;
         }
     }
 }

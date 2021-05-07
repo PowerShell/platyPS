@@ -11,9 +11,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// </summary>
     internal class Example
     {
-        internal string Title { get; set;}
-        internal string Code { get; set;}
-        internal string Remarks { get; set;}
+        internal string Title { get; set; }
+        internal string Code { get; set; }
+        internal string Remarks { get; set; }
 
         public Example(string title, string code, string remarks)
         {
@@ -39,7 +39,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 sb.Append(Remarks);
             }
 
-            return sb.ToString();
+            var exampleText = sb.ToString();
+            Constants.StringBuilderPool.Return(sb);
+            return exampleText;
         }
     }
 }

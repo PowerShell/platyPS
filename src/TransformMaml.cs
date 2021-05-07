@@ -223,6 +223,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 remarks.ToString()
                 );
 
+            Constants.StringBuilderPool.Return(remarks);
+
             return exp;
         }
 
@@ -246,7 +248,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            return notes.ToString();
+            var notesText = notes.ToString();
+            Constants.StringBuilderPool.Return(notes);
+            return notesText;
         }
 
         private InputOutput ReadInput(XmlReader reader)
@@ -563,7 +567,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
             reader.ReadEndElement();
 
-            return description.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+            var descText = description.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+            Constants.StringBuilderPool.Return(description);
+            return descText;
         }
     }
 }

@@ -63,12 +63,15 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             FileInfo fInfo = new FileInfo(fullPath);
 
-                            string directoryPath = fInfo.Directory.FullName;
+                            string? directoryPath = fInfo.Directory?.FullName;
                             string directoryName = fInfo.Name;
 
-                            foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
+                            if (directoryPath is not null)
                             {
-                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                                foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
+                                {
+                                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
+                                }
                             }
                         }
                         else if (File.Exists(fullPath))

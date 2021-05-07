@@ -222,7 +222,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 StringBuilder sb = Constants.StringBuilderPool.Get();
 
                 string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
-                    type.GetGenericTypeDefinition().FullName :
+                    type.GetGenericTypeDefinition().FullName ?? string.Empty :
                     type.GetGenericTypeDefinition().Name;
 
                 sb.Append(genericName);
@@ -232,7 +232,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 foreach (var name in type.GenericTypeArguments)
                 {
-                    genericParameters.Add(name.FullName);
+                    if (name.FullName is not null)
+                    {
+                        genericParameters.Add(name.FullName);
+                    }
                 }
 
                 sb.Append(string.Join(",", genericParameters));
@@ -240,11 +243,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 sb.Append("]");
 
                 typeName = sb.ToString();
+
+                Constants.StringBuilderPool.Return(sb);
             }
             else
             {
                 typeName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
-                    type.FullName :
+                    type.FullName ?? string.Empty :
                     type.Name;
             }
 
@@ -497,7 +502,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            return sb.ToString();
+            var desc = sb.ToString();
+            Constants.StringBuilderPool.Return(sb);
+            return desc;
         }
 
         private static Collection<PSObject>? MakePSObjectEnumerable(dynamic psObject)

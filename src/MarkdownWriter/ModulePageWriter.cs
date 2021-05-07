@@ -13,7 +13,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
     internal class ModulePageWriter
     {
         private string _modulePagePath;
-        private StringBuilder sb = Constants.StringBuilderPool.Get();
+        private StringBuilder sb;
         private readonly Encoding _encoding;
 
         public ModulePageWriter(MarkdownWriterSettings settings)
@@ -25,6 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             _modulePagePath = settings.DestinationPath;
             _encoding = settings.Encoding;
+            sb = Constants.StringBuilderPool.Get();
         }
 
         internal FileInfo Write(Collection<CommandHelp> helpItems)
@@ -40,7 +41,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             string localeString = helpItems[0].Locale.ToString();
             string? moduleGuid = helpItems[0].ModuleGuid == null ? Constants.FillInGuid : helpItems[0].ModuleGuid.ToString();
 
-            var modulePage = new FileInfo(_modulePagePath);
+            FileInfo modulePage = new FileInfo(_modulePagePath);
 
             if (!string.Equals(modulePage.Extension, ".md", StringComparison.OrdinalIgnoreCase))
             {
@@ -50,18 +51,26 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 if (!modulePage.Exists)
                 {
-                    var currentDir = modulePage.Directory;
+                    DirectoryInfo? currentDir = modulePage.Directory;
 
-                    while (!currentDir.Exists)
+                    if (currentDir is not null)
                     {
-                        try
+                        bool currentDirExists = currentDir.Exists;
+
+                        while (!currentDirExists)
                         {
-                            Directory.CreateDirectory(currentDir.FullName);
-                            break;
-                        }
-                        catch (DirectoryNotFoundException)
-                        {
-                            currentDir = currentDir.Parent;
+                            try
+                            {
+                                if (currentDir?.FullName is not null)
+                                {
+                                    Directory.CreateDirectory(currentDir.FullName);
+                                }
+                                break;
+                            }
+                            catch (DirectoryNotFoundException)
+                            {
+                                currentDir = currentDir?.Parent;
+                            }
                         }
                     }
                 }
@@ -87,6 +96,8 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             WriteCmdletBlock(commandNames);
 
             mdFileWriter.Write(sb.ToString());
+
+            Constants.StringBuilderPool.Return(sb);
 
             return new FileInfo(_modulePagePath);
         }
