@@ -28,6 +28,13 @@ jobs:
       downloadPath: '$(System.ArtifactsDirectory)'
       artifactName: 'nupkg'
 
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: '$(Build.SourcesDirectory)/**/*.csproj'
+      includeNuGetOrg: true
+
   - ${{ parameters.powershellExecutable }}: |
       $sourceName = 'pspackageproject-local-repo'
       Register-PSRepository -Name $sourceName -SourceLocation '$(System.ArtifactsDirectory)/nupkg' -ErrorAction Ignore -Verbose
