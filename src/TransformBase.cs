@@ -57,11 +57,14 @@ namespace Microsoft.PowerShell.PlatyPS
                 commandInfo is CmdletInfo ||
                 (commandInfo is ExternalScriptInfo extInfo && extInfo.ScriptBlock.Attributes.Contains(new CmdletBindingAttribute()));
 
-            var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName, Settings.Session);
-
-            if (moduleInfos?.Count > 0)
+            if (!string.IsNullOrEmpty(cmdHelp.ModuleName))
             {
-                cmdHelp.ModuleGuid = moduleInfos[0].Guid;
+                var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName, Settings.Session);
+
+                if (moduleInfos?.Count > 0)
+                {
+                    cmdHelp.ModuleGuid = moduleInfos[0].Guid;
+                }
             }
 
             // Sometime the help content does not have any input type
@@ -116,7 +119,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
-                param.Aliases = string.Join(',', parameterMetadata.Value.Aliases);
+                param.Aliases = string.Join(",", parameterMetadata.Value.Aliases);
 
                 string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
@@ -214,30 +217,37 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (type.IsGenericType)
             {
-                StringBuilder sb = new();
+                StringBuilder sb = Constants.StringBuilderPool.Get();
 
-                string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
-                    type.GetGenericTypeDefinition().FullName ?? string.Empty :
-                    type.GetGenericTypeDefinition().Name;
-
-                sb.Append(genericName);
-                sb.Append('[');
-
-                List<string> genericParameters = new();
-
-                foreach (var name in type.GenericTypeArguments)
+                try
                 {
-                    if (name.FullName is not null)
+                    string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
+                        type.GetGenericTypeDefinition().FullName ?? string.Empty :
+                        type.GetGenericTypeDefinition().Name;
+
+                    sb.Append(genericName);
+                    sb.Append('[');
+
+                    List<string> genericParameters = new();
+
+                    foreach (var name in type.GenericTypeArguments)
                     {
-                        genericParameters.Add(name.FullName);
+                        if (name.FullName is not null)
+                        {
+                            genericParameters.Add(name.FullName);
+                        }
                     }
+
+                    sb.Append(string.Join(",", genericParameters));
+
+                    sb.Append(']');
+
+                    typeName = sb.ToString();
                 }
-
-                sb.Append(string.Join(',', genericParameters));
-
-                sb.Append(']');
-
-                typeName = sb.ToString();
+                finally
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
             }
             else
             {
@@ -265,7 +275,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
 
-            param.Aliases = string.Join('-', paramInfo.Aliases);
+            param.Aliases = string.Join("-", paramInfo.Aliases);
             param.Required = paramInfo.IsMandatory;
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
@@ -482,20 +492,27 @@ namespace Microsoft.PowerShell.PlatyPS
                 return description;
             }
 
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
-            foreach (dynamic line in description)
+            try
             {
-                if (line is not char)
+                foreach (dynamic line in description)
                 {
-                    string text = line.text.ToString();
+                    if (line is not char)
+                    {
+                        string text = line.text.ToString();
 
-                    // Add semantic line break.
-                    sb.AppendLine(text.Replace(". ", $".{Environment.NewLine}"));
+                        // Add semantic line break.
+                        sb.AppendLine(text.Replace(". ", $".{Environment.NewLine}"));
+                    }
                 }
-            }
 
-            return sb.ToString();
+                return sb.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
         }
 
         private static Collection<PSObject>? MakePSObjectEnumerable(dynamic psObject)

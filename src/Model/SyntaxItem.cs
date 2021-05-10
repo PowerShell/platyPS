@@ -122,49 +122,56 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToSyntaxString()
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
-            sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine(Constants.CodeBlock);
-
-            sb.Append(CommandName);
-            sb.Append(Constants.SingleSpace);
-
-            // look for all the positional parameters
-            foreach (KeyValuePair<int, Parameter> kv in _postitionalParameters)
+            try
             {
-                Parameter param = kv.Value;
+                sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
+                sb.AppendLine();
+                sb.AppendLine();
+                sb.AppendLine(Constants.CodeBlock);
 
-                // positional parameters can be required, so chose the template accordingly
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: true, isRequired: param.Required));
+                sb.Append(CommandName);
                 sb.Append(Constants.SingleSpace);
-            }
 
-            // look for all the required parameters
-            foreach(KeyValuePair<string, Parameter> kv in _requiredParameters)
+                // look for all the positional parameters
+                foreach (KeyValuePair<int, Parameter> kv in _postitionalParameters)
+                {
+                    Parameter param = kv.Value;
+
+                    // positional parameters can be required, so chose the template accordingly
+                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: true, isRequired: param.Required));
+                    sb.Append(Constants.SingleSpace);
+                }
+
+                // look for all the required parameters
+                foreach (KeyValuePair<string, Parameter> kv in _requiredParameters)
+                {
+                    Parameter param = kv.Value;
+                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: true));
+                    sb.Append(Constants.SingleSpace);
+                }
+
+                // look for all the remaining parameters
+                foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
+                {
+                    Parameter param = kv.Value;
+                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: false));
+                    sb.Append(Constants.SingleSpace);
+                }
+
+                sb.Append(Constants.SyntaxCommonParameters);
+                sb.AppendLine();
+
+                // close code block
+                sb.AppendLine(Constants.CodeBlock);
+
+                return sb.ToString();
+            }
+            finally
             {
-                Parameter param = kv.Value;
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: true));
-                sb.Append(Constants.SingleSpace);
+                Constants.StringBuilderPool.Return(sb);
             }
-
-            // look for all the remaining parameters
-            foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
-            {
-                Parameter param = kv.Value;
-                sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: false));
-                sb.Append(Constants.SingleSpace);
-            }
-
-            sb.Append(Constants.SyntaxCommonParameters);
-            sb.AppendLine();
-
-            // close code block
-            sb.AppendLine(Constants.CodeBlock);
-
-            return sb.ToString(); ;
         }
     }
 }

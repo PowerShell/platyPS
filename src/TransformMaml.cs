@@ -174,7 +174,6 @@ namespace Microsoft.PowerShell.PlatyPS
         private Example ReadExample(XmlReader reader, int exampleCounter)
         {
             string? title = null;
-            StringBuilder remarks = new();
             string? code = null;
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
@@ -187,61 +186,74 @@ namespace Microsoft.PowerShell.PlatyPS
                 code = reader.ReadElementContentAsString();
             }
 
-            if (reader.ReadToFollowing(Constants.MamlDevRemarksTag))
+            StringBuilder remarks = Constants.StringBuilderPool.Get();
+
+            try
             {
-                if (reader.ReadToDescendant(Constants.MamlParaTag))
-                {
-                    do
-                    {
-                        remarks.AppendLine(reader.ReadElementContentAsString());
-                        remarks.AppendLine();
-                    } while (reader.ReadToNextSibling(Constants.MamlParaTag));
-
-
-                }
-
-                if (reader.ReadState != ReadState.EndOfFile)
-                {
-                    reader.ReadEndElement();
-                }
-            }
-
-            if (title == null || code == null)
-            {
-                throw new InvalidDataException("Invalid example data");
-            }
-
-            Example exp = new(
-                title,
-                code,
-                remarks.ToString()
-                );
-
-            return exp;
-        }
-
-
-        private string ReadNotes(XmlReader reader)
-        {
-            StringBuilder notes = new();
-
-            if (reader.ReadToFollowing(Constants.MamlAlertSetTag))
-            {
-                if (reader.ReadToDescendant(Constants.MamlAlertTag))
+                if (reader.ReadToFollowing(Constants.MamlDevRemarksTag))
                 {
                     if (reader.ReadToDescendant(Constants.MamlParaTag))
                     {
                         do
                         {
-                            notes.AppendLine(reader.ReadElementContentAsString());
-                            notes.AppendLine();
+                            remarks.AppendLine(reader.ReadElementContentAsString());
+                            remarks.AppendLine();
                         } while (reader.ReadToNextSibling(Constants.MamlParaTag));
                     }
-                }
-            }
 
-            var notesText = notes.ToString();
-            return notesText;
+                    if (reader.ReadState != ReadState.EndOfFile)
+                    {
+                        reader.ReadEndElement();
+                    }
+                }
+
+                if (title == null || code == null)
+                {
+                    throw new InvalidDataException("Invalid example data");
+                }
+
+                Example exp = new(
+                    title,
+                    code,
+                    remarks.ToString()
+                    );
+
+                return exp;
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(remarks);
+            }
+        }
+
+
+        private string ReadNotes(XmlReader reader)
+        {
+            StringBuilder notes = Constants.StringBuilderPool.Get();
+
+            try
+            {
+                if (reader.ReadToFollowing(Constants.MamlAlertSetTag))
+                {
+                    if (reader.ReadToDescendant(Constants.MamlAlertTag))
+                    {
+                        if (reader.ReadToDescendant(Constants.MamlParaTag))
+                        {
+                            do
+                            {
+                                notes.AppendLine(reader.ReadElementContentAsString());
+                                notes.AppendLine();
+                            } while (reader.ReadToNextSibling(Constants.MamlParaTag));
+                        }
+                    }
+                }
+
+                return notes.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(notes);
+            }
         }
 
         private InputOutput ReadInput(XmlReader reader)
@@ -542,24 +554,31 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private string ReadDescription(XmlReader reader)
         {
-            StringBuilder description = new();
+            StringBuilder description = Constants.StringBuilderPool.Get();
 
-            if (reader.ReadToFollowing(Constants.MamlDescriptionTag))
+            try
             {
-                if (reader.ReadToDescendant(Constants.MamlParaTag))
+                if (reader.ReadToFollowing(Constants.MamlDescriptionTag))
                 {
-                    do
+                    if (reader.ReadToDescendant(Constants.MamlParaTag))
                     {
-                        description.AppendLine(reader.ReadElementContentAsString());
-                        description.AppendLine();
-                    } while (reader.ReadToNextSibling(Constants.MamlParaTag));
+                        do
+                        {
+                            description.AppendLine(reader.ReadElementContentAsString());
+                            description.AppendLine();
+                        } while (reader.ReadToNextSibling(Constants.MamlParaTag));
+                    }
                 }
+
+                reader.ReadEndElement();
+
+                var descText = description.ToString().TrimEnd(Environment.NewLine.ToCharArray());
+                return descText;
             }
-
-            reader.ReadEndElement();
-
-            var descText = description.ToString().TrimEnd(Environment.NewLine.ToCharArray());
-            return descText;
+            finally
+            {
+                Constants.StringBuilderPool.Return(description);
+            }
         }
     }
 }

@@ -112,6 +112,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal static readonly List<string> EmptyStringList = new();
         internal static readonly char DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
 
+        internal static readonly StringBuilderPool StringBuilderPool = new StringBuilderPool();
+
         internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Debug",

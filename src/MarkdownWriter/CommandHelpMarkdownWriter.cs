@@ -35,7 +35,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 _filePath = path;
                 _encoding = settings.Encoding;
-                sb = new StringBuilder();
+                sb = Constants.StringBuilderPool.Get();
             }
         }
 
@@ -49,48 +49,55 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         /// <returns>FileInfo object of the created file</returns>
         internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
         {
-            if (!noMetadata)
+            try
             {
-                WriteMetadataHeader(help, metadata);
+                if (!noMetadata)
+                {
+                    WriteMetadataHeader(help, metadata);
+                    sb.AppendLine();
+                }
+
+                WriteTitle(help);
                 sb.AppendLine();
+
+                WriteSynopsis(help);
+                sb.AppendLine();
+
+                // this adds an empty line after all parameters. So no AppendLine needed.
+                WriteSyntax(help);
+
+                WriteDescription(help);
+                sb.AppendLine();
+
+                WriteExamples(help);
+                sb.AppendLine();
+
+                WriteParameters(help);
+
+                if (help.Inputs != null)
+                {
+                    WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
+                }
+
+                if (help.Outputs != null)
+                {
+                    WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
+                }
+
+                WriteNotes(help);
+
+                WriteRelatedLinks(help);
+
+                using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
+
+                mdFileWriter.Write(sb.ToString());
+
+                return new FileInfo(_filePath);
             }
-
-            WriteTitle(help);
-            sb.AppendLine();
-
-            WriteSynopsis(help);
-            sb.AppendLine();
-
-            // this adds an empty line after all parameters. So no AppendLine needed.
-            WriteSyntax(help);
-
-            WriteDescription(help);
-            sb.AppendLine();
-
-            WriteExamples(help);
-            sb.AppendLine();
-
-            WriteParameters(help);
-
-            if (help.Inputs != null)
+            finally
             {
-                WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
+                Constants.StringBuilderPool.Return(sb);
             }
-
-            if (help.Outputs != null)
-            {
-                WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
-            }
-
-            WriteNotes(help);
-
-            WriteRelatedLinks(help);
-
-            using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
-
-            mdFileWriter.Write(sb.ToString());
-
-            return new FileInfo(_filePath);
         }
 
         private void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)

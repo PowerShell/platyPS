@@ -100,9 +100,12 @@ namespace Microsoft.PowerShell.PlatyPS
                         .Invoke<PSModuleInfo>();
                 }
             }
+            // swallow the exceptions and eventually return null;
             catch (FileNotFoundException)
             {
-                // swallow the exception and eventually return null;
+            }
+            catch (System.Management.Automation.ActionPreferenceStopException)
+            {
             }
 
             return modules;

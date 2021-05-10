@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             _modulePagePath = settings.DestinationPath;
             _encoding = settings.Encoding;
-            sb = new StringBuilder();
+            sb = Constants.StringBuilderPool.Get();
         }
 
         internal FileInfo Write(Collection<CommandHelp> helpItems)
@@ -81,6 +81,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
 
             WriteHeader(moduleName, localeString, moduleGuid);
+
             sb.AppendLine();
 
             WriteModuleBlock(moduleName);
@@ -95,6 +96,8 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             WriteCmdletBlock(commandNames);
 
             mdFileWriter.Write(sb.ToString());
+
+            Constants.StringBuilderPool.Return(sb);
 
             return new FileInfo(_modulePagePath);
         }

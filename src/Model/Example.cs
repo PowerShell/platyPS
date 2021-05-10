@@ -24,22 +24,29 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToExampleItemString(int serialNumber)
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
-            sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.AppendLine(Constants.CodeBlock);
-            sb.AppendLine(Code);
-            sb.AppendLine(Constants.CodeBlock);
-
-            if (!string.IsNullOrEmpty(Remarks) && !string.Equals(Remarks, Environment.NewLine))
+            try
             {
+                sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
                 sb.AppendLine();
-                sb.Append(Remarks);
-            }
+                sb.AppendLine();
+                sb.AppendLine(Constants.CodeBlock);
+                sb.AppendLine(Code);
+                sb.AppendLine(Constants.CodeBlock);
 
-            return sb.ToString();
+                if (!string.IsNullOrEmpty(Remarks) && !string.Equals(Remarks, Environment.NewLine))
+                {
+                    sb.AppendLine();
+                    sb.Append(Remarks);
+                }
+
+                return sb.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
         }
     }
 }

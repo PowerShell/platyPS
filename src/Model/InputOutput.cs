@@ -27,21 +27,28 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToInputOutputString()
         {
-            StringBuilder sb = new();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
 
-            foreach(var item in _inputOutputItems)
+            try
             {
-                sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
-                sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(item.Item2);
-                sb.AppendLine();
+                foreach (var item in _inputOutputItems)
+                {
+                    sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
+                    sb.AppendLine();
+                    sb.AppendLine();
+                    sb.AppendLine(item.Item2);
+                    sb.AppendLine();
+                }
+
+                // Remove the last new line
+                sb.Remove(sb.Length - 1, 1);
+
+                return sb.ToString();
             }
-
-            // Remove the last new line
-            sb.Remove(sb.Length - 1, 1);
-
-            return sb.ToString();
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
         }
     }
 }
