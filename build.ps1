@@ -90,7 +90,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     }
 
     $pesterTestRoot = "$PSScriptRoot/test/Pester"
-    Write-Verbose "Executing Pester tests under $pesterTestRoot"
+    Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
     $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
 

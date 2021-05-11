@@ -57,7 +57,7 @@ jobs:
 
       $xunitResult = '$(Build.SourcesDirectory)/xunit.tests.xml'
 
-      if (-not (Test-Path $pesterRexunitResultsult))
+      if (-not (Test-Path $xunitResult))
       {
         throw 'xUnit test results not found'
       }
