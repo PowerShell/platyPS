@@ -13,11 +13,10 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
     /// <summary>
     /// Write the CommandHelp object to a file in markdown format.
     /// </summary>
-    internal class CommandHelpMarkdownWriter : IDisposable
+    internal sealed class CommandHelpMarkdownWriter : IDisposable
     {
         private readonly string _filePath;
         private StringBuilder sb;
-        private bool disposedValue;
         private readonly Encoding _encoding;
 
         /// <summary>
@@ -233,23 +232,9 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    Constants.StringBuilderPool.Return(sb);
-                }
-
-                disposedValue = true;
-            }
-        }
-
         public void Dispose()
         {
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
+            Constants.StringBuilderPool.Return(sb);
         }
     }
 }

@@ -22,7 +22,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal StringBuilder Get()
         {
-            //if (_stringBuilders.TryTake(out StringBuilder? sb) && sb is not null)
             if (_stringBuilders.TryTake(out StringBuilder? sb))
             {
                 return sb;

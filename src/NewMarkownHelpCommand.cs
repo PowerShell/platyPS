@@ -19,7 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// </summary>
     [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri = "https://go.microsoft.com/fwlink/?LinkID=2096483")]
     [OutputType(typeof(FileInfo[]))]
-    public sealed class NewMarkdownHelpCommand : PSCmdlet, IModuleAssemblyCleanup
+    public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
@@ -93,11 +93,6 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? ModulePagePath { get; set; }
 
         public SwitchParameter ExcludeDontShow { get; set; }
-
-        public void OnRemove(PSModuleInfo psModuleInfo)
-        {
-            PowerShellAPI.DisposePowerShell();
-        }
 
         #endregion
 
