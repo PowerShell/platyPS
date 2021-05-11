@@ -1,86 +1,102 @@
-<#
-.SYNOPSIS
-    Builds the MarkDown/MAML DLL and assembles the final package in out\platyPS.
-#>
-[CmdletBinding()]
+[CmdletBinding(DefaultParameterSetName = 'Build')]
 param(
-    [ValidateSet('Debug', 'Release')]
-    $Configuration = "Debug",
-    [switch]$SkipDocs,
-    [string]$DotnetCli
+    [Parameter(ParameterSetName = "Build")]
+    [switch] $Clean,
+
+    [Parameter(ParameterSetName = "Build")]
+    [ValidateSet("Debug", "Release")]
+    [string] $Configuration = "Debug",
+
+    [Parameter(ParameterSetName = "Build")]
+    [string] $OutputDir = "$PSScriptRoot/out",
+
+    [Parameter(ParameterSetName = "Test", Mandatory)]
+    [switch] $Test,
+
+    [Parameter(ParameterSetName = "Test")]
+    [string] $XUnitLogPath = "$PSScriptRoot/xunit.tests.xml",
+
+    [Parameter(ParameterSetName = "Test")]
+    [string] $PesterLogPath = "$PSScriptRoot/pester.tests.xml"
 )
 
-function Find-DotnetCli()
-{
-    [string] $DotnetCli = ''
-    $dotnetCmd = Get-Command dotnet
-    return $dotnetCmd.Path
+if ($PSCmdlet.ParameterSetName -eq 'Build') {
+    try {
+
+        if ($Clean) {
+            if (Test-Path $OutputDir) {
+                Write-Verbose -Verbose "Cleaning output directory: $OutputDir"
+                Remove-Item -Recurse -path $OutputDir -Force
+            }
+
+            $binFolder = "$PSScriptRoot/src/bin"
+            if (Test-Path $binFolder) {
+                Write-Verbose -Verbose "Cleaning output directory: $binFolder"
+                Remove-Item -Recurse -path $binFolder -Force
+            }
+
+            $objFolder = "$PSScriptRoot/src/obj"
+            if (Test-Path $objFolder) {
+                Write-Verbose -Verbose "Cleaning output directory: $objFolder"
+                Remove-Item -Recurse -path $objFolder -Force
+            }
+        }
+
+        Push-Location "$PSScriptRoot/src"
+        dotnet build --configuration $Configuration
+
+        $expectedBuildPath = "./bin/$Configuration/net461/"
+        $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"
+
+        if (-not (Test-Path $expectedDllPath))
+        {
+            throw "Build did not succeed."
+        }
+
+        $moduleDllPath = Resolve-Path $expectedDllPath
+
+        $moduleRoot = New-Item -Item Directory -Path "$OutputDir/platyPS" -Force
+
+        $fileToCopy = @(
+            "$PSScriptRoot/src/platyPS.psd1"
+            "$expectedDllPath"
+            "$expectedBuildPath/Markdig.Signed.dll"
+            "$expectedBuildPath/YamlDotNet.dll"
+        )
+
+        Copy-Item -Path $fileToCopy -Destination $moduleRoot -Verbose
+    }
+    finally {
+        Pop-Location
+    }
 }
+elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
+    Import-Module -Name "$OutputDir/platyPS" -Force
 
+    $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
+    Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
 
-if (-not $DotnetCli) {
-    $DotnetCli = Find-DotnetCli
+    $xunitTestFailed = $true
+
+    try {
+        Push-Location $xunitTestRoot
+        dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
+
+        if ($LASTEXITCODE -eq 0) {
+            $xunitTestFailed = $false
+        }
+    }
+    finally {
+        Pop-Location
+    }
+
+    $pesterTestRoot = "$PSScriptRoot/test/Pester"
+    Write-Verbose "Executing Pester tests under $pesterTestRoot"
+
+    $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
+
+    if ($results.FailedCount -ne 0 -or $xunitTestFailed)
+    {
+        throw "Tests failed."
+    }
 }
-
-if (-not $DotnetCli) {
-    throw "dotnet cli is not found in PATH, install it from https://docs.microsoft.com/en-us/dotnet/core/tools"
-} else {
-    Write-Host "Using dotnet from $DotnetCli"
-}
-
-if (Get-Variable -Name IsCoreClr -ValueOnly -ErrorAction SilentlyContinue) {
-    $framework = 'netstandard1.6'
-} else {
-    $framework = 'net451'
-}
-
-& $DotnetCli publish ./src/Markdown.MAML -f $framework --output=$pwd/publish /p:Configuration=$Configuration
-
-$assemblyPaths = (
-    (Resolve-Path "publish/Markdown.MAML.dll").Path,
-    (Resolve-Path "publish/YamlDotNet.dll").Path
-)
-
-# copy artifacts
-New-Item -Type Directory out -ErrorAction SilentlyContinue > $null
-Copy-Item -Rec -Force src\platyPS out
-foreach($assemblyPath in $assemblyPaths)
-{
-	$assemblyFileName = [System.IO.Path]::GetFileName($assemblyPath)
-	$outputPath = "out\platyPS\$assemblyFileName"
-	if ((-not (Test-Path $outputPath)) -or
-		(Test-Path $outputPath -OlderThan (Get-ChildItem $assemblyPath).LastWriteTime))
-	{
-		Copy-Item $assemblyPath out\platyPS
-	} else {
-		Write-Host -Foreground Yellow "Skip $assemblyFileName copying"
-	}
-}
-
-# copy schema file and docs
-Copy-Item .\platyPS.schema.md out\platyPS
-New-Item -Type Directory out\platyPS\docs -ErrorAction SilentlyContinue > $null
-Copy-Item .\docs\* out\platyPS\docs\
-
-# copy template files
-New-Item -Type Directory out\platyPS\templates -ErrorAction SilentlyContinue > $null
-Copy-Item .\templates\* out\platyPS\templates\
-
-# put the right module version
-if ($env:APPVEYOR_REPO_TAG_NAME)
-{
-    $manifest = cat -raw out\platyPS\platyPS.psd1
-    $manifest = $manifest -replace "ModuleVersion = '0.0.1'", "ModuleVersion = '$($env:APPVEYOR_REPO_TAG_NAME)'"
-    Set-Content -Value $manifest -Path out\platyPS\platyPS.psd1 -Encoding Ascii
-}
-
-# dogfooding: generate help for the module
-Remove-Module platyPS -ErrorAction SilentlyContinue
-Import-Module $pwd\out\platyPS
-
-if (-not $SkipDocs) {
-    New-ExternalHelp docs -OutputPath out\platyPS\en-US -Force
-    # reload module, to apply generated help
-    Import-Module $pwd\out\platyPS -Force
-}
-
