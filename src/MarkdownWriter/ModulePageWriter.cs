@@ -10,10 +10,11 @@ using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 {
-    internal class ModulePageWriter
+    internal class ModulePageWriter : IDisposable
     {
         private string _modulePagePath;
         private StringBuilder sb;
+        private bool disposedValue;
         private readonly Encoding _encoding;
 
         public ModulePageWriter(MarkdownWriterSettings settings)
@@ -97,8 +98,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             mdFileWriter.Write(sb.ToString());
 
-            Constants.StringBuilderPool.Return(sb);
-
             return new FileInfo(_modulePagePath);
         }
 
@@ -142,5 +141,23 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
+        }
     }
 }

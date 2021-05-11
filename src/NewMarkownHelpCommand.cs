@@ -19,7 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// </summary>
     [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri = "https://go.microsoft.com/fwlink/?LinkID=2096483")]
     [OutputType(typeof(FileInfo[]))]
-    public sealed class NewMarkdownHelpCommand : PSCmdlet
+    public sealed class NewMarkdownHelpCommand : PSCmdlet, IModuleAssemblyCleanup
     {
         #region cmdlet parameters
 
@@ -93,6 +93,11 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? ModulePagePath { get; set; }
 
         public SwitchParameter ExcludeDontShow { get; set; }
+
+        public void OnRemove(PSModuleInfo psModuleInfo)
+        {
+            PowerShellAPI.DisposePowerShell();
+        }
 
         #endregion
 
@@ -187,8 +192,8 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (var cmdletHelp in cmdHelpObjs)
                 {
-                    MarkdownWriterSettings settings = new MarkdownWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
-                    CommandHelpMarkdownWriter cmdWrt = new(settings);
+                    var settings = new MarkdownWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
+                    using var cmdWrt = new CommandHelpMarkdownWriter(settings);
                     WriteObject(cmdWrt.Write(cmdletHelp, NoMetadata, Metadata));
                 }
 
@@ -196,8 +201,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     string modulePagePath = ModulePagePath ?? fullPath;
 
-                    MarkdownWriterSettings modulePageSettings = new(Encoding, modulePagePath);
-                    ModulePageWriter modulePageWriter = new(modulePageSettings);
+                    var modulePageSettings = new MarkdownWriterSettings(Encoding, modulePagePath);
+                    using var modulePageWriter = new ModulePageWriter(modulePageSettings);
 
                     WriteObject(modulePageWriter.Write(cmdHelpObjs));
                 }

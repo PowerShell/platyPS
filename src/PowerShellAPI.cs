@@ -44,6 +44,14 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 throw;
             }
+            finally
+            {
+                // We have created a new PowerShell object, so we have to dipose it.
+                if (session is not null)
+                {
+                    selectedPS.Dispose();
+                }
+            }
         }
 
         internal static Collection<CommandInfo> GetCmdletInfoFromModule(string moduleName, PSSession? session = null)
@@ -120,6 +128,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 .AddParameter("Name", cmdletName)
                 .AddParameter("Full")
                 .Invoke();
+        }
+
+        internal static void DisposePowerShell()
+        {
+            ps?.Dispose();
         }
 
         private static System.Management.Automation.PowerShell GetPowerShell(PSSession? session)

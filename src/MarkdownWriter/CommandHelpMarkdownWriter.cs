@@ -13,10 +13,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
     /// <summary>
     /// Write the CommandHelp object to a file in markdown format.
     /// </summary>
-    internal class CommandHelpMarkdownWriter
+    internal class CommandHelpMarkdownWriter : IDisposable
     {
         private readonly string _filePath;
         private StringBuilder sb;
+        private bool disposedValue;
         private readonly Encoding _encoding;
 
         /// <summary>
@@ -49,55 +50,48 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         /// <returns>FileInfo object of the created file</returns>
         internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
         {
-            try
+            if (!noMetadata)
             {
-                if (!noMetadata)
-                {
-                    WriteMetadataHeader(help, metadata);
-                    sb.AppendLine();
-                }
-
-                WriteTitle(help);
+                WriteMetadataHeader(help, metadata);
                 sb.AppendLine();
-
-                WriteSynopsis(help);
-                sb.AppendLine();
-
-                // this adds an empty line after all parameters. So no AppendLine needed.
-                WriteSyntax(help);
-
-                WriteDescription(help);
-                sb.AppendLine();
-
-                WriteExamples(help);
-                sb.AppendLine();
-
-                WriteParameters(help);
-
-                if (help.Inputs != null)
-                {
-                    WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
-                }
-
-                if (help.Outputs != null)
-                {
-                    WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
-                }
-
-                WriteNotes(help);
-
-                WriteRelatedLinks(help);
-
-                using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
-
-                mdFileWriter.Write(sb.ToString());
-
-                return new FileInfo(_filePath);
             }
-            finally
+
+            WriteTitle(help);
+            sb.AppendLine();
+
+            WriteSynopsis(help);
+            sb.AppendLine();
+
+            // this adds an empty line after all parameters. So no AppendLine needed.
+            WriteSyntax(help);
+
+            WriteDescription(help);
+            sb.AppendLine();
+
+            WriteExamples(help);
+            sb.AppendLine();
+
+            WriteParameters(help);
+
+            if (help.Inputs != null)
             {
-                Constants.StringBuilderPool.Return(sb);
+                WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
             }
+
+            if (help.Outputs != null)
+            {
+                WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
+            }
+
+            WriteNotes(help);
+
+            WriteRelatedLinks(help);
+
+            using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
+
+            mdFileWriter.Write(sb.ToString());
+
+            return new FileInfo(_filePath);
         }
 
         private void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
@@ -160,7 +154,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             int? totalExamples = help?.Examples?.Count;
 
-            for(int i = 0; i < totalExamples; i++)
+            for (int i = 0; i < totalExamples; i++)
             {
                 sb.Append(help?.Examples?[i].ToExampleItemString(i + 1));
                 sb.AppendLine();
@@ -226,7 +220,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             if (help.RelatedLinks?.Count > 0)
             {
-                foreach(var link in help.RelatedLinks)
+                foreach (var link in help.RelatedLinks)
                 {
                     sb.AppendLine(link.ToRelatedLinksString());
                     sb.AppendLine();
@@ -237,6 +231,25 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 sb.AppendLine(Constants.FillInRelatedLinks);
                 sb.AppendLine();
             }
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!disposedValue)
+            {
+                if (disposing)
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
+
+                disposedValue = true;
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(disposing: true);
+            GC.SuppressFinalize(this);
         }
     }
 }

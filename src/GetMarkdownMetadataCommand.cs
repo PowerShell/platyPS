@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Management.Automation;
 
@@ -37,11 +38,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        protected override void BeginProcessing()
-        {
-            Directory.SetCurrentDirectory(this.SessionState.Path.CurrentLocation.Path);
-        }
-
         protected override void ProcessRecord()
         {
             if (string.Equals(this.ParameterSetName, "FromMarkdownString", StringComparison.OrdinalIgnoreCase))
@@ -55,26 +51,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (string filePath in Path)
                 {
-                    string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(filePath);
+                    Collection<PathInfo> resolvedPaths = this.SessionState.Path.GetResolvedPSPathFromPSPath(filePath);
 
-                    if (System.Management.Automation.WildcardPattern.ContainsWildcardCharacters(fullPath))
+                    foreach (var resolvedPath in resolvedPaths)
                     {
-                        FileInfo fInfo = new FileInfo(fullPath);
-
-                        string? directoryPath = fInfo.Directory?.FullName;
-                        string directoryName = fInfo.Name;
-
-                        if (directoryPath is not null)
-                        {
-                            foreach (string file in Directory.EnumerateFiles(directoryPath, directoryName))
-                            {
-                                DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(file)));
-                            }
-                        }
-                    }
-                    else if (File.Exists(fullPath))
-                    {
-                        DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(fullPath)));
+                        DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(resolvedPath.Path)));
                     }
                 }
             }
