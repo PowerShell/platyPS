@@ -374,7 +374,7 @@ Write-Host 'Hello World!'
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
-        It "generates a landing page from Module"{
+        It "generates a landing page from Module" -Pending:$IsMacOS {
             New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
 
             Get-ChildItem $OutputFolder -Recurse | Out-String | Write-Verbose -Verbose
