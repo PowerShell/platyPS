@@ -20,8 +20,8 @@ Describe 'New-MarkdownHelp' {
         }
 
         It 'throw when cannot find maml file' {
-            $null = New-Item -ItemType File -Path "$TestDrive\somefile.txt"
-            { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive\somefile.txt" } |
+            $null = New-Item -ItemType File -Path "$TestDrive/somefile.txt"
+            { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive/somefile.txt" } |
             Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
     }
@@ -100,7 +100,7 @@ Describe 'New-MarkdownHelp' {
 
             } | Import-Module -Force
 
-            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive\PlatyPSTestModule" -Force
+            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive/PlatyPSTestModule" -Force
         }
 
         AfterAll {
@@ -145,8 +145,8 @@ Describe 'New-MarkdownHelp' {
 #>
 Write-Host 'Hello World!'
 "@
-            Set-Content -Value $SeedData -Path "$TestDrive\Invoke-HelloWorld.ps1" -NoNewline
-            $files = New-MarkdownHelp -Command "$TestDrive\Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive\output" -Force
+            Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
+            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             $files | Should -HaveCount 1
         }
 
@@ -166,10 +166,10 @@ Write-Host 'Hello World!'
 #>
 Write-Host 'Hello World!'
 "@
-            Set-Content -Value $SeedData -Path "$TestDrive\Invoke-HelloWorld.ps1" -NoNewline
+            Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
             $Location = Get-Location
             Set-Location $TestDrive
-            $files = New-MarkdownHelp -Command "$TestDrive\Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive\output" -Force
+            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             Set-Location $Location
             $files | Should -HaveCount 1
         }
@@ -216,7 +216,7 @@ Write-Host 'Hello World!'
 ### -WhatIf
 
 '@
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive\alpha" -Force -AlphabeticParamsOrder
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
             $files | Should -HaveCount 1
             normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should -Be $expectedOrder
         }
@@ -258,7 +258,7 @@ Write-Host 'Hello World!'
             )
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive\testAll1" -Force
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
         $content = Get-Content $file
 
         It 'generates markdown with correct parameter set names' {
@@ -299,7 +299,7 @@ Write-Host 'Hello World!'
             )
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive\testAll2" -Force
+        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll2" -Force
         $content = Get-Content $file
 
         It 'generates markdown with correct synopsis placeholder' {
@@ -369,8 +369,8 @@ Write-Host 'Hello World!'
     Context 'Module Landing Page'{
 
         BeforeAll {
-            $OutputFolder = "$TestDrive\LandingPageMD\"
-            $OutputFolderReadme = "$TestDrive\LandingPageMD-ReadMe\Readme.md"
+            $OutputFolder = "$TestDrive/LandingPageMD/"
+            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Readme.md"
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
@@ -381,7 +381,7 @@ Write-Host 'Hello World!'
         }
 
         It "generates a landing page from MAML" -Pending {
-            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder\platyPS\en-US\platy*xml") `
+            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder/platyPS/en-US/platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
                         -ModuleName "PlatyPS" `
@@ -425,7 +425,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive\alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
             $files | Should -HaveCount 1
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should -Be $expectedParameters
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should -Be $expectedSyntax
@@ -443,7 +443,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive\alpha" -Force -AlphabeticParamsOrder
+            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
             $files | Should -HaveCount 1
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
@@ -463,7 +463,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 )
             }
 
-            $file = New-MarkdownHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive\NewMarkDownHelp"
+            $file = New-MarkdownHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive/NewMarkDownHelp"
         }
 
         It 'sets accepts wildcards property on parameters as expected' {
@@ -475,7 +475,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 Describe 'Get-MarkdownMetadata' {
     Context 'Simple markdown file' {
         BeforeAll {
-            Set-Content -Path "$TestDrive\foo.md" -Value @'
+            Set-Content -Path "$TestDrive/foo.md" -Value @'
 ---
 external help file: Microsoft.PowerShell.Archive-help.xml
 keywords: powershell,cmdlet
@@ -501,7 +501,7 @@ title: Compress-Archive
         }
 
         It 'can parse out yaml snippet' {
-            $d = Get-MarkdownMetadata "$TestDrive\foo.md"
+            $d = Get-MarkdownMetadata "$TestDrive/foo.md"
             $d.Keys | Should -HaveCount 8
             $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "online version", "schema", "title"
             $d["Locale"] | Should -Be 'en-US'
