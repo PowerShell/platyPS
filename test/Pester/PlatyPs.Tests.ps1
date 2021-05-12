@@ -376,7 +376,10 @@ Write-Host 'Hello World!'
 
         It "generates a landing page from Module"{
             New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/PlatyPS.md" | Should -Exist
+
+            Get-ChildItem $OutputFolder -Recurse | Out-String | Write-Verbose -Verbose
+
+            "$OutputFolder/platyPS.md" | Should -Exist
         }
 
         It "generates a landing page from MAML" -Pending {
