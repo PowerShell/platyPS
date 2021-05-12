@@ -11,7 +11,7 @@ jobs:
   displayName: ${{ parameters.displayName }}
   steps:
   - ${{ parameters.powershellExecutable }}: |
-      Get-Module
+      Get-Module | Out-String | Write-Verbose -Verbose
       Remove-Module Pester -Verbose -ErrorAction SilentlyContinue
       Get-InstalledModule -Name pester -AllowPrerelease -MinimumVersion 5.0.0 -ErrorAction SilentlyContinue | Uninstall-Module -Force -Verbose
     displayName: Remove >= 5.0.0 Pester
