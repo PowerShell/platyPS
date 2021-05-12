@@ -369,7 +369,7 @@ Write-Host 'Hello World!'
     Context 'Module Landing Page'{
 
         BeforeAll {
-            $OutputFolder = "$TestDrive/LandingPageMD/"
+            $OutputFolder = "$TestDrive/LandingPageMD"
             $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Readme.md"
             $null = New-Item -ItemType Directory $OutputFolder
         }
