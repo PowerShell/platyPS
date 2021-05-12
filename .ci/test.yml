@@ -70,14 +70,12 @@ jobs:
       testResultsFormat: 'NUnit'
       testResultsFiles: '**/pester.tests.xml'
       testRunTitle: '${{ parameters.jobName }}-Pester'
-    displayname: Uploade Pester test results
 
   - task: PublishTestResults@2
     inputs:
       testResultsFormat: 'xUnit'
       testResultsFiles: '**/xunit.tests.xml'
       testRunTitle: '${{ parameters.jobName }}-xUnit'
-    displayname: Uploade xUnit test results
 
   - ${{ parameters.powershellExecutable }}: |
       Unregister-PSRepository -Name 'pspackageproject-local-repo' -ErrorAction Ignore
