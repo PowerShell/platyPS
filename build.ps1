@@ -47,8 +47,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         $expectedBuildPath = "./bin/$Configuration/net461/"
         $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"
 
-        if (-not (Test-Path $expectedDllPath))
-        {
+        if (-not (Test-Path $expectedDllPath)) {
             throw "Build did not succeed."
         }
 
@@ -72,26 +71,18 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
 elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     Import-Module -Name "$OutputDir/platyPS" -Force
 
-    $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
-    Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
-
-    $xunitTestFailed = $true
-
     try {
+        $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
+        Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
+        $xunitTestFailed = $true
         Push-Location $xunitTestRoot
-        $testArgs = @(
-            "test"
-            "--test-adapter-path:."
-            "--logger:xunit;LogFilePath=$XUnitLogPath"
-            "--no-build"
-        )
 
-        #dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
-
-        dotnet $testArgs
+        if ($IsWindows) {
+            dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
+        }
 
         if ($LASTEXITCODE -eq 0) {
-            $xunitTestFailed = $false
+            throw "XUnit test failed"
         }
     }
     finally {
@@ -103,8 +94,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
 
-    if ($results.FailedCount -ne 0 -or $xunitTestFailed)
-    {
-        throw "Tests failed."
+    if ($results.FailedCount -ne 0) {
+        throw "Pester Tests failed."
     }
 }

@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net461</TargetFramework>
+    <TargetFrameworks>net461;net5.0</TargetFrameworks>
     <RuntimeIdentifier>win7-x64</RuntimeIdentifier> <!--This is needed for xunit to run net461 tests-->
   </PropertyGroup>
 
