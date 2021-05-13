@@ -47,7 +47,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             if (!string.Equals(modulePage.Extension, ".md", StringComparison.OrdinalIgnoreCase))
             {
-                _modulePagePath = $"{_modulePagePath}\\{moduleName}.md";
+                _modulePagePath = $"{_modulePagePath}{Constants.DirectorySeparator}{moduleName}.md";
             }
             else
             {
