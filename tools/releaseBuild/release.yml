@@ -68,8 +68,8 @@ stages:
         signOutputPath: '$(Pipeline.Workspace)\signed'
         certificateId: 'CP-230012'
         pattern: |
-          '**\Microsoft.PowerShell.PlatyPS.dll'
-          '**\platyPS.psd1'
+          **\Microsoft.PowerShell.PlatyPS.dll
+          **\platyPS.psd1
         useMinimatch: true
 
     - template: EsrpSign.yml@ComplianceRepo
