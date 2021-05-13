@@ -62,25 +62,25 @@ stages:
       artifact: build
       displayName: Publish build package
 
-    #- template: EsrpSign.yml@ComplianceRepo
-    #  parameters:
-    #    buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
-    #    signOutputPath: '$(Pipeline.Workspace)\signed'
-    #    certificateId: 'CP-230012'
-    #    pattern: |
-    #      '**\Microsoft.PowerShell.PlatyPS.dll'
-    #      '**\platyPS.psd1'
-    #    useMinimatch: true
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        signOutputPath: '$(Pipeline.Workspace)\signed'
+        certificateId: 'CP-230012'
+        pattern: |
+          '**\Microsoft.PowerShell.PlatyPS.dll'
+          '**\platyPS.psd1'
+        useMinimatch: true
 
-    #- template: EsrpSign.yml@ComplianceRepo
-    #  parameters:
-    #    buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
-    #    signOutputPath: '$(Pipeline.Workspace)\signed'
-    #    certificateId: 'CP-231522'
-    #    pattern: |
-    #      **\Markdig.Signed.dll
-    #      **\YamlDotNet.dll
-    #    useMinimatch: true
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        signOutputPath: '$(Pipeline.Workspace)\signed'
+        certificateId: 'CP-231522'
+        pattern: |
+          **\Markdig.Signed.dll
+          **\YamlDotNet.dll
+        useMinimatch: true
 
     - pwsh: |
         Copy-Item -Path "$env:BUILD_SOURCESDIRECTORY\out\platyPS" -Destination "$env:PIPELINE_WORKSPACE\signed" -recurse -verbose -force
