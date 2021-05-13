@@ -84,9 +84,9 @@ stages:
   dependsOn: Build
   jobs:
   - job: Compliance_Job
-      pool:
-        name: windows-latest
-      steps:
-      - checkout: self
-      - checkout: ComplianceRepo
-      - template: ci-compliance.yml@ComplianceRepo
+    pool:
+      name: windows-latest
+    steps:
+    - checkout: self
+    - checkout: ComplianceRepo
+    - template: ci-compliance.yml@ComplianceRepo
