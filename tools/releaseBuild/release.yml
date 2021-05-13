@@ -102,7 +102,7 @@ stages:
       displayName: Publish project.assets.json
 
     - pwsh: |
-        $null = New-Item -ItemTypeDirectory -Path '$(System.ArtifactsDirectory)/local'
+        $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/local'
         Register-PSRepository -Name local -SourceLocation '$(System.ArtifactsDirectory)/local' -Verbose -ErrorAction Ignore
         Publish-Module -Repository local -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose
       displayName: Create nupkg for the module
