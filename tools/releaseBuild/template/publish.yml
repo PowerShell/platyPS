@@ -1,0 +1,43 @@
+parameters:
+    stageName: ''
+    environmentName: ''
+    feedCredential: ''
+
+stages:
+- stage: ${{ parameters.stageName }}
+  displayName: Release Microsoft.PowerShell.Pager to '${{ parameters.stageName }}'
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'))
+
+  jobs:
+  - deployment: Publish_${{ parameters.stageName }}
+    displayName: Release to Feed
+    pool:
+      name: 1ES
+
+    environment: ${{ parameters.environmentName }}
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - download: current
+            artifact: nuget
+
+          - powershell: |
+              Get-ChildItem -Recurse "$(Pipeline.Workspace)/nuget"
+            displayName: Capture downloaded artifact
+
+          - task: NuGetAuthenticate@0
+            condition: ne('${{ parameters.feedUrl }}', '')
+
+          - powershell: |
+              nuget push -ApiKey AzureArtifacts -source '${{ parameters.feedUrl }}' '$(NugetPkgPath)'
+            displayName: Push to internal feed
+            condition: ne('${{ parameters.feedUrl }}', '')
+          - task: NuGetCommand@2
+            displayName: 'NuGet push'
+            inputs:
+              command: push
+              packagesToPush: '$(Build.ArtifactStagingDirectory)/Microsoft.PowerShell.Pager.*.nupkg'
+              nuGetFeedType: external
+              publishFeedCredentials: ${{ parameters.feedCredential }}
+              condition: eq('${{ parameters.feedUrl }}', '')
