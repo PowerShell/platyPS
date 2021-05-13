@@ -74,7 +74,6 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     try {
         $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
         Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
-        $xunitTestFailed = $true
         Push-Location $xunitTestRoot
 
         if ($IsWindows) {
