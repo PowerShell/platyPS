@@ -7,7 +7,6 @@ param(
     [ValidateSet("Debug", "Release")]
     [string] $Configuration = "Debug",
 
-    [Parameter(ParameterSetName = "Build")]
     [string] $OutputDir = "$PSScriptRoot/out",
 
     [Parameter(ParameterSetName = "Test", Mandatory)]
@@ -48,8 +47,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         $expectedBuildPath = "./bin/$Configuration/net461/"
         $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"
 
-        if (-not (Test-Path $expectedDllPath))
-        {
+        if (-not (Test-Path $expectedDllPath)) {
             throw "Build did not succeed."
         }
 
@@ -73,30 +71,27 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
 elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     Import-Module -Name "$OutputDir/platyPS" -Force
 
-    $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
-    Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
-
-    $xunitTestFailed = $true
-
-    try {
-        Push-Location $xunitTestRoot
-        dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
-
-        if ($LASTEXITCODE -eq 0) {
-            $xunitTestFailed = $false
+    if ($IsWindows) {
+        try {
+            $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
+            Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
+            Push-Location $xunitTestRoot
+            dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
+            if ($LASTEXITCODE -ne 0) {
+                throw "XUnit test failed"
+            }
         }
-    }
-    finally {
-        Pop-Location
+        finally {
+            Pop-Location
+        }
     }
 
     $pesterTestRoot = "$PSScriptRoot/test/Pester"
-    Write-Verbose "Executing Pester tests under $pesterTestRoot"
+    Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
     $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
 
-    if ($results.FailedCount -ne 0 -or $xunitTestFailed)
-    {
-        throw "Tests failed."
+    if ($results.FailedCount -ne 0) {
+        throw "Pester Tests failed."
     }
 }

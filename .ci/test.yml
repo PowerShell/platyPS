@@ -1,0 +1,87 @@
+parameters:
+  jobName: TestPkgWin
+  imageName: windows-latest
+  displayName: PowerShell Core on Windows
+  powershellExecutable: pwsh
+
+jobs:
+- job: ${{ parameters.jobName }}
+  pool:
+    vmImage: ${{ parameters.imageName }}
+  displayName: ${{ parameters.displayName }}
+  steps:
+  - ${{ parameters.powershellExecutable }}: |
+      Get-InstalledModule -Name pester -AllowPrerelease -MinimumVersion 5.0.0 -ErrorAction SilentlyContinue | Uninstall-Module -Force -Verbose -ErrorAction SilentlyContinue
+    displayName: Remove >= 5.0.0 Pester
+    timeoutInMinutes: 10
+
+  - ${{ parameters.powershellExecutable }}: |
+      Install-module Pester -Force -MaximumVersion 4.99
+    displayName: Install dependencies - Pester
+    timeoutInMinutes: 10
+
+  - task: DownloadBuildArtifacts@0
+    displayName: 'Download artifacts'
+    inputs:
+      buildType: current
+      downloadType: specific
+      itemPattern: '**/*.nupkg'
+      downloadPath: '$(System.ArtifactsDirectory)'
+      artifactName: 'nupkg'
+
+  - task: DotNetCoreCLI@2
+    displayName: dotnet restore
+    inputs:
+      command: restore
+      projects: '$(Build.SourcesDirectory)/**/*.csproj'
+      includeNuGetOrg: true
+
+  - ${{ parameters.powershellExecutable }}: |
+      $sourceName = 'pspackageproject-local-repo'
+      Register-PSRepository -Name $sourceName -SourceLocation '$(System.ArtifactsDirectory)/nupkg' -ErrorAction Ignore -Verbose
+      $null = New-Item -Path '$(System.ArtifactsDirectory)/saved' -ItemType Directory
+      Save-Module -Repository $sourceName -Name platyPS -Path '$(System.ArtifactsDirectory)/saved' -Verbose
+    displayName: Extract product artifact
+    timeoutInMinutes: 10
+
+  - ${{ parameters.powershellExecutable }}: |
+      $(Build.SourcesDirectory)/build.ps1 -OutputDir '$(System.ArtifactsDirectory)/saved' -Test
+
+      $pesterResult = '$(Build.SourcesDirectory)/pester.tests.xml'
+
+      if (-not (Test-Path $pesterResult))
+      {
+        throw 'Pester test results not found'
+      }
+
+      Write-Host "##vso[results.publish type=NUnit;mergeResults=true;runTitle=Pester;publishRunAttachments=true;resultFiles=$pesterResult;]"
+
+      if ($IsWindows)
+      {
+        $xunitResult = '$(Build.SourcesDirectory)/xunit.tests.xml'
+
+        if (-not (Test-Path $xunitResult))
+        {
+          throw 'xUnit test results not found'
+        }
+      }
+    displayName: Execute functional tests
+    errorActionPreference: continue
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'NUnit'
+      testResultsFiles: '**/pester.tests.xml'
+      testRunTitle: '${{ parameters.jobName }}-Pester'
+
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFormat: 'xUnit'
+      testResultsFiles: '**/xunit.tests.xml'
+      testRunTitle: '${{ parameters.jobName }}-xUnit'
+
+  - ${{ parameters.powershellExecutable }}: |
+      Unregister-PSRepository -Name 'pspackageproject-local-repo' -ErrorAction Ignore
+    displayName: Unregister temporary PSRepository
+    condition: always()
+    timeoutInMinutes: 10
