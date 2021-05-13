@@ -107,7 +107,7 @@ stages:
         Publish-Module -Repository local -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose
       displayName: Create nupkg for the module
 
-    - publish: '$(System.ArtifactsDirectory)\local\platyPS$(Version).nupkg'
+    - publish: '$(System.ArtifactsDirectory)\local\platyPS.$(Version).nupkg'
       artifact: nuget
       displayName: Publish module nuget
 
