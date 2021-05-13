@@ -79,7 +79,16 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     try {
         Push-Location $xunitTestRoot
-        dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
+        $testArgs = @(
+            "test"
+            "--test-adapter-path:."
+            "--logger:xunit;LogFilePath=$XUnitLogPath"
+            "--no-build"
+        )
+
+        #dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
+
+        dotnet $testArgs
 
         if ($LASTEXITCODE -eq 0) {
             $xunitTestFailed = $false
