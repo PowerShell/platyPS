@@ -12,6 +12,13 @@ pr:
     - master
     - release/*
 
+resources:
+  repositories:
+  - repository: ComplianceRepo
+    type: github
+    endpoint: ComplianceGHRepo
+    name: PowerShell/Compliance
+
 stages:
 - stage: Build
   displayName: Build PowerShell Package
@@ -72,9 +79,14 @@ stages:
       displayName: PowerShell Core on macOS
       imageName: macOS-10.14
 
-#- stage: Release
-#  displayName: Release Package
-#  # add `succeeded(),` to the and statement
-#  condition: and( eq(variables['Build.Reason'], 'Manual'), eq(variables['Publish'], 'Yes'))
-#  jobs:
-#  - template: release.yml
+- stage: compliance
+  displayName: Compliance
+  dependsOn: Build
+  jobs:
+  - job: Compliance_Job
+      pool:
+        name: windows-latest
+      steps:
+      - checkout: self
+      - checkout: ComplianceRepo
+      - template: ci-compliance.yml@ComplianceRepo
