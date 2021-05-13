@@ -1,5 +1,9 @@
 version: 0.11.0.{build}
 
+branches:
+  except:
+    - v2
+
 install:
     - ps: |
         Write-Host "PowerShell Version:" $PSVersionTable.PSVersion.tostring()
