@@ -60,11 +60,14 @@ jobs:
 
       Write-Host "##vso[results.publish type=NUnit;mergeResults=true;runTitle=Pester;publishRunAttachments=true;resultFiles=$pesterResult;]"
 
-      $xunitResult = '$(Build.SourcesDirectory)/xunit.tests.xml'
-
-      if (-not (Test-Path $xunitResult))
+      if ($IsWindows)
       {
-        throw 'xUnit test results not found'
+        $xunitResult = '$(Build.SourcesDirectory)/xunit.tests.xml'
+
+        if (-not (Test-Path $xunitResult))
+        {
+          throw 'xUnit test results not found'
+        }
       }
     displayName: Execute functional tests
     errorActionPreference: continue
