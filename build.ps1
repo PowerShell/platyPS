@@ -77,7 +77,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
             Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
             Push-Location $xunitTestRoot
             dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
-            if ($LASTEXITCODE -eq 0) {
+            if ($LASTEXITCODE -ne 0) {
                 throw "XUnit test failed"
             }
         }
