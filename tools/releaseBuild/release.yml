@@ -65,7 +65,7 @@ stages:
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
         buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
-        signOutputPath: '$(Pipeline.Workspace)\signed'
+        signOutputPath: '$(Pipeline.Workspace)\signed\codesign'
         certificateId: 'CP-230012'
         pattern: |
           **\Microsoft.PowerShell.PlatyPS.dll
@@ -75,7 +75,7 @@ stages:
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
         buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
-        signOutputPath: '$(Pipeline.Workspace)\signed'
+        signOutputPath: '$(Pipeline.Workspace)\signed\thirdparty'
         certificateId: 'CP-231522'
         pattern: |
           **\Markdig.Signed.dll
@@ -89,7 +89,16 @@ stages:
 
     - pwsh: |
         $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Force
-        Copy-Item -Path '$(Pipeline.Workspace)\signed\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+
+        if ( Test-Path -Path '$(Pipeline.Workspace)\signed\codesign')
+        {
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+        }
+        else
+        {
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+        }
       displayName: Copy signed files to module folder
 
     - publish: '$(Pipeline.Workspace)\signed'
