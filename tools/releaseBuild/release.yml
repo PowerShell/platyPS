@@ -92,8 +92,10 @@ stages:
 
         if ( Test-Path -Path '$(Pipeline.Workspace)\signed\codesign')
         {
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\Microsoft.PowerShell.PlatyPS.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\platyPS.psd1' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\Markdig.Signed.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\YamlDotNet.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
         }
         else
         {
