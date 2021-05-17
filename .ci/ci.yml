@@ -6,11 +6,13 @@ trigger:
     include:
     - master
     - release/*
+    - v2
 pr:
   branches:
     include:
     - master
     - release/*
+    - v2
 
 resources:
   repositories:
