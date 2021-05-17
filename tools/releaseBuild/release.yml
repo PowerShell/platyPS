@@ -25,7 +25,9 @@ stages:
 - stage: Build
   displayName: Build
   pool:
-    vmImage: windows-latest
+    name: 1ES
+    demands:
+    - ImageOverride -equals MMS2019
   jobs:
   - job: Build_Job
     displayName: Build PlatyPS
@@ -131,6 +133,8 @@ stages:
   - job: Compliance_Job
     pool:
       name: 1ES
+      demands:
+      - ImageOverride -equals MMS2019
     steps:
     - checkout: self
     - checkout: ComplianceRepo

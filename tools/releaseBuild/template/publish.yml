@@ -6,7 +6,7 @@ parameters:
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: Release Microsoft.PowerShell.Pager to '${{ parameters.stageName }}'
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/'))
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/v2'))
 
   jobs:
   - deployment: Publish_${{ parameters.stageName }}
