@@ -22,14 +22,14 @@ stages:
           - download: current
             artifact: nuget
 
-          - powershell: |
+          - pwsh: |
               Get-ChildItem -Recurse "$(Pipeline.Workspace)/nuget"
             displayName: Capture downloaded artifact
 
           - task: NuGetAuthenticate@0
             condition: ne('${{ parameters.feedUrl }}', '')
 
-          - powershell: |
+          - pwsh: |
               nuget push -ApiKey AzureArtifacts -source '${{ parameters.feedUrl }}' '$(NugetPkgPath)'
             displayName: Push to internal feed
             condition: ne('${{ parameters.feedUrl }}', '')

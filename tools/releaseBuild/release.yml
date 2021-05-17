@@ -67,6 +67,7 @@ stages:
         buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
         signOutputPath: '$(Pipeline.Workspace)\signed\codesign'
         certificateId: 'CP-230012'
+        displayName: Microsoft signing
         pattern: |
           **\Microsoft.PowerShell.PlatyPS.dll
           **\platyPS.psd1
@@ -77,6 +78,7 @@ stages:
         buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
         signOutputPath: '$(Pipeline.Workspace)\signed\thirdparty'
         certificateId: 'CP-231522'
+        displayName: Third party signing
         pattern: |
           **\Markdig.Signed.dll
           **\YamlDotNet.dll
