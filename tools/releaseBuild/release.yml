@@ -1,0 +1,179 @@
+name: PlatyPS-Release-$(Build.BuildId)
+trigger: none
+
+pr:
+  branches:
+    include:
+    - v2
+    - release/v2/*
+
+variables:
+  - group: ESRP
+  - name: DOTNET_CLI_TELEMETRY_OPTOUT
+    value: 1
+  - name: POWERSHELL_TELEMETRY_OPTOUT
+    value: 1
+
+resources:
+  repositories:
+  - repository: ComplianceRepo
+    type: github
+    endpoint: ComplianceGHRepo
+    name: PowerShell/compliance
+
+stages:
+- stage: Build
+  displayName: Build
+  pool:
+    name: 1ES
+    demands:
+    - ImageOverride -equals MMS2019
+  jobs:
+  - job: Build_Job
+    displayName: Build PlatyPS
+    steps:
+    - checkout: self
+      clean: true
+    - pwsh: |
+        $versionString = if ($env:RELEASE_VERSION -eq 'fromBranch') {
+          $branch = $env:BUILD_SOURCEBRANCH
+          $branchOnly = $branch -replace '^refs/heads/'
+          $branchOnly -replace '^.*(release/v2[-/])'
+        }
+        else {
+            $env:RELEASE_VERSION
+        }
+
+        $nugetVersion = if ($versionString.StartsWith('v')) {
+            $versionString.Substring(1)
+        }
+        else {
+            $versionString
+        }
+
+        $vstsCommandString = "vso[task.setvariable variable=Version]$nugetVersion"
+        Write-Verbose -Message "setting Version to $releaseTag" -Verbose
+        Write-Host -Object "##$vstsCommandString"
+      displayName: Set NuGet package version variable
+
+    - pwsh: |
+        ./build.ps1 -Clean -Configuration 'Release'
+      displayName: Execute build
+
+    - publish: '$(Build.SourcesDirectory)\out\platyPS'
+      artifact: build
+      displayName: Publish build package
+
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        signOutputPath: '$(Pipeline.Workspace)\signed\codesign'
+        certificateId: 'CP-230012'
+        displayName: Microsoft signing
+        pattern: |
+          **\Microsoft.PowerShell.PlatyPS.dll
+          **\platyPS.psd1
+        useMinimatch: true
+
+    - template: EsrpSign.yml@ComplianceRepo
+      parameters:
+        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        signOutputPath: '$(Pipeline.Workspace)\signed\thirdparty'
+        certificateId: 'CP-231522'
+        displayName: Third party signing
+        pattern: |
+          **\Markdig.Signed.dll
+          **\YamlDotNet.dll
+        useMinimatch: true
+
+    - pwsh: |
+        Copy-Item -Path "$env:BUILD_SOURCESDIRECTORY\out\platyPS" -Destination "$env:PIPELINE_WORKSPACE\signed" -recurse -verbose -force
+      displayName: Dummy copy to signed
+      condition: eq(variables['SkipSigning'], 'True')
+
+    - pwsh: |
+        $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Force
+
+        if ( Test-Path -Path '$(Pipeline.Workspace)\signed\codesign')
+        {
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\Microsoft.PowerShell.PlatyPS.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\platyPS.psd1' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\Markdig.Signed.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\YamlDotNet.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+        }
+        else
+        {
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+        }
+      displayName: Copy signed files to module folder
+
+    - publish: '$(Pipeline.Workspace)\signed'
+      artifact: signed
+      displayName: Publish signed package
+      condition: ne(variables['SkipSigning'], 'True')
+
+    - publish: '$(Build.SourcesDirectory)\src\obj\project.assets.json'
+      artifact: AssetsJson
+      displayName: Publish project.assets.json
+
+    - pwsh: |
+        $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/local'
+        Register-PSRepository -Name local -SourceLocation '$(System.ArtifactsDirectory)/local' -Verbose -ErrorAction Ignore
+        Publish-Module -Repository local -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose
+      displayName: Create nupkg for the module
+
+    - publish: '$(System.ArtifactsDirectory)\local\platyPS.$(Version).nupkg'
+      artifact: nuget
+      displayName: Publish module nuget
+
+- stage: compliance
+  displayName: Compliance
+  dependsOn: Build
+  jobs:
+  - job: Compliance_Job
+    pool:
+      name: 1ES
+      demands:
+      - ImageOverride -equals MMS2019
+    steps:
+    - checkout: self
+    - checkout: ComplianceRepo
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download AssetsJson artifacts'
+      inputs:
+        artifact: AssetsJson
+        path: '$(Pipeline.Workspace)/AssetsJson'
+
+    - task: DownloadPipelineArtifact@2
+      displayName: 'Download build artifacts'
+      inputs:
+        artifact: build
+        path: '$(Pipeline.Workspace)/build'
+
+    - pwsh: |
+        Get-ChildItem -Recurse '$(Pipeline.Workspace)'
+      displayName: Capture downloaded artifacts
+
+    - template: assembly-module-compliance.yml@ComplianceRepo
+      parameters:
+        # binskim
+        AnalyzeTarget: '$(Pipeline.Workspace)/build/*.dll'
+        AnalyzeSymPath: 'SRV*'
+        # component-governance
+        sourceScanPath: '$(Pipeline.Workspace)/AssetsJson'
+        # credscan
+        suppressionsFile: ''
+        # TermCheck
+        optionsRulesDBPath: ''
+        optionsFTPath: ''
+        # tsa-upload
+        codeBaseName: 'PlatyPS_202105'
+        # selections
+        APIScan: false # set to false when not using Windows APIs.
+
+- template: template/publish.yml
+  parameters:
+    stageName: NuGet
+    environmentName: PlatyPSNuGetApproval
+    feedCredential: NugetOrgPush
