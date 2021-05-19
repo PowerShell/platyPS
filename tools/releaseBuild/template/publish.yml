@@ -5,7 +5,7 @@ parameters:
 
 stages:
 - stage: ${{ parameters.stageName }}
-  displayName: Release Microsoft.PowerShell.Pager to '${{ parameters.stageName }}'
+  displayName: Release platyPS to '${{ parameters.stageName }}'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/v2'))
 
   jobs:
@@ -23,21 +23,21 @@ stages:
             artifact: nuget
 
           - pwsh: |
-              Get-ChildItem -Recurse "$(Pipeline.Workspace)/nuget"
+              $package = (Get-ChildItem "$(Pipeline.Workspace)/nuget/platyPS.*.nupkg").FullName
+              $package
+              $vstsCommandString = "vso[task.setvariable variable=NugetPkgPath]${package}"
+              Write-Host "sending " + $vstsCommandString
+              Write-Host "##$vstsCommandString"
             displayName: Capture downloaded artifact
 
           - task: NuGetAuthenticate@0
             condition: ne('${{ parameters.feedUrl }}', '')
 
-          - pwsh: |
-              nuget push -ApiKey AzureArtifacts -source '${{ parameters.feedUrl }}' '$(NugetPkgPath)'
-            displayName: Push to internal feed
-            condition: ne('${{ parameters.feedUrl }}', '')
           - task: NuGetCommand@2
             displayName: 'NuGet push'
             inputs:
               command: push
-              packagesToPush: '$(Build.ArtifactStagingDirectory)/Microsoft.PowerShell.Pager.*.nupkg'
+              packagesToPush: '$(NugetPkgPath)'
               nuGetFeedType: external
               publishFeedCredentials: ${{ parameters.feedCredential }}
               condition: eq('${{ parameters.feedUrl }}', '')
