@@ -26,6 +26,8 @@ It closely resembles output of `Get-Help`.
     online version: {url for `Get-Help -Online`}
     applicable: {comma-separated list of tags where this cmdlet exists} // if omitted then applicable for any tag
     {{ User-specific key-value pairs }}
+    share:
+        wiki: true
     ---
 
     # {Command name}
@@ -42,7 +44,7 @@ It closely resembles output of `Get-Help`.
         // i.e.: FromPath (Default)
         // This syntax would be ignored during maml generation.
         // syntax would be generated from parameters metadata
-        ```
+        ```ps
         {{Output of Get-Command -Syntax}}
         ```
 
@@ -114,6 +116,7 @@ It closely resembles output of `Get-Help`.
         [{link name}]({link url})
 
 ### Version 1.0.0 (Deprecated)
+
 v0.7.6 is the last platyPS version that supports it.
 
     // for every command:
@@ -135,7 +138,7 @@ v0.7.6 is the last platyPS version that supports it.
             ### {Parameter name} [{Parameter type}] = {Parameter default value}
 
             // parameter metadata
-            ```powershell
+            ```ps
             {{Parameter attributes as specified in param() block in PowerShell functions
             i.e. [Parameter(ParameterSetName = 'ByName')]
             }}
@@ -157,7 +160,7 @@ v0.7.6 is the last platyPS version that supports it.
         // for every example
             ### {Example Name}
 
-            ```powershell
+            ```ps
             {{Example body}}
             ```
             {{Example text explanation}}
