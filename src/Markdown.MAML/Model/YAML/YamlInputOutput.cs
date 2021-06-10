@@ -2,7 +2,23 @@
 {
     public class YamlInputOutput
     {
-        public string Type { get; set; }
+        string _type;
+        public string Type
+        {
+            get
+            {
+                if (_type.Contains("#"))
+                {
+                    return _type.Replace("#", "\\#");
+                }
+
+                return _type;
+            }
+            set
+            {
+                _type = value;
+            }
+        }
         public string Description { get; set; }
     }
 }
