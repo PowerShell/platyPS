@@ -1492,17 +1492,7 @@ function GetMarkdownFilesFromPath
         [switch]$IncludeModulePage
     )
 
-    if ($IncludeModulePage)
-    {
-        $filter = '*.md'
-    }
-    else
-    {
-        $filter = '*-*.md'
-    }
-
     $aboutFilePrefixPattern = 'about_*'
-
 
     $MarkdownFiles = @()
     if ($Path) {
@@ -1516,7 +1506,16 @@ function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
+                $MarkdownFiles += Get-ChildItem $_ -File | ForEach-Object {
+                    $md = Get-Content -Raw -Path $_
+                    $yml = [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md)
+                    $isModulePage = $null -ne $yml.'Module Guid'
+
+                    if ($IncludeModulePage -and $isModulePage -or -not $isModulePage -and -not $IncludeModulePage)
+                    {
+                        $_ | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
+                    }
+                }
             }
             else
             {
