@@ -834,7 +834,7 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdownFilesFromPath $Path
+        $MarkdownFiles += FilterMdFileToExcludeModulePage -Path (GetMarkdownFilesFromPath $Path)
 
         if($MarkdownFiles)
         {
@@ -1481,6 +1481,35 @@ function GetAboutTopicsFromPath
     return $AboutMarkDownFiles
 }
 
+function FilterMdFileToExcludeModulePage {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo[]]$Path
+    )
+
+    $MarkdownFiles = @()
+
+    if ($Path) {
+        $Path | ForEach-Object {
+            if (Test-Path $_) {
+                $md = Get-Content -Raw -Path $_
+                $yml = [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md)
+                $isModulePage = $null -ne $yml.'Module Guid'
+
+                if (-not $isModulePage) {
+                    $MarkdownFiles += $_
+                }
+            }
+            else {
+                Write-Error -Message ($LocalizedData.PathNotFound -f $_)
+            }
+        }
+    }
+
+    return $MarkdownFiles
+}
+
 function GetMarkdownFilesFromPath
 {
     [CmdletBinding()]
@@ -1491,6 +1520,15 @@ function GetMarkdownFilesFromPath
 
         [switch]$IncludeModulePage
     )
+
+    if ($IncludeModulePage)
+    {
+        $filter = '*.md'
+    }
+    else
+    {
+        $filter = '*-*.md'
+    }
 
     $aboutFilePrefixPattern = 'about_*'
 
@@ -1506,16 +1544,7 @@ function GetMarkdownFilesFromPath
             }
             elseif (Test-Path -PathType Container $_)
             {
-                $MarkdownFiles += Get-ChildItem $_ -File | ForEach-Object {
-                    $md = Get-Content -Raw -Path $_
-                    $yml = [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md)
-                    $isModulePage = $null -ne $yml.'Module Guid'
-
-                    if ($IncludeModulePage -and $isModulePage -or -not $isModulePage -and -not $IncludeModulePage)
-                    {
-                        $_ | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
-                    }
-                }
+                $MarkdownFiles += Get-ChildItem $_ -Filter $filter | Where-Object {$_.BaseName -notlike $aboutFilePrefixPattern}
             }
             else
             {

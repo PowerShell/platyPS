@@ -723,6 +723,8 @@ Describe 'New-ExternalHelp' {
         }
         $file = New-MarkdownHelp -Command 'Test-OrderFunction' -OutputFolder $TestDrive -Force
         $maml = $file | New-ExternalHelp -OutputPath "$TestDrive\TestOrderFunction.xml" -Force
+
+        $extHelp = New-ExternalHelp -Path "$PSScriptRoot/assets/ModuleWithDash" -OutputPath "$TestDrive\ModuleWithDash"
     }
 
     It "generates right order for syntax" {
@@ -738,6 +740,10 @@ Describe 'New-ExternalHelp' {
     It "checks that xmlns 'http://msh' is present" {
         $xml = [xml] (Get-Content (Join-Path $TestDrive 'TestOrderFunction.xml'))
         $xml.helpItems.namespaceuri | Should Be 'http://msh'
+    }
+
+    It 'checks that external help can be generated for modules with dash in it' {
+        $extHelp | Should -Exist
     }
 }
 
@@ -1611,5 +1617,12 @@ Describe 'New-YamlHelp' {
 
     It 'throws for OutputFolder that is a file'{
         { New-YamlHelp "$root\docs\New-YamlHelp.md" -OutputFolder "$outFolder\yaml\New-YamlHelp.yml" } | Should Throw
+    }
+
+    It 'does not omit # in output type names' {
+
+        New-YamlHelp "$PSScriptRoot\assets\New-YamlHelp.md" -OutputFolder "$TestDrive\yaml" -Force
+
+        Get-Content 'D:\temp\yaml\New-YamlHelp.yml' | Should -Contain '- type: IResult\#System.IO.FileInfo[]'
     }
 }
