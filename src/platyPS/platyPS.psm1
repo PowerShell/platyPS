@@ -1492,8 +1492,8 @@ function FilterMdFileToExcludeModulePage {
 
     if ($Path) {
         $Path | ForEach-Object {
-            if (Test-Path $_) {
-                $md = Get-Content -Raw -Path $_
+            if (Test-Path $_.FullName) {
+                $md = Get-Content -Raw -Path $_.FullName
                 $yml = [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md)
                 $isModulePage = $null -ne $yml.'Module Guid'
 
@@ -1502,7 +1502,7 @@ function FilterMdFileToExcludeModulePage {
                 }
             }
             else {
-                Write-Error -Message ($LocalizedData.PathNotFound -f $_)
+                Write-Error -Message ($LocalizedData.PathNotFound -f $_.FullName)
             }
         }
     }
