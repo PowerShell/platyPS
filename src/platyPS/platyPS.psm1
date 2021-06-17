@@ -834,7 +834,12 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles += FilterMdFileToExcludeModulePage -Path (GetMarkdownFilesFromPath $Path)
+        $files = GetMarkdownFilesFromPath $Path
+
+        if ($files)
+        {
+            $MarkdownFiles += FilterMdFileToExcludeModulePage -Path $files
+        }
 
         if($MarkdownFiles)
         {

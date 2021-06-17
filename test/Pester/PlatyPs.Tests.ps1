@@ -1621,8 +1621,8 @@ Describe 'New-YamlHelp' {
 
     It 'does not omit # in output type names' {
 
-        New-YamlHelp "$PSScriptRoot\assets\New-YamlHelp.md" -OutputFolder "$TestDrive\yaml" -Force
+        $ymlFile = New-YamlHelp "$PSScriptRoot\assets\New-YamlHelp.md" -OutputFolder "$TestDrive\yaml" -Force
 
-        Get-Content 'D:\temp\yaml\New-YamlHelp.yml' | Should -Contain '- type: IResult\#System.IO.FileInfo[]'
+        Get-Content $ymlFile | Should -Contain '- type: IResult\#System.IO.FileInfo[]'
     }
 }
