@@ -705,6 +705,18 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 $help.parameters.parameter | Where-Object { $_.Name -eq 'NameNoWildCard' } | ForEach-Object { $_.globbing -eq 'false'}
             }
         }
+
+        Context 'External help file metadata' {
+            BeforeAll {
+                Import-Module "$PSScriptRoot/assets/NestedMod" -Force
+                $nestedMd = New-MarkdownHelp -Module "NestedMod" -OutputFolder "$TestDrive\NestedMod"
+            }
+
+            It 'checks the external help file metadata is correct for nested module' {
+                $m = Get-MarkdownMetadata -Path $nestedMd
+                $m['external help file'] | Should -BeExactly 'Nest.psm1-help.xml'
+            }
+        }
     }
 }
 
