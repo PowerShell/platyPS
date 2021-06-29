@@ -834,7 +834,12 @@ function New-ExternalHelp
 
     process
     {
-        $MarkdownFiles += GetMarkdownFilesFromPath $Path
+        $files = GetMarkdownFilesFromPath $Path
+
+        if ($files)
+        {
+            $MarkdownFiles += FilterMdFileToExcludeModulePage -Path $files
+        }
 
         if($MarkdownFiles)
         {
@@ -1481,6 +1486,35 @@ function GetAboutTopicsFromPath
     return $AboutMarkDownFiles
 }
 
+function FilterMdFileToExcludeModulePage {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [System.IO.FileInfo[]]$Path
+    )
+
+    $MarkdownFiles = @()
+
+    if ($Path) {
+        $Path | ForEach-Object {
+            if (Test-Path $_.FullName) {
+                $md = Get-Content -Raw -Path $_.FullName
+                $yml = [Markdown.MAML.Parser.MarkdownParser]::GetYamlMetadata($md)
+                $isModulePage = $null -ne $yml.'Module Guid'
+
+                if (-not $isModulePage) {
+                    $MarkdownFiles += $_
+                }
+            }
+            else {
+                Write-Error -Message ($LocalizedData.PathNotFound -f $_.FullName)
+            }
+        }
+    }
+
+    return $MarkdownFiles
+}
+
 function GetMarkdownFilesFromPath
 {
     [CmdletBinding()]
@@ -1502,7 +1536,6 @@ function GetMarkdownFilesFromPath
     }
 
     $aboutFilePrefixPattern = 'about_*'
-
 
     $MarkdownFiles = @()
     if ($Path) {
@@ -1830,6 +1863,13 @@ function GetHelpFileName
                 Where-Object {$_.ModuleType -ne 'Manifest'} |
                 Where-Object {$_.ExportedCommands.Keys -contains $CommandInfo.Name}
 
+            $nestedModules = @(
+                ($CommandInfo.Module.NestedModules) |
+                Where-Object { $_.ModuleType -ne 'Manifest' } |
+                Where-Object { $_.ExportedCommands.Keys -contains $CommandInfo.Name } |
+                Select-Object -ExpandProperty Path
+            )
+
             if (-not $module)
             {
                 Write-Warning -Message ($LocalizedData.ModuleNotFoundFromCommand -f '[GetHelpFileName]', $CommandInfo.Name)
@@ -1846,7 +1886,12 @@ function GetHelpFileName
             {
                 # for regular modules, we can deduct the filename from the module path file
                 $moduleItem = Get-Item -Path $module.Path
-                if ($moduleItem.Extension -eq '.psm1') {
+
+                $isModuleItemNestedModule =
+                    $null -ne ($nestedModules | Where-Object { $_ -eq $module.Path }) -and
+                    $CommandInfo.ModuleName -ne $module.Name
+
+                if ($moduleItem.Extension -eq '.psm1' -and -not $isModuleItemNestedModule) {
                     $fileName = $moduleItem.BaseName
                 } else {
                     $fileName = $moduleItem.Name
