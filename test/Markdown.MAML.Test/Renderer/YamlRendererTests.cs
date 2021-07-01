@@ -119,7 +119,7 @@ namespace Markdown.MAML.Test.Renderer
 
             var writtenModel = deserializer.Deserialize<YamlCommand>(output);
 
-            Assert.Single(writtenModel.OptionalParameters);
+            Assert.Equal(2, writtenModel.OptionalParameters.Count);
 
             var optionalParameter = writtenModel.OptionalParameters.Single();
             var expectedParameter = model.Parameters.Single(p => !p.Required);
@@ -197,7 +197,7 @@ namespace Markdown.MAML.Test.Renderer
             var syntax = writtenModel.Syntaxes.Single();
 
             Assert.Equal(model.Syntax.Single().ParameterSetName, syntax.ParameterValueGroup);
-            
+
             Assert.Single(syntax.Parameters);
             Assert.Equal(model.Syntax.Single().Parameters.Single().Name, syntax.Parameters.Single());
         }
