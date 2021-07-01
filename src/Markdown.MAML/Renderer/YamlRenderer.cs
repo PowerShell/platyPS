@@ -35,8 +35,8 @@ namespace Markdown.MAML.Renderer
             {
                 var commonParam = new YamlParameter
                 {
-                    Name = "<CommonParameters>",
-                    Description = "This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216)."
+                    Name = "<" + Markdown.MAML.Resources.MarkdownStrings.CommonParametersToken + ">",
+                    Description = Markdown.MAML.Resources.MarkdownStrings.CommonParametersText
                 };
 
                 model.OptionalParameters.Add(commonParam);
