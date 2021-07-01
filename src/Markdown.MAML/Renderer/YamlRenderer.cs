@@ -31,6 +31,17 @@ namespace Markdown.MAML.Renderer
                 Syntaxes = mamlCommand.Syntax.Select(CreateSyntax).ToList()
             };
 
+            if (mamlCommand.SupportCommonParameters)
+            {
+                var commonParam = new YamlParameter
+                {
+                    Name = "<CommonParameters>",
+                    Description = "This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see about_CommonParameters (https://go.microsoft.com/fwlink/?LinkID=113216)."
+                };
+
+                model.OptionalParameters.Add(commonParam);
+            }
+
             using (var writer = new StringWriter())
             {
                 serializer.Serialize(writer, model);

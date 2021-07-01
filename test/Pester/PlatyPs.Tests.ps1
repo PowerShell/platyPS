@@ -1621,7 +1621,7 @@ Describe 'New-YamlHelp' {
         $yamlModel.RequiredParameters[0].Name | Should Be 'Path'
         $yamlModel.RequiredParameters[1].Name | Should Be 'OutputFolder'
 
-        $yamlModel.OptionalParameters.Count | Should Be 2
+        $yamlModel.OptionalParameters.Count | Should Be 3
 
         $yamlModel.OptionalParameters[0].Name | Should Be 'Encoding'
         $yamlModel.OptionalParameters[1].Name | Should Be 'Force'
