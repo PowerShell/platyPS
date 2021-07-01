@@ -121,7 +121,7 @@ namespace Markdown.MAML.Test.Renderer
 
             Assert.Equal(2, writtenModel.OptionalParameters.Count);
 
-            var optionalParameter = writtenModel.OptionalParameters.Single();
+            var optionalParameter = writtenModel.OptionalParameters.First();
             var expectedParameter = model.Parameters.Single(p => !p.Required);
 
             Assert.Equal(expectedParameter.Globbing, optionalParameter.AcceptWildcardCharacters);
