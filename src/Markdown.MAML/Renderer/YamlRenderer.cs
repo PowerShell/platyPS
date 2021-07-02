@@ -31,6 +31,17 @@ namespace Markdown.MAML.Renderer
                 Syntaxes = mamlCommand.Syntax.Select(CreateSyntax).ToList()
             };
 
+            if (mamlCommand.SupportCommonParameters)
+            {
+                var commonParam = new YamlParameter
+                {
+                    Name = Markdown.MAML.Resources.MarkdownStrings.CommonParametersToken,
+                    Description = Markdown.MAML.Resources.MarkdownStrings.CommonParametersText
+                };
+
+                model.OptionalParameters.Add(commonParam);
+            }
+
             using (var writer = new StringWriter())
             {
                 serializer.Serialize(writer, model);
