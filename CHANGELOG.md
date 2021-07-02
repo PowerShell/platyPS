@@ -3,6 +3,16 @@ CHANGELOG
 
 ## Not released
 
+# 0.14.2
+
+- Add HelpInfoUri for platyPS module
+- CI changes to exclude build on v2 branch
+- Fix issues with module and external help file metadata
+  - Escape # in output ype
+  - Allow hyphen in module name
+  - Make sure for script module .psm1 is added to the external help file metadata for nested module
+- New-Yaml help generates YAML for common parameters
+
 # 0.14.1
 
 - Fix appveyor build script
