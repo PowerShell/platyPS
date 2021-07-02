@@ -35,7 +35,7 @@ namespace Markdown.MAML.Renderer
             {
                 var commonParam = new YamlParameter
                 {
-                    Name = "<" + Markdown.MAML.Resources.MarkdownStrings.CommonParametersToken + ">",
+                    Name = Markdown.MAML.Resources.MarkdownStrings.CommonParametersToken,
                     Description = Markdown.MAML.Resources.MarkdownStrings.CommonParametersText
                 };
 
