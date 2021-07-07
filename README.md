@@ -1,9 +1,7 @@
-[![Build status](https://ci.appveyor.com/api/projects/status/u65tnar0cfkmqywl/branch/master?svg=true)](https://ci.appveyor.com/project/PowerShell/markdown-maml/branch/master)
-[![Build status](https://travis-ci.org/PowerShell/platyPS.svg?branch=master)](https://travis-ci.org/PowerShell/platyPS/builds)
 
-[![Join the chat at https://gitter.im/PowerShell/platyPS](https://badges.gitter.im/PowerShell/platyPS.svg)](https://gitter.im/PowerShell/platyPS?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+# PlatyPS (MIPS editition)
 
-# PlatyPS
+_Read [MIPS Setup](#MIPS-Setup) for installation on local machine or GitLab build runner_
 
 PlatyPS provides a way to:
 
@@ -24,6 +22,11 @@ An additional challenge PlatyPS tackles, is to handle PowerShell documentation f
 
 Markdown is designed to be human-readable, without rendering. This makes writing and editing easy and efficient. 
 Many editors support it ([Visual Studio Code](https://code.visualstudio.com/), [Sublime Text](http://www.sublimetext.com/), etc), and many tools and collaboration platforms (GitHub, Visual Studio Online) render the Markdown nicely.
+
+## MIPS Setup
+
+1. [Clone](#clone-dropdown) or download repository to the machine you want to install it on
+
 
 ## Common setups
 
