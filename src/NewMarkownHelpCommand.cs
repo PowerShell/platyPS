@@ -196,7 +196,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     string modulePagePath = ModulePagePath ?? fullPath;
 
-                    var modulePageSettings = new MarkdownWriterSettings(Encoding, modulePagePath);
+                    string resolvedPathModulePagePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(modulePagePath);
+
+                    var modulePageSettings = new MarkdownWriterSettings(Encoding, resolvedPathModulePagePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
 
                     WriteObject(modulePageWriter.Write(cmdHelpObjs));
