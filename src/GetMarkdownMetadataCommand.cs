@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
             Mandatory = true,
             ParameterSetName = "FromPath",
             ValueFromPipelineByPropertyName = true,
-            Position = 1)]
+            Position = 0)]
         [SupportsWildcards]
         public string[] Path { get; set; } = Array.Empty<string>();
 
