@@ -62,7 +62,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string FillInExampleCode = @"{{ Add example code here }}";
         internal const string FillInExampleDescription = "{{ Add example description here }}";
         internal const string FillInParameterDescriptionTemplate = "{{{{ Fill {0} Description }}}}";
-        internal const string FillInReleatedLinks = "{{ Fill in the related links here }}";
+        internal const string FillInRelatedLinks = "{{ Fill in the related links here }}";
 
         internal const string MamlCommandCommandTag = "command:command";
         internal const string MamlCommandNameTag = "command:name";

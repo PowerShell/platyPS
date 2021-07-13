@@ -227,7 +227,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
             else
             {
-                sb.AppendLine(Constants.FillInReleatedLinks);
+                sb.AppendLine(Constants.FillInRelatedLinks);
                 sb.AppendLine();
             }
         }
