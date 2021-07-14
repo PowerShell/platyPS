@@ -21,7 +21,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal string ToRelatedLinksString()
         {
-            return $"[{LinkText}] ({Uri})";
+            return $"[{LinkText}]({Uri})";
         }
     }
 }

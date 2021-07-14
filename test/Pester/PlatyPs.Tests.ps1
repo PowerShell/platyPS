@@ -394,6 +394,18 @@ Write-Host 'Hello World!'
             New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
             $OutputFolderReadme | Should -Exist
         }
+
+        It 'generates a landing page from module at correct output folder' {
+            try {
+                Push-Location $TestDrive
+                $files = New-MarkdownHelp -Module PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $landingPage = $files | Where-Object { $_.Name -eq 'platyPS.md' }
+                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "platyPS.md")
+            }
+            finally {
+                Pop-Location
+            }
+        }
     }
 
     Context 'Full Type Name' {

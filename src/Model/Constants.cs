@@ -19,7 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string CommonParameters = @"
 ### CommonParameters
 
-This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 ";
         internal const string InputsMdHeader = "## INPUTS";
         internal const string OutputsMdHeader = "## OUTPUTS";
@@ -59,10 +59,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string FillInNotes= "{{ Fill in the Notes }}";
 
         internal const string FillInExampleTitle = "Example 1";
-        internal const string FillInExampleCode = @"PS C:\> {{ Add example code here }}";
+        internal const string FillInExampleCode = @"{{ Add example code here }}";
         internal const string FillInExampleDescription = "{{ Add example description here }}";
         internal const string FillInParameterDescriptionTemplate = "{{{{ Fill {0} Description }}}}";
-        internal const string FillInReleatedLinks = "{{ Fill in the related links here }}";
+        internal const string FillInRelatedLinks = "{{ Fill in the related links here }}";
 
         internal const string MamlCommandCommandTag = "command:command";
         internal const string MamlCommandNameTag = "command:name";
@@ -107,7 +107,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string ModulePageCmdletLinkTemplate = "### [{0}]({1})";
         internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
-        internal const string FillInRelatedLinks = "Fill Related Links Here";
         internal const string LocaleEnUs = "en-US";
         internal static readonly List<string> EmptyStringList = new();
         internal static readonly char DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
