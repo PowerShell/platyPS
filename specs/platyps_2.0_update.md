@@ -94,6 +94,7 @@ The YAML frontmatter for cmdlet help should contain the following keys:
 |        key         |                                                                               Description                                                                                |
 | ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | external help file | The name of the help MAML file that contains the cmdlet help.                                                                                                            |
+| locale       | Should be the locale of the system running the PlatyPS cmdlets. |
 | Module Name        | The name of the module that the cmdlet belongs to.                                                                                                                       |
 | online version     | The HelpUri for the cmdlet.<br>Can be blank if the cmdlet source code does not define.<br>Should preserve the value defined in the existing files in an update scenario. |
 | schema             | The version of the platyPS schema. Need new version for PlatyPS 2.0 release                                                                                              |
@@ -106,6 +107,7 @@ Example:
 ```yaml
 ---
 external help file: platyPS-help.xml
+locale: en-US
 Module Name: platyPS
 online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
 schema: 2.0.0
