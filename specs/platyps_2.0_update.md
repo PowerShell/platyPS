@@ -1,11 +1,3 @@
----
-RFC: RFCXXXX
-Author: Jason Helmick
-Status: Draft
-Area:
-Comments Due:
----
-
 # PlatyPS 2.0 Update
 
 PlatyPS provides module owners with the ability to write PowerShell External Help in MarkDown.
@@ -95,7 +87,50 @@ The following sections outline schema changes for the Help file.
 | Notes              | H2    | N         | 1     | Mandatory for schema but not rendered by OPS if empty                                                                                                                                                                                              |
 | Related links      | H3    | Y         | 1     | - Link list should use bullets<br>- PlatyPS needs to support bullets<br>- Should support Text (prose), not just links                                                                                                                              |
 
-Structure of YAML for parameters
+#### Structure of the YAML frontmatter
+
+The YAML frontmatter for cmdlet help should contain the following keys:
+
+|        key         |                                                                               Description                                                                                |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| external help file | The name of the help MAML file that contains the cmdlet help.                                                                                                            |
+| Module Name        | The name of the module that the cmdlet belongs to.                                                                                                                       |
+| online version     | The HelpUri for the cmdlet.<br>Can be blank if the cmdlet source code does not define.<br>Should preserve the value defined in the existing files in an update scenario. |
+| schema             | The version of the platyPS schema. Need new version for PlatyPS 2.0 release                                                                                              |
+| title              | Should be set to the name of the cmdlet.                                                                                                                                 |
+
+The frontmatter needs to be surrounded by the YAML document separator `---`.
+
+Example:
+
+```yaml
+---
+external help file: platyPS-help.xml
+Module Name: platyPS
+online version: https://github.com/PowerShell/platyPS/blob/master/docs/Get-MarkdownMetadata.md
+schema: 2.0.0
+title: Get-MarkdownMetadata
+---
+```
+
+#### Structure of YAML for parameters
+
+The keys in the YAML block for parameters are the same with the addition of **DontShow**. The values
+of these keys are changing as described in the following table.
+
+|            Key             |                                        Description                                         |
+| -------------------------- | ------------------------------------------------------------------------------------------ |
+| Type                       | The .NET type of the parameter                                                             |
+| Parameter Sets             | A comma-delimited list of parameter set names                                              |
+| Aliases                    | A comma-delimited list of parameter aliases                                                |
+| Required                   | True and/or False followed by a comma-delimited list of parameter set names in parentheses |
+| Position                   | The position of the parameter - the first position is 0                                    |
+| Default value              | The default value of the parameter. SwitchParamters are always False                       |
+| Accept pipeline input      | If true, then True comma-delimited list of pipeline types (ByPropertyName, ByValue)        |
+| Accept wildcard characters | True when the parameter has the **SupportsWildcards** attribute                            |
+| DontShow                   | True if the parameter has the **DontShow** attribute                                       |
+
+Example:
 
 ```yaml
 Type: System.String[]
