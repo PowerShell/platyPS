@@ -227,6 +227,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     if (genericName.Contains(Constants.GenericParameterBackTick))
                     {
+                        // This removes `2 from type name like: System.Collections.Generic.Dictionary`2
                         sb.Append(genericName.Remove(genericName.IndexOf(Constants.GenericParameterBackTick)));
                     }
                     else
