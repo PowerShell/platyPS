@@ -225,8 +225,17 @@ namespace Microsoft.PowerShell.PlatyPS
                         type.GetGenericTypeDefinition().FullName ?? string.Empty :
                         type.GetGenericTypeDefinition().Name;
 
-                    sb.Append(genericName);
-                    sb.Append('[');
+                    if (genericName.Contains(Constants.GenericParameterBackTick))
+                    {
+                        // This removes `2 from type name like: System.Collections.Generic.Dictionary`2
+                        sb.Append(genericName.Remove(genericName.IndexOf(Constants.GenericParameterBackTick)));
+                    }
+                    else
+                    {
+                        sb.Append(genericName);
+                    }
+
+                    sb.Append(Constants.GenericParameterTypeNameStart);
 
                     List<string> genericParameters = new();
 
@@ -240,7 +249,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     sb.Append(string.Join(",", genericParameters));
 
-                    sb.Append(']');
+                    sb.Append(Constants.GenericParameterTypeNameEnd);
 
                     typeName = sb.ToString();
                 }

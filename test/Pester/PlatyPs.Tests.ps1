@@ -427,7 +427,7 @@ Write-Host 'Hello World!'
         It 'use full type name when specified' -Pending {
             $expectedParameters = normalizeEnds @'
 Type: System.String
-Type: System.Nullable`1[System.Int32]
+Type: System.Nullable<System.Int32>
 Type: System.Management.Automation.SwitchParameter
 
 '@

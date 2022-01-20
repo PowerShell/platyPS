@@ -35,7 +35,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string OptionalSwitchParamTemplate = "[-{0}]";
         internal const string RequiredSwitchParamTemplate = "-{0}";
 
-
         internal const char   SingleSpace = ' ';
         internal const string ParameterSetHeaderDefaultTemplate = "### {0} (Default)";
         internal const string ParameterSetHeaderTemplate = "### {0}";
@@ -50,6 +49,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string DelimiterComma = ", ";
         internal const string SystemObjectTypename = "System.Object";
         internal const string SyntaxCommonParameters = "[<CommonParameters>]";
+        internal const string GenericParameterBackTick = "`";
+        internal const string GenericParameterTypeNameStart = "<";
+        internal const string GenericParameterTypeNameEnd = ">";
 
         internal const string RequiredParameterSetsTemplate = "True ({0}) False ({1})";
         internal const string NotesItemHeaderTemplate = "### {0}";
