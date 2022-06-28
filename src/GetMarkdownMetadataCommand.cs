@@ -44,7 +44,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (Markdown is not null)
                 {
-                    DeserializeAndWrite(GetMarkdownMetadataHeaderReader(Markdown));
+                    DeserializeAndWrite(MarkdownUtilities.GetMarkdownMetadataHeaderReader(Markdown));
                 }
             }
             else if (string.Equals(this.ParameterSetName, "FromPath", StringComparison.OrdinalIgnoreCase))
@@ -55,7 +55,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     foreach (var resolvedPath in resolvedPaths)
                     {
-                        DeserializeAndWrite(GetMarkdownMetadataHeaderReader(File.ReadAllText(resolvedPath.Path)));
+                        DeserializeAndWrite(MarkdownUtilities.GetMarkdownMetadataHeaderReader(File.ReadAllText(resolvedPath.Path)));
                     }
                 }
             }
@@ -67,34 +67,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
             var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().Build();
             WriteObject(deserializer.Deserialize(stringReader));
-        }
-
-        private string GetMarkdownMetadataHeaderReader(string content)
-        {
-            if (string.IsNullOrEmpty(content))
-            {
-                return string.Empty;
-            }
-
-            var mdAst = Markdig.Markdown.Parse(content);
-
-            if (mdAst.Count < 2)
-            {
-                return string.Empty;
-            }
-
-            if (mdAst[0] is Markdig.Syntax.ThematicBreakBlock)
-            {
-                if (mdAst[1] is Markdig.Syntax.HeadingBlock metadata)
-                {
-                    if (metadata.Inline?.FirstChild is Markdig.Syntax.Inlines.LiteralInline metadataText)
-                    {
-                        return metadataText.Content.Text;
-                    }
-                }
-            }
-
-            return string.Empty;
         }
     }
 }
