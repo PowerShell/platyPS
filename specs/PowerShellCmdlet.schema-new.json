@@ -130,15 +130,10 @@
 			"items": {
 				"parameterItems": {
 					"additionalProperties": false,
-					"required": ["name", "description", "type", "position", "parameterValueGroup"],
+					"required": ["name", "description", "type", "position", "parameterSetName"],
 					"properties": {
 						"name": {
 							"type": "string"
-						},
-						"summary": {		// @XDanni what is this used for?
-							"type": "string",
-							"contentType": "markdown",
-							"tags": ["localizable"]
 						},
 						"description": {
 							"type": "string",
@@ -162,7 +157,7 @@
 						"aliases": {
 							"type": "string"
 						},
-						"parameterValueGroup": { // @XDanni is this ParameterSetName? Double check this? If not need to add Parameter Set Name
+						"parameterValueGroup": {
 							"type": "string"
 						},
 						"position": {
@@ -177,15 +172,8 @@
 						"acceptWildcardCharacters": {
 							"type": "boolean"
 						},
-						"valueFrom": { // @XDanni what is this? Is this same as acceptedValues?
+						"parameterSetName": {
 							"type": "string"
-						},
-						"acceptedValues": {
-							"value": {
-								"type": "string"
-							},
-							"type": "array",
-							"minItems": 1
 						},
 						"confirmImpact": {
 							"type": "string"
