@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
 using System.Reflection;
@@ -7,9 +8,9 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     public class ModuleInitAndCleanup : IModuleAssemblyInitializer, IModuleAssemblyCleanup
     {
-        private static string dependencyFolder = Path.Combine(
-            Path.GetDirectoryName(typeof(ModuleInitAndCleanup).Assembly.Location),
-            "Dependencies");
+        private static Assembly s_self = typeof(ModuleInitAndCleanup).Assembly;
+        private static string s_dependencyFolder = Path.Combine(Path.GetDirectoryName(s_self.Location), "Dependencies");
+        private static HashSet<string> s_dependencies = new(StringComparer.Ordinal) { "YamlDotNet", "Markdig.Signed" };
 
         public void OnImport()
         {
@@ -24,12 +25,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static Assembly? ResolvingHandler(object sender, ResolveEventArgs args)
         {
-            string name = args.Name;
-            if (name.Equals("YamlDotNet, Version=11.0.0.0, Culture=neutral, PublicKeyToken=ec19458f3c15af5e", StringComparison.Ordinal) ||
-                name.Equals("Markdig.Signed, Version=0.18.3.0, Culture=neutral, PublicKeyToken=870da25a133885f8", StringComparison.Ordinal))
+            var assemblyName = new AssemblyName(args.Name);
+            if (args.RequestingAssembly == s_self && s_dependencies.Contains(assemblyName.Name))
             {
-                string fileName = name.Substring(0, name.IndexOf(',')) + ".dll";
-                string filePath = Path.Combine(dependencyFolder, fileName);
+                string fileName = assemblyName.Name + ".dll";
+                string filePath = Path.Combine(s_dependencyFolder, fileName);
 
                 if (File.Exists(filePath))
                 {
