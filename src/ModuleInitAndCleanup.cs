@@ -9,7 +9,6 @@ namespace Microsoft.PowerShell.PlatyPS
     public class ModuleInitAndCleanup : IModuleAssemblyInitializer, IModuleAssemblyCleanup
     {
         private static readonly Assembly s_self;
-        private static readonly bool s_isDotNetCore;
         private static readonly string s_dependencyFolder;
         private static readonly HashSet<string> s_dependencies;
         private static readonly AssemblyLoadContextProxy? s_proxy;
@@ -17,7 +16,6 @@ namespace Microsoft.PowerShell.PlatyPS
         static ModuleInitAndCleanup()
         {
             s_self = typeof(ModuleInitAndCleanup).Assembly;
-            s_isDotNetCore = Environment.Version.Major > 4;
             s_dependencyFolder = Path.Combine(Path.GetDirectoryName(s_self.Location), "Dependencies");
             s_dependencies = new(StringComparer.Ordinal);
             s_proxy = AssemblyLoadContextProxy.CreateLoadContext("platyPS-load-context");
@@ -63,8 +61,8 @@ namespace Microsoft.PowerShell.PlatyPS
                     // - In .NET, load the assembly into the custom assembly load context.
                     // - In .NET Framework, assembly conflict is not a problem, so we load the assembly
                     //   by 'Assembly.LoadFrom', the same as what powershell.exe would do.
-                    return s_isDotNetCore
-                        ? s_proxy!.LoadFromAssemblyPath(filePath)
+                    return s_proxy is not null
+                        ? s_proxy.LoadFromAssemblyPath(filePath)
                         : Assembly.LoadFrom(filePath);
                 }
             }
