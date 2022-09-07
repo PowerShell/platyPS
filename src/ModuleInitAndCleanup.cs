@@ -76,9 +76,8 @@ namespace Microsoft.PowerShell.PlatyPS
         private readonly object _customContext;
         private readonly MethodInfo _loadFromAssemblyPath;
 
-        private AssemblyLoadContextProxy(string loadContextName)
+        private AssemblyLoadContextProxy(Type alc, string loadContextName)
         {
-            var alc = typeof(object).Assembly.GetType("System.Runtime.Loader.AssemblyLoadContext");
             var ctor = alc.GetConstructor(new[] { typeof(string), typeof(bool) });
             _loadFromAssemblyPath = alc.GetMethod("LoadFromAssemblyPath", new[] { typeof(string) });
             _customContext = ctor.Invoke(new object[] { loadContextName, false });
@@ -96,8 +95,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 throw new ArgumentNullException(nameof(name));
             }
 
-            return Environment.Version.Major > 4
-                ? new AssemblyLoadContextProxy(name)
+            var alc = typeof(object).Assembly.GetType("System.Runtime.Loader.AssemblyLoadContext");
+            return alc is not null
+                ? new AssemblyLoadContextProxy(alc, name)
                 : null;
         }
     }
