@@ -12,6 +12,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private static readonly bool s_isDotNetCore;
         private static readonly string s_dependencyFolder;
         private static readonly HashSet<string> s_dependencies;
+        private static readonly AssemblyLoadContextProxy? s_proxy;
 
         static ModuleInitAndCleanup()
         {
@@ -19,6 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
             s_isDotNetCore = Environment.Version.Major > 4;
             s_dependencyFolder = Path.Combine(Path.GetDirectoryName(s_self.Location), "Dependencies");
             s_dependencies = new(StringComparer.Ordinal);
+            s_proxy = AssemblyLoadContextProxy.CreateLoadContext("platyPS-load-context");
 
             foreach (string filePath in Directory.EnumerateFiles(s_dependencyFolder, "*.dll"))
             {
@@ -58,18 +60,47 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 if (File.Exists(filePath))
                 {
-                    // - In .NET, the 'LoadFile' API uses an anonymous 'AssemblyLoadContext' instance to load the assembly file.
-                    //   But it maintains a cache to guarantee that the same assembly instance is returned for the same assembly file path.
-                    //   For details, see the .NET code at https://source.dot.net/#System.Private.CoreLib/Assembly.cs,239.
-                    // - In .NET Framework, assembly conflict is not a problem, so we load the assembly by 'Assembly.LoadFrom',
-                    //   the same as what powershell.exe would do.
+                    // - In .NET, load the assembly into the custom assembly load context.
+                    // - In .NET Framework, assembly conflict is not a problem, so we load the assembly
+                    //   by 'Assembly.LoadFrom', the same as what powershell.exe would do.
                     return s_isDotNetCore
-                        ? Assembly.LoadFile(filePath)
+                        ? s_proxy!.LoadFromAssemblyPath(filePath)
                         : Assembly.LoadFrom(filePath);
                 }
             }
 
             return null;
+        }
+    }
+
+    internal class AssemblyLoadContextProxy
+    {
+        private readonly object _customContext;
+        private readonly MethodInfo _loadFromAssemblyPath;
+
+        private AssemblyLoadContextProxy(string loadContextName)
+        {
+            var alc = typeof(object).Assembly.GetType("System.Runtime.Loader.AssemblyLoadContext");
+            var ctor = alc.GetConstructor(new[] { typeof(string), typeof(bool) });
+            _loadFromAssemblyPath = alc.GetMethod("LoadFromAssemblyPath", new[] { typeof(string) });
+            _customContext = ctor.Invoke(new object[] { loadContextName, false });
+        }
+
+        internal Assembly LoadFromAssemblyPath(string assemblyPath)
+        {
+            return (Assembly) _loadFromAssemblyPath.Invoke(_customContext, new[] { assemblyPath });
+        }
+
+        internal static AssemblyLoadContextProxy? CreateLoadContext(string name)
+        {
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentNullException(nameof(name));
+            }
+
+            return Environment.Version.Major > 4
+                ? new AssemblyLoadContextProxy(name)
+                : null;
         }
     }
 }
