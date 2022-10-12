@@ -1,9 +1,6 @@
 ---
-RFC: RFCXXXX
-Author: Jason Helmick
-Status: Draft
-Area:
-Comments Due:
+title: PlatyPS 2.0 specification
+ms.date: 10/12/2022
 ---
 
 # PlatyPS 2.0 Update
@@ -80,6 +77,7 @@ The following sections outline schema changes for the Help file.
 | ------------------ | ----- | --------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Title              | H1    | Y         | 1     | - Add reflection of cmdlet platform/alias based on platform<br>- Could do as Yaml block with Windows: macOS: Linux: (See block below table)                                                                                                        |
 | Synopsis           | H2    | Y         | 1     | - No changes                                                                                                                                                                                                                                       |
+| Aliases            | H2    | Y         | 1     | - New header to support documentation for cmdlet aliases                                                                                                                                                                                           |
 | Syntax             | H2    | Y         | 1     | - No changes                                                                                                                                                                                                                                       |
 | Parameter Set Name | H3    | Y         | 1-N   | - Parameter Sets - should be sorted starting with Default, then by Alpha<br>- Parameters (in syntax block) - Should be sorted Positional, Required, then by Alpha                                                                                  |
 | Description        | H2    | Y         | 1     | - Allow any content type<br>- No Headers H2, H3, H4                                                                                                                                                                                                |
@@ -114,14 +112,37 @@ DontShow: True
 
 1. Have a way to document aliases for the cmdlet. Today we only document aliases for parameters.
    This is difficult to discover, so don't need `*-MarkdownHelp` cmdlets to create it but the schema
-   needs to support it. The author can add the information. For example:
+   needs to support it. The author can add the information to the YAML frontmatter. For example:
 
    ```yaml
-   - aliases:
-     windows: gci, dir, ls
-     macOS: gci, dir
-     linux: gci, dir
+   aliases:
+     all: [dir, gci]
+     windows: [ls]
+     macOS:
+     linux:
    ```
+
+   Add new H2 for documenting aliases.
+
+   ```markdown
+   ## ALIASES
+
+   PowerShell includes the following aliases for `Get-ChildItem`:
+
+   - All platforms: `dir`, `gci`
+   - Windows: `ls`
+   ```
+
+   See [alias-prototype](alias-prototype.md) for an example.
+
+   > [!NOTE]
+   > Since the XSD for MAML is fixed we cannot support the new H2 section in the conversion to MAML.
+   > Instead we will keep the H2 in the markdown source and in the conversion to YAML. But we need
+   > to special case the conversion to MAML. The H2 Aliases section can be prepended to the NOTES
+   > section as a `<maml:alert>` item. This means the information will appear in the NOTES section
+   > of `Get-Help` output.
+
+   See [Issue #585](https://github.com/PowerShell/platyPS/issues/585).
 
 1. Have a some schema format for representing the availability of the cmdlet for a platform
    (win/mac/linux). Could be one or more. Default to Windows but editable by the author.
@@ -322,4 +343,3 @@ TODO
 ## Issues for this milestone
 
 [2.0-consider](https://github.com/PowerShell/platyPS/issues?q=is%3Aopen+is%3Aissue+milestone%3A2.0-consider)
-
