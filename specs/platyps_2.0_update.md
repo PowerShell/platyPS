@@ -135,6 +135,13 @@ DontShow: True
 
    See [alias-prototype](alias-prototype.md) for an example.
 
+   > [!NOTE]
+   > Since the XSD for MAML is fixed we cannot support the new H2 section in the conversion to MAML.
+   > Instead we will keep the H2 in the markdown source and in the conversion to YAML. But we need
+   > to special case the conversion to MAML. The H2 Aliases section can be prepended to the NOTES
+   > section as a `<maml:alert>` item. This means the information will appear in the NOTES section
+   > of `Get-Help` output.
+
    See [Issue #585](https://github.com/PowerShell/platyPS/issues/585).
 
 1. Have a some schema format for representing the availability of the cmdlet for a platform
