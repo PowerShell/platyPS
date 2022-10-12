@@ -7,10 +7,10 @@ online version: https://docs.microsoft.com/powershell/module/microsoft.powershel
 schema: 2.0.0
 title: Get-ChildItem
 alias:
-  - all: dir, gci
-  - windows: ls
-  - macos:
-  - linux:
+  all: [dir, gci]
+  windows: [ls]
+  macos:
+  linux:
 ---
 # Get-ChildItem
 
@@ -20,7 +20,26 @@ Gets the items and child items in one or more specified locations.
 
 ## ALIASES
 
-This cmdlet supports the following aliases on the following platforms:
+PowerShell includes the following aliases for `Get-ChildItem`:
 
 - All platforms: `dir`, `gci`
 - Windows: `ls`
+
+## SYNTAX
+
+### Items (Default)
+
+```
+Get-ChildItem [[-Path] <string[]>] [[-Filter] <string>] [-Include <string[]>] [-Exclude <string[]>]
+ [-Recurse] [-Depth <uint32>] [-Force] [-Name] [-Attributes <FlagsExpression[FileAttributes]>]
+ [-FollowSymlink] [-Directory] [-File] [-Hidden] [-ReadOnly] [-System] [<CommonParameters>]
+```
+
+### LiteralItems
+
+```
+Get-ChildItem [[-Filter] <string>] -LiteralPath <string[]> [-Include <string[]>]
+ [-Exclude <string[]>] [-Recurse] [-Depth <uint32>] [-Force] [-Name]
+ [-Attributes <FlagsExpression[FileAttributes]>] [-FollowSymlink] [-Directory] [-File] [-Hidden]
+ [-ReadOnly] [-System] [<CommonParameters>]
+```

@@ -1,6 +1,6 @@
 ---
 title: PlatyPS 2.0 specification
-ms.date: 08/29/2022
+ms.date: 10/12/2022
 ---
 
 # PlatyPS 2.0 Update
@@ -112,14 +112,14 @@ DontShow: True
 
 1. Have a way to document aliases for the cmdlet. Today we only document aliases for parameters.
    This is difficult to discover, so don't need `*-MarkdownHelp` cmdlets to create it but the schema
-   needs to support it. The author can add the information. For example:
+   needs to support it. The author can add the information to the YAML frontmatter. For example:
 
    ```yaml
-   - aliases:
-       - all: dir, gci
-       - windows: ls
-       - macOS:
-       - linux:
+   aliases:
+     all: [dir, gci]
+     windows: [ls]
+     macOS:
+     linux:
    ```
 
    Add new H2 for documenting aliases.
@@ -127,7 +127,7 @@ DontShow: True
    ```markdown
    ## ALIASES
 
-   This cmdlet supports the following aliases on the following platforms:
+   PowerShell includes the following aliases for `Get-ChildItem`:
 
    - All platforms: `dir`, `gci`
    - Windows: `ls`
@@ -336,4 +336,3 @@ TODO
 ## Issues for this milestone
 
 [2.0-consider](https://github.com/PowerShell/platyPS/issues?q=is%3Aopen+is%3Aissue+milestone%3A2.0-consider)
-
