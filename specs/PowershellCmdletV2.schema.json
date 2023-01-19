@@ -185,7 +185,6 @@
                             "acceptWildcardCharacters": {
                                 "type": "boolean"
                             },
-                            // "valueFrom": {"type": "string"}, (CAN BE DELETED AND REMOVED FROM TEMPLATE) It has not been used in MAML2YAML, but AzureCLI has it.
                             "confirmImpact": {
                                 "type": "string"
                             }
