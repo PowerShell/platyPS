@@ -2867,7 +2867,7 @@ function ConvertPsObjectsToMamlModel
     }
 
     #Get Description
-    if($Help.description -ne $null)
+    if($null -ne $Help.description)
     {
         $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
             $Help.description |
@@ -2930,7 +2930,7 @@ function ConvertPsObjectsToMamlModel
     $Help.inputTypes.inputType | ForEach-Object {
         $InputDescription = $_.description
         $inputtypes = $_.type.name
-        if ($_.description -eq $null -and $_.type.name -ne $null)
+        if ($null -eq $_.description -and $null -ne $_.type.name)
         {
             $inputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }
@@ -2957,7 +2957,7 @@ function ConvertPsObjectsToMamlModel
     $Help.returnValues.returnValue | ForEach-Object {
         $OuputDescription = $_.description
         $Outputtypes = $_.type.name
-        if ($_.description -eq $null -and $_.type.name -ne $null)
+        if ($null -eq $_.description -and $null -ne $_.type.name)
         {
             $Outputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }
