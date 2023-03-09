@@ -1,6 +1,6 @@
 ---
 title: PlatyPS 2.0 specification
-ms.date: 10/12/2022
+ms.date: 03/09/2023
 ---
 
 # PlatyPS 2.0 Update
@@ -20,12 +20,10 @@ This update includes the following goals:
 
 Priorities
 
-- Fix schema so that it contains all of the Help Data we need while maintaining as much
+- Fix schema so that it contains all the Help Data we need while maintaining as much
   compatibility as possible with PS 5.1 and Exchange
 - Switch markdown engine to markdig
-- Fix OPS rendering problems (this may require specific changes in PlatyPS)
-  - Set up meeting with Robert after we have YAML conversion to the new schema so we can discuss
-    rendering requirements
+- Fix OPS rendering problems (requires specific changes in PlatyPS and OPS)
 
 After the initial release, we should look at new features and consider whether we fork the tool to a
 new no-legacy feature set or try to maintain compatibility going forward (ala PowerShellGet 3.0).
@@ -69,13 +67,13 @@ Non-goals:
 The proposal is to update the functionality and schema of PlayPS to improve the module owners
 experience building and updating Help.
 
-### Help file schema
+### Schema for cmdlet reference
 
 The following sections outline schema changes for the Help file.
 
 |      Heading       | Level | Required? | Count |                                                                                                                    Description                                                                                                                     |
 | ------------------ | ----- | --------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Title              | H1    | Y         | 1     | - Add reflection of cmdlet platform/alias based on platform<br>- Could do as Yaml block with Windows: macOS: Linux: (See block below table)                                                                                                        |
+| Title              | H1    | Y         | 1     | - No changes                                                                                                                                                                                                                                       |
 | Synopsis           | H2    | Y         | 1     | - No changes                                                                                                                                                                                                                                       |
 | Aliases            | H2    | Y         | 1     | - New header to support documentation for cmdlet aliases                                                                                                                                                                                           |
 | Syntax             | H2    | Y         | 1     | - No changes                                                                                                                                                                                                                                       |
@@ -86,79 +84,161 @@ The following sections outline schema changes for the Help file.
 | Parameters         | H2    | Y         | 1     | - Parameters Should be sorted Alpha. Currently PlatyPS has a switch to force Alpha versus enumerated. The default is off, please change to On.                                                                                                     |
 | Parameter          | H3    | Y         | 1-N   | - Yaml block should include:<br>- Parameter Set Name<br>- AcceptedValues - Should display enumerated values of parameter (like ValidateSet)<br>- ConfirmImpact - Impact severity should be reflected and displayed to inform defaults for -Confirm |
 | Common Parameters  | H3    | Y         | 1     | - Change the fwlink to remove local and version                                                                                                                                                                                                    |
-| Inputs             | H2    | Y         | 1     | - Add cross reference link to the API reference for the input/output object type<br>- [xref link docs](https://review.docs.microsoft.com/en-us/help/contribute/links-how-to?branch=master#xref-cross-reference-links)                              |
+| Inputs             | H2    | Y         | 1     | - Add cross reference link to the API reference for the input/output object type<br>- [xref link docs][06]                                                                                                                                         |
 | Input type         | H3    | N         | 0-N   |                                                                                                                                                                                                                                                    |
-| Outputs            | H2    | Y         | 1     | - Add cross reference link to the API reference for the input/output object type<br>- [xref link docs](https://review.docs.microsoft.com/en-us/help/contribute/links-how-to?branch=master#xref-cross-reference-links)                              |
+| Outputs            | H2    | Y         | 1     | - Add cross reference link to the API reference for the input/output object type<br>- [xref link docs][06]                                                                                                                                         |
 | Output type        | H3    | N         | 0-N   |                                                                                                                                                                                                                                                    |
 | Notes              | H2    | N         | 1     | Mandatory for schema but not rendered by OPS if empty                                                                                                                                                                                              |
 | Related links      | H3    | Y         | 1     | - Link list should use bullets<br>- PlatyPS needs to support bullets<br>- Should support Text (prose), not just links                                                                                                                              |
 
-Structure of YAML for parameters
+#### Updated YAML structure for parameters
+
+The following example shows the markdown for the Yaml metadata of a parameter. The Yaml block
+contains new metadata items.
+
+~~~markdown
+```yaml
+Type: System.Management.Automation.ScopedItemOptions
+Parameter Sets: (All)
+Aliases:
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: ByValue (False), ByName (False)
+Accept wildcard characters: False
+Dynamic: True
+Providers: Alias, Function
+Values from remaining args: False
+Do not show: False
+Release status: Feature Preview
+```
+~~~
+
+New metadata
+
+- `Dynamic`
+  - Type: boolean
+  - Required
+- `Providers`
+  - Type: string containing one or more provider names (comma-separated)
+  - Optional - expected when `Dynamic` is true
+- `Values from remaining args`
+  - Type: boolean
+  - Required
+- `Do not show`
+  - Type: boolean
+  - Required
+- `Release status`
+  - Type: string representation of one enum value from:
+    - 'Preview', 'Feature Preview', 'Experimental', 'Deprecated'
+  - Optional
+
+The OPS build pipeline doesn't need to validate these values. Any validation should be done by
+PlatyPS.
+
+### Schema updates for cmdlet frontmatter
+
+#### Cmdlet alias metadata
+
+Have a way to document aliases for the cmdlet. Today we only document aliases for parameters. This
+is difficult to discover, so don't need `*-MarkdownHelp` cmdlets to create it but the schema needs
+to support it. The author can add the information to the YAML frontmatter. For example:
 
 ```yaml
-Type: System.String[]
-Parameter Sets: PSetName1, PSetName2, PSetName3
-Aliases:
-
-Required: True (PSetName1, PSetName2) False (PSetName3)
-Position: 0
-Default value: None
-Accept pipeline input: True (ByPropertyName, ByValue)
-Accept wildcard characters: True
-DontShow: True
+aliases:
+  all: [dir, gci]
+  windows: [ls]
+  macOS:
+  linux:
 ```
 
-#### Schema feature requests
+Add new H2 for documenting aliases.
 
-1. Have a way to document aliases for the cmdlet. Today we only document aliases for parameters.
-   This is difficult to discover, so don't need `*-MarkdownHelp` cmdlets to create it but the schema
-   needs to support it. The author can add the information to the YAML frontmatter. For example:
+```markdown
+## ALIASES
 
-   ```yaml
-   aliases:
-     all: [dir, gci]
-     windows: [ls]
-     macOS:
-     linux:
-   ```
+PowerShell includes the following aliases for `Get-ChildItem`:
 
-   Add new H2 for documenting aliases.
+- All platforms: `dir`, `gci`
+- Windows: `ls`
+```
 
-   ```markdown
-   ## ALIASES
+See [alias-prototype][02] for a more complete example.
 
-   PowerShell includes the following aliases for `Get-ChildItem`:
+> [!NOTE]
+> The `aliases` metadata is optional. The information will be added by the documentation author. The
+> ALIASES H2 section is optional and will be added by the documentation author as necessary. The
+> reference pipeline shouldn't try to validate this content or metadata values. The reference
+> pipeline should add all aliases to the `displayname` property of the Yaml TOC entry for the
+> cmdlet. For more information about the `displayname` property, see the [TOC docs][07].
 
-   - All platforms: `dir`, `gci`
-   - Windows: `ls`
-   ```
+See [Issue #585][04].
 
-   See [alias-prototype](alias-prototype.md) for an example.
+#### Cmdlet platform availability
 
-   > [!NOTE]
-   > Since the XSD for MAML is fixed we cannot support the new H2 section in the conversion to MAML.
-   > Instead we will keep the H2 in the markdown source and in the conversion to YAML. But we need
-   > to special case the conversion to MAML. The H2 Aliases section can be prepended to the NOTES
-   > section as a `<maml:alert>` item. This means the information will appear in the NOTES section
-   > of `Get-Help` output.
+The purpose of this is to represent the availability of the cmdlet for a platform (win/mac/linux).
+Could be one or more. PlatyPS could default to Windows when creating the markdown. The value should
+be edited by the author to ensure accuracy.
 
-   See [Issue #585](https://github.com/PowerShell/platyPS/issues/585).
+```yaml
+- platforms: [win, macOS, linux]
+```
 
-1. Have a some schema format for representing the availability of the cmdlet for a platform
-   (win/mac/linux). Could be one or more. Default to Windows but editable by the author.
+- `platforms`
+  - Type: string array containing one or more platform names (win, macOS, linux)
+  - Required
 
-   ```yaml
-   - platforms: win, macOS, linux
-   ```
+The reference build pipeline should enforce the requirement but doesn't need to use the values
 
-### Formatting note
+#### Cmdlet release status metadata
 
-- General
-  - Would like PlatyPS to add a line break after each Markdown block
-  - Example - Headers, Code blocks, Lists
-  - Bug: `Get-Help`: Requires that the first line of text be immediately following Synopsis header
+The purpose of this metadata is to represent the release status of the cmdlet. The value is not
+required if the cmdlet is GA. This metadata will be added by the author as necessary.
 
-### About_ file schema
+```yaml
+release:
+  status  : Preview, Feature Preview, Experimental, Deprecated
+  message : Text of a banner message.
+```
+
+- `release`
+  - Type: string representation of one enum value from:
+    - 'Preview', 'Feature Preview', 'Experimental', 'Deprecated'
+  - Optional
+- `status`
+  - Type: string representation of one enum value from:
+    - 'Preview' - used for cmdlets that are in preview modules
+    - 'Feature Preview' - used for cmdlets that require Feature flags to be enabled to use
+    - 'Experimental' - used for cmdlets that are enabled by a PowerShell experimental feature
+    - 'Deprecated' - used for cmdlet that will be unsupported after a certain date are removed in a
+      future release
+  - Required
+- `message`
+  - Type: string - text of an alert message to be displayed in the documentation
+    - The message should be a single sentence or short paragraph. Include end of support dates if
+      applicable.
+  - Required
+
+The reference build pipeline will use:
+
+- the `status` to select the badge displayed for the status.
+- the `message` to render an alert box on the page containing the message
+
+Matt Trilby-Bassett has some [Figma designs][08] showing the badge and alert box.
+
+### Schema for Module file frontmatter
+
+The `Module.md` file is the landing page for a module and is used during conversion to MAML. The
+frontmatter for this file will also include the `release` metadata for non-GA modules.
+
+See the [release status metadata][01] described above.
+
+The reference build pipeline will use:
+
+- the `status` to select the badge displayed for the status.
+- the `message` to render an alert box on the page containing the message
+
+### Schema for About_ files
 
 The following sections outline schema changes for the About_ file.
 
@@ -173,13 +253,20 @@ General notes
 
 - Should be rendered as plain text compatible with `Get-Help`
 - `Get-Help` bug:Synopsis
-- [Get-Help bug](https://github.com/PowerShell/PowerShell/issues/9208)
+- [Get-Help bug][05]
 - Add switch to provide Cabs or Zips. Default: cabs
 - Add switch to include markdown Default: off
 - About_ schema does not say anything about line wrapping etc.
   - If left as text files, then wrap at 80 columns.
-  - But if converted to schema-based line limit is not a problem (for the future). Still a problem
+  - But if converted to schema-based line limit isn't a problem (for the future). Still a problem
     for previous versions.
+
+### PlatyPS formatting changes
+
+- General
+  - Would like PlatyPS to add a line break after each Markdown block
+  - Example - Headers, Code blocks, Lists
+  - Bug: `Get-Help`: Requires that the first line of text be immediately following Synopsis header
 
 ## PlatyPS Cmdlets and Parameters
 
@@ -342,4 +429,14 @@ TODO
 
 ## Issues for this milestone
 
-[2.0-consider](https://github.com/PowerShell/platyPS/issues?q=is%3Aopen+is%3Aissue+milestone%3A2.0-consider)
+[2.0-consider][03]
+
+<!-- link references -->
+[01]: #cmdlet-release-status-metadata
+[02]: alias-prototype.md
+[03]: https://github.com/PowerShell/platyPS/issues?q=is%3Aopen+is%3Aissue+milestone%3A2.0-consider
+[04]: https://github.com/PowerShell/platyPS/issues/585
+[05]: https://github.com/PowerShell/PowerShell/issues/9208
+[06]: https://review.docs.microsoft.com/en-us/help/contribute/links-how-to?branch=master#xref-cross-reference-links
+[07]: https://review.learn.microsoft.com/en-us/help/platform/navigation-toc-overview?branch=main#yaml-toc-format
+[08]: https://www.figma.com/file/EP3wMMct92SqHwvWcorb9O/%5BDiscovery%5D-Reference-Development-Status-Information?node-id=897%3A3314&t=zy1ygL7Gh5ChSyh1-0
