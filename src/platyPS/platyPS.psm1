@@ -39,6 +39,8 @@ $script:MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
 $script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
 
+$script:SAFE_FILENAME_REPLACEMENT_PATTERN = '[{0}]' -f [regex]::Escape([System.IO.Path]::GetInvalidFileNameChars() -join '')
+
 function New-MarkdownHelp
 {
     [CmdletBinding()]
@@ -1909,6 +1911,30 @@ function GetHelpFileName
     }
 }
 
+<#
+    Generate a filename that is safe for the target operating system.
+    This avoids errors generating help content for alias's using unsafe characters like '?'
+    e.g. "gh?.md" would be returned as "gh_.md"
+#>
+function ConvertToSafeFilename
+{
+    [OutputType([System.String])]
+    param (
+        [Parameter(Mandatory=$true)]
+        [string]$Path
+    )
+
+    $dir = Split-Path -Path $Path
+    $filename = Split-Path -Path $Path -Leaf
+    $safeFilename = $filename -replace $script:SAFE_FILENAME_REPLACEMENT_PATTERN, '_'
+    
+    if($dir) {
+        return (Join-Path $dir $safeFilename)
+    } else {
+        return $safeFilename
+    }
+}
+
 function MySetContent
 {
     [OutputType([System.IO.FileInfo])]
@@ -1921,6 +1947,8 @@ function MySetContent
         [System.Text.Encoding]$Encoding,
         [switch]$Force
     )
+
+    $Path = ConvertToSafeFilename $Path
 
     if (Test-Path $Path)
     {
