@@ -346,7 +346,7 @@ Write-Host 'Hello World!'
             Adds a file name extension to a supplied name.
 
             .DESCRIPTION
-            Adds a file name extension to a supplied name.
+            Given a filename and an extension this function joins them together.
             Takes any strings for the file name or extension.
 
             .PARAMETER Second
