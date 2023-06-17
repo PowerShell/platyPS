@@ -1026,18 +1026,18 @@ if (-not $global:IsUnix) {
 
 Describe 'ConvertToSafeFilename' {
 
-    function global:Test-UnsafeFilename?
+    function global:"Test-Unsafe/Filename"
     {
         param(
             [string]$Foo
         )
     }
 
-    It "generates a safe filename for a windows OS when given a bad input" -Skip:$global:IsUnix {
+    It "generates a safe filename for a windows OS when given a bad input" {
         $drop = "TestDrive:\MD\ConvertToSafeFilename"
         Remove-Item -rec $drop -ErrorAction SilentlyContinue
-        $file = New-MarkdownHelp -Command "Test-UnsafeFilename?" -OutputFolder $drop
-        $file.Name | Should Be 'Test-UnsafeFilename_.md'
+        $file = New-MarkdownHelp -Command "Test-Unsafe/Filename" -OutputFolder $drop
+        $file.Name | Should Be 'Test-Unsafe_Filename.md'
     }
 }
 
