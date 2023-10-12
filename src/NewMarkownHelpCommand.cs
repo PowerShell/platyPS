@@ -92,6 +92,7 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(ParameterSetName = "FromMaml")]
         public string? ModulePagePath { get; set; }
 
+        [Parameter()]
         public SwitchParameter ExcludeDontShow { get; set; }
 
         #endregion

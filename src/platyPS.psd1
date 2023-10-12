@@ -37,6 +37,7 @@ FunctionsToExport = @()
 CmdletsToExport = @(
     'New-MarkdownHelp',
     'Get-MarkdownMetadata'
+    'Update-MarkdownHelp'
 )
 
 # Variables to export from this module

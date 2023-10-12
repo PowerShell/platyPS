@@ -2,5 +2,6 @@
 {
      "files.exclude": {
         "out/**": true
-    }
+    },
+    "sarif-viewer.connectToGithubCodeScanning": "off"
 }
