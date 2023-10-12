@@ -110,6 +110,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
+        internal const char Comma = ',';
+        internal const string CommonParametersHeader = "CommonParameters";
         internal static readonly List<string> EmptyStringList = new();
         internal static readonly char DirectorySeparator = System.IO.Path.DirectorySeparatorChar;
 

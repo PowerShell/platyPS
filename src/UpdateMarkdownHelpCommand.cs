@@ -1,15 +1,21 @@
 ﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
+using Markdig.Extensions.CustomContainers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Drawing.Design;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
+using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -87,6 +93,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     Collection<CommandHelp> currentCommand = new TransformCommand(settings).Transform(new string[] { commandName });
 
+                    if (currentCommand is not null && currentCommand.Count != 1) {
+                        throw new CommandNotFoundException($"Command not found: {commandName}");
+                    }
+
                     string fileContent = File.ReadAllText(resolvedPath.Path);
 
                     CommandHelp mdHelp = GetCommandHelpFromMarkdown(fileContent);
@@ -160,7 +170,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private static CommandHelp GetCommandHelpFromMarkdown(string fileContent)
         {
-            CommandHelp commandHelp;
+            CommandHelp commandHelp = new CommandHelp("x", "y", cultureInfo: null);
 
             YamlMetadataHeader yamlHeader = GetYamlHeader(fileContent);
 
@@ -177,8 +187,16 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (mdAst[titleHeaderIndex] is HeadingBlock title)
             {
-                string commandName = title.Inline.FirstChild.ToString();
-                commandHelp = new CommandHelp(commandName, yamlHeader.ModuleName, cultureInfo: null);
+                string? commandName = title?.Inline?.FirstChild?.ToString();
+
+                if (commandName is not null)
+                {
+                    commandHelp = new CommandHelp(commandName, yamlHeader.ModuleName, cultureInfo: null);
+                }
+                else
+                {
+                    throw new InvalidDataException("commandName not found. markdown structure not according to schema.");
+                }
             }
             else
             {
@@ -188,11 +206,13 @@ namespace Microsoft.PowerShell.PlatyPS
             #endregion
 
             #region Get Synopsis
+
             int synopsisHeaderIndex = GetNextHeaderIndex(mdAst, expectedHeaderLevel: 2, expectedHeaderTitle: "SYNOPSIS", startIndex: titleHeaderIndex + 1);
             commandHelp.Synopsis = GetParagraphsTillNextHeader(mdAst, synopsisHeaderIndex + 1);
+
             #endregion Get Synopsis
 
-            /* No needed as we get infor from parameter details
+            /* Not needed as we get info from parameter details. Also not needed as it is auto generated.
             #region Get Syntax
             int syntaxHeaderIndex = GetNextHeaderIndex(mdAst, expectedHeaderLevel: 2, expectedHeaderTitle: "SYNTAX", startIndex: synopsisHeaderIndex + 1);
 
@@ -218,13 +238,15 @@ namespace Microsoft.PowerShell.PlatyPS
 
             #endregion Get Description
 
-            #region Get Examples
+            #region Get Parameters
 
-            int examplesHeaderIndex = GetNextHeaderIndex(mdAst, expectedHeaderLevel: 2, expectedHeaderTitle: "EXAMPLES", startIndex: descriptionHeaderIndex + 1);
+            int paramHeaderIndex = GetNextHeaderIndex(mdAst, expectedHeaderLevel: 2, expectedHeaderTitle: "PARAMETERS");
 
-            commandHelp.
+            var parameters = GetParameters(mdAst, paramHeaderIndex + 1);
 
-            #endregion Get Examples
+            #endregion
+
+
 
 
 
@@ -233,15 +255,20 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private static string GetParameterSetName(HeadingBlock parameterSetBlock)
         {
+            if (parameterSetBlock is null)
+            {
+                return string.Empty;
+            }
+
             StringBuilder? sb = null;
 
             try
             {
                 sb = Constants.StringBuilderPool.Get();
 
-                sb.Append(parameterSetBlock.Inline.FirstChild);
+                sb.Append(parameterSetBlock?.Inline?.FirstChild);
 
-                var item = parameterSetBlock.Inline.FirstChild.NextSibling;
+                var item = parameterSetBlock?.Inline?.FirstChild?.NextSibling;
 
                 while (item != null)
                 {
@@ -271,7 +298,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (expectedHeaderTitle is not null)
                     {
-                        if (string.Equals(headerItem.Inline.FirstChild.ToString(), expectedHeaderTitle))
+                        if (string.Equals(headerItem?.Inline?.FirstChild?.ToString(), expectedHeaderTitle))
                         {
                             return i;
                         }
@@ -287,6 +314,171 @@ namespace Microsoft.PowerShell.PlatyPS
             return -1;
         }
 
+        private static Collection<Parameter> GetParameters(MarkdownDocument md, int startIndex)
+        {
+            var parameters = new Collection<Parameter>();
+
+            int nextHeaderLevel2 = GetNextHeaderIndex(md, expectedHeaderLevel: 2, startIndex: startIndex);
+
+            int currentIndex = startIndex;
+
+            while(currentIndex < nextHeaderLevel2)
+            {
+                string parameterName = string.Empty;
+                string typeAsString = string.Empty;
+                string parameterSetsAsString = string.Empty;
+                string aliasesAsString = string.Empty;
+                string acceptedValuesAsString = string.Empty;
+                string requiredAsString = string.Empty;
+                string positionAsString = string.Empty;
+                string defaultValuesAsString = string.Empty;
+                string acceptedPipelineAsString = string.Empty;
+                string acceptWildCardAsString = string.Empty;
+
+                var parameterItemIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 3, startIndex: currentIndex);
+
+                if (parameterItemIndex > nextHeaderLevel2)
+                {
+                    break;
+                }
+
+                if (md[parameterItemIndex] is HeadingBlock parameterTitle)
+                {
+                    if (parameterTitle?.Inline?.FirstChild?.ToString()?.TrimStart('-') is string param)
+                    {
+                        parameterName = param;
+                    }
+                }
+
+                if (string.Equals(parameterName, "CommonParameters", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = parameterItemIndex + 1;
+                    continue;
+                }
+
+                var paramYamlBlock = GetParameterYamlBlock(md, parameterItemIndex + 1);
+
+                if (paramYamlBlock != null)
+                {
+                    var yamlBlock = paramYamlBlock.Lines.ToString();
+
+                    StringReader stringReader = new StringReader(yamlBlock);
+                    var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().Build();
+                    var yamlObject = deserializer.Deserialize(stringReader);
+
+                    if (yamlObject is Dictionary<object, object> metadataHeader)
+                    {
+                        object type;
+                        object parameterSets;
+                        object aliases;
+                        object acceptedValues;
+                        object required;
+                        object position;
+                        object defaultValue;
+                        object acceptPipeline;
+                        object acceptWildcard;
+
+
+                        if (metadataHeader.TryGetValue("Type", out type) && type is string typeStr)
+                        {
+                            typeAsString = typeStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Parameter Sets", out parameterSets) && parameterSets is string parameterSetStr)
+                        {
+                            parameterSetsAsString = parameterSetStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Aliases", out aliases) && aliases is string aliasesStr)
+                        {
+                            aliasesAsString = aliasesStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Accepted values", out acceptedValues) && acceptedValues is string acceptedValuesStr)
+                        {
+                            acceptedValuesAsString = acceptedValuesStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Required", out required) && required is string requiredBoolStr)
+                        {
+                            requiredAsString = requiredBoolStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Position", out position) && position is string positionStr)
+                        {
+                            positionAsString = positionStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Default value", out defaultValue) && defaultValue is string defaultValueStr)
+                        {
+                            defaultValuesAsString = defaultValueStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Accept pipeline input", out acceptPipeline) && acceptPipeline is string acceptPipelineStr)
+                        {
+                            acceptedPipelineAsString = acceptPipelineStr.Trim();
+                        }
+
+                        if (metadataHeader.TryGetValue("Accept wildcard characters", out acceptWildcard) && acceptWildcard is string acceptWildcardStr)
+                        {
+                            acceptWildCardAsString = acceptWildcardStr.Trim();
+                        }
+                    }
+                }
+
+
+                Parameter parameter = new Parameter(parameterName, typeAsString, positionAsString);
+
+                var isAllParameterSets = string.Equals(parameterSetsAsString, Constants.ParameterSetsAll, StringComparison.OrdinalIgnoreCase);
+                parameter.AddParameterSet(isAllParameterSets ? Constants.ParameterSetsAll : parameterSetsAsString);
+                parameter.Aliases = string.IsNullOrEmpty(aliasesAsString) ? null : aliasesAsString;
+                parameter.AddAcceptedValueRange(acceptedValuesAsString.Split(Constants.Comma).Select(x => x.Trim()).ToArray());
+                parameter.Required = string.Equals(requiredAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+                parameter.DefaultValue = string.IsNullOrEmpty(defaultValuesAsString) ? null : defaultValuesAsString;
+                parameter.Position = positionAsString;
+                parameter.PipelineInput = string.Equals(acceptedPipelineAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+                parameter.Globbing = string.Equals(acceptWildCardAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+
+                parameters.Add(parameter);
+
+                currentIndex = parameterItemIndex + 1;
+            }
+
+            return parameters;
+        }
+
+        private static Collection<ParagraphBlock> GetParagraphsTillNextHeaderBlock(MarkdownDocument md, int startIndex)
+        {
+            Collection<ParagraphBlock> paragraphs = new Collection<ParagraphBlock>();
+
+            while (md[startIndex] is not HeadingBlock)
+            {
+                if (md[startIndex] is ParagraphBlock pb)
+                {
+                    paragraphs.Add(pb);
+                }
+
+                startIndex++;
+            }
+
+            return paragraphs;
+        }
+
+        private static FencedCodeBlock? GetParameterYamlBlock(MarkdownDocument md, int startIndex)
+        {
+            while (md[startIndex] is not HeadingBlock)
+            {
+                if (md[startIndex] is FencedCodeBlock fencedCodeBlock)
+                {
+                    return fencedCodeBlock;
+                }
+
+                startIndex++;
+            }
+
+            return null;
+        }
+
         private static string GetParagraphsTillNextHeader(MarkdownDocument md, int startIndex)
         {
             StringBuilder? sb = null;
@@ -299,7 +491,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (md[startIndex] is ParagraphBlock pb)
                     {
-                        var item = pb.Inline.FirstChild;
+                        var item = pb?.Inline?.FirstChild;
 
                         while (item != null)
                         {
