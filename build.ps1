@@ -44,25 +44,18 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         Push-Location "$PSScriptRoot/src"
         dotnet build --configuration $Configuration
 
-        $expectedBuildPath = "./bin/$Configuration/net461/"
+        $expectedBuildPath = "./bin/$Configuration/net462/"
         $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"
 
         if (-not (Test-Path $expectedDllPath)) {
             throw "Build did not succeed."
         }
 
-        $moduleDllPath = Resolve-Path $expectedDllPath
-
         $moduleRoot = New-Item -Item Directory -Path "$OutputDir/platyPS" -Force
+        $depsFolder = New-Item -Item Directory -Path "$moduleRoot/Dependencies" -Force
 
-        $fileToCopy = @(
-            "$PSScriptRoot/src/platyPS.psd1"
-            "$expectedDllPath"
-            "$expectedBuildPath/Markdig.Signed.dll"
-            "$expectedBuildPath/YamlDotNet.dll"
-        )
-
-        Copy-Item -Path $fileToCopy -Destination $moduleRoot -Verbose
+        Copy-Item -Path "$expectedBuildPath/Markdig.Signed.dll", "$expectedBuildPath/YamlDotNet.dll" -Destination $depsFolder -Verbose
+        Copy-Item -Path "$PSScriptRoot/src/platyPS.psd1", $expectedDllPath -Destination $moduleRoot -Verbose
     }
     finally {
         Pop-Location
