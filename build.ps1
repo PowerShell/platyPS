@@ -62,10 +62,10 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
     }
 }
 elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
-    Import-Module -Name "$OutputDir/platyPS" -Force
 
     if ($IsWindows) {
         try {
+            Import-Module -Name "$OutputDir/platyPS" -Force
             $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
             Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
             Push-Location $xunitTestRoot
@@ -82,9 +82,17 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     $pesterTestRoot = "$PSScriptRoot/test/Pester"
     Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
-    $results = Invoke-Pester -Script $pesterTestRoot -PassThru -Outputformat nunitxml -outputfile $PesterLogPath
+    $sb = "Import-Module -Max 4.99 Pester
+        Import-Module -Name '$OutputDir/platyPS' -Force
+		Push-Location $pesterTestRoot
+        Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath"
 
-    if ($results.FailedCount -ne 0) {
+    write-verbose -verb "$sb"
+
+    pwsh -nopro -c "$sb"
+
+    $results = [xml](Get-Content $PesterLogPath)
+    if ($results."test-results".failures -ne 0) {
         throw "Pester Tests failed."
     }
 }
