@@ -84,12 +84,12 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     $sb = "Import-Module -Max 4.99 Pester
         Import-Module -Name '$OutputDir/platyPS' -Force
-		Push-Location $pesterTestRoot
+        Push-Location $pesterTestRoot
         Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath"
 
-    write-verbose -verb "$sb"
+    write-verbose -verbose -message "$sb"
 
-    pwsh -nopro -c "$sb"
+    pwsh -noprofile -c "$sb"
 
     $results = [xml](Get-Content $PesterLogPath)
     if ($results."test-results".failures -ne 0) {
