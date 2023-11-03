@@ -37,7 +37,7 @@ There is slight preference toward number 1 (markdown as the source).
 
 ## Quick start
 
-* Install platyPS module from the [PowerShell Gallery](https://powershellgallery.com):
+* Install platyPS module from the [PowerShell Gallery](https://www.powershellgallery.com/packages/platyPS):
 
 ```powershell
 Install-Module -Name platyPS -Scope CurrentUser
