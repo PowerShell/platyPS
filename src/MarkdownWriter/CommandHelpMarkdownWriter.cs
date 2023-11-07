@@ -64,10 +64,10 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             // this adds an empty line after all parameters. So no AppendLine needed.
             WriteSyntax(help);
 
-            WriteDescription(help);
+            WriteAliases(help);
             sb.AppendLine();
 
-            WriteAliases(help);
+            WriteDescription(help);
             sb.AppendLine();
 
             WriteExamples(help);

@@ -13,10 +13,10 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string SchemaVersionYml = "schema: 2.0.0";
         internal const string SynopsisMdHeader = "## SYNOPSIS";
         internal const string SyntaxMdHeader = "## SYNTAX";
+        internal const string AliasMdHeader = "## ALIASES";
+        internal const string AliasMessage = "This cmdlet has the following aliases:\n{{Insert list of aliases}}";
         internal const string DescriptionMdHeader = "## DESCRIPTION";
         internal const string ExamplesMdHeader = "## EXAMPLES";
-        internal const string AliasMdHeader = "## ALIASES";
-        internal const string AliasMessage = "This cmdlet has the following aliases:";
         internal const string ParametersMdHeader = "## PARAMETERS";
         internal const string CommonParameters = @"
 ### CommonParameters
