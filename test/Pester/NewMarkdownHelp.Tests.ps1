@@ -492,8 +492,8 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         It "Should contain the header '<line>'" -TestCases @(
             @{ line = "## SYNOPSIS" }
             @{ line = "## SYNTAX" }
-            @{ line = "## DESCRIPTION" }
             @{ line = "## ALIASES" }
+            @{ line = "## DESCRIPTION" }
             @{ line = "## EXAMPLES" }
             @{ line = "## PARAMETERS" }
             @{ line = "## INPUTS" }
@@ -510,6 +510,21 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 }
             }
             $observedLine | Should -BeExactly $line
+        }
+
+        It "The order of the header lines should be correct" {
+            $correctOrder = "## SYNOPSIS",
+                "## SYNTAX",
+                "## ALIASES",
+                "## DESCRIPTION",
+                "## EXAMPLES",
+                "## PARAMETERS",
+                "## INPUTS",
+                "## OUTPUTS",
+                "## NOTES",
+                "## RELATED LINKS"
+            $observedOrder = $lines.Where({$_ -match "^## "})
+            $observedOrder | Should -Be $correctOrder
         }
 
         It "The alias section should contain the proper boiler-plate" {
