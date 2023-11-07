@@ -28,6 +28,10 @@ bld/
 #NUNIT
 *.VisualState.xml
 TestResult.xml
+xunit.xml
+
+#Pester
+Pester.Tests.xml
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
