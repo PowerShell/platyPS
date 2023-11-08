@@ -13,7 +13,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     internal class CommandHelp
     {
         internal CultureInfo Locale { get; set; }
+
         internal Guid? ModuleGuid { get; set; }
+
         internal string? ExternalHelpFile { get; set; }
 
         internal string? OnlineVersionUrl { get; set; }
@@ -27,6 +29,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string Synopsis { get; set; }
 
         internal List<SyntaxItem> Syntax { get; private set; }
+
+        internal List<string>? Aliases { get; private set; }
 
         internal string? Description { get; set; }
 
@@ -64,11 +68,18 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Syntax.AddRange(syntaxItems);
         }
 
+        internal void AddAlias(string alias)
+        {
+            Aliases ??= new();
+            Aliases.Add(alias);
+        }
+
         internal void AddExampleItem(Example example)
         {
             Examples ??= new();
             Examples.Add(example);
         }
+
         internal void AddExampleItemRange(IEnumerable<Example> example)
         {
             Examples ??= new();
@@ -108,5 +119,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             RelatedLinks ??= new();
             RelatedLinks.AddRange(relatedLinks);
         }
+
     }
 }

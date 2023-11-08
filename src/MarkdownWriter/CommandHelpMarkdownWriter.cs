@@ -64,6 +64,9 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             // this adds an empty line after all parameters. So no AppendLine needed.
             WriteSyntax(help);
 
+            WriteAliases(help);
+            sb.AppendLine();
+
             WriteDescription(help);
             sb.AppendLine();
 
@@ -99,6 +102,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb.AppendLine($"external help file: {help.ModuleName}-help.xml");
             sb.AppendLine($"Module Name: {help.ModuleName}");
             sb.AppendLine($"online version: {help.OnlineVersionUrl}");
+            if (help.Aliases is null)
+            {
+                sb.AppendLine(string.Format("aliases:"));
+            }
+            else
+            {
+                sb.AppendLine(string.Format("aliases: {0}", string.Join(", ", help.Aliases)));
+            }
             sb.AppendLine(Constants.SchemaVersionYml);
 
             if (metadata is not null)
@@ -144,6 +155,13 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb.AppendLine(Constants.DescriptionMdHeader);
             sb.AppendLine();
             sb.AppendLine(help.Description);
+        }
+
+        private void WriteAliases(CommandHelp help)
+        {
+            sb.AppendLine(Constants.AliasMdHeader);
+            sb.AppendLine();
+            sb.AppendLine(Constants.AliasMessage);
         }
 
         private void WriteExamples(CommandHelp help)

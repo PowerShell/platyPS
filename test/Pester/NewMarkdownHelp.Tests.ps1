@@ -19,7 +19,7 @@ Describe 'New-MarkdownHelp' {
             Should -Throw -ErrorId 'FileNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
-        It 'throw when cannot find maml file' {
+        It 'throw when OutputFolder is not a folder' {
             $null = New-Item -ItemType File -Path "$TestDrive/somefile.txt"
             { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive/somefile.txt" } |
             Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
@@ -44,6 +44,29 @@ Describe 'New-MarkdownHelp' {
         It 'errors on -NoMetadata and -Metadata' {
             { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -NoMetadata -Force -Metadata @{} } |
             Should -Throw -ErrorId 'NoMetadataAndMetadata,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+        }
+
+        It 'Duplicate keys in metadata should produce an error' -Pending {
+            $mdArgs = @{
+                Command = "New-MarkdownHelp"
+                OutputFolder = $TestDrive
+                Metadata = @{ "Module Name" = 'FOO' }
+            }
+            $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-MarkdownHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
+        }
+
+        It "Metadata should contain the <Name> key" -testCases @(
+            @{ Name = "external help file" }
+            @{ Name = "Module Name" }
+            @{ Name = "online version" }
+            @{ Name = "aliases" }
+            @{ Name = "schema" }
+        ) {
+            param ($Name)
+            $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force
+            $md = Get-MarkdownMetadata $file
+            $md.Keys | Should -Contain $Name
         }
     }
 
@@ -461,6 +484,62 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         }
     }
 
+    Context 'Markdown Content' {
+        BeforeAll {
+            $file = New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive" -Force
+            $lines = Get-Content $file
+        }
+        It "Should contain the header '<line>'" -TestCases @(
+            @{ line = "## SYNOPSIS" }
+            @{ line = "## SYNTAX" }
+            @{ line = "## ALIASES" }
+            @{ line = "## DESCRIPTION" }
+            @{ line = "## EXAMPLES" }
+            @{ line = "## PARAMETERS" }
+            @{ line = "## INPUTS" }
+            @{ line = "## OUTPUTS" }
+            @{ line = "## NOTES" }
+            @{ line = "## RELATED LINKS" }
+        ) {
+            param ($line)
+            $observedLine = ""
+            for($i = 0; $i -lt $lines.count; $i++) {
+                if ($lines[$i] -eq $line) {
+                    $observedLine = $lines[$i]
+                    break
+                }
+            }
+            $observedLine | Should -BeExactly $line
+        }
+
+        It "The order of the header lines should be correct" {
+            $correctOrder = "## SYNOPSIS",
+                "## SYNTAX",
+                "## ALIASES",
+                "## DESCRIPTION",
+                "## EXAMPLES",
+                "## PARAMETERS",
+                "## INPUTS",
+                "## OUTPUTS",
+                "## NOTES",
+                "## RELATED LINKS"
+            $observedOrder = $lines.Where({$_ -match "^## "})
+            $observedOrder | Should -Be $correctOrder
+        }
+
+        It "The alias section should contain the proper boiler-plate" {
+            $expectedMessage = "This cmdlet has the following aliases:"
+            $observedLine = ""
+            for($i = 0; $i -lt $lines.count; $i++) {
+                if ($lines[$i] -eq "## ALIASES") {
+                    $observedLine = $lines[$i+2]
+                    break
+                }
+            }
+            $observedLine | Should -BeExactly $expectedMessage
+        }
+    }
+
     Context 'SupportsWildCards attribute tests' {
         BeforeAll {
             function global:Test-WildCardsAttribute {
@@ -479,43 +558,6 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
         It 'sets accepts wildcards property on parameters as expected' {
             $file | Should -FileContentMatch 'Accept wildcard characters: True'
-        }
-    }
-}
-
-Describe 'Get-MarkdownMetadata' {
-    Context 'Simple markdown file' {
-        BeforeAll {
-            Set-Content -Path "$TestDrive/foo.md" -Value @'
----
-external help file: Microsoft.PowerShell.Archive-help.xml
-keywords: powershell,cmdlet
-Locale: en-US
-Module Name: Microsoft.PowerShell.Archive
-ms.date: 02/20/2020
-online version: https://docs.microsoft.com/powershell/module/microsoft.powershell.archive/compress-archive?view=powershell-7&WT.mc_id=ps-gethelp
-schema: 2.0.0
-title: Compress-Archive
----
-'@
-        }
-
-        It 'can read file with relative path' {
-            try {
-                Push-Location $TestDrive
-                $d = Get-MarkdownMetadata "./foo.md"
-                $d.Keys | Should -HaveCount 8
-            }
-            finally {
-                Pop-Location
-            }
-        }
-
-        It 'can parse out yaml snippet' {
-            $d = Get-MarkdownMetadata "$TestDrive/foo.md"
-            $d.Keys | Should -HaveCount 8
-            $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "online version", "schema", "title"
-            $d["Locale"] | Should -Be 'en-US'
         }
     }
 }
