@@ -102,27 +102,27 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal void WriteHeader(string moduleName, string locale, string moduleGuid)
         {
-            sb.AppendLine(Constants.YmlHeader);
+            sb.AppendLine(Constants.YamlHeader);
             sb.AppendFormat(Constants.ModuleNameHeaderTemplate, moduleName);
             sb.AppendLine();
             sb.AppendFormat(Constants.ModuleGuidHeaderTemplate, moduleGuid);
             sb.AppendLine();
-            sb.Append(Constants.DownladHelpLinkTitle);
+            sb.Append(Constants.DownloadHelpLinkTitle);
             sb.AppendLine(Constants.FillDownloadHelpLink);
             sb.Append(Constants.HelpVersionTitle);
             sb.AppendLine(Constants.FillHelpVersion);
             sb.AppendFormat(Constants.LocaleTemplate, locale);
             sb.AppendLine();
-            sb.AppendLine(Constants.YmlHeader);
+            sb.AppendLine(Constants.YamlHeader);
         }
 
         internal void WriteModuleBlock(string moduleName)
         {
-            sb.AppendFormat(Constants.ModulePageModuleNameHeaderTemplate, moduleName);
+            sb.AppendFormat(Constants.yamlModulePageModuleNameHeaderTemplate, moduleName);
             sb.AppendLine();
             sb.AppendLine();
 
-            sb.AppendLine(Constants.ModulePageDescriptionHeader);
+            sb.AppendLine(Constants.yamlModulePageDescriptionHeader);
             sb.AppendLine();
             sb.AppendLine(Constants.FillInDescription);
             sb.AppendLine();
@@ -132,7 +132,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
         {
             foreach (var command in commandNames)
             {
-                sb.AppendFormat(Constants.ModulePageCmdletLinkTemplate, command, $"{command}.md");
+                sb.AppendFormat(Constants.yamlModulePageCmdletLinkTemplate, command, $"{command}.md");
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(Constants.FillInDescription);

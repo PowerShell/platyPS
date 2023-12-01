@@ -13,7 +13,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     internal class InputOutput
     {
         // tuple<typename, description>
-        private List<(string, string)> _inputOutputItems;
+        internal List<(string, string)> _inputOutputItems;
 
         public InputOutput()
         {
@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _inputOutputItems.Add((typeName, description));
         }
 
-        internal string ToInputOutputString()
+        internal string ToInputOutputString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
@@ -33,7 +33,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 foreach (var item in _inputOutputItems)
                 {
-                    sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
+                    // sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
+                    sb.AppendFormat(fmt, item.Item1);
                     sb.AppendLine();
                     sb.AppendLine();
                     sb.AppendLine(item.Item2);

@@ -22,13 +22,14 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Remarks = remarks;
         }
 
-        internal string ToExampleItemString(int serialNumber)
+        internal string ToExampleItemString(string fmt, int serialNumber)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
             try
             {
-                sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
+                // sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
+                sb.AppendFormat(fmt, serialNumber, Title);
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(Constants.CodeBlock);

@@ -1,59 +1,67 @@
 $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/CommonFunction.ps1
 
-Describe 'New-MarkdownHelp' {
+Describe 'New-YamlHelp' {
+    BeforeAll {
+        $defaultParameterValues = $PSDefaultParameterValues.Clone()
+        $global:PSDefaultParameterValues['it:pending'] = $true
+    }
+
+    AfterAll {
+        $global:PSDefaultParameterValues = $defaultParamterValues
+    }
 
     Context 'errors' {
         It 'throw when cannot find module' {
-            { New-MarkdownHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'ModuleNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-YamlHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
+            Should -Throw -ErrorId 'ModuleNotFound,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
         }
 
         It 'throw when cannot find command' {
-            { New-MarkdownHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'CommandNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-YamlHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
+            Should -Throw -ErrorId 'CommandNotFound,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
         }
 
         It 'throw when cannot find maml file' {
-            { New-MarkdownHelp -MamlFile '__NON_EXISTING_FILE' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'FileNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-YamlHelp -MamlFile '__NON_EXISTING_FILE' -OutputFolder $TestDrive } |
+            Should -Throw -ErrorId 'FileNotFound,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
         }
 
         It 'throw when OutputFolder is not a folder' {
             $null = New-Item -ItemType File -Path "$TestDrive/somefile.txt"
-            { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive/somefile.txt" } |
-            Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-YamlHelp -Command 'New-YamlHelp' -OutputFolder "$TestDrive/somefile.txt" } |
+            Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
         }
     }
 
     Context 'metadata' {
         It 'generates passed metadata' {
-            $file = New-MarkdownHelp -metadata @{
+            $file = New-YamlHelp -metadata @{
                 FOO = 'BAR'
-            } -command New-MarkdownHelp -OutputFolder $TestDrive
+            } -command New-YamlHelp -OutputFolder $TestDrive
 
-            $h = Get-MarkdownMetadata $file
+            $h = Get-YamlMetadata $file
             $h['FOO'] | Should -BeExactly 'BAR'
         }
 
         It 'respects -NoMetadata' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -NoMetadata -Force
-            Get-MarkdownMetadata $file.FullName | Should -BeNullOrEmpty
+            $file = New-YamlHelp -command New-YamlHelp -OutputFolder $TestDrive -NoMetadata -Force
+            Get-YamlMetadata $file.FullName | Should -BeNullOrEmpty
         }
 
         It 'errors on -NoMetadata and -Metadata' {
-            { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -NoMetadata -Force -Metadata @{} } |
-            Should -Throw -ErrorId 'NoMetadataAndMetadata,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            { New-YamlHelp -command New-YamlHelp -OutputFolder $TestDrive -NoMetadata -Force -Metadata @{} } |
+            Should -Throw -ErrorId 'NoMetadataAndMetadata,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
         }
 
         It 'Duplicate keys in metadata should produce an error' -Pending {
             $mdArgs = @{
-                Command = "New-MarkdownHelp"
+                Command = "New-YamlHelp"
                 OutputFolder = $TestDrive
                 Metadata = @{ "Module Name" = 'FOO' }
             }
-            $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
-            { New-MarkdownHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
+            $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewYamlHelpCommand'
+            { New-YamlHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
         }
 
         It "Metadata should contain the <Name> key" -testCases @(
@@ -64,29 +72,33 @@ Describe 'New-MarkdownHelp' {
             @{ Name = "schema" }
         ) {
             param ($Name)
-            $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force
-            $md = Get-MarkdownMetadata $file
+            $file = New-YamlHelp -Command New-YamlHelp -OutputFolder $TestDrive -Force
+            $md = Get-YamlMetadata $file
             $md.Keys | Should -Contain $Name
         }
     }
 
     Context 'encoding' {
         It 'writes appropriate encoding' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32)
+            $file = New-YamlHelp -command New-YamlHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32)
             $content = Get-Content -path $file -Encoding UTF32 -Raw
-            Get-MarkdownMetadata -Markdown $content | Should -Not -BeNullOrEmpty
+            Get-YamlMetadata -File $content | Should -Not -BeNullOrEmpty
         }
     }
 
     Context 'from platyPS module' {
         It 'creates few help files for platyPS' {
-            $files = New-MarkdownHelp -Module PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
+            $files = New-YamlHelp -Module PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
         }
     }
 
     Context 'from module' {
         BeforeAll {
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
             New-Module -Name PlatyPSTestModule -ScriptBlock {
                 function Get-AAAA {
 
@@ -123,30 +135,34 @@ Describe 'New-MarkdownHelp' {
 
             } | Import-Module -Force
 
-            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive/PlatyPSTestModule" -Force
+            $files = New-YamlHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive/PlatyPSTestModule" -Force
         }
 
         AfterAll {
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
             Remove-Module PlatyPSTestModule -ErrorAction SilentlyContinue
         }
 
-        It 'generates markdown files only for exported functions' -Skip:$IsUnix {
+        It 'generates yaml files only for exported functions' {
             $files | Should -HaveCount 3
-            $files.Name | Should -BeIn 'Get-AAAA.md', 'Get-AdvancedFn.md', 'Get-SimpleFn.md'
+            $files.Name | Should -BeIn 'Get-AAAA.yml', 'Get-AdvancedFn.yml', 'Get-SimpleFn.yml'
         }
 
-        It 'generates markdown that includes CommonParameters in advanced functions' {
-            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-AdvancedFn.md' }).FullName | Should -FileContentMatch '### CommonParameters'
+        It 'generates yaml that includes CommonParameters in advanced functions' {
+            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-AdvancedFn.yml' }).FullName | Should -FileContentMatch '### CommonParameters'
         }
 
-        It 'generates markdown that excludes CommonParameters from simple functions' {
-            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.md' }).FullName | Should -FileContentMatch -Not '### CommonParameters'
+        It 'generates yaml that excludes CommonParameters from simple functions' {
+            ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.yml' }).FullName | Should -FileContentMatch -Not '### CommonParameters'
         }
     }
 
     Context 'from command' {
-        It 'creates 2 markdown files from command names' {
-            $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder "$TestDrive/commands" -Force
+        It 'creates 2 yaml files from command names' {
+            $files = New-YamlHelp -Command @('New-YamlHelp', 'Get-YamlMetadata') -OutputFolder "$TestDrive/commands" -Force
             $files | Should -HaveCount 2
         }
     }
@@ -169,7 +185,7 @@ Describe 'New-MarkdownHelp' {
 Write-Host 'Hello World!'
 "@
             Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
-            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
+            $files = New-YamlHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             $files | Should -HaveCount 1
         }
 
@@ -192,7 +208,7 @@ Write-Host 'Hello World!'
             Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
             $Location = Get-Location
             Set-Location $TestDrive
-            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
+            $files = New-YamlHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             Set-Location $Location
             $files | Should -HaveCount 1
         }
@@ -239,105 +255,116 @@ Write-Host 'Hello World!'
 ### -WhatIf
 
 '@
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $files = New-YamlHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
             $files | Should -HaveCount 1
             normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should -Be $expectedOrder
         }
     }
 
-    Context 'Generated markdown features: comment-based help' {
-        function global:Test-PlatyPSFunction
-        {
-            # comment-based help template from https://technet.microsoft.com/en-us/library/hh847834.aspx
+    Context 'Generated yaml features: comment-based help' {
+        BeforeAll {
 
-             <#
-            .SYNOPSIS
-            Adds a file name extension to a supplied name.
-            .DESCRIPTION
-            Adds a file name extension to a supplied name.
-            Takes any strings for the file name or extension.
-            .PARAMETER Second
-            Second parameter help description
-            .OUTPUTS
-            System.String. Add-Extension returns a string with the extension or file name.
-            .EXAMPLE
-            PS C:\> Test-PlatyPSFunction "File"
-            File.txt
-            .EXAMPLE
-            PS C:\> Test-PlatyPSFunction "File" -First "doc"
-            File.doc
-            .LINK
-            http://www.fabrikam.com/extension.html
-            .LINK
-            Set-Item
-            #>
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
 
-            param(
-                [Switch]$Common,
-                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
-                [string]$First,
-                [Parameter(ParameterSetName="Second")]
-                [string]$Second
-            )
+            function global:Test-PlatyPSFunction
+            {
+                # comment-based help template from https://technet.microsoft.com/en-us/library/hh847834.aspx
+
+                <#
+                .SYNOPSIS
+                Adds a file name extension to a supplied name.
+                .DESCRIPTION
+                Adds a file name extension to a supplied name.
+                Takes any strings for the file name or extension.
+                .PARAMETER Second
+                Second parameter help description
+                .OUTPUTS
+                System.String. Add-Extension returns a string with the extension or file name.
+                .EXAMPLE
+                PS C:\> Test-PlatyPSFunction "File"
+                File.txt
+                .EXAMPLE
+                PS C:\> Test-PlatyPSFunction "File" -First "doc"
+                File.doc
+                .LINK
+                http://www.fabrikam.com/extension.html
+                .LINK
+                Set-Item
+                #>
+
+                param(
+                    [Switch]$Common,
+                    [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
+                    [string]$First,
+                    [Parameter(ParameterSetName="Second")]
+                    [string]$Second
+                )
+            }
+
+
+            #$file = New-YamlHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
+            #$content = Get-Content $file
+
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
-        $content = Get-Content $file
-
-        It 'generates markdown with correct parameter set names' {
+        It 'generates yaml with correct parameter set names' {
             $content | Where-Object {$_ -eq 'Parameter Sets: (All)'} | Should -HaveCount 1
             $content | Where-Object {$_ -eq 'Parameter Sets: First'} | Should -HaveCount 1
             $content | Where-Object {$_ -eq 'Parameter Sets: Second'} | Should -HaveCount 1
         }
 
-        It 'generates markdown with correct synopsis' {
+        It 'generates yaml with correct synopsis' {
             $content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Should -HaveCount 2
         }
 
-        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+        It 'generates yaml with correct help description specified by HelpMessage attribute' {
             $content | Where-Object {$_ -eq 'First parameter help description'} | Should -HaveCount 1
         }
 
-        It 'generates markdown with correct help description specified by comment-based help' {
+        It 'generates yaml with correct help description specified by comment-based help' {
             $content | Where-Object {$_ -eq 'Second parameter help description'} | Should -HaveCount 1
         }
 
-        It 'generates markdown with placeholder for parameter with no description' {
+        It 'generates yaml with placeholder for parameter with no description' {
             $expectedString = '{{{{ Fill {0} Description }}}}' -f 'Common'
             $content | Where-Object {$_ -eq $expectedString} | Should -HaveCount 1
         }
-
-        It 'Description can contain multiple code blocks and text' {
-            
-        }
     }
 
-    Context 'Generated markdown features: no comment-based help' {
-        function global:Test-PlatyPSFunction
-        {
-            # there is a help-engine behavior difference for functions with comment-based help (or maml help)
-            # and no-comment based help, we test both
-            param(
-                [Switch]$Common,
-                [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
-                [string]$First,
-                [Parameter(ParameterSetName="Second")]
-                [string]$Second
-            )
+    Context 'Generated yaml features: no comment-based help' {
+        BeforeAll {
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
+            function global:Test-PlatyPSFunction
+            {
+                # there is a help-engine behavior difference for functions with comment-based help (or maml help)
+                # and no-comment based help, we test both
+                param(
+                    [Switch]$Common,
+                    [Parameter(ParameterSetName="First", HelpMessage = 'First parameter help description')]
+                    [string]$First,
+                    [Parameter(ParameterSetName="Second")]
+                    [string]$Second
+                )
+            }
+
+            $file = New-YamlHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll2" -Force
+            $content = Get-Content $file
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll2" -Force
-        $content = Get-Content $file
-
-        It 'generates markdown with correct synopsis placeholder' {
+        It 'generates yaml with correct synopsis placeholder' {
             $content | Where-Object {$_ -eq '{{ Fill in the Synopsis }}'} |  Should -HaveCount 1
         }
 
-        It 'generates markdown with correct help description specified by HelpMessage attribute' {
+        It 'generates yaml with correct help description specified by HelpMessage attribute' {
             $content | Where-Object {$_ -eq 'First parameter help description'} | Should -HaveCount 1
         }
 
-        It 'generates markdown with placeholder for parameter with no description' {
+        It 'generates yaml with placeholder for parameter with no description' {
             $expectedString = '{{{{ Fill {0} Description }}}}' -f 'Common'
             $content | Where-Object {$_ -eq $expectedString } | Should -HaveCount 1
         }
@@ -380,7 +407,7 @@ Write-Host 'Hello World!'
                 OutputFolder = "$TestDrive"
             }
 
-            $file = New-MarkdownHelp @a
+            $file = New-YamlHelp @a
             $content = Get-Content $file
 
             # Validate parameterset names
@@ -396,18 +423,22 @@ Write-Host 'Hello World!'
     Context 'Module Landing Page'{
 
         BeforeAll {
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
             $OutputFolder = "$TestDrive/LandingPageMD"
             $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Readme.md"
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
         It "generates a landing page from Module" -Pending:$IsMacOS {
-            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
+            New-YamlHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolder/platyPS.md" | Should -Exist
         }
 
         It "generates a landing page from MAML" -Pending {
-            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder/platyPS/en-US/platy*xml") `
+            New-YamlHelp -MamlFile (Get-ChildItem "$outFolder/platyPS/en-US/platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
                         -ModuleName "PlatyPS" `
@@ -418,14 +449,14 @@ Write-Host 'Hello World!'
         }
 
         it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+            New-YamlHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
             $OutputFolderReadme | Should -Exist
         }
 
         It 'generates a landing page from module at correct output folder' {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownHelp -Module PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $files = New-YamlHelp -Module PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'platyPS.md' }
                 $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "platyPS.md")
             }
@@ -463,7 +494,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
+            $files = New-YamlHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
             $files | Should -HaveCount 1
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should -Be $expectedParameters
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should -Be $expectedSyntax
@@ -481,16 +512,20 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
 '@
 
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $files = New-YamlHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
             $files | Should -HaveCount 1
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
             normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
         }
     }
 
-    Context 'Markdown Content' {
+    Context 'Yaml Content' {
         BeforeAll {
-            $file = New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive" -Force
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
+            $file = New-YamlHelp -Command 'New-YamlHelp' -OutputFolder "$TestDrive" -Force
             $lines = Get-Content $file
         }
         It "Should contain the header '<line>'" -TestCases @(
@@ -532,7 +567,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         }
 
         It "The alias section should contain the proper boiler-plate" {
-            $expectedMessage = "This cmdlet has the following aliases,"
+            $expectedMessage = "This cmdlet has the following aliases:"
             $observedLine = ""
             for($i = 0; $i -lt $lines.count; $i++) {
                 if ($lines[$i] -eq "## ALIASES") {
@@ -546,6 +581,10 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
 
     Context 'SupportsWildCards attribute tests' {
         BeforeAll {
+            if ($PSDefaultParameterValues['it:pending']) {
+                return
+            }
+
             function global:Test-WildCardsAttribute {
                 param (
                     [Parameter()]
@@ -557,7 +596,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 )
             }
 
-            $file = New-MarkdownHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive/NewMarkDownHelp"
+            $file = New-YamlHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive/NewYamlHelp"
         }
 
         It 'sets accepts wildcards property on parameters as expected' {

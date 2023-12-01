@@ -120,13 +120,14 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal string ToSyntaxString()
+        internal string ToSyntaxString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
             try
             {
-                sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
+                // sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
+                sb.AppendFormat(fmt, ParameterSetName);
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(Constants.CodeBlock);

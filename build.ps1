@@ -43,6 +43,9 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
 
         Push-Location "$PSScriptRoot/src"
         dotnet build --configuration $Configuration
+        if ($LASTEXITCODE -ne 0) {
+            throw "Build failure."
+        }
 
         $expectedBuildPath = "./bin/$Configuration/net462/"
         $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"

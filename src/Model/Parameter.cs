@@ -116,7 +116,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             ParameterSets.AddRange(values);
         }
 
-        internal string ToParameterString()
+        internal string ToParameterString(string fmt)
         {
             if (Constants.CommonParametersNames.Contains(Name))
             {
@@ -125,7 +125,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (AcceptedValues?.Count <= 0)
             {
-                return string.Format(Constants.ParameterYmlBlock,
+                return string.Format(Constants.mdParameterYamlBlock,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
                     Type,
@@ -141,7 +141,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
             else
             {
-                return string.Format(Constants.ParameterYmlBlockWithAcceptedValues,
+                return string.Format(fmt, // Constants.mdParameterYamlBlockWithAcceptedValues,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
                     Type,
