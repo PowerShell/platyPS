@@ -110,24 +110,46 @@ Dynamic: True
 Providers: Alias, Function
 Values from remaining args: False
 Do not show: False
+Is credential: False
+Is obsolete: False
 Release status: Feature Preview
 ```
 ~~~
+
+Notes
+
+- Values for most items should be obtained by reflection.
+- Provider information will have to be tested individually based on the currently loaded providers.
+- The `Default value` should be obtained by reflection, if possible.
+  - The default value for **SwitchParameter** types should be `False`.
+- If possible, the `Parameter sets` and `Providers` values should be simplified to show `(All)` when
+  the value is the same for all parameter sets or providers.
 
 New metadata
 
 - `Dynamic`
   - Type: boolean
+    -  Obtained by reflection of parameter attributes
   - Required
 - `Providers`
   - Type: string containing one or more provider names (comma-separated)
   - Optional - expected when `Dynamic` is true
 - `Values from remaining args`
   - Type: boolean
+    -  Obtained by reflection of parameter attributes
   - Required
 - `Do not show`
   - Type: boolean
+    -  Obtained by reflection of parameter attributes
   - Required
+- `Is credential`
+  - Type: boolean
+    -  Obtained by reflection of parameter attributes
+  - Required
+- `Is obsolete`
+  - Type: boolean
+    -  Obtained by reflection of parameter attributes
+    - Required
 - `Release status`
   - Type: string representation of one enum value from:
     - 'Preview' - typically not used for parameters
@@ -150,11 +172,7 @@ is difficult to discover, so don't need `*-MarkdownHelp` cmdlets to create it bu
 to support it. The author can add the information to the YAML frontmatter. For example:
 
 ```yaml
-aliases:
-  all: [dir, gci]
-  windows: [ls]
-  macOS:
-  linux:
+aliases: [dir, gci, ls]
 ```
 
 Add new H2 for documenting aliases.
