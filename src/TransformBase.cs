@@ -107,7 +107,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 param.DontShow = paramAttribInfo.DontShow;
                 param.Required = paramAttribInfo.Required;
-                param.PipelineInput = paramAttribInfo.PipelineInput;
+                param.PipelineInput = new PipelineInputInfo(paramAttribInfo.PipelineInput);
                 param.Globbing = paramAttribInfo.Globbing;
                 param.HelpMessage = paramAttribInfo.HelpMessage;
 
@@ -140,7 +140,6 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 Example exp = new(
                     Constants.Example1,
-                    Constants.FillInExampleCode,
                     Constants.FillInExampleDescription
                     );
                 examples.Add(exp);
@@ -161,7 +160,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         Example exp = new(
                             title,
-                            item.code.ToString(),
                             GetStringFromDescriptionArray(item.remarks)
                             );
 
@@ -293,7 +291,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 Constants.NoneString :
                 defaultValueFromHelp;
 
-            param.PipelineInput = paramInfo.ValueFromPipeline | paramInfo.ValueFromPipelineByPropertyName;
+            param.PipelineInput = new PipelineInputInfo(byValue: paramInfo.ValueFromPipeline, byPropertyName: paramInfo.ValueFromPipelineByPropertyName);
 
             return param;
         }

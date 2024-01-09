@@ -1,9 +1,9 @@
-using System.Collections.Specialized;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.Globalization;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
@@ -48,6 +48,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal List<Links>? RelatedLinks { get; private set; }
 
         internal bool HasCmdletBinding { get; set; }
+
+        internal bool HasWorkflowCommonParameters { get; set; }
 
         internal string? Notes { get; set; }
 

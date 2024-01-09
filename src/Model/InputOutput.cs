@@ -29,6 +29,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
+            if (_inputOutputItems.Count == 0)
+            {
+                return string.Empty;
+            }
+
             try
             {
                 foreach (var item in _inputOutputItems)
@@ -37,8 +42,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                     sb.AppendFormat(fmt, item.Item1);
                     sb.AppendLine();
                     sb.AppendLine();
-                    sb.AppendLine(item.Item2);
-                    sb.AppendLine();
+                    if (!string.IsNullOrEmpty(item.Item2))
+                    {
+                        sb.AppendLine(item.Item2);
+                        sb.AppendLine();
+                    }
                 }
 
                 // Remove the last new line

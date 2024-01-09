@@ -1,25 +1,23 @@
-using System.Reflection;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using Markdig.Extensions.CustomContainers;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
+using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections.Generic;
 using System.Collections;
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Drawing.Design;
 using System.IO;
 using System.Linq;
-using System.Management.Automation;
-using System.Management.Automation.Language;
-using System.Management.Automation.Runspaces;
 using System.Security.Cryptography;
 using System.Text;
 
@@ -27,25 +25,122 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     public class MarkdownConverter
     {
-        // convert the string we read to a dictionary
-        internal static OrderedDictionary ConvertTextToOrderedDictionary(string text)
+
+        /// <summary>
+        /// Create a CommandHelp object from a markdown file.
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns>A CommandHelp Object, but declared as object as the CommandHelp object is internal.</returns>
+		public static object GetCommandHelpFromMarkdownFile(string path)
+		{
+            var md = ParsedMarkdownContent.ParseFile(path);
+			return GetCommandHelpFromMarkdown(md);
+		}
+
+        /// <summary>
+        /// Validate a markdown file against the schema.
+        /// </summary>
+        /// <param name="path">The path of the markdown file.</param>
+        /// <param name="Issues">The list of findings found during validation. This will include passes and failures.</param>
+        /// <returns>boolean</returns>
+        public static bool ValidateMarkdownFile(string path, out List<string>Issues)
         {
-            OrderedDictionary od = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
-			char[] fieldSeparator = { ':' };
-            foreach(string s in text.Split(Constants.LineSplitter))
-            {
-                string[] kv = s.Split(fieldSeparator, 2, StringSplitOptions.None);
-                if (kv.Length == 2)
-                {
-                    od.Add(kv[0].Trim(), kv[1].Trim());
-                }
-            }
-            return od;
+            var md = ParsedMarkdownContent.ParseFile(path);
+            return ValidateMarkdown(md.Ast, out Issues);
         }
-            
+
+        /// <summary>
+        /// Create a CommandHelp markdown file from an existing markdown file.
+        /// </summary>
+        /// <param name="path">The path to the source markdown.</param>
+        /// <param name="destinationPath">The path to the target markdown file.</param>
+        public static void ExportMarkdown(string path, string destinationPath)
+        {
+            CommandHelp commandHelp = (CommandHelp)GetCommandHelpFromMarkdownFile(path);
+            var encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+            var settings = new CommandHelpWriterSettings(encoding, destinationPath);
+            var cmdWrt = new CommandHelpMarkdownWriter(settings);
+            cmdWrt.Write(commandHelp, false);
+        }
+
+        internal static string GetCommandNameFromMarkdown(ParsedMarkdownContent mc)
+        {
+            var idx = mc.FindHeader(1, string.Empty);
+            if(mc.Ast[idx] is HeadingBlock title)
+            {
+                return title?.Inline?.FirstChild?.ToString() ?? string.Empty;
+            }
+            return string.Empty;
+        }
+
+        internal static CommandHelp GetCommandHelpFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            /*
+            GetMetadataFromMarkdown
+            GetTitleFromMarkdown
+            GetSynopsisFromMarkdown // Not parsed
+            GetSyntaxFromMarkdown // Must be parsed
+            GetAliasesFromMarkdown // Not parsed, may not be present
+            GetDescriptionFromMarkdown // Not parsed
+            GetExamplesFromMarkdown // Must be parsed
+            GetParametersFromMarkdown // Must be parsed
+            GetInputsFromMarkdown // level 3 is an input type
+            GetOutputsFromMarkdown // level 3 is an output type
+            GetNotesFromMarkdown // Not parsed, may not be present
+            GetRelatedLinksFromMarkdown
+            */
+
+            CommandHelp commandHelp;
+
+            OrderedDictionary? metadata = GetMetadata(markdownContent.Ast);
+			string moduleName = metadata?["Module Name"] as string ?? string.Empty;
+            var commandName = GetCommandNameFromMarkdown(markdownContent);
+            if (commandName == string.Empty)
+            {
+                throw new InvalidDataException("commandName not found. markdown structure not according to schema.");
+            }
+            commandHelp = new CommandHelp(commandName, moduleName, cultureInfo: null);
+
+            commandHelp.Metadata = metadata;
+
+            commandHelp.HasCmdletBinding = GetCmdletBindingState(markdownContent);
+            commandHelp.HasWorkflowCommonParameters = GetWorkflowCommonParameterState(markdownContent);
+
+            commandHelp.Synopsis = GetSynopsisFromMarkdown(markdownContent);
+
+            commandHelp.Syntax?.AddRange(GetSyntaxFromMarkdown(markdownContent));
+
+            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent));
+
+            commandHelp.Description = GetDescriptionFromMarkdown(markdownContent);
+
+            commandHelp.Examples?.AddRange(GetExamplesFromMarkdown(markdownContent));
+
+            commandHelp.Parameters.AddRange(GetParametersFromMarkdown(markdownContent));
+
+            var commandInputs = GetInputsFromMarkdown(markdownContent);
+            if (commandInputs is not null)
+            {
+                commandHelp.Inputs?.Add(commandInputs);
+            }
+
+            var commandOutputs = GetOutputsFromMarkdown(markdownContent);
+            if (commandOutputs is not null)
+            {
+                commandHelp.Outputs?.Add(commandOutputs);
+            }
+
+            commandHelp.Notes = GetNotesFromMarkdown(markdownContent);
+
+            commandHelp.RelatedLinks?.AddRange(GetRelatedLinksFromMarkdown(markdownContent));
+
+            return commandHelp;
+
+        }
 
         internal static OrderedDictionary? GetMetadata(MarkdownDocument ast)
         {
+            // The metadata must be the first block in the markdown
             if (ast.Count < 2)
             {
                 return null;
@@ -65,165 +160,194 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-		public static object GetCommandHelpFromMarkdownFile(string path)
-		{
-			return GetCommandHelpFromMarkdown(File.ReadAllText(path));
-		}
-
-        internal static CommandHelp GetCommandHelpFromMarkdown(string fileContent)
+        // convert the string we read to an ordered dictionary
+        internal static OrderedDictionary ConvertTextToOrderedDictionary(string text)
         {
-            CommandHelp commandHelp;
-            var parsedMarkdownFile = new ParsedMarkdownContent(fileContent);
-
-            if (parsedMarkdownFile.Ast is null)
+            OrderedDictionary od = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
+			char[] fieldSeparator = { ':' };
+            foreach(string s in text.Split(Constants.LineSplitter))
             {
-                throw new ParseException("File content cannot be parsed as markdown");
-            }
-
-            if (! ValidateMarkdown(parsedMarkdownFile.Ast))
-            {
-                throw new ParseException("File content does not validate as command help markdown");
-            }
-
-            // Metadata
-            OrderedDictionary? metadata = GetMetadata(parsedMarkdownFile.Ast);
-			string moduleName;
-			if (metadata is not null) {
-				moduleName = (string)metadata["module Name"] ?? string.Empty;
-			}
-			else
-			{
-				moduleName = string.Empty;
-			}
-
-            #region Get Command Name
-
-            int titleHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, 1);
-
-            if (parsedMarkdownFile.Ast[titleHeaderIndex] is HeadingBlock title)
-            {
-                string? commandName = title?.Inline?.FirstChild?.ToString();
-
-                if (commandName is not null)
+                string[] kv = s.Split(fieldSeparator, 2, StringSplitOptions.None);
+                if (kv.Length == 2)
                 {
-                    commandHelp = new CommandHelp(commandName, moduleName, cultureInfo: null);
-                }
-                else
-                {
-                    throw new InvalidDataException("commandName not found. markdown structure not according to schema.");
+                    od.Add(kv[0].Trim(), kv[1].Trim());
                 }
             }
-            else
+
+            return od;
+        }
+
+        /// <summary>
+        /// Retrieve the related link information from the markdown
+        /// </summary>
+        /// <param name="markdownContent">The parsed markdown data.</param>
+        /// <returns>List<Links></returns>
+        internal static List<Links> GetRelatedLinksFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "RELATED LINKS");
+            if (start == -1 || markdownContent.Ast.Count <= start + 1)
             {
-                throw new InvalidDataException("markdown structure not according to schema.");
+                return new List<Links>();
             }
 
-            commandHelp.Metadata = metadata;
+            markdownContent.Seek(start);
+            var links = GetLinks(markdownContent);
+            return links;
+        }
 
-            #endregion
-
-            #region Get Synopsis
-
-            int synopsisHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "SYNOPSIS", startIndex: titleHeaderIndex + 1);
-            commandHelp.Synopsis = GetParagraphsTillNextHeader(parsedMarkdownFile.Ast, synopsisHeaderIndex + 1);
-
-            #endregion Get Synopsis
-
-            #region Get Syntax
-            int syntaxHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "SYNTAX", startIndex: synopsisHeaderIndex + 1);
-
-            int parameterSetIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 3, startIndex: synopsisHeaderIndex + 1);
-            int endParametersIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "DESCRIPTION", startIndex: parameterSetIndex + 1);
-            while(parameterSetIndex < endParametersIndex)
+        internal static string GetNotesFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "NOTES");
+            if (start == -1)
             {
-                if (parsedMarkdownFile.Ast[parameterSetIndex] is HeadingBlock parameterSet)
+                return string.Empty;
+            }
+            markdownContent.Seek(start);
+            var end = markdownContent.FindHeader(2, "RELATED LINKS");
+            // Notes may be blank, which means the NOTES header is followed by RELATED LINKS header
+            if (end - start == 1)
+            {
+                return string.Empty;
+            }
+
+            markdownContent.Take();
+            return markdownContent.GetStringFromAst(end);
+        }
+
+        internal static InputOutput? GetInputsFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "INPUTS");
+            if (start != -1)
+            {
+                markdownContent.Seek(start);
+                var inputOutput = GetInputOutput(markdownContent);
+                return inputOutput;
+            }
+            return null;
+        }
+
+        internal static InputOutput? GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "OUTPUTS");
+            if (start != -1)
+            {
+                markdownContent.Seek(start);
+                var inputOutput = GetInputOutput(markdownContent);
+                return inputOutput;
+            }
+            return null;
+        }
+
+        internal static Collection<Parameter> GetParametersFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "PARAMETERS");
+            var parameters = GetParameters(markdownContent, start + 1);
+            return parameters;
+        }
+
+        internal static Collection<Example> GetExamplesFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "EXAMPLES");
+            var examples = GetExamples(markdownContent, start + 1);
+            return examples;
+        }
+
+        internal static string GetDescriptionFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            markdownContent.Reset();
+            var start = markdownContent.FindHeader(2, "DESCRIPTION");
+            markdownContent.Seek(start);
+            markdownContent.Take();
+            var end = markdownContent.FindHeader(2, string.Empty);
+            return markdownContent.GetStringFromAst(end);
+        }
+
+        internal static List<SyntaxItem> GetSyntaxFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            var start = markdownContent.FindHeader(2, "SYNTAX");
+            markdownContent.Seek(start);
+            var end   = markdownContent.FindHeader(2, string.Empty);
+            var syntax = new List<SyntaxItem>();
+
+            // Some markdown does not have a SYNTAX with a parameter set, so we should synthesize one
+            // We will also mark this as having cmdlet binding.
+            var subHeaderOffset = markdownContent.FindHeader(3, string.Empty);
+            if (subHeaderOffset > end)
+            {
+                if (markdownContent.Peek() is FencedCodeBlock fcb)
                 {
-                    string parameterSetName = GetParameterSetName(parameterSet);
+                    var rawSyntax = fcb.Lines.ToString();
+                    var syntaxLine = rawSyntax.Replace("[<CommonParameters>]", string.Empty).Trim();
+                    syntax.Add(new SyntaxItem(syntaxLine.Trim(), "Default", true));
+                }
+                return syntax;
+            }
+
+            while(markdownContent.CurrentIndex < end)
+            {
+                var individualSyntaxStart = markdownContent.FindHeader(3, string.Empty);
+                if (individualSyntaxStart == -1 || individualSyntaxStart > end)
+                {
+                    break;
+                }
+
+                markdownContent.Seek(individualSyntaxStart);
+                if (markdownContent.Take() is HeadingBlock syntaxBlock)
+                {
+                    string parameterSetName = GetParameterSetName(syntaxBlock);
                     bool isDefault = parameterSetName.EndsWith("(default)", StringComparison.OrdinalIgnoreCase);
-                    string syntaxLine = string.Empty;
-
-                    if (parsedMarkdownFile.Ast[parameterSetIndex + 1] is FencedCodeBlock fcb)
+                    if (isDefault)
                     {
-                        syntaxLine = fcb.Lines.ToString();
+                        parameterSetName = parameterSetName.Replace("(Default)", string.Empty).Trim();
                     }
 
-                    commandHelp.Syntax.Add(new SyntaxItem(parameterSetName, syntaxLine, isDefault));
+                    string syntaxLine = string.Empty;
+                    if (markdownContent.GetCurrent() is FencedCodeBlock fcb)
+                    {
+                        var rawSyntax = fcb.Lines.ToString();
+                        // we don't need to keep CommonParameters here, as we will add it back as part of the writing process.
+                        syntaxLine = rawSyntax.Replace("[<CommonParameters>]", string.Empty).Trim();
+                        // no take - the next findheader should move us forward
+                        // markdownContent.Take();
+                    }
+
+                    syntax.Add(new SyntaxItem(syntaxLine.Trim(), parameterSetName.Trim(), isDefault));
                 }
+                // Else Unget????
 
-                parameterSetIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 3, startIndex: parameterSetIndex + 1);
             }
-            #endregion Get Syntax
 
-            #region Get Description
+            return syntax;
+        }
 
-            int descriptionHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "DESCRIPTION", startIndex: synopsisHeaderIndex + 1);
-            // commandHelp.Description = GetParagraphsTillNextHeader(parsedMarkdownFile.Ast, descriptionHeaderIndex + 1);
-            commandHelp.Description = GetLinesTillNextHeader(parsedMarkdownFile, 2, descriptionHeaderIndex + 1);
-
-            #endregion Get Description
-
-			#region Get Examples
-
-            int exampleHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "EXAMPLES");
-            var examples = GetExamples(parsedMarkdownFile.Ast, exampleHeaderIndex + 1);
-            commandHelp.Examples?.AddRange(examples);
-
-			#endregion
-
-            #region Get Parameters
-
-            int paramHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "PARAMETERS");
-            var parameters = GetParameters(parsedMarkdownFile, paramHeaderIndex + 1);
-            commandHelp.Parameters.AddRange(parameters);
-
-            #endregion
-
-			#region Get Aliases
-            int aliasHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "ALIASES");
-            if (aliasHeaderIndex != -1)
+        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            var start = markdownContent.FindHeader(2, "ALIASES");
+            if (start == -1)
             {
-                var aliases = GetAliases(parsedMarkdownFile.Ast, aliasHeaderIndex + 1);
-                commandHelp.Aliases?.AddRange(aliases);
+                return new List<string>();
             }
-			#endregion
+            return GetAliases(markdownContent.Ast, start + 1);
+        }
 
-			#region Get Inputs
-            int inputHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "INPUTS");
-            if (inputHeaderIndex != -1)
+        internal static string GetSynopsisFromMarkdown(ParsedMarkdownContent markdownContent)
+        {
+            var start = markdownContent.FindHeader(2, "SYNOPSIS");
+            markdownContent.Seek(start);
+            markdownContent.Take();
+            if (start == -1)
             {
-                var inputs = GetInputOutput(parsedMarkdownFile, inputHeaderIndex + 1);
-                commandHelp.Inputs?.Add(inputs);
+                return string.Empty;
             }
-			#endregion
-
-			#region Get Outputs
-            int outputHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "OUTPUTS");
-            if (outputHeaderIndex != -1)
-            {
-                var outputs = GetInputOutput(parsedMarkdownFile, outputHeaderIndex + 1);
-                commandHelp.Outputs?.Add(outputs);
-            }
-			#endregion
-
-			#region Get Notes
-            int noteHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "NOTES");
-            if (noteHeaderIndex != -1)
-            {
-                var notes = GetLinesTillNextHeader(parsedMarkdownFile, 2, noteHeaderIndex + 1);
-                commandHelp.Notes = notes;
-            }
-			#endregion
-
-			#region Get RelatedLinks
-            int linkHeaderIndex = GetNextHeaderIndex(parsedMarkdownFile.Ast, expectedHeaderLevel: 2, expectedHeaderTitle: "RELATED LINKS");
-            if (linkHeaderIndex != -1)
-            {
-                var links = GetLinks(parsedMarkdownFile.Ast, linkHeaderIndex + 1);
-                commandHelp.RelatedLinks?.AddRange(links);
-            }
-			#endregion
-
-            return commandHelp;
+            var end = markdownContent.FindHeader(2, "SYNTAX");
+            return markdownContent.GetStringFromAst(end);
         }
 
         internal static List<string> GetAliases(MarkdownDocument md, int startIndex)
@@ -253,32 +377,34 @@ namespace Microsoft.PowerShell.PlatyPS
             return aliases;
         }
 
-        internal static List<Links> GetLinks(MarkdownDocument md, int startIndex)
+        internal static List<Links> GetLinks(ParsedMarkdownContent md)
         {
             List<Links> links = new List<Links>();
 
-            while (md[startIndex] is not HeadingBlock)
+            if (md.GetCurrent() is HeadingBlock)
             {
-                if (md[startIndex] is ParagraphBlock pb)
+                md.Take();
+            }
+
+            while (md.GetCurrent() is ParagraphBlock pb)
+            {
+                var item = pb?.Inline?.FirstChild;
+
+                while (item != null)
                 {
-                    var item = pb?.Inline?.FirstChild;
-
-                    while (item != null)
+                    if (item is LinkInline link)
                     {
-                        if (item is LinkInline link)
+                        if (link is not null && link.Url is not null && link.FirstChild is not null)
                         {
-                            if (link is not null && link.Url is not null && link.FirstChild is not null)
-                            {
-                                links.Add(new Links(link.Url, link.FirstChild.ToString()));
-                            }
+                            links.Add(new Links(link.Url, link.FirstChild.ToString()));
                         }
-
-                        item = item.NextSibling;
                     }
+
+                    item = item.NextSibling;
                 }
 
-                startIndex++;
-                if (startIndex >= md.Count)
+                md.Take();
+                if (md.IsEnd())
                 {
                     break;
                 }
@@ -287,25 +413,45 @@ namespace Microsoft.PowerShell.PlatyPS
             return links;
         }
 
-        internal static InputOutput GetInputOutput(ParsedMarkdownContent md, int startIndex)
+        internal static InputOutput GetInputOutput(ParsedMarkdownContent md)
         {
             InputOutput ioList = new();
-
-            var nextSectionIndex = GetNextHeaderIndex(md.Ast, expectedHeaderLevel: 2, startIndex: startIndex);
-            var currentIndex = startIndex;
-            
-            for ( ;currentIndex < nextSectionIndex; currentIndex++)
+            if (md.GetCurrent() is HeadingBlock)
             {
-                string inputType = string.Empty;
-                if (md.Ast[currentIndex] is HeadingBlock inputOutputHeader)
+                md.Take();
+            }
+
+            // find the next major header
+            var nextSectionIndex = md.FindHeader(2, string.Empty);
+
+            string description;
+            while(md.CurrentIndex < nextSectionIndex)
+            {
+                if (md.GetCurrent() is HeadingBlock inputOutputHeader)
                 {
-                    inputType = inputOutputHeader?.Inline?.FirstChild?.ToString() ?? string.Empty;    
-                    currentIndex++;
-                    string description = GetLinesTillNextHeader(md, -1, currentIndex);
-                    ioList.AddInputOutputItem(inputType, description);
+                    string inputType = inputOutputHeader?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    md.Take();
+                    if (md.GetCurrent() is ParagraphBlock pBlock)
+                    {
+                        description = GetLinesTillNextHeader(md, -1, md.CurrentIndex).Trim();
+                        while(md.GetCurrent() is ParagraphBlock pBlock2)
+                        {
+                            md.Take();
+                        }
+                    }
+                    else
+                    {
+                        description = string.Empty;
+                    }
+
+                    ioList.AddInputOutputItem(inputType.Trim(), description.Trim());
+                }
+                else
+                {
+                    md.Take();
                 }
             }
-            
+
             return ioList;
         }
 
@@ -343,7 +489,6 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-
         internal static int GetNextHeaderIndex(MarkdownDocument md, int expectedHeaderLevel, string? expectedHeaderTitle = null, int startIndex = 0)
         {
             for (int i = startIndex; i < md.Count; i++)
@@ -376,15 +521,15 @@ namespace Microsoft.PowerShell.PlatyPS
             return -1;
         }
 
-        internal static Collection<Example> GetExamples(MarkdownDocument md, int startIndex)
+        internal static Collection<Example> GetExamples(ParsedMarkdownContent mdc, int startIndex)
         {
+            var md = mdc.Ast;
             var examples = new Collection<Example>();
             int endExampleIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 2, expectedHeaderTitle: "PARAMETERS", startIndex: startIndex);
             int currentIndex = startIndex;
             while (currentIndex < endExampleIndex)
             {
                 string exampleTitle = string.Empty;
-                string exampleCode = string.Empty;
                 string exampleDescription = string.Empty;
 
                 var exampleItemIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 3, startIndex: currentIndex);
@@ -398,24 +543,53 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
                     {
-                        exampleTitle = example;
+                        // example title with a number and a colon
+                        var exampleRegex1 = new System.Text.RegularExpressions.Regex(@"^Example\s+\d+[ :-]+\s");
+                        // no actual example title
+                        var exampleRegex2 = new System.Text.RegularExpressions.Regex(@"^Example\s+\d+[ :-]$");
+                        if (exampleRegex1.IsMatch(example))
+                        {
+                            exampleTitle = exampleRegex1.Replace(example, string.Empty).Trim();
+                        }
+                        else if (exampleRegex1.IsMatch(example))
+                        {
+                            exampleTitle = exampleRegex2.Replace(example, string.Empty).Trim();
+                        }
+                        else
+                        {
+                            exampleTitle = example.Trim();
+                        }
                     }
                 }
 
-                var exampleCodeBlock = GetParameterYamlBlock(md, exampleItemIndex + 1);
-
-                if (exampleCodeBlock != null)
-                {
-                    exampleCode = exampleCodeBlock.Lines.ToString();
-                }
-
-                exampleDescription = GetParagraphsTillNextHeader(md, exampleItemIndex + 1);
-
-                examples.Add(new Example(exampleTitle, exampleCode, exampleDescription));
-
+                exampleDescription = GetLinesTillNextHeader(mdc, expectedLevel: -1, startIndex: exampleItemIndex + 1).Trim();
+                examples.Add(new Example(exampleTitle, exampleDescription));
                 currentIndex = exampleItemIndex + 1;
             }
             return examples;
+        }
+
+        internal static string GetParameterDescription(ParsedMarkdownContent md, int startIndex, int endIndex)
+        {
+            StringBuilder? sb = null;
+            try
+            {
+                sb = Constants.StringBuilderPool.Get();
+                var startLine = md.Ast[startIndex].Line;
+                var endLine = md.Ast[endIndex].Line - 1;
+                for(int i = startLine; i < endLine; i++)
+                {
+                    sb.AppendLine(md.MarkdownLines[i]);
+                }
+                return sb.ToString().Trim();
+            }
+            finally
+            {
+                if (sb is not null)
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
+            }
         }
 
         internal static string GetParameterDescription(ParsedMarkdownContent md, int startIndex)
@@ -425,18 +599,19 @@ namespace Microsoft.PowerShell.PlatyPS
             try
             {
                 sb = Constants.StringBuilderPool.Get();
-                var descriptionIndex = md.Ast[startIndex + 1].Line;
+                var descriptionLine = md.Ast[startIndex + 1].Line;
                 int paramYamlBlockIndex = GetParameterYamlBlockIndex(md.Ast, startIndex + 1);
+                int paramYamlBlockLine = md.Ast[paramYamlBlockIndex].Line - 1;
                 if (paramYamlBlockIndex == -1)
                 {
                     return string.Empty;
                 }
-                startIndex++;
-                for(; descriptionIndex < paramYamlBlockIndex; descriptionIndex++)
+
+                for(; descriptionLine < paramYamlBlockLine; descriptionLine++)
                 {
-                    sb.AppendLine(md.MarkdownLines[descriptionIndex]);
+                    sb.AppendLine(md.MarkdownLines[descriptionLine]);
                 }
-                return sb.ToString();
+                return sb.ToString().Trim();
             }
             finally
             {
@@ -471,7 +646,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 var parameterItemIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 3, startIndex: currentIndex);
 
-                if (parameterItemIndex > nextHeaderLevel2)
+                if (parameterItemIndex > nextHeaderLevel2 || parameterItemIndex == -1)
                 {
                     break;
                 }
@@ -484,19 +659,32 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                 }
 
+                // Ignore CommonParameters, it's a property on the command and we have boilerplate for it.
                 if (string.Equals(parameterName, "CommonParameters", StringComparison.OrdinalIgnoreCase))
                 {
                     currentIndex = parameterItemIndex + 1;
                     continue;
                 }
 
-                string description = GetParameterDescription(markdownContent, parameterItemIndex);
+                // Ignore WorkflowCommonParameters, it's a property on the command and we have boilerplate for it.
+                if (string.Equals(parameterName, "WorkflowCommonParameters", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentIndex = parameterItemIndex + 1;
+                    continue;
+                }
 
-                var paramYamlBlock = GetParameterYamlBlock(md, parameterItemIndex + 1);
+                var yamlBlockIndex = GetNextCodeBlock(md, parameterItemIndex, "yaml");
+                // string description = GetParameterDescription(markdownContent, parameterItemIndex);
+                string description = GetParameterDescription(markdownContent, parameterItemIndex + 1, yamlBlockIndex);
+
+                var paramYamlBlock = GetParameterYamlBlock(md, parameterItemIndex + 1, language: "yaml");
 
                 if (paramYamlBlock != null)
                 {
                     var yamlBlock = paramYamlBlock.Lines.ToString();
+
+                    // yaml does not allow '*' to start a value, so we need to change the order here
+                    yamlBlock = yamlBlock.Replace(" * (all)","\"* (all)\"");
 
                     StringReader stringReader = new StringReader(yamlBlock);
                     var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().Build();
@@ -547,7 +735,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         if (metadataHeader.TryGetValue("Default value", out defaultValue) && defaultValue is string defaultValueStr)
                         {
-                            defaultValuesAsString = defaultValueStr.Trim();
+                            defaultValuesAsString = EscapeYamlValue(defaultValueStr.Trim());
                         }
 
                         if (metadataHeader.TryGetValue("Accept pipeline input", out acceptPipeline) && acceptPipeline is string acceptPipelineStr)
@@ -572,8 +760,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 parameter.Required = string.Equals(requiredAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
                 parameter.DefaultValue = string.IsNullOrEmpty(defaultValuesAsString) ? null : defaultValuesAsString;
                 parameter.Position = positionAsString;
-                parameter.PipelineInput = string.Equals(acceptedPipelineAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+                parameter.PipelineInput = new PipelineInputInfo(string.Equals(acceptedPipelineAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase));
                 parameter.Globbing = string.Equals(acceptWildCardAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+                parameter.Description = description;
 
                 parameters.Add(parameter);
 
@@ -581,6 +770,57 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return parameters;
+        }
+
+        internal static int GetNextCodeBlock(MarkdownDocument md, int startIndex, string language = "yaml")
+        {
+            for (int i = startIndex; i < md.Count; i++)
+            {
+                if (md[i] is FencedCodeBlock fcb && fcb.Info is not null && fcb.Info.Equals(language, StringComparison.OrdinalIgnoreCase))
+                {
+                    return i;
+                }
+            }
+
+            return -1;
+        }
+
+        // We need to ensure that when we write the yaml, we escape any values that need to be escaped.
+        internal static string EscapeYamlValue(string value)
+        {
+            // It has an embedded ": ", so we need to quote it
+            if (value.Contains(": ") || value.StartsWith(">>") || value.StartsWith("*") || value.Contains("]:"))
+            {
+                return $"\"{value}\"";
+            }
+
+            if (value.StartsWith("[") && ! value.EndsWith("]"))
+            {
+                return $"\"{value}\"";
+            }
+
+            return value;
+        }
+
+        // Look for the next header and return how many ast elements we need to skip to get to it.
+        internal static int PeekHeader(MarkdownDocument md, int currentIndex, int level, string title)
+        {
+            int i = currentIndex;
+            while (i < md.Count)
+            {
+                if (md[i] is HeadingBlock headerItem && headerItem.Level == level)
+                {
+                    if (string.Equals(headerItem?.Inline?.FirstChild?.ToString(), title, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return i - currentIndex;
+                    }
+                }
+
+                i++;
+            }
+
+            // there are no headers found
+            return -1;
         }
 
         internal static Collection<ParagraphBlock> GetParagraphsTillNextHeaderBlock(MarkdownDocument md, int startIndex)
@@ -622,13 +862,13 @@ namespace Microsoft.PowerShell.PlatyPS
             return -1;
         }
 
-        internal static FencedCodeBlock? GetParameterYamlBlock(MarkdownDocument md, int startIndex)
+        internal static FencedCodeBlock? GetParameterYamlBlock(MarkdownDocument md, int startIndex, string language = "yaml")
         {
             while (md[startIndex] is not HeadingBlock)
             {
                 if (md[startIndex] is FencedCodeBlock fencedCodeBlock)
                 {
-                    if (fencedCodeBlock.Info is not null && fencedCodeBlock.Info.StartsWith("yaml", StringComparison.OrdinalIgnoreCase))
+                    if (fencedCodeBlock.Info is not null && fencedCodeBlock.Info.StartsWith(language, StringComparison.OrdinalIgnoreCase))
                     {
                         return fencedCodeBlock;
                     }
@@ -727,8 +967,11 @@ namespace Microsoft.PowerShell.PlatyPS
             return line.TrimEnd('\r', '\n');
         }
 
-        internal static bool ValidateMarkdown(MarkdownDocument md)
+        internal static bool ValidateMarkdown(MarkdownDocument md, out List<string>Issues)
         {
+            List<string> foundIssues = new();
+            bool result = true;
+
             List<MarkdownElement> markdownElements = new List<MarkdownElement>();
             markdownElements.Add(new MarkdownElement("SYNOPSIS", 2));
             markdownElements.Add(new MarkdownElement("SYNTAX", 2));
@@ -739,9 +982,15 @@ namespace Microsoft.PowerShell.PlatyPS
             markdownElements.Add(new MarkdownElement("OUTPUTS", 2));
             markdownElements.Add(new MarkdownElement("NOTES", 2));
             markdownElements.Add(new MarkdownElement("RELATED LINKS", 2));
+
             if (md[0] is not Markdig.Syntax.ThematicBreakBlock)
             {
-                return false;
+                foundIssues.Add("FAIL: First element is not a thematic break");
+                result = false;
+            }
+            else
+            {
+                foundIssues.Add("PASS: First element is a thematic break");
             }
 
             int currentElement = 0;
@@ -750,39 +999,235 @@ namespace Microsoft.PowerShell.PlatyPS
                 var elementIndex = GetNextHeaderIndex(md, expectedHeaderLevel: element.Level, expectedHeaderTitle: element.Name, startIndex: currentElement + 1);
                 if (elementIndex == -1)
                 {
-                    return false;
+                    foundIssues.Add($"FAIL: {element.Name} not found.");
+                    result = false;
                 }
+                else
+                {
+                    foundIssues.Add($"PASS: {element.Name} found.");
+                }
+
                 if (elementIndex < currentElement)
                 {
-                    return false;
+                    foundIssues.Add($"FAIL: {element.Name} is out of order.");
+                    result = false;
                 }
+                else
+                {
+                    foundIssues.Add($"PASS: {element.Name} is in order.");
+                }
+
                 currentElement = elementIndex;
             }
-            return true;
+
+            Issues = foundIssues;
+            return result;
         }
 
+        internal static bool GetWorkflowCommonParameterState(ParsedMarkdownContent markdownContent)
+        {
+            return (markdownContent.FindHeader(3, "WorkflowCommonParameters") > -1);
+        }
+
+        internal static bool GetCmdletBindingState(ParsedMarkdownContent markdownContent)
+        {
+            return (markdownContent.FindHeader(3, "CommonParameters") > -1);
+        }
     }
 
     public class ParsedMarkdownContent
     {
         public List<string> MarkdownLines { get; set; }
         public MarkdownDocument Ast { get; set; }
+        public int CurrentIndex { get; set; }
+        public List<string> Errors { get; set; }
+        public List<string> Warnings { get; set; }
         public ParsedMarkdownContent(string fileContent)
         {
             MarkdownLines = new List<string>(fileContent.Replace("\r", "").Split(Constants.LineSplitter));
             Ast = Markdig.Markdown.Parse(fileContent);
+            CurrentIndex = 0;
+            Errors = new List<string>();
+            Warnings = new List<string>();
         }
+
+        public ParsedMarkdownContent(string[] lines)
+        {
+            MarkdownLines = new List<string>(lines);
+            Ast = Markdig.Markdown.Parse(string.Join("\n", lines));
+            CurrentIndex = 0;
+            Errors = new List<string>();
+            Warnings = new List<string>();
+        }
+
+        public static ParsedMarkdownContent ParseFile(string path)
+        {
+            return new ParsedMarkdownContent(File.ReadAllLines(path));
+        }
+
+        public void AddError(string error)
+        {
+            Errors.Add(error);
+        }
+
+        public void AddWarning(string warning)
+        {
+            Warnings.Add(warning);
+        }
+
+        public void UnGet()
+        {
+            if (CurrentIndex > 0)
+            {
+                CurrentIndex--;
+            }
+        }
+
+        public void Reset()
+        {
+            CurrentIndex = 0;
+        }
+
+        public int FindHeader(int level, string title)
+        {
+            for(int i = CurrentIndex+1; i < Ast.Count; i++)
+            {
+                if (Ast[i] is HeadingBlock headerItem && headerItem.Level == level)
+                {
+                    if (title == string.Empty)
+                    {
+                        return i;
+                    }
+                    else if (string.Equals(headerItem?.Inline?.FirstChild?.ToString(), title, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return i;
+                    }
+                }
+            }
+
+            return -1;
+        }
+
+        public bool IsEnd()
+        {
+            return CurrentIndex >= Ast.Count;
+        }
+
+        public object? Peek()
+        {
+            if (IsEnd())
+            {
+                return null;
+            }
+
+            return Ast[CurrentIndex+1];
+        }
+
+        public object GetCurrent()
+        {
+            return Ast[CurrentIndex];
+        }
+
+        public void Seek(int index)
+        {
+            CurrentIndex = index;
+        }
+
+        public object? Take()
+        {
+            if (IsEnd())
+            {
+                return null;
+            }
+
+            return Ast[CurrentIndex++];
+        }
+
+        public bool IsEmptyHeader(int Level)
+        {
+            var currentHeader = Ast[CurrentIndex] as HeadingBlock;
+            var nextHeader = Ast[CurrentIndex + 1] as HeadingBlock;
+            if (currentHeader is not null && nextHeader is not null)
+            {
+                if (currentHeader.Level == Level && nextHeader.Level == Level)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        public string GetStringFromAst(int endIndex)
+        {
+            if (endIndex <= CurrentIndex)
+            {
+                return string.Empty;
+            }
+
+            StringBuilder? sb = null;
+            try
+            {
+                sb = Constants.StringBuilderPool.Get();
+                int startLine = Ast[CurrentIndex].Line;
+                int endLine = Ast[endIndex].Line;
+                if (Ast[endIndex] is HeadingBlock)
+                {
+                    endLine--;
+                }
+
+                for(int i = startLine; i < endLine; i++)
+                {
+                    sb.AppendLine(MarkdownLines[i]);
+                }
+                return sb.ToString().Trim();
+            }
+            finally
+            {
+                if (sb is not null)
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
+            }
+        }
+
+        public string GetStringFromFile(int lineCount)
+        {
+            StringBuilder? sb = null;
+            try
+            {
+                sb = Constants.StringBuilderPool.Get();
+                int startLine = Ast[CurrentIndex].Line;
+                for(int i = startLine; i < startLine + lineCount; i++)
+                {
+                    sb.AppendLine(MarkdownLines[i]);
+                }
+
+                return sb.ToString();
+            }
+            finally
+            {
+                if (sb is not null)
+                {
+                    Constants.StringBuilderPool.Return(sb);
+                }
+            }
+        }
+
     }
 
     public class MarkdownElement
     {
+        // The public name of the element
         public string Name { get; set; }
+
+        // The level of the element
         public int Level { get; set; }
+
         public MarkdownElement(string name, int level)
         {
             Name = name;
             Level = level;
         }
-    
     }
 }

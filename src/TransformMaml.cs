@@ -214,7 +214,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 Example exp = new(
                     title,
-                    code,
                     remarks.ToString()
                     );
 
@@ -508,7 +507,7 @@ namespace Microsoft.PowerShell.PlatyPS
             parameter.Required = required;
             parameter.VariableLength = variableLength;
             parameter.Globbing = globbing;
-            parameter.PipelineInput = pipelineInput;
+            parameter.PipelineInput = new PipelineInputInfo(pipelineInput);
             parameter.Aliases = aliases;
 
             // need to go the end of command:parameter

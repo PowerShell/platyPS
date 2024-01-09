@@ -1,7 +1,19 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/CommonFunction.ps1
 
 Describe 'New-MarkdownHelp' {
+    BeforeAll {
+        $defaultMetadata = @{
+            "external help file" = (Get-Command New-MarkdownHelp).HelpFile
+            "Module Name" = (Get-Command New-MarkdownHelp).ModuleName
+            "online version" = "1.2.3"
+            aliases = "testalias"
+            schema = "2.0.0"
+        }
+    }
 
     Context 'errors' {
         It 'throw when cannot find module' {
@@ -28,9 +40,9 @@ Describe 'New-MarkdownHelp' {
 
     Context 'metadata' {
         It 'generates passed metadata' {
-            $file = New-MarkdownHelp -metadata @{
-                FOO = 'BAR'
-            } -command New-MarkdownHelp -OutputFolder $TestDrive
+            $customMetadata = $defaultMetadata
+            $customMetadata['FOO'] = 'BAR'
+            $file = New-MarkdownHelp -metadata $defaultMetadata -command New-MarkdownHelp -OutputFolder $TestDrive
 
             $h = Get-MarkdownMetadata $file
             $h['FOO'] | Should -BeExactly 'BAR'
@@ -64,7 +76,7 @@ Describe 'New-MarkdownHelp' {
             @{ Name = "schema" }
         ) {
             param ($Name)
-            $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force
+            $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force -Metadata $defaultMetadata
             $md = Get-MarkdownMetadata $file
             $md.Keys | Should -Contain $Name
         }
@@ -72,7 +84,7 @@ Describe 'New-MarkdownHelp' {
 
     Context 'encoding' {
         It 'writes appropriate encoding' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32)
+            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
             $content = Get-Content -path $file -Encoding UTF32 -Raw
             Get-MarkdownMetadata -Markdown $content | Should -Not -BeNullOrEmpty
         }

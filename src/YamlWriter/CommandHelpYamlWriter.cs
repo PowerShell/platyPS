@@ -1,5 +1,4 @@
-﻿using System.Runtime.CompilerServices;
-// Copyright (c) Microsoft Corporation.
+﻿// Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
 using System;
@@ -53,8 +52,6 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     sb.AppendFormat("  {0}: {1}", item.Key, item.Value);
                 }
             }
-
-            // sb.AppendLine(Constants.YamlHeader);
         }
 
         internal override void WriteTitle(CommandHelp help)
@@ -95,7 +92,6 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                                 }
                             }
                         }
-                        // sb.AppendLine("  " + item.ToSyntaxString(Constants.DefaultSyntaxYamlTemplate));
                     }
                     else
                     {
@@ -117,7 +113,6 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                                 }
                             }
                         }
-                        // sb.AppendLine("  " + item.ToSyntaxString(Constants.SyntaxYamlTemplate));
                     }
                 }
             }
@@ -154,14 +149,6 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 }
 
                 sb.AppendFormat("- title: 'Example {0}: {1}'\n", i+1, example.Title);
-                sb.AppendLine("  code: |-");
-                if (example.Code is not null)
-                {
-                    foreach(var line in example.Code.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
-                    {
-                        sb.AppendFormat("    {0}\n", line);
-                    }
-                }
                 sb.AppendLine("  description: |-");
                 if (example.Remarks is not null)
                 {
@@ -186,6 +173,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 foreach (Parameter param in help.Parameters)
                 {
                     /*
+                    The metadata that we write out for each parameter is:
                     name
                     type
                     description

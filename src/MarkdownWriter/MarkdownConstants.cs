@@ -20,6 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string mdExamplesHeader = "## EXAMPLES";
         internal const string mdParametersHeader = "## PARAMETERS";
         internal const string mdCommonParametersHeader = "### CommonParameters";
+        internal const string mdWorkflowCommonParametersHeader = "### WorkflowCommonParameters";
         internal const string mdInputsHeader = "## INPUTS";
         internal const string mdOutputsHeader = "## OUTPUTS";
         internal const string mdNotesHeader = "## NOTES";
@@ -53,7 +54,6 @@ Type: {2}
 Parameter Sets: {3}
 Aliases: {4}
 Accepted values: {5}
-
 Required: {6}
 Position: {7}
 Default value: {8}
@@ -70,7 +70,6 @@ DontShow: {11}
 Type: {2}
 Parameter Sets: {3}
 Aliases: {4}
-
 Required: {5}
 Position: {6}
 Default value: {7}

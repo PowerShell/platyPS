@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -11,14 +12,24 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     {
         internal static string GetCommonParametersMessage()
         {
-            return string.Format(Constants.CommonParametersFmt , string.Join(", ", Constants.CommonParametersNames));
+            List<string> paramWithDash = new();
+            foreach (string param in Constants.CommonParametersNames)
+            {
+                paramWithDash.Add($"-{param}");
+            }
+
+            return
+                ParagraphFormatHelper.FormatParagraph(
+                    string.Format(Constants.CommonParametersFmt, string.Join(", ", paramWithDash)),
+                    new ParagraphFormatSettings(){LineLength = 100}
+                );
         }
     }
 
     internal static partial class Constants
     {
         // This should probably be generated from the actual list of common parameters
-        internal const string CommonParametersFmt = "This cmdlet supports the common parameters: {0}. For more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
+        internal const string CommonParametersFmt = "This cmdlet supports the common parameters: {0}.\nFor more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
 /*
 ### CommonParameters
 
@@ -67,6 +78,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal static readonly StringBuilderPool StringBuilderPool = new StringBuilderPool();
 
         internal static readonly char[] LineSplitter = new char[] { '\r', '\n' };
+
+        internal static readonly string WorkflowCommonParametersMessage = "This cmdlet also supports workflow specific common parameters.\nFor information, see [about_WorkflowCommonParameters](../PSWorkflow/About/about_WorkflowCommonParameters.md).";
 
         internal static readonly char[] Comma = new char[] { ',' };
         internal static SortedSet<string> CommonParametersNames = new SortedSet<string>(StringComparer.OrdinalIgnoreCase)

@@ -39,19 +39,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
             sb.AppendLine(Constants.MarkdownMetadataHeader);
-            sb.AppendLine($"external help file: {help.ModuleName}-help.xml");
-            sb.AppendLine($"Module Name: {help.ModuleName}");
-            sb.AppendLine($"online version: {help.OnlineVersionUrl}");
-            if (help.Aliases is null)
+            if (help.Metadata is not null)
             {
-                sb.AppendLine(string.Format("aliases:"));
+                foreach (DictionaryEntry item in help.Metadata)
+                {
+                    sb.AppendFormat("{0}: {1}", item.Key, item.Value);
+                    sb.AppendLine();
+                }
             }
-            else
-            {
-                sb.AppendLine(string.Format("aliases: {0}", string.Join(", ", help.Aliases)));
-            }
-            sb.AppendLine(Constants.SchemaVersionMarkdown);
-
             if (metadata is not null)
             {
                 foreach (DictionaryEntry item in metadata)
@@ -60,7 +55,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                     sb.AppendLine();
                 }
             }
-
             sb.AppendLine(Constants.MarkdownMetadataHeader);
             sb.AppendLine();
         }
@@ -97,7 +91,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                         sb.AppendLine(item.ToSyntaxString(Constants.mdParameterSetHeaderTemplate));
                     }
                 }
-                sb.AppendLine();
+                // sb.AppendLine();
             }
         }
 
@@ -127,7 +121,8 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             for (int i = 0; i < totalExamples; i++)
             {
                 sb.Append(help?.Examples?[i].ToExampleItemString(Constants.mdExampleItemHeaderTemplate, i + 1));
-                sb.AppendLine();
+                sb.AppendLine(); // new line for ToExampleItemString
+                sb.AppendLine(); // new line after each example
             }
         }
 
@@ -151,15 +146,24 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                         sb.AppendLine();
                     }
                 }
-
-                if (help.HasCmdletBinding)
-                {
-                    sb.AppendLine(Constants.mdCommonParametersHeader);
-                    sb.AppendLine();
-                    sb.AppendLine(ConstantsHelper.GetCommonParametersMessage());
-                    sb.AppendLine();
-                }
             }
+
+            if (help.HasCmdletBinding)
+            {
+                sb.AppendLine(Constants.mdCommonParametersHeader);
+                sb.AppendLine();
+                sb.AppendLine(ConstantsHelper.GetCommonParametersMessage());
+                sb.AppendLine();
+            }
+
+            if (help.HasWorkflowCommonParameters)
+            {
+                sb.AppendLine(Constants.mdWorkflowCommonParametersHeader);
+                sb.AppendLine();
+                sb.AppendLine(Constants.WorkflowCommonParametersMessage);
+                sb.AppendLine();
+            }
+
         }
 
         internal override void WriteInputsOutputs(List<InputOutput> inputsoutputs, bool isInput)
@@ -182,8 +186,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
             foreach (var item in inputsoutputs)
             {
-                sb.Append(item.ToInputOutputString(Constants.mdNotesItemHeaderTemplate));
+                sb.AppendLine(item.ToInputOutputString(Constants.mdNotesItemHeaderTemplate));
                 sb.AppendLine();
+            }
+
+            // if we had any items, remove the last new line
+            if (inputsoutputs.Count != 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
             }
         }
 
@@ -191,8 +201,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.mdNotesHeader);
             sb.AppendLine();
-            sb.AppendLine(help.Notes);
-            sb.AppendLine();
+            if (! string.IsNullOrEmpty(help.Notes))
+            {
+                sb.AppendLine(help.Notes);
+                sb.AppendLine();
+            }
         }
 
         internal override void WriteRelatedLinks(CommandHelp help)
