@@ -62,23 +62,6 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
     }
 }
 elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
-
-    if ($IsWindows) {
-        try {
-            Import-Module -Name "$OutputDir/platyPS" -Force
-            $xunitTestRoot = "$PSScriptRoot/test/Microsoft.PowerShell.PlatyPS.Tests"
-            Write-Verbose "Executing XUnit tests under $xunitTestRoot" -Verbose
-            Push-Location $xunitTestRoot
-            dotnet test --test-adapter-path:. "--logger:xunit;LogFilePath=$XUnitLogPath"
-            if ($LASTEXITCODE -ne 0) {
-                throw "XUnit test failed"
-            }
-        }
-        finally {
-            Pop-Location
-        }
-    }
-
     $pesterTestRoot = "$PSScriptRoot/test/Pester"
     Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
