@@ -432,7 +432,7 @@ Write-Host 'Hello World!'
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
-        It "generates a landing page from Module" -Pending:$IsMacOS {
+        It "generates a landing page from Module" -Pending {
             New-YamlHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolder/platyPS.md" | Should -Exist
         }
