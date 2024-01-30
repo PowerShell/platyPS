@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the Yaml help files.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "YamlHelp", HelpUri = "https://go.microsoft.com/fwlink/?LinkID=2096483")]
+    [Cmdlet(VerbsCommon.New, "YamlHelp", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewYamlHelpCommand : PSCmdlet
     {
