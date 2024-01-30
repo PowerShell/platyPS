@@ -38,7 +38,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 foreach (var item in _inputOutputItems)
                 {
-                    // sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
                     sb.AppendFormat(fmt, item.Item1);
                     sb.AppendLine();
                     sb.AppendLine();

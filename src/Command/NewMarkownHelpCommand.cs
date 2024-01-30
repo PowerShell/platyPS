@@ -189,7 +189,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    WriteObject(cmdWrt.Write(cmdletHelp, NoMetadata, Metadata));
+                    WriteObject(cmdWrt.Write(cmdletHelp, Metadata));
                 }
 
                 if (WithModulePage)

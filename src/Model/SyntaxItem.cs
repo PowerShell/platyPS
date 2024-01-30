@@ -126,7 +126,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             try
             {
-                // sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
                 sb.AppendFormat(fmt, ParameterSetName);
                 sb.AppendLine();
                 sb.AppendLine();

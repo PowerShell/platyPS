@@ -3,6 +3,8 @@
 
 using System;
 using System.Text;
+using Microsoft.PowerShell.PlatyPS;
+using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -53,9 +55,8 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public static string FormatParagraph(string input, ParagraphFormatSettings settings)
         {
-            StringBuilder outputLine = new StringBuilder(); // used for formatting the entire paragraph
-            StringBuilder currentLine = new StringBuilder(); // used for the current line
-
+            var outputLine = Constants.StringBuilderPool.Get();
+            var currentLine = Constants.StringBuilderPool.Get();
 
             if (settings.Indentation > 0)
             {
@@ -86,7 +87,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 outputLine.Append(currentLine.ToString().TrimEnd());
             }
-            return outputLine.ToString();
+            
+            var outputLineString = outputLine.ToString();
+            Constants.StringBuilderPool.Return(currentLine);
+            Constants.StringBuilderPool.Return(outputLine);
+            return outputLineString;
         }
 
         /// <summary>

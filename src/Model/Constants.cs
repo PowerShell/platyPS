@@ -68,7 +68,6 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
         internal const string UnnamedParameterSetTemplate = "UNNAMED_PARAMETER_SET_{0}";
         internal const string FillDownloadHelpLink = "{{ Update Download Link}}";
-        // internal const string HelpVersionTitle = "Help Version: ";
         internal const string FillHelpVersion = "{{ Please enter version of help manually (X.X.X.X) format }}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
@@ -79,6 +78,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
         internal static readonly char[] LineSplitter = new char[] { '\r', '\n' };
 
+        // This is available only in Windows PowerShell 5.1 and not in PowerShell 7.
         internal static readonly string WorkflowCommonParametersMessage = "This cmdlet also supports workflow specific common parameters.\nFor information, see [about_WorkflowCommonParameters](../PSWorkflow/About/about_WorkflowCommonParameters.md).";
 
         internal static readonly char[] Comma = new char[] { ',' };
@@ -92,7 +92,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
             "OutBuffer",
             "OutVariable",
             "PipelineVariable",
-            "ProgressAction",
+            "ProgressAction", // TODO: This may need to be selectable based on the PowerShell version.
             "Verbose",
             "WarningAction",
             "WarningVariable"

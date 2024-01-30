@@ -61,7 +61,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteSynopsis(CommandHelp help)
         {
-            sb.AppendFormat("{0} '{1}'\n", Constants.SynopsisYamlHeader, help.Synopsis);
+            sb.AppendLine(string.Format("{0} '{1}'", Constants.SynopsisYamlHeader, help.Synopsis));
         }
 
         internal override void WriteSyntax(CommandHelp help)
@@ -83,11 +83,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                                 {
                                     if (line.StartsWith("-"))
                                     {
-                                        sb.AppendFormat("{0}\n", line);
+                                        sb.AppendLine(line);
                                     }
                                     else
                                     {
-                                        sb.AppendFormat("  {0}\n", line);
+                                        sb.AppendLine(string.Format("  {0}", line));
                                     }
                                 }
                             }
@@ -104,11 +104,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                                 {
                                     if (line.StartsWith("-"))
                                     {
-                                        sb.AppendFormat("{0}\n", line);
+                                        sb.AppendLine(line);
                                     }
                                     else
                                     {
-                                        sb.AppendFormat("  {0}\n", line);
+                                        sb.AppendLine(string.Format("  {0}", line));
                                     }
                                 }
                             }
@@ -125,7 +125,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             {
                 foreach(var line in help.Description.Split(Constants.LineSplitter))
                 {
-                    sb.AppendFormat("  {0}\n", line);
+                    sb.AppendLine(string.Format("  {0}", line));
                 }
             }
         }
@@ -148,13 +148,13 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     continue;
                 }
 
-                sb.AppendFormat("- title: 'Example {0}: {1}'\n", i+1, example.Title);
+                sb.AppendLine(string.Format("- title: 'Example {0}: {1}'", i+1, example.Title));
                 sb.AppendLine("  description: |-");
                 if (example.Remarks is not null)
                 {
                     foreach(var line in example.Remarks.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        sb.AppendFormat("    {0}\n", line?.Trim());
+                        sb.AppendLine(string.Format("    {0}", line?.Trim()));
                     }
                 }
                 sb.AppendLine("  summary: \"\"");
@@ -183,27 +183,27 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     aliases
                     parameterValueGroup
                     */
-                    sb.AppendFormat("- name: {0}\n", param.Name);
-                    sb.AppendFormat("  type: {0}\n", param.Type);
+                    sb.AppendLine(string.Format("- name: {0}", param.Name));
+                    sb.AppendLine(string.Format("  type: {0}", param.Type));
                     sb.AppendLine("  description: |+");
                     if (param.Description is not null)
                     {
                         foreach(var line in param.Description.Split(Constants.LineSplitter))
                         {
-                            sb.AppendFormat("    {0}\n", line);
+                            sb.AppendLine(string.Format("    {0}", line));
                         }
                     }
-                    sb.AppendFormat("  defaultValue: {0}\n", param.DefaultValue ?? "None");
-                    sb.AppendFormat("  pipelineInput: {0}\n", param.PipelineInput);
-                    sb.AppendFormat("  position: \"{0}\"\n", param.Position);
-                    sb.AppendFormat("  aliases: {0}\n", param.Aliases);
-                    sb.AppendFormat("  parameterValueGroup: \"{0}\"\n", string.Empty); // ????
+                    sb.AppendLine(string.Format("  defaultValue: {0}", param.DefaultValue ?? "None"));
+                    sb.AppendLine(string.Format("  pipelineInput: {0}", param.PipelineInput));
+                    sb.AppendLine(string.Format("  position: \"{0}\"", param.Position));
+                    sb.AppendLine(string.Format("  aliases: {0}", param.Aliases));
+                    sb.AppendLine(string.Format("  parameterValueGroup: \"{0}\"", string.Empty)); // ????
                 }
 
                 if (help.HasCmdletBinding)
                 {
                     sb.AppendLine(Constants.CommonParametersYamlHeader);
-                    sb.AppendFormat("  {0}\n", ConstantsHelper.GetCommonParametersMessage());
+                    sb.AppendLine(string.Format("  {0}", ConstantsHelper.GetCommonParametersMessage()));
                 }
             }
         }
@@ -228,11 +228,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             {
                 foreach(var item in inputoutput._inputOutputItems)
                 {
-                    sb.AppendFormat("- name: {0}\n", item.Item1);
+                    sb.AppendLine(string.Format("- name: {0}", item.Item1));
                     sb.AppendLine("  description: |-");
                     foreach(var line in item.Item2.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
                     {
-                        sb.AppendFormat("    {0}\n", line);
+                        sb.AppendLine(string.Format("    {0}", line));
                     }
                 }
             }
@@ -245,7 +245,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             {
                 foreach(var line in help.Notes.Split(Constants.LineSplitter))
                 {
-                    sb.AppendFormat("  {0}\n", line);
+                    sb.AppendLine(string.Format("  {0}", line));
                 }
             }
         }
@@ -257,8 +257,8 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             {
                 foreach (var link in help.RelatedLinks)
                 {
-                    sb.AppendFormat("- text: '{0}'\n", link.LinkText);
-                    sb.AppendFormat("  href: {0}\n", link.Uri);
+                    sb.AppendLine(string.Format("- text: '{0}'", link.LinkText));
+                    sb.AppendLine(string.Format("  href: {0}", link.Uri));
                 }
             }
             else

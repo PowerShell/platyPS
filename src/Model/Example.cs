@@ -27,7 +27,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             try
             {
-                // sb.AppendFormat(Constants.ExampleItemHeaderTemplate, serialNumber, Title);
                 sb.AppendFormat(fmt, serialNumber, Title);
                 sb.AppendLine();
 

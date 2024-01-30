@@ -33,15 +33,12 @@ namespace Microsoft.PowerShell.PlatyPS
         /// The file is overwritten and not appended as we do not expect more than one CommandHelp per file.
         /// </summary>
         /// <param name="help">CommandHelp object to write.</param>
-        /// <param name="noMetadata">Specify if the metadata header should be written.</param>
-        /// <param name="metadata">Additional metadata that is appended to the standard metadata header. If nometata is true, additional metadata is not written.</param>
+        /// <param name="metadata">Any additional metadata that is appended to the standard metadata header.</param>
         /// <returns>FileInfo object of the created file</returns>
-        internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
+        internal FileInfo Write(CommandHelp help, Hashtable? metadata = null)
         {
-            if (!noMetadata)
-            {
-                WriteMetadataHeader(help, metadata);
-            }
+            // Always write the metadata header first.
+            WriteMetadataHeader(help, metadata);
 
             WriteTitle(help);
 
@@ -57,12 +54,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
             WriteParameters(help);
 
-            if (help.Inputs != null)
+            if (help.Inputs is not null)
             {
                 WriteInputsOutputs(help.Inputs, isInput: true);
             }
 
-            if (help.Outputs != null)
+            if (help.Outputs is not null)
             {
                 WriteInputsOutputs(help.Outputs, isInput: false);
             }

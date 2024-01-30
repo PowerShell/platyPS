@@ -14,7 +14,7 @@ using Microsoft.PowerShell.PlatyPS.Model;
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
-    /// Get-YamlMetadata reads the YAML header from a markdown file and represents it as a Dictionary object.
+    /// Import a yaml command help file.
     /// </summary>
     [Cmdlet(VerbsData.Import, "YamlCommandHelp", HelpUri = "", DefaultParameterSetName = "FromPath")]
     [OutputType(typeof(Dictionary<object, object>))]
@@ -67,7 +67,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     foreach (var resolvedPath in resolvedPaths)
                     {
                         var result = yamlDeserializer?.Deserialize<object>(File.ReadAllText(resolvedPath.Path));
-                        // Convert to CommandHelp object
+                        // TODO: this should really be a CommandHelp object, but that has yet to be coded.
                         WriteObject(result);
                     }
                 }

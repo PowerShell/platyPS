@@ -60,7 +60,7 @@ namespace Microsoft.PowerShell.PlatyPS
             var encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
             var settings = new CommandHelpWriterSettings(encoding, destinationPath);
             var cmdWrt = new CommandHelpMarkdownWriter(settings);
-            cmdWrt.Write(commandHelp, false);
+            cmdWrt.Write(commandHelp, null);
         }
 
         internal static string GetCommandNameFromMarkdown(ParsedMarkdownContent mc)

@@ -182,6 +182,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 sb.AppendLine(Constants.mdOutputsHeader);
             }
+
             sb.AppendLine();
 
             foreach (var item in inputsoutputs)
@@ -201,6 +202,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.mdNotesHeader);
             sb.AppendLine();
+
             if (! string.IsNullOrEmpty(help.Notes))
             {
                 sb.AppendLine(help.Notes);
