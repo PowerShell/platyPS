@@ -36,7 +36,6 @@ FunctionsToExport = @()
 # Cmdlets to export from this module
 CmdletsToExport = @(
     'Get-MarkdownMetadata',
-    'Get-YamlMetadata',
     'New-MarkdownHelp',
     'New-YamlHelp',
     'Import-YamlCommandHelp'
