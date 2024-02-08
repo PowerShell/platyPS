@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
@@ -13,17 +14,13 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
     /// <summary>
     /// Write the CommandHelp object to a file in markdown format.
     /// </summary>
-    internal sealed class CommandHelpMarkdownWriter : IDisposable
+    internal class CommandHelpMarkdownWriter : CommandHelpWriterBase
     {
-        private readonly string _filePath;
-        private StringBuilder sb;
-        private readonly Encoding _encoding;
-
         /// <summary>
         /// Initialize the writer with settings.
         /// </summary>
         /// <param name="settings">Settings needs for the markdown writer.</param>
-        public CommandHelpMarkdownWriter(MarkdownWriterSettings settings)
+        internal CommandHelpMarkdownWriter(CommandHelpWriterSettings settings)
         {
             string path = settings.DestinationPath;
 
@@ -39,79 +36,17 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        /// <summary>
-        /// Write the CommandHelp object to the specified path in the the settings during initialization.
-        /// The file is overwritten and not appended as we do not expect more than one CommandHelp per file.
-        /// </summary>
-        /// <param name="help">CommandHelp object to write.</param>
-        /// <param name="noMetadata">Specify if the metadata header should be written.</param>
-        /// <param name="metadata">Additional metadata that is appended to the standard metadata header. If nometata is true, additional metadata is not written.</param>
-        /// <returns>FileInfo object of the created file</returns>
-        internal FileInfo Write(CommandHelp help, bool noMetadata, Hashtable? metadata = null)
+        internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
-            if (!noMetadata)
+            sb.AppendLine(Constants.MarkdownMetadataHeader);
+            if (help.Metadata is not null)
             {
-                WriteMetadataHeader(help, metadata);
-                sb.AppendLine();
+                foreach (DictionaryEntry item in help.Metadata)
+                {
+                    sb.AppendFormat("{0}: {1}", item.Key, item.Value);
+                    sb.AppendLine();
+                }
             }
-
-            WriteTitle(help);
-            sb.AppendLine();
-
-            WriteSynopsis(help);
-            sb.AppendLine();
-
-            // this adds an empty line after all parameters. So no AppendLine needed.
-            WriteSyntax(help);
-
-            WriteAliases(help);
-            sb.AppendLine();
-
-            WriteDescription(help);
-            sb.AppendLine();
-
-            WriteExamples(help);
-            sb.AppendLine();
-
-            WriteParameters(help);
-
-            if (help.Inputs != null)
-            {
-                WriteInputsOutputs(help.Inputs, Constants.InputsMdHeader);
-            }
-
-            if (help.Outputs != null)
-            {
-                WriteInputsOutputs(help.Outputs, Constants.OutputsMdHeader);
-            }
-
-            WriteNotes(help);
-
-            WriteRelatedLinks(help);
-
-            using StreamWriter mdFileWriter = new(_filePath, append: false, _encoding);
-
-            mdFileWriter.Write(sb.ToString());
-
-            return new FileInfo(_filePath);
-        }
-
-        private void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
-        {
-            sb.AppendLine(Constants.YmlHeader);
-            sb.AppendLine($"external help file: {help.ModuleName}-help.xml");
-            sb.AppendLine($"Module Name: {help.ModuleName}");
-            sb.AppendLine($"online version: {help.OnlineVersionUrl}");
-            if (help.Aliases is null)
-            {
-                sb.AppendLine(string.Format("aliases:"));
-            }
-            else
-            {
-                sb.AppendLine(string.Format("aliases: {0}", string.Join(", ", help.Aliases)));
-            }
-            sb.AppendLine(Constants.SchemaVersionYml);
-
             if (metadata is not null)
             {
                 foreach (DictionaryEntry item in metadata)
@@ -120,67 +55,80 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                     sb.AppendLine();
                 }
             }
-
-            sb.AppendLine(Constants.YmlHeader);
+            sb.AppendLine(Constants.MarkdownMetadataHeader);
+            sb.AppendLine();
         }
 
-        private void WriteTitle(CommandHelp help)
+        internal override void WriteTitle(CommandHelp help)
         {
             sb.AppendLine($"# {help.Title}");
+            sb.AppendLine();
         }
 
-        private void WriteSynopsis(CommandHelp help)
+        internal override void WriteSynopsis(CommandHelp help)
         {
-            sb.AppendLine(Constants.SynopsisMdHeader);
+            sb.AppendLine(Constants.mdSynopsisHeader);
             sb.AppendLine();
             sb.AppendLine(help.Synopsis);
+            sb.AppendLine();
         }
 
-        private void WriteSyntax(CommandHelp help)
+        internal override void WriteSyntax(CommandHelp help)
         {
-            sb.AppendLine(Constants.SyntaxMdHeader);
+            sb.AppendLine(Constants.mdSyntaxHeader);
             sb.AppendLine();
 
             if (help.Syntax?.Count > 0)
             {
                 foreach (SyntaxItem item in help.Syntax)
                 {
-                    sb.AppendLine(item.ToSyntaxString());
+                    if (item.IsDefaultParameterSet)
+                    {
+                        sb.AppendLine(item.ToSyntaxString(Constants.mdDefaultParameterSetHeaderTemplate));
+                    }
+                    else
+                    {
+                        sb.AppendLine(item.ToSyntaxString(Constants.mdParameterSetHeaderTemplate));
+                    }
                 }
+                // sb.AppendLine();
             }
         }
 
-        private void WriteDescription(CommandHelp help)
+        internal override void WriteDescription(CommandHelp help)
         {
-            sb.AppendLine(Constants.DescriptionMdHeader);
+            sb.AppendLine(Constants.mdDescriptionHeader);
             sb.AppendLine();
             sb.AppendLine(help.Description);
+            sb.AppendLine();
         }
 
-        private void WriteAliases(CommandHelp help)
+        internal override void WriteAliases(CommandHelp help)
         {
-            sb.AppendLine(Constants.AliasMdHeader);
+            sb.AppendLine(Constants.mdAliasHeader);
             sb.AppendLine();
             sb.AppendLine(Constants.AliasMessage);
+            sb.AppendLine();
         }
 
-        private void WriteExamples(CommandHelp help)
+        internal override void WriteExamples(CommandHelp help)
         {
-            sb.AppendLine(Constants.ExamplesMdHeader);
+            sb.AppendLine(Constants.mdExamplesHeader);
             sb.AppendLine();
 
             int? totalExamples = help?.Examples?.Count;
 
             for (int i = 0; i < totalExamples; i++)
             {
-                sb.Append(help?.Examples?[i].ToExampleItemString(i + 1));
-                sb.AppendLine();
+                sb.Append(help?.Examples?[i].ToExampleItemString(Constants.mdExampleItemHeaderTemplate, i + 1));
+                sb.AppendLine(); // new line for ToExampleItemString
+                sb.AppendLine(); // new line after each example
             }
         }
 
-        private void WriteParameters(CommandHelp help)
+        internal override void WriteParameters(CommandHelp help)
         {
-            sb.AppendLine(Constants.ParametersMdHeader);
+            sb.AppendLine(Constants.mdParametersHeader);
             sb.AppendLine();
 
             // Sort the parameter by name before writing
@@ -190,7 +138,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 foreach (Parameter param in help.Parameters)
                 {
-                    string paramString = param.ToParameterString();
+                    string paramString = param.ToParameterString(Constants.mdParameterYamlBlockWithAcceptedValues);
 
                     if (!string.IsNullOrEmpty(paramString))
                     {
@@ -198,48 +146,80 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                         sb.AppendLine();
                     }
                 }
-
-                if (help.HasCmdletBinding)
-                {
-                    sb.AppendLine(Constants.CommonParameters);
-                }
             }
+
+            if (help.HasCmdletBinding)
+            {
+                sb.AppendLine(Constants.mdCommonParametersHeader);
+                sb.AppendLine();
+                sb.AppendLine(ConstantsHelper.GetCommonParametersMessage());
+                sb.AppendLine();
+            }
+
+            if (help.HasWorkflowCommonParameters)
+            {
+                sb.AppendLine(Constants.mdWorkflowCommonParametersHeader);
+                sb.AppendLine();
+                sb.AppendLine(Constants.WorkflowCommonParametersMessage);
+                sb.AppendLine();
+            }
+
         }
 
-        private void WriteInputsOutputs(List<InputOutput> inputsoutputs, string header)
+        internal override void WriteInputsOutputs(List<InputOutput> inputsoutputs, bool isInput)
         {
-            sb.AppendLine(header);
-            sb.AppendLine();
-
+            // JWT: should we emit something if there is no input/output
             if (inputsoutputs is null)
             {
                 return;
             }
 
+            if (isInput)
+            {
+                sb.AppendLine(Constants.mdInputsHeader);
+            }
+            else
+            {
+                sb.AppendLine(Constants.mdOutputsHeader);
+            }
+
+            sb.AppendLine();
+
             foreach (var item in inputsoutputs)
             {
-                sb.Append(item.ToInputOutputString());
+                sb.AppendLine(item.ToInputOutputString(Constants.mdNotesItemHeaderTemplate));
+                sb.AppendLine();
+            }
+
+            // if we had any items, remove the last new line
+            if (inputsoutputs.Count != 0)
+            {
+                sb.Remove(sb.Length - 1, 1);
             }
         }
 
-        private void WriteNotes(CommandHelp help)
+        internal override void WriteNotes(CommandHelp help)
         {
-            sb.AppendLine(Constants.NotesMdHeader);
+            sb.AppendLine(Constants.mdNotesHeader);
             sb.AppendLine();
-            sb.AppendLine(help.Notes);
-            sb.AppendLine();
+
+            if (! string.IsNullOrEmpty(help.Notes))
+            {
+                sb.AppendLine(help.Notes);
+                sb.AppendLine();
+            }
         }
 
-        private void WriteRelatedLinks(CommandHelp help)
+        internal override void WriteRelatedLinks(CommandHelp help)
         {
-            sb.AppendLine(Constants.RelatedLinksMdHeader);
+            sb.AppendLine(Constants.mdRelatedLinksHeader);
             sb.AppendLine();
 
             if (help.RelatedLinks?.Count > 0)
             {
                 foreach (var link in help.RelatedLinks)
                 {
-                    sb.AppendLine(link.ToRelatedLinksString());
+                    sb.AppendLine(link.ToRelatedLinksString(Constants.mdRelatedLinksFmt));
                     sb.AppendLine();
                 }
             }
@@ -250,9 +230,5 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
-        public void Dispose()
-        {
-            Constants.StringBuilderPool.Return(sb);
-        }
     }
 }

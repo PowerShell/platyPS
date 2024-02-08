@@ -4,31 +4,38 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Linq;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
-    internal static class Constants
+    internal class ConstantsHelper
     {
-        internal const string YmlHeader = "---";
-        internal const string SchemaVersionYml = "schema: 2.0.0";
-        internal const string SynopsisMdHeader = "## SYNOPSIS";
-        internal const string SyntaxMdHeader = "## SYNTAX";
-        internal const string AliasMdHeader = "## ALIASES";
-        internal const string AliasMessage = "This cmdlet has the following aliases:\n{{Insert list of aliases}}";
-        internal const string DescriptionMdHeader = "## DESCRIPTION";
-        internal const string ExamplesMdHeader = "## EXAMPLES";
-        internal const string ParametersMdHeader = "## PARAMETERS";
-        internal const string CommonParameters = @"
+        internal static string GetCommonParametersMessage()
+        {
+            List<string> paramWithDash = new();
+            foreach (string param in Constants.CommonParametersNames)
+            {
+                paramWithDash.Add($"-{param}");
+            }
+
+            return
+                ParagraphFormatHelper.FormatParagraph(
+                    string.Format(Constants.CommonParametersFmt, string.Join(", ", paramWithDash)),
+                    new ParagraphFormatSettings(){LineLength = 100}
+                );
+        }
+    }
+
+    internal static partial class Constants
+    {
+        // This should probably be generated from the actual list of common parameters
+        internal const string CommonParametersFmt = "This cmdlet supports the common parameters: {0}.\nFor more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
+/*
 ### CommonParameters
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 ";
-        internal const string InputsMdHeader = "## INPUTS";
-        internal const string OutputsMdHeader = "## OUTPUTS";
-        internal const string NotesMdHeader = "## NOTES";
-        internal const string RelatedLinksMdHeader = "## RELATED LINKS";
-
-        internal const string ExampleItemHeaderTemplate = "### Example {0}: {1}";
+*/
 
         internal const string RequiredParamTemplate = "-{0} <{1}>";
         internal const string OptionalParamTemplate = "[-{0} <{1}>]";
@@ -36,12 +43,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string OptionalPositionalParamTemplate = "[[-{0} <{1}>]]";
         internal const string OptionalSwitchParamTemplate = "[-{0}]";
         internal const string RequiredSwitchParamTemplate = "-{0}";
-
         internal const char   SingleSpace = ' ';
-        internal const string ParameterSetHeaderDefaultTemplate = "### {0} (Default)";
-        internal const string ParameterSetHeaderTemplate = "### {0}";
-        internal const string CodeBlock = "```";
-
         internal const string TrueString = "True";
         internal const string FalseString = "False";
         internal const string NoneString = "None";
@@ -51,12 +53,8 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string DelimiterComma = ", ";
         internal const string SystemObjectTypename = "System.Object";
         internal const string SyntaxCommonParameters = "[<CommonParameters>]";
-        internal const string GenericParameterBackTick = "`";
-        internal const string GenericParameterTypeNameStart = "<";
-        internal const string GenericParameterTypeNameEnd = ">";
 
         internal const string RequiredParameterSetsTemplate = "True ({0}) False ({1})";
-        internal const string NotesItemHeaderTemplate = "### {0}";
 
         internal const string FillInDescription = "{{ Fill in the Description }}";
         internal const string FillInSynopsis = "{{ Fill in the Synopsis }}";
@@ -68,48 +66,9 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
         internal const string FillInParameterDescriptionTemplate = "{{{{ Fill {0} Description }}}}";
         internal const string FillInRelatedLinks = "{{ Fill in the related links here }}";
 
-        internal const string MamlCommandCommandTag = "command:command";
-        internal const string MamlCommandNameTag = "command:name";
-        internal const string MamlDescriptionTag = "maml:description";
-        internal const string MamlParaTag = "maml:para";
-        internal const string MamlSyntaxTag = "command:syntax";
-        internal const string MamlSyntaxItemTag = "command:syntaxItem";
-        internal const string MamlNameTag = "maml:name";
-        internal const string MamlCommandParameterTag = "command:parameter";
-        internal const string MamlCommandParameterValueTag = "command:parameterValue";
-        internal const string MamlDevTypeTag = "dev:type";
-        internal const string MamlDevDefaultValueTag = "dev:defaultValue";
-        internal const string MamlCommandParameterValueGroupTag = "command:parameterValueGroup";
         internal const string UnnamedParameterSetTemplate = "UNNAMED_PARAMETER_SET_{0}";
-        internal const string MamlCommandParametersTag = "command:parameters";
-        internal const string MamlCommandInputTypesTag = "command:inputTypes";
-        internal const string MamlCommandInputTypeTag = "command:inputType";
-        internal const string MamlCommandReturnValuesTag = "command:returnValues";
-        internal const string MamlCommandReturnValueTag = "command:returnValue";
-        internal const string MamlAlertSetTag = "maml:alertSet";
-        internal const string MamlAlertTag = "maml:alert";
-        internal const string MamlCommandExamplesTag = "command:examples";
-        internal const string MamlCommandExampleTag = "command:example";
-        internal const string MamlTitleTag = "maml:title";
-        internal const string MamlDevCodeTag = "dev:code";
-        internal const string MamlDevRemarksTag = "dev:remarks";
-        internal const string MamlCommandRelatedLinksTag = "command:relatedLinks";
-        internal const string MamlNavigationLinkTag = "maml:navigationLink";
-        internal const string MamlLinkTextTag = "maml:linkText";
-        internal const string MamlUriTag = "maml:uri";
-        internal const string Example1 = "Example 1";
-        internal const string MamlFileExtensionSuffix = "-help.xml";
-        internal const string ModuleNameHeaderTemplate = "Module Name: {0}";
-        internal const string DownladHelpLinkTitle = "Download Help Link: ";
         internal const string FillDownloadHelpLink = "{{ Update Download Link}}";
-        internal const string HelpVersionTitle = "Help Version: ";
         internal const string FillHelpVersion = "{{ Please enter version of help manually (X.X.X.X) format }}";
-        internal const string LocaleTemplate = "Locale: {0}";
-        internal const string ModulePageModuleNameHeaderTemplate = "# {0} Module";
-        internal const string ModulePageDescriptionHeader = "## Description";
-        internal const string ModulePageCmdletHeaderTemplate = "## {0} Cmdlets";
-        internal const string ModulePageCmdletLinkTemplate = "### [{0}]({1})";
-        internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
         internal static readonly List<string> EmptyStringList = new();
@@ -117,7 +76,13 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
         internal static readonly StringBuilderPool StringBuilderPool = new StringBuilderPool();
 
-        internal static HashSet<string> CommonParametersNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        internal static readonly char[] LineSplitter = new char[] { '\r', '\n' };
+
+        // This is available only in Windows PowerShell 5.1 and not in PowerShell 7.
+        internal static readonly string WorkflowCommonParametersMessage = "This cmdlet also supports workflow specific common parameters.\nFor information, see [about_WorkflowCommonParameters](../PSWorkflow/About/about_WorkflowCommonParameters.md).";
+
+        internal static readonly char[] Comma = new char[] { ',' };
+        internal static SortedSet<string> CommonParametersNames = new SortedSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "Debug",
             "ErrorAction",
@@ -127,44 +92,11 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
             "OutBuffer",
             "OutVariable",
             "PipelineVariable",
+            "ProgressAction", // TODO: This may need to be selectable based on the PowerShell version.
             "Verbose",
             "WarningAction",
             "WarningVariable"
         };
 
-        internal const string ParameterYmlBlockWithAcceptedValues = @"### -{0}
-
-{1}
-
-```yaml
-Type: {2}
-Parameter Sets: {3}
-Aliases: {4}
-Accepted values: {5}
-
-Required: {6}
-Position: {7}
-Default value: {8}
-Accept pipeline input: {9}
-Accept wildcard characters: {10}
-DontShow: {11}
-```";
-
-        internal const string ParameterYmlBlock = @"### -{0}
-
-{1}
-
-```yaml
-Type: {2}
-Parameter Sets: {3}
-Aliases: {4}
-
-Required: {5}
-Position: {6}
-Default value: {7}
-Accept pipeline input: {8}
-Accept wildcard characters: {9}
-DontShow: {10}
-```";
     }
 }

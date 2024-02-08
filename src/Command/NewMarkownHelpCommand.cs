@@ -17,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri = "https://go.microsoft.com/fwlink/?LinkID=2096483")]
+    [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
@@ -187,9 +187,9 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (var cmdletHelp in cmdHelpObjs)
                 {
-                    var settings = new MarkdownWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
+                    var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    WriteObject(cmdWrt.Write(cmdletHelp, NoMetadata, Metadata));
+                    WriteObject(cmdWrt.Write(cmdletHelp, Metadata));
                 }
 
                 if (WithModulePage)
@@ -198,7 +198,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     string resolvedPathModulePagePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(modulePagePath);
 
-                    var modulePageSettings = new MarkdownWriterSettings(Encoding, resolvedPathModulePagePath);
+                    var modulePageSettings = new CommandHelpWriterSettings(Encoding, resolvedPathModulePagePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
 
                     WriteObject(modulePageWriter.Write(cmdHelpObjs));

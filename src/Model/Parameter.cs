@@ -28,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         internal bool Globbing { get; set;}
 
-        internal bool PipelineInput { get; set;}
+        internal PipelineInputInfo PipelineInput { get; set;}
 
         internal string Position { get; set;}
 
@@ -50,6 +50,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Type = type;
             Position = position;
             ParameterSets = new();
+            PipelineInput = new PipelineInputInfo(false);
         }
 
         internal void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
@@ -116,7 +117,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             ParameterSets.AddRange(values);
         }
 
-        internal string ToParameterString()
+        internal string ToParameterString(string fmt)
         {
             if (Constants.CommonParametersNames.Contains(Name))
             {
@@ -125,7 +126,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (AcceptedValues?.Count <= 0)
             {
-                return string.Format(Constants.ParameterYmlBlock,
+                return string.Format(Constants.mdParameterYamlBlock,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
                     Type,
@@ -134,14 +135,14 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                     RequiredString(),
                     Position,
                     DefaultValue,
-                    PipelineInput ? Constants.TrueString : Constants.FalseString,
+                    PipelineInput.ToString(),
                     Globbing ? Constants.TrueString : Constants.FalseString,
                     DontShow ? Constants.TrueString : Constants.FalseString
                     );
             }
             else
             {
-                return string.Format(Constants.ParameterYmlBlockWithAcceptedValues,
+                return string.Format(fmt, // Constants.mdParameterYamlBlockWithAcceptedValues,
                     Name,
                     Description?.Trim(Environment.NewLine.ToCharArray()),
                     Type,
@@ -151,7 +152,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                     RequiredString(),
                     Position,
                     DefaultValue,
-                    PipelineInput ? Constants.TrueString : Constants.FalseString,
+                    PipelineInput.ToString(),
                     Globbing ? Constants.TrueString : Constants.FalseString,
                     DontShow ? Constants.TrueString : Constants.FalseString
                     );
@@ -160,9 +161,47 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         private string RequiredString()
         {
-            return string.Format(Constants.RequiredParameterSetsTemplate,
-                RequiredTrueParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredTrueParameterSets) : Constants.NoneString,
-                RequiredFalseParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredFalseParameterSets) : Constants.NoneString);
+            if (RequiredTrueParameterSets?.Count == ParameterSets?.Count)
+            {
+                return Constants.TrueString + "(All)";
+            }
+            else if (RequiredFalseParameterSets?.Count == ParameterSets?.Count)
+            {
+                return Constants.FalseString + "(All)";
+            }
+            else if (RequiredTrueParameterSets?.Count > 0 || RequiredFalseParameterSets?.Count > 0)
+            {
+                return string.Format(Constants.RequiredParameterSetsTemplate,
+                    RequiredTrueParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredTrueParameterSets) : Constants.NoneString,
+                    RequiredFalseParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredFalseParameterSets) : Constants.NoneString);
+            }
+            else
+            {
+                return Required ? Constants.TrueString : Constants.FalseString;
+            }
         }
+    }
+
+    internal class PipelineInputInfo
+    {
+        internal bool ByPropertyName { get; set; }
+        internal bool ByValue { get; set; }
+
+        public PipelineInputInfo(bool byPropertyName, bool byValue)
+        {
+            ByPropertyName = byPropertyName;
+            ByValue = byValue;
+        }
+
+        public PipelineInputInfo(bool byBoth)
+        {
+            ByPropertyName = byBoth;
+            ByValue = byBoth;
+        }
+
+        override public string ToString()
+        {
+            return string.Format("ByName ({0}), ByValue ({1})", ByPropertyName, ByValue);
+        } 
     }
 }

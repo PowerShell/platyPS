@@ -19,9 +19,10 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal string Uri { get; set;}
         internal string LinkText { get; set;}
 
-        internal string ToRelatedLinksString()
+        internal string ToRelatedLinksString(string fmt)
         {
-            return $"[{LinkText}]({Uri})";
+            // return $"[{LinkText}]({Uri})";
+            return string.Format(fmt, LinkText, Uri);
         }
     }
 }

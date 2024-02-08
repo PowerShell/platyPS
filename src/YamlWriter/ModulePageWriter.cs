@@ -8,7 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 
-namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
+namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 {
     internal class ModulePageWriter : IDisposable
     {
@@ -16,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         private StringBuilder sb;
         private readonly Encoding _encoding;
 
-        public ModulePageWriter(CommandHelpWriterSettings settings)
+        public ModulePageWriter(YamlWriterSettings settings)
         {
             if (string.IsNullOrEmpty(settings.DestinationPath))
             {
@@ -118,11 +118,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal void WriteModuleBlock(string moduleName)
         {
-            sb.AppendFormat(Constants.mdModulePageModuleNameHeaderTemplate, moduleName);
+            sb.AppendFormat(Constants.yamlModulePageModuleNameHeaderTemplate, moduleName);
             sb.AppendLine();
             sb.AppendLine();
 
-            sb.AppendLine(Constants.mdModulePageDescriptionHeader);
+            sb.AppendLine(Constants.yamlModulePageDescriptionHeader);
             sb.AppendLine();
             sb.AppendLine(Constants.FillInDescription);
             sb.AppendLine();
@@ -132,7 +132,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             foreach (var command in commandNames)
             {
-                sb.AppendFormat(Constants.mdModulePageCmdletLinkTemplate, command, $"{command}.md");
+                sb.AppendFormat(Constants.yamlModulePageCmdletLinkTemplate, command, $"{command}.md");
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(Constants.FillInDescription);
