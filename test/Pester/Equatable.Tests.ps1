@@ -1,7 +1,7 @@
 Describe "Test IEquatable" {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'
-        $markdownPath1 = Join-Path $assetDir 'Get-Date.md'
+        $markdownPath1 = Join-Path $assetDir 'get-date.md'
         $markdownPath2 = Join-Path $assetDir 'Out-Null.md'
         $CommandHelpObject1 = Import-MarkdownCommandHelp -Path $markdownPath1
         $CommandHelpObject2 = Import-MarkdownCommandHelp -Path $markdownPath1
@@ -12,7 +12,7 @@ Describe "Test IEquatable" {
         $CommandHelpObject1 -eq $CommandHelpObject1 | Should -Be $true
     }
 
-    It "Should be equal to different instance of the same object" {
+    It "Should be equal to a different instance generated from the same object" {
         $CommandHelpObject1 -eq $CommandHelpObject2 | Should -Be $true
     }
 
@@ -44,7 +44,7 @@ Describe "Test IEquatable" {
         @{ FileName = "get-date.alt21.md" ; expectedResult = $false }
         @{ FileName = "get-date.alt22.md" ; expectedResult = $false }
         @{ FileName = "get-date.alt23.md" ; expectedResult = $false }
-        @{ FileName = "get-date.alt24.md" ; expectedResult = $true } # extra whitespace before or after header does not cause inequality
+        @{ FileName = "get-date.alt24.md" ; expectedResult = $true } # extra lines before or after header does not cause inequality
         @{ FileName = "get-date.alt25.md" ; expectedResult = $true } # extra whitespace after header text does not cause inequality
     ) {
         param ($FileName, $expectedResult)
