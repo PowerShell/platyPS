@@ -11,7 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of a syntax item in PowerShell help.
     /// </summary>
-    internal class SyntaxItem
+    internal class SyntaxItem : IEquatable<SyntaxItem>
     {
         internal string CommandName { get; }
         internal string ParameterSetName { get; }
@@ -23,7 +23,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         }
 
         // Sort parameters by position
-        private SortedList<int, Parameter> _postitionalParameters;
+        private SortedList<int, Parameter> _positionalParameters;
 
         // Sort parameters by if they are Required by name
         private SortedList<string, Parameter> _requiredParameters;
@@ -39,7 +39,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsDefaultParameterSet = isDefaultParameterSet;
             CommandName = commandName;
 
-            _postitionalParameters = new SortedList<int, Parameter>();
+            _positionalParameters = new SortedList<int, Parameter>();
             _requiredParameters = new SortedList<string, Parameter>();
             _alphabeticOrderParameters = new SortedList<string, Parameter>();
         }
@@ -61,7 +61,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (int.TryParse(parameter.Position, out position))
             {
-                _postitionalParameters.Add(position, parameter);
+                _positionalParameters.Add(position, parameter);
                 return;
             }
 
@@ -126,6 +126,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             try
             {
+                // sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
                 sb.AppendFormat(fmt, ParameterSetName);
                 sb.AppendLine();
                 sb.AppendLine();
@@ -135,7 +136,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 sb.Append(Constants.SingleSpace);
 
                 // look for all the positional parameters
-                foreach (KeyValuePair<int, Parameter> kv in _postitionalParameters)
+                foreach (KeyValuePair<int, Parameter> kv in _positionalParameters)
                 {
                     Parameter param = kv.Value;
 
@@ -173,5 +174,56 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 Constants.StringBuilderPool.Return(sb);
             }
         }
+
+        public bool Equals(SyntaxItem other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+            // TODO: compare syntax string
+            return (
+                string.Compare(CommandName, other.CommandName) == 0 &&
+                string.Compare(ParameterSetName, other.ParameterSetName) == 0 &&
+                IsDefaultParameterSet == other.IsDefaultParameterSet
+                );
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+            if (other is SyntaxItem syntaxItem2)
+            {
+                return Equals(syntaxItem2);
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (CommandName, ParameterSetName, IsDefaultParameterSet).GetHashCode();
+        }
+
+        public static bool operator ==(SyntaxItem syntaxItem1, SyntaxItem syntaxItem2)
+        {
+            if (syntaxItem1 is not null && syntaxItem2 is not null)
+            {
+                return syntaxItem1.Equals(syntaxItem2);
+            }
+            return false;
+        }   
+
+        public static bool operator !=(SyntaxItem syntaxItem1, SyntaxItem syntaxItem2)
+        {
+            if (syntaxItem1 is not null && syntaxItem2 is not null)
+            {
+                return ! syntaxItem1.Equals(syntaxItem2);
+            }
+            return false;
+        }   
+
     }
 }
