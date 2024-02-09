@@ -21,33 +21,35 @@ Describe "Test IEquatable" {
     }
 
     It "Small changes in markdown file '<FileName>' should result in inequality" -TestCases @(
-        @{ FileName = "get-date.alt01.md" }
-        @{ FileName = "get-date.alt02.md" }
-        @{ FileName = "get-date.alt03.md" }
-        @{ FileName = "get-date.alt04.md" }
-        @{ FileName = "get-date.alt05.md" }
-        @{ FileName = "get-date.alt06.md" }
-        @{ FileName = "get-date.alt07.md" }
-        @{ FileName = "get-date.alt08.md" }
-        @{ FileName = "get-date.alt09.md" }
-        @{ FileName = "get-date.alt10.md" }
-        @{ FileName = "get-date.alt11.md" }
-        @{ FileName = "get-date.alt12.md" }
-        @{ FileName = "get-date.alt13.md" }
-        @{ FileName = "get-date.alt14.md" }
-        @{ FileName = "get-date.alt15.md" }
-        @{ FileName = "get-date.alt16.md" }
-        @{ FileName = "get-date.alt17.md" }
-        @{ FileName = "get-date.alt18.md" }
-        @{ FileName = "get-date.alt19.md" }
-        @{ FileName = "get-date.alt20.md" }
-        @{ FileName = "get-date.alt21.md" }
-        @{ FileName = "get-date.alt22.md" }
-        @{ FileName = "get-date.alt23.md" }
+        @{ FileName = "get-date.alt01.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt02.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt03.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt04.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt05.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt06.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt07.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt08.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt09.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt10.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt11.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt12.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt13.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt14.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt15.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt16.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt17.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt18.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt19.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt20.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt21.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt22.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt23.md" ; expectedResult = $false }
+        @{ FileName = "get-date.alt24.md" ; expectedResult = $true } # extra whitespace before or after header does not cause inequality
+        @{ FileName = "get-date.alt25.md" ; expectedResult = $true } # extra whitespace after header text does not cause inequality
     ) {
-        param ($FileName)
+        param ($FileName, $expectedResult)
         $badMarkdown = Import-MarkdownCommandHelp -Path (Join-Path $assetDir $FileName)
-        $CommandHelpObject1 -eq $badMarkdown | Should -Be $false
+        $CommandHelpObject1 -eq $badMarkdown | Should -Be $expectedResult
     }
 
 
