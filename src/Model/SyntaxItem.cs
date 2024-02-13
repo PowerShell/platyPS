@@ -183,8 +183,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
             // TODO: compare syntax string
             return (
-                string.Compare(CommandName, other.CommandName) == 0 &&
-                string.Compare(ParameterSetName, other.ParameterSetName) == 0 &&
+                string.Compare(CommandName, other.CommandName, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(ParameterSetName, other.ParameterSetName, StringComparison.CurrentCulture) == 0 &&
                 IsDefaultParameterSet == other.IsDefaultParameterSet
                 );
         }

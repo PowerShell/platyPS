@@ -38,6 +38,7 @@ namespace Microsoft.PowerShell.PlatyPS
             List<string> resolvedPaths;
             try
             {
+                // This is a list because the resolution process can result in multiple paths (in the case of non-literal path).
                 resolvedPaths = PathUtils.ResolvePath(this, ParameterSetName == "LiteralPath" ? LiteralPath : Path, ParameterSetName == "LiteralPath" ? true : false);
             }
             catch (Exception e)

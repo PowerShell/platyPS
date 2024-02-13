@@ -52,7 +52,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            return (string.Compare(Title, other.Title) == 0 && string.Compare(Remarks, other.Remarks) == 0);
+            return (string.Compare(Title, other.Title, StringComparison.CurrentCulture) == 0 && string.Compare(Remarks, other.Remarks, StringComparison.CurrentCulture) == 0);
         }
 
         public override bool Equals(object other)

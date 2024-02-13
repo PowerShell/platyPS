@@ -190,13 +190,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return (
-                string.Compare(Name, other.Name) == 0 &&
-                string.Compare(Type, other.Type) == 0 &&
-                string.Compare(Position, other.Position) == 0 &&
-                string.Compare(Description, other.Description) == 0 &&
-                string.Compare(Aliases, other.Aliases) == 0 &&
-                string.Compare(DefaultValue, other.DefaultValue) == 0 &&
-                string.Compare(HelpMessage, other.HelpMessage) == 0 &&
+                string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Position, other.Position, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Description, other.Description, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
                 Required == other.Required &&
                 VariableLength == other.VariableLength &&
                 Globbing == other.Globbing &&

@@ -33,7 +33,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            return (string.Compare(Uri, other.Uri) == 0 && string.Compare(LinkText, other.LinkText) == 0);
+            return (string.Compare(Uri, other.Uri, StringComparison.CurrentCulture) == 0 && string.Compare(LinkText, other.LinkText, StringComparison.CurrentCulture) == 0);
         }
 
         public override bool Equals(object other)

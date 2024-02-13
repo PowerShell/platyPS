@@ -21,19 +21,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
 
             // if both null, return false
-            if (string.Compare(this?.Description, other?.Description) != 0)
+            if (string.Compare(this?.Description, other?.Description, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // if other Description is null, return false
-            if (string.Compare(this.Description, other?.Description) != 0)
+            if (string.Compare(this.Description, other?.Description, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // if other ExternalHelpFile is null, return false
-            if (string.Compare(this.ExternalHelpFile, other?.ExternalHelpFile) != 0)
+            if (string.Compare(this.ExternalHelpFile, other?.ExternalHelpFile, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
@@ -61,37 +61,37 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             // ModuleName
-            if (string.Compare(this.ModuleName, other?.ModuleName) != 0)
+            if (string.Compare(this.ModuleName, other?.ModuleName, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // Notes
-            if (string.Compare(this.Notes, other?.Notes) != 0)
+            if (string.Compare(this.Notes, other?.Notes, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // OnlineVersionUrl
-            if (string.Compare(this.OnlineVersionUrl, other?.OnlineVersionUrl) != 0)
+            if (string.Compare(this.OnlineVersionUrl, other?.OnlineVersionUrl, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // SchemaVersion
-            if (string.Compare(this.SchemaVersion, other?.SchemaVersion) != 0)
+            if (string.Compare(this.SchemaVersion, other?.SchemaVersion, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // Synopsis
-            if (string.Compare(this.Synopsis, other?.Synopsis) != 0)
+            if (string.Compare(this.Synopsis, other?.Synopsis, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
 
             // Title
-            if (string.Compare(this.Title, other?.Title) != 0)
+            if (string.Compare(this.Title, other?.Title, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }
