@@ -143,22 +143,14 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            /*
-            TODO: compare the following properties:
-            Metadata
-            Inputs
-            Outputs
-            */
-            
-
             return true;
         }
 
         /// <summary>
         /// Compare two ordered dictionaries.
         /// </summary>
-        /// <param name="metadata1"></param>
-        /// <param name="metadata2"></param>
+        /// <param name="metadata1">Metadata from a CommandHelp object</param>
+        /// <param name="metadata2">Metadata from another CommandHelp object</param>
         /// <returns>bool</returns>
         private bool CompareMetadata(OrderedDictionary? metadata1, OrderedDictionary? metadata2)
         {

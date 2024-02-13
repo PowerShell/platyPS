@@ -2,7 +2,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'
         $badMarkdownPath = Join-Path $assetDir 'bad-commandhelp.md'
-        $goodMarkdownPath = Join-Path $assetDir 'Get-Date.md'
+        $goodMarkdownPath = Join-Path $assetDir 'get-date.md'
     }
 
     It 'Should import a valid markdown file' {
@@ -42,5 +42,4 @@ Describe 'Import-MarkdownCommandHelp Tests' {
 
         }
     }
-
 }

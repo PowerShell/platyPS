@@ -131,7 +131,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public bool TryGetParameter(string name, out Parameter? parameter)
         {
-            var param = Parameters.Find(p => string.Compare(p.Name, name, true) == 0);
+            var param = Parameters.Find(p => string.Compare(p.Name, name, StringComparison.CurrentCultureIgnoreCase) == 0);
             if (param is not null)
             {
                 parameter = param;

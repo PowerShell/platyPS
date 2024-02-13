@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -17,42 +18,46 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to import a markdown file and convert it to a CommandHelp object.
     /// </summary>
-    [Cmdlet(VerbsData.Import, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Import, "MarkdownCommandHelp", DefaultParameterSetName = "Path", HelpUri = "")]
     public sealed class ImportMarkdownHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
 
-        [Parameter(Mandatory=true, Position=0, ValueFromPipeline=true)]
+        [Parameter(Mandatory=true, Position=0, ValueFromPipeline=true, ParameterSetName= "Path")]
+        [ValidateNotNullOrEmpty]
         public string[] Path { get; set; } = Array.Empty<string>();
+
+        [Parameter(Mandatory=true, Position=0, ValueFromPipeline=true, ParameterSetName= "LiteralPath")]
+        [ValidateNotNullOrEmpty]
+        public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
 #endregion
 
         protected override void ProcessRecord()
         {
-            foreach (string path in Path)
+            List<string> resolvedPaths;
+            try
+            {
+                resolvedPaths = PathUtils.ResolvePath(this, ParameterSetName == "LiteralPath" ? LiteralPath : Path, ParameterSetName == "LiteralPath" ? true : false);
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(e, "Could not resolve Path", ErrorCategory.InvalidOperation, ParameterSetName == "LiteralPath" ? LiteralPath : Path));
+                return;
+            }
+
+            // These should be resolved paths, whether -LiteralPath was used or not.
+            foreach (string path in resolvedPaths)
             {
                 try
                 {
-                    foreach (var filePath in this.SessionState.Path.GetResolvedPSPathFromPSPath(path))
-                    {
-                        string fullPath = filePath.Path;
-                        try
-                        {
-                            WriteObject(MarkdownConverter.GetCommandHelpFromMarkdownFile(fullPath));
-                        }
-                        catch (Exception e)
-                        {
-                            WriteError(new ErrorRecord(e, "FailedToImportMarkdown", ErrorCategory.InvalidOperation, fullPath));
-                        }
-                    }
+                    WriteObject(MarkdownConverter.GetCommandHelpFromMarkdownFile(path));
                 }
                 catch (Exception e)
                 {
                     WriteError(new ErrorRecord(e, "FailedToImportMarkdown", ErrorCategory.InvalidOperation, path));
                 }
-                
             }
         }
     }
 }
-
