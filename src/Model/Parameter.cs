@@ -3,13 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
     /// <summary>
     /// Class to represent the properties of a parameter in PowerShell help.
     /// </summary>
-    internal class Parameter
+    internal class Parameter : IEquatable<Parameter>
     {
         internal string? Description { get; set;}
         internal string Name { get; set;}
@@ -180,9 +181,74 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return Required ? Constants.TrueString : Constants.FalseString;
             }
         }
+
+        public bool Equals(Parameter other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return (
+                string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Position, other.Position, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Description, other.Description, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
+                Required == other.Required &&
+                VariableLength == other.VariableLength &&
+                Globbing == other.Globbing &&
+                DontShow == other.DontShow &&
+                PipelineInput == other.PipelineInput &&
+                ParameterSets.SequenceEqual(other.ParameterSets) &&
+                (AcceptedValues is null && other.AcceptedValues is null || AcceptedValues.SequenceEqual(other.AcceptedValues))
+            );
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (other is Parameter parameter2)
+            {
+                return Equals(parameter2);
+            }
+
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return (Name, Type, Position, Description, Aliases, DefaultValue, HelpMessage, Required, VariableLength, Globbing, DontShow, PipelineInput, ParameterSets, AcceptedValues).GetHashCode();
+        }
+
+        public static bool operator ==(Parameter parameter1, Parameter parameter2)
+        {
+            if (parameter1 is not null && parameter2 is not null)
+            {
+                return parameter1.Equals(parameter2);
+            }
+
+            return false;
+        }   
+
+        public static bool operator !=(Parameter parameter1, Parameter parameter2)
+        {
+            if (parameter1 is not null && parameter2 is not null)
+            {
+                return ! parameter1.Equals(parameter2);
+            }
+
+            return false;
+        }   
     }
 
-    internal class PipelineInputInfo
+    internal class PipelineInputInfo : IEquatable<PipelineInputInfo>
     {
         internal bool ByPropertyName { get; set; }
         internal bool ByValue { get; set; }
@@ -203,5 +269,56 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             return string.Format("ByName ({0}), ByValue ({1})", ByPropertyName, ByValue);
         } 
+
+        public override int GetHashCode()
+        {
+            return ByPropertyName.GetHashCode() ^ ByValue.GetHashCode();
+        }
+
+        public bool Equals(PipelineInputInfo other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return (ByPropertyName == other.ByPropertyName && ByValue == other.ByValue);
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (other is PipelineInputInfo info2)
+            {
+                return Equals(info2);
+            }
+
+            return false;
+        }   
+
+        public static bool operator == (PipelineInputInfo info1, PipelineInputInfo info2)
+        {
+            if (info1 is not null && info2 is not null)
+            {
+                return info1.Equals(info2);
+            }
+
+            return false;
+        }   
+
+        public static bool operator !=(PipelineInputInfo info1, PipelineInputInfo info2)
+        {
+            if (info1 is not null && info2 is not null)
+            {
+                return ! info1.Equals(info2);
+            }
+
+            return false;
+        }   
+
     }
 }

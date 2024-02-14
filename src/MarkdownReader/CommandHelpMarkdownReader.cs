@@ -84,8 +84,8 @@ namespace Microsoft.PowerShell.PlatyPS
             GetDescriptionFromMarkdown // Not parsed
             GetExamplesFromMarkdown // Must be parsed
             GetParametersFromMarkdown // Must be parsed
-            GetInputsFromMarkdown // level 3 is an input type
-            GetOutputsFromMarkdown // level 3 is an output type
+            GetInputsFromMarkdown // level 3 markdown header is an input type
+            GetOutputsFromMarkdown // level 3 markdown header is an output type
             GetNotesFromMarkdown // Not parsed, may not be present
             GetRelatedLinksFromMarkdown
             */

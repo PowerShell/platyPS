@@ -11,7 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Model for representing data for help of a command.
     /// </summary>
-    internal class CommandHelp
+    internal partial class CommandHelp : IEquatable<CommandHelp>
     {
         internal OrderedDictionary? Metadata { get; set; }
 
@@ -85,6 +85,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
         }
 
+        public override string ToString()
+        {
+            return Title;
+        }
+
         internal void AddMetadata(string key, object value)
         {
             Metadata ??= new();
@@ -122,6 +127,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddParameter(Parameter parameter)
         {
             Parameters.Add(parameter);
+        }
+
+        public bool TryGetParameter(string name, out Parameter? parameter)
+        {
+            var param = Parameters.Find(p => string.Compare(p.Name, name, StringComparison.CurrentCultureIgnoreCase) == 0);
+            if (param is not null)
+            {
+                parameter = param;
+                return true;
+            }
+
+            parameter = null;
+            return false;
         }
 
         internal void AddParameterRange(IEnumerable<Parameter> parameters)
