@@ -423,6 +423,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
             // find the next major header
             var nextSectionIndex = md.FindHeader(2, string.Empty);
+            
+            // If the next header is found in the next index, there is no data to process
+            if (md.CurrentIndex + 1 == nextSectionIndex)
+            {
+                return ioList;
+            }
 
             string description;
             while(md.CurrentIndex < nextSectionIndex)

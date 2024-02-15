@@ -38,18 +38,40 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
-            sb.AppendLine("metadata:"); // Constants.YamlHeader);
-            sb.AppendLine($"  external help file: {help.ModuleName}-help.xml");
-            sb.AppendLine($"  Module Name: {help.ModuleName}");
-            sb.AppendLine($"  online version: {help.OnlineVersionUrl}");
-            sb.AppendLine($"  title: {help.Title}");
-            sb.AppendLine($"  {Constants.SchemaVersionYaml}");
+            sb.AppendLine("metadata:");
 
+            if (help?.Metadata is null && metadata is null)
+            {
+                sb.AppendLine($"  external help file: {help?.ModuleName}-help.xml");
+                sb.AppendLine($"  Module Name: {help?.ModuleName}");
+                sb.AppendLine($"  online version: {help?.OnlineVersionUrl}");
+                sb.AppendLine($"  title: {help?.Title}");
+                sb.AppendLine(Constants.SchemaVersionYaml);
+                return;
+            }
+
+            // Emit the metadata from the help object unless it is in the metadata hashtable.
+            if (help?.Metadata is not null)
+            {
+                foreach (DictionaryEntry item in help.Metadata)
+                {
+                    if (metadata is null)
+                    {
+                        sb.AppendLine($"  {item.Key}: {item.Value}");
+                    }
+                    else if (! metadata.ContainsKey(item.Key)) // metadata provided overrides the help object
+                    {
+                        sb.AppendLine($"  {item.Key}: {item.Value}");
+                    }
+                }
+            }
+            
+            // Emit the metadata from the metadata hashtable if we have any.
             if (metadata is not null)
             {
                 foreach (DictionaryEntry item in metadata)
                 {
-                    sb.AppendFormat("  {0}: {1}", item.Key, item.Value);
+                    sb.AppendLine($"  {item.Key}: {item.Value}");
                 }
             }
         }
@@ -120,7 +142,16 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteDescription(CommandHelp help)
         {
-            sb.AppendLine(Constants.DescriptionYamlHeader);
+            // check to be sure that we have a Description and if so, add "|-"
+            if (help.Description is not null && help.Description.Length > 0)
+            {
+                sb.AppendLine($"{Constants.DescriptionYamlHeader} |-");
+            }
+            else
+            {
+                sb.AppendLine(Constants.DescriptionYamlHeader);
+            }
+
             if (help.Description is not null)
             {
                 foreach(var line in help.Description.Split(Constants.LineSplitter))
@@ -148,7 +179,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     continue;
                 }
 
-                sb.AppendLine(string.Format("- title: 'Example {0}: {1}'", i+1, example.Title));
+                sb.AppendLine(string.Format("- title: \"Example {0}: {1}\"", i+1, example.Title));
                 sb.AppendLine("  description: |-");
                 if (example.Remarks is not null)
                 {
@@ -203,7 +234,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 if (help.HasCmdletBinding)
                 {
                     sb.AppendLine(Constants.CommonParametersYamlHeader);
-                    sb.AppendLine(string.Format("  {0}", ConstantsHelper.GetCommonParametersMessage()));
+                    sb.AppendLine("  description: |-");
+                    foreach(var line in ConstantsHelper.GetCommonParametersMessage())
+                    {
+                        sb.AppendLine($"    {line}");
+                    }
                 }
             }
         }
@@ -211,6 +246,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
         internal override void WriteInputsOutputs(List<InputOutput> inputsoutputs, bool isInput)
         {
             if (inputsoutputs is null)
+            {
+                return;
+            }
+
+            if (inputsoutputs.Count == 0)
             {
                 return;
             }
@@ -240,13 +280,22 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteNotes(CommandHelp help)
         {
-            sb.AppendLine(Constants.NotesYamlHeader);
-            if (help.Notes is not null)
+            if (help.Notes is null)
             {
-                foreach(var line in help.Notes.Split(Constants.LineSplitter))
-                {
-                    sb.AppendLine(string.Format("  {0}", line));
-                }
+                sb.AppendLine(Constants.NotesYamlHeader);
+                return;
+            }
+
+            if (string.IsNullOrEmpty(help.Notes.Trim()))
+            {
+                sb.AppendLine(Constants.NotesYamlHeader);
+                return;
+            }
+
+            sb.AppendLine($"{Constants.NotesYamlHeader} |-");
+            foreach(var line in help.Notes.Split(Constants.LineSplitter))
+            {
+                sb.AppendLine(string.Format("  {0}", line));
             }
         }
 
@@ -260,10 +309,6 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     sb.AppendLine(string.Format("- text: '{0}'", link.LinkText));
                     sb.AppendLine(string.Format("  href: {0}", link.Uri));
                 }
-            }
-            else
-            {
-                sb.AppendLine(Constants.FillInRelatedLinks);
             }
         }
     }
