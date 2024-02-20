@@ -6,8 +6,10 @@ $modRoot = Join-Path $repoRoot "out/PlatyPS"
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
-$null = import-Module $markDigAsm
-$null = import-Module $yamlDotNetAsm
+# debugging
+Get-ChildItem -Recurse $modRoot -File | Foreach-Object { $_ | Write-Verbose -Verbose }
+$null = import-Module $markDigAsm -ErrorAction SilentlyContinue
+$null = import-Module $yamlDotNetAsm -ErrorAction SilentlyContinue
 
 class inputOutput {
     [string]$name
@@ -74,7 +76,8 @@ class ch {
 }
 
 # we need to call the generic deserialize method, so we need to build it.
-$script:yamldes = [YamlDotNet.Serialization.DeserializerBuilder]::new().Build()
+$builderType = "YamlDotNet.Serialization.DeserializerBuilder" -as [type]
+$script:yamldes = $builderType::new().Build()
 [type[]]$tlist = @( [string] )
 $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([ch])
 
