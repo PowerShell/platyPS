@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe 'Import-MarkdownCommandHelp Tests' {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'

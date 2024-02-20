@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Model type tests" {
     BeforeAll {
         $cmdInfo = get-command new-markdownhelp

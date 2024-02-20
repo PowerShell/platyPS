@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Create valid yaml" {
     BeforeAll {
         New-Item -Type Directory -Path "${TESTDRIVE}/markdown"

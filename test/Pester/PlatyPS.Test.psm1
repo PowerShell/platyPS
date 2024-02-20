@@ -1,8 +1,5 @@
-#using namespace yamldotnet
-#using namespace yamldotnet.Serialization
-#using namespace System.Collections.Generic
-#using namespace System.Collections.Specialized
-#using namespace System.Management.Automation
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
 
 $repoRoot = git rev-parse --show-toplevel
 $modRoot = Join-Path $repoRoot "out/PlatyPS"
@@ -134,13 +131,6 @@ function ConvertTo-CommandYaml {
         }
 
         $cHelp.Aliases = $ch.Aliases?.split(",")
-
-#Inputs                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Inputs {get;}
-#ModuleGuid                  Property   System.Nullable[guid] ModuleGuid {get;set;}
-#Outputs                     Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Outputs {get;}
-#Parameters                  Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Parameter] Parameters {get;}
-#RelatedLinks                Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Links] RelatedLinks {get;}
-#Syntax                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.SyntaxItem] Syntax {get;}
         $cHelp
     }
 }

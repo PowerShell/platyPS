@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Test IEquatable" {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'
