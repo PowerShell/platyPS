@@ -12,7 +12,6 @@ using Microsoft.PowerShell.PlatyPS.YamlWriter;
 
 namespace Microsoft.PowerShell.PlatyPS.Test
 {
-    
     /// <summary>
     /// Write the CommandHelp object to a file in yaml format.
     /// This is used mostly for testing.

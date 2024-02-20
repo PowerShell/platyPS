@@ -9,8 +9,8 @@ $modRoot = Join-Path $repoRoot "out/PlatyPS"
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
-import-Module $markDigAsm
-import-Module $yamlDotNetAsm
+$null = import-Module $markDigAsm
+$null = import-Module $yamlDotNetAsm
 
 class inputOutput {
     [string]$name
@@ -76,6 +76,7 @@ class ch {
     }
 }
 
+# we need to call the generic deserialize method, so we need to build it.
 $script:yamldes = [YamlDotNet.Serialization.DeserializerBuilder]::new().Build()
 [type[]]$tlist = @( [string] )
 $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([ch])
@@ -89,20 +90,57 @@ function Import-CommandYaml  {
 
     PROCESS {
         foreach($yamlFile in $fullname) {
-            $yaml = Get-Content -raw $yamlFile
             try {
+                $yaml = Get-Content -raw $yamlFile
                 $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
+                # fix up some of the object elements
+                $null = $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
+                $result.Locale = $result.Metadata['Locale'] ?? "en-US"
+                $result.ExternalHelpfile = $result.Metadata['external help file']
+                $result
             }
             catch {
                 Write-Warning "Failed to parse $yamlFile ($_)"
-                return
             }
 
-            # fix up some of the object elements
-            $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
-            $result.Locale = $result.Metadata['Locale'] ?? "en-US"
-            $result.ExternalHelpfile = $result.Metadata['external help file']
-            $result
         }
+    }
+}
+
+function ConvertTo-CommandYaml {
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true,ValueFromPipeline=$true,ValueFromPipelineByPropertyName=$true)]
+        [ch]$ch
+    )
+
+    PROCESS {
+        $cHelp = [Microsoft.PowerShell.PlatyPS.Model.CommandHelp]::new($ch.Metatdata['title'], $ch.Metadata['Module Name'], $ch.Metadata['Locale'])
+        $cHelp.Metadata = $ch.Metadata
+        $cHelp.Description = $ch.Description
+        $cHelp.ExternalHelpFile = $ch.ExternalHelpfile
+        $cHelp.HasCmdletBinding = $ch.HasCmdletBinding
+        $cHelp.HasWorkflowCommonParameters = $ch.HasWorkflowCommonParameters
+        $cHelp.Nodes = $ch.Notes
+        $cHelp.OnlineVersionUrl = $ch.OnlineVersionUrl
+        $cHelp.SchemaVersion = $ch.SchemaVersion
+        $cHelp.Synopsis = $ch.Synopsis
+        $cHelp.ModuleGuid = $ch.ModuleGuid
+
+        foreach ($ex in $ch.Examples) {
+            $example = [Microsoft.PowerShell.PlatyPS.Model.Example]::new($ex.title, $ex.description)
+            $example.Summary = $ex.summary
+            $cHelp.Examples.Add($example)
+        }
+
+        $cHelp.Aliases = $ch.Aliases?.split(",")
+
+#Inputs                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Inputs {get;}
+#ModuleGuid                  Property   System.Nullable[guid] ModuleGuid {get;set;}
+#Outputs                     Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Outputs {get;}
+#Parameters                  Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Parameter] Parameters {get;}
+#RelatedLinks                Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Links] RelatedLinks {get;}
+#Syntax                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.SyntaxItem] Syntax {get;}
+        $cHelp
     }
 }

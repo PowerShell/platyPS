@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Text;
 using System.Xml;
@@ -81,17 +82,9 @@ namespace Microsoft.PowerShell.PlatyPS
             if (reader.ReadToFollowing(Constants.MamlCommandNameTag))
             {
                 cmdHelp = new(reader.ReadElementContentAsString(), moduleName, Settings.Locale);
-
-                Collection<CommandInfo> cmdInfo = PowerShellAPI.GetCommandInfo(cmdHelp.Title, Settings.Session);
-
-                if (cmdInfo.Count != 1)
-                {
-                    throw new InvalidOperationException("Too many command infos");
-                }
-
                 cmdHelp.Synopsis = ReadSynopsis(reader) ?? string.Empty;
                 cmdHelp.Description = ReadDescription(reader);
-                cmdHelp.AddSyntaxItemRange(ReadSyntaxItems(reader, cmdInfo[0]));
+                cmdHelp.AddSyntaxItemRange(ReadSyntaxItems(reader));
                 cmdHelp.AddParameterRange(ReadParameters(reader, cmdHelp.Syntax.Count));
                 cmdHelp.AddInputItem(ReadInput(reader));
                 cmdHelp.AddOutputItem(ReadOutput(reader));
@@ -343,7 +336,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameters;
         }
 
-        private Collection<SyntaxItem> ReadSyntaxItems(XmlReader reader, CommandInfo cmdInfo)
+        private Collection<SyntaxItem> ReadSyntaxItems(XmlReader reader)
         {
             Collection<SyntaxItem> items = new();
 
@@ -389,7 +382,38 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 while (reader.ReadToNextSibling(Constants.MamlCommandParameterTag))
                 {
-                    syntaxItem.AddParameter(ReadParameter(reader.ReadSubtree(), parameterSetCount: -1));
+                    var parameter = ReadParameter(reader.ReadSubtree(), parameterSetCount: -1);
+                    try
+                    {
+                        // This may possibly throw because the position is duplicated.
+                        // This is because we don't have a way to disambiguate between a positional parameter
+                        // in one parameter set and a non-positional parameter in another parameter set.
+                        // In this case, we will try to add the parameter with a negative position to show we
+                        // could not assign it appropriately.
+                        syntaxItem.AddParameter(parameter);
+                    }
+                    catch
+                    {
+                        int minKey = syntaxItem.PositionalParameterKeys.Min(x => x);
+                        if (minKey >= 0)
+                        {
+                            minKey = -1;
+                        }
+                        else
+                        {
+                            minKey--;
+                        }
+
+                        parameter.Position = minKey.ToString();
+                        try
+                        {
+                            syntaxItem.AddParameter(parameter);
+                        }
+                        catch (Exception exception)
+                        {
+                            throw new InvalidOperationException($"Error adding parameter '{parameter.Name}' to syntax item {commandName}", exception);
+                        }
+                    }
                 }
 
                 foreach(var paramName in syntaxItem.ParameterNames)

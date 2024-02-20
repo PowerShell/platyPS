@@ -11,15 +11,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of a syntax item in PowerShell help.
     /// </summary>
-    internal class SyntaxItem : IEquatable<SyntaxItem>
+    public class SyntaxItem : IEquatable<SyntaxItem>
     {
-        internal string CommandName { get; }
-        internal string ParameterSetName { get; }
+        public string CommandName { get; }
+        public string ParameterSetName { get; }
 
         private List<string> _parameterNames = new();
 
-        internal ReadOnlyCollection<string> ParameterNames {
+        public ReadOnlyCollection<string> ParameterNames {
             get => new ReadOnlyCollection<string>(_parameterNames);
+        }
+
+        public ReadOnlyCollection<int> PositionalParameterKeys {
+            get => new ReadOnlyCollection<int>(_positionalParameters.Keys);
         }
 
         // Sort parameters by position
@@ -31,9 +35,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         // Sort parameters by name
         private SortedList<string, Parameter> _alphabeticOrderParameters;
 
-        internal bool IsDefaultParameterSet { get; }
+        public bool IsDefaultParameterSet { get; }
 
-        internal SyntaxItem(string commandName, string parameterSetName, bool isDefaultParameterSet)
+        public SyntaxItem(string commandName, string parameterSetName, bool isDefaultParameterSet)
         {
             ParameterSetName = parameterSetName;
             IsDefaultParameterSet = isDefaultParameterSet;
@@ -44,7 +48,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _alphabeticOrderParameters = new SortedList<string, Parameter>();
         }
 
-        internal void AddParameter(Parameter parameter)
+        public void AddParameter(Parameter parameter)
         {
             string name = parameter.Name;
 
@@ -61,6 +65,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (int.TryParse(parameter.Position, out position))
             {
+                // This can throw because the position is already in the list.
                 _positionalParameters.Add(position, parameter);
                 return;
             }
@@ -120,13 +125,12 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal string ToSyntaxString(string fmt)
+        public string ToSyntaxString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
             try
             {
-                // sb.AppendFormat(IsDefaultParameterSet ? Constants.ParameterSetHeaderDefaultTemplate : Constants.ParameterSetHeaderTemplate, ParameterSetName);
                 sb.AppendFormat(fmt, ParameterSetName);
                 sb.AppendLine();
                 sb.AppendLine();
@@ -214,7 +218,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return syntaxItem1.Equals(syntaxItem2);
             }
             return false;
-        }   
+        }
 
         public static bool operator !=(SyntaxItem syntaxItem1, SyntaxItem syntaxItem2)
         {
@@ -223,7 +227,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return ! syntaxItem1.Equals(syntaxItem2);
             }
             return false;
-        }   
-
+        }
     }
 }

@@ -11,7 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of a input or and output type in PowerShell help.
     /// </summary>
-    internal class InputOutput : IEquatable<InputOutput>
+    public class InputOutput : IEquatable<InputOutput>
     {
         // tuple<typename, description>
         internal List<(string, string)> _inputOutputItems;
@@ -21,7 +21,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _inputOutputItems = new List<(string, string)>();
         }
 
-        internal void AddInputOutputItem(string typeName, string description)
+        public void AddInputOutputItem(string typeName, string description)
         {
             _inputOutputItems.Add((typeName, description));
         }
@@ -60,7 +60,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 Constants.StringBuilderPool.Return(sb);
             }
         }
-    
+
         public bool Equals(InputOutput other)
         {
             if (other is null)
@@ -84,7 +84,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
+        }
 
         public override int GetHashCode()
         {

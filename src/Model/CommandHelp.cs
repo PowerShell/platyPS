@@ -11,47 +11,47 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Model for representing data for help of a command.
     /// </summary>
-    internal partial class CommandHelp : IEquatable<CommandHelp>
+    public partial class CommandHelp : IEquatable<CommandHelp>
     {
-        internal OrderedDictionary? Metadata { get; set; }
+        public OrderedDictionary? Metadata { get; set; }
 
-        internal CultureInfo Locale { get; set; }
+        public CultureInfo Locale { get; set; }
 
-        internal Guid? ModuleGuid { get; set; }
+        public Guid? ModuleGuid { get; set; }
 
-        internal string? ExternalHelpFile { get; set; }
+        public string? ExternalHelpFile { get; set; }
 
-        internal string? OnlineVersionUrl { get; set; }
+        public string? OnlineVersionUrl { get; set; }
 
-        internal string? SchemaVersion { get; set; }
+        public string? SchemaVersion { get; set; }
 
-        internal string ModuleName { get; set; }
+        public string ModuleName { get; set; }
 
-        internal string Title { get; set; }
+        public string Title { get; set; }
 
-        internal string Synopsis { get; set; }
+        public string Synopsis { get; set; }
 
-        internal List<SyntaxItem> Syntax { get; private set; }
+        public List<SyntaxItem> Syntax { get; private set; }
 
-        internal List<string>? Aliases { get; private set; }
+        public List<string>? Aliases { get; private set; }
 
-        internal string? Description { get; set; }
+        public string? Description { get; set; }
 
-        internal List<Example>? Examples { get; private set; }
+        public List<Example>? Examples { get; private set; }
 
-        internal List<Parameter> Parameters { get; private set; }
+        public List<Parameter> Parameters { get; private set; }
 
-        internal List<InputOutput>? Inputs { get; private set; }
+        public List<InputOutput>? Inputs { get; private set; }
 
-        internal List<InputOutput>? Outputs { get; private set; }
+        public List<InputOutput>? Outputs { get; private set; }
 
-        internal List<Links>? RelatedLinks { get; private set; }
+        public List<Links>? RelatedLinks { get; private set; }
 
-        internal bool HasCmdletBinding { get; set; }
+        public bool HasCmdletBinding { get; set; }
 
-        internal bool HasWorkflowCommonParameters { get; set; }
+        public bool HasWorkflowCommonParameters { get; set; }
 
-        internal string? Notes { get; set; }
+        public string? Notes { get; set; }
 
         public CommandHelp(string title, string moduleName, CultureInfo? cultureInfo)
         {

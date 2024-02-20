@@ -17,14 +17,14 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate a yaml file from a CommandHelp object.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "YamlCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "YamlCommandHelp", HelpUri = "", SupportsShouldProcess = true)]
     [OutputType(typeof(FileInfo[]))]
     public sealed class ExportYamlCommandHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public object[] Command { get; set; } = Array.Empty<string>();
+        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter()]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
@@ -37,10 +37,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        protected override void EndProcessing()
-        {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+        private string fullPath { get; set; } = string.Empty;
 
+        protected override void BeginProcessing()
+        {
+            fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+
+            // If the path is a file, throw an error.
             if (File.Exists(fullPath))
             {
                 var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
@@ -48,33 +51,34 @@ namespace Microsoft.PowerShell.PlatyPS
                 ThrowTerminatingError(err);
             }
 
+            // Create the directory if it doesn't exist.
             if (!Directory.Exists(fullPath))
             {
-                Directory.CreateDirectory(fullPath);
-            }
-
-
-            foreach (object o in Command)
-            {
-                if (o is CommandHelp cmdletHelp)
+                if (ShouldProcess("Create directory '{fullPath}'"))
                 {
-                    var yamlPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.yml");
-                    if (new FileInfo(yamlPath).Exists && ! Force)
-                    {
-                        // should be error
-                        WriteWarning($"skipping {cmdletHelp.Title}");
-                    }
-                    else
-                    {
-                        var settings = new CommandHelpWriterSettings(Encoding, yamlPath);
-                        var cmdWrt = new CommandHelpYamlWriter(settings);
-                        WriteObject(cmdWrt.Write(cmdletHelp, null));
-                    }
+                    Directory.CreateDirectory(fullPath);
+                }
+            }
+        }
+
+        protected override void ProcessRecord()
+        {
+            foreach (CommandHelp ch in Command)
+            {
+                var yamlPath = Path.Combine($"{fullPath}", $"{ch.Title}.yml");
+                if (new FileInfo(yamlPath).Exists && ! Force)
+                {
+                    // should be error
+                    WriteWarning($"skipping {ch.Title}");
                 }
                 else
                 {
-                    // should be error
-                    WriteWarning(o.ToString() + " is not a CommandHelp object.");
+                    var settings = new CommandHelpWriterSettings(Encoding, yamlPath);
+                    var yamlWriter = new CommandHelpYamlWriter(settings);
+                    if (ShouldProcess("Create yaml file {yamlPath}"))
+                    {
+                        WriteObject(yamlWriter.Write(ch, null));
+                    }
                 }
             }
         }

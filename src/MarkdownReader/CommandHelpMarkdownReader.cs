@@ -23,15 +23,51 @@ using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
+
+    /// <summary>
+    /// A class to represent a parse error.
+    /// This might occur at any time, but especially when invalid yaml is included in the markdown.
+    /// </summary>
+    public class ParseError
+    {
+        /// <summary>
+        /// The context of the error.
+        /// This might be a parameter name or some other context.
+        /// </summary>
+        public string Context { get; set; }
+        /// <summary>
+        /// The message of the error.
+        /// If an exception is caught, this will be the exception message.
+        /// </summary>
+        public string Message { get; set; }
+
+        /// <summary>
+        /// The line number which generated the error.
+        /// If unknown, this will be -1.
+        /// </summary>
+        public int Line { get; set; }
+
+        /// <summary>
+        /// An error that may occur during parsing.
+        /// </summary>
+        /// <param name="context">The context of error.</param>
+        /// <param name="message">The message which describes the error.</param>
+        public ParseError(string context, string message, int line = -1)
+        {
+            Context = context;
+            Message = message;
+            Line = line;
+        }
+    }
+
     public class MarkdownConverter
     {
-
         /// <summary>
         /// Create a CommandHelp object from a markdown file.
         /// </summary>
         /// <param name="path"></param>
         /// <returns>A CommandHelp Object, but declared as object as the CommandHelp object is internal.</returns>
-		public static object GetCommandHelpFromMarkdownFile(string path)
+		public static CommandHelp GetCommandHelpFromMarkdownFile(string path)
 		{
             var md = ParsedMarkdownContent.ParseFile(path);
 			return GetCommandHelpFromMarkdown(md);
@@ -47,6 +83,20 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             var md = ParsedMarkdownContent.ParseFile(path);
             return ValidateMarkdown(md.Ast, out Issues);
+        }
+
+        public static bool HadErrors { get; private set; } = false;
+        public static List<ParseError> ParseErrors { get; private set; } = new List<ParseError>();
+        public static void AddParseError(string context, string message, int line = -1)
+        {
+            ParseErrors.Add(new ParseError(context, message, line));
+            HadErrors = true;
+        }
+
+        public static void ClearParseErrors()
+        {
+            ParseErrors.Clear();
+            HadErrors = false;
         }
 
         /// <summary>
@@ -423,7 +473,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             // find the next major header
             var nextSectionIndex = md.FindHeader(2, string.Empty);
-            
+
             // If the next header is found in the next index, there is no data to process
             if (md.CurrentIndex + 1 == nextSectionIndex)
             {
@@ -639,18 +689,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
             while(currentIndex < nextHeaderLevel2)
             {
-                string parameterName = string.Empty;
-                string typeAsString = string.Empty;
-                string parameterSetsAsString = string.Empty;
-                string aliasesAsString = string.Empty;
-                string acceptedValuesAsString = string.Empty;
-                string requiredAsString = string.Empty;
-                string positionAsString = string.Empty;
-                string defaultValuesAsString = string.Empty;
-                string acceptedPipelineAsString = string.Empty;
-                string acceptWildCardAsString = string.Empty;
-
                 var parameterItemIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 3, startIndex: currentIndex);
+                string parameterName = string.Empty;
 
                 if (parameterItemIndex > nextHeaderLevel2 || parameterItemIndex == -1)
                 {
@@ -684,98 +724,189 @@ namespace Microsoft.PowerShell.PlatyPS
                 string description = GetParameterDescription(markdownContent, parameterItemIndex + 1, yamlBlockIndex);
 
                 var paramYamlBlock = GetParameterYamlBlock(md, parameterItemIndex + 1, language: "yaml");
+                Dictionary<string, string> yamlDict;
 
                 if (paramYamlBlock != null)
                 {
                     var yamlBlock = paramYamlBlock.Lines.ToString();
 
-                    // yaml does not allow '*' to start a value, so we need to change the order here
-                    yamlBlock = yamlBlock.Replace(" * (all)","\"* (all)\"");
+                    // yaml does not allow '*' to start a value, so we need to change this to be (all).
+                    // yamlBlock = yamlBlock.Replace("* (all)","\"(all)\"");
 
                     StringReader stringReader = new StringReader(yamlBlock);
                     var deserializer = new YamlDotNet.Serialization.DeserializerBuilder().Build();
-                    var yamlObject = deserializer.Deserialize(stringReader);
-
-                    if (yamlObject is Dictionary<object, object> metadataHeader)
+                    try
                     {
-                        object type;
-                        object parameterSets;
-                        object aliases;
-                        object acceptedValues;
-                        object required;
-                        object position;
-                        object defaultValue;
-                        object acceptPipeline;
-                        object acceptWildcard;
+                        var yamlObject = deserializer.Deserialize(stringReader);
+                        yamlDict = parseYamlBlock(yamlObject);
+                    }
+                    catch (Exception e) // Deserialize can fail, if it does then parse the yaml block manually.
+                    {
+                        AddParseError(parameterName, e.Message, md[parameterItemIndex].Line);
+                        yamlDict = new Dictionary<string, string>();
+                    }
+                }
+                else
+                {
+                    yamlDict = new Dictionary<string, string>();
+                }
 
+                if (! yamlDict.TryGetValue("Type", out string typeAsString))
+                {
+                    typeAsString = string.Empty;
+                }
 
-                        if (metadataHeader.TryGetValue("Type", out type) && type is string typeStr)
-                        {
-                            typeAsString = typeStr.Trim();
-                        }
+                if (! yamlDict.TryGetValue("Position", out string positionAsString))
+                {
+                    positionAsString = string.Empty;
+                }
 
-                        if (metadataHeader.TryGetValue("Parameter Sets", out parameterSets) && parameterSets is string parameterSetStr)
-                        {
-                            parameterSetsAsString = parameterSetStr.Trim();
-                        }
+                Parameter parameter = new Parameter(parameterName, typeAsString.Trim(), positionAsString.Trim());
 
-                        if (metadataHeader.TryGetValue("Aliases", out aliases) && aliases is string aliasesStr)
-                        {
-                            aliasesAsString = aliasesStr.Trim();
-                        }
-
-                        if (metadataHeader.TryGetValue("Accepted values", out acceptedValues) && acceptedValues is string acceptedValuesStr)
-                        {
-                            acceptedValuesAsString = acceptedValuesStr.Trim();
-                        }
-
-                        if (metadataHeader.TryGetValue("Required", out required) && required is string requiredBoolStr)
-                        {
-                            requiredAsString = requiredBoolStr.Trim();
-                        }
-
-                        if (metadataHeader.TryGetValue("Position", out position) && position is string positionStr)
-                        {
-                            positionAsString = positionStr.Trim();
-                        }
-
-                        if (metadataHeader.TryGetValue("Default value", out defaultValue) && defaultValue is string defaultValueStr)
-                        {
-                            defaultValuesAsString = EscapeYamlValue(defaultValueStr.Trim());
-                        }
-
-                        if (metadataHeader.TryGetValue("Accept pipeline input", out acceptPipeline) && acceptPipeline is string acceptPipelineStr)
-                        {
-                            acceptedPipelineAsString = acceptPipelineStr.Trim();
-                        }
-
-                        if (metadataHeader.TryGetValue("Accept wildcard characters", out acceptWildcard) && acceptWildcard is string acceptWildcardStr)
-                        {
-                            acceptWildCardAsString = acceptWildcardStr.Trim();
-                        }
+                if (yamlDict.TryGetValue("Parameter Sets", out string parameterSetsAsString))
+                {
+                    if (string.Equals(parameterSetsAsString, Constants.ParameterSetsAll, StringComparison.OrdinalIgnoreCase))
+                    {
+                        parameter.ParameterSets.Add(Constants.ParameterSetsAll);
+                    }
+                    else
+                    {
+                        parameter.ParameterSets.AddRange(parameterSetsAsString.Trim().Split(',').Select(x => x.Trim()).ToArray());
                     }
                 }
 
+                if(yamlDict.TryGetValue("Aliases", out string aliasesAsString))
+                {
+                    parameter.Aliases = aliasesAsString.Trim();
+                }
 
-                Parameter parameter = new Parameter(parameterName, typeAsString, positionAsString);
+                if (yamlDict.TryGetValue("Accepted values", out string acceptedValuesAsString))
+                {
+                    parameter.AddAcceptedValueRange(acceptedValuesAsString.Split(Constants.Comma).Select(x => x.Trim()).ToArray());
+                }
 
-                var isAllParameterSets = string.Equals(parameterSetsAsString, Constants.ParameterSetsAll, StringComparison.OrdinalIgnoreCase);
-                parameter.AddParameterSet(isAllParameterSets ? Constants.ParameterSetsAll : parameterSetsAsString);
-                parameter.Aliases = string.IsNullOrEmpty(aliasesAsString) ? null : aliasesAsString;
-                parameter.AddAcceptedValueRange(acceptedValuesAsString.Split(Constants.Comma).Select(x => x.Trim()).ToArray());
-                parameter.Required = string.Equals(requiredAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
-                parameter.DefaultValue = string.IsNullOrEmpty(defaultValuesAsString) ? null : defaultValuesAsString;
-                parameter.Position = positionAsString;
-                parameter.PipelineInput = new PipelineInputInfo(string.Equals(acceptedPipelineAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase));
-                parameter.Globbing = string.Equals(acceptWildCardAsString, Constants.TrueString, StringComparison.OrdinalIgnoreCase);
-                parameter.Description = description;
+                if (yamlDict.TryGetValue("Required", out string requiredAsString))
+                {
+                    parameter.Required = string.Equals(requiredAsString.Trim(), Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+                }
 
+                if (yamlDict.TryGetValue("Default value", out string defaultValuesAsString))
+                {
+                    parameter.DefaultValue = defaultValuesAsString.Trim();
+                }
+
+                if (yamlDict.TryGetValue("Accept pipeline input", out string acceptedPipelineAsString))
+                {
+                    parameter.PipelineInput = new PipelineInputInfo(string.Equals(acceptedPipelineAsString.Trim(), Constants.TrueString, StringComparison.OrdinalIgnoreCase));
+
+                }
+
+                if (yamlDict.TryGetValue("Accept wildcard characters", out string acceptWildCardAsString))
+                {
+                    parameter.Globbing = string.Equals(acceptWildCardAsString.Trim(), Constants.TrueString, StringComparison.OrdinalIgnoreCase);
+
+                }
+
+                parameter.Description = description.Trim();
                 parameters.Add(parameter);
-
                 currentIndex = parameterItemIndex + 1;
             }
 
             return parameters;
+        }
+
+        private static Dictionary<string, string> parseYamlBlock(object? parsedYamlObject)
+        {
+            Dictionary<string, string> metadataHeader = new Dictionary<string, string>();
+            if (parsedYamlObject is null)
+            {
+                return metadataHeader;
+            }
+
+            var yamlObject = parsedYamlObject as Dictionary<object, object>;
+            if (yamlObject is null)
+            {
+                return metadataHeader;
+            }
+
+            if (yamlObject.TryGetValue("Type", out object type) && type is string typeStr)
+            {
+                metadataHeader.Add("Type", typeStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Type", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Parameter Sets", out object parameterSets) && parameterSets is string parameterSetStr)
+            {
+                metadataHeader.Add("Parameter Sets", parameterSetStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Parameter Sets", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Aliases", out object aliases) && aliases is string aliasesStr)
+            {
+                metadataHeader.Add("Aliases", aliasesStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Aliases", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Accepted values", out object acceptedValues) && acceptedValues is string acceptedValuesStr)
+            {
+                metadataHeader.Add("Accepted values", acceptedValuesStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Accepted values", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Required", out object required) && required is string requiredBoolStr)
+            {
+                metadataHeader.Add("Required", requiredBoolStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Required", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Position", out object position) && position is string positionStr)
+            {
+                metadataHeader.Add("Position", positionStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Position", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Default value", out object defaultValue) && defaultValue is string defaultValueStr)
+            {
+                metadataHeader.Add("Default value", EscapeYamlValue(defaultValueStr.Trim()));
+            }
+            else
+            {
+                metadataHeader.Add("Default value", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Accept pipeline input", out object acceptPipeline) && acceptPipeline is string acceptPipelineStr)
+            {
+                metadataHeader.Add("Accept pipeline input", acceptPipelineStr.Trim());
+            }
+            else
+            {
+                metadataHeader.Add("Accept pipeline input", string.Empty);
+            }
+
+            if (yamlObject.TryGetValue("Accept wildcard characters", out object acceptWildcard) && acceptWildcard is string acceptWildcardStr)
+            {
+                metadataHeader.Add("Accept wildcard characters", acceptWildcardStr.Trim());
+            }
+
+            return metadataHeader;
         }
 
         internal static int GetNextCodeBlock(MarkdownDocument md, int startIndex, string language = "yaml")
@@ -1043,6 +1174,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
     public class ParsedMarkdownContent
     {
+        public string FilePath { get; set; }
         public List<string> MarkdownLines { get; set; }
         public MarkdownDocument Ast { get; set; }
         public int CurrentIndex { get; set; }
@@ -1055,6 +1187,7 @@ namespace Microsoft.PowerShell.PlatyPS
             CurrentIndex = 0;
             Errors = new List<string>();
             Warnings = new List<string>();
+            FilePath = string.Empty;
         }
 
         public ParsedMarkdownContent(string[] lines)
@@ -1064,11 +1197,14 @@ namespace Microsoft.PowerShell.PlatyPS
             CurrentIndex = 0;
             Errors = new List<string>();
             Warnings = new List<string>();
+            FilePath = string.Empty;
         }
 
         public static ParsedMarkdownContent ParseFile(string path)
         {
-            return new ParsedMarkdownContent(File.ReadAllLines(path));
+            var parsedMarkdownContent = new ParsedMarkdownContent(File.ReadAllLines(path));
+            parsedMarkdownContent.FilePath = path;
+            return parsedMarkdownContent;
         }
 
         public void AddError(string error)

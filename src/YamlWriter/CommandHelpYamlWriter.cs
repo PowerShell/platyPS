@@ -65,7 +65,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     }
                 }
             }
-            
+
             // Emit the metadata from the metadata hashtable if we have any.
             if (metadata is not null)
             {
@@ -163,8 +163,15 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteAliases(CommandHelp help)
         {
-            sb.AppendLine(Constants.yamlAliasHeader);
-            sb.AppendLine("  " + Constants.AliasMessage);
+            if (help.Aliases?.Count > 0)
+            {
+                string aliasString = string.Join(", ", help.Aliases);
+                sb.AppendLine($"{Constants.yamlAliasHeader} {aliasString}");
+            }
+            else
+            {
+                sb.AppendLine(Constants.yamlAliasHeader);
+            }
         }
 
         internal override void WriteExamples(CommandHelp help)
@@ -261,7 +268,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             }
             else
             {
-                sb.AppendLine(Constants.OutputsYamlHeader); 
+                sb.AppendLine(Constants.OutputsYamlHeader);
             }
 
             foreach (var inputoutput in inputsoutputs)

@@ -15,7 +15,7 @@ namespace Microsoft.PowerShell.PlatyPS
         /// This includes indentation.
         /// </summary>
         public ushort LineLength { get; set; }
-        
+
         /// <summary>
         /// How much indentation to add to each line.
         /// </summary>
@@ -44,7 +44,7 @@ namespace Microsoft.PowerShell.PlatyPS
             LineLength = lineLength;
             Indentation = indentation;
             FirstLineIndentation = firstLineIndentation;
-        }   
+        }
     }
 
     /// <summary>
@@ -80,14 +80,14 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 currentLine.Append(word);
                 currentLine.Append(' ');
-            }   
+            }
 
             // Only add the last line if it's not empty
             if (currentLine.Length > 0)
             {
                 outputLine.Append(currentLine.ToString().TrimEnd());
             }
-            
+
             var outputLineString = outputLine.ToString();
             Constants.StringBuilderPool.Return(currentLine);
             Constants.StringBuilderPool.Return(outputLine);
