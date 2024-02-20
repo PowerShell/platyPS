@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe 'Import-MarkdownCommandHelp Tests' {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'
@@ -21,7 +24,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
     Context 'Validate elements of the imported commandhelp object' {
         BeforeAll {
             $result = Import-MarkdownCommandHelp -Path $goodMarkdownPath
-            $metadata = $result.GetType().GetProperty('Metadata', [System.Reflection.BindingFlags]'NonPublic,Instance').GetValue($result, $null)
+            $metadata = $result.GetType().GetProperty('Metadata', [System.Reflection.BindingFlags]'Public,NonPublic,Instance').GetValue($result, $null)
         }
 
         It 'Should be a valid CommandHelp object' {

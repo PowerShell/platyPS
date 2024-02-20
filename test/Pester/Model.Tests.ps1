@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Model type tests" {
     BeforeAll {
         $cmdInfo = get-command new-markdownhelp
@@ -22,7 +25,7 @@ Describe "Model type tests" {
             @{ type = 'System.Boolean'; Name = "HasCmdletBinding" }
             @{ type = 'System.String'; Nullable = $true;  Name = "Notes" }
         )
-        $BindingFlags = [System.Reflection.BindingFlags]"Instance,NonPublic"
+        $BindingFlags = [System.Reflection.BindingFlags]"Instance,NonPublic,Public"
     }
 
     It "CommandHelp has the correct type information for '<name>'" -TestCases $ObjectProperties {

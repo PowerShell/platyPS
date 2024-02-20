@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Test IEquatable" {
     BeforeAll {
         $assetDir = Join-Path $PSScriptRoot 'assets'
@@ -54,26 +57,14 @@ Describe "Test IEquatable" {
 
 
     Context "Reflection based testing for individual properties because CommandHelp object is not public" {
-        BeforeAll {
-            $SynopsisProperty = $CommandHelpObject1.GetType().GetProperty('Synopsis', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $SyntaxProperty = $CommandHelpObject1.GetType().GetProperty('Syntax', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $AliasesProperty = $CommandHelpObject1.GetType().GetProperty('Aliases', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $DescriptionProperty = $CommandHelpObject1.GetType().GetProperty('Description', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $ExampleProperty = $CommandHelpObject1.GetType().GetProperty('Examples', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $ParametersProperty = $CommandHelpObject1.GetType().GetProperty('Parameters', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $InputProperty = $CommandHelpObject1.GetType().GetProperty('Inputs', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $OutputProperty = $CommandHelpObject1.GetType().GetProperty('Outputs', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $NotesProperty = $CommandHelpObject1.GetType().GetProperty('Notes', [System.Reflection.BindingFlags]'NonPublic,Instance')
-            $RelatedLinksProperty = $CommandHelpObject1.GetType().GetProperty('RelatedLinks', [System.Reflection.BindingFlags]'NonPublic,Instance')
-        }
     
         It "Should have the same Synopsis" {
-            $SynopsisProperty.GetValue($CommandHelpObject1, $null) -eq $SynopsisProperty.GetValue($CommandHelpObject2, $null) | Should -Be $true
+            $CommandHelpObject1.Synopsis -eq $CommandHelpObject2.Synopsis | Should -Be $true
         }
 
         It "Should have the same Syntax" {
-            $syntax1 = $SyntaxProperty.GetValue($CommandHelpObject1, $null)
-            $syntax2 = $SyntaxProperty.GetValue($CommandHelpObject2, $null)
+            $syntax1 = $CommandHelpObject1.Syntax
+            $syntax2 = $CommandHelpObject2.Syntax
             $syntax1.Count | Should -Be $syntax2.Count
             for($i = 0; $i -lt $syntax1.Count; $i++) {
                 $syntax1[$i] -eq $syntax2[$i] | Should -Be $true
@@ -81,8 +72,8 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Aliases" {
-            $alias1 = $AliasesProperty.GetValue($CommandHelpObject1, $null)
-            $alias2 = $AliasesProperty.GetValue($CommandHelpObject2, $null)
+            $alias1 = $CommandHelpObject1.Aliases
+            $alias2 = $CommandHelpObject2.Aliases
             $alias1.Count | Should -Be $alias2.Count
             for($i = 0; $i -lt $alias1.Count; $i++) {
                 $alias1[$i] -eq $alias2[$i] | Should -Be $true
@@ -90,12 +81,12 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Description" {
-            $DescriptionProperty.GetValue($CommandHelpObject1, $null) -eq $DescriptionProperty.GetValue($CommandHelpObject2, $null) | Should -Be $true
+            $CommandHelpObject1.Description | Should -Be $CommandHelpObject2.Description
         }
 
         It "Should have the same Examples" {
-            $example1 = $ExampleProperty.GetValue($CommandHelpObject1, $null)
-            $example2 = $ExampleProperty.GetValue($CommandHelpObject2, $null)
+            $example1 = $CommandHelpObject1.Examples
+            $example2 = $CommandHelpObject2.Examples
             $example1.Count | Should -Be $example2.Count
             for($i = 0; $i -lt $example1.Count; $i++) {
                 $example1[$i] -eq $example2[$i] | Should -Be $true
@@ -103,8 +94,8 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Parameters" {
-            $parameter1 = $ParametersProperty.GetValue($CommandHelpObject1, $null)
-            $parameter2 = $ParametersProperty.GetValue($CommandHelpObject2, $null)
+            $parameter1 = $CommandHelpObject1.Parameters
+            $parameter2 = $CommandHelpObject2.Parameters
             $parameter1.Count | Should -Be $parameter2.Count
             for($i = 0; $i -lt $parameter1.Count; $i++) {
                 $parameter1[$i] -eq $parameter2[$i] | Should -Be $true
@@ -112,8 +103,8 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Inputs" {
-            $input1 = $InputProperty.GetValue($CommandHelpObject1, $null)
-            $input2 = $InputProperty.GetValue($CommandHelpObject2, $null)
+            $input1 = $CommandHelpObject1.Inputs
+            $input2 = $CommandHelpObject2.Inputs
             $input1.Count | Should -Be $input2.Count
             for($i = 0; $i -lt $input1.Count; $i++) {
                 $input1[$i] -eq $input2[$i] | Should -Be $true
@@ -121,8 +112,8 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Outputs" {
-            $output1 = $OutputProperty.GetValue($CommandHelpObject1, $null)
-            $output2 = $OutputProperty.GetValue($CommandHelpObject2, $null)
+            $output1 = $CommandHelpObject1.Outputs
+            $output2 = $CommandHelpObject2.Outputs
             $output1.Count | Should -Be $output2.Count
             for($i = 0; $i -lt $output1.Count; $i++) {
                 $output1[$i] -eq $output2[$i] | Should -Be $true
@@ -130,12 +121,12 @@ Describe "Test IEquatable" {
         }
 
         It "Should have the same Notes" {
-            $NotesProperty.GetValue($CommandHelpObject1, $null) -eq $NotesProperty.GetValue($CommandHelpObject2, $null) | Should -Be $true
+            $CommandHelpObject1.Notes | Should -BeExactly $CommandHelpObject2.Notes
         }
 
         It "Should have the same related links" {
-            $link1 = $RelatedLinksProperty.GetValue($CommandHelpObject1, $null)
-            $link2 = $RelatedLinksProperty.GetValue($CommandHelpObject2, $null)
+            $link1 = $CommandHelpObject1.RelatedLinks
+            $link2 = $CommandHelpObject2.RelatedLinks
             $link1.Count | Should -Be $link2.Count
             for($i = 0; $i -lt $link1.Count; $i++) {
                 $link1[$i] -eq $link2[$i] | Should -Be $true
@@ -143,11 +134,11 @@ Describe "Test IEquatable" {
         }
 
         It "Altering the description in a parameter will cause the objects to be different" {
-            $parameter1 = $ParametersProperty.GetValue($CommandHelpObject1, $null)
-            $parameter2 = $ParametersProperty.GetValue($CommandHelpObject2, $null)
-            $parameter2[0].GetType().GetProperty("Description", [Reflection.BindingFlags]"NonPublic,Instance").SetValue($parameter2[0], "New Description")
-            $parameter1[0] -eq $parameter2[0] | Should -Be $false
-            $CommandHelpObject1 -eq $CommandHelpObject2 | Should -Be $false
+            $parameter1 = $CommandHelpObject1.Parameters
+            $parameter2 = $CommandHelpObject2.Parameters
+            $parameter2[0].Description = "New Description"
+            $parameter1[0] | Should -Not -Be $parameter2[0]
+            $CommandHelpObject1 | Should -Not -Be $CommandHelpObject2
         }
     }
 }

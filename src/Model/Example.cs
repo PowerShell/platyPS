@@ -10,10 +10,10 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of an example in PowerShell help.
     /// </summary>
-    internal class Example : IEquatable<Example>
+    public class Example : IEquatable<Example>
     {
-        internal string Title { get; set; }
-        internal string Remarks { get; set; }
+        public string Title { get; set; }
+        public string Remarks { get; set; }
 
         public Example(string title, string remarks)
         {
@@ -91,7 +91,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             return false;
         }
-
     }
-    
 }
+

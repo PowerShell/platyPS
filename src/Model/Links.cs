@@ -9,7 +9,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of a link in PowerShell help.
     /// </summary>
-    internal class Links : IEquatable<Links>
+    public class Links : IEquatable<Links>
     {
         public Links(string uri, string linkText)
         {
@@ -17,8 +17,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             LinkText = linkText;
         }
 
-        internal string Uri { get; set;}
-        internal string LinkText { get; set;}
+        public string Uri { get; set;}
+        public string LinkText { get; set;}
 
         internal string ToRelatedLinksString(string fmt)
         {
@@ -54,7 +54,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         public override int GetHashCode()
         {
             return (Uri, LinkText).GetHashCode();
-        }   
+        }
 
         public static bool operator == (Links link1, Links link2)
         {

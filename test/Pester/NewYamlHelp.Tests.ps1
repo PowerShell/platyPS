@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/CommonFunction.ps1
 

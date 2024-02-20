@@ -39,7 +39,10 @@ CmdletsToExport = @(
     'New-MarkdownHelp',
     'New-YamlHelp',
     'Import-YamlCommandHelp',
-    'Import-MarkdownCommandHelp'
+    'Import-MamlHelp',
+    'Import-MarkdownCommandHelp',
+    'Export-MarkdownCommandHelp'
+    'Export-YamlCommandHelp'
 )
 
 # Variables to export from this module

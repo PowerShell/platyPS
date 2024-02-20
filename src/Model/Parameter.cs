@@ -10,38 +10,38 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Class to represent the properties of a parameter in PowerShell help.
     /// </summary>
-    internal class Parameter : IEquatable<Parameter>
+    public class Parameter : IEquatable<Parameter>
     {
-        internal string? Description { get; set;}
-        internal string Name { get; set;}
-        internal List<string>? ParameterValue { get; set;}
-        internal string Type { get; set;}
+        public string? Description { get; set;}
+        public string Name { get; set;}
+        public List<string>? ParameterValue { get; set;}
+        public string Type { get; set;}
 
-        internal string? DefaultValue { get; set;}
+        public string? DefaultValue { get; set;}
 
-        internal bool Required { get; set; }
+        public bool Required { get; set; }
 
         private List<string>? RequiredTrueParameterSets { get; set; }
         private List<string>? RequiredFalseParameterSets { get; set; }
 
         // @TODO: find out what this is for??
-        internal bool VariableLength { get; set;} = true;
+        public bool VariableLength { get; set;} = true;
 
-        internal bool Globbing { get; set;}
+        public bool Globbing { get; set;}
 
-        internal PipelineInputInfo PipelineInput { get; set;}
+        public PipelineInputInfo PipelineInput { get; set;}
 
-        internal string Position { get; set;}
+        public string Position { get; set;}
 
-        internal string? Aliases { get; set;}
+        public string? Aliases { get; set;}
 
-        internal List<string> ParameterSets { get; private set;}
+        public List<string> ParameterSets { get; private set;}
 
-        internal bool DontShow { get; set;}
+        public bool DontShow { get; set;}
 
-        internal List<string>? AcceptedValues { get; private set; }
+        public List<string>? AcceptedValues { get; private set; }
 
-        internal string? HelpMessage { get; set; }
+        public string? HelpMessage { get; set; }
 
         public Parameter(string name,
                          string type,
@@ -54,7 +54,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             PipelineInput = new PipelineInputInfo(false);
         }
 
-        internal void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
+        public void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
         {
             if (required)
             {
@@ -68,7 +68,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal void AddRequiredParameterSets(bool required, string parameterSetName)
+        public void AddRequiredParameterSets(bool required, string parameterSetName)
         {
             string updatedName = parameterSetName;
 
@@ -89,19 +89,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal void AddAcceptedValue(string value)
+        public void AddAcceptedValue(string value)
         {
             AcceptedValues ??= new List<string>();
             AcceptedValues.Add(value);
         }
 
-        internal void AddAcceptedValueRange(IEnumerable<string> values)
+        public void AddAcceptedValueRange(IEnumerable<string> values)
         {
             AcceptedValues ??= new List<string>();
             AcceptedValues.AddRange(values);
         }
 
-        internal void AddParameterSet(string parameterSetName)
+        public void AddParameterSet(string parameterSetName)
         {
             if (string.Equals(parameterSetName, "__AllParameterSets", StringComparison.OrdinalIgnoreCase))
             {
@@ -113,7 +113,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
-        internal void AddParameterSetsRange(IEnumerable<string> values)
+        public void AddParameterSetsRange(IEnumerable<string> values)
         {
             ParameterSets.AddRange(values);
         }
@@ -235,7 +235,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
+        }
 
         public static bool operator !=(Parameter parameter1, Parameter parameter2)
         {
@@ -245,13 +245,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
+        }
     }
 
-    internal class PipelineInputInfo : IEquatable<PipelineInputInfo>
+    public class PipelineInputInfo : IEquatable<PipelineInputInfo>
     {
-        internal bool ByPropertyName { get; set; }
-        internal bool ByValue { get; set; }
+        public bool ByPropertyName { get; set; }
+        public bool ByValue { get; set; }
 
         public PipelineInputInfo(bool byPropertyName, bool byValue)
         {
@@ -268,7 +268,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         override public string ToString()
         {
             return string.Format("ByName ({0}), ByValue ({1})", ByPropertyName, ByValue);
-        } 
+        }
 
         public override int GetHashCode()
         {
@@ -298,7 +298,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
+        }
 
         public static bool operator == (PipelineInputInfo info1, PipelineInputInfo info2)
         {
@@ -308,7 +308,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
+        }
 
         public static bool operator !=(PipelineInputInfo info1, PipelineInputInfo info2)
         {
@@ -318,7 +318,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             return false;
-        }   
-
+        }
     }
 }
+

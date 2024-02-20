@@ -13,7 +13,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// <summary>
     /// Model for representing data for help of a command.
     /// </summary>
-    internal partial class CommandHelp : IEquatable<CommandHelp>
+    public partial class CommandHelp : IEquatable<CommandHelp>
     {
         public bool Equals(CommandHelp other)
         {

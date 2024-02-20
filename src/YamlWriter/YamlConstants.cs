@@ -29,7 +29,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string CommonParametersYamlHeader = "- name: CommonParameters";
         internal const string OutputsYamlHeader = "outputs:";
         internal const string InputsYamlHeader = "inputs:";
-        internal const string NotesYamlHeader = "notes: |-";
+        internal const string NotesYamlHeader = "notes:";
         internal const string RelatedLinksYamlHeader = "links:";
         internal const string SyntaxYamlTemplate = "- >-";
         internal const string DefaultSyntaxYamlTemplate = "- >-";
@@ -41,7 +41,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string yamlModulePageCmdletLinkTemplate = "placeholder";
         internal const string yamlAliasHeader = "aliases:";
         internal const string yamlParameterYamlBlockWithAcceptedValues = "placeholder -{0}";
-        
     }
 }
 
