@@ -1,8 +1,8 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-$repoRoot = git rev-parse --show-toplevel
-$modRoot = Join-Path $repoRoot "out/PlatyPS"
+
+$modRoot = (Get-Module PlatyPS).ModuleBase
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
