@@ -136,7 +136,7 @@
                 "cmdletParameters": { // naming pending? use only a single word as the name if possible
                     "items": {
                         "additionalProperties": false,
-                        "required": ["name", "description", "type", "position", "parameterValueGroup"],
+                        "required": ["name", "description", "type", "parameterSet"],
                         "properties": {
                             "name": {
                                 "type": "string"
@@ -146,40 +146,63 @@
                                 "contentType": "markdown",
                                 "tags": ["localizable"]
                             },
-                            "isRequired": {
-                                "type": "boolean"
-                            },
-                            "applicable": {
-                                "items": {
-                                    "type": "string"
-                                },
-                                "minItems": 1,
-                                "type": "array"
-                            },
                             "type": {
                                 "type": "string",
                                 "contentType": "markdown"
                             },
-                            "aliases": {
-                                "type": "string"
+                            "parameterSet" : {
+                                "items": {
+                                    "type": "array",
+                                    "minItems": 1,
+                                    "additionalProperties": false,
+                                    "required": [ "name" ],
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "position": {
+                                            "type": "string"
+                                        },
+                                        "valueByPipeline": {
+                                            "type": "boolean"
+                                        },
+                                        "valueByPipelineByPropertyName": {
+                                            "type": "boolean"
+                                        },
+                                        "valueFromRemainingArguments": {
+                                            "type": "boolean"
+                                        },
+                                        "isRequired": { // mandatory
+                                            "type": "boolean"
+                                        }
+                                    }
+                                }
                             },
-                            "parameterValueGroup": {
+                            "applicable": { // ????
                                 "items": {
                                     "type": "string"
                                 },
                                 "minItems": 1,
                                 "type": "array"
                             },
-                            "parameterSetName": {
-                                "type": "string"
+                            "aliases": {
+                                "type": "array",
+                                "minItems": 1,
+                                "items": {
+                                    "type": "string"
+                                }
                             },
-                            "position": {
-                                "type": "string"
+                            "isDynamic": {
+                                "type": "boolean"
+                            },
+                            "allowedValues": { // parameterValueGroup
+                                "items": {
+                                    "type": "string"
+                                },
+                                "minItems": 1,
+                                "type": "array"
                             },
                             "defaultValue": {
-                                "type": "string"
-                            },
-                            "pipelineInput": { // change from bool to string, need to change js and template
                                 "type": "string"
                             },
                             "acceptWildcardCharacters": {
@@ -194,7 +217,7 @@
                     "minItems": 1,
                     "type": "array"
                 },
-                "commonParameters": {
+                "commonParameters": { // This implies has cmdlet binding
                     "type": "string",
                     "contentType": "markdown",
                     "tags": ["localizable"]
