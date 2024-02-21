@@ -14,7 +14,7 @@ Merge multiple markdown versions of the same cmdlet into a single markdown file.
 
 ```
 Merge-MarkdownHelp [-Path] <String[]> [-OutputPath] <String> [-Encoding <Encoding>] [-ExplicitApplicableIfAll]
- [-Force] [[-MergeMarker] <String>] [<CommonParameters>]
+ [-Force] [-NoInputOutputFormatting] [[-MergeMarker] <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -141,6 +141,21 @@ Accept pipeline input: True (ByValue)
 Accept wildcard characters: True
 ```
 
+### -NoInputOutputFormatting
+Will prevent Input/Output comments from being formatted. This might be needed because Microsoft gives us no way to actually set the values in Input/Output correct (type, description) in a PS function header, but will put everything written down there into the "type" property, so all text would be formatted bold in that case. For the Input/Output texts in a PS function header to be written without bold formatting (as is) this switch needs to be provided.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
@@ -152,6 +167,3 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ### System.IO.FileInfo[]
 
-## NOTES
-
-## RELATED LINKS

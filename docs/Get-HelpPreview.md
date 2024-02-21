@@ -106,6 +106,3 @@ You can pipe an array of paths to this cmdlet.
 ### Help Object
 This cmdlet returns a **Help** object, which is the same output as **Get-Help**.
 
-## NOTES
-
-## RELATED LINKS

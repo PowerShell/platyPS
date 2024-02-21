@@ -148,6 +148,3 @@ You can pipe an array of paths to this cmdlet.
 ### System.IO.FileInfo[]
 This cmdlet returns a **FileInfo[]** object for created files.
 
-## NOTES
-
-## RELATED LINKS

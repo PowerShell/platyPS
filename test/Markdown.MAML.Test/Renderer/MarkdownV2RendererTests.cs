@@ -264,7 +264,7 @@ namespace Markdown.MAML.Test.Renderer
         }
 
         [Fact]
-        public void RendererCreatesWorkflowParametersEntry()
+        public void RendererCreatesWorkflowParametersEntryWithoutDescriptions()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
             MamlCommand command = new MamlCommand()
@@ -282,17 +282,11 @@ schema: 2.0.0
 
 # Workflow
 
-## SYNOPSIS
-
 ## SYNTAX
 
 ```
 Workflow [<WorkflowCommonParameters>] [<CommonParameters>]
 ```
-
-## DESCRIPTION
-
-## EXAMPLES
 
 ## PARAMETERS
 
@@ -302,18 +296,57 @@ This cmdlet supports the following workflow common parameters: -PSParameterColle
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
-## INPUTS
-
-## OUTPUTS
-
-## NOTES
-
-## RELATED LINKS
 ", markdown);
         }
 
         [Fact]
-        public void RendererNormalizeQuotesAndDashes()
+        public void RendererCreatesWorkflowParametersEntry()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Workflow",
+                Synopsis = new SectionBody("Example synopsis", SectionFormatOption.LineBreakAfterHeader),
+                Description = new SectionBody("Example description", SectionFormatOption.LineBreakAfterHeader),
+                IsWorkflow = true
+            };
+
+            command.Syntax.Add(new MamlSyntax());
+
+            string markdown = renderer.MamlModelToString(command, null);
+            Common.AssertMultilineEqual(@"---
+schema: 2.0.0
+---
+
+# Workflow
+
+## SYNOPSIS
+
+Example synopsis
+
+## SYNTAX
+
+```
+Workflow [<WorkflowCommonParameters>] [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+Example description
+
+## PARAMETERS
+
+### WorkflowCommonParameters
+This cmdlet supports the following workflow common parameters: -PSParameterCollection, -PSComputerName, -PSCredential, -PSConnectionRetryCount, -PSConnectionRetryIntervalSec, -PSRunningTimeoutSec, -PSElapsedTimeoutSec, -PSPersist, -PSAuthentication, -PSAuthenticationLevel, -PSApplicationName, -PSPort, -PSUseSSL, -PSConfigurationName, -PSConnectionURI, -PSAllowRedirection, -PSSessionOption, -PSCertificateThumbprint, -PSPrivateMetadata, -AsJob, -JobName, and -InputObject. For more information, see [about_WorkflowCommonParameters](http://go.microsoft.com/fwlink/p/?LinkID=533952).
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+", markdown);
+        }
+
+        [Fact]
+        public void RendererNormalizeQuotesAndDashesWithoutDescriptions()
         {
             var renderer = new MarkdownV2Renderer(ParserMode.Full);
             MamlCommand command = new MamlCommand()
@@ -329,27 +362,47 @@ schema: 2.0.0
 
 # Test-Quotes
 
-## SYNOPSIS
-
-## SYNTAX
-
 ## DESCRIPTION
 """"''---
-
-## EXAMPLES
 
 ## PARAMETERS
 
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
-## INPUTS
+", markdown);
+        }
 
-## OUTPUTS
+        [Fact]
+        public void RendererNormalizeQuotesAndDashes()
+        {
+            var renderer = new MarkdownV2Renderer(ParserMode.Full);
+            MamlCommand command = new MamlCommand()
+            {
+                Name = "Test-Quotes",
+                Synopsis = new SectionBody("Example synopsis", SectionFormatOption.LineBreakAfterHeader),
+                Description = new SectionBody(@"”“‘’––-")
+            };
 
-## NOTES
+            string markdown = renderer.MamlModelToString(command, null);
+            Common.AssertMultilineEqual(@"---
+schema: 2.0.0
+---
 
-## RELATED LINKS
+# Test-Quotes
+
+## SYNOPSIS
+
+Example synopsis
+
+## DESCRIPTION
+""""''---
+
+## PARAMETERS
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
 ", markdown);
         }
 
@@ -537,6 +590,8 @@ Second line.
             MamlCommand command = new MamlCommand()
             {
                 Name = "Get-Foo",
+                Synopsis = new SectionBody("Example synopsis", SectionFormatOption.LineBreakAfterHeader),
+                Description = new SectionBody("Example description", SectionFormatOption.LineBreakAfterHeader),
             };
 
             var commonParam = new MamlParameter()
@@ -593,6 +648,8 @@ schema: 2.0.0
 
 ## SYNOPSIS
 
+Example synopsis
+
 ## SYNTAX
 
 ### FirstSyntax
@@ -607,7 +664,7 @@ Get-Foo -Common <String> -Second <String> [<CommonParameters>]
 
 ## DESCRIPTION
 
-## EXAMPLES
+Example description
 
 ## PARAMETERS
 
@@ -653,13 +710,6 @@ Accept wildcard characters: False
 ### CommonParameters
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
 
-## INPUTS
-
-## OUTPUTS
-
-## NOTES
-
-## RELATED LINKS
 ", markdown);
         }
 
@@ -698,22 +748,8 @@ schema: 2.0.0
 
 # Get-Foo
 
-## SYNOPSIS
-
-## SYNTAX
-
 ## DESCRIPTION
 " + command.Description + @"
-
-## EXAMPLES
-
-## PARAMETERS
-
-## INPUTS
-
-## OUTPUTS
-
-## NOTES
 
 ## RELATED LINKS
 

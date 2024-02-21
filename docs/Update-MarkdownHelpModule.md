@@ -15,7 +15,8 @@ Update all files in a markdown help module folder.
 ```
 Update-MarkdownHelpModule [-Path] <String[]> [[-Encoding] <Encoding>] [-RefreshModulePage]
  [-ModulePagePath <String>] [[-LogPath] <String>] [-LogAppend] [-AlphabeticParamsOrder] [-UseFullTypeName]
- [-UpdateInputOutput] [-Force] [-Session <PSSession>] [-ExcludeDontShow] [<CommonParameters>]
+ [-UpdateInputOutput] [-Force] [-Session <PSSession>] [-ExcludeDontShow] [-SkipEmptyFields]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -226,6 +227,21 @@ Accept wildcard characters: False
 
 ### -ExcludeDontShow
 Exclude the parameters marked with `DontShow` in the parameter attribute from the help content.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipEmptyFields
+Will omit example texts for empty fields which were not provided/found in the documentation and will instead just skip empty sections (example: no "Notes" section if no "Notes" were provided).
 
 ```yaml
 Type: SwitchParameter

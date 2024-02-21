@@ -15,7 +15,7 @@ Update PlatyPS markdown help files.
 ```
 Update-MarkdownHelp [-Path] <String[]> [[-Encoding] <Encoding>] [[-LogPath] <String>] [-LogAppend]
  [-AlphabeticParamsOrder] [-UseFullTypeName] [-UpdateInputOutput] [-Force] [-Session <PSSession>]
- [-ExcludeDontShow] [<CommonParameters>]
+ [-ExcludeDontShow] [-NoInputOutputFormatting] [-SkipEmptyFields] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -219,6 +219,36 @@ Accept wildcard characters: False
 
 ### -ExcludeDontShow
 Exclude the parameters marked with `DontShow` in the parameter attribute from the help content.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -NoInputOutputFormatting
+Will prevent Input/Output comments from being formatted. This might be needed because Microsoft gives us no way to actually set the values in Input/Output correct (type, description) in a PS function header, but will put everything written down there into the "type" property, so all text would be formatted bold in that case. For the Input/Output texts in a PS function header to be written without bold formatting (as is) this switch needs to be provided.
+
+```yaml
+Type: SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -SkipEmptyFields
+Will omit example texts for empty fields which were not provided/found in the documentation and will instead just skip empty sections (example: no "Notes" section if no "Notes" were provided).
 
 ```yaml
 Type: SwitchParameter

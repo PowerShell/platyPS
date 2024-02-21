@@ -133,6 +133,3 @@ You can pipe an array of paths to this cmdlet.
 The cmdlet returns a **Dictionary\[String, String\]** object.
 The dictionary contains key-value pairs found in the markdown metadata block.
 
-## NOTES
-
-## RELATED LINKS
