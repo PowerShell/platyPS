@@ -90,7 +90,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 cmdHelp.AddOutputItem(ReadOutput(reader));
                 cmdHelp.Notes = ReadNotes(reader);
                 cmdHelp.AddExampleItemRange(ReadExamples(reader));
-                cmdHelp.AddReleatedLinksRange(ReadRelatedLinks(reader));
+                cmdHelp.AddRelatedLinksRange(ReadRelatedLinks(reader));
                 cmdHelp.ModuleGuid = Settings.ModuleGuid;
 
                 _paramSetMap.Clear();

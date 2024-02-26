@@ -158,7 +158,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             commandHelp.Synopsis = GetSynopsisFromMarkdown(markdownContent);
 
-            commandHelp.Syntax?.AddRange(GetSyntaxFromMarkdown(markdownContent));
+            commandHelp.AddSyntaxItemRange(GetSyntaxFromMarkdown(markdownContent));
 
             commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent));
 
@@ -166,7 +166,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
             commandHelp.Examples?.AddRange(GetExamplesFromMarkdown(markdownContent));
 
-            commandHelp.Parameters.AddRange(GetParametersFromMarkdown(markdownContent));
+            foreach(var parameter in GetParametersFromMarkdown(markdownContent))
+            {
+                commandHelp.AddParameter(parameter);
+            }
+            // commandHelp.Parameters.AddRange(GetParametersFromMarkdown(markdownContent));
 
             var commandInputs = GetInputsFromMarkdown(markdownContent);
             if (commandInputs is not null)

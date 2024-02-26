@@ -53,6 +53,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public string? Notes { get; set; }
 
+        internal Dictionary<string, SyntaxItem> SyntaxDictionary { get; private set; }
+
         public CommandHelp(string title, string moduleName, CultureInfo? cultureInfo)
         {
             Aliases = new();
@@ -67,6 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Examples = new();
             Synopsis = string.Empty;
             Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
+            SyntaxDictionary = new();
         }
 
         public CommandHelp()
@@ -83,6 +86,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Title = string.Empty;
             ModuleName = string.Empty;
             Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
+            SyntaxDictionary = new();
         }
 
         public override string ToString()
@@ -99,11 +103,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddSyntaxItem(SyntaxItem syntax)
         {
             Syntax.Add(syntax);
+            // We should allow this to throw if the syntax name is not unique.
+            var pSetName = syntax.ParameterSetName ?? "Default";
+            SyntaxDictionary.Add(pSetName, syntax);
         }
 
         internal void AddSyntaxItemRange(IEnumerable<SyntaxItem> syntaxItems)
         {
             Syntax.AddRange(syntaxItems);
+            // We should allow this to throw if the syntax name is not unique.
+            foreach(var syntax in syntaxItems)
+            {
+                var pSetName = syntax.ParameterSetName ?? "Default";
+                SyntaxDictionary.Add(pSetName, syntax);
+            }
         }
 
         internal void AddAlias(string alias)
@@ -127,6 +140,34 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddParameter(Parameter parameter)
         {
             Parameters.Add(parameter);
+            foreach(var parameterSetName in parameter.ParameterSets)
+            {
+                if (string.Compare(parameterSetName, "(All)", StringComparison.OrdinalIgnoreCase) == 0)
+                {
+                    foreach(var syntax in SyntaxDictionary.Values)
+                    {
+                        try
+                        {
+                            syntax.AddParameter(parameter);
+                        }
+                        catch
+                        {
+                            // This is okay, we just don't want to add it to the syntax item if it's already there.
+                        }
+                    }
+                }
+                else if (SyntaxDictionary.TryGetValue(parameterSetName, out var syntaxItem))
+                {
+                    try
+                    {
+                        syntaxItem.AddParameter(parameter);
+                    }
+                    catch
+                    {
+                        // This is okay, we just don't want to add it to the syntax item if it's already there.
+                    }
+                }
+            }
         }
 
         public bool TryGetParameter(string name, out Parameter? parameter)
@@ -159,13 +200,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Outputs.Add(outputItem);
         }
 
-        internal void AddReleatedLinks(Links relatedLink)
+        internal void AddRelatedLinks(Links relatedLink)
         {
             RelatedLinks ??= new();
             RelatedLinks.Add(relatedLink);
         }
 
-        internal void AddReleatedLinksRange(IEnumerable<Links> relatedLinks)
+        internal void AddRelatedLinksRange(IEnumerable<Links> relatedLinks)
         {
             RelatedLinks ??= new();
             RelatedLinks.AddRange(relatedLinks);

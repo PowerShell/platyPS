@@ -88,7 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             cmdHelp.Notes = GetNotes(helpItem, addDefaultStrings);
-            cmdHelp.AddReleatedLinksRange(GetRelatedLinks(helpItem));
+            cmdHelp.AddRelatedLinksRange(GetRelatedLinks(helpItem));
 
             return cmdHelp;
         }

@@ -125,6 +125,24 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
+        public IEnumerable<Parameter> GetParametersInOrder()
+        {
+            foreach (KeyValuePair<int, Parameter> kv in _positionalParameters)
+            {
+                yield return kv.Value;
+            }
+
+            foreach (KeyValuePair<string, Parameter> kv in _requiredParameters)
+            {
+                yield return kv.Value;
+            }
+
+            foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
+            {
+                yield return kv.Value;
+            }
+        }
+
         public string ToSyntaxString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();

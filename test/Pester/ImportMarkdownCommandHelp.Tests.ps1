@@ -36,7 +36,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
             @{ name = "Locale"; expectedValue = "en-US" }
             @{ name = "Module Name"; expectedValue = "Microsoft.PowerShell.Utility" }
             @{ name = "ms.date"; expectedValue = "12/12/2022" }
-            @{ name = "online version"; expectedValue = "https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.2&WT.mc_id=ps-gethelp" }
+            @{ name = "online version"; expectedValue = "https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp" }
             @{ name = "schema"; expectedValue = "2.0.0" }
             @{ name = "title"; expectedValue = "Get-Date" }
         ) {
