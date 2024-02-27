@@ -801,8 +801,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 if (yamlDict.TryGetValue("Accept pipeline input", out string acceptedPipelineAsString))
                 {
-                    parameter.PipelineInput = new PipelineInputInfo(string.Equals(acceptedPipelineAsString.Trim(), Constants.TrueString, StringComparison.OrdinalIgnoreCase));
-
+                    parameter.PipelineInput = GetPipelineInputInfoFromString(acceptedPipelineAsString); //new PipelineInputInfo(string.Equals(acceptedPipelineAsString.Trim(), Constants.TrueString, StringComparison.OrdinalIgnoreCase));
                 }
 
                 if (yamlDict.TryGetValue("Accept wildcard characters", out string acceptWildCardAsString))
@@ -817,6 +816,23 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return parameters;
+        }
+
+        private static PipelineInputInfo GetPipelineInputInfoFromString(string acceptedPipelineAsString)
+        {
+            if (string.IsNullOrWhiteSpace(acceptedPipelineAsString))
+            {
+                return new PipelineInputInfo(false);
+            }
+
+            if (acceptedPipelineAsString.IndexOf("true", StringComparison.OrdinalIgnoreCase) != -1)
+            {
+                bool byValue = acceptedPipelineAsString.IndexOf("ByValue", StringComparison.OrdinalIgnoreCase) > 0;
+                bool byPropertyName = acceptedPipelineAsString.IndexOf("ByPropertyName", StringComparison.OrdinalIgnoreCase) > 0;
+                return new PipelineInputInfo(byValue, byPropertyName);
+            }
+
+            return new PipelineInputInfo(false);
         }
 
         private static Dictionary<string, string> parseYamlBlock(object? parsedYamlObject)
