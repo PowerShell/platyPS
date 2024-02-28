@@ -35,6 +35,12 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
+        [Parameter(Mandatory = true, Position = 1)]
+        public string OutputFileName { get; set; } = string.Empty;
+
+        [Parameter()]
+        public Hashtable Metadata { get; set; } = new Hashtable();
+
         #endregion
 
         private string fullPath { get; set; } = string.Empty;
@@ -77,7 +83,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var yamlWriter = new CommandHelpYamlWriter(settings);
                     if (ShouldProcess("Create yaml file {yamlPath}"))
                     {
-                        WriteObject(yamlWriter.Write(ch, null));
+                        WriteObject(this.InvokeProvider.Item.Get(yamlWriter.Write(ch, Metadata).FullName));
                     }
                 }
             }
