@@ -101,7 +101,7 @@ Describe "Export-MamlCommandHelp tests" {
 
         It "Should have the same content for the description" {
             # reconstruct the description from the objects
-            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Description -replace "`n"," " -join " " -replace "  ", " "
+            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Description -replace "`r" -replace "`n"," " -join " " -replace "  ", " "
             $observed = $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Get-Date"}).description.para -join " "
             $observed | Should -Be $expected
         }
