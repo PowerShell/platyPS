@@ -35,9 +35,6 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
-        [Parameter(Mandatory = true, Position = 1)]
-        public string OutputFileName { get; set; } = string.Empty;
-
         [Parameter()]
         public Hashtable Metadata { get; set; } = new Hashtable();
 
