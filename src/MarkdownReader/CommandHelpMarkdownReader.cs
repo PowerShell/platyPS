@@ -70,7 +70,9 @@ namespace Microsoft.PowerShell.PlatyPS
 		public static CommandHelp GetCommandHelpFromMarkdownFile(string path)
 		{
             var md = ParsedMarkdownContent.ParseFile(path);
-			return GetCommandHelpFromMarkdown(md);
+			var commandHelp = GetCommandHelpFromMarkdown(md);
+            commandHelp.Diagnostics.FileName = path;
+            return commandHelp;
 		}
 
         /// <summary>
@@ -153,40 +155,101 @@ namespace Microsoft.PowerShell.PlatyPS
 
             commandHelp.Metadata = metadata;
 
-            commandHelp.HasCmdletBinding = GetCmdletBindingState(markdownContent);
-            commandHelp.HasWorkflowCommonParameters = GetWorkflowCommonParameterState(markdownContent);
+            commandHelp.HasCmdletBinding = GetCmdletBindingState(markdownContent, out var cmdletBindingDiagnostics);
+            if (cmdletBindingDiagnostics is not null)
+            {
+                commandHelp.Diagnostics.Messages.AddRange(cmdletBindingDiagnostics);
+            }
 
-            commandHelp.Synopsis = GetSynopsisFromMarkdown(markdownContent);
+            commandHelp.HasWorkflowCommonParameters = GetWorkflowCommonParameterState(markdownContent, out var workflowDiagnostics);
+            if (workflowDiagnostics is not null)
+            {
+                commandHelp.Diagnostics.Messages.AddRange(workflowDiagnostics);
+            }
 
-            commandHelp.AddSyntaxItemRange(GetSyntaxFromMarkdown(markdownContent));
+            List<DiagnosticMessage> synopsisDiagnostics = new();
+            commandHelp.Synopsis = GetSynopsisFromMarkdown(markdownContent, out synopsisDiagnostics);
+            if (synopsisDiagnostics is not null && synopsisDiagnostics.Count > 0)
+            {
+                synopsisDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
-            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent));
+            List<DiagnosticMessage> syntaxDiagnostics = new();
+            commandHelp.AddSyntaxItemRange(GetSyntaxFromMarkdown(markdownContent, out syntaxDiagnostics));
+            if (syntaxDiagnostics is not null && syntaxDiagnostics.Count > 0)
+            {
+                syntaxDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
-            commandHelp.Description = GetDescriptionFromMarkdown(markdownContent);
+            List<DiagnosticMessage> aliasesDiagnostics = new();
+            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics));
+            if (aliasesDiagnostics is not null && aliasesDiagnostics.Count > 0)
+            {
+                aliasesDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
-            commandHelp.Examples?.AddRange(GetExamplesFromMarkdown(markdownContent));
+            List<DiagnosticMessage> descriptionDiagnostics = new();
+            commandHelp.Description = GetDescriptionFromMarkdown(markdownContent, out descriptionDiagnostics);
+            if (descriptionDiagnostics is not null && descriptionDiagnostics.Count > 0)
+            {
+                descriptionDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
-            foreach(var parameter in GetParametersFromMarkdown(markdownContent))
+            List<DiagnosticMessage> examplesDiagnostics = new();
+            commandHelp.Examples?.AddRange(GetExamplesFromMarkdown(markdownContent, out examplesDiagnostics));
+            if (examplesDiagnostics is not null && examplesDiagnostics.Count > 0)
+            {
+                examplesDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
+
+            List<DiagnosticMessage> parameterDiagnostics = new();
+            foreach(var parameter in GetParametersFromMarkdown(markdownContent, out parameterDiagnostics))
             {
                 commandHelp.AddParameter(parameter);
             }
-            // commandHelp.Parameters.AddRange(GetParametersFromMarkdown(markdownContent));
 
-            var commandInputs = GetInputsFromMarkdown(markdownContent);
+            if (parameterDiagnostics is not null && parameterDiagnostics.Count > 0)
+            {
+                parameterDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
+
+            List<DiagnosticMessage> inputsDiagnostics = new();
+            var commandInputs = GetInputsFromMarkdown(markdownContent, out inputsDiagnostics);
             if (commandInputs is not null)
             {
                 commandHelp.Inputs?.Add(commandInputs);
             }
 
-            var commandOutputs = GetOutputsFromMarkdown(markdownContent);
+            if (inputsDiagnostics is not null && inputsDiagnostics.Count > 0)
+            {
+                inputsDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
+
+            List<DiagnosticMessage> outputsDiagnostics = new();
+            var commandOutputs = GetOutputsFromMarkdown(markdownContent, out outputsDiagnostics);
             if (commandOutputs is not null)
             {
                 commandHelp.Outputs?.Add(commandOutputs);
             }
 
-            commandHelp.Notes = GetNotesFromMarkdown(markdownContent);
+            if (outputsDiagnostics is not null && outputsDiagnostics.Count > 0)
+            {
+                outputsDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
-            commandHelp.RelatedLinks?.AddRange(GetRelatedLinksFromMarkdown(markdownContent));
+            List<DiagnosticMessage> notesDiagnostics = new();
+            commandHelp.Notes = GetNotesFromMarkdown(markdownContent, out notesDiagnostics);
+            if (notesDiagnostics is not null && notesDiagnostics.Count > 0)
+            {
+                notesDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
+
+            List<DiagnosticMessage> linksDiagnostics = new();
+            commandHelp.RelatedLinks?.AddRange(GetRelatedLinksFromMarkdown(markdownContent, out linksDiagnostics));
+            if (linksDiagnostics is not null && linksDiagnostics.Count > 0)
+            {
+                linksDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
             return commandHelp;
 
@@ -236,8 +299,9 @@ namespace Microsoft.PowerShell.PlatyPS
         /// </summary>
         /// <param name="markdownContent">The parsed markdown data.</param>
         /// <returns>List<Links></returns>
-        internal static List<Links> GetRelatedLinksFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static List<Links> GetRelatedLinksFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "RELATED LINKS");
             if (start == -1 || markdownContent.Ast.Count <= start + 1)
@@ -250,8 +314,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return links;
         }
 
-        internal static string GetNotesFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static string GetNotesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "NOTES");
             if (start == -1)
@@ -270,8 +335,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return markdownContent.GetStringFromAst(end);
         }
 
-        internal static InputOutput? GetInputsFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static InputOutput? GetInputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "INPUTS");
             if (start != -1)
@@ -283,8 +349,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-        internal static InputOutput? GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static InputOutput? GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "OUTPUTS");
             if (start != -1)
@@ -296,25 +363,28 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-        internal static Collection<Parameter> GetParametersFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static Collection<Parameter> GetParametersFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "PARAMETERS");
             var parameters = GetParameters(markdownContent, start + 1);
             return parameters;
         }
 
-        internal static Collection<Example> GetExamplesFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static Collection<Example> GetExamplesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
 
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "EXAMPLES");
             var examples = GetExamples(markdownContent, start + 1);
             return examples;
         }
 
-        internal static string GetDescriptionFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static string GetDescriptionFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "DESCRIPTION");
             markdownContent.Seek(start);
@@ -323,8 +393,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return markdownContent.GetStringFromAst(end);
         }
 
-        internal static List<SyntaxItem> GetSyntaxFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static List<SyntaxItem> GetSyntaxFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             var start = markdownContent.FindHeader(2, "SYNTAX");
             markdownContent.Seek(start);
             var end   = markdownContent.FindHeader(2, string.Empty);
@@ -381,8 +452,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return syntax;
         }
 
-        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             var start = markdownContent.FindHeader(2, "ALIASES");
             if (start == -1)
             {
@@ -391,8 +463,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return GetAliases(markdownContent.Ast, start + 1);
         }
 
-        internal static string GetSynopsisFromMarkdown(ParsedMarkdownContent markdownContent)
+        internal static string GetSynopsisFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             var start = markdownContent.FindHeader(2, "SYNOPSIS");
             markdownContent.Seek(start);
             markdownContent.Take();
@@ -1162,16 +1235,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 else
                 {
                     foundIssues.Add($"PASS: {element.Name} found.");
-                }
-
-                if (elementIndex < currentElement)
-                {
-                    foundIssues.Add($"FAIL: {element.Name} is out of order.");
-                    result = false;
-                }
-                else
-                {
-                    foundIssues.Add($"PASS: {element.Name} is in order.");
+                    if (elementIndex < currentElement)
+                    {
+                        foundIssues.Add($"FAIL: {element.Name} is out of order.");
+                        result = false;
+                    }
+                    else
+                    {
+                        foundIssues.Add($"PASS: {element.Name} is in order.");
+                    }
                 }
 
                 currentElement = elementIndex;
@@ -1181,14 +1253,44 @@ namespace Microsoft.PowerShell.PlatyPS
             return result;
         }
 
-        internal static bool GetWorkflowCommonParameterState(ParsedMarkdownContent markdownContent)
+        internal static bool GetWorkflowCommonParameterState(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage>diagnostics)
         {
-            return (markdownContent.FindHeader(3, "WorkflowCommonParameters") > -1);
+            diagnostics = new List<DiagnosticMessage>();
+            var index = markdownContent.FindHeader(3, "WorkflowCommonParameters");
+            DiagnosticMessage dm;
+            if (index == -1)
+            {
+                dm = new DiagnosticMessage(DiagnosticMessageSource.General, "Workflow parameters not present", DiagnosticSeverity.Information, "GetWorkflowCommonParameterState", -1);
+            }
+            else
+            {
+                dm = new DiagnosticMessage(DiagnosticMessageSource.General, "Workflow parameters present", DiagnosticSeverity.Information, "GetWorkflowCommonParameterState", markdownContent.Ast[index].Line);
+            }
+            diagnostics.Add(dm);
+            return index > -1;
         }
 
-        internal static bool GetCmdletBindingState(ParsedMarkdownContent markdownContent)
+        internal static bool GetCmdletBindingState(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
-            return (markdownContent.FindHeader(3, "CommonParameters") > -1);
+            diagnostics = new List<DiagnosticMessage>();
+            var index = markdownContent.FindHeader(3, "CommonParameters");
+            var dm = new DiagnosticMessage();
+            dm.Source = DiagnosticMessageSource.General;
+            dm.Severity = DiagnosticSeverity.Information;
+
+            if (index != -1)
+            {
+                dm.Identifier = markdownContent.Ast[index].ToString();
+                dm.Line = markdownContent.Ast[index].Line;
+                dm.Message.Add("CmdletBinding is present.");
+            }
+            else
+            {
+                dm.Message.Add("CmdletBinding is not present.");
+            }
+
+
+            return index > -1;
         }
     }
 

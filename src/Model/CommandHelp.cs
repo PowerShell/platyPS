@@ -53,6 +53,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public string? Notes { get; set; }
 
+        public Diagnostics Diagnostics { get; set; }
+
         internal Dictionary<string, SyntaxItem> SyntaxDictionary { get; private set; }
 
         public CommandHelp(string title, string moduleName, CultureInfo? cultureInfo)
@@ -70,6 +72,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Synopsis = string.Empty;
             Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
             SyntaxDictionary = new();
+            Diagnostics = new();
         }
 
         public CommandHelp()
@@ -87,6 +90,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             ModuleName = string.Empty;
             Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
             SyntaxDictionary = new();
+            Diagnostics = new();
         }
 
         public override string ToString()
