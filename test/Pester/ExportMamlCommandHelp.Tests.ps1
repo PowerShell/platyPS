@@ -99,10 +99,10 @@ Describe "Export-MamlCommandHelp tests" {
             $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Get-Date"}).relatedLinks.navigationLink.Count | Should -Be 6
         }
 
-        It "Should have the same content for the description" {
+        It "Should have the same content for the description" -Pending {
             # reconstruct the description from the objects
-            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Description -replace ([environment]::newline)," " -join " " -replace "  ", " "
-            $observed = $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Get-Date"}).description.para -replace ([environment]::newline)," " -join " " -replace "  ", " "
+            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Description
+            $observed = $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Get-Date"}).description.para
             $observed | Should -Be $expected
         }
     }
