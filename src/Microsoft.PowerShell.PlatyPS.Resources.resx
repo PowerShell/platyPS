@@ -120,6 +120,9 @@
   <data name="CommandNotFound" xml:space="preserve">
     <value>Command '{0}' not found in the session.</value>
   </data>
+  <data name="FileExists" xml:space="preserve">
+    <value>File '{0}' exists.</value>
+  </data>
   <data name="FileNotFound" xml:space="preserve">
     <value>File '{0}' not found.</value>
   </data>
@@ -136,3 +139,4 @@
     <value>Path '{0}' is not a folder.</value>
   </data>
 </root>
+

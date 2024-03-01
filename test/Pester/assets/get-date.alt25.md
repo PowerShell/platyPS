@@ -3,7 +3,7 @@ external help file: Microsoft.PowerShell.Commands.Utility.dll-Help.xml
 Locale: en-US
 Module Name: Microsoft.PowerShell.Utility
 ms.date: 12/12/2022
-online version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.2&WT.mc_id=ps-gethelp
+online version: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp
 schema: 2.0.0
 title: Get-Date
 ---
@@ -15,7 +15,7 @@ Gets the current date and time.
 
 ## SYNTAX
 
-### Date (Default)
+### DateAndFormat (Default)
 
 ```
 Get-Date [[-Date] <DateTime>] [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-Hour <Int32>]
@@ -23,7 +23,7 @@ Get-Date [[-Date] <DateTime>] [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-
  [-Format <String>] [-AsUTC] [<CommonParameters>]
 ```
 
-### DateUFormat
+### DateAndUFormat
 
 ```
 Get-Date [[-Date] <DateTime>] [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-Hour <Int32>]
@@ -31,7 +31,7 @@ Get-Date [[-Date] <DateTime>] [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-
  -UFormat <String> [<CommonParameters>]
 ```
 
-### UnixTimeSeconds
+### UnixTimeSecondsAndFormat
 
 ```
 Get-Date -UnixTimeSeconds <Int64> [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-Hour <Int32>]
@@ -39,7 +39,7 @@ Get-Date -UnixTimeSeconds <Int64> [-Year <Int32>] [-Month <Int32>] [-Day <Int32>
  [-Format <String>] [-AsUTC] [<CommonParameters>]
 ```
 
-### UnixTimeSecondsUFormat
+### UnixTimeSecondsAndUFormat
 
 ```
 Get-Date -UnixTimeSeconds <Int64> [-Year <Int32>] [-Month <Int32>] [-Day <Int32>] [-Hour <Int32>]
@@ -162,9 +162,9 @@ The Gregorian calendar has 365 days, except for leap years that have 366 days. F
 `Get-Date` uses three parameters to specify the date: **Year**, **Month**, and **Day**. The command
 is wrapped with parentheses so that the result is evaluated by the **DayofYear** property.
 
-### Example 6: Check if a date is adjusted for daylight savings time
+### Example 6: Check if a date is adjusted for daylight saving time
 
-This example uses a boolean method to verify if a date is adjusted by daylight savings time.
+This example uses a boolean method to verify if a date is adjusted by daylight saving time.
 
 ```powershell
 $DST = Get-Date
@@ -176,7 +176,7 @@ True
 ```
 
 A variable, `$DST` stores the result of `Get-Date`. `$DST` uses the **IsDaylightSavingTime** method
-to test if the date is adjusted for daylight savings time.
+to test if the date is adjusted for daylight saving time.
 
 ### Example 7: Convert the current time to UTC time
 
