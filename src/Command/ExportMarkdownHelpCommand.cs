@@ -68,7 +68,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         var settings = new CommandHelpWriterSettings(Encoding, markdownPath);
                         var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        WriteObject(cmdWrt.Write(cmdletHelp, null));
+                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
                     }
                 }
                 else
