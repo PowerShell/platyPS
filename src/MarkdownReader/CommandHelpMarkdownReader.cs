@@ -138,6 +138,39 @@ namespace Microsoft.PowerShell.PlatyPS
             return string.Empty;
         }
 
+        // There are some fields which are required, we will check those here
+        // and create diagnostic messages for them
+        internal static void ValidateMetadata(OrderedDictionary metadata, out List<DiagnosticMessage> diagnostics)
+        {
+            diagnostics = new List<DiagnosticMessage>();
+            string[]requiredKeys = new string[] {
+                "external help file",
+                "Locale",
+                "Module Name",
+                "ms.date",
+                "online version",
+                "schema",
+                "title"
+            };
+            
+            foreach(var key in requiredKeys)
+            {
+                if (metadata.Contains(key))
+                {
+                    // we don't have line information here.
+                    diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Metadata, "Metadata", DiagnosticSeverity.Information, $"found '{key}'", 1)
+                    );
+                }
+                else
+                {
+                    diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Metadata, "Metadata", DiagnosticSeverity.Error, $"not found '{key}'", 1)
+                    );
+                }
+            }
+        }
+
         internal static CommandHelp GetCommandHelpFromMarkdown(ParsedMarkdownContent markdownContent)
         {
             /*
@@ -158,17 +191,27 @@ namespace Microsoft.PowerShell.PlatyPS
             CommandHelp commandHelp;
 
             OrderedDictionary? metadata = GetMetadata(markdownContent.Ast);
-			string moduleName = metadata?["Module Name"] as string ?? string.Empty;
+            if (metadata is null)
+            {
+                throw new InvalidDataException("null metadata");
+            }
+
             var commandName = GetCommandNameFromMarkdown(markdownContent);
             if (commandName == string.Empty)
             {
                 throw new InvalidDataException("commandName not found. markdown structure not according to schema.");
             }
 
+			string moduleName = metadata["Module Name"] as string ?? string.Empty;
+
             commandHelp = new CommandHelp(commandName, moduleName, cultureInfo: null);
+            ValidateMetadata(metadata, out var metadataDiagnostics);
+            if (metadataDiagnostics is not null)
+            {
+                metadataDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
+            }
 
             commandHelp.Metadata = metadata;
-
             commandHelp.HasCmdletBinding = GetCmdletBindingState(markdownContent, out var cmdletBindingDiagnostics);
             if (cmdletBindingDiagnostics is not null)
             {
@@ -320,11 +363,17 @@ namespace Microsoft.PowerShell.PlatyPS
             var start = markdownContent.FindHeader(2, "RELATED LINKS");
             if (start == -1 || markdownContent.Ast.Count <= start + 1)
             {
+                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Links, "no links found", DiagnosticSeverity.Information, "GetRelatedLinks", markdownContent.GetTextLine(start));
+                diagnostics.Add(dm0);
                 return new List<Links>();
             }
 
+            var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Links, "Links found", DiagnosticSeverity.Information, "GetRelatedLinks", markdownContent.GetTextLine(start));
+            diagnostics.Add(dm1);
             markdownContent.Seek(start);
             var links = GetLinks(markdownContent);
+            var dm2 = new DiagnosticMessage(DiagnosticMessageSource.Links, "Links found", DiagnosticSeverity.Information, $"{links.Count} links found", markdownContent.GetTextLine(start));
+            diagnostics.Add(dm2);
             return links;
         }
 
@@ -335,18 +384,26 @@ namespace Microsoft.PowerShell.PlatyPS
             var start = markdownContent.FindHeader(2, "NOTES");
             if (start == -1)
             {
+                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes header not found", DiagnosticSeverity.Information, "GetNotes", markdownContent.GetTextLine(start));
+                diagnostics.Add(dm0);
                 return string.Empty;
             }
+
             markdownContent.Seek(start);
             var end = markdownContent.FindHeader(2, "RELATED LINKS");
             // Notes may be blank, which means the NOTES header is followed by RELATED LINKS header
             if (end - start == 1)
             {
+                var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes content not found", DiagnosticSeverity.Information, "GetNotes", markdownContent.GetTextLine(start));
+                diagnostics.Add(dm1);
                 return string.Empty;
             }
 
             markdownContent.Take();
-            return markdownContent.GetStringFromAst(end);
+            var noteContent = markdownContent.GetStringFromAst(end);
+            var dm2 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes content not found", DiagnosticSeverity.Information, $"Notes length = {noteContent.Length}", markdownContent.GetTextLine(start));
+            diagnostics.Add(dm2);
+            return noteContent;
         }
 
         internal static InputOutput? GetInputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
@@ -358,8 +415,13 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 markdownContent.Seek(start);
                 var inputOutput = GetInputOutput(markdownContent);
+                var dm = new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start);
+                diagnostics.Add(dm);
                 return inputOutput;
             }
+
+            var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, "0 items found", start);
+            diagnostics.Add(dm1);
             return null;
         }
 
@@ -372,8 +434,13 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 markdownContent.Seek(start);
                 var inputOutput = GetInputOutput(markdownContent);
+                var dm = new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start);
+                diagnostics.Add(dm);
                 return inputOutput;
             }
+
+            var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, "0 items found", start);
+            diagnostics.Add(dm1);
             return null;
         }
 
@@ -382,7 +449,10 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "PARAMETERS");
-            var parameters = GetParameters(markdownContent, start + 1);
+            var parameters = GetParameters(markdownContent, start + 1, out List<DiagnosticMessage> parameterDiagnostics);
+            var dm = new DiagnosticMessage(DiagnosticMessageSource.Parameter, "Parameters", DiagnosticSeverity.Information, $"{parameters.Count} parameters found", start);
+            diagnostics.Add(dm);
+            diagnostics.AddRange(parameterDiagnostics);
             return parameters;
         }
 
@@ -490,19 +560,35 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static string GetSynopsisFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            string synopsisString = string.Empty;
             diagnostics = new List<DiagnosticMessage>();
             var start = markdownContent.FindHeader(2, "SYNOPSIS");
-            DiagnosticMessage dm = new DiagnosticMessage(DiagnosticMessageSource.Synopsis, start != -1 ? "SYNOPSIS header found" : "SYNOPSIS header not found", DiagnosticSeverity.Information, "SYNOPSIS", markdownContent.GetTextLine(start));
-            diagnostics.Add(dm);
-            markdownContent.Seek(start);
-            markdownContent.Take();
             if (start == -1)
             {
-                return string.Empty;
+                diagnostics.Add(
+                    new DiagnosticMessage(DiagnosticMessageSource.Synopsis, "SYNOPSIS not found", DiagnosticSeverity.Error, "missing synopsis", -1)
+                );
+            }
+            else
+            {
+                markdownContent.Seek(start);
+                markdownContent.Take();
+                var end = markdownContent.FindHeader(2, "SYNTAX");
+                diagnostics.Add(
+                    new DiagnosticMessage(DiagnosticMessageSource.Synopsis, "SYNOPSIS found", DiagnosticSeverity.Information, synopsisString, markdownContent.GetTextLine(start))
+                );
+
+                synopsisString = markdownContent.GetStringFromAst(end);
+                // if the synopsis string is empty, report that as an error.
+                if (synopsisString == string.Empty)
+                {
+                    diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Synopsis, "SYNOPSIS found", DiagnosticSeverity.Error, "Synopsis text is empty", markdownContent.GetTextLine(start))
+                    );
+                }
             }
 
-            var end = markdownContent.FindHeader(2, "SYNTAX");
-            return markdownContent.GetStringFromAst(end);
+            return synopsisString;
         }
 
         internal static List<string> GetAliases(MarkdownDocument md, int startIndex)
@@ -786,8 +872,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        internal static Collection<Parameter> GetParameters(ParsedMarkdownContent markdownContent, int startIndex)
+        internal static Collection<Parameter> GetParameters(ParsedMarkdownContent markdownContent, int startIndex, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new List<DiagnosticMessage>();
             var parameters = new Collection<Parameter>();
             var md = markdownContent.Ast;
 
@@ -816,6 +903,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 // Ignore CommonParameters, it's a property on the command and we have boilerplate for it.
                 if (string.Equals(parameterName, "CommonParameters", StringComparison.OrdinalIgnoreCase))
                 {
+                    diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "GetParameters", md[currentIndex].Line + 1)
+                        );
                     currentIndex = parameterItemIndex + 1;
                     continue;
                 }
@@ -824,11 +914,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (string.Equals(parameterName, "WorkflowCommonParameters", StringComparison.OrdinalIgnoreCase))
                 {
                     currentIndex = parameterItemIndex + 1;
+                    diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "GetParameters", md[currentIndex].Line + 1)
+                        );
                     continue;
                 }
 
                 var yamlBlockIndex = GetNextCodeBlock(md, parameterItemIndex, "yaml");
-                // string description = GetParameterDescription(markdownContent, parameterItemIndex);
                 string description = GetParameterDescription(markdownContent, parameterItemIndex + 1, yamlBlockIndex);
 
                 var paramYamlBlock = GetParameterYamlBlock(md, parameterItemIndex + 1, language: "yaml");
@@ -848,9 +940,12 @@ namespace Microsoft.PowerShell.PlatyPS
                         var yamlObject = deserializer.Deserialize(stringReader);
                         yamlDict = parseYamlBlock(yamlObject);
                     }
-                    catch (Exception e) // Deserialize can fail, if it does then parse the yaml block manually.
+                    catch (Exception e) // Deserialize can fail, if it does we will need to parse the yaml block manually.
                     {
                         AddParseError(parameterName, e.Message, md[parameterItemIndex].Line);
+                        diagnostics.Add(
+                            new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Error, "YAML Parse Failure", md[parameterItemIndex].Line + 1)
+                        );
                         yamlDict = new Dictionary<string, string>();
                     }
                 }
@@ -870,6 +965,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 Parameter parameter = new Parameter(parameterName, typeAsString.Trim(), positionAsString.Trim());
+                diagnostics.Add(
+                        new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "GetParameters", md[parameterItemIndex].Line)
+                    );
 
                 if (yamlDict.TryGetValue("Parameter Sets", out string parameterSetsAsString))
                 {
@@ -1417,7 +1515,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public object? Take()
         {
-            if (IsEnd())
+            if (IsEnd() || CurrentIndex < 0)
             {
                 return null;
             }
@@ -1435,11 +1533,8 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 return Ast[offset].Line + 1; // internally, we are 0 based
             }
-
         }
-
     
-
         public bool IsEmptyHeader(int Level)
         {
             var currentHeader = Ast[CurrentIndex] as HeadingBlock;
