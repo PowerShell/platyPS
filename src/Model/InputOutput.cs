@@ -26,6 +26,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _inputOutputItems.Add((typeName, description));
         }
 
+        public int GetCount()
+        {
+            return _inputOutputItems.Count;
+        }
+
         internal string ToInputOutputString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();

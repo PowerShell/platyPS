@@ -129,7 +129,14 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
             var newSyntax = new SyntaxItem();
             var firstSpace = syntax.CommandName.IndexOf(' ');
-            newSyntax.CommandName = syntax.CommandName.Substring(0, firstSpace);
+            if (firstSpace == -1)
+            {
+                newSyntax.CommandName = syntax.CommandName;
+            }
+            else
+            {
+                newSyntax.CommandName = syntax.CommandName.Substring(0, firstSpace);
+            }
             foreach(var parameter in syntax.GetParametersInOrder())
             {
                 newSyntax.Parameters.Add(ConvertParameter(parameter));

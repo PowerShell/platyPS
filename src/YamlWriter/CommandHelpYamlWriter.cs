@@ -36,6 +36,8 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             }
         }
 
+        internal static StringSplitOptions stringSplitOptions = StringSplitOptions.None;
+
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
             sb.AppendLine("metadata:");
@@ -99,7 +101,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                         var syntaxString = item.ToSyntaxString(Constants.DefaultSyntaxYamlTemplate);
                         if (syntaxString is not null)
                         {
-                            foreach(var line in syntaxString.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
+                            foreach(var line in syntaxString.Trim().Split(Constants.LineSplitter, stringSplitOptions))
                             {
                                 if (line != "```")
                                 {
@@ -120,7 +122,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                         var syntaxString = item.ToSyntaxString(Constants.SyntaxYamlTemplate);
                         if (syntaxString is not null)
                         {
-                            foreach(var line in syntaxString.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
+                            foreach(var line in syntaxString.Trim().Split(Constants.LineSplitter, stringSplitOptions))
                             {
                                 if (line != "```")
                                 {
@@ -190,7 +192,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 sb.AppendLine("  description: |-");
                 if (example.Remarks is not null)
                 {
-                    foreach(var line in example.Remarks.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
+                    foreach(var line in example.Remarks.Trim().Split(Constants.LineSplitter, stringSplitOptions))
                     {
                         sb.AppendLine(string.Format("    {0}", line?.Trim()));
                     }
@@ -242,7 +244,8 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 {
                     sb.AppendLine(Constants.CommonParametersYamlHeader);
                     sb.AppendLine("  description: |-");
-                    foreach(var line in ConstantsHelper.GetCommonParametersMessage())
+                    var commonParameters = ConstantsHelper.GetCommonParametersMessage();
+                    foreach(var line in commonParameters.Split(Constants.LineSplitter, stringSplitOptions))
                     {
                         sb.AppendLine($"    {line}");
                     }
@@ -276,10 +279,17 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 foreach(var item in inputoutput._inputOutputItems)
                 {
                     sb.AppendLine(string.Format("- name: {0}", item.Item1));
-                    sb.AppendLine("  description: |-");
-                    foreach(var line in item.Item2.Split(Constants.LineSplitter, StringSplitOptions.RemoveEmptyEntries))
+                    if (item.Item2.Length > 0)
                     {
-                        sb.AppendLine(string.Format("    {0}", line));
+                        sb.AppendLine("  description: |-");
+                        foreach(var line in item.Item2.Trim().Split(Constants.LineSplitter, stringSplitOptions))
+                        {
+                            sb.AppendLine(string.Format("    {0}", line));
+                        }
+                    }
+                    else
+                    {
+                        sb.AppendLine("  description:");
                     }
                 }
             }

@@ -41,7 +41,15 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             ParameterSetName = parameterSetName;
             IsDefaultParameterSet = isDefaultParameterSet;
-            CommandName = commandName;
+            // the commandName may be the entire syntax string, we need to prune it to get the actual command name.
+            if (commandName.IndexOf(' ') == -1)
+            {
+                CommandName = commandName;
+            }
+            else
+            {
+                CommandName = commandName.Substring(0, commandName.IndexOf(' '));
+            }
 
             _positionalParameters = new SortedList<int, Parameter>();
             _requiredParameters = new SortedList<string, Parameter>();
