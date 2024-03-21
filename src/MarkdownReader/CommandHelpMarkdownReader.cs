@@ -497,14 +497,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (markdownContent.Peek() is FencedCodeBlock fcb)
                 {
                     var rawSyntax = fcb.Lines.ToString();
-                    var syntaxLine = rawSyntax.Replace("[<CommonParameters>]", string.Empty).Trim();
-                    syntax.Add(new SyntaxItem(syntaxLine.Trim(), "Default", true));
+                    var si = CreateSyntaxFromText(rawSyntax, "Default", true);
+                    syntax.Add(si);
                 }
                 var syntaxDiagnostic = new DiagnosticMessage(DiagnosticMessageSource.Syntax, start != -1 ? "SYNTAX header found" : "SYNTAX header not found", DiagnosticSeverity.Information, "SYNTAX", markdownContent.GetTextLine(start));
                 diagnostics.Add(syntaxDiagnostic);
                 return syntax;
             }
 
+            // Now read the rest of the remaining syntax blocks
             while(markdownContent.CurrentIndex < end)
             {
                 var individualSyntaxStart = markdownContent.FindHeader(3, string.Empty);
@@ -523,25 +524,145 @@ namespace Microsoft.PowerShell.PlatyPS
                         parameterSetName = parameterSetName.Replace("(Default)", string.Empty).Trim();
                     }
 
-                    string syntaxLine = string.Empty;
                     if (markdownContent.GetCurrent() is FencedCodeBlock fcb)
                     {
                         var rawSyntax = fcb.Lines.ToString();
-                        // we don't need to keep CommonParameters here, as we will add it back as part of the writing process.
-                        syntaxLine = rawSyntax.Replace("[<CommonParameters>]", string.Empty).Trim();
-                        // no take - the next findheader should move us forward
-                        // markdownContent.Take();
+                        var si = CreateSyntaxFromText(rawSyntax, parameterSetName, isDefault);
+                        syntax.Add(si);
                     }
-
-                    syntax.Add(new SyntaxItem(syntaxLine.Trim(), parameterSetName.Trim(), isDefault));
                 }
-                // Else Unget????
-
             }
 
             var dm = new DiagnosticMessage(DiagnosticMessageSource.Syntax, start != -1 ? "SYNTAX header found" : "SYNTAX header not found", DiagnosticSeverity.Information, $"{syntax.Count} items found", markdownContent.GetTextLine(start));
             diagnostics.Add(dm);
             return syntax;
+        }
+
+        private static SyntaxItem CreateSyntaxFromText(string text, string pSetName, bool isDefault)
+        {
+            var spaceIndex = text.IndexOf(" ");
+            var commandName = spaceIndex < 0 ? text : text.Substring(0, spaceIndex);
+            var si = new SyntaxItem(commandName, pSetName, isDefault);
+            si.SyntaxParameters = GetSyntaxParameters(text);
+            si.HasCmdletBinding = text.IndexOf("CommonParameters", StringComparison.CurrentCultureIgnoreCase) != -1 ? true : false;
+            return si;
+        }
+
+        internal static List<SyntaxParameter> GetSyntaxParameters(string rawSyntax)
+        {
+            var parameters = new List<SyntaxParameter>();
+            int position = 0;
+            string[] elements = rawSyntax.Split(new char[]{' ','\n','\r'}, StringSplitOptions.RemoveEmptyEntries);
+
+            if (elements.Length <= 1)
+            {
+                return parameters;
+            }
+
+            var paramTrimChars = new char[] { '[', ']', '-'};
+            var valueTrimChars = new char[] {'<', '>'};
+            for (int i = 1; i < elements.Length; i++)
+            {
+                string parameter = elements[i];
+                var parameterName = parameter.Trim(paramTrimChars);
+                var commonParameterPattern = new Regex("CommonParameters", RegexOptions.IgnoreCase);
+                if (commonParameterPattern.Match(parameter).Success)
+                {
+                    continue;
+                }
+
+                if (i+1 < elements.Length && elements[i+1].StartsWith("<"))
+                {
+                    i++;
+                    var pType = elements[i];
+                    var pTypeName = pType.TrimEnd(']').Trim(valueTrimChars);
+                    if (parameter.StartsWith("[[") && parameter.EndsWith("]")) // [[-parm] <type>] optional, positional parameter
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = pTypeName,
+                                Position = position.ToString(),
+                                IsMandatory = false,
+                                IsPositional = true,
+                                IsSwitchParameter = false
+                            }
+                        );
+                        position++;
+                    }
+                    else if(parameter.StartsWith("[") && parameter.EndsWith("]")) // [-parm] <string[]> - mandatory positional
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = pTypeName,
+                                Position = position.ToString(),
+                                IsMandatory = true,
+                                IsPositional = true,
+                                IsSwitchParameter = false
+                            }
+                        );
+                        position++;
+                    }
+                    else if (parameter.StartsWith("[") && pType.EndsWith("]")) // [-par <string[]>] optional parameter and argument
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = pTypeName,
+                                Position = "named",
+                                IsMandatory = false,
+                                IsPositional = false,
+                                IsSwitchParameter = false
+                            }
+                        );
+                    }
+                    else if (pType.StartsWith("<") && pType.EndsWith(">")) // -par <string[]> mandatory, non-positional
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = pTypeName,
+                                Position = "named",
+                                IsMandatory = true,
+                                IsPositional = false,
+                                IsSwitchParameter = false
+                            }
+                        );
+                    }
+                }
+                else // [-parm] or -parm - switch parameter
+                {
+                    if (parameter.StartsWith("-")) // Mandatory Switch -switch
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = "SwitchParameter",
+                                Position = "named",
+                                IsMandatory = true,
+                                IsPositional = false,
+                                IsSwitchParameter = true
+                            }
+                        );
+                    }
+                    else if (parameter.StartsWith("[") && parameter.EndsWith("]")) // [-switch] optional
+                    {
+                        parameters.Add(
+                            new SyntaxParameter {
+                                ParameterName = parameterName,
+                                ParameterType = "SwitchParameter",
+                                Position = "named",
+                                IsMandatory = false,
+                                IsPositional = false,
+                                IsSwitchParameter = true
+                            }
+                        );
+                    }
+                }
+            }
+
+            return parameters;
         }
 
         internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)

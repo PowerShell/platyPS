@@ -189,7 +189,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    WriteObject(cmdWrt.Write(cmdletHelp, Metadata));
+                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, Metadata).FullName));
                 }
 
                 if (WithModulePage)
@@ -201,7 +201,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var modulePageSettings = new CommandHelpWriterSettings(Encoding, resolvedPathModulePagePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
 
-                    WriteObject(modulePageWriter.Write(cmdHelpObjs));
+                    WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(cmdHelpObjs).FullName));
                 }
             }
         }

@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
@@ -15,6 +16,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     {
         public string CommandName { get; }
         public string ParameterSetName { get; }
+        public bool HasCmdletBinding { get; set; }
+
+        public List<SyntaxParameter> SyntaxParameters = new();
+
+        public List<Parameter> Parameters = new();
 
         private List<string> _parameterNames = new();
 
@@ -39,17 +45,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public SyntaxItem(string commandName, string parameterSetName, bool isDefaultParameterSet)
         {
+            CommandName = commandName;
             ParameterSetName = parameterSetName;
             IsDefaultParameterSet = isDefaultParameterSet;
-            // the commandName may be the entire syntax string, we need to prune it to get the actual command name.
-            if (commandName.IndexOf(' ') == -1)
-            {
-                CommandName = commandName;
-            }
-            else
-            {
-                CommandName = commandName.Substring(0, commandName.IndexOf(' '));
-            }
 
             _positionalParameters = new SortedList<int, Parameter>();
             _requiredParameters = new SortedList<string, Parameter>();
@@ -62,9 +60,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (Constants.CommonParametersNames.Contains(name))
             {
+                HasCmdletBinding = true;
                 return;
             }
 
+            AddParameterToSyntaxParameter(parameter);
             _parameterNames.Add(name);
 
             // First see if the parameter is positional
@@ -91,6 +91,30 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             _alphabeticOrderParameters.Add(name, parameter);
+        }
+
+        public void AddParameterToSyntaxParameter(Parameter parameter)
+        {
+            bool isPositional = false;
+            if (int.TryParse(parameter.Position, out int _))
+            {
+                isPositional = true;
+            }
+
+            bool isSwitchParameter = string.Compare(parameter.Type, "SwitchParameter", true) != -1;
+            if (! SyntaxParameters.Any(p => string.Compare(p.ParameterName, parameter.Name, true) == 0))
+            {
+                this.SyntaxParameters.Add(
+                    new SyntaxParameter {
+                        ParameterName = parameter.Name,
+                        ParameterType = parameter.Type,
+                        Position = parameter.Position,
+                        IsMandatory = parameter.Required,
+                        IsPositional = isPositional,
+                        IsSwitchParameter = isSwitchParameter
+                    }
+                );
+            }
         }
 
         private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)
@@ -151,6 +175,51 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
+        /// <summary>
+        /// This emits the command and parameters as if they were returned by Get-Command -syntax
+        /// </summary>
+        /// <returns></returns>
+        public string ToStringWithWrap()
+        {
+            StringBuilder sb = Constants.StringBuilderPool.Get();
+            StringBuilder currentLine = Constants.StringBuilderPool.Get();
+            currentLine.Append(CommandName);
+
+            foreach(var parameter in SyntaxParameters)
+            {
+                var paramAndType = parameter.ToString();
+                if (currentLine.Length + paramAndType.Length + 1 > 100)
+                {
+                    sb.Append(currentLine.ToString());
+                    sb.AppendLine();
+                    currentLine.Clear();
+                }
+
+                currentLine.Append($" {paramAndType}");
+            }
+
+            sb.Append(currentLine.ToString());
+
+            if (HasCmdletBinding)
+            {
+                if (currentLine.Length + 21 > 100)
+                {
+                    sb.AppendLine();
+                }
+                sb.Append(" [<CommonParameters>]");
+            }
+
+            try
+            {
+                return sb.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
+
+        }
+
         public string ToSyntaxString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
@@ -161,42 +230,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 sb.AppendLine();
                 sb.AppendLine();
                 sb.AppendLine(Constants.CodeBlock);
-
-                sb.Append(CommandName);
-                sb.Append(Constants.SingleSpace);
-
-                // look for all the positional parameters
-                foreach (KeyValuePair<int, Parameter> kv in _positionalParameters)
-                {
-                    Parameter param = kv.Value;
-
-                    // positional parameters can be required, so chose the template accordingly
-                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: true, isRequired: param.Required));
-                    sb.Append(Constants.SingleSpace);
-                }
-
-                // look for all the required parameters
-                foreach (KeyValuePair<string, Parameter> kv in _requiredParameters)
-                {
-                    Parameter param = kv.Value;
-                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: true));
-                    sb.Append(Constants.SingleSpace);
-                }
-
-                // look for all the remaining parameters
-                foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
-                {
-                    Parameter param = kv.Value;
-                    sb.Append(GetFormattedSyntaxParameter(param.Name, param.Type, isPositional: false, isRequired: false));
-                    sb.Append(Constants.SingleSpace);
-                }
-
-                sb.Append(Constants.SyntaxCommonParameters);
-                sb.AppendLine();
-
-                // close code block
+                sb.AppendLine(ToStringWithWrap());
                 sb.AppendLine(Constants.CodeBlock);
-
                 return sb.ToString();
             }
             finally
