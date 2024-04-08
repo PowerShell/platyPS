@@ -44,7 +44,7 @@ Describe "Create valid yaml" {
             $yamlFilePath = Join-Path "${TESTDRIVE}/yaml" $yamlFileName
             $result = $yamlFilePath | Import-CommandYaml
             $result | Should -Not -BeNullOrEmpty
-            $result.GetType().Name | Should -Be "Ch"
+            $result.GetType().Name | Should -Be "hashtable"
         }
         catch {
             $_.Exception.Message | Should -BeNullOrEmpty

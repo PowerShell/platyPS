@@ -138,13 +138,13 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 foreach (Parameter param in help.Parameters)
                 {
-                    string paramString = param.ToParameterString(Constants.mdParameterYamlBlockWithAcceptedValues);
+                    ParameterMetadataV2 v2 = param.GetMetadata();
 
-                    if (!string.IsNullOrEmpty(paramString))
-                    {
-                        sb.AppendLine(paramString);
-                        sb.AppendLine();
-                    }
+                    sb.AppendLine(string.Format("### -{0}", param.Name));
+                    sb.AppendLine();
+                    sb.AppendLine(param.Description);
+                    sb.AppendLine();
+                    sb.AppendLine(v2.ToYamlString());
                 }
             }
 

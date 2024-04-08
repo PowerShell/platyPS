@@ -59,6 +59,9 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(ParameterSetName = "FromMaml")]
         public string? ModuleName { get; set; }
 
+        /// <summary>
+        /// Include no metadata in the output file.
+        /// </summary>
         [Parameter()]
         public SwitchParameter NoMetadata { get; set; }
 
@@ -189,6 +192,28 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
+                    var baseMetadata = GetBaseMetadata(cmdletHelp);
+                    if (Metadata is null)
+                    {
+                        if (! NoMetadata)
+                        {
+                            Metadata = baseMetadata;
+                        }
+                    }
+                    else
+                    {
+                        if (! NoMetadata) // merge our recieved metadata with the base metadata
+                        {
+                            foreach(var metadataKey in baseMetadata.Keys)
+                            {
+                                if (! Metadata.ContainsKey(metadataKey))
+                                {
+                                    Metadata.Add(metadataKey, baseMetadata[metadataKey]);
+                                }
+                            }
+                        }
+                    }
+
                     WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, Metadata).FullName));
                 }
 
@@ -205,6 +230,20 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
         }
+
+        static Hashtable GetBaseMetadata(CommandHelp help)
+        {
+            var metadata = new Hashtable();
+            metadata.Add("title", help.Title);
+            metadata.Add("Module Name", help.ModuleName);
+            metadata.Add("Locale", help.Locale.Name);
+            metadata.Add("schema", "3.0.0");
+            metadata.Add("online version", help.OnlineVersionUrl);
+            metadata.Add("ms.date", DateTime.Now.ToString("MM/dd/yyyy"));
+            metadata.Add("external help file", help.ExternalHelpFile);
+            return metadata;
+        }
+
     }
 }
 

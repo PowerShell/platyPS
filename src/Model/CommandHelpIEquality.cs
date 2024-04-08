@@ -198,7 +198,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         /// <returns>An integer representing the hash.</returns>
         public override int GetHashCode()
         {
-            return this.GetHashCode();
+            return (Metadata, ModuleName, Title, Description).GetHashCode();
         }
 
         /// <summary>

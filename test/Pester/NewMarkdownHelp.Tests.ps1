@@ -13,6 +13,8 @@ Describe 'New-MarkdownHelp' {
             aliases = "testalias"
             schema = "2.0.0"
         }
+
+        $commonParameterNames = [System.Management.Automation.Internal.CommonParameters].GetProperties().ForEach({$_.Name})
     }
 
     Context 'errors' {
@@ -161,6 +163,36 @@ Describe 'New-MarkdownHelp' {
             $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder "$TestDrive/commands" -Force
             $files | Should -HaveCount 2
         }
+
+        It 'creates the proper content from a command' {
+            $files = New-MarkdownHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
+        }
+    }
+
+    Context 'Command content from command' {
+        BeforeAll {
+            $file = New-MarkdownHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
+            $helpInfo = Import-MarkdownCommandHelp $file
+            $cmdInfo = Get-Command Get-Date
+        }
+
+        It 'Should have the proper number of syntax entries' {
+            $syntaxCount = $cmdInfo.Definition.Split([environment]::newline).Where({$_}).Count
+            $helpInfo.Syntax.Count | Should -Be $syntaxCount
+        }
+
+        It 'Should have the correct module name' {
+            $helpInfo.ModuleName | Should -Be $cmdInfo.Source
+        }
+
+        It 'Should have identified the correct default parameter set name' {
+            $helpInfo.Syntax.Where({$_.IsDefaultParameterSet}).ParameterSetName | Should -Be $cmdInfo.DefaultParameterSet
+        }
+
+        It 'Should have identified an alias for the "Date" parameter' {
+            $helpInfo.Parameters.Where({$_.name -eq "Date"}).Aliases | Should -Be ($cmdInfo.Parameters['Date'].Aliases)
+        }
+
     }
 
     Context 'from external script' {
@@ -294,33 +326,34 @@ Write-Host 'Hello World!'
         }
 
         $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
-        $content = Get-Content $file
+        $content = Import-MarkdownCommandHelp $file
 
         It 'generates markdown with correct parameter set names' {
-            $content | Where-Object {$_ -eq 'Parameter Sets: (All)'} | Should -HaveCount 1
-            $content | Where-Object {$_ -eq 'Parameter Sets: First'} | Should -HaveCount 1
-            $content | Where-Object {$_ -eq 'Parameter Sets: Second'} | Should -HaveCount 1
+            $content.Parameters.ParameterSets.Count | Should -Be 3
+            $content.Parameters[0].ParameterSets[0].Name | Should -Be "(All)"
+            $content.Parameters[1].ParameterSets[0].Name | Should -Be "First"
+            $content.Parameters[2].ParameterSets[0].Name | Should -Be "Second"
         }
 
         It 'generates markdown with correct synopsis' {
-            $content | Where-Object {$_ -eq 'Adds a file name extension to a supplied name.'} | Should -HaveCount 2
+            $content.Synopsis | Should -Be "Adds a file name extension to a supplied name."
         }
 
         It 'generates markdown with correct help description specified by HelpMessage attribute' {
-            $content | Where-Object {$_ -eq 'First parameter help description'} | Should -HaveCount 1
+            $content.Parameters.Where({$_.Name -eq "First"}).Description | Should -Be "First parameter help description"
         }
 
         It 'generates markdown with correct help description specified by comment-based help' {
-            $content | Where-Object {$_ -eq 'Second parameter help description'} | Should -HaveCount 1
+            $content.Parameters.Where({$_.Name -eq "Second"}).Description | Should -Be "Second parameter help description"
         }
 
         It 'generates markdown with placeholder for parameter with no description' {
-            $expectedString = '{{{{ Fill {0} Description }}}}' -f 'Common'
-            $content | Where-Object {$_ -eq $expectedString} | Should -HaveCount 1
+            $expectedString = "{{ Fill Common Description }}"
+            $content.Parameters.Where({$_.Name -eq "Common"}).Description | Should -Be $expectedString
         }
 
         It 'Description can contain multiple code blocks and text' {
-            
+            set-itresult -pending -because "test unimplemented"
         }
     }
 
@@ -573,7 +606,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
         }
 
         It 'sets accepts wildcards property on parameters as expected' {
-            $file | Should -FileContentMatch 'Accept wildcard characters: True'
+            $file | Should -FileContentMatch 'Globbing: true'
         }
     }
 }

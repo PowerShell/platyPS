@@ -3,28 +3,44 @@
 
 
 $modRoot = (Get-Module PlatyPS).ModuleBase
+$modRoot = "/Users/james/src/github/forks/jameswtruher/platyPS/out/platyPS"
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
 # debugging
-Get-ChildItem -Recurse $modRoot -File | Foreach-Object { $_ | Write-Verbose -Verbose }
-$null = import-Module $markDigAsm -ErrorAction SilentlyContinue
-$null = import-Module $yamlDotNetAsm -ErrorAction SilentlyContinue
+#Get-ChildItem -Recurse $modRoot -File | Foreach-Object { $_ | Write-Verbose -Verbose }
+#$null = import-Module $markDigAsm -ErrorAction SilentlyContinue
+#$null = import-Module $yamlDotNetAsm -ErrorAction SilentlyContinue
+Add-Type -Assembly $markDigAsm
+Add-Type -Assembly $yamlDotNetAsm
 
 class inputOutput {
     [string]$name
     [string]$description
 }
 
+class parameterSet {
+    [string]$name
+    [string]$position
+    [bool]$isRequired
+    [bool]$valueByPipeline
+    [bool]$valueByPipelineByPropertyName
+    [bool]$valueFromRemainingArguments
+}
+
 class parameter {
     [string]$name
     [string]$type
     [string]$description
+    [string[]]$parameterValue
     [string]$defaultValue
-    [string]$pipelineInput
-    [string]$position
+    [bool]$variableLength
+    [bool]$globbing
     [string]$aliases
-    [string]$parameterValueGroup
+    [bool]$dontShow
+    [string[]]$acceptedValues
+    [string]$helpMessage
+    [parameterSet[]]$parameterSets
 }
 
 class example {
@@ -77,9 +93,9 @@ class ch {
 
 # we need to call the generic deserialize method, so we need to build it.
 $builderType = "YamlDotNet.Serialization.DeserializerBuilder" -as [type]
-$script:yamldes = $builderType::new().Build()
+$script:yamldes = $builderType::new().WithNamingConvention([YamlDotnet.Serialization.NamingConventions.CamelCaseNamingConvention]::new()).Build()
 [type[]]$tlist = @( [string] )
-$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([ch])
+$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
 
 function Import-CommandYaml  {
     [CmdletBinding()]
@@ -95,8 +111,8 @@ function Import-CommandYaml  {
                 $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
                 # fix up some of the object elements
                 $null = $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
-                $result.Locale = $result.Metadata['Locale'] ?? "en-US"
-                $result.ExternalHelpfile = $result.Metadata['external help file']
+                $result.Locale = $result['metadata']['Locale'] ?? "en-US"
+                $result.ExternalHelpfile = $result['metadata']['external help file']
                 $result
             }
             catch {

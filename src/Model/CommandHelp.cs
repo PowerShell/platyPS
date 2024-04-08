@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -45,14 +46,17 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public List<InputOutput>? Outputs { get; private set; }
 
-        public List<Links>? RelatedLinks { get; private set; }
-
-        public bool HasCmdletBinding { get; set; }
-
-        public bool HasWorkflowCommonParameters { get; set; }
-
         public string? Notes { get; set; }
 
+        public List<Links>? RelatedLinks { get; private set; }
+
+        [YamlIgnore]
+        public bool HasCmdletBinding { get; set; }
+
+        [YamlIgnore]
+        public bool HasWorkflowCommonParameters { get; set; }
+
+        [YamlIgnore]
         public Diagnostics Diagnostics { get; set; }
 
         internal Dictionary<string, SyntaxItem> SyntaxDictionary { get; private set; }
@@ -144,9 +148,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddParameter(Parameter parameter)
         {
             Parameters.Add(parameter);
-            foreach(var parameterSetName in parameter.ParameterSets)
+            foreach(var parameterSet in parameter.ParameterSets)
             {
-                if (string.Compare(parameterSetName, "(All)", StringComparison.OrdinalIgnoreCase) == 0)
+                if (string.Compare(parameterSet.Name, "(All)", StringComparison.OrdinalIgnoreCase) == 0)
                 {
                     foreach(var syntax in SyntaxDictionary.Values)
                     {
@@ -160,7 +164,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                         }
                     }
                 }
-                else if (SyntaxDictionary.TryGetValue(parameterSetName, out var syntaxItem))
+                else if (SyntaxDictionary.TryGetValue(parameterSet.Name, out var syntaxItem))
                 {
                     try
                     {

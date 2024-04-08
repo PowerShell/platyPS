@@ -404,7 +404,8 @@ namespace Microsoft.PowerShell.PlatyPS
                             minKey--;
                         }
 
-                        parameter.Position = minKey.ToString();
+                        // JWT
+                        parameter.ParameterSets.ForEach(x => x.Position = minKey.ToString());
                         try
                         {
                             syntaxItem.AddParameter(parameter);
@@ -524,37 +525,21 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            Parameter parameter = new Parameter(name, type, position);
+            // Parameter parameter = new Parameter(name, type, position);
+            Parameter parameter = new Parameter(name, type);
             parameter.DefaultValue = defaultValue;
             parameter.AddAcceptedValueRange(acceptedValues);
             parameter.Description = description;
-            parameter.Required = required;
+            parameter.ParameterSets.ForEach(x => x.IsRequired = required); // JWT
             parameter.VariableLength = variableLength;
             parameter.Globbing = globbing;
-            parameter.PipelineInput = new PipelineInputInfo(pipelineInput);
+            // JWT parameter.PipelineInput = new PipelineInputInfo(pipelineInput);
             parameter.Aliases = aliases;
 
             // need to go the end of command:parameter
             if (reader.ReadState != ReadState.EndOfFile)
             {
                 reader.ReadEndElement();
-            }
-
-            // Update parameter.ParameterSets only if we are reading for parameters. Not for syntax.
-            if (parameterSetCount != -1)
-            {
-                if (_paramSetMap.TryGetValue(name, out List<string>? paramSetList))
-                {
-                    if (paramSetList is not null)
-                    {
-                        // If the parameter is in all parameter sets then dont add.
-                        // This ensures it is marked as present in all parameter sets.
-                        if (paramSetList is not null && paramSetList.Count != parameterSetCount)
-                        {
-                            parameter.AddParameterSetsRange(paramSetList);
-                        }
-                    }
-                }
             }
 
             return parameter;

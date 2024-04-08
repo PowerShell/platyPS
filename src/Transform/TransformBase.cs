@@ -99,23 +99,31 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (KeyValuePair<string, ParameterMetadata> parameterMetadata in cmdletInfo.Parameters)
             {
-                var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
+                string parameterName = parameterMetadata.Key;
+                if (Constants.CommonParametersNames.Contains(parameterName))
+                {
+                    continue;
+                }
 
+                var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
                 string typeName = GetParameterTypeName(parameterMetadata.Value.ParameterType);
 
-                Parameter param = new(parameterMetadata.Value.Name, typeName, paramAttribInfo.Position);
-
+                Parameter param = new(parameterMetadata.Value.Name, typeName); 
                 param.DontShow = paramAttribInfo.DontShow;
-                param.Required = paramAttribInfo.Required;
-                param.PipelineInput = new PipelineInputInfo(paramAttribInfo.PipelineInput);
                 param.Globbing = paramAttribInfo.Globbing;
                 param.HelpMessage = paramAttribInfo.HelpMessage;
 
                 foreach (KeyValuePair<string, ParameterSetMetadata> paramSet in parameterMetadata.Value.ParameterSets)
                 {
-                    string paramSetName = paramSet.Key;
-                    param.AddParameterSet(paramSetName);
-                    param.AddRequiredParameterSets(paramSet.Value.IsMandatory, paramSetName);
+                    string parameterSetName = string.Compare(paramSet.Key, Constants.ParameterSetsAllName) == 0 ? Constants.ParameterSetsAll : paramSet.Key;
+                    ParameterSetMetadata metadata = paramSet.Value;
+                    var pSet = new Model.ParameterSet(parameterSetName);
+                    pSet.Position = metadata.Position == int.MinValue ? Constants.NamedString : paramSet.Value.Position.ToString();
+                    pSet.IsRequired = metadata.IsMandatory;
+                    pSet.ValueByPipeline = metadata.ValueFromPipeline;
+                    pSet.ValueByPipelineByPropertyName = metadata.ValueFromPipelineByPropertyName;
+                    pSet.ValueFromRemainingArguments = metadata.ValueFromRemainingArguments;
+                    param.ParameterSets.Add(pSet);
                 }
 
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
@@ -198,7 +206,18 @@ namespace Microsoft.PowerShell.PlatyPS
                 SyntaxItem syn = new(cmdletInfo.Name, parameterSetInfo.Name, parameterSetInfo.IsDefault);
 
                 foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters)
-                {
+                    {
+                    if (IsNotCommonParameter(paramInfo.Name)) {
+                        syn.SyntaxParameters.Add(
+                            new SyntaxParameter(
+                                paramInfo.Name,
+                                GetParameterTypeName(paramInfo.ParameterType),
+                                paramInfo.Position == int.MinValue ? "named" : paramInfo.Position.ToString(),
+                                paramInfo.IsMandatory,
+                                paramInfo.Position != int.MinValue,
+                                string.Compare(paramInfo.ParameterType.Name, "SwitchParameter", true) == 0)
+                        );
+                    }
                     Parameter param = GetParameterInfo(cmdletInfo, helpItem, paramInfo);
                     syn.AddParameter(param);
                 }
@@ -207,6 +226,11 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return syntaxItems;
+        }
+
+        private bool IsNotCommonParameter(string name)
+        {
+            return ! Constants.CommonParametersNames.Contains(name);
         }
 
         private string GetParameterTypeName(Type type)
@@ -272,7 +296,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             string typeName = GetParameterTypeName(paramInfo.ParameterType);
 
-            Parameter param = new(paramInfo.Name, typeName, paramAttribInfo.Position);
+            Parameter param = new(paramInfo.Name, typeName); // JWT, paramAttribInfo.Position);
 
             string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage;
 
@@ -280,10 +304,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
 
-            param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
+            // param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
 
             param.Aliases = string.Join("-", paramInfo.Aliases);
-            param.Required = paramInfo.IsMandatory;
+            // JWT
+            param.ParameterSets.ForEach(x => x.IsRequired = paramInfo.IsMandatory);
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
 
@@ -291,7 +316,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 Constants.NoneString :
                 defaultValueFromHelp;
 
-            param.PipelineInput = new PipelineInputInfo(byValue: paramInfo.ValueFromPipeline, byPropertyName: paramInfo.ValueFromPipelineByPropertyName);
+            // JWT param.PipelineInput = new PipelineInputInfo(byValue: paramInfo.ValueFromPipeline, byPropertyName: paramInfo.ValueFromPipelineByPropertyName);
 
             return param;
         }

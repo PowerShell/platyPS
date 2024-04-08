@@ -9,6 +9,7 @@ using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
+using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -26,29 +27,10 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
         public string MamlFile { get; set; } = string.Empty;
 
+        [Parameter()]
+        public TransformSettings Settings { get; set; } = new TransformSettings();
+
         #endregion
-
-        TransformSettings transformSettings = new TransformSettings();
-
-        protected override void BeginProcessing()
-        {
-            /*
-            {
-            transformSettings = new TransformSettings();
-                AlphabeticParamsOrder = AlphabeticParamsOrder,
-                DoubleDashList = ConvertDoubleDashLists,
-                ExcludeDontShow = ExcludeDontShow,
-                FwLink = FwLink,
-                HelpVersion = HelpVersion,
-                Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
-                ModuleGuid = ModuleGuid is null ? null : Guid.Parse(ModuleGuid),
-                ModuleName = ModuleName,
-                OnlineVersionUrl = OnlineVersionUrl,
-                Session = Session,
-                UseFullTypeName = UseFullTypeName
-            };
-            */
-        }
 
         protected override void ProcessRecord()
         {
@@ -58,7 +40,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
-                    cmdHelpObjs = new TransformMaml(transformSettings).Transform(new string[] { mamlPath.Path });
+                    cmdHelpObjs = new TransformMaml(Settings).Transform(new string[] { mamlPath.Path });
 
                     if (cmdHelpObjs != null)
                     {
