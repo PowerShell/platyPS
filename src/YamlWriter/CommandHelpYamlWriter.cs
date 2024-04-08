@@ -210,35 +210,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
             if (help.Parameters?.Count > 0)
             {
-                foreach (Parameter param in help.Parameters)
-                {
-                    /*
-                    The metadata that we write out for each parameter is:
-                    name
-                    type
-                    description
-                    defaultValue
-                    pipelineInput
-                    position (as string)
-                    aliases
-                    parameterValueGroup
-                    */
-                    sb.AppendLine(string.Format("- name: {0}", param.Name));
-                    sb.AppendLine(string.Format("  type: {0}", param.Type));
-                    sb.AppendLine("  description: |+");
-                    if (param.Description is not null)
-                    {
-                        foreach(var line in param.Description.Split(Constants.LineSplitter))
-                        {
-                            sb.AppendLine(string.Format("    {0}", line));
-                        }
-                    }
-                    sb.AppendLine(string.Format("  defaultValue: {0}", param.DefaultValue ?? "None"));
-                    sb.AppendLine(string.Format("  pipelineInput: {0}", param.PipelineInput));
-                    sb.AppendLine(string.Format("  position: \"{0}\"", param.Position));
-                    sb.AppendLine(string.Format("  aliases: {0}", param.Aliases));
-                    sb.AppendLine(string.Format("  parameterValueGroup: \"{0}\"", string.Empty)); // ????
-                }
+                sb.AppendLine(YamlUtils.SerializeElement(help.Parameters));
 
                 if (help.HasCmdletBinding)
                 {

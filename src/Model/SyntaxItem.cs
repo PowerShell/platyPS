@@ -64,57 +64,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return;
             }
 
-            AddParameterToSyntaxParameter(parameter);
             _parameterNames.Add(name);
-
-            // First see if the parameter is positional
-
-            int position = int.MinValue;
-
-            if (int.TryParse(parameter.Position, out position))
-            {
-                // This can throw because the position is already in the list.
-                _positionalParameters.Add(position, parameter);
-                return;
-            }
-
-            // The position should be 'Named' if not a number
-            if (!string.Equals(parameter.Position, "Named", StringComparison.OrdinalIgnoreCase))
-            {
-                throw new InvalidCastException($"Invalid value '{parameter.Position}' provided for position for parameter '{name}'");
-            }
-
-            if (parameter.Required)
-            {
-                _requiredParameters.Add(name, parameter);
-                return;
-            }
-
             _alphabeticOrderParameters.Add(name, parameter);
-        }
-
-        public void AddParameterToSyntaxParameter(Parameter parameter)
-        {
-            bool isPositional = false;
-            if (int.TryParse(parameter.Position, out int _))
-            {
-                isPositional = true;
-            }
-
-            bool isSwitchParameter = string.Compare(parameter.Type, "SwitchParameter", true) != -1;
-            if (! SyntaxParameters.Any(p => string.Compare(p.ParameterName, parameter.Name, true) == 0))
-            {
-                this.SyntaxParameters.Add(
-                    new SyntaxParameter {
-                        ParameterName = parameter.Name,
-                        ParameterType = parameter.Type,
-                        Position = parameter.Position,
-                        IsMandatory = parameter.Required,
-                        IsPositional = isPositional,
-                        IsSwitchParameter = isSwitchParameter
-                    }
-                );
-            }
         }
 
         private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)

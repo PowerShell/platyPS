@@ -50,6 +50,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string FalseString = "False";
         internal const string NoneString = "None";
         internal const string NamedString = "Named";
+        internal const string ParameterSetsAllName = "__AllParameterSets";
+        internal const string DefaultString = "(Default)";
         internal const string ParameterSetsAll = "(All)";
         internal const string ParameterSetsAllForRequired = "All";
         internal const string DelimiterComma = ", ";

@@ -8,21 +8,21 @@ using System.Management.Automation.Runspaces;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-    internal class TransformSettings
+    public class TransformSettings
     {
-        internal string? FwLink { get; set; }
-        internal string? HelpVersion { get; set; }
-        internal CultureInfo Locale { get; set; }
-        internal Hashtable? Metadata { get; set; }
-        internal Guid? ModuleGuid { get; set; }
-        internal string? ModuleName { get; set; }
-        internal string? OnlineVersionUrl { get; set; }
-        internal bool? CreateModulePage { get; set; }
-        internal bool? DoubleDashList { get; set; }
-        internal bool? AlphabeticParamsOrder { get; set; }
-        internal bool? UseFullTypeName { get; set; }
-        internal PSSession? Session { get; set; }
-        internal bool? ExcludeDontShow { get; set; }
+        public string? FwLink { get; set; }
+        public string? HelpVersion { get; set; }
+        public CultureInfo Locale { get; set; }
+        public Hashtable? Metadata { get; set; }
+        public Guid? ModuleGuid { get; set; }
+        public string? ModuleName { get; set; }
+        public string? OnlineVersionUrl { get; set; }
+        public bool? CreateModulePage { get; set; }
+        public bool? DoubleDashList { get; set; }
+        public bool? AlphabeticParamsOrder { get; set; }
+        public bool? UseFullTypeName { get; set; }
+        public PSSession? Session { get; set; }
+        public bool? ExcludeDontShow { get; set; }
 
         public TransformSettings()
         {

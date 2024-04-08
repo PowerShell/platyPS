@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Linq;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
@@ -12,14 +13,15 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// </summary>
     public class Parameter : IEquatable<Parameter>
     {
-        public string? Description { get; set;}
         public string Name { get; set;}
-        public List<string>? ParameterValue { get; set;}
+
         public string Type { get; set;}
 
-        public string? DefaultValue { get; set;}
+        public string? Description { get; set;}
 
-        public bool Required { get; set; }
+        public List<string>? ParameterValue { get; set;}
+
+        public string? DefaultValue { get; set;}
 
         private List<string>? RequiredTrueParameterSets { get; set; }
         private List<string>? RequiredFalseParameterSets { get; set; }
@@ -29,29 +31,25 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public bool Globbing { get; set;}
 
-        public PipelineInputInfo PipelineInput { get; set;}
-
-        public string Position { get; set;}
-
         public string? Aliases { get; set;}
-
-        public List<string> ParameterSets { get; private set;}
 
         public bool DontShow { get; set;}
 
         public List<string>? AcceptedValues { get; private set; }
 
+        public List<ParameterSet> ParameterSets { get; set; }
+
         public string? HelpMessage { get; set; }
 
-        public Parameter(string name,
-                         string type,
-                         string position)
+        public Parameter(string name, string type)
         {
             Name = name;
             Type = type;
-            Position = position;
+            // Position = position;
             ParameterSets = new();
-            PipelineInput = new PipelineInputInfo(false);
+            // var ps = new ParameterSet("All");
+            // ParameterSets.Add(ps);
+            // PipelineInput = new PipelineInputInfo(false);
         }
 
         public void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
@@ -101,85 +99,97 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             AcceptedValues.AddRange(values);
         }
 
-        public void AddParameterSet(string parameterSetName)
+        public Parameter(string name, string description, ParameterMetadataV2 metadata)
         {
-            if (string.Equals(parameterSetName, "__AllParameterSets", StringComparison.OrdinalIgnoreCase))
+            Name = name;
+            Type = metadata.Type;
+            Description = description;
+            VariableLength = metadata.VariableLength;
+            DefaultValue = metadata.DefaultValue;
+            Globbing = metadata.Globbing;
+            Aliases = string.Join(",", metadata.Aliases);
+            DontShow = metadata.DontShow;
+            AcceptedValues = metadata.AcceptedValues;
+            HelpMessage = metadata.HelpMessage;
+            ParameterValue = metadata.ParameterValue;
+            VariableLength = metadata.VariableLength;
+            DefaultValue = metadata.DefaultValue;
+
+            ParameterSets = new();
+            foreach(var parameterSet in metadata.ParameterSets)
             {
-                ParameterSets.Add(Constants.ParameterSetsAll);
-            }
-            else
-            {
-                ParameterSets.Add(parameterSetName);
+                ParameterSets.Add(
+                    new ParameterSet()
+                    {
+                        Name = parameterSet.Name,
+                        Position = parameterSet.Position,
+                        IsRequired = parameterSet.IsRequired,
+                        ValueByPipeline = parameterSet.ValueByPipeline,
+                        ValueByPipelineByPropertyName = parameterSet.ValueByPipelineByPropertyName,
+                        ValueFromRemainingArguments = parameterSet.ValueFromRemainingArguments
+                    }
+                );
             }
         }
 
-        public void AddParameterSetsRange(IEnumerable<string> values)
+        public static Parameter ConvertV1ParameterToV2(string name, string description, ParameterMetadataV1 V1metadata)
         {
-            ParameterSets.AddRange(values);
-        }
-
-        internal string ToParameterString(string fmt)
-        {
-            if (Constants.CommonParametersNames.Contains(Name))
+            if (V1metadata.TryConvertMetadataToV2(out var metadata))
             {
-                return string.Empty;
-            }
-
-            if (AcceptedValues?.Count <= 0)
-            {
-                return string.Format(Constants.mdParameterYamlBlock,
-                    Name,
-                    Description?.Trim(Environment.NewLine.ToCharArray()),
-                    Type,
-                    string.Join(Constants.DelimiterComma, ParameterSets),
-                    Aliases,
-                    RequiredString(),
-                    Position,
-                    DefaultValue,
-                    PipelineInput.ToString(),
-                    Globbing ? Constants.TrueString : Constants.FalseString,
-                    DontShow ? Constants.TrueString : Constants.FalseString
-                    );
+                return new Parameter(name, description, metadata);
             }
             else
             {
-                return string.Format(fmt, // Constants.mdParameterYamlBlockWithAcceptedValues,
-                    Name,
-                    Description?.Trim(Environment.NewLine.ToCharArray()),
-                    Type,
-                    ParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, ParameterSets) : Constants.ParameterSetsAll,
-                    Aliases,
-                    AcceptedValues?.Count > 0 ? string.Join(Constants.DelimiterComma, AcceptedValues) : string.Empty,
-                    RequiredString(),
-                    Position,
-                    DefaultValue,
-                    PipelineInput.ToString(),
-                    Globbing ? Constants.TrueString : Constants.FalseString,
-                    DontShow ? Constants.TrueString : Constants.FalseString
-                    );
+                throw new InvalidOperationException("Could not convert to v2");
             }
         }
 
-        private string RequiredString()
+        public ParameterMetadataV2 GetMetadata()
         {
-            if (RequiredTrueParameterSets?.Count == ParameterSets?.Count)
+            var metadata = new ParameterMetadataV2();
+            metadata.Type = Type;
+            metadata.VariableLength = VariableLength;
+            metadata.Globbing = Globbing;
+
+            if (AcceptedValues is not null && AcceptedValues.Count > 0)
             {
-                return Constants.TrueString + "(All)";
+                metadata.AcceptedValues = AcceptedValues;
             }
-            else if (RequiredFalseParameterSets?.Count == ParameterSets?.Count)
+
+            if (DefaultValue is not null)
             {
-                return Constants.FalseString + "(All)";
+                metadata.DefaultValue = DefaultValue;
             }
-            else if (RequiredTrueParameterSets?.Count > 0 || RequiredFalseParameterSets?.Count > 0)
+
+            if (! string.IsNullOrEmpty(Aliases))
             {
-                return string.Format(Constants.RequiredParameterSetsTemplate,
-                    RequiredTrueParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredTrueParameterSets) : Constants.NoneString,
-                    RequiredFalseParameterSets?.Count > 0 ? string.Join(Constants.DelimiterComma, RequiredFalseParameterSets) : Constants.NoneString);
+                var aliases = Aliases?.Split(Constants.Comma, StringSplitOptions.RemoveEmptyEntries);
+                if (aliases is not null)
+                    {
+                    foreach(var alias in aliases)
+                    {
+                        metadata.Aliases.Add(alias.Trim());
+                    }
+                }
             }
-            else
+
+            if (ParameterValue is not null && ParameterValue.Count > 0)
             {
-                return Required ? Constants.TrueString : Constants.FalseString;
+                metadata.ParameterValue = ParameterValue;
             }
+
+            foreach(var paramSet in ParameterSets)
+            {
+                var pSet = new ParameterSetV2();
+                pSet.Name = string.Compare(paramSet.Name, "__AllParameterSets", true) == 0 ? "(All)" : paramSet.Name;
+                pSet.Position = paramSet.Position;
+                pSet.IsRequired = paramSet.IsRequired;
+                pSet.ValueByPipeline = paramSet.ValueByPipeline;
+                pSet.ValueByPipelineByPropertyName = paramSet.ValueByPipelineByPropertyName;
+                pSet.ValueFromRemainingArguments = paramSet.ValueFromRemainingArguments;
+                metadata.ParameterSets.Add(pSet);
+            }
+            return metadata;
         }
 
         public bool Equals(Parameter other)
@@ -192,16 +202,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             return (
                 string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
-                string.Compare(Position, other.Position, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Description, other.Description, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
-                Required == other.Required &&
                 VariableLength == other.VariableLength &&
                 Globbing == other.Globbing &&
                 DontShow == other.DontShow &&
-                PipelineInput == other.PipelineInput &&
                 ParameterSets.SequenceEqual(other.ParameterSets) &&
                 (AcceptedValues is null && other.AcceptedValues is null || AcceptedValues.SequenceEqual(other.AcceptedValues))
             );
@@ -224,7 +231,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override int GetHashCode()
         {
-            return (Name, Type, Position, Description, Aliases, DefaultValue, HelpMessage, Required, VariableLength, Globbing, DontShow, PipelineInput, ParameterSets, AcceptedValues).GetHashCode();
+            return (Name, Type, Description, Aliases, DefaultValue, HelpMessage, VariableLength, Globbing, DontShow, ParameterSets, AcceptedValues).GetHashCode();
         }
 
         public static bool operator ==(Parameter parameter1, Parameter parameter2)

@@ -149,18 +149,6 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
 
             var pipelineInput = new PipelineInputType();
-            pipelineInput = PipelineInputType.None;
-
-            if (parameter.PipelineInput.ByPropertyName)
-            {
-                pipelineInput |= PipelineInputType.ByPropertyName;
-            }
-
-            if (parameter.PipelineInput.ByValue)
-            {
-                pipelineInput |= PipelineInputType.ByValue;
-            }
-
             return pipelineInput;
         }
 
@@ -171,7 +159,9 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 parameterValue.DataType = parameter.Type;
                 parameterValue.IsVariableLength = parameter.VariableLength;
-                parameterValue.IsMandatory = parameter.Required;
+                // We just mark mandatory if one of the parameter sets is mandatory since MAML doesn't
+                // have a way to disambiguate these.
+                parameterValue.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
             }
             return parameterValue;
         }
@@ -180,10 +170,9 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
             var newParameter = new MAML.Parameter();
             newParameter.Name = parameter.Name;
-            newParameter.IsMandatory = parameter.Required;
+            newParameter.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
             newParameter.SupportsGlobbing = parameter.Globbing;
-            newParameter.SupportsPipelineInput = GetPipelineInputType(parameter);
-            newParameter.Position = parameter.Position;
+            newParameter.Position = parameter.ParameterSets.FirstOrDefault().Position;
             newParameter.Value = GetParameterValue(parameter);
 
             if (parameter.Description is not null)
