@@ -149,21 +149,6 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
 
             var pipelineInput = new PipelineInputType();
-            /*
-            JWT
-            pipelineInput = PipelineInputType.None;
-
-            if (parameter.PipelineInput.ByPropertyName)
-            {
-                pipelineInput |= PipelineInputType.ByPropertyName;
-            }
-
-            if (parameter.PipelineInput.ByValue)
-            {
-                pipelineInput |= PipelineInputType.ByValue;
-            }
-            */
-
             return pipelineInput;
         }
 
@@ -174,7 +159,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 parameterValue.DataType = parameter.Type;
                 parameterValue.IsVariableLength = parameter.VariableLength;
-                // JWT
+                // We just mark mandatory if one of the parameter sets is mandatory since MAML doesn't
+                // have a way to disambiguate these.
                 parameterValue.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
             }
             return parameterValue;
@@ -184,11 +170,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
             var newParameter = new MAML.Parameter();
             newParameter.Name = parameter.Name;
-            // JWT
             newParameter.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
             newParameter.SupportsGlobbing = parameter.Globbing;
-            newParameter.SupportsPipelineInput = GetPipelineInputType(parameter);
-            // JWT
             newParameter.Position = parameter.ParameterSets.FirstOrDefault().Position;
             newParameter.Value = GetParameterValue(parameter);
 

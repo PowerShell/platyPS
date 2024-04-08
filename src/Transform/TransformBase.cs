@@ -296,7 +296,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             string typeName = GetParameterTypeName(paramInfo.ParameterType);
 
-            Parameter param = new(paramInfo.Name, typeName); // JWT, paramAttribInfo.Position);
+            Parameter param = new(paramInfo.Name, typeName);
 
             string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage;
 
@@ -304,10 +304,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
 
-            // param.AddParameterSetsRange(GetParameterSetsOfParameter(param.Name, cmdletInfo));
-
             param.Aliases = string.Join("-", paramInfo.Aliases);
-            // JWT
             param.ParameterSets.ForEach(x => x.IsRequired = paramInfo.IsMandatory);
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
@@ -315,8 +312,6 @@ namespace Microsoft.PowerShell.PlatyPS
             param.DefaultValue = string.IsNullOrEmpty(defaultValueFromHelp) ?
                 Constants.NoneString :
                 defaultValueFromHelp;
-
-            // JWT param.PipelineInput = new PipelineInputInfo(byValue: paramInfo.ValueFromPipeline, byPropertyName: paramInfo.ValueFromPipelineByPropertyName);
 
             return param;
         }

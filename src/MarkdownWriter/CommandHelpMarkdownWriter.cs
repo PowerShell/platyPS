@@ -168,7 +168,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal override void WriteInputsOutputs(List<InputOutput> inputsoutputs, bool isInput)
         {
-            // JWT: should we emit something if there is no input/output
+            // Open Question: should we emit something if there is no input/output?
             if (inputsoutputs is null)
             {
                 return;

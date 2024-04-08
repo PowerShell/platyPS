@@ -404,7 +404,6 @@ namespace Microsoft.PowerShell.PlatyPS
                             minKey--;
                         }
 
-                        // JWT
                         parameter.ParameterSets.ForEach(x => x.Position = minKey.ToString());
                         try
                         {
@@ -530,10 +529,10 @@ namespace Microsoft.PowerShell.PlatyPS
             parameter.DefaultValue = defaultValue;
             parameter.AddAcceptedValueRange(acceptedValues);
             parameter.Description = description;
-            parameter.ParameterSets.ForEach(x => x.IsRequired = required); // JWT
+            // we will set the required attributed to all parameter sets since MAML doesn't have a way to disambiguate.
+            parameter.ParameterSets.ForEach(x => x.IsRequired = required);
             parameter.VariableLength = variableLength;
             parameter.Globbing = globbing;
-            // JWT parameter.PipelineInput = new PipelineInputInfo(pipelineInput);
             parameter.Aliases = aliases;
 
             // need to go the end of command:parameter
