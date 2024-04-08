@@ -3,7 +3,6 @@
 
 
 $modRoot = (Get-Module PlatyPS).ModuleBase
-$modRoot = "/Users/james/src/github/forks/jameswtruher/platyPS/out/platyPS"
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
