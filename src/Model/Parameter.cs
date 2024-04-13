@@ -17,11 +17,11 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public string Type { get; set;}
 
-        public string? Description { get; set;}
+        public string Description { get; set;}
 
-        public List<string>? ParameterValue { get; set;}
+        public List<string> ParameterValue { get; set;}
 
-        public string? DefaultValue { get; set;}
+        public string DefaultValue { get; set;}
 
         private List<string>? RequiredTrueParameterSets { get; set; }
         private List<string>? RequiredFalseParameterSets { get; set; }
@@ -31,25 +31,27 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public bool Globbing { get; set;}
 
-        public string? Aliases { get; set;}
+        public string Aliases { get; set;}
 
         public bool DontShow { get; set;}
 
-        public List<string>? AcceptedValues { get; private set; }
+        public List<string> AcceptedValues { get; private set; }
 
         public List<ParameterSet> ParameterSets { get; set; }
 
-        public string? HelpMessage { get; set; }
+        public string HelpMessage { get; set; }
 
         public Parameter(string name, string type)
         {
             Name = name;
             Type = type;
-            // Position = position;
             ParameterSets = new();
-            // var ps = new ParameterSet("All");
-            // ParameterSets.Add(ps);
-            // PipelineInput = new PipelineInputInfo(false);
+            ParameterValue = new();
+            Aliases = string.Empty;
+            AcceptedValues = new();
+            DefaultValue = string.Empty;
+            Description = string.Empty;
+            HelpMessage = string.Empty;
         }
 
         public void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)

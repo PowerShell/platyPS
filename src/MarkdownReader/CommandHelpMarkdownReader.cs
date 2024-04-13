@@ -56,7 +56,7 @@ namespace Microsoft.PowerShell.PlatyPS
         }
     }
 
-    public class MarkdownConverter
+    public partial class MarkdownConverter
     {
         /// <summary>
         /// Create a CommandHelp object from a markdown file.
