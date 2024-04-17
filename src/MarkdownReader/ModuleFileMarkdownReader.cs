@@ -249,19 +249,31 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             return string.Empty;
         }
+
+        /// <summary>
+        /// Read the module file looking for 
+        /// "### [name](markdownfile.md)
+        /// Description
+        /// </summary>
         internal static List<ModuleCommandInfo> GetModuleFileCommandsFromMarkdown(ParsedMarkdownContent md)
         {
             List<ModuleCommandInfo> list = new();
-            int index;
             md.CurrentIndex = md.FindHeader(3, "");
-            do {
+            int index = md.CurrentIndex;
+            while (!md.IsEnd())
+            {
                 var moduleCommandInfoLink = md.Take() as HeadingBlock;
                 var moduleCommandInfoDescription = md.Take() as ParagraphBlock;
-                var mfci = new ModuleCommandInfo();
-                mfci.Description = moduleCommandInfoDescription?ToString() ?? string.Empty;
-                list.Add(mfci);
-                index = md.FindHeader(3, "");
-            } while (index != -1);
+                if (moduleCommandInfoLink is not null && moduleCommandInfoDescription is not null)
+                {
+                    var mfci = new ModuleCommandInfo();
+                    mfci.Name = ((moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.FirstChild as LiteralInline)?.ToString() ?? string.Empty;
+                    mfci.Link = (moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.Url ?? string.Empty;
+                    mfci.Description = moduleCommandInfoDescription?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    list.Add(mfci);
+                }
+                // index = md.FindHeader(3, "");
+            }
 
             return list;
         }

@@ -20,11 +20,11 @@ Describe "Test Diagnostic Messages" {
     }
 
     It "Should populate the Messages property" {
-        $ch.Diagnostics.Messages.Count | Should -Be 33
+        $ch.Diagnostics.Messages.Count | Should -Be 37
     }
 
     It "Should have the correct number of Information entries" {
-        $ch.Diagnostics.Messages.Where({$_.Severity -eq "Information"}).Count | Should -Be 33
+        $ch.Diagnostics.Messages.Where({$_.Severity -eq "Information"}).Count | Should -Be 36
     }
 
     # this is 13 parameter names and the initial parameter finding which reports the number

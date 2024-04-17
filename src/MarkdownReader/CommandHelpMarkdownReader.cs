@@ -375,7 +375,7 @@ namespace Microsoft.PowerShell.PlatyPS
             var start = markdownContent.FindHeader(2, "RELATED LINKS");
             if (start == -1 || markdownContent.Ast.Count <= start + 1)
             {
-                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Links, "no links found", DiagnosticSeverity.Information, "GetRelatedLinks", markdownContent.GetTextLine(start));
+                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Links, "no links found", DiagnosticSeverity.Warning, "GetRelatedLinks", markdownContent.GetTextLine(start));
                 diagnostics.Add(dm0);
                 return new List<Links>();
             }
@@ -396,7 +396,7 @@ namespace Microsoft.PowerShell.PlatyPS
             var start = markdownContent.FindHeader(2, "NOTES");
             if (start == -1)
             {
-                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes header not found", DiagnosticSeverity.Information, "GetNotes", markdownContent.GetTextLine(start));
+                var dm0 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes header not found", DiagnosticSeverity.Error, "GetNotes", markdownContent.GetTextLine(start));
                 diagnostics.Add(dm0);
                 return string.Empty;
             }
@@ -406,7 +406,7 @@ namespace Microsoft.PowerShell.PlatyPS
             // Notes may be blank, which means the NOTES header is followed by RELATED LINKS header
             if (end - start == 1)
             {
-                var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes content not found", DiagnosticSeverity.Information, "GetNotes", markdownContent.GetTextLine(start));
+                var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Notes, "Notes content not found", DiagnosticSeverity.Warning, "GetNotes", markdownContent.GetTextLine(start));
                 diagnostics.Add(dm1);
                 return string.Empty;
             }
@@ -423,7 +423,11 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "INPUTS");
-            if (start != -1)
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Error, "INPUTS header not found", start));
+            }
+            else
             {
                 markdownContent.Seek(start);
                 var inputOutput = GetInputOutput(markdownContent);
@@ -432,8 +436,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 return inputOutput;
             }
 
-            var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, "0 items found", start);
-            diagnostics.Add(dm1);
             return null;
         }
 
@@ -442,17 +444,18 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "OUTPUTS");
-            if (start != -1)
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetOutput", DiagnosticSeverity.Error, "OUTPUTS header not found", start));
+            }
+            else
             {
                 markdownContent.Seek(start);
                 var inputOutput = GetInputOutput(markdownContent);
-                var dm = new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start);
-                diagnostics.Add(dm);
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start));
                 return inputOutput;
             }
 
-            var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, "0 items found", start);
-            diagnostics.Add(dm1);
             return null;
         }
 
@@ -461,6 +464,12 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "PARAMETERS");
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Parameter, "GetParameters", DiagnosticSeverity.Error, "PARAMETER header not found", start));
+                return new Collection<Parameter>();
+            }
+
             var parameters = GetParameters(markdownContent, start + 1, out List<DiagnosticMessage> parameterDiagnostics);
             var dm = new DiagnosticMessage(DiagnosticMessageSource.Parameter, "Parameters", DiagnosticSeverity.Information, $"{parameters.Count} parameters found", start);
             diagnostics.Add(dm);
@@ -470,12 +479,17 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static Collection<Example> GetExamplesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
-
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "EXAMPLES");
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Example, "GetExamples", DiagnosticSeverity.Error, "EXAMPLES header not found", start));
+                return new Collection<Example>();
+            }
+
             var examples = GetExamples(markdownContent, start + 1);
-            var dm = new DiagnosticMessage(DiagnosticMessageSource.Example, start != -1 ? "EXAMPLES header found" : "EXAMPLES header not found", DiagnosticSeverity.Information, $"{examples.Count} examples found", markdownContent.GetTextLine(start));
+            var dm = new DiagnosticMessage(DiagnosticMessageSource.Example, "EXAMPLES header found", DiagnosticSeverity.Information, $"{examples.Count} examples found", markdownContent.GetTextLine(start));
             diagnostics.Add(dm);
             return examples;
         }
@@ -485,11 +499,16 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "DESCRIPTION");
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Description, "DESCRIPTION header not found", DiagnosticSeverity.Error, "DESCRIPTION", -1));
+                return string.Empty;
+            }
+
+            diagnostics.Add(new DiagnosticMessage( DiagnosticMessageSource.Description, "DESCRIPTION header found", DiagnosticSeverity.Information, "DESCRIPTION", markdownContent.GetTextLine(start)));
             markdownContent.Seek(start);
             markdownContent.Take();
             var end = markdownContent.FindHeader(2, string.Empty);
-            var dm = new DiagnosticMessage(DiagnosticMessageSource.Description, start != -1 ? "DESCRIPTION header found" : "DESCRIPTION header not found", DiagnosticSeverity.Information, "DESCRIPTION", markdownContent.GetTextLine(start));
-            diagnostics.Add(dm);
             return markdownContent.GetStringFromAst(end);
         }
 
@@ -497,6 +516,12 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             diagnostics = new List<DiagnosticMessage>();
             var start = markdownContent.FindHeader(2, "SYNTAX");
+            if (start == -1)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Syntax, "SYNTAX header not found", DiagnosticSeverity.Error, "missing syntax", -1));
+                return new List<SyntaxItem>();
+            }
+
             markdownContent.Seek(start);
             var end   = markdownContent.FindHeader(2, string.Empty);
             var syntax = new List<SyntaxItem>();
@@ -512,8 +537,8 @@ namespace Microsoft.PowerShell.PlatyPS
                     var si = CreateSyntaxFromText(rawSyntax, "Default", true);
                     syntax.Add(si);
                 }
-                var syntaxDiagnostic = new DiagnosticMessage(DiagnosticMessageSource.Syntax, start != -1 ? "SYNTAX header found" : "SYNTAX header not found", DiagnosticSeverity.Information, "SYNTAX", markdownContent.GetTextLine(start));
-                diagnostics.Add(syntaxDiagnostic);
+
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Syntax, "SYNTAX header found", DiagnosticSeverity.Information, "SYNTAX", markdownContent.GetTextLine(start)));
                 return syntax;
             }
 
@@ -540,13 +565,12 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         var rawSyntax = fcb.Lines.ToString();
                         var si = CreateSyntaxFromText(rawSyntax, parameterSetName, isDefault);
+                        diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Syntax, "Syntax found", DiagnosticSeverity.Information, si.ToStringWithWrap(), fcb.Line));
                         syntax.Add(si);
                     }
                 }
             }
 
-            var dm = new DiagnosticMessage(DiagnosticMessageSource.Syntax, start != -1 ? "SYNTAX header found" : "SYNTAX header not found", DiagnosticSeverity.Information, $"{syntax.Count} items found", markdownContent.GetTextLine(start));
-            diagnostics.Add(dm);
             return syntax;
         }
 
@@ -683,11 +707,12 @@ namespace Microsoft.PowerShell.PlatyPS
             var start = markdownContent.FindHeader(2, "ALIASES");
             if (start == -1)
             {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header not found", DiagnosticSeverity.Warning, string.Empty, -1));
                 return new List<string>();
             }
+
             var aliasList = GetAliases(markdownContent.Ast, start + 1);
-            var dm = new DiagnosticMessage(DiagnosticMessageSource.Alias, start != -1 ? "ALIASES header found" : "ALIASES header not found", DiagnosticSeverity.Information, $"{aliasList.Count} aliases found", markdownContent.GetTextLine(start));
-            diagnostics.Add(dm);
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} aliases found", markdownContent.GetTextLine(start)));
             return aliasList;
         }
 
@@ -701,6 +726,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 diagnostics.Add(
                     new DiagnosticMessage(DiagnosticMessageSource.Synopsis, "SYNOPSIS not found", DiagnosticSeverity.Error, "missing synopsis", -1)
                 );
+                return string.Empty;
             }
             else
             {
