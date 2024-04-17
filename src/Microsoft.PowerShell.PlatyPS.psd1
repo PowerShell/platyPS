@@ -44,7 +44,8 @@ CmdletsToExport = @(
     'Export-YamlCommandHelp'
     'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp',
-    'ConvertTo-CommandHelp'
+    'ConvertTo-CommandHelp',
+    'Compare-CommandHelp'
 )
 
 # Variables to export from this module

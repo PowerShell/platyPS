@@ -189,15 +189,15 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             moduleFileInfo.Metadata = metadata;
-            moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent.Ast);
-            moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent.Ast);
-            var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent.Ast);
+            moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent);
+            moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
+            var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);
             if (optionalDescription is not null)
             {
                 moduleFileInfo.OptionalElement = optionalDescription;
             }
 
-            foreach(var moduleCommandInfo in GetModuleFileCommandsFromMarkdown(markdownContent.Ast))
+            foreach(var moduleCommandInfo in GetModuleFileCommandsFromMarkdown(markdownContent))
             {
                 moduleFileInfo.Commands.Add(moduleCommandInfo);
             }
@@ -205,21 +205,64 @@ namespace Microsoft.PowerShell.PlatyPS
             return moduleFileInfo;
         }
 
-        internal static string GetModuleFileTitleFromMarkdown(MarkdownDocument ast)
+        internal static string GetModuleFileTitleFromMarkdown(ParsedMarkdownContent md)
+        {
+            var index = md.FindHeader(1, "");
+            if (index == -1)
+            {
+                return string.Empty;
+            }
+
+            HeadingBlock titleBlock;
+            try
+            {
+                titleBlock = (HeadingBlock)md.Ast[index];
+            }
+            catch
+            {
+                return string.Empty;
+            }
+
+            var titleString = titleBlock.Inline?.FirstChild?.ToString().Trim(); 
+            return titleString ?? string.Empty;
+        }
+        internal static string GetModuleFileDescriptionFromMarkdown(ParsedMarkdownContent md)
+        {
+            var index = md.FindHeader(2, "Description");
+            if (index == -1)
+            {
+                return string.Empty;
+            }
+            index++;
+
+            int nextHeaderLevel = 2;
+            var nextHeader = md.FindHeader(nextHeaderLevel, "");
+            if (nextHeader == -1)
+            {
+                nextHeaderLevel = 3;
+            }
+
+            string descriptionString = MarkdownConverter.GetLinesTillNextHeader(md, nextHeaderLevel, index);
+            return descriptionString.Trim();
+        }
+        internal static string GetModuleFileOptionalDescriptionFromMarkdown(ParsedMarkdownContent md)
         {
             return string.Empty;
         }
-        internal static string GetModuleFileDescriptionFromMarkdown(MarkdownDocument ast)
-        {
-            return string.Empty;
-        }
-        internal static string GetModuleFileOptionalDescriptionFromMarkdown(MarkdownDocument ast)
-        {
-            return string.Empty;
-        }
-        internal static List<ModuleCommandInfo> GetModuleFileCommandsFromMarkdown(MarkdownDocument ast)
+        internal static List<ModuleCommandInfo> GetModuleFileCommandsFromMarkdown(ParsedMarkdownContent md)
         {
             List<ModuleCommandInfo> list = new();
+            int index;
+            md.CurrentIndex = md.FindHeader(3, "");
+            do {
+                var moduleCommandInfoLink = md.Take() as HeadingBlock;
+                var moduleCommandInfoDescription = md.Take() as ParagraphBlock;
+                var mfci = new ModuleCommandInfo();
+                mfci.Description = moduleCommandInfoDescription?ToString() ?? string.Empty;
+                list.Add(mfci);
+                index = md.FindHeader(3, "");
+            } while (index != -1);
+
             return list;
         }
     }
