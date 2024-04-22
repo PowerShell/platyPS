@@ -34,6 +34,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
         List<String> DiagnosticMessages = new();
 
+        List<string> Differences = new();
+        bool HadDifferences;
+
         protected override void ProcessRecord()
         {
             if (Reference is null)
@@ -52,17 +55,28 @@ namespace Microsoft.PowerShell.PlatyPS
             var refObject = new PSObject((CommandHelp)Reference);
             var difObject = new PSObject((CommandHelp)Difference);
 
-            CompareProperty(refObject, difObject, 0);
+            CompareProperty(refObject, difObject, 0, Reference.GetType().Name);
 
             WriteObject(DiagnosticMessages);
             DiagnosticMessages.Clear();
         }
 
-        private void CompareProperty(PSObject refObject, PSObject difObject, int offset)
+        protected override void EndProcessing()
+        {
+            WriteObject(string.Format("Comparison result: '{0}'", HadDifferences ? "NOT OK" : "OK"));
+        }
+
+        private void CompareProperty(PSObject refObject, PSObject difObject, int offset, string objectPath)
         {
             var spaces = new string(' ', offset);
             foreach (var property in refObject.Properties)
             {
+                if (PropertyNamesToExclude.Any(n => string.Compare(n, property.Name, true) == 0))
+                {
+                    DiagnosticMessages.Add($"excluding comparison of {objectPath}.{property.Name}");
+                    continue;
+                }
+
                 if (property.Value is String || ! (property.Value is IEnumerable))
                 {
                     var difProperty = difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First();
@@ -70,42 +84,45 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         var vString = property.Value is null ? string.Empty : property.Value.ToString();
                         var val = vString.Length > 20 ? vString.Substring(0,17) : vString;
-                        DiagnosticMessages.Add($"{spaces}{property.Name} are the same ({val})");
+                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} are the same ({val})");
                     }
                     else
                     {
-                        DiagnosticMessages.Add($"{spaces}{property.Name} are not the same '{property.Value}' vs '{difProperty.Value}'");
+                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} are not the same '{property.Value}' vs '{difProperty.Value}'");
+                        HadDifferences = true;
                     }
                 }
                 else if (property.Value is IDictionary)
                 {
-                    DiagnosticMessages.Add($"Inspecting {property.Name}");
+                    DiagnosticMessages.Add($"Inspecting dictionary {objectPath}.{property.Name}");
                     var rDictionary = (IDictionary)property.Value;
                     var dDictionary = (IDictionary)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
                     foreach (var key in rDictionary.Keys)
                     {
                         if (LanguagePrimitives.Equals(rDictionary[key], dDictionary[key]))
                         {
-                            DiagnosticMessages.Add($"{spaces}  {key} are the same ({rDictionary[key]})");
+                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} are the same ({rDictionary[key]})");
                         }
                         else
                         {
-                            DiagnosticMessages.Add($"{spaces}  {key} not the same {rDictionary[key]} vs {dDictionary[key]}");
+                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} not the same {rDictionary[key]} vs {dDictionary[key]}");
+                            HadDifferences = true;
                         }
                     }
 
                 }
                 else if (property.Value is IList rList)
                 {
-                    DiagnosticMessages.Add($"Inspecting {property.Name}");
+                    DiagnosticMessages.Add($"Inspecting list {objectPath}.{property.Name}");
                     var dList = (IList)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
                     if (rList.Count == 0 && dList.Count == 0)
                     {
-                        DiagnosticMessages.Add($"{spaces}Lists are empty");
+                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} lists are empty");
                     }
                     else if (rList.Count != dList.Count)
                     {
-                        DiagnosticMessages.Add($"{spaces}Lists are different sizes ({rList.Count} vs {dList.Count})");
+                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} lists are different sizes ({rList.Count} vs {dList.Count})");
+                        HadDifferences = true;
                     }
                     else
                     {
@@ -113,13 +130,13 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             var rPSO = new PSObject(rList[i]);
                             var dPSO = new PSObject(dList[i]);
-                            CompareProperty(rPSO, dPSO, offset + 2);
+                            CompareProperty(rPSO, dPSO, offset + 2, $"{objectPath}.{property.Name}");
                         }
                     }
                 }
                 else if (property.Value is Array rArray)
                 {
-                    DiagnosticMessages.Add($"Inspecting {property.Name}");
+                    DiagnosticMessages.Add($"Inspecting array {objectPath}.{property.Name}");
                     var dArray = (Array)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
                     if (rArray.Length == 0 && dArray.Length == 0)
                     {
@@ -135,13 +152,13 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             var rPSO = new PSObject(rArray.GetValue(i));
                             var dPSO = new PSObject(dArray.GetValue(i));
-                            CompareProperty(rPSO, dPSO, offset + 2);
+                            CompareProperty(rPSO, dPSO, offset + 2, "{objectPath}.{property.Name}");
                         }
                     }
                 }
                 else
                 {
-                    DiagnosticMessages.Add($"{spaces}Skipping {property.Name}");
+                    DiagnosticMessages.Add($"{spaces}Skipping {objectPath}.{property.Name}");
                 }
             }
         }

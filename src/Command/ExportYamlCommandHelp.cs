@@ -27,6 +27,8 @@ namespace Microsoft.PowerShell.PlatyPS
         public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter()]
+        [ArgumentToEncodingTransformation]
+        [ArgumentEncodingCompletions]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         [Parameter()]

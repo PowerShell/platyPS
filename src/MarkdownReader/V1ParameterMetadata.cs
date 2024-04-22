@@ -84,7 +84,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             List<string> l = new();
 
-            var trueMatch = RequiredTruePattern.Match(Required);
+            var trueMatch = RequiredTruePattern.Match(Required ?? string.Empty);
             if (trueMatch.Success)
             {
                 string foundParameterSets = trueMatch.Groups[1].Value.Trim();
