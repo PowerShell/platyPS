@@ -33,7 +33,7 @@ jobs:
       $sourceName = 'pspackageproject-local-repo'
       Register-PSRepository -Name $sourceName -SourceLocation '$(System.ArtifactsDirectory)/nupkg' -ErrorAction Ignore -Verbose
       $null = New-Item -Path '$(System.ArtifactsDirectory)/saved' -ItemType Directory
-      Save-Module -Repository $sourceName -Name platyPS -Path '$(System.ArtifactsDirectory)/saved' -Verbose
+      Save-Module -Repository $sourceName -Name Microsoft.PowerShell.PlatyPS -Path '$(System.ArtifactsDirectory)/saved' -Verbose
     displayName: Extract product artifact
     timeoutInMinutes: 10
 
