@@ -435,9 +435,9 @@ Write-Host 'Hello World!'
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
-        It "generates a landing page from Module" -Pending:$IsMacOS {
+        It "generates a landing page from Module" {
             New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/platyPS.md" | Should -Exist
+            "$OutputFolder/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
         }
 
         It "generates a landing page from MAML" -Pending {
