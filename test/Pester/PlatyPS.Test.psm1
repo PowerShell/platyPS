@@ -2,7 +2,7 @@
 # Licensed under the MIT License.
 
 
-$modRoot = (Get-Module PlatyPS).ModuleBase
+$modRoot = (Get-Module Microsoft.PowerShell.PlatyPS).ModuleBase
 $depRoot = Join-Path $modRoot "Dependencies"
 $markDigAsm = Join-Path $depRoot "Markdig.Signed.dll"
 $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"

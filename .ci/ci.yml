@@ -35,18 +35,18 @@ stages:
       displayName: Build
 
     - pwsh: |
-        $files = (Get-ChildItem -Recurse '$(Build.SourcesDirectory)/out/platyPS' -File).FullName
+        $files = (Get-ChildItem -Recurse '$(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS' -File).FullName
 
         $files | ForEach-Object {
-          Write-Host "##vso[artifact.upload containerfolder=platyPS;artifactname=platyPS]$_"
+          Write-Host "##vso[artifact.upload containerfolder=Microsoft.PowerShell.PlatyPS;artifactname=Microsoft.PowerShell.PlatyPS]$_"
         }
       displayName: Publish build artifact
       timeoutInMinutes: 10
 
     - pwsh: |
         Register-PSRepository -Name local -SourceLocation '$(System.ArtifactsDirectory)' -Verbose -ErrorAction Ignore
-        Publish-Module -Repository local -Path '$(Build.SourcesDirectory)/out/platyPS' -Verbose
-        $nupkgFile = Get-ChildItem -Path '$(System.ArtifactsDirectory)/platyPS*.nupkg'
+        Publish-Module -Repository local -Path '$(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS' -Verbose
+        $nupkgFile = Get-ChildItem -Path '$(System.ArtifactsDirectory)/Microsoft.PowerShell.PlatyPS*.nupkg'
 
         Write-Verbose -Verbose "Uploading: $nupkgFile"
         Write-Host "##vso[artifact.upload containerfolder=nupkg;artifactname=nupkg]$nupkgFile"

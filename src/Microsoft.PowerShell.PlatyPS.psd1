@@ -10,7 +10,7 @@
 
 # Version number of this module.
 # Do not edit the version. The version is updated by the build script.
-ModuleVersion = '2.0.0'
+ModuleVersion = '1.0.0'
 
 # ID used to uniquely identify this module
 GUID = '0bdcabef-a4b7-4a6d-bf7e-d879817ebbff'
@@ -35,15 +35,13 @@ FunctionsToExport = @()
 
 # Cmdlets to export from this module
 CmdletsToExport = @(
-    'Get-MarkdownMetadata',
     'New-MarkdownHelp',
-    'New-YamlHelp',
-    'Import-YamlCommandHelp',
     'Import-MamlHelp',
     'Import-MarkdownCommandHelp',
+    'Import-YamlCommandHelp',
+    'Export-MamlCommandHelp',
     'Export-MarkdownCommandHelp'
     'Export-YamlCommandHelp'
-    'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp'
 )
 

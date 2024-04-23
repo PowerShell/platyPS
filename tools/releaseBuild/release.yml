@@ -60,24 +60,24 @@ stages:
         ./build.ps1 -Clean -Configuration 'Release'
       displayName: Execute build
 
-    - publish: '$(Build.SourcesDirectory)\out\platyPS'
+    - publish: '$(Build.SourcesDirectory)\out\Microsoft.PowerShell.PlatyPS'
       artifact: build
       displayName: Publish build package
 
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
-        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        buildOutputPath: '$(Build.SourcesDirectory)\out\Microsoft.PowerShell.PlatyPS'
         signOutputPath: '$(Pipeline.Workspace)\signed\codesign'
         certificateId: 'CP-230012'
         displayName: Microsoft signing
         pattern: |
           **\Microsoft.PowerShell.PlatyPS.dll
-          **\platyPS.psd1
+          **\Microsoft.PowerShell.PlatyPS.psd1
         useMinimatch: true
 
     - template: EsrpSign.yml@ComplianceRepo
       parameters:
-        buildOutputPath: '$(Build.SourcesDirectory)\out\platyPS'
+        buildOutputPath: '$(Build.SourcesDirectory)\out\Microsoft.PowerShell.PlatyPS'
         signOutputPath: '$(Pipeline.Workspace)\signed\thirdparty'
         certificateId: 'CP-231522'
         displayName: Third party signing
@@ -87,23 +87,23 @@ stages:
         useMinimatch: true
 
     - pwsh: |
-        Copy-Item -Path "$env:BUILD_SOURCESDIRECTORY\out\platyPS" -Destination "$env:PIPELINE_WORKSPACE\signed" -recurse -verbose -force
+        Copy-Item -Path "$env:BUILD_SOURCESDIRECTORY\out\Microsoft.PowerShell.PlatyPS" -Destination "$env:PIPELINE_WORKSPACE\signed" -recurse -verbose -force
       displayName: Dummy copy to signed
       condition: eq(variables['SkipSigning'], 'True')
 
     - pwsh: |
-        $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Force
+        $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Force
 
         if ( Test-Path -Path '$(Pipeline.Workspace)\signed\codesign')
         {
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\Microsoft.PowerShell.PlatyPS.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\platyPS.psd1' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\Markdig.Signed.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\YamlDotNet.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\Microsoft.PowerShell.PlatyPS.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\codesign\Microsoft.PowerShell.PlatyPS.psd1' -Destination '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\Markdig.Signed.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\thirdparty\YamlDotNet.dll' -Destination '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose -Force
         }
         else
         {
-          Copy-Item -Path '$(Pipeline.Workspace)\signed\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose -Force
+          Copy-Item -Path '$(Pipeline.Workspace)\signed\*' -Destination '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose -Force
         }
       displayName: Copy signed files to module folder
 
@@ -119,10 +119,10 @@ stages:
     - pwsh: |
         $null = New-Item -ItemType Directory -Path '$(System.ArtifactsDirectory)/local'
         Register-PSRepository -Name local -SourceLocation '$(System.ArtifactsDirectory)/local' -Verbose -ErrorAction Ignore
-        Publish-Module -Repository local -Path '$(System.ArtifactsDirectory)/signedpackage/platyPS' -Verbose
+        Publish-Module -Repository local -Path '$(System.ArtifactsDirectory)/signedpackage/Microsoft.PowerShell.PlatyPS' -Verbose
       displayName: Create nupkg for the module
 
-    - publish: '$(System.ArtifactsDirectory)\local\platyPS.$(Version).nupkg'
+    - publish: '$(System.ArtifactsDirectory)\local\Microsoft.PowerShell.PlatyPS.$(Version).nupkg'
       artifact: nuget
       displayName: Publish module nuget
 

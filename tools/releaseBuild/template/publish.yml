@@ -5,7 +5,7 @@ parameters:
 
 stages:
 - stage: ${{ parameters.stageName }}
-  displayName: Release platyPS to '${{ parameters.stageName }}'
+  displayName: Release Microsoft.PowerShell.PlatyPS to '${{ parameters.stageName }}'
   condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/v2'))
 
   jobs:
@@ -23,7 +23,7 @@ stages:
             artifact: nuget
 
           - pwsh: |
-              $package = (Get-ChildItem "$(Pipeline.Workspace)/nuget/platyPS.*.nupkg").FullName
+              $package = (Get-ChildItem "$(Pipeline.Workspace)/nuget/Microsoft.PowerShell.PlatyPS.*.nupkg").FullName
               $package
               $vstsCommandString = "vso[task.setvariable variable=NugetPkgPath]${package}"
               Write-Host "sending " + $vstsCommandString

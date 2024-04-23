@@ -4,7 +4,7 @@
 $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/CommonFunction.ps1
 
-Describe 'Get-MarkdownMetadata' {
+Describe 'Get Metadata from CommandHelp' {
     Context 'Simple markdown file' {
         BeforeAll {
             Set-Content -Path "$TestDrive/foo.md" -Value @'
@@ -18,13 +18,66 @@ online version: https://docs.microsoft.com/powershell/module/microsoft.powershel
 schema: 2.0.0
 title: Compress-Archive
 ---
+
+# Get-Thing
+
+## SYNOPSIS
+Gets the thing
+
+## SYNTAX
+
+### PSet1 (Default)
+
+```
+Get-Thing [<CommonParameters>]
+```
+
+## DESCRIPTION
+
+The `Get-Thing` cmdlet get the thing.
+
+
+## EXAMPLES
+
+### Example 1: Get the thing
+
+In this example, `Get-Thing` gets the thing.
+
+```powershell
+Get-Thing
+```
+
+```Output
+thing
+```
+
+## PARAMETERS
+
+### CommonParameters
+
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+-InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose,
+-WarningAction, and -WarningVariable. For more information, see
+[about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+## OUTPUTS
+
+## NOTES
+
+no notes
+
+## RELATED LINKS
+
 '@
         }
 
         It 'can read file with relative path' {
             try {
                 Push-Location $TestDrive
-                $d = Get-MarkdownMetadata "./foo.md"
+                $ch = Import-MarkdownCommandHelp "./foo.md"
+                $d = $ch.Metadata
                 $d.Keys | Should -HaveCount 8
             }
             finally {
@@ -33,7 +86,8 @@ title: Compress-Archive
         }
 
         It 'can parse out yaml snippet' {
-            $d = Get-MarkdownMetadata "$TestDrive/foo.md"
+            $ch = Import-MarkdownCommandHelp "$TestDrive/foo.md"
+            $d = $ch.Metadata
             $d.Keys | Should -HaveCount 8
             $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "online version", "schema", "title"
             $d["Locale"] | Should -Be 'en-US'
