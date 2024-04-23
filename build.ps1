@@ -19,6 +19,8 @@ param(
     [string] $PesterLogPath = "$PSScriptRoot/pester.tests.xml"
 )
 
+$ModuleName = "Microsoft.PowerShell.PlatyPS"
+
 if ($PSCmdlet.ParameterSetName -eq 'Build') {
     try {
 
@@ -48,17 +50,17 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         }
 
         $expectedBuildPath = "./bin/$Configuration/net462/"
-        $expectedDllPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.dll"
-        $expectedPdbPath = "$expectedBuildPath/Microsoft.PowerShell.PlatyPS.pdb"
+        $expectedDllPath = "$expectedBuildPath/${ModuleName}.dll"
+        $expectedPdbPath = "$expectedBuildPath/${ModuleName}.pdb"
 
         if (-not (Test-Path $expectedDllPath)) {
             throw "Build did not succeed."
         }
 
-        $moduleRoot = New-Item -Item Directory -Path "$OutputDir/platyPS" -Force
+        $moduleRoot = New-Item -Item Directory -Path "$OutputDir/${ModuleName}" -Force
         $depsFolder = New-Item -Item Directory -Path "$moduleRoot/Dependencies" -Force
 
-        $moduleFiles = "$PSScriptRoot/src/platyPS.psd1", $expectedDllPath
+        $moduleFiles = "$PSScriptRoot/src/${ModuleName}.psd1", $expectedDllPath
         if ($configuration -eq "debug") {
             $moduleFiles += $expectedPdbPath
         }
@@ -75,7 +77,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
     $sb = "Import-Module -Max 4.99 Pester
-        Import-Module -Name '$OutputDir/platyPS' -Force
+        Import-Module -Name '$OutputDir/${ModuleName}' -Force
         Push-Location $pesterTestRoot
         Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath"
 

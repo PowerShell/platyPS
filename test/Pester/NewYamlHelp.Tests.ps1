@@ -89,9 +89,9 @@ Describe 'New-YamlHelp' {
         }
     }
 
-    Context 'from platyPS module' {
-        It 'creates few help files for platyPS' {
-            $files = New-YamlHelp -Module PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
+    Context 'from PlatyPS module' {
+        It 'creates few help files for PlatyPS' {
+            $files = New-YamlHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
         }
     }
@@ -436,8 +436,8 @@ Write-Host 'Hello World!'
         }
 
         It "generates a landing page from Module" -Pending {
-            New-YamlHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/platyPS.md" | Should -Exist
+            New-YamlHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
+            "$OutputFolder/Microsoft.PowerShell.platyPS.md" | Should -Exist
         }
 
         It "generates a landing page from MAML" -Pending {
@@ -447,19 +447,19 @@ Write-Host 'Hello World!'
                         -ModuleName "PlatyPS" `
                         -Force
 
-            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Microsoft.PowerShell.PlatyPS.md)
             $LandingPage | Should -Exist
         }
 
         it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-YamlHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+            New-YamlHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
             $OutputFolderReadme | Should -Exist
         }
 
         It 'generates a landing page from module at correct output folder' {
             try {
                 Push-Location $TestDrive
-                $files = New-YamlHelp -Module PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $files = New-YamlHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'platyPS.md' }
                 $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "platyPS.md")
             }

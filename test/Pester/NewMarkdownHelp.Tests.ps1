@@ -46,18 +46,8 @@ Describe 'New-MarkdownHelp' {
             $customMetadata['FOO'] = 'BAR'
             $file = New-MarkdownHelp -metadata $defaultMetadata -command New-MarkdownHelp -OutputFolder $TestDrive
 
-            $h = Get-MarkdownMetadata $file
+            $h = (Import-MarkdownCommandHelp $file).Metadata
             $h['FOO'] | Should -BeExactly 'BAR'
-        }
-
-        It 'respects -NoMetadata' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -NoMetadata -Force
-            Get-MarkdownMetadata $file.FullName | Should -BeNullOrEmpty
-        }
-
-        It 'errors on -NoMetadata and -Metadata' {
-            { New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -NoMetadata -Force -Metadata @{} } |
-            Should -Throw -ErrorId 'NoMetadataAndMetadata,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'Duplicate keys in metadata should produce an error' -Pending {
@@ -79,7 +69,7 @@ Describe 'New-MarkdownHelp' {
         ) {
             param ($Name)
             $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force -Metadata $defaultMetadata
-            $md = Get-MarkdownMetadata $file
+            $md = (Import-MarkdownCommandHelp $file).Metadata
             $md.Keys | Should -Contain $Name
         }
     }
@@ -87,14 +77,13 @@ Describe 'New-MarkdownHelp' {
     Context 'encoding' {
         It 'writes appropriate encoding' {
             $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
-            $content = Get-Content -path $file -Encoding UTF32 -Raw
-            Get-MarkdownMetadata -Markdown $content | Should -Not -BeNullOrEmpty
+            Get-Content -AsByteStream $file | Select-Object -First 4 | Should -Be ([byte[]](255, 254, 0, 0))
         }
     }
 
-    Context 'from platyPS module' {
-        It 'creates few help files for platyPS' {
-            $files = New-MarkdownHelp -Module PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
+    Context 'from PlatyPS module' {
+        It 'creates few help files for PlatyPS' {
+            $files = New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
         }
     }
@@ -160,7 +149,7 @@ Describe 'New-MarkdownHelp' {
 
     Context 'from command' {
         It 'creates 2 markdown files from command names' {
-            $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Get-MarkdownMetadata') -OutputFolder "$TestDrive/commands" -Force
+            $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Import-MarkdownCommandHelp') -OutputFolder "$TestDrive/commands" -Force
             $files | Should -HaveCount 2
         }
 
@@ -447,32 +436,32 @@ Write-Host 'Hello World!'
         }
 
         It "generates a landing page from Module" -Pending:$IsMacOS {
-            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
+            New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolder/platyPS.md" | Should -Exist
         }
 
         It "generates a landing page from MAML" -Pending {
-            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder/platyPS/en-US/platy*xml") `
+            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder/Microsoft.PowerShell.PlatyPS/en-US/platy*xml") `
                         -OutputFolder $OutputFolder `
                         -WithModulePage `
-                        -ModuleName "PlatyPS" `
+                        -ModuleName "Microsoft.PowerShell.PlatyPS" `
                         -Force
 
-            $LandingPage = Get-ChildItem (Join-Path $OutputFolder PlatyPS.md)
+            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Microsoft.PowerShell.PlatyPS.md)
             $LandingPage | Should -Exist
         }
 
         it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-MarkdownHelp -Module PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+            New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
             $OutputFolderReadme | Should -Exist
         }
 
         It 'generates a landing page from module at correct output folder' {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownHelp -Module PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
-                $landingPage = $files | Where-Object { $_.Name -eq 'platyPS.md' }
-                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "platyPS.md")
+                $files = New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
+                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS.md")
             }
             finally {
                 Pop-Location
