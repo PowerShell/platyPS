@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Management.Automation;
 using System.Text;
 
@@ -111,7 +112,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 Parameter param = new(parameterMetadata.Value.Name, typeName); 
                 param.DontShow = paramAttribInfo.DontShow;
                 param.Globbing = paramAttribInfo.Globbing;
-                param.HelpMessage = paramAttribInfo.HelpMessage;
+                param.HelpMessage = paramAttribInfo.HelpMessage ?? string.Empty;
 
                 foreach (KeyValuePair<string, ParameterSetMetadata> paramSet in parameterMetadata.Value.ParameterSets)
                 {
@@ -129,15 +130,22 @@ namespace Microsoft.PowerShell.PlatyPS
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
                 param.Aliases = string.Join(",", parameterMetadata.Value.Aliases);
 
-                string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage;
+                string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage ?? string.Empty;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
                     string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
-                    descriptionFromHelp;
+                    descriptionFromHelp.Trim();
 
                 parameters.Add(param);
             }
 
-            return parameters;
+            if (Settings?.AlphabeticParamsOrder == true)
+            {
+                return parameters.OrderBy(param => param.Name);
+            }
+            else
+            {
+                return parameters;
+            }
         }
 
         protected static IEnumerable<Example> GetExamples(dynamic helpItem, bool addDefaultString)
@@ -298,7 +306,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             Parameter param = new(paramInfo.Name, typeName);
 
-            string? descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage;
+            string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage ?? string.Empty;
 
             param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :

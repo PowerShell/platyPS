@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Management.Automation;
+using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
 
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
@@ -26,8 +27,10 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
         public object[] Command { get; set; } = Array.Empty<string>();
 
-        [Parameter()]
-        public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+        [Parameter]
+        [ArgumentToEncodingTransformation]
+        [ArgumentEncodingCompletions]
+        public System.Text.Encoding Encoding { get; set; }  = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         [Parameter()]
         public SwitchParameter Force { get; set; }
