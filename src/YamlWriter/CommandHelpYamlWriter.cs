@@ -156,12 +156,12 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 sb.AppendLine("  description: |-");
                 if (example.Remarks is not null)
                 {
-                    foreach(var line in example.Remarks.Trim().Split(Constants.LineSplitter, stringSplitOptions))
+                    foreach(var line in example.Remarks.TrimEnd().Split(Constants.LineSplitter, stringSplitOptions))
                     {
-                        sb.AppendLine(string.Format("    {0}", line?.Trim()));
+                        sb.AppendLine(string.Format("    {0}", line?.TrimEnd()));
                     }
                 }
-                sb.AppendLine("  summary: \"\"");
+                sb.AppendLine("  summary: \"\""); // This has no place in the new schema
             }
         }
 

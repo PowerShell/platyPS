@@ -50,7 +50,7 @@ Describe 'New-MarkdownHelp' {
             $h['FOO'] | Should -BeExactly 'BAR'
         }
 
-        It 'Duplicate keys in metadata should produce an error' -Pending {
+        It 'Duplicate keys in metadata should use the provided metadata value' -Pending {
             $mdArgs = @{
                 Command = "New-MarkdownHelp"
                 OutputFolder = $TestDrive

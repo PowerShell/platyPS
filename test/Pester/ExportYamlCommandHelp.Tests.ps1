@@ -9,7 +9,28 @@ Describe "Export-YamlCommandHelp tests" {
         $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
         $outputFile = "$TESTDRIVE/get-date.yml"
         Import-Module "$PSScriptRoot/PlatyPS.Test.psm1"
-        $yamlDict = Import-CommandYaml $outputFile
+        $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
+    }
+
+    Context "Toplevel elements of the yaml file." {
+        It "Should contain the key '<key>' in the proper offset '<offset>'" -TestCases $(
+            @{ key = 'metadata'; offset = 0 }
+            @{ key = 'title' ; offset = 1 }
+            @{ key = 'synopsis' ; offset = 2 }
+            @{ key = 'syntaxes' ; offset = 3 }
+            @{ key = 'aliases' ; offset = 4 }
+            @{ key = 'description' ; offset = 5 }
+            @{ key = 'examples' ; offset = 6 }
+            @{ key = 'parameters' ; offset = 7 }
+            @{ key = 'inputs' ; offset = 8 }
+            @{ key = 'outputs' ; offset = 9 }
+            @{ key = 'notes' ; offset = 10 }
+            @{ key = 'links' ; offset = 11 }
+        ) {
+            param ($key, $offset)
+            $yamlDict.Contains($key) | Should -Be $true
+            $yamlDict.Keys[$offset] | Should -Be $key
+        }
     }
 
     Context "Metadata" {
@@ -71,7 +92,28 @@ Describe "Export-YamlCommandHelp tests" {
     }
 
     Context "Examples" {
+        BeforeAll {
+            $objectExamples = $ch.examples
+            $yamlExamples = $yamlDict['examples']
+        }
 
+        It "Should contain the same count of examples" {
+            $objectExamples.Count | Should -Be $yamlExamples.Count
+        }
+
+        It "Should preserve the content for example <example>, '<title>'" -TestCases $(
+            $objectExamples | Foreach-Object { $exampleNumber = 1 } {
+                @{ example = $exampleNumber++; title = $_.title; remarks = $_.remarks }
+            }
+        ) {
+            param ($example, $title, $remarks)
+            # we have to construct the title string to include 'Example #'
+            $titleString = "Example {0}: $title" -f $example
+            $observedExample = $yamlExamples[$example - 1]
+            $observedExample['title'] | Should -Be $titleString
+            if ($observedExample['description'] -ne $remarks) { wait-debugger }
+            $observedExample['description'] | Should -Be $remarks
+        }
     }
 
     Context "Parameters" {
@@ -107,14 +149,57 @@ Describe "Export-YamlCommandHelp tests" {
     }
 
     Context "Input" {
+        BeforeAll {
+            $expectedInputs = $ch.Inputs
+            $observedInputs = $yamlDict['inputs']
+        }
 
+        It "Should have the proper number of inputs" {
+            $observedInputs.Count | Should -Be $expectedInputs.Count
+        }
+
+        It "The inputs should be properly preserved for offset '<offset>'" -TestCases $(
+            $observedInputs | Foreach-Object { $number = 0 } {
+                @{ inputObject = [Microsoft.PowerShell.PlatyPS.Model.InputOutput]::new( $_['name'], $_['description']); offset = $number++ }
+            }
+        ) {
+            param ($inputObject, $offset)
+            $expectedInputs[$offset] | Should -Be $inputObject
+        }
     }
 
     Context "Output" {
+        BeforeAll {
+            $expectedOutputs = $ch.Outputs
+            $observedOutputs = $yamlDict['outputs']
+        }
+
+        It "Should have the proper number of outputs" {
+            $observedOutputs.Count | Should -Be $expectedOutputs.Count
+        }
+
+        It "The outputs should be properly preserved for offset '<offset>'" -TestCases $(
+            $observedOutputs | Foreach-Object { $number = 0 } {
+                @{ outputObject = [Microsoft.PowerShell.PlatyPS.Model.InputOutput]::new( $_['name'], $_['description']); offset = $number++ }
+            }
+        ) {
+            param ($outputObject, $offset)
+            $expectedOutputs[$offset] | Should -Be $outputObject
+        }
 
     }
 
+    Context "Notes" {
+        It "Should preserve the notes content" {
+            $yamlDict['notes'] | Should -Be $ch.Notes
+        }
+    }
+
     Context "Related Links" {
+        It "Should preserve the count of related links" {
+            $ch.RelatedLinks.Count | Should -Be $yamlDict['links'].Count
+        }
+
         It "Should preserve the related links content for '<linktext>'" -TestCases $(
             $i = 0
             $ch.RelatedLinks | Foreach-Object {
@@ -127,11 +212,4 @@ Describe "Export-YamlCommandHelp tests" {
             $relatedLinks[$offset]['href'] | Should -Be $uri
         }
     }
-
-    Context "Notes" {
-        It "Should preserve the notes content" {
-            $yamlDict['notes'] | Should -Be $ch.Notes
-        }
-    }
-
 }

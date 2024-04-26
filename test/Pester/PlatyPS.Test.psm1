@@ -94,14 +94,23 @@ class ch {
 $builderType = "YamlDotNet.Serialization.DeserializerBuilder" -as [type]
 $script:yamldes = $builderType::new().WithNamingConvention([YamlDotnet.Serialization.NamingConventions.CamelCaseNamingConvention]::new()).Build()
 [type[]]$tlist = @( [string] )
-$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
 
 function Import-CommandYaml  {
     [CmdletBinding()]
     param (
         [System.Management.Automation.ParameterAttribute(ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true,Position=0,Mandatory=$true)]
-        [string[]]$fullname
+        [string[]]$fullname,
+        [switch]$PreserveOrder
     )
+
+    BEGIN {
+        if ($PreserveOrder) {
+            $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([System.Collections.Specialized.OrderedDictionary])
+        }
+        else {
+            $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
+        }
+    }
 
     PROCESS {
         foreach($yamlFile in $fullname) {
