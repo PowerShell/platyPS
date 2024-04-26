@@ -61,12 +61,6 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(ParameterSetName = "FromMaml")]
         public string? ModuleName { get; set; }
 
-        /// <summary>
-        /// Include no metadata in the output file.
-        /// </summary>
-        [Parameter()]
-        public SwitchParameter NoMetadata { get; set; }
-
         [Parameter(ParameterSetName = "FromCommand")]
         public string? OnlineVersionUrl { get; set; }
 
@@ -100,16 +94,6 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter ExcludeDontShow { get; set; }
 
         #endregion
-
-        protected override void BeginProcessing()
-        {
-            if (Metadata is not null && NoMetadata)
-            {
-                var exception = new InvalidOperationException(Microsoft_PowerShell_PlatyPS_Resources.NoMetadataAndMetadata);
-                ErrorRecord err = new ErrorRecord(exception, "NoMetadataAndMetadata", ErrorCategory.InvalidOperation, Metadata);
-                ThrowTerminatingError(err);
-            }
-        }
 
         protected override void EndProcessing()
         {
@@ -194,24 +178,18 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    var baseMetadata = GetBaseMetadata(cmdletHelp);
+                    var baseMetadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdletHelp);
                     if (Metadata is null)
                     {
-                        if (! NoMetadata)
-                        {
-                            Metadata = baseMetadata;
-                        }
+                        Metadata = new Hashtable(baseMetadata);
                     }
                     else
                     {
-                        if (! NoMetadata) // merge our recieved metadata with the base metadata
+                        foreach(var metadataKey in baseMetadata.Keys)
                         {
-                            foreach(var metadataKey in baseMetadata.Keys)
+                            if (! Metadata.ContainsKey(metadataKey))
                             {
-                                if (! Metadata.ContainsKey(metadataKey))
-                                {
-                                    Metadata.Add(metadataKey, baseMetadata[metadataKey]);
-                                }
+                                Metadata.Add(metadataKey, baseMetadata[metadataKey]);
                             }
                         }
                     }
@@ -233,14 +211,14 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        static Hashtable GetBaseMetadata(CommandHelp help)
+        static Hashtable GetCommandHelpBaseMetadata(CommandHelp help)
         {
             var metadata = new Hashtable();
             metadata.Add("title", help.Title);
             metadata.Add("Module Name", help.ModuleName);
             metadata.Add("Locale", help.Locale.Name);
-            metadata.Add("schema", "3.0.0");
-            metadata.Add("online version", help.OnlineVersionUrl);
+            metadata.Add("PlatyPS schema version", "2024-05-01");
+            metadata.Add("HelpUri", help.OnlineVersionUrl);
             metadata.Add("ms.date", DateTime.Now.ToString("MM/dd/yyyy"));
             metadata.Add("external help file", help.ExternalHelpFile);
             return metadata;

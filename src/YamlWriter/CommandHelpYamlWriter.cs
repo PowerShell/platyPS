@@ -4,7 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Specialized;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -90,56 +92,18 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteSyntax(CommandHelp help)
         {
-            sb.AppendLine(Constants.SyntaxYamlHeader);
-
-            if (help.Syntax?.Count > 0)
+            YamlSyntax syntax = new();
+            foreach (var yamlSyntax in help.Syntax)
             {
-                foreach (SyntaxItem item in help.Syntax)
+                var yamlSyntaxEntry = new SyntaxExport(yamlSyntax.CommandName, yamlSyntax.ParameterSetName, yamlSyntax.IsDefaultParameterSet);
+                foreach(var syntaxParameter in yamlSyntax.SyntaxParameters)
                 {
-                    if (item.IsDefaultParameterSet)
-                    {
-                        var syntaxString = item.ToSyntaxString(Constants.DefaultSyntaxYamlTemplate);
-                        if (syntaxString is not null)
-                        {
-                            foreach(var line in syntaxString.Trim().Split(Constants.LineSplitter, stringSplitOptions))
-                            {
-                                if (line != "```")
-                                {
-                                    if (line.StartsWith("-"))
-                                    {
-                                        sb.AppendLine(line);
-                                    }
-                                    else
-                                    {
-                                        sb.AppendLine(string.Format("  {0}", line));
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    else
-                    {
-                        var syntaxString = item.ToSyntaxString(Constants.SyntaxYamlTemplate);
-                        if (syntaxString is not null)
-                        {
-                            foreach(var line in syntaxString.Trim().Split(Constants.LineSplitter, stringSplitOptions))
-                            {
-                                if (line != "```")
-                                {
-                                    if (line.StartsWith("-"))
-                                    {
-                                        sb.AppendLine(line);
-                                    }
-                                    else
-                                    {
-                                        sb.AppendLine(string.Format("  {0}", line));
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    yamlSyntaxEntry.Parameters.Add(syntaxParameter.ToString());
                 }
+                syntax.syntaxes.Add(yamlSyntaxEntry);
             }
+
+            sb.Append(YamlUtils.SerializeElement(syntax));
         }
 
         internal override void WriteDescription(CommandHelp help)
@@ -296,6 +260,31 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                     sb.AppendLine(string.Format("  href: {0}", link.Uri));
                 }
             }
+        }
+    }
+
+    public class YamlSyntax
+    {
+        public List<SyntaxExport> syntaxes { get; set; } = new();
+    }
+
+    /// <summary>
+    /// Used in yaml serialization of syntax.
+    /// This needs to be public to be serialized correctly by YamlDotnet.
+    /// </summary>
+    public class SyntaxExport
+    {
+        public string CommandName { get; set; } = string.Empty;
+        public string ParameterSetName { get; set; } = string.Empty;
+        public bool IsDefault { get; set; }
+        public List<string> Parameters { get; set; } = new();
+
+        public SyntaxExport(string commandName, string parameterSetName, bool isDefault)
+        {
+            CommandName = commandName;
+            ParameterSetName = parameterSetName;
+            IsDefault = isDefault;
+            Parameters = new();
         }
     }
 }
