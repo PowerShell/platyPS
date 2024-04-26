@@ -77,6 +77,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     Write-Verbose "Executing Pester tests under $pesterTestRoot" -Verbose
 
     $sb = "Import-Module -Max 4.99 Pester
+        `$PSModuleAutoloadingPreference = 'none'
         Import-Module -Name '$OutputDir/${ModuleName}' -Force
         Push-Location $pesterTestRoot
         Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath"
