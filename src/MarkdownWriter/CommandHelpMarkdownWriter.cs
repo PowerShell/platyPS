@@ -190,12 +190,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 sb.AppendLine(item.ToInputOutputString(Constants.mdNotesItemHeaderTemplate));
                 sb.AppendLine();
             }
-
-            // if we had any items, remove the last new line
-            if (inputsoutputs.Count != 0)
-            {
-                sb.Remove(sb.Length - 1, 1);
-            }
         }
 
         internal override void WriteNotes(CommandHelp help)

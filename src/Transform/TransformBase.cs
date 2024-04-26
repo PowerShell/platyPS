@@ -486,10 +486,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        protected InputOutput GetInputOutputItem(dynamic typesInfo, string defaultTypeName, string defaultDescription)
+        protected InputOutput? GetInputOutputItem(dynamic typesInfo, string defaultTypeName, string defaultDescription)
         {
-            InputOutput inputOutputTypeItem = new();
-
+            var inputOutput = new InputOutput(defaultTypeName, defaultDescription);
             if (string.IsNullOrEmpty(defaultTypeName) && string.IsNullOrEmpty(defaultDescription))
             {
                 dynamic ioTypes = typesInfo;
@@ -499,20 +498,16 @@ namespace Microsoft.PowerShell.PlatyPS
                     foreach (dynamic ioType in typesInfo)
                     {
                         string typeName = ioType.type.ToString();
-                        inputOutputTypeItem.AddInputOutputItem(typeName, GetStringFromDescriptionArray(ioType.description));
+                        inputOutput = new InputOutput(typeName, GetStringFromDescriptionArray(ioType.description));
                     }
                 }
                 else if (ioTypes is PSObject)
                 {
-                    inputOutputTypeItem.AddInputOutputItem(ioTypes.type.name.ToString(), GetStringFromDescriptionArray(ioTypes.description));
+                    inputOutput = new InputOutput(ioTypes.type.name.ToString(), GetStringFromDescriptionArray(ioTypes.description));
                 }
             }
-            else
-            {
-                inputOutputTypeItem.AddInputOutputItem(defaultTypeName, defaultDescription);
-            }
 
-            return inputOutputTypeItem;
+            return inputOutput;
         }
 
         protected static string? GetStringFromDescriptionArray(dynamic description)

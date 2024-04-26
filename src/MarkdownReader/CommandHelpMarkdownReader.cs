@@ -421,6 +421,7 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static List<InputOutput> GetInputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
             diagnostics = new List<DiagnosticMessage>();
+            List<InputOutput> input = new();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "INPUTS");
             if (start == -1)
@@ -430,17 +431,16 @@ namespace Microsoft.PowerShell.PlatyPS
             else
             {
                 markdownContent.Seek(start);
-                var inputOutput = GetInputOutput(markdownContent);
-                var dm = new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start);
-                diagnostics.Add(dm);
-                return inputOutput;
+                input.AddRange(GetInputOutput(markdownContent));
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, $"{input.Count} items found", start));
             }
 
-            return null;
+            return input;
         }
 
         internal static List<InputOutput> GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            List<InputOutput> output = new();
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "OUTPUTS");
@@ -451,12 +451,11 @@ namespace Microsoft.PowerShell.PlatyPS
             else
             {
                 markdownContent.Seek(start);
-                var inputOutput = GetInputOutput(markdownContent);
-                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start));
-                return inputOutput;
+                output.AddRange(GetInputOutput(markdownContent));
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{output.Count} items found", start));
             }
 
-            return null;
+            return output;
         }
 
         internal static Collection<Parameter> GetParametersFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
@@ -853,7 +852,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         description = string.Empty;
                     }
 
-                    ioList.Add(inputType.Trim(), description.Trim());
+                    ioList.Add(new InputOutput(inputType.Trim(), description.Trim()));
                 }
                 else
                 {
