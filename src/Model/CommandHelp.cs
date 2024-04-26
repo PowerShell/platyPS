@@ -42,9 +42,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public List<Parameter> Parameters { get; private set; }
 
-        public List<InputOutput>? Inputs { get; private set; }
+        public List<InputOutput> Inputs { get; private set; }
 
-        public List<InputOutput>? Outputs { get; private set; }
+        public List<InputOutput> Outputs { get; private set; }
 
         public string? Notes { get; set; }
 
