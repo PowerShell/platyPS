@@ -284,9 +284,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<DiagnosticMessage> inputsDiagnostics = new();
             var commandInputs = GetInputsFromMarkdown(markdownContent, out inputsDiagnostics);
-            if (commandInputs is not null)
+            if (commandInputs is not null && commandInputs.Count > 0)
             {
-                commandHelp.Inputs?.Add(commandInputs);
+                commandHelp.Inputs?.AddRange(commandInputs);
             }
 
             if (inputsDiagnostics is not null && inputsDiagnostics.Count > 0)
@@ -296,9 +296,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<DiagnosticMessage> outputsDiagnostics = new();
             var commandOutputs = GetOutputsFromMarkdown(markdownContent, out outputsDiagnostics);
-            if (commandOutputs is not null)
+            if (commandOutputs is not null && commandOutputs.Count > 0)
             {
-                commandHelp.Outputs?.Add(commandOutputs);
+                commandHelp.Outputs?.AddRange(commandOutputs);
             }
 
             if (outputsDiagnostics is not null && outputsDiagnostics.Count > 0)
@@ -418,9 +418,10 @@ namespace Microsoft.PowerShell.PlatyPS
             return noteContent;
         }
 
-        internal static InputOutput? GetInputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
+        internal static List<InputOutput> GetInputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
             diagnostics = new List<DiagnosticMessage>();
+            List<InputOutput> input = new();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "INPUTS");
             if (start == -1)
@@ -430,17 +431,16 @@ namespace Microsoft.PowerShell.PlatyPS
             else
             {
                 markdownContent.Seek(start);
-                var inputOutput = GetInputOutput(markdownContent);
-                var dm = new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start);
-                diagnostics.Add(dm);
-                return inputOutput;
+                input.AddRange(GetInputOutput(markdownContent));
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Inputs, "GetInput", DiagnosticSeverity.Information, $"{input.Count} items found", start));
             }
 
-            return null;
+            return input;
         }
 
-        internal static InputOutput? GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
+        internal static List<InputOutput> GetOutputsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            List<InputOutput> output = new();
             diagnostics = new List<DiagnosticMessage>();
             markdownContent.Reset();
             var start = markdownContent.FindHeader(2, "OUTPUTS");
@@ -451,12 +451,11 @@ namespace Microsoft.PowerShell.PlatyPS
             else
             {
                 markdownContent.Seek(start);
-                var inputOutput = GetInputOutput(markdownContent);
-                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{inputOutput.GetCount()} items found", start));
-                return inputOutput;
+                output.AddRange(GetInputOutput(markdownContent));
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Outputs, "GetOutput", DiagnosticSeverity.Information, $"{output.Count} items found", start));
             }
 
-            return null;
+            return output;
         }
 
         internal static Collection<Parameter> GetParametersFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
@@ -816,9 +815,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return links;
         }
 
-        internal static InputOutput GetInputOutput(ParsedMarkdownContent md)
+        internal static List<InputOutput> GetInputOutput(ParsedMarkdownContent md)
         {
-            InputOutput ioList = new();
+            List<InputOutput> ioList = new();
             if (md.GetCurrent() is HeadingBlock)
             {
                 md.Take();
@@ -853,7 +852,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         description = string.Empty;
                     }
 
-                    ioList.AddInputOutputItem(inputType.Trim(), description.Trim());
+                    ioList.Add(new InputOutput(inputType.Trim(), description.Trim()));
                 }
                 else
                 {

@@ -86,8 +86,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 cmdHelp.Description = ReadDescription(reader);
                 cmdHelp.AddSyntaxItemRange(ReadSyntaxItems(reader));
                 cmdHelp.AddParameterRange(ReadParameters(reader, cmdHelp.Syntax.Count));
-                cmdHelp.AddInputItem(ReadInput(reader));
-                cmdHelp.AddOutputItem(ReadOutput(reader));
+                cmdHelp.Inputs.AddRange(ReadInput(reader));
+                cmdHelp.Outputs.AddRange(ReadOutput(reader));
                 cmdHelp.Notes = ReadNotes(reader);
                 cmdHelp.AddExampleItemRange(ReadExamples(reader));
                 cmdHelp.AddRelatedLinksRange(ReadRelatedLinks(reader));
@@ -248,9 +248,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        private InputOutput ReadInput(XmlReader reader)
+        private List<InputOutput> ReadInput(XmlReader reader)
         {
-            InputOutput inputItem = new();
+            List<InputOutput> inputItem = new();
 
             if (reader.ReadToFollowing(Constants.MamlCommandInputTypesTag))
             {
@@ -273,7 +273,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         if (typeName is not null && typeDescription is not null)
                         {
-                            inputItem.AddInputOutputItem(typeName, typeDescription);
+                            inputItem.Add(new InputOutput(typeName, typeDescription));
                         }
 
                     } while (reader.ReadToNextSibling(Constants.MamlCommandInputTypeTag));
@@ -283,9 +283,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return inputItem;
         }
 
-        private InputOutput ReadOutput(XmlReader reader)
+        private List<InputOutput> ReadOutput(XmlReader reader)
         {
-            InputOutput outputItem = new();
+            List<InputOutput> outputItem = new();
 
             if (reader.ReadToFollowing(Constants.MamlCommandReturnValuesTag))
             {
@@ -308,7 +308,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         if (typeName is not null && typeDescription is not null)
                         {
-                            outputItem.AddInputOutputItem(typeName, typeDescription);
+                            outputItem.Add(new InputOutput(typeName, typeDescription));
                         }
 
                     } while (reader.ReadToNextSibling(Constants.MamlCommandReturnValueTag));

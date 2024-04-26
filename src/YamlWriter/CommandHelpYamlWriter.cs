@@ -248,21 +248,18 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
             foreach (var inputoutput in inputsoutputs)
             {
-                foreach(var item in inputoutput._inputOutputItems)
+                sb.AppendLine($"- name: {inputoutput.Typename}");
+                if (inputoutput.Description.Length > 0)
                 {
-                    sb.AppendLine(string.Format("- name: {0}", item.Item1));
-                    if (item.Item2.Length > 0)
+                    sb.AppendLine("  description: |-");
+                    foreach(var line in inputoutput.Description.Trim().Split(Constants.LineSplitter, stringSplitOptions))
                     {
-                        sb.AppendLine("  description: |-");
-                        foreach(var line in item.Item2.Trim().Split(Constants.LineSplitter, stringSplitOptions))
-                        {
-                            sb.AppendLine(string.Format("    {0}", line));
-                        }
+                        sb.AppendLine($"    {line}");
                     }
-                    else
-                    {
-                        sb.AppendLine("  description:");
-                    }
+                }
+                else
+                {
+                    sb.AppendLine("  description:");
                 }
             }
         }

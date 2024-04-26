@@ -85,20 +85,14 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 }
             }
 
-            if (commandHelp.Inputs is not null)
+            if (commandHelp.Inputs is not null && commandHelp.Inputs.Count > 0)
             {
-                foreach (var input in commandHelp.Inputs)
-                {
-                    command.InputTypes.AddRange(ConvertInputOutput(input));
-                }
+                command.InputTypes.AddRange(ConvertInputOutput(commandHelp.Inputs));
             }
 
-            if (commandHelp.Outputs is not null)
+            if (commandHelp.Outputs is not null && commandHelp.Outputs.Count > 0)
             {
-                foreach (var output in commandHelp.Outputs)
-                {
-                    command.ReturnValues.AddRange(ConvertInputOutput(output));
-                }
+                command.ReturnValues.AddRange(ConvertInputOutput(commandHelp.Outputs));
             }
 
             if (commandHelp.RelatedLinks is not null)
@@ -112,15 +106,15 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return command;
         }
 
-        private static IEnumerable<CommandValue> ConvertInputOutput(Model.InputOutput inputOutput)
+        private static IEnumerable<CommandValue> ConvertInputOutput(List<Model.InputOutput> inputOutput)
         {
-            foreach(var item in inputOutput._inputOutputItems)
+            foreach(var io in inputOutput)
             {
                 var newInputOutput = new CommandValue();
                 var dataType = new DataType();
-                dataType.Name = item.Item1;
+                dataType.Name = io.Typename;
                 newInputOutput.DataType = dataType;
-                newInputOutput.Description.Add(item.Item2);
+                newInputOutput.Description.Add(io.Description);
                 yield return newInputOutput;
             }
         }

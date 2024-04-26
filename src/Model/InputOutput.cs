@@ -13,52 +13,30 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// </summary>
     public class InputOutput : IEquatable<InputOutput>
     {
-        // tuple<typename, description>
-        internal List<(string, string)> _inputOutputItems;
+        public string Typename { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
 
-        public InputOutput()
+        public InputOutput(string typename, string description)
         {
-            _inputOutputItems = new List<(string, string)>();
-        }
-
-        public void AddInputOutputItem(string typeName, string description)
-        {
-            _inputOutputItems.Add((typeName, description));
-        }
-
-        public int GetCount()
-        {
-            return _inputOutputItems.Count;
+            Typename = typename;
+            Description = description;
         }
 
         internal string ToInputOutputString(string fmt)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();
 
-            if (_inputOutputItems.Count == 0)
-            {
-                return string.Empty;
-            }
-
             try
             {
-                foreach (var item in _inputOutputItems)
+                sb.AppendLine(string.Format(fmt, Typename));
+                sb.AppendLine();
+                if (!string.IsNullOrEmpty(Description))
                 {
-                    // sb.AppendFormat(Constants.NotesItemHeaderTemplate, item.Item1);
-                    sb.AppendFormat(fmt, item.Item1);
+                    sb.AppendLine(Description);
                     sb.AppendLine();
-                    sb.AppendLine();
-                    if (!string.IsNullOrEmpty(item.Item2))
-                    {
-                        sb.AppendLine(item.Item2);
-                        sb.AppendLine();
-                    }
                 }
 
-                // Remove the last new line
-                sb.Remove(sb.Length - 1, 1);
-
-                return sb.ToString();
+                return sb.ToString().Trim();
             }
             finally
             {
@@ -73,7 +51,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            return _inputOutputItems.SequenceEqual(other._inputOutputItems);
+            return (other.Typename == Typename && other.Description == Description);
         }
 
         public override bool Equals(object other)
@@ -93,7 +71,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override int GetHashCode()
         {
-            return _inputOutputItems.GetHashCode();
+            return (Typename, Description).GetHashCode();
         }
 
         public static bool operator ==(InputOutput inputOutput1, InputOutput inputOutput2)
