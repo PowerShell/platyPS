@@ -105,10 +105,12 @@ function Import-CommandYaml  {
 
     BEGIN {
         if ($PreserveOrder) {
-            $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([System.Collections.Specialized.OrderedDictionary])
+            $outputType = [System.Collections.Specialized.OrderedDictionary]
+            #$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([System.Collections.Specialized.OrderedDictionary])
         }
         else {
-            $script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
+            $outputType = [hashtable]
+            #$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
         }
     }
 
@@ -116,7 +118,8 @@ function Import-CommandYaml  {
         foreach($yamlFile in $fullname) {
             try {
                 $yaml = Get-Content -raw $yamlFile
-                $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
+                $result = $yamldes.Deserialize($yaml, $outputType)
+                # $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
                 # fix up some of the object elements
                 $null = $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
                 $result.Locale = $result['metadata']['Locale'] ?? "en-US"
