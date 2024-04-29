@@ -1385,7 +1385,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for (int i = startLine; i <= endLine; i++)
                 {
-                    sb.AppendLine(md.MarkdownLines[i]);
+                    sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
 
                 return sb.ToString();

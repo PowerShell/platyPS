@@ -11,28 +11,50 @@ using System.Management.Automation.Language;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
 using YamlDotNet.Core.Tokens;
+using System.Net.Configuration;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
     public class MetadataUtils
     {
-
         /// <summary>
         /// Retrieve the base metadata for a command help file
         /// </summary>
         /// <param name="help">A CommandHelp object to use.</param>
-        /// <returns>A hashtable with the base metadata for a command help file.</returns>
+        /// <returns>A dictionary with the base metadata for a command help file.</returns>
         public static OrderedDictionary GetCommandHelpBaseMetadata(CommandHelp help)
         {
-            OrderedDictionary metadata = new();
-            metadata.Add("document type", "cmdlet");
-            metadata.Add("title", help.Title);
-            metadata.Add("Module Name", help.ModuleName);
-            metadata.Add("Locale", help.Locale.Name);
-            metadata.Add("PlatyPS schema version", "2024-05-01");
-            metadata.Add("HelpUri", help.OnlineVersionUrl); // was online version
-            metadata.Add("ms.date", DateTime.Now.ToString("MM/dd/yyyy"));
-            metadata.Add("external help file", help.ExternalHelpFile);
+            OrderedDictionary metadata = new()
+            {
+                { "document type", "cmdlet" },
+                { "title", help.Title },
+                { "Module Name", help.ModuleName },
+                { "Locale", help.Locale.Name },
+                { "PlatyPS schema version", "2024-05-01" }, // was schema
+                { "HelpUri", help.OnlineVersionUrl }, // was online version
+                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
+                { "external help file", help.ExternalHelpFile }
+            };
+            return metadata;
+        }
+
+        /// <summary>
+        /// Retrieve the base metadata for a module help file
+        /// </summary>
+        /// <param name="help">A ModuleFileInfo object to use.</param>
+        /// <returns>A Dictionary with the base metadata for a command help file.</returns>
+        public static OrderedDictionary GetModuleFileBaseMetadata(ModuleFileInfo moduleFileInfo)
+        {
+            OrderedDictionary metadata = new()
+            {
+                { "document type", "module" },
+                { "HelpInfoUri", "xxx" }, // was Download Help Link
+                { "Locale", moduleFileInfo.Locale.Name },
+                { "PlatyPS schema version", "2024-05-01" },
+                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
+                { "title", moduleFileInfo.Title },
+                { "Module Name", moduleFileInfo.Title },
+            };
             return metadata;
         }
 
