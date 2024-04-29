@@ -5,7 +5,9 @@ Describe "Export-YamlCommandHelp tests" {
     BeforeAll {
         $assetDir = "$PSScriptRoot/assets"
         $markdownFile = "$assetDir/get-date.md"
-        $ch = Import-MarkdownCommandHelp $markdownFile
+        $testMDFile = "$TestDrive/Get-Date.md"
+        Get-Content $markdownFile | Set-Content "$testMDFile"
+        $ch = Import-MarkdownCommandHelp $testMDFile
         $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
         $outputFile = "$TESTDRIVE/Get-Date.yml"
         Import-Module "$PSScriptRoot/PlatyPS.Test.psm1"

@@ -142,27 +142,17 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteExamples(CommandHelp help)
         {
-            sb.AppendLine(Constants.ExamplesYamlHeader);
-            int? totalExamples = help?.Examples?.Count;
-            for (int i = 0; i < totalExamples; i++)
+            var exampleDictionary = new Hashtable();
+            List<ExampleExport> exampleWithTitle = new();
+            if (help?.Examples?.Count > 0)
             {
-                var example = help?.Examples?[i];
-                if (example is null)
+                for(int i = 0; i < help.Examples.Count; i++)
                 {
-                    continue;
+                    exampleWithTitle.Add(new ExampleExport(string.Format("Example {0}: {1}", i+1, help.Examples[i].Title), help.Examples[i].Remarks));
                 }
-
-                sb.AppendLine(string.Format("- title: \"Example {0}: {1}\"", i+1, example.Title));
-                sb.AppendLine("  description: |-");
-                if (example.Remarks is not null)
-                {
-                    foreach(var line in example.Remarks.TrimEnd().Split(Constants.LineSplitter, stringSplitOptions))
-                    {
-                        sb.AppendLine(string.Format("    {0}", line?.TrimEnd()));
-                    }
-                }
-                sb.AppendLine("  summary: \"\""); // This has no place in the new schema
             }
+            exampleDictionary.Add("examples", exampleWithTitle);
+            sb.Append(YamlUtils.SerializeElement(exampleDictionary));
         }
 
         internal override void WriteParameters(CommandHelp help)
@@ -285,6 +275,18 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             ParameterSetName = parameterSetName;
             IsDefault = isDefault;
             Parameters = new();
+        }
+    }
+
+    public class ExampleExport
+    {
+        public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        
+        public ExampleExport(string title, string description)
+        {
+            Title = title;
+            Description = description;
         }
     }
 }
