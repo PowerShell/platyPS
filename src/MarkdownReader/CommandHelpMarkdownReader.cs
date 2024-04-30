@@ -987,7 +987,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 var endLine = md.Ast[endIndex].Line - 1;
                 for(int i = startLine; i < endLine; i++)
                 {
-                    sb.AppendLine(md.MarkdownLines[i]);
+                    sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
                 return sb.ToString().Trim();
             }
@@ -1017,7 +1017,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for(; descriptionLine < paramYamlBlockLine; descriptionLine++)
                 {
-                    sb.AppendLine(md.MarkdownLines[descriptionLine]);
+                    sb.AppendLine(md.MarkdownLines[descriptionLine].TrimEnd());
                 }
                 return sb.ToString().Trim();
             }
@@ -1689,7 +1689,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for(int i = startLine; i < endLine; i++)
                 {
-                    sb.AppendLine(MarkdownLines[i]);
+                    sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
                 return sb.ToString().Trim();
             }
@@ -1711,7 +1711,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 int startLine = Ast[CurrentIndex].Line;
                 for(int i = startLine; i < startLine + lineCount; i++)
                 {
-                    sb.AppendLine(MarkdownLines[i]);
+                    sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
 
                 return sb.ToString();
