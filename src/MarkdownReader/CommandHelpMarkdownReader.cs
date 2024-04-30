@@ -886,7 +886,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     item = item.NextSibling;
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "").TrimEnd();
             }
             finally
             {
@@ -989,7 +989,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r","").Trim();
             }
             finally
             {
@@ -1019,7 +1019,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     sb.AppendLine(md.MarkdownLines[descriptionLine].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r","").Trim();
             }
             finally
             {
@@ -1388,7 +1388,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {
@@ -1437,7 +1437,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     startIndex++;
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {
@@ -1691,7 +1691,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r", "").Trim();
             }
             finally
             {
@@ -1714,7 +1714,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {
