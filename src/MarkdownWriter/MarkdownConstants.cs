@@ -11,7 +11,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     internal static partial class Constants
     {
         internal const string MarkdownMetadataHeader = "---";
-        internal const string SchemaVersionMarkdown = "schema: 2.0.0";
+        internal const string SchemaVersionMarkdown = "PlatyPS schema version: 2024-05-01";
         internal const string mdSynopsisHeader = "## SYNOPSIS";
         internal const string mdSyntaxHeader = "## SYNTAX";
         internal const string mdDescriptionHeader = "## DESCRIPTION";

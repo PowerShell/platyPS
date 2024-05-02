@@ -160,8 +160,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 "Locale",
                 "Module Name",
                 "ms.date",
-                "online version",
-                "schema",
+                "HelpUri",
+                "PlatyPS schema version",
                 "title"
             };
 
@@ -206,6 +206,10 @@ namespace Microsoft.PowerShell.PlatyPS
             if (metadata is null)
             {
                 throw new InvalidDataException("null metadata");
+            }
+            else
+            {
+                metadata = MetadataUtils.FixUpCommandHelpMetadata(metadata);
             }
 
             var commandName = GetCommandNameFromMarkdown(markdownContent);
@@ -606,11 +610,24 @@ namespace Microsoft.PowerShell.PlatyPS
                     continue;
                 }
 
+                // This designates a type.
                 if (i+1 < elements.Length && elements[i+1].StartsWith("<"))
                 {
                     i++;
                     var pType = elements[i];
-                    var pTypeName = pType.TrimEnd(']').Trim(valueTrimChars);
+                    string pTypeName = pType;
+                    if (pType[pType.Length - 1] == ']')
+                    {
+                        pType = pType.Remove(pType.Length - 1);
+                    }
+
+                    // Remove the initial '<' and a single trailing '>'
+                    // This is because it might look like this: <Nullable<Int32>>
+                    if (pType[0] == '<' && pType[pType.Length - 1] == '>')
+                    {
+                        pTypeName = pType.Remove(pType.Length - 1).Remove(0, 1);
+                    }
+
                     if (parameter.StartsWith("[[") && parameter.EndsWith("]")) // [[-parm] <type>] optional, positional parameter
                     {
                         parameters.Add(
@@ -886,7 +903,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     item = item.NextSibling;
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "").TrimEnd();
             }
             finally
             {
@@ -987,9 +1004,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 var endLine = md.Ast[endIndex].Line - 1;
                 for(int i = startLine; i < endLine; i++)
                 {
-                    sb.AppendLine(md.MarkdownLines[i]);
+                    sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r","").Trim();
             }
             finally
             {
@@ -1017,9 +1034,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for(; descriptionLine < paramYamlBlockLine; descriptionLine++)
                 {
-                    sb.AppendLine(md.MarkdownLines[descriptionLine]);
+                    sb.AppendLine(md.MarkdownLines[descriptionLine].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r","").Trim();
             }
             finally
             {
@@ -1385,10 +1402,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for (int i = startLine; i <= endLine; i++)
                 {
-                    sb.AppendLine(md.MarkdownLines[i]);
+                    sb.AppendLine(md.MarkdownLines[i].TrimEnd());
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {
@@ -1437,7 +1454,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     startIndex++;
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {
@@ -1689,9 +1706,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 for(int i = startLine; i < endLine; i++)
                 {
-                    sb.AppendLine(MarkdownLines[i]);
+                    sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
-                return sb.ToString().Trim();
+                return sb.ToString().Replace("\r", "").Trim();
             }
             finally
             {
@@ -1711,10 +1728,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 int startLine = Ast[CurrentIndex].Line;
                 for(int i = startLine; i < startLine + lineCount; i++)
                 {
-                    sb.AppendLine(MarkdownLines[i]);
+                    sb.AppendLine(MarkdownLines[i].TrimEnd());
                 }
 
-                return sb.ToString();
+                return sb.ToString().Replace("\r", "");
             }
             finally
             {

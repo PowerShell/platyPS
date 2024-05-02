@@ -89,7 +89,7 @@ no notes
             $ch = Import-MarkdownCommandHelp "$TestDrive/foo.md"
             $d = $ch.Metadata
             $d.Keys | Should -HaveCount 8
-            $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "online version", "schema", "title"
+            $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title"
             $d["Locale"] | Should -Be 'en-US'
         }
     }

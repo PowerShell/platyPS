@@ -191,6 +191,32 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
         }
 
+        public override string ToString()
+        {
+            StringBuilder sb = Constants.StringBuilderPool.Get(); 
+            try
+            {
+                sb.Append(CommandName);
+                foreach(var parameter in SyntaxParameters)
+                {
+                    var paramAndType = parameter.ToString();
+                    sb.Append($" {paramAndType}");
+                }
+
+                if (HasCmdletBinding)
+                {
+                    sb.Append($" {Constants.SyntaxCommonParameters}");
+                }
+
+                return sb.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
+
+        }
+
         public bool Equals(SyntaxItem other)
         {
             if (other is null)

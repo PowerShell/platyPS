@@ -12,7 +12,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     {
         internal const string YamlHeader = "---";
         // This should probably be "schema: {0}"
-        internal const string SchemaVersionYaml = "schema: 2.0.0";
+        internal const string SchemaVersionYaml = "PlatyPS schema version: 2024-05-01";
 
         internal const string YamlExtension = "yml";
         internal const string Example1 = "Example 1";

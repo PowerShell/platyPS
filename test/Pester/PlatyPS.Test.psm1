@@ -94,20 +94,32 @@ class ch {
 $builderType = "YamlDotNet.Serialization.DeserializerBuilder" -as [type]
 $script:yamldes = $builderType::new().WithNamingConvention([YamlDotnet.Serialization.NamingConventions.CamelCaseNamingConvention]::new()).Build()
 [type[]]$tlist = @( [string] )
-$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
 
 function Import-CommandYaml  {
     [CmdletBinding()]
     param (
         [System.Management.Automation.ParameterAttribute(ValueFromPipelineByPropertyName=$true,ValueFromPipeline=$true,Position=0,Mandatory=$true)]
-        [string[]]$fullname
+        [string[]]$fullname,
+        [switch]$PreserveOrder
     )
+
+    BEGIN {
+        if ($PreserveOrder) {
+            $outputType = [System.Collections.Specialized.OrderedDictionary]
+            #$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([System.Collections.Specialized.OrderedDictionary])
+        }
+        else {
+            $outputType = [hashtable]
+            #$script:YamlDeserializeMethod = $yamldes.GetType().GetMethod("Deserialize", $tlist).MakeGenericMethod([hashtable])
+        }
+    }
 
     PROCESS {
         foreach($yamlFile in $fullname) {
             try {
                 $yaml = Get-Content -raw $yamlFile
-                $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
+                $result = $yamldes.Deserialize($yaml, $outputType)
+                # $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
                 # fix up some of the object elements
                 $null = $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
                 $result.Locale = $result['metadata']['Locale'] ?? "en-US"

@@ -3,7 +3,7 @@
 
 Describe "Model type tests" {
     BeforeAll {
-        $cmdInfo = get-command new-markdownhelp
+        $cmdInfo = get-command New-MarkdownCommandHelp
         $commandHelpType = $cmdInfo.ImplementingType.Assembly.GetType("Microsoft.PowerShell.PlatyPS.Model.CommandHelp")     
         $ObjectProperties = @(
             @{ type = 'System.Globalization.CultureInfo'; Nullable = $false; Name = "Locale" }

@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -88,6 +89,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Title { get; set; }
         public string Module { get; set; }
         public string Description { get; set; }
+        public CultureInfo Locale { get; set; }
         public string OptionalElement { get; set; }
         public List<ModuleCommandInfo> Commands { get; set; }
         [YamlIgnore]
@@ -102,6 +104,19 @@ namespace Microsoft.PowerShell.PlatyPS
             OptionalElement = string.Empty;
             Diagnostics = new();
             Commands = new();
+            Locale = CultureInfo.GetCultureInfo("en-US");
+        }
+
+        public ModuleFileInfo(string title, string moduleName, CultureInfo? locale)
+        {
+            Metadata = new();
+            Title = title;
+            Module = moduleName;
+            Description = string.Empty;
+            OptionalElement = string.Empty;
+            Diagnostics = new();
+            Commands = new();
+            Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
         }
 
         public override int GetHashCode()

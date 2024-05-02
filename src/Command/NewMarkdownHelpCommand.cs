@@ -15,9 +15,9 @@ using Microsoft.PowerShell.PlatyPS.Model;
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
-    /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
+    /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownHelp", HelpUri = "")]
+    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
@@ -35,19 +35,13 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter Force { get; set; }
 
         [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromMaml")]
-        public string? FwLink { get; set; }
+        public string? HelpInfoUri { get; set; }
 
         [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromMaml")]
         public string? HelpVersion { get; set; }
 
         [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromMaml")]
         public string? Locale { get; set; }
-
-        [Parameter(Mandatory = true, ParameterSetName = "FromMaml")]
-        public string[] MamlFile { get; set; } = Array.Empty<string>();
 
         [Parameter()]
         public Hashtable? Metadata { get; set; }
@@ -55,33 +49,14 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "FromModule")]
         public string[] Module { get; set; } = Array.Empty<string>();
 
-        [Parameter(ParameterSetName = "FromMaml")]
-        public string? ModuleGuid { get; set; }
-
-        [Parameter(ParameterSetName = "FromMaml")]
-        public string? ModuleName { get; set; }
-
-        /// <summary>
-        /// Include no metadata in the output file.
-        /// </summary>
-        [Parameter()]
-        public SwitchParameter NoMetadata { get; set; }
-
         [Parameter(ParameterSetName = "FromCommand")]
-        public string? OnlineVersionUrl { get; set; }
+        public string? HelpUri { get; set; }
 
         [Parameter(Mandatory = true)]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
         [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromMaml")]
         public SwitchParameter WithModulePage { get; set; }
-
-        [Parameter(ParameterSetName = "FromMaml")]
-        public SwitchParameter ConvertNotesToList { get; set; }
-
-        [Parameter(ParameterSetName = "FromMaml")]
-        public SwitchParameter ConvertDoubleDashLists { get; set; }
 
         [Parameter()]
         public SwitchParameter AlphabeticParamsOrder { get; set; } = true;
@@ -94,22 +69,8 @@ namespace Microsoft.PowerShell.PlatyPS
         public PSSession? Session { get; set; }
 
         [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromMaml")]
         public string? ModulePagePath { get; set; }
-
-        public SwitchParameter ExcludeDontShow { get; set; }
-
         #endregion
-
-        protected override void BeginProcessing()
-        {
-            if (Metadata is not null && NoMetadata)
-            {
-                var exception = new InvalidOperationException(Microsoft_PowerShell_PlatyPS_Resources.NoMetadataAndMetadata);
-                ErrorRecord err = new ErrorRecord(exception, "NoMetadataAndMetadata", ErrorCategory.InvalidOperation, Metadata);
-                ThrowTerminatingError(err);
-            }
-        }
 
         protected override void EndProcessing()
         {
@@ -133,14 +94,14 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 AlphabeticParamsOrder = AlphabeticParamsOrder,
                 CreateModulePage = WithModulePage,
-                DoubleDashList = ConvertDoubleDashLists,
-                ExcludeDontShow = ExcludeDontShow,
-                FwLink = FwLink,
+                DoubleDashList = false,
+                ExcludeDontShow = false,
+                FwLink = HelpInfoUri,
                 HelpVersion = HelpVersion,
                 Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
-                ModuleGuid = ModuleGuid is null ? null : Guid.Parse(ModuleGuid),
-                ModuleName = ModuleName,
-                OnlineVersionUrl = OnlineVersionUrl,
+                ModuleGuid = null,
+                ModuleName = null,
+                OnlineVersionUrl = HelpUri,
                 Session = Session,
                 UseFullTypeName = UseFullTypeName
             };
@@ -159,13 +120,6 @@ namespace Microsoft.PowerShell.PlatyPS
                     if (Module.Length > 0)
                     {
                         cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
-                    }
-                }
-                else if (string.Equals(this.ParameterSetName, "FromMaml", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (MamlFile.Length > 0)
-                    {
-                        cmdHelpObjs = new TransformMaml(transformSettings).Transform(MamlFile);
                     }
                 }
             }
@@ -194,24 +148,18 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    var baseMetadata = GetBaseMetadata(cmdletHelp);
+                    var baseMetadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdletHelp);
                     if (Metadata is null)
                     {
-                        if (! NoMetadata)
-                        {
-                            Metadata = baseMetadata;
-                        }
+                        Metadata = new Hashtable(baseMetadata);
                     }
                     else
                     {
-                        if (! NoMetadata) // merge our recieved metadata with the base metadata
+                        foreach(var metadataKey in baseMetadata.Keys)
                         {
-                            foreach(var metadataKey in baseMetadata.Keys)
+                            if (! Metadata.ContainsKey(metadataKey))
                             {
-                                if (! Metadata.ContainsKey(metadataKey))
-                                {
-                                    Metadata.Add(metadataKey, baseMetadata[metadataKey]);
-                                }
+                                Metadata.Add(metadataKey, baseMetadata[metadataKey]);
                             }
                         }
                     }
@@ -233,14 +181,14 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        static Hashtable GetBaseMetadata(CommandHelp help)
+        static Hashtable GetCommandHelpBaseMetadata(CommandHelp help)
         {
             var metadata = new Hashtable();
             metadata.Add("title", help.Title);
             metadata.Add("Module Name", help.ModuleName);
             metadata.Add("Locale", help.Locale.Name);
-            metadata.Add("schema", "3.0.0");
-            metadata.Add("online version", help.OnlineVersionUrl);
+            metadata.Add("PlatyPS schema version", "2024-05-01");
+            metadata.Add("HelpUri", help.OnlineVersionUrl);
             metadata.Add("ms.date", DateTime.Now.ToString("MM/dd/yyyy"));
             metadata.Add("external help file", help.ExternalHelpFile);
             return metadata;

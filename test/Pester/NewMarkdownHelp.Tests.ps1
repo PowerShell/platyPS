@@ -4,11 +4,11 @@
 $ErrorActionPreference = 'Stop'
 . $PSScriptRoot/CommonFunction.ps1
 
-Describe 'New-MarkdownHelp' {
+Describe 'New-MarkdownCommandHelp' {
     BeforeAll {
         $defaultMetadata = @{
-            "external help file" = (Get-Command New-MarkdownHelp).HelpFile
-            "Module Name" = (Get-Command New-MarkdownHelp).ModuleName
+            "external help file" = (Get-Command New-MarkdownCommandHelp).HelpFile
+            "Module Name" = (Get-Command New-MarkdownCommandHelp).ModuleName
             "online version" = "1.2.3"
             aliases = "testalias"
             schema = "2.0.0"
@@ -19,23 +19,18 @@ Describe 'New-MarkdownHelp' {
 
     Context 'errors' {
         It 'throw when cannot find module' {
-            { New-MarkdownHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
+            { New-MarkdownCommandHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
             Should -Throw -ErrorId 'ModuleNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when cannot find command' {
-            { New-MarkdownHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
+            { New-MarkdownCommandHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
             Should -Throw -ErrorId 'CommandNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
-        }
-
-        It 'throw when cannot find maml file' {
-            { New-MarkdownHelp -MamlFile '__NON_EXISTING_FILE' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'FileNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when OutputFolder is not a folder' {
             $null = New-Item -ItemType File -Path "$TestDrive/somefile.txt"
-            { New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive/somefile.txt" } |
+            { New-MarkdownCommandHelp -Command 'New-MarkdownCommandHelp' -OutputFolder "$TestDrive/somefile.txt" } |
             Should -Throw -ErrorId 'PathIsNotFolder,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
     }
@@ -44,31 +39,30 @@ Describe 'New-MarkdownHelp' {
         It 'generates passed metadata' {
             $customMetadata = $defaultMetadata
             $customMetadata['FOO'] = 'BAR'
-            $file = New-MarkdownHelp -metadata $defaultMetadata -command New-MarkdownHelp -OutputFolder $TestDrive
-
+            $file = New-MarkdownCommandHelp -metadata $defaultMetadata -command New-MarkdownCommandHelp -OutputFolder $TestDrive
             $h = (Import-MarkdownCommandHelp $file).Metadata
             $h['FOO'] | Should -BeExactly 'BAR'
         }
 
-        It 'Duplicate keys in metadata should produce an error' -Pending {
+        It 'Duplicate keys in metadata should use the provided metadata value' -Pending {
             $mdArgs = @{
-                Command = "New-MarkdownHelp"
+                Command = "New-MarkdownCommandHelp"
                 OutputFolder = $TestDrive
                 Metadata = @{ "Module Name" = 'FOO' }
             }
             $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
-            { New-MarkdownHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
+            { New-MarkdownCommandHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
         }
 
         It "Metadata should contain the <Name> key" -testCases @(
             @{ Name = "external help file" }
             @{ Name = "Module Name" }
-            @{ Name = "online version" }
+            @{ Name = "HelpUri" }
             @{ Name = "aliases" }
-            @{ Name = "schema" }
+            @{ Name = "PlatyPS schema version" }
         ) {
             param ($Name)
-            $file = New-MarkdownHelp -Command New-MarkdownHelp -OutputFolder $TestDrive -Force -Metadata $defaultMetadata
+            $file = New-MarkdownCommandHelp -Command New-MarkdownCommandHelp -OutputFolder $TestDrive -Force -Metadata $defaultMetadata
             $md = (Import-MarkdownCommandHelp $file).Metadata
             $md.Keys | Should -Contain $Name
         }
@@ -76,14 +70,14 @@ Describe 'New-MarkdownHelp' {
 
     Context 'encoding' {
         It 'writes appropriate encoding' {
-            $file = New-MarkdownHelp -command New-MarkdownHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
+            $file = New-MarkdownCommandHelp -command New-MarkdownCommandHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
             Get-Content -AsByteStream $file | Select-Object -First 4 | Should -Be ([byte[]](255, 254, 0, 0))
         }
     }
 
     Context 'from PlatyPS module' {
         It 'creates few help files for PlatyPS' {
-            $files = New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
+            $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
         }
     }
@@ -126,7 +120,7 @@ Describe 'New-MarkdownHelp' {
 
             } | Import-Module -Force
 
-            $files = New-MarkdownHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive/PlatyPSTestModule" -Force
+            $files = New-MarkdownCommandHelp -Module PlatyPSTestModule -OutputFolder "$TestDrive/PlatyPSTestModule" -Force
         }
 
         AfterAll {
@@ -149,18 +143,18 @@ Describe 'New-MarkdownHelp' {
 
     Context 'from command' {
         It 'creates 2 markdown files from command names' {
-            $files = New-MarkdownHelp -Command @('New-MarkdownHelp', 'Import-MarkdownCommandHelp') -OutputFolder "$TestDrive/commands" -Force
+            $files = New-MarkdownCommandHelp -Command @('New-MarkdownCommandHelp', 'Import-MarkdownCommandHelp') -OutputFolder "$TestDrive/commands" -Force
             $files | Should -HaveCount 2
         }
 
         It 'creates the proper content from a command' {
-            $files = New-MarkdownHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
+            $files = New-MarkdownCommandHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
         }
     }
 
     Context 'Command content from command' {
         BeforeAll {
-            $file = New-MarkdownHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
+            $file = New-MarkdownCommandHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
             $helpInfo = Import-MarkdownCommandHelp $file
             $cmdInfo = Get-Command Get-Date
         }
@@ -202,7 +196,7 @@ Describe 'New-MarkdownHelp' {
 Write-Host 'Hello World!'
 "@
             Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
-            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
+            $files = New-MarkdownCommandHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             $files | Should -HaveCount 1
         }
 
@@ -225,7 +219,7 @@ Write-Host 'Hello World!'
             Set-Content -Value $SeedData -Path "$TestDrive/Invoke-HelloWorld.ps1" -NoNewline
             $Location = Get-Location
             Set-Location $TestDrive
-            $files = New-MarkdownHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
+            $files = New-MarkdownCommandHelp -Command "$TestDrive/Invoke-HelloWorld.ps1" -OutputFolder "$TestDrive/output" -Force
             Set-Location $Location
             $files | Should -HaveCount 1
         }
@@ -272,7 +266,7 @@ Write-Host 'Hello World!'
 ### -WhatIf
 
 '@
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
             $files | Should -HaveCount 1
             normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should -Be $expectedOrder
         }
@@ -289,6 +283,20 @@ Write-Host 'Hello World!'
             .DESCRIPTION
             Adds a file name extension to a supplied name.
             Takes any strings for the file name or extension.
+
+            ```powershell
+            PS C:\> Test-PlatyPSFunction "File"
+            File.txt
+            ```
+
+            A different example with a different extension
+
+            ```powershell
+            PS C:\> Test-PlatyPSFunction "File" -First "doc"
+            File.doc
+            ```
+
+            Description ends!
             .PARAMETER Second
             Second parameter help description
             .OUTPUTS
@@ -314,7 +322,7 @@ Write-Host 'Hello World!'
             )
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
+        $file = New-MarkdownCommandHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll1" -Force
         $content = Import-MarkdownCommandHelp $file
 
         It 'generates markdown with correct parameter set names' {
@@ -342,7 +350,26 @@ Write-Host 'Hello World!'
         }
 
         It 'Description can contain multiple code blocks and text' {
-            set-itresult -pending -because "test unimplemented"
+            $expectedText = @(
+                'Adds a file name extension to a supplied name.'
+                'Takes any strings for the file name or extension.'
+                ''
+                '```powershell'
+                'PS C:\> Test-PlatyPSFunction "File"'
+                'File.txt'
+                '```'
+                ''
+                'A different example with a different extension'
+                ''
+                '```powershell'
+                'PS C:\> Test-PlatyPSFunction "File" -First "doc"'
+                'File.doc'
+                '```'
+                ''
+                'Description ends!'
+            )
+            $observedText = $content.Description.Split("`n")
+            $observedText | Should -Be $expectedText
         }
     }
 
@@ -360,7 +387,7 @@ Write-Host 'Hello World!'
             )
         }
 
-        $file = New-MarkdownHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll2" -Force
+        $file = New-MarkdownCommandHelp -Command Test-PlatyPSFunction -OutputFolder "$TestDrive/testAll2" -Force
         $content = Get-Content $file
 
         It 'generates markdown with correct synopsis placeholder' {
@@ -414,7 +441,7 @@ Write-Host 'Hello World!'
                 OutputFolder = "$TestDrive"
             }
 
-            $file = New-MarkdownHelp @a
+            $file = New-MarkdownCommandHelp @a
             $content = Get-Content $file
 
             # Validate parameterset names
@@ -436,30 +463,19 @@ Write-Host 'Hello World!'
         }
 
         It "generates a landing page from Module" {
-            New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
+            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolder/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
         }
 
-        It "generates a landing page from MAML" -Pending {
-            New-MarkdownHelp -MamlFile (Get-ChildItem "$outFolder/Microsoft.PowerShell.PlatyPS/en-US/platy*xml") `
-                        -OutputFolder $OutputFolder `
-                        -WithModulePage `
-                        -ModuleName "Microsoft.PowerShell.PlatyPS" `
-                        -Force
-
-            $LandingPage = Get-ChildItem (Join-Path $OutputFolder Microsoft.PowerShell.PlatyPS.md)
-            $LandingPage | Should -Exist
-        }
-
         it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
             $OutputFolderReadme | Should -Exist
         }
 
         It 'generates a landing page from module at correct output folder' {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
                 $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS.md")
             }
@@ -485,46 +501,35 @@ Write-Host 'Hello World!'
             )
         }
 
-        It 'use full type name when specified' -Pending {
-            $expectedParameters = normalizeEnds @'
-Type: System.String
-Type: System.Nullable<System.Int32>
-Type: System.Management.Automation.SwitchParameter
+        It 'use full type name when specified' {
+            $expectedParameters = @(
+                "SwitchParameter"
+                "System.String"
+                "System.Nullable<System.Int32>"
+            )
+            $expectedSyntax = 'Get-Alpha [-WhatIf] [[-CCC] <System.String>] [[-ddd] <System.Nullable<System.Int32>>] [<CommonParameters>]'
 
-'@
-            $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
-
-'@
-
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
-            $files | Should -HaveCount 1
-            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should -Be $expectedParameters
-            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should -Be $expectedSyntax
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
+            $commandHelp = Import-MarkdownCommandHelp $files
+            $commandHelp.Syntax.SyntaxParameters.ParameterType | Should -Be $expectedParameters
+            $commandHelp.Syntax[0].ToString() | Should -Be $expectedSyntax
         }
 
-        It 'not use full type name when specified' -Pending {
-            $expectedParameters = normalizeEnds @'
-Type: String
-Type: Int32
-Type: SwitchParameter
-
-'@
-            $expectedSyntax = normalizeEnds @'
-Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
-
-'@
-
-            $files = New-MarkdownHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
-            $files | Should -HaveCount 1
-            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Type: ')} | Out-String) | Should Be $expectedParameters
-            normalizeEnds(Get-Content $files | Where-Object {$_.StartsWith('Get-Alpha')} | Out-String) | Should Be $expectedSyntax
+        It 'does not use full type name when specified' {
+            $expectedParameterNames = "CCC","ddd","WhatIf"
+            $expectedParameterTypes = "String","Nullable<System.Int32>","SwitchParameter"
+            $expectedSyntax = "Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Nullable<System.Int32>>] [<CommonParameters>]"
+            $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $ch = Import-MarkdownCommandHelp $file
+            $ch.Parameters.Name | Should -Be $expectedParameterNames
+            $ch.Parameters.Type | Should -Be $expectedParameterTypes
+            $ch.Syntax[0].ToString() | Should -Be $expectedSyntax
         }
     }
 
     Context 'Markdown Content' {
         BeforeAll {
-            $file = New-MarkdownHelp -Command 'New-MarkdownHelp' -OutputFolder "$TestDrive" -Force
+            $file = New-MarkdownCommandHelp -Command 'New-MarkdownCommandHelp' -OutputFolder "$TestDrive" -Force
             $lines = Get-Content $file
         }
         It "Should contain the header '<line>'" -TestCases @(
@@ -591,7 +596,7 @@ Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Int32>] [<CommonParameters>]
                 )
             }
 
-            $file = New-MarkdownHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive/NewMarkDownHelp"
+            $file = New-MarkdownCommandHelp -Command 'Test-WildCardsAttribute' -OutputFolder "$TestDrive/NewMarkDownHelp"
         }
 
         It 'sets accepts wildcards property on parameters as expected' {

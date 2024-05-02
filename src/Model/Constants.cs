@@ -56,6 +56,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string ParameterSetsAllForRequired = "All";
         internal const string DelimiterComma = ", ";
         internal const string SystemObjectTypename = "System.Object";
+        internal const string SchemaVersionKey = "PlatyPS schema version";
+        internal const string SchemaVersion = "2024-05-01";
         internal const string SyntaxCommonParameters = "[<CommonParameters>]";
 
         internal const string FillInDescription = "{{ Fill in the Description }}";
