@@ -16,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         private StringBuilder sb;
         private readonly Encoding _encoding;
 
-        public ModulePageWriter(CommandHelpWriterSettings settings)
+        public ModulePageWriter(WriterSettings settings)
         {
             if (string.IsNullOrEmpty(settings.DestinationPath))
             {

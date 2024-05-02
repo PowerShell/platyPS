@@ -78,7 +78,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else
                 {
-                    var settings = new CommandHelpWriterSettings(Encoding, yamlPath);
+                    var settings = new WriterSettings(Encoding, yamlPath);
                     var yamlWriter = new CommandHelpYamlWriter(settings);
                     if (ShouldProcess("Create yaml file {yamlPath}"))
                     {

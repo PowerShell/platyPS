@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
         /// Initialize the writer with settings.
         /// </summary>
         /// <param name="settings">Settings needs for the yaml writer.</param>
-        internal CommandHelpYamlWriter(CommandHelpWriterSettings settings)
+        internal CommandHelpYamlWriter(WriterSettings settings)
         {
             string path = settings.DestinationPath;
 

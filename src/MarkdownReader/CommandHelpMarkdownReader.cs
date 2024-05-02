@@ -123,7 +123,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             CommandHelp commandHelp = (CommandHelp)GetCommandHelpFromMarkdownFile(path);
             var encoding = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
-            var settings = new CommandHelpWriterSettings(encoding, destinationPath);
+            var settings = new WriterSettings(encoding, destinationPath);
             var cmdWrt = new CommandHelpMarkdownWriter(settings);
             cmdWrt.Write(commandHelp, null);
         }

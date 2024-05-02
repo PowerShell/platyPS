@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         /// Initialize the writer with settings.
         /// </summary>
         /// <param name="settings">Settings needs for the markdown writer.</param>
-        internal CommandHelpMarkdownWriter(CommandHelpWriterSettings settings)
+        internal CommandHelpMarkdownWriter(WriterSettings settings)
         {
             string path = settings.DestinationPath;
 

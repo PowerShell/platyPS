@@ -18,9 +18,9 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
-    public sealed class ExportMarkdownCommandHelpCommand : PSCmdlet
+    public sealed class ExportMarkdownModuleFileCommand : PSCmdlet
     {
         #region cmdlet parameters
 

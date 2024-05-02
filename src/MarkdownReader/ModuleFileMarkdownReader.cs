@@ -88,6 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public OrderedDictionary Metadata { get; set; }
         public string Title { get; set; }
         public string Module { get; set; }
+        public Guid? ModuleGuid { get; set; }
         public string Description { get; set; }
         public CultureInfo Locale { get; set; }
         public string OptionalElement { get; set; }

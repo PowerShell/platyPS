@@ -7,25 +7,22 @@ using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Language;
-using System.Management.Automation.Runspaces;
-
-using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
+using Microsoft.PowerShell.PlatyPS.YamlWriter;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "YamlModuleFile", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
-    public sealed class ExportMarkdownCommandHelpCommand : PSCmdlet
+    public sealed class ExportYamlModuleFileCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public object[] Command { get; set; } = Array.Empty<string>();
+        public object[] ModuleFile { get; set; } = Array.Empty<string>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -57,27 +54,27 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
 
-            foreach (object o in Command)
+            foreach (object o in ModuleFile)
             {
-                if (o is CommandHelp cmdletHelp)
+                if (o is ModuleFileInfo moduleFile)
                 {
-                    var markdownPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.md");
+                    var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Title}.md");
                     if (new FileInfo(markdownPath).Exists && ! Force)
                     {
                         // should be error
-                        WriteWarning($"skipping {cmdletHelp.Title}");
+                        WriteWarning($"skipping {moduleFile.Title}");
                     }
                     else
                     {
                         var settings = new WriterSettings(Encoding, markdownPath);
-                        var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
+                        var mfWrt = new ModulePageYamlWriter(settings);
+                        WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                     }
                 }
                 else
                 {
                     // should be error
-                    WriteWarning(o.ToString() + " is not a CommandHelp object.");
+                    WriteWarning(o.ToString() + " is not a ModuleFile object.");
                 }
             }
         }

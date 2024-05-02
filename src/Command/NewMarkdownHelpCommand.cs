@@ -146,7 +146,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (var cmdletHelp in cmdHelpObjs)
                 {
-                    var settings = new CommandHelpWriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
+                    var settings = new WriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
                     var baseMetadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdletHelp);
                     if (Metadata is null)
@@ -173,7 +173,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     string resolvedPathModulePagePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(modulePagePath);
 
-                    var modulePageSettings = new CommandHelpWriterSettings(Encoding, resolvedPathModulePagePath);
+                    var modulePageSettings = new WriterSettings(Encoding, resolvedPathModulePagePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
 
                     WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(cmdHelpObjs).FullName));
