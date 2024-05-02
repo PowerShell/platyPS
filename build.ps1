@@ -12,6 +12,9 @@ param(
     [Parameter(ParameterSetName = "Test", Mandatory)]
     [switch] $Test,
 
+    [Parameter(ParameterSetName = "Test", Position = 0)]
+    [string]$TestPath,
+
     [Parameter(ParameterSetName = "Test")]
     [string] $XUnitLogPath = "$PSScriptRoot/xunit.tests.xml",
 
@@ -80,7 +83,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
         `$PSModuleAutoloadingPreference = 'none'
         Import-Module -Name '$OutputDir/${ModuleName}' -Force
         Push-Location $pesterTestRoot
-        Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath"
+        Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath $TestPath"
 
     write-verbose -verbose -message "$sb"
 

@@ -87,12 +87,27 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (keysToMigrate.ContainsKey(key))
                 {
                     // Create the new key and ignore the old key
-                    od.Add(keysToMigrate[key], metadata[key]);
+                    od[keysToMigrate[key]] = metadata[key];
                 }
                 else
                 {
-                    od.Add(key, metadata[key]);
+                    od[key] = metadata[key];
                 }
+            }
+
+            // Remove the older keys that should have been migrated.
+            foreach (var key in keysToMigrate.Keys)
+            {
+                if (od.Contains(key))
+                {
+                    od.Remove(key);
+                }
+            }
+
+            // Fix the version for the new schema version
+            if (od.Contains(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
+            {
+                od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
 
             return od;

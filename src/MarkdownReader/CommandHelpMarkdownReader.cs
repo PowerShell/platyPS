@@ -160,8 +160,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 "Locale",
                 "Module Name",
                 "ms.date",
-                "online version",
-                "schema",
+                "HelpUri",
+                "PlatyPS schema version",
                 "title"
             };
 
@@ -206,6 +206,10 @@ namespace Microsoft.PowerShell.PlatyPS
             if (metadata is null)
             {
                 throw new InvalidDataException("null metadata");
+            }
+            else
+            {
+                metadata = MetadataUtils.FixUpCommandHelpMetadata(metadata);
             }
 
             var commandName = GetCommandNameFromMarkdown(markdownContent);
@@ -606,11 +610,24 @@ namespace Microsoft.PowerShell.PlatyPS
                     continue;
                 }
 
+                // This designates a type.
                 if (i+1 < elements.Length && elements[i+1].StartsWith("<"))
                 {
                     i++;
                     var pType = elements[i];
-                    var pTypeName = pType.TrimEnd(']').Trim(valueTrimChars);
+                    string pTypeName = pType;
+                    if (pType[pType.Length - 1] == ']')
+                    {
+                        pType = pType.Remove(pType.Length - 1);
+                    }
+
+                    // Remove the initial '<' and a single trailing '>'
+                    // This is because it might look like this: <Nullable<Int32>>
+                    if (pType[0] == '<' && pType[pType.Length - 1] == '>')
+                    {
+                        pTypeName = pType.Remove(pType.Length - 1).Remove(0, 1);
+                    }
+
                     if (parameter.StartsWith("[[") && parameter.EndsWith("]")) // [[-parm] <type>] optional, positional parameter
                     {
                         parameters.Add(
