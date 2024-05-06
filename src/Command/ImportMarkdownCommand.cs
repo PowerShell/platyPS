@@ -52,7 +52,8 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
-                    WriteObject(MarkdownConverter.GetCommandHelpFromMarkdownFile(path));
+                    var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
+                    WriteObject(commandHelpObject);
                 }
                 catch (Exception e)
                 {

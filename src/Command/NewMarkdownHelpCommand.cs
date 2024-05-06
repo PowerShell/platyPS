@@ -159,7 +159,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             if (! Metadata.ContainsKey(metadataKey))
                             {
-                                Metadata.Add(metadataKey, baseMetadata[metadataKey]);
+                                Metadata[metadataKey] = baseMetadata[metadataKey];
                             }
                         }
                     }
@@ -179,19 +179,6 @@ namespace Microsoft.PowerShell.PlatyPS
                     WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(cmdHelpObjs).FullName));
                 }
             }
-        }
-
-        static Hashtable GetCommandHelpBaseMetadata(CommandHelp help)
-        {
-            var metadata = new Hashtable();
-            metadata.Add("title", help.Title);
-            metadata.Add("Module Name", help.ModuleName);
-            metadata.Add("Locale", help.Locale.Name);
-            metadata.Add("PlatyPS schema version", "2024-05-01");
-            metadata.Add("HelpUri", help.OnlineVersionUrl);
-            metadata.Add("ms.date", DateTime.Now.ToString("MM/dd/yyyy"));
-            metadata.Add("external help file", help.ExternalHelpFile);
-            return metadata;
         }
 
     }

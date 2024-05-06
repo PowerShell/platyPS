@@ -12,6 +12,7 @@ using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
 using YamlDotNet.Core.Tokens;
 using System.Net.Configuration;
+using Microsoft.PowerShell.Commands;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -26,7 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             OrderedDictionary metadata = new()
             {
-                { "document type", "cmdlet" },
+                { "content type", "cmdlet" },
                 { "title", help.Title },
                 { "Module Name", help.ModuleName },
                 { "Locale", help.Locale.Name },
@@ -36,6 +37,42 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "external help file", help.ExternalHelpFile }
             };
             return metadata;
+        }
+
+        /// <summary>
+        /// Retrieve a metadata object from a commandInfo object
+        /// </summary>
+        /// <param name="commandInfo"></param>
+        /// <returns></returns>
+        public static OrderedDictionary GetCommandHelpBaseMetadataFromCommandInfo(CommandInfo commandInfo)
+        {
+            OrderedDictionary metadata = new()
+            {
+                { "content type", "cmdlet" },
+                { "title", commandInfo.Name },
+                { "Module Name", commandInfo.ModuleName },
+                { "Locale", "{{ fill in locale }}" },
+                { "PlatyPS schema version", "2024-05-01" }, // was schema
+                { "HelpUri", GetHelpCodeMethods.GetHelpUri(new PSObject(commandInfo)) }, // was online version
+                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
+                { "external help file", GetHelpFileFromCommandInfo(commandInfo) }
+            };
+            return metadata;
+        }
+
+        private static string GetHelpFileFromCommandInfo(CommandInfo commandInfo)
+        {
+            if (commandInfo is CmdletInfo cmdlet)
+            {
+                return cmdlet.HelpFile;
+            }
+            
+            if (commandInfo is FunctionInfo function)
+            {
+                return function.HelpFile;
+            }
+
+            return string.Empty;
         }
 
         /// <summary>
@@ -108,6 +145,18 @@ namespace Microsoft.PowerShell.PlatyPS
             if (od.Contains(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
             {
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
+            }
+
+            // Be sure that content type is correctly present.
+            if (! od.Contains("content type"))
+            {
+                if (od.Contains("Module Guid"))
+                {
+                    od["content type"] = "module";
+                }
+                {
+                    od["content type"] = "cmdlet";
+                }
             }
 
             return od;

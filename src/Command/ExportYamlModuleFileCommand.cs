@@ -39,18 +39,18 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            string outputFolderPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
-            if (File.Exists(fullPath))
+            if (File.Exists(outputFolderPath))
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputFolderPath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputFolderPath);
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(fullPath))
+            if (!Directory.Exists(outputFolderPath))
             {
-                Directory.CreateDirectory(fullPath);
+                Directory.CreateDirectory(outputFolderPath);
             }
 
 
@@ -58,15 +58,16 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (o is ModuleFileInfo moduleFile)
                 {
-                    var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Title}.md");
-                    if (new FileInfo(markdownPath).Exists && ! Force)
+                    var moduleName = moduleFile.Metadata["Module Name"];
+                    var yamlPath = Path.Combine($"{outputFolderPath}", $"{moduleName}.yml");
+                    if (new FileInfo(yamlPath).Exists && ! Force)
                     {
                         // should be error
-                        WriteWarning($"skipping {moduleFile.Title}");
+                        WriteWarning($"skipping {moduleName}");
                     }
                     else
                     {
-                        var settings = new WriterSettings(Encoding, markdownPath);
+                        var settings = new WriterSettings(Encoding, yamlPath);
                         var mfWrt = new ModulePageYamlWriter(settings);
                         WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                     }

@@ -77,18 +77,16 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
             using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
 
+            sb.Append(YamlUtils.SerializeElement(moduleFileItem));
+            /*
             WriteHeader(moduleName, localeString, moduleGuid);
-
             sb.AppendLine();
-
             WriteModuleBlock(moduleName);
-
             List<string> commandNames = new();
-
             WriteCmdletBlock(moduleFileItem.Commands);
+            */
 
             mdFileWriter.Write(sb.ToString());
-
             return new FileInfo(_modulePagePath);
         }
 

@@ -47,6 +47,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                     sb.AppendLine();
                 }
             }
+
             if (metadata is not null)
             {
                 foreach (DictionaryEntry item in metadata)
@@ -116,6 +117,20 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb.AppendLine(Constants.mdExamplesHeader);
             sb.AppendLine();
 
+            if (help.Examples is null)
+            {
+                return;
+            }
+
+            foreach (var example in help.Examples)
+            {
+                sb.AppendLine($"### {example.Title}");
+                sb.AppendLine();
+                sb.AppendLine($"{example.Remarks}");
+                sb.AppendLine();
+            }
+
+            /*
             int? totalExamples = help?.Examples?.Count;
 
             for (int i = 0; i < totalExamples; i++)
@@ -124,6 +139,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 sb.AppendLine(); // new line for ToExampleItemString
                 sb.AppendLine(); // new line after each example
             }
+            */
         }
 
         internal override void WriteParameters(CommandHelp help)

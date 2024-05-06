@@ -105,7 +105,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddMetadata(string key, object value)
         {
             Metadata ??= new();
-            Metadata.Add(key, value);
+            Metadata[key] = value;
         }
 
         internal void AddSyntaxItem(SyntaxItem syntax)

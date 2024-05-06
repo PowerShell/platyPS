@@ -87,9 +87,12 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public OrderedDictionary Metadata { get; set; }
         public string Title { get; set; }
+        [YamlIgnore]
         public string Module { get; set; }
+        [YamlIgnore]
         public Guid? ModuleGuid { get; set; }
         public string Description { get; set; }
+        [YamlIgnore]
         public CultureInfo Locale { get; set; }
         public string OptionalElement { get; set; }
         public List<ModuleCommandInfo> Commands { get; set; }
@@ -285,7 +288,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var mfci = new ModuleCommandInfo();
                     mfci.Name = ((moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.FirstChild as LiteralInline)?.ToString() ?? string.Empty;
                     mfci.Link = (moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.Url ?? string.Empty;
-                    mfci.Description = moduleCommandInfoDescription?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    mfci.Description = md.MarkdownLines[moduleCommandInfoDescription.Line] ?? string.Empty;
                     list.Add(mfci);
                 }
                 // index = md.FindHeader(3, "");

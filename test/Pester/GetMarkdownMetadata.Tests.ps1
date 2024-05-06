@@ -78,7 +78,7 @@ no notes
                 Push-Location $TestDrive
                 $ch = Import-MarkdownCommandHelp "./foo.md"
                 $d = $ch.Metadata
-                $d.Keys | Should -HaveCount 8
+                $d.Keys | Should -HaveCount 9
             }
             finally {
                 Pop-Location
@@ -88,8 +88,9 @@ no notes
         It 'can parse out yaml snippet' {
             $ch = Import-MarkdownCommandHelp "$TestDrive/foo.md"
             $d = $ch.Metadata
-            $d.Keys | Should -HaveCount 8
-            $d.Keys | Should -BeIn "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title"
+            $expectedKeys = @("content type", "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title")
+            $d.Keys | Should -HaveCount $expectedKeys.Count
+            $d.Keys | Should -BeIn $expectedKeys
             $d["Locale"] | Should -Be 'en-US'
         }
     }

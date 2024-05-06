@@ -360,7 +360,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string[] kv = s.Split(fieldSeparator, 2, StringSplitOptions.None);
                 if (kv.Length == 2)
                 {
-                    od.Add(kv[0].Trim(), kv[1].Trim());
+                    od[kv[0].Trim()] = kv[1].Trim();
                 }
             }
 
@@ -968,6 +968,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
                     {
+                        exampleTitle = example.Trim();
+                        /*
                         // example title with a number and a colon
                         var exampleRegex1 = new System.Text.RegularExpressions.Regex(@"^Example\s+\d+[ :-]+\s");
                         // no actual example title
@@ -984,6 +986,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             exampleTitle = example.Trim();
                         }
+                        */
                     }
                 }
 
@@ -1198,79 +1201,79 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (yamlObject.TryGetValue("Type", out object type) && type is string typeStr)
             {
-                metadataHeader.Add("Type", typeStr.Trim());
+                metadataHeader["Type"] = typeStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Type", string.Empty);
+                metadataHeader["Type"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Parameter Sets", out object parameterSets) && parameterSets is string parameterSetStr)
             {
-                metadataHeader.Add("Parameter Sets", parameterSetStr.Trim());
+                metadataHeader["Parameter Sets"] = parameterSetStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Parameter Sets", string.Empty);
+                metadataHeader["Parameter Sets"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Aliases", out object aliases) && aliases is string aliasesStr)
             {
-                metadataHeader.Add("Aliases", aliasesStr.Trim());
+                metadataHeader["Aliases"] = aliasesStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Aliases", string.Empty);
+                metadataHeader["Aliases"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Accepted values", out object acceptedValues) && acceptedValues is string acceptedValuesStr)
             {
-                metadataHeader.Add("Accepted values", acceptedValuesStr.Trim());
+                metadataHeader["Accepted values"] = acceptedValuesStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Accepted values", string.Empty);
+                metadataHeader["Accepted values"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Required", out object required) && required is string requiredBoolStr)
             {
-                metadataHeader.Add("Required", requiredBoolStr.Trim());
+                metadataHeader["Required"] = requiredBoolStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Required", string.Empty);
+                metadataHeader["Required"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Position", out object position) && position is string positionStr)
             {
-                metadataHeader.Add("Position", positionStr.Trim());
+                metadataHeader["Position"] = positionStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Position", string.Empty);
+                metadataHeader["Position"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Default value", out object defaultValue) && defaultValue is string defaultValueStr)
             {
-                metadataHeader.Add("Default value", EscapeYamlValue(defaultValueStr.Trim()));
+                metadataHeader["Default value"] = EscapeYamlValue(defaultValueStr.Trim());
             }
             else
             {
-                metadataHeader.Add("Default value", string.Empty);
+                metadataHeader["Default value"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Accept pipeline input", out object acceptPipeline) && acceptPipeline is string acceptPipelineStr)
             {
-                metadataHeader.Add("Accept pipeline input", acceptPipelineStr.Trim());
+                metadataHeader["Accept pipeline input"] = acceptPipelineStr.Trim();
             }
             else
             {
-                metadataHeader.Add("Accept pipeline input", string.Empty);
+                metadataHeader["Accept pipeline input"] = string.Empty;
             }
 
             if (yamlObject.TryGetValue("Accept wildcard characters", out object acceptWildcard) && acceptWildcard is string acceptWildcardStr)
             {
-                metadataHeader.Add("Accept wildcard characters", acceptWildcardStr.Trim());
+                metadataHeader["Accept wildcard characters"] = acceptWildcardStr.Trim();
             }
 
             return metadataHeader;
