@@ -3,9 +3,11 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
@@ -34,6 +36,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter()]
         public SwitchParameter Force { get; set; }
+
+        [Parameter]
+        public Hashtable Metadata { get; set; } = new();
 
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
@@ -75,6 +80,23 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new WriterSettings(Encoding, markdownPath);
                     var mfWrt = new ModulePageWriter(settings);
+                    // Add any additional supplied metadata
+                    if (Metadata.Keys.Count > 0)
+                    {
+                        foreach(DictionaryEntry kv in Metadata)
+                        {
+                            string key = kv.Key.ToString();
+                            if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
+                            {
+                                WriteWarning($"Metadata key '{key}' may not be overridden");
+                            }
+                            else
+                            {
+                                moduleFile.Metadata[key] = kv.Value;
+                            }
+                        }
+                    }
+
                     WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                 }
             }

@@ -13,6 +13,8 @@ using System.Collections.Specialized;
 using YamlDotNet.Core.Tokens;
 using System.Net.Configuration;
 using Microsoft.PowerShell.Commands;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -66,7 +68,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 return cmdlet.HelpFile;
             }
-            
+
             if (commandInfo is FunctionInfo function)
             {
                 return function.HelpFile;
@@ -161,5 +163,55 @@ namespace Microsoft.PowerShell.PlatyPS
 
             return od;
         }
+
+        /// <summary>
+        /// This ensures that we migrate the obsolete keys in metadata to the new versions.
+        /// </summary>
+        /// <param name="metadata"></param>
+        public static OrderedDictionary FixUpModuleFileMetadata(OrderedDictionary metadata)
+        {
+            OrderedDictionary od = new();
+            foreach (var key in metadata.Keys)
+            {
+                if (keysToMigrate.ContainsKey(key))
+                {
+                    // Create the new key and ignore the old key
+                    od[keysToMigrate[key]] = metadata[key];
+                }
+                else
+                {
+                    od[key] = metadata[key];
+                }
+            }
+
+            // Remove the older keys that should have been migrated.
+            foreach (var key in keysToMigrate.Keys)
+            {
+                if (od.Contains(key))
+                {
+                    od.Remove(key);
+                }
+            }
+
+            // Fix the version for the new schema version
+            if (od.Contains(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
+            {
+                od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
+            }
+
+            // Be sure that content type is correctly present.
+            if (! od.Contains("content type"))
+            {
+                od["content type"] = "module";
+            }
+
+            return od;
+        }
+
+        internal static string[] ProtectedMetadataKeys = new string[] {
+                "PlatyPS schema version"
+            };
     }
+
+
 }

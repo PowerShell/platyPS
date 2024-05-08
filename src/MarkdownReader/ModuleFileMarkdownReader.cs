@@ -207,7 +207,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 throw new InvalidDataException("null metadata");
             }
 
-            moduleFileInfo.Metadata = metadata;
+            moduleFileInfo.Metadata = MetadataUtils.FixUpModuleFileMetadata(metadata);
             moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent);
             moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
             var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);

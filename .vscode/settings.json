@@ -2,5 +2,6 @@
 {
      "files.exclude": {
         "out/**": true
-    }
+    },
+    "dotnet.defaultSolution": "platyPS.sln"
 }
