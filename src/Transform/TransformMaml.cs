@@ -189,8 +189,12 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         do
                         {
-                            remarks.AppendLine(reader.ReadElementContentAsString());
-                            remarks.AppendLine();
+                            var remarkString = reader.ReadElementContentAsString().Trim();
+                            if (!string.IsNullOrEmpty(remarkString))
+                            {
+                                remarks.AppendLine(remarkString);
+                                // remarks.AppendLine();
+                            }
                         } while (reader.ReadToNextSibling(Constants.MamlParaTag));
                     }
 
@@ -205,9 +209,17 @@ namespace Microsoft.PowerShell.PlatyPS
                     throw new InvalidDataException("Invalid example data");
                 }
 
+                if (!string.IsNullOrEmpty(code))
+                {
+                    remarks.AppendLine();
+                    remarks.AppendLine("```powershell");
+                    remarks.AppendLine(code);
+                    remarks.AppendLine("```");
+                }
+
                 Example exp = new(
                     title,
-                    remarks.ToString()
+                    remarks.ToString().Trim()
                     );
 
                 return exp;
