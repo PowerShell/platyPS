@@ -615,6 +615,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     i++;
                     var pType = elements[i];
+                    string pTypeElement = pType;
                     string pTypeName = pType;
                     if (pType[pType.Length - 1] == ']')
                     {
@@ -656,7 +657,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         );
                         position++;
                     }
-                    else if (parameter.StartsWith("[") && pType.EndsWith("]")) // [-par <string[]>] optional parameter and argument
+                    else if (parameter.StartsWith("[") && pTypeElement.EndsWith("]")) // [-par <string[]>] optional parameter and argument
                     {
                         parameters.Add(
                             new SyntaxParameter {

@@ -39,7 +39,6 @@ Describe 'New-MarkdownCommandHelp' {
         It 'generates passed metadata' {
             $customMetadata = $defaultMetadata
             $customMetadata['FOO'] = 'BAR'
-            wait-debugger
             $file = New-MarkdownCommandHelp -metadata $defaultMetadata -command New-MarkdownCommandHelp -OutputFolder $TestDrive
             $h = (Import-MarkdownCommandHelp $file).Metadata
             $h['FOO'] | Should -BeExactly 'BAR'

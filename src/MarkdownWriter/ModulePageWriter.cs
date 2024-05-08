@@ -28,6 +28,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             sb = Constants.StringBuilderPool.Get();
         }
 
+        internal FileInfo Write(ModuleFileInfo moduleFileInfo)
+        {
+            return new FileInfo(".");
+        }
+
         internal FileInfo Write(Collection<CommandHelp> helpItems)
         {
             if (helpItems.Count < 1)
@@ -78,25 +83,18 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 }
             }
 
-            using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
-
             WriteHeader(moduleName, localeString, moduleGuid);
-
             sb.AppendLine();
-
             WriteModuleBlock(moduleName);
-
             List<string> commandNames = new();
-
             foreach (var help in helpItems)
             {
                 commandNames.Add(help.Title);
             }
 
             WriteCmdletBlock(commandNames);
-
+            using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
             mdFileWriter.Write(sb.ToString());
-
             return new FileInfo(_modulePagePath);
         }
 

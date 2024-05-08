@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public object[] Command { get; set; } = Array.Empty<string>();
+        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -39,45 +39,41 @@ namespace Microsoft.PowerShell.PlatyPS
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
         #endregion
+        private string fullPath { get; set; } = string.Empty;
 
-        protected override void EndProcessing()
+        protected override void BeginProcessing()
         {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            string outputPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
-            if (File.Exists(fullPath))
+            // if there's a file that exists with the name of outputPath, that's an error and it's fatal.
+            if (File.Exists(outputPath))
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputPath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputPath);
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(fullPath))
+            if (!Directory.Exists(outputPath))
             {
-                Directory.CreateDirectory(fullPath);
+                Directory.CreateDirectory(outputPath);
             }
+        }
 
-
-            foreach (object o in Command)
+        protected override void ProcessRecord()
+        {
+            foreach (CommandHelp cmdletHelp in Command)
             {
-                if (o is CommandHelp cmdletHelp)
+                var markdownPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.md");
+                if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    var markdownPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.md");
-                    if (new FileInfo(markdownPath).Exists && ! Force)
-                    {
-                        // should be error
-                        WriteWarning($"skipping {cmdletHelp.Title}");
-                    }
-                    else
-                    {
-                        var settings = new WriterSettings(Encoding, markdownPath);
-                        var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
-                    }
+                    // should be error
+                    WriteWarning($"skipping {cmdletHelp.Title}, use -Force to export.");
                 }
                 else
                 {
-                    // should be error
-                    WriteWarning(o.ToString() + " is not a CommandHelp object.");
+                    var settings = new WriterSettings(Encoding, markdownPath);
+                    var cmdWrt = new CommandHelpMarkdownWriter(settings);
+                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
                 }
             }
         }

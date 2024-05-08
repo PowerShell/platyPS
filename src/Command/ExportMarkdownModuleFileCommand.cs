@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public object[] Command { get; set; } = Array.Empty<string>();
+        public ModuleFileInfo[] ModuleFileInfo { get; set; } = Array.Empty<ModuleFileInfo>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -40,9 +40,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        protected override void EndProcessing()
+        private string fullPath = string.Empty;
+
+        protected override void BeginProcessing()
         {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+
+            fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
             if (File.Exists(fullPath))
             {
@@ -55,29 +58,24 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 Directory.CreateDirectory(fullPath);
             }
+        }
 
+        protected override void EndProcessing()
+        {
 
-            foreach (object o in Command)
+            foreach (var moduleFile in ModuleFileInfo)
             {
-                if (o is CommandHelp cmdletHelp)
+                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Title}.md");
+                if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    var markdownPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.md");
-                    if (new FileInfo(markdownPath).Exists && ! Force)
-                    {
-                        // should be error
-                        WriteWarning($"skipping {cmdletHelp.Title}");
-                    }
-                    else
-                    {
-                        var settings = new WriterSettings(Encoding, markdownPath);
-                        var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
-                    }
+                    // should be error
+                    WriteWarning($"skipping {moduleFile.Title}");
                 }
                 else
                 {
-                    // should be error
-                    WriteWarning(o.ToString() + " is not a CommandHelp object.");
+                    var settings = new WriterSettings(Encoding, markdownPath);
+                    var mfWrt = new ModulePageWriter(settings);
+                    WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                 }
             }
         }
