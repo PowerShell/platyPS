@@ -89,22 +89,128 @@ Describe "Export-MarkdownCommandHelp" {
     }
 
     Context "File Content - Syntax" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $testCases = 0..3 | Foreach-object { @{ Number = $_ } }
+        }
 
+        It "Should have the same number of syntax statements" {
+            $expected = $ch.Syntax.Count
+            $ch2.Syntax.Count | Should -Be $expected
+        }
+
+        It "The syntax objects should be the same for syntax '<number>'" -TestCases $testCases {
+            param ($number)
+            $ch.syntax[$number] -eq $ch2.syntax[$number] | Should -Be $true
+        }
+
+        It "The string of the syntax object should be the same for '<number>'" -TestCases $testCases {
+            param ($number)
+            $expected = $ch.syntax[$number].ToString()
+            $observed = $ch2.syntax[$number].ToString()
+            $expected | Should -Be $observed
+        }
     }
 
     Context "File Content - Notes" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+        }
+
+        It "Exported notes should be the same as the source" {
+            $ch.Notes | Should -Be $ch2.Notes
+        }
+    }
+
+    Context "File Content - Examples" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $expectedCount = $ch.Examples.Count
+            $testCases = 0..($expectedCount - 1) | Foreach-Object {
+                @{ number = $_ }
+            }
+        }
+
+        It "Should have the same number of examples" {
+            $expectedCount | Should -Be $ch2.Examples.Count
+        }
+
+        It "Example '<number>' should be the same." -TestCases $testCases {
+            param ($number)
+            $ch.Examples[$number] -eq $ch2.Examples[$number] | Should -Be $true
+        }
 
     }
 
     Context "File Content - Parameters" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $expectedCount = $ch.Parameters.Count
+            $testCases = 0..($expectedCount - 1) | Foreach-Object {
+                @{ number = $_ }
+            }
+        }
 
+        It "Should have the same number of parameters" {
+            $expectedCount | Should -Be $ch2.Parameters.Count
+        }
+
+        It "Parameter '<number>' should be the same." -TestCases $testCases {
+            param ($number)
+            $ch.Parameters[$number] -eq $ch2.Parameters[$number] | Should -Be $true
+        }
     }
 
     Context "File Content - Input/Output" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $expectedInputCount = $ch.Inputs.Count
+            $expectedOutputCount = $ch.Outputs.Count
+            $inputTestCases = 0..($expectedInputCount - 1) | Foreach-Object { @{ number = $_ } }
+            $outputTestCases = 0..($expectedOutputCount - 1) | Foreach-Object { @{ number = $_ } }
+        }
 
+        It "Should have the same number of Inputs" {
+            $ch2.Inputs.Count | Should -Be $expectedInputCount
+        }
+
+        It "Input '<number>' should be the same." -TestCases $inputTestCases {
+            param ($number)
+            $ch.Inputs[$number] -eq $ch2.Inputs[$number] | Should -Be $true
+        }
+
+        It "Should have the same number of Outputs" {
+            $ch2.Outputs.Count | Should -Be $expectedOutputCount
+        }
+
+        It "Output '<number>' should be the same." -TestCases $outputTestCases {
+            param ($number)
+            $ch.Outputs[$number] -eq $ch2.Outputs[$number] | Should -Be $true
+        }
     }
 
     Context "File Content - Related Links" {
+        BeforeAll {
+            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
+            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $expectedCount = $ch.RelatedLinks.Count
+            $testCases = 0..($expectedCount - 1) | Foreach-Object {
+                @{ number = $_ }
+            }
+        }
 
+        It "Should have the same number of Links" {
+            $expectedCount | Should -Be $ch2.RelatedLinks.Count
+        }
+
+        It "Link '<number>' should be the same." -TestCases $testCases {
+            param ($number)
+            $ch.RelatedLinks[$number] -eq $ch2.RelatedLinks[$number] | Should -Be $true
+        }
     }
 }
