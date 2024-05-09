@@ -57,7 +57,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             CompareProperty(refObject, difObject, 0, Reference.GetType().Name);
 
-            WriteObject(DiagnosticMessages);
+            WriteObject(DiagnosticMessages, true);
             DiagnosticMessages.Clear();
         }
 

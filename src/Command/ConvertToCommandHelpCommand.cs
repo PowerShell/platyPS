@@ -48,13 +48,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void ProcessRecord()
         {
-            foreach (var cInfo in CommandInfo)
+            cmdHelpObjs = new TransformCommand(transformSettings).Transform(CommandInfo);
+            foreach (var cHelp in cmdHelpObjs)
             {
-                cmdHelpObjs = new TransformCommand(transformSettings).Transform(CommandInfo);
-                foreach (var cHelp in cmdHelpObjs)
-                {
-                    WriteObject(cHelp);
-                }
+                WriteObject(cHelp);
             }
         }
     }

@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Language;
 using System.Management.Automation.Runspaces;
@@ -38,12 +39,17 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
+        [Parameter()]
+        [ValidateNotNull]
+        public Hashtable Metadata { get; set; } = new();
+
         #endregion
         private string fullPath { get; set; } = string.Empty;
+        private string outputPath { get; set; } = string.Empty;
 
         protected override void BeginProcessing()
         {
-            string outputPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            outputPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
             // if there's a file that exists with the name of outputPath, that's an error and it's fatal.
             if (File.Exists(outputPath))
@@ -63,7 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             foreach (CommandHelp cmdletHelp in Command)
             {
-                var markdownPath = Path.Combine($"{fullPath}", $"{cmdletHelp.Title}.md");
+                var markdownPath = Path.Combine($"{outputPath}", $"{cmdletHelp.Title}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
                     // should be error
@@ -73,6 +79,27 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new WriterSettings(Encoding, markdownPath);
                     var cmdWrt = new CommandHelpMarkdownWriter(settings);
+                    if (Metadata.Keys.Count > 0)
+                    {
+                        foreach(DictionaryEntry kv in Metadata)
+                        {
+                            string key = kv.Key.ToString();
+                            if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
+                            {
+                                WriteWarning($"Metadata key '{key}' may not be overridden");
+                            }
+                            else
+                            {
+                                if (cmdletHelp.Metadata is null)
+                                {
+                                    cmdletHelp.Metadata = new();
+                                }
+
+                                cmdletHelp.Metadata[key] = kv.Value;
+                            }
+                        }
+                    }
+
                     WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
                 }
             }
