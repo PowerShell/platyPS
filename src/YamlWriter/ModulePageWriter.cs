@@ -3,20 +3,22 @@
 
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 {
-    internal class ModulePageWriter : IDisposable
+    internal class ModulePageYamlWriter : IDisposable
     {
         private string _modulePagePath;
         private StringBuilder sb;
         private readonly Encoding _encoding;
 
-        public ModulePageWriter(YamlWriterSettings settings)
+        public ModulePageYamlWriter(WriterSettings settings)
         {
             if (string.IsNullOrEmpty(settings.DestinationPath))
             {
@@ -28,26 +30,21 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             sb = Constants.StringBuilderPool.Get();
         }
 
-        internal FileInfo Write(Collection<CommandHelp> helpItems)
+        internal FileInfo Write(ModuleFileInfo moduleFileItem)
         {
-            if (helpItems.Count < 1)
-            {
-                throw new ArgumentOutOfRangeException(nameof(helpItems));
-            }
-
             // Help items in one module page have the same module name, locale and module GUID.
             // So we can safely just get these values from the first object.
-            string moduleName = helpItems[0].ModuleName;
-            string localeString = helpItems[0].Locale.ToString();
+            string moduleName = moduleFileItem.Module;
+            string localeString = moduleFileItem.Locale.ToString();
 
-            string? helpModuleGuid = helpItems[0].ModuleGuid?.ToString();
+            string? helpModuleGuid = moduleFileItem.ModuleGuid?.ToString();
             string moduleGuid = helpModuleGuid is null ? Constants.FillInGuid : helpModuleGuid;
 
             FileInfo modulePage = new FileInfo(_modulePagePath);
 
-            if (!string.Equals(modulePage.Extension, ".md", StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(modulePage.Extension, ".yml", StringComparison.OrdinalIgnoreCase))
             {
-                _modulePagePath = $"{_modulePagePath}{Constants.DirectorySeparator}{moduleName}.md";
+                _modulePagePath = $"{_modulePagePath}{Constants.DirectorySeparator}{moduleName}.yml";
             }
             else
             {
@@ -79,24 +76,8 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             }
 
             using StreamWriter mdFileWriter = new(_modulePagePath, append: false, _encoding);
-
-            WriteHeader(moduleName, localeString, moduleGuid);
-
-            sb.AppendLine();
-
-            WriteModuleBlock(moduleName);
-
-            List<string> commandNames = new();
-
-            foreach (var help in helpItems)
-            {
-                commandNames.Add(help.Title);
-            }
-
-            WriteCmdletBlock(commandNames);
-
+            sb.Append(YamlUtils.SerializeElement(moduleFileItem));
             mdFileWriter.Write(sb.ToString());
-
             return new FileInfo(_modulePagePath);
         }
 
@@ -128,16 +109,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             sb.AppendLine();
         }
 
-        internal void WriteCmdletBlock(List<string> commandNames)
+        internal void WriteCmdletBlock(List<ModuleCommandInfo> commands)
         {
-            foreach (var command in commandNames)
-            {
-                sb.AppendFormat(Constants.yamlModulePageCmdletLinkTemplate, command, $"{command}.md");
-                sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(Constants.FillInDescription);
-                sb.AppendLine();
-            }
+            Hashtable yamlExport = new();
+            yamlExport["cmdlets"] = commands;
+            sb.Append(YamlUtils.SerializeElement(yamlExport));
         }
 
         public void Dispose()

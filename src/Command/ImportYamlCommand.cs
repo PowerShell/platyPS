@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -24,6 +25,9 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         #region cmdlet parameters
 
+        [Parameter]
+        public SwitchParameter AsDictionary { get; set; }
+
         /// <summary>
         /// An array of paths to get the markdown metadata from.
         /// </summary>
@@ -31,8 +35,10 @@ namespace Microsoft.PowerShell.PlatyPS
             Mandatory = true,
             ParameterSetName = "Path",
             ValueFromPipelineByPropertyName = true,
+            ValueFromPipeline = true,
             Position = 0)]
         [SupportsWildcards]
+        [Alias("FullName")]
         public string[] Path
         {
             get
@@ -93,9 +99,23 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 foreach (var resolvedPath in resolvedPaths)
                 {
-                    var result = yamlDeserializer?.Deserialize<object>(File.ReadAllText(resolvedPath));
-                    // TODO: this should really be a CommandHelp object, but that has yet to be coded.
-                    WriteObject(result);
+                    var result = yamlDeserializer?.Deserialize<OrderedDictionary>(File.ReadAllText(resolvedPath));
+                    if (AsDictionary)
+                    {
+                        WriteObject(result);
+                    }
+                    else
+                    {
+                        try
+                        {
+                            var shadow = YamlUtils.ConvertDictionaryToCommandHelp(result);
+                            WriteObject(shadow);
+                        }
+                        catch (Exception e)
+                        {
+                            WriteError(new ErrorRecord(e, "ImportYamlCommandHelp,ConversionError", ErrorCategory.InvalidData, resolvedPath));
+                        }
+                    }
                 }
             }
         }

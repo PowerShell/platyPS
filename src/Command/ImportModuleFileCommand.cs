@@ -16,10 +16,10 @@ using Microsoft.PowerShell.PlatyPS.Model;
 namespace Microsoft.PowerShell.PlatyPS
 {
     /// <summary>
-    /// Cmdlet to import a markdown file and convert it to a CommandHelp object.
+    /// Cmdlet to import a markdown file and convert it to a ModuleFile object.
     /// </summary>
-    [Cmdlet(VerbsData.Import, "MarkdownCommandHelp", DefaultParameterSetName = "Path", HelpUri = "")]
-    public sealed class ImportMarkdownHelpCommand : PSCmdlet
+    [Cmdlet(VerbsData.Import, "MarkdownModuleFile", DefaultParameterSetName = "Path", HelpUri = "")]
+    public sealed class ImportMarkdownModuleFileCommand : PSCmdlet
     {
 #region cmdlet parameters
 
@@ -52,8 +52,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
-                    var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
-                    WriteObject(commandHelpObject);
+                    WriteObject(MarkdownConverter.GetModuleFileInfoFromMarkdownFile(path));
                 }
                 catch (Exception e)
                 {

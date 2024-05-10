@@ -11,6 +11,11 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
     public static class Constants
     {
         /// <summary>
+        /// In MAML if a cmdlet does not have common parameters, this is included as a parameter(?).
+        /// </summary>
+        public const string NoCommonParameter = "NoCommonParameter";
+
+        /// <summary>
         ///     MAML-related XML namespace constants.
         /// </summary>
         public static class XmlNamespace

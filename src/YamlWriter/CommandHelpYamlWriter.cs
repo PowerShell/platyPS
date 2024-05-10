@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
         /// Initialize the writer with settings.
         /// </summary>
         /// <param name="settings">Settings needs for the yaml writer.</param>
-        internal CommandHelpYamlWriter(CommandHelpWriterSettings settings)
+        internal CommandHelpYamlWriter(WriterSettings settings)
         {
             string path = settings.DestinationPath;
 
@@ -42,42 +42,40 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
-            sb.AppendLine("metadata:");
-
-            if (help?.Metadata is null && metadata is null)
+            Hashtable metadataHashtable = new Hashtable();
+            OrderedDictionary baseMetadata = new();
+            
+            // we have no metadata in help and no supplied metadata.
+            if (help?.Metadata is null)
             {
-                sb.AppendLine($"  external help file: {help?.ModuleName}-help.xml");
-                sb.AppendLine($"  Module Name: {help?.ModuleName}");
-                sb.AppendLine($"  online version: {help?.OnlineVersionUrl}");
-                sb.AppendLine($"  title: {help?.Title}");
-                sb.AppendLine(Constants.SchemaVersionYaml);
-                return;
+                baseMetadata["content type"] = "cmdlet";
+                baseMetadata["external help file"] = $"{help?.ModuleName}-help.xml";
+                baseMetadata["Module Name"] = $"{help?.ModuleName}";
+                baseMetadata["online version"] = $"{help?.OnlineVersionUrl}";
+                baseMetadata["title"] = $"{help?.Title}";
+                baseMetadata[Constants.SchemaVersionKey] = Constants.SchemaVersion;
+            }
+            else
+            {
+                // we need to fix whatever was in the read in the markdownfile if it hasn't been already.
+                baseMetadata = MetadataUtils.FixUpCommandHelpMetadata(help.Metadata);
             }
 
+            OrderedDictionary fixedMetadata = MetadataUtils.FixUpCommandHelpMetadata(baseMetadata);
             // Emit the metadata from the help object unless it is in the metadata hashtable.
-            if (help?.Metadata is not null)
-            {
-                foreach (DictionaryEntry item in help.Metadata)
-                {
-                    if (metadata is null)
-                    {
-                        sb.AppendLine($"  {item.Key}: {item.Value}");
-                    }
-                    else if (! metadata.ContainsKey(item.Key)) // metadata provided overrides the help object
-                    {
-                        sb.AppendLine($"  {item.Key}: {item.Value}");
-                    }
-                }
-            }
 
             // Emit the metadata from the metadata hashtable if we have any.
+            // This is not to be fixed, but passed without alteration
             if (metadata is not null)
             {
                 foreach (DictionaryEntry item in metadata)
                 {
-                    sb.AppendLine($"  {item.Key}: {item.Value}");
+                    fixedMetadata[item.Key] = item.Value;
                 }
             }
+
+            metadataHashtable["metadata"] = fixedMetadata;
+            sb.Append(YamlUtils.SerializeElement(metadataHashtable));
         }
 
         internal override void WriteTitle(CommandHelp help)
@@ -142,16 +140,20 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteExamples(CommandHelp help)
         {
-            var exampleDictionary = new Hashtable();
-            List<ExampleExport> exampleWithTitle = new();
-            if (help?.Examples?.Count > 0)
+            if (help.Examples is null || help.Examples.Count == 0)
             {
-                for(int i = 0; i < help.Examples.Count; i++)
-                {
-                    exampleWithTitle.Add(new ExampleExport(string.Format("Example {0}: {1}", i+1, help.Examples[i].Title), help.Examples[i].Remarks));
-                }
+                return;
             }
-            exampleDictionary.Add("examples", exampleWithTitle);
+
+            Hashtable exampleDictionary = new();
+            List<ExampleExport> exportExamples = new();
+            foreach(var example in help.Examples)
+            {
+                exportExamples.Add(new ExampleExport(example.Title, example.Remarks));
+            }
+
+            exampleDictionary.Add("examples", exportExamples);
+            // Use the yaml serializer to handle this.
             sb.Append(YamlUtils.SerializeElement(exampleDictionary));
         }
 

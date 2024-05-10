@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -19,14 +20,14 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
-    public sealed class ExportMarkdownCommandHelpCommand : PSCmdlet
+    public sealed class ExportMarkdownModuleFileCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
+        public ModuleFileInfo[] ModuleFileInfo { get; set; } = Array.Empty<ModuleFileInfo>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -36,49 +37,50 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public SwitchParameter Force { get; set; }
 
+        [Parameter]
+        public Hashtable Metadata { get; set; } = new();
+
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
-        [Parameter()]
-        [ValidateNotNull]
-        public Hashtable Metadata { get; set; } = new();
-
         #endregion
-        private string fullPath { get; set; } = string.Empty;
-        private string outputPath { get; set; } = string.Empty;
+
+        private string fullPath = string.Empty;
 
         protected override void BeginProcessing()
         {
-            outputPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
-            // if there's a file that exists with the name of outputPath, that's an error and it's fatal.
-            if (File.Exists(outputPath))
+            fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+
+            if (File.Exists(fullPath))
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputPath);
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(outputPath))
+            if (!Directory.Exists(fullPath))
             {
-                Directory.CreateDirectory(outputPath);
+                Directory.CreateDirectory(fullPath);
             }
         }
 
         protected override void ProcessRecord()
         {
-            foreach (CommandHelp cmdletHelp in Command)
+
+            foreach (var moduleFile in ModuleFileInfo)
             {
-                var markdownPath = Path.Combine($"{outputPath}", $"{cmdletHelp.Title}.md");
+                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
                     // should be error
-                    WriteWarning($"skipping {cmdletHelp.Title}, use -Force to export.");
+                    WriteWarning($"skipping {moduleFile.Module}");
                 }
                 else
                 {
                     var settings = new WriterSettings(Encoding, markdownPath);
-                    var cmdWrt = new CommandHelpMarkdownWriter(settings);
+                    var mfWrt = new ModulePageWriter(settings);
+                    // Add any additional supplied metadata
                     if (Metadata.Keys.Count > 0)
                     {
                         foreach(DictionaryEntry kv in Metadata)
@@ -90,17 +92,12 @@ namespace Microsoft.PowerShell.PlatyPS
                             }
                             else
                             {
-                                if (cmdletHelp.Metadata is null)
-                                {
-                                    cmdletHelp.Metadata = new();
-                                }
-
-                                cmdletHelp.Metadata[key] = kv.Value;
+                                moduleFile.Metadata[key] = kv.Value;
                             }
                         }
                     }
 
-                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
+                    WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                 }
             }
         }

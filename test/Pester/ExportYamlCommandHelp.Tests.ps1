@@ -109,10 +109,8 @@ Describe "Export-YamlCommandHelp tests" {
             }
         ) {
             param ($example, $title, $remarks)
-            # we have to construct the title string to include 'Example #'
-            $titleString = "Example {0}: $title" -f $example
             $observedExample = $yamlExamples[$example - 1]
-            $observedExample['title'] | Should -Be $titleString
+            $observedExample['title'] | Should -Be $title
             if ($observedExample['description'] -ne $remarks) { wait-debugger }
             $observedExample['description'] | Should -Be $remarks
         }

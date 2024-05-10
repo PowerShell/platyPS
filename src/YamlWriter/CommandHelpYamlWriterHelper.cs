@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS.Test
         /// <param name="yamlPath">The path of the output yaml file.</param>
         public static void ConvertMarkdownToYaml(string markdownPath, string yamlPath)
         {
-            var writerSettings = new CommandHelpWriterSettings(Encoding.UTF8, yamlPath);
+            var writerSettings = new WriterSettings(Encoding.UTF8, yamlPath);
             var yamlWriter = new CommandHelpYamlWriter(writerSettings);
             var commandHelp = (CommandHelp)MarkdownConverter.GetCommandHelpFromMarkdownFile(markdownPath);
             yamlWriter.Write(commandHelp, metadata: null);
@@ -40,7 +40,7 @@ namespace Microsoft.PowerShell.PlatyPS.Test
         {
             if (help is CommandHelp commandHelp)
             {
-                var writerSettings = new CommandHelpWriterSettings(Encoding.UTF8, yamlPath);
+                var writerSettings = new WriterSettings(Encoding.UTF8, yamlPath);
                 var yamlWriter = new CommandHelpYamlWriter(writerSettings);
                 yamlWriter.Write(commandHelp, metadata: null);
             }

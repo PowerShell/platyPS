@@ -68,6 +68,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _alphabeticOrderParameters.Add(name, parameter);
         }
 
+        public void AddParameter(SyntaxParameter parameter)
+        {
+            string name = parameter.ParameterName;
+
+            if (Constants.CommonParametersNames.Contains(name))
+            {
+                HasCmdletBinding = true;
+                return;
+            }
+
+            _parameterNames.Add(name);
+        }
+
         private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)
         {
             bool isSwitchParam = string.Equals(paramTypeName, "SwitchParameter", StringComparison.OrdinalIgnoreCase);

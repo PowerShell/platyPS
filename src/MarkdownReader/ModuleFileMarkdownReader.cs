@@ -43,7 +43,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 return false;
             }
 
-            return (Name == other.Name && Link == other.Link && Description == other.Link);
+            return string.Compare(Name, other.Name) == 0 &&
+                string.Compare(Link, other.Link) == 0 &&
+                string.Compare(Description, other.Description) == 0;
         }
 
         public override bool Equals(object other)
@@ -87,8 +89,12 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public OrderedDictionary Metadata { get; set; }
         public string Title { get; set; }
+        [YamlIgnore]
         public string Module { get; set; }
+        [YamlIgnore]
+        public Guid? ModuleGuid { get; set; }
         public string Description { get; set; }
+        [YamlIgnore]
         public CultureInfo Locale { get; set; }
         public string OptionalElement { get; set; }
         public List<ModuleCommandInfo> Commands { get; set; }
@@ -203,8 +209,30 @@ namespace Microsoft.PowerShell.PlatyPS
                 throw new InvalidDataException("null metadata");
             }
 
-            moduleFileInfo.Metadata = metadata;
+            moduleFileInfo.Metadata = MetadataUtils.FixUpModuleFileMetadata(metadata);
             moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent);
+            if (MetadataUtils.TryGetGuidFromMetadata(moduleFileInfo.Metadata, "Module Guid", out Guid guid))
+            {
+                moduleFileInfo.ModuleGuid = guid;
+            }
+
+            if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Module Name", out string name))
+            {
+                moduleFileInfo.Module = name;
+            }
+
+            if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Locale", out string locale))
+            {
+                try
+                {
+                    moduleFileInfo.Locale = CultureInfo.GetCultureInfo(locale);
+                }
+                catch
+                {
+                    moduleFileInfo.Locale = CultureInfo.CurrentCulture;
+                }
+            }
+
             moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
             var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);
             if (optionalDescription is not null)
@@ -284,7 +312,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var mfci = new ModuleCommandInfo();
                     mfci.Name = ((moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.FirstChild as LiteralInline)?.ToString() ?? string.Empty;
                     mfci.Link = (moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.Url ?? string.Empty;
-                    mfci.Description = moduleCommandInfoDescription?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    mfci.Description = md.MarkdownLines[moduleCommandInfoDescription.Line] ?? string.Empty;
                     list.Add(mfci);
                 }
                 // index = md.FindHeader(3, "");

@@ -13,6 +13,24 @@ namespace Microsoft.PowerShell.PlatyPS
         {
         }
 
+        internal CommandHelp Transform(CommandInfo command)
+        {
+            return ConvertCmdletInfo(command);
+        }
+
+        internal Collection<CommandHelp> Transform(string command)
+        {
+            Collection<CommandHelp> cmdHelp = new();
+            Collection<CommandInfo> cmdletInfos = PowerShellAPI.GetCommandInfo(command, Settings.Session);
+
+            foreach(var cmdletInfo in cmdletInfos)
+            {
+                cmdHelp.Add(ConvertCmdletInfo(cmdletInfo));
+            }
+            
+            return cmdHelp;
+        }
+
         internal override Collection<CommandHelp> Transform(string[] commandNames)
         {
             Collection<CommandHelp> cmdHelp = new();

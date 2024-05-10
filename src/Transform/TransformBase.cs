@@ -47,6 +47,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             CommandHelp cmdHelp = new(commandInfo.Name, commandInfo.ModuleName, Settings.Locale);
+            cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadataFromCommandInfo(commandInfo);
             cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(commandInfo, helpItem));

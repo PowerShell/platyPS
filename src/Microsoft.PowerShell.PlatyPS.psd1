@@ -38,10 +38,13 @@ CmdletsToExport = @(
     'New-MarkdownCommandHelp',
     'Import-MamlHelp',
     'Import-MarkdownCommandHelp',
+    'Import-MarkdownModuleFile',
     'Import-YamlCommandHelp',
     'Export-MamlCommandHelp',
-    'Export-MarkdownCommandHelp'
-    'Export-YamlCommandHelp'
+    'Export-MarkdownCommandHelp',
+    'Export-MarkdownModuleFile',
+    'Export-YamlCommandHelp',
+    'Export-YamlModuleFile',
     'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp',
     'ConvertTo-CommandHelp',
