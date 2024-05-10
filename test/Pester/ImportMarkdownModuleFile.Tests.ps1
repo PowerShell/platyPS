@@ -45,14 +45,15 @@ Describe "Import-ModuleFile tests" {
             @{ PropertyName = "Title"; Value = "CimCmdlets Module" }
             @{ PropertyName = "Module"; Value = "CimCmdlets" }
             @{ PropertyName = "ModuleGuid"; Value = "fb6cc51d-c096-4b38-b78d-0fed6277096a" }
-            @{ PropertyName = "Description"; Value = "Contains cmdlets that interact with Common Information Model (CIM) Servers like the Windows","Management Instrumentation (WMI) service.","","This module is only available on the Windows platform." }
+            @{ PropertyName = "Description"; Value = "Contains cmdlets that interact with Common Information Model (CIM) Servers like the Windows","Management Instrumentation (WMI) service.","This module is only available on the Windows platform." }
             @{ PropertyName = "Locale"; Value = "en-US" }
             @{ PropertyName = "OptionalElement"; Value = "" }
         ) {
             param ($propertyName, $value)
-            if ($mf0.$propertyName -match [Environment]::newLine)
+            $rawValue = $mf0.$propertyName
+            if ($rawValue -match "`r" -or $rawValue -match "`n")
             {
-                $expectedValue = $mf0.$propertyName -split [Environment]::newLine
+                $expectedValue = $RawValue.Split([char[]]("`r","`n")).Where({$_})
             }
             else {
                 $expectedValue = $mf0.$propertyName

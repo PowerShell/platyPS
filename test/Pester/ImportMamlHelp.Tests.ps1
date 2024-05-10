@@ -22,7 +22,9 @@ Describe "Import-YamlHelp tests" {
         }
 
         It "Correctly retrieves the synopsis for Add-Member" {
-            $importedCmds.Where({$_.title -eq "Add-Member"}).Synopsis | Should -Be ((Get-Help Add-Member).Synopsis)
+            # this is the string from the MAML file.
+            $expected = "Adds custom properties and methods to an instance of a PowerShell object."
+            $importedCmds.Where({$_.title -eq "Add-Member"}).Synopsis | Should -Be $expected
         }
     }
 }
