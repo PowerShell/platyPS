@@ -158,6 +158,8 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine($"# {moduleInfo.Title}");
             sb.AppendLine();
+            sb.AppendLine("## Description");
+            sb.AppendLine();
             sb.AppendLine($"{moduleInfo.Description}");
         }
 

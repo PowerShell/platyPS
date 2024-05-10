@@ -65,16 +65,16 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        protected override void EndProcessing()
+        protected override void ProcessRecord()
         {
 
             foreach (var moduleFile in ModuleFileInfo)
             {
-                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Title}.md");
+                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
                     // should be error
-                    WriteWarning($"skipping {moduleFile.Title}");
+                    WriteWarning($"skipping {moduleFile.Module}");
                 }
                 else
                 {

@@ -15,6 +15,7 @@ using System.Net.Configuration;
 using Microsoft.PowerShell.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Runtime.InteropServices;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -206,6 +207,36 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return od;
+        }
+
+        internal static bool TryGetGuidFromMetadata(OrderedDictionary metadata, string term, out Guid guid)
+        {
+            if (metadata.Contains(term))
+            {
+                if (metadata[term] is not null && Guid.TryParse(metadata[term].ToString(), out var result))
+                {
+                    guid = result;
+                    return true;
+                }
+            }
+
+            guid = Guid.Empty;
+            return false;
+        }
+
+        internal static bool TryGetStringFromMetadata(OrderedDictionary metadata, string term, out string str)
+        {
+            if (metadata.Contains(term))
+            {
+                if (metadata[term] is not null)
+                {
+                    str = metadata[term].ToString();
+                    return true;
+                }
+            }
+
+            str = string.Empty;
+            return false;
         }
 
         internal static string[] ProtectedMetadataKeys = new string[] {

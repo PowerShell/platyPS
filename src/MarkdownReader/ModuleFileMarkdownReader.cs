@@ -43,7 +43,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 return false;
             }
 
-            return (Name == other.Name && Link == other.Link && Description == other.Link);
+            return string.Compare(Name, other.Name) == 0 &&
+                string.Compare(Link, other.Link) == 0 &&
+                string.Compare(Description, other.Description) == 0;
         }
 
         public override bool Equals(object other)
@@ -209,6 +211,28 @@ namespace Microsoft.PowerShell.PlatyPS
 
             moduleFileInfo.Metadata = MetadataUtils.FixUpModuleFileMetadata(metadata);
             moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent);
+            if (MetadataUtils.TryGetGuidFromMetadata(moduleFileInfo.Metadata, "Module Guid", out Guid guid))
+            {
+                moduleFileInfo.ModuleGuid = guid;
+            }
+
+            if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Module Name", out string name))
+            {
+                moduleFileInfo.Module = name;
+            }
+
+            if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Locale", out string locale))
+            {
+                try
+                {
+                    moduleFileInfo.Locale = CultureInfo.GetCultureInfo(locale);
+                }
+                catch
+                {
+                    moduleFileInfo.Locale = CultureInfo.CurrentCulture;
+                }
+            }
+
             moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
             var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);
             if (optionalDescription is not null)

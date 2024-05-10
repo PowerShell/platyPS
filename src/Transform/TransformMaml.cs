@@ -92,6 +92,14 @@ namespace Microsoft.PowerShell.PlatyPS
                 cmdHelp.AddExampleItemRange(ReadExamples(reader));
                 cmdHelp.AddRelatedLinksRange(ReadRelatedLinks(reader));
                 cmdHelp.ModuleGuid = Settings.ModuleGuid;
+                // In maml, a parameter which does not have the common parameters, which actually have a parameter named "NoCommonParameter".
+                // We can use that to set cmdlet binding.
+                cmdHelp.HasCmdletBinding = ! cmdHelp.Parameters.Any(p => string.Compare(p.Name, MAML.Constants.NoCommonParameter, true) == 0);
+                // remove the parameter which is not a parameter.
+                if (! cmdHelp.HasCmdletBinding)
+                {
+                    cmdHelp.Parameters.RemoveAll(p => string.Compare(p.Name, MAML.Constants.NoCommonParameter, true) == 0);
+                }
 
                 _paramSetMap.Clear();
             }

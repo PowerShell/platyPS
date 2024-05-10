@@ -149,6 +149,14 @@ Describe 'New-MarkdownCommandHelp' {
 
         It 'creates the proper content from a command' {
             $files = New-MarkdownCommandHelp -Command 'Get-Date' -OutputFolder "$TestDrive/commands" -Force
+            $mdHelp = Import-MarkdownCommandHelp $files
+            $mdHelp | Should -BeOfType Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+            $mdHelp.Title | Should -Be 'Get-Date'
+        }
+
+        It 'creates multiple files from piped commands' {
+            $files = @('get-date', 'get-location','get-item') | New-MarkdownCommandhelp -outputfolder "${TestDrive}/multiple"
+            $files | Should -HaveCount 3
         }
     }
 

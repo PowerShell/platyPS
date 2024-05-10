@@ -35,6 +35,7 @@ namespace Microsoft.PowerShell.PlatyPS
             Mandatory = true,
             ParameterSetName = "Path",
             ValueFromPipelineByPropertyName = true,
+            ValueFromPipeline = true,
             Position = 0)]
         [SupportsWildcards]
         [Alias("FullName")]

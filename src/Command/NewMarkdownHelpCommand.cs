@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -17,13 +18,13 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "", DefaultParameterSetName = "FromCommand")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
-        [Parameter(Mandatory = true, ParameterSetName = "FromCommand")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "FromCommand")]
         public string[] Command { get; set; } = Array.Empty<string>();
 
         [Parameter()]
@@ -72,6 +73,26 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? ModulePagePath { get; set; }
         #endregion
 
+        List<string> nameCollection = new();
+
+        protected override void ProcessRecord()
+        {
+            if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Command.Length > 0)
+                {
+                    nameCollection.AddRange(Command);
+                }
+            }
+            else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
+            {
+                if (Module.Length > 0)
+                {
+                    nameCollection.AddRange(Module);
+                }
+            }
+        }
+
         protected override void EndProcessing()
         {
             string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
@@ -110,34 +131,34 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Command.Length > 0)
+                    if (nameCollection.Count > 0)
                     {
-                        cmdHelpObjs = new TransformCommand(transformSettings).Transform(Command);
+                        cmdHelpObjs = new TransformCommand(transformSettings).Transform(nameCollection.ToArray());
                     }
                 }
                 else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
                 {
-                    if (Module.Length > 0)
+                    if (nameCollection.Count > 0)
                     {
-                        cmdHelpObjs = new TransformModule(transformSettings).Transform(Module);
+                        cmdHelpObjs = new TransformModule(transformSettings).Transform(nameCollection.ToArray());
                     }
                 }
             }
             catch (ItemNotFoundException infe)
             {
-                var exception = new ItemNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.ModuleNotFound, infe.Message));
+                var exception = new ItemNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.ModuleNotFound, infe.Message, infe));
                 ErrorRecord err = new ErrorRecord(exception, "ModuleNotFound", ErrorCategory.ObjectNotFound, infe.Message);
                 ThrowTerminatingError(err);
             }
             catch (CommandNotFoundException cnfe)
             {
-                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.CommandNotFound, cnfe.CommandName));
-                ErrorRecord err = new ErrorRecord(exception, "CommandNotFound", ErrorCategory.ObjectNotFound, cnfe.CommandName);
+                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.CommandNotFound, string.Join(",", Command), cnfe));
+                ErrorRecord err = new ErrorRecord(exception, "CommandNotFound", ErrorCategory.ObjectNotFound, string.Join(",", Command));
                 ThrowTerminatingError(err);
             }
             catch (FileNotFoundException fnfe)
             {
-                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.FileNotFound, fnfe.FileName));
+                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.FileNotFound, fnfe.FileName, fnfe));
                 ErrorRecord err = new ErrorRecord(exception, "FileNotFound", ErrorCategory.ObjectNotFound, fnfe.FileName);
                 ThrowTerminatingError(err);
             }
