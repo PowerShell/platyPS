@@ -2,11 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -34,13 +30,6 @@ namespace Microsoft.PowerShell.PlatyPS
         public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
 #endregion
-
-        private Deserializer? deserializer = null;
-
-        protected override void BeginProcessing()
-        {
-            deserializer = (Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-        }
 
         protected override void ProcessRecord()
         {
