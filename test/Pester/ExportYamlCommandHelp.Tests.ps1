@@ -5,6 +5,7 @@ Describe "Export-YamlCommandHelp tests" {
     BeforeAll {
         $assetDir = "$PSScriptRoot/assets"
         $markdownFile = "$assetDir/get-date.md"
+        $yamlFile = "${psscriptroot}/assets/get-date.yml"
         $testMDFile = "$TestDrive/Get-Date.md"
         Get-Content $markdownFile | Set-Content "$testMDFile"
         $ch = Import-MarkdownCommandHelp $testMDFile
@@ -12,6 +13,14 @@ Describe "Export-YamlCommandHelp tests" {
         $outputFile = "$TESTDRIVE/Get-Date.yml"
         Import-Module "$PSScriptRoot/PlatyPS.Test.psm1"
         $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
+    }
+
+    Context "File Contents" {
+        It "The exported file contents should match exactly" {
+            $expectedContent = Get-Content -Raw $yamlFile
+            $observedContent = Get-Content -Raw $outputFile
+            $observedContent | Should -BeExactly $expectedContent
+        }
     }
 
     Context "Toplevel elements of the yaml file." {

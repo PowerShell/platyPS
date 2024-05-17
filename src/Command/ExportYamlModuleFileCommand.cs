@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public object[] ModuleFile { get; set; } = Array.Empty<string>();
+        public ModuleFileInfo[] ModuleFile { get; set; } = Array.Empty<ModuleFileInfo>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -37,9 +37,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        protected override void EndProcessing()
+        private string outputFolderPath = string.Empty;
+
+        protected override void BeginProcessing()
         {
-            string outputFolderPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            outputFolderPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
             if (File.Exists(outputFolderPath))
             {
@@ -52,30 +54,34 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 Directory.CreateDirectory(outputFolderPath);
             }
+        }
 
-
-            foreach (object o in ModuleFile)
+        protected override void ProcessRecord()
+        {
+            string moduleName;
+            foreach (ModuleFileInfo moduleFile in ModuleFile)
             {
-                if (o is ModuleFileInfo moduleFile)
+                if (moduleFile.Metadata.Contains("Module Name"))
                 {
-                    var moduleName = moduleFile.Metadata["Module Name"];
-                    var yamlPath = Path.Combine($"{outputFolderPath}", $"{moduleName}.yml");
-                    if (new FileInfo(yamlPath).Exists && ! Force)
-                    {
-                        // should be error
-                        WriteWarning($"skipping {moduleName}");
-                    }
-                    else
-                    {
-                        var settings = new WriterSettings(Encoding, yamlPath);
-                        var mfWrt = new ModulePageYamlWriter(settings);
-                        WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
-                    }
+                    moduleName = moduleFile.Metadata["Module Name"].ToString();
                 }
                 else
                 {
-                    // should be error
-                    WriteWarning(o.ToString() + " is not a ModuleFile object.");
+                    WriteError(new ErrorRecord(new InvalidDataException(moduleFile.Module), "ExportYamlModuleFile,BadModuleInfo", ErrorCategory.InvalidData, moduleFile));
+                    continue;
+                }
+
+                var yamlPath = Path.Combine($"{outputFolderPath}", $"{moduleName}.yml");
+                if (new FileInfo(yamlPath).Exists && ! Force)
+                {
+                    // should be error?
+                    WriteWarning($"skipping {moduleName}");
+                }
+                else
+                {
+                    var settings = new WriterSettings(Encoding, yamlPath);
+                    var mfWrt = new ModulePageYamlWriter(settings);
+                    WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
                 }
             }
         }
