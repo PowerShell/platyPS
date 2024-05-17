@@ -17,9 +17,9 @@ Describe "Export-YamlCommandHelp tests" {
 
     Context "File Contents" {
         It "The exported file contents should match exactly" {
-            $expectedContent = Get-Content -Raw $yamlFile
-            $observedContent = Get-Content -Raw $outputFile
-            $observedContent | Should -BeExactly $expectedContent
+            $expectedContent = Get-Content $yamlFile
+            $observedContent = Get-Content $outputFile
+            $observedContent | Should $expectedContent
         }
     }
 
