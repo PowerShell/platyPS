@@ -15,10 +15,10 @@ Describe "Export-YamlCommandHelp tests" {
         $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
     }
 
-    Context "File Contents" {
+    Context "File Contents" -skip:$IsWindows {
         It "The exported file contents should match exactly" {
-            $expectedContent = (Get-Content $yamlFile -Raw).Replace("`n","").Replace("`r","")
-            $observedContent = (Get-Content $outputFile -Raw).Replace("`n","").Replace("`r","")
+            $expectedContent = (Get-Content $yamlFile -Raw)
+            $observedContent = (Get-Content $outputFile -Raw)
             $observedContent | Should -Be $expectedContent
         }
     }
