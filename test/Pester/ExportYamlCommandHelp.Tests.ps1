@@ -15,8 +15,8 @@ Describe "Export-YamlCommandHelp tests" {
         $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
     }
 
-    Context "File Contents" -skip:$IsWindows {
-        It "The exported file contents should match exactly" {
+    Context "File Contents" {
+        It "The exported file contents should match exactly" -skip:$IsWindows {
             $expectedContent = (Get-Content $yamlFile -Raw)
             $observedContent = (Get-Content $outputFile -Raw)
             $observedContent | Should -Be $expectedContent
