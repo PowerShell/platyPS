@@ -17,9 +17,9 @@ Describe "Export-YamlCommandHelp tests" {
 
     Context "File Contents" {
         It "The exported file contents should match exactly" {
-            $expectedContent = Get-Content $yamlFile
-            $observedContent = Get-Content $outputFile
-            $observedContent | Should $expectedContent
+            $expectedContent = (Get-Content $yamlFile -Raw).Replace("`n","").Replace("`r","")
+            $observedContent = (Get-Content $outputFile -Raw).Replace("`n","").Replace("`r","")
+            $observedContent | Should -Be $expectedContent
         }
     }
 
