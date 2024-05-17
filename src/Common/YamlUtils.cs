@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Management.Automation.Runspaces;
 using System.Runtime.InteropServices;
@@ -23,6 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS
     internal class YamlUtils
     {
         private static Deserializer deserializer = (Deserializer)new DeserializerBuilder().Build();
+        private static Deserializer camelCaseDeserializer = (Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         private static Serializer serializer = (Serializer)new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
 
 
@@ -108,6 +110,44 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static string SerializeElement(object o)
         {
             return serializer.Serialize(o);
+        }
+        
+        /// <summary>
+        /// Try to read a file and convert it to a moduleInfoFile.
+        /// The expectation is that path is a fully qualified path to the yaml file.
+        /// </summary>
+        internal static bool TryReadModuleFile(string path, out ModuleFileInfo? moduleFileInfo, out Exception? deserializationException)
+        {
+            deserializationException = null;
+            moduleFileInfo = null;
+            try
+            {
+                var output = camelCaseDeserializer?.Deserialize<ModuleFileInfo>(File.ReadAllText(path));
+                if (output is not null)
+                {
+                    if (output.Metadata.Contains("Module Name"))
+                    {
+                        output.Module = output.Metadata["Module Name"].ToString();
+                    }
+
+                    if (output.Metadata.Contains("Module Guid"))
+                    {
+                        if (Guid.TryParse(output.Metadata["Module Guid"].ToString(), out Guid mGuid))
+                        {
+                            output.ModuleGuid = mGuid;
+                        }
+                    }
+
+                    moduleFileInfo = output;
+                    return true;
+                }
+            }
+            catch (Exception e)
+            {
+                deserializationException = e;
+            }
+
+            return false;
         }
 
         internal static CommandHelp ConvertDictionaryToCommandHelp(OrderedDictionary? dictionary)
