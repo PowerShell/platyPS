@@ -18,13 +18,13 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "", DefaultParameterSetName = "FromCommand")]
+    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "FromCommand")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true)]
         public string[] Command { get; set; } = Array.Empty<string>();
 
         [Parameter()]
@@ -35,55 +35,64 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public SwitchParameter Force { get; set; }
 
-        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter]
         public string? HelpInfoUri { get; set; }
 
-        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter]
         public string? HelpVersion { get; set; }
 
-        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter]
         public string? Locale { get; set; }
 
         [Parameter()]
         public Hashtable? Metadata { get; set; }
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true, ParameterSetName = "FromModule")]
+        [Parameter(Mandatory = true, ValueFromPipeline = true)]
         public string[] Module { get; set; } = Array.Empty<string>();
-
-        [Parameter(ParameterSetName = "FromCommand")]
-        public string? HelpUri { get; set; }
 
         [Parameter(Mandatory = true)]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
-        [Parameter(ParameterSetName = "FromModule")]
+        [Parameter]
         public SwitchParameter WithModulePage { get; set; }
 
-        [Parameter()]
+        [Parameter]
         public SwitchParameter AlphabeticParamsOrder { get; set; } = true;
 
-        [Parameter()]
+        [Parameter]
         public SwitchParameter UseFullTypeName { get; set; }
 
-        [Parameter(ParameterSetName = "FromModule")]
-        [Parameter(ParameterSetName = "FromCommand")]
         public PSSession? Session { get; set; }
 
-        [Parameter(ParameterSetName = "FromModule")]
-        public string? ModulePagePath { get; set; }
         #endregion
 
-        List<string> nameCollection = new();
+        List<CommandInfo> cmdCollection = new();
+        private string outputFolderBase = string.Empty;
 
+        protected override void BeginProcessing()
+        {
+            string outputFolderBase = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            if (File.Exists(outputFolderBase))
+            {
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputFolderBase));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputFolderBase);
+                ThrowTerminatingError(err);
+            }
+
+            if (!Directory.Exists(outputFolderBase))
+            {
+                Directory.CreateDirectory(outputFolderBase);
+            }
+        }
+
+        // Gather up all of the commands from modules or commands
         protected override void ProcessRecord()
         {
-            if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
+            if (Command.Length > 0)
             {
-                if (Command.Length > 0)
-                {
-                    nameCollection.AddRange(Command);
-                }
+                nameCollection.AddRange(Command);
             }
+
             else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
             {
                 if (Module.Length > 0)
@@ -95,19 +104,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
-
-            if (File.Exists(fullPath))
-            {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
-                ThrowTerminatingError(err);
-            }
-
-            if (!Directory.Exists(fullPath))
-            {
-                Directory.CreateDirectory(fullPath);
-            }
 
             Collection<CommandHelp>? cmdHelpObjs = null;
 
