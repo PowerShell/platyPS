@@ -115,7 +115,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public ModuleFileInfo(string title, string moduleName, CultureInfo? locale)
         {
-            Metadata = new();
+            Metadata = MetadataUtils.GetModuleFileBaseMetadata(title, moduleName, locale);
             Title = title;
             Module = moduleName;
             Description = string.Empty;

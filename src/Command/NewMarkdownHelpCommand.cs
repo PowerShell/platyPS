@@ -9,8 +9,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using Microsoft.PowerShell.Commands;
 using System.Management.Automation.Runspaces;
-
+using System.Runtime.Remoting.Contexts;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -116,7 +117,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 int currentOffset = 0;
                 foreach(var cmd in cmdCollection)
                 {
-
                     TransformSettings transformSettings = new TransformSettings
                     {
                         AlphabeticParamsOrder = AlphabeticParamsOrder,
@@ -128,7 +128,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
                         ModuleGuid = cmd.Module?.Guid is null ? null : cmd.Module.Guid,
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
-                        OnlineVersionUrl = HelpUri,
+                        OnlineVersionUrl = GetHelpCodeMethods.GetHelpUri(new PSObject(cmd)) ?? HelpUri,
                         Session = Session,
                         UseFullTypeName = UseFullTypeName
                     };
@@ -159,6 +159,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string moduleName = group.First<CommandHelp>().ModuleName;
                 string moduleFolder = Path.Combine(outputFolderBase, moduleName);
                 ModuleFileInfo moduleFileInfo = new(group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().Locale);
+
                 moduleFileInfo.Description = "{{ Add module description here. }}";
                 foreach(var cmdHelp in group)
                 {
