@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 
@@ -24,8 +25,8 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         #region cmdlet parameters
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true)]
-        public string[] Command { get; set; } = Array.Empty<string>();
+        [Parameter(ValueFromPipeline = true)]
+        public CommandInfo[] Command { get; set; } = Array.Empty<CommandInfo>();
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
@@ -36,10 +37,13 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter Force { get; set; }
 
         [Parameter]
-        public string? HelpInfoUri { get; set; }
+        public string HelpUri { get; set; } = string.Empty;
 
         [Parameter]
-        public string? HelpVersion { get; set; }
+        public string HelpInfoUri { get; set; } = string.Empty;
+
+        [Parameter]
+        public string HelpVersion { get; set; } = string.Empty;
 
         [Parameter]
         public string? Locale { get; set; }
@@ -47,8 +51,8 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public Hashtable? Metadata { get; set; }
 
-        [Parameter(Mandatory = true, ValueFromPipeline = true)]
-        public string[] Module { get; set; } = Array.Empty<string>();
+        [Parameter(ValueFromPipeline = true)]
+        public PSModuleInfo[] Module { get; set; } = Array.Empty<PSModuleInfo>();
 
         [Parameter(Mandatory = true)]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
@@ -71,7 +75,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void BeginProcessing()
         {
-            string outputFolderBase = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            outputFolderBase = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
             if (File.Exists(outputFolderBase))
             {
                 var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputFolderBase));
@@ -90,114 +94,102 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             if (Command.Length > 0)
             {
-                nameCollection.AddRange(Command);
+                cmdCollection.AddRange(Command);
             }
 
-            else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
+            if (Module.Length > 0)
             {
-                if (Module.Length > 0)
+                foreach (var mod in Module)
                 {
-                    nameCollection.AddRange(Module);
+                    cmdCollection.AddRange(mod.ExportedCommands.Values.Where<CommandInfo>(c => c.CommandType != CommandTypes.Alias));
                 }
             }
         }
 
+        // now that the commands are all gathered, transform them into command help objects
         protected override void EndProcessing()
         {
+            List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
 
-            Collection<CommandHelp>? cmdHelpObjs = null;
-
-            TransformSettings transformSettings = new TransformSettings
+            if (cmdCollection.Count > 0)
             {
-                AlphabeticParamsOrder = AlphabeticParamsOrder,
-                CreateModulePage = WithModulePage,
-                DoubleDashList = false,
-                ExcludeDontShow = false,
-                FwLink = HelpInfoUri,
-                HelpVersion = HelpVersion,
-                Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
-                ModuleGuid = null,
-                ModuleName = null,
-                OnlineVersionUrl = HelpUri,
-                Session = Session,
-                UseFullTypeName = UseFullTypeName
-            };
-
-            try
-            {
-                if (string.Equals(this.ParameterSetName, "FromCommand", StringComparison.OrdinalIgnoreCase))
+                int currentOffset = 0;
+                foreach(var cmd in cmdCollection)
                 {
-                    if (nameCollection.Count > 0)
+
+                    TransformSettings transformSettings = new TransformSettings
                     {
-                        cmdHelpObjs = new TransformCommand(transformSettings).Transform(nameCollection.ToArray());
+                        AlphabeticParamsOrder = AlphabeticParamsOrder,
+                        CreateModulePage = WithModulePage,
+                        DoubleDashList = false,
+                        ExcludeDontShow = false,
+                        FwLink = HelpInfoUri,
+                        HelpVersion = HelpVersion,
+                        Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
+                        ModuleGuid = cmd.Module?.Guid is null ? null : cmd.Module.Guid,
+                        ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
+                        OnlineVersionUrl = HelpUri,
+                        Session = Session,
+                        UseFullTypeName = UseFullTypeName
+                    };
+
+                    try
+                    {
+                        var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
+                        pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
+                        WriteProgress(pr);
+                        cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
+                    }
+                    catch (Exception e)
+                    {
+                        WriteError(new ErrorRecord(e, "NewMarkdownCommandHelp,TransformError", ErrorCategory.InvalidData, cmd));
                     }
                 }
-                else if (string.Equals(this.ParameterSetName, "FromModule", StringComparison.OrdinalIgnoreCase))
-                {
-                    if (nameCollection.Count > 0)
-                    {
-                        cmdHelpObjs = new TransformModule(transformSettings).Transform(nameCollection.ToArray());
-                    }
-                }
-            }
-            catch (ItemNotFoundException infe)
-            {
-                var exception = new ItemNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.ModuleNotFound, infe.Message, infe));
-                ErrorRecord err = new ErrorRecord(exception, "ModuleNotFound", ErrorCategory.ObjectNotFound, infe.Message);
-                ThrowTerminatingError(err);
-            }
-            catch (CommandNotFoundException cnfe)
-            {
-                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.CommandNotFound, string.Join(",", Command), cnfe));
-                ErrorRecord err = new ErrorRecord(exception, "CommandNotFound", ErrorCategory.ObjectNotFound, string.Join(",", Command));
-                ThrowTerminatingError(err);
-            }
-            catch (FileNotFoundException fnfe)
-            {
-                var exception = new CommandNotFoundException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.FileNotFound, fnfe.FileName, fnfe));
-                ErrorRecord err = new ErrorRecord(exception, "FileNotFound", ErrorCategory.ObjectNotFound, fnfe.FileName);
-                ThrowTerminatingError(err);
             }
 
-            if (cmdHelpObjs != null)
+            // Group the commands by Module Name
+            var commandGroup = cmdHelpObjs.GroupBy(c => c.ModuleName);
+            foreach(var group in commandGroup)
             {
-                foreach (var cmdletHelp in cmdHelpObjs)
+                if (group.Count() < 1)
                 {
-                    var settings = new WriterSettings(Encoding, $"{fullPath}{Constants.DirectorySeparator}{cmdletHelp.Title}.md");
+                    continue;
+                }
+
+                string moduleName = group.First<CommandHelp>().ModuleName;
+                string moduleFolder = Path.Combine(outputFolderBase, moduleName);
+                ModuleFileInfo moduleFileInfo = new(group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().Locale);
+                moduleFileInfo.Description = "{{ Add module description here. }}";
+                foreach(var cmdHelp in group)
+                {
+                    moduleName = cmdHelp.ModuleName;
+                    moduleFolder = Path.Combine(outputFolderBase, moduleName);
+                    var mci = new ModuleCommandInfo()
+                    {
+                        Name = cmdHelp.Title,
+                        Link = $"{cmdHelp.Title}.md",
+                        Description = "{{ Add description here }}"
+                    };
+                    moduleFileInfo.Commands.Add(mci);
+
+                    if (! Directory.Exists(moduleFolder))
+                    {
+                        Directory.CreateDirectory(moduleFolder);    
+                    }
+
+                    var settings = new WriterSettings(Encoding, Path.Combine(moduleFolder, $"{cmdHelp.Title}.md"));
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    var baseMetadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdletHelp);
-                    if (Metadata is null)
-                    {
-                        Metadata = new Hashtable(baseMetadata);
-                    }
-                    else
-                    {
-                        foreach(var metadataKey in baseMetadata.Keys)
-                        {
-                            if (! Metadata.ContainsKey(metadataKey))
-                            {
-                                Metadata[metadataKey] = baseMetadata[metadataKey];
-                            }
-                        }
-                    }
-
-                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, Metadata).FullName));
+                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
                 }
 
                 if (WithModulePage)
                 {
-                    string modulePagePath = ModulePagePath ?? fullPath;
-
-                    string resolvedPathModulePagePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(modulePagePath);
-
-                    var modulePageSettings = new WriterSettings(Encoding, resolvedPathModulePagePath);
+                    string moduleFilePath = Path.Combine(moduleFolder, $"{moduleName}.md");
+                    var modulePageSettings = new WriterSettings(Encoding, moduleFilePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
-
-                    WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(cmdHelpObjs).FullName));
+                    WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
                 }
             }
         }
-
     }
 }
-
