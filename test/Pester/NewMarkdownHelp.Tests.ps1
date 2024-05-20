@@ -155,7 +155,7 @@ Describe 'New-MarkdownCommandHelp' {
         }
 
         It 'creates multiple files from piped commands' {
-            $files = @('get-date', 'get-location','get-item') | New-MarkdownCommandhelp -outputfolder "${TestDrive}/multiple"
+            $files = Get-Command get-date, get-location, get-item | New-MarkdownCommandhelp -outputfolder "${TestDrive}/multiple"
             $files | Should -HaveCount 3
         }
     }

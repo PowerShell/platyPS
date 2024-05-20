@@ -9,9 +9,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using Microsoft.PowerShell.Commands;
 using System.Management.Automation.Runspaces;
-using System.Runtime.Remoting.Contexts;
+
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -27,6 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(ValueFromPipeline = true)]
+        [StringToCommandInfoTransformation]
         public CommandInfo[] Command { get; set; } = Array.Empty<CommandInfo>();
 
         [Parameter()]
@@ -53,6 +53,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public Hashtable? Metadata { get; set; }
 
         [Parameter(ValueFromPipeline = true)]
+        [StringToPsModuleInfoTransformation]
         public PSModuleInfo[] Module { get; set; } = Array.Empty<PSModuleInfo>();
 
         [Parameter(Mandatory = true)]
@@ -117,6 +118,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 int currentOffset = 0;
                 foreach(var cmd in cmdCollection)
                 {
+
                     TransformSettings transformSettings = new TransformSettings
                     {
                         AlphabeticParamsOrder = AlphabeticParamsOrder,
@@ -128,7 +130,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
                         ModuleGuid = cmd.Module?.Guid is null ? null : cmd.Module.Guid,
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
-                        OnlineVersionUrl = GetHelpCodeMethods.GetHelpUri(new PSObject(cmd)) ?? HelpUri,
+                        OnlineVersionUrl = HelpUri,
                         Session = Session,
                         UseFullTypeName = UseFullTypeName
                     };
@@ -159,7 +161,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 string moduleName = group.First<CommandHelp>().ModuleName;
                 string moduleFolder = Path.Combine(outputFolderBase, moduleName);
                 ModuleFileInfo moduleFileInfo = new(group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().Locale);
-
                 moduleFileInfo.Description = "{{ Add module description here. }}";
                 foreach(var cmdHelp in group)
                 {
@@ -190,6 +191,81 @@ namespace Microsoft.PowerShell.PlatyPS
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
                     WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
                 }
+            }
+        }
+
+        internal class CommandModuleTransformAttribute : ArgumentTransformationAttribute
+        {
+            public override object Transform(EngineIntrinsics engineIntrinsics, object inputData)
+            {
+                throw new NotImplementedException();
+            }
+
+            internal object AttemptParameterConvert(EngineIntrinsics engineIntrinsics, string name, Type type)
+            {
+                if (type == typeof(PSModuleInfo))
+                {
+                    var module = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace).AddCommand("Get-Module").AddParameter("Name", name).Invoke<PSModuleInfo>().First();
+                    if (module is not null)
+                    {
+                        return module;
+                    }
+                }
+                if (type == typeof(CommandInfo))
+                {
+                    var cmd = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace).AddCommand("Get-Command").AddParameter("Name", name).Invoke<CommandInfo>().First();
+                    if (cmd is not null)
+                    {
+                        return cmd;
+                    }
+                }
+                return name;
+            }
+
+        }
+    
+        internal class StringToCommandInfoTransformationAttribute : CommandModuleTransformAttribute
+        {
+            public override object Transform(EngineIntrinsics engineIntrinsics, object inputData)
+            {
+                if (inputData is string cmdName)
+                {
+                    return AttemptParameterConvert(engineIntrinsics, cmdName, typeof(CommandInfo));
+                }
+                if (inputData is Array cmdArray)
+                {
+                    List<object> cmdList = new();
+                    foreach (var cmd in cmdArray)
+                    {
+                        cmdList.Add(AttemptParameterConvert(engineIntrinsics, cmd.ToString(), typeof(CommandInfo)));
+                    }
+                    return cmdList.ToArray();
+                }
+                return inputData;
+            }
+
+        }
+
+        internal sealed class StringToPsModuleInfoTransformationAttribute : CommandModuleTransformAttribute
+        {
+            public override object Transform(EngineIntrinsics engineIntrinsics, object inputData)
+            {
+                if (inputData is string moduleName)
+                {
+                    return AttemptParameterConvert(engineIntrinsics, moduleName, typeof(PSModuleInfo));
+                }
+
+                if (inputData is Array moduleArray)
+                {
+                    List<object> moduleList = new();
+                    foreach (var mod in moduleArray)
+                    {
+                        moduleList.Add(AttemptParameterConvert(engineIntrinsics, mod.ToString(), typeof(PSModuleInfo)));
+                    }
+                    return moduleList.ToArray();
+                }
+
+                return inputData;
             }
         }
     }
