@@ -99,6 +99,22 @@ namespace Microsoft.PowerShell.PlatyPS
             return metadata;
         }
 
+        public static OrderedDictionary GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
+        {
+            OrderedDictionary metadata = new()
+            {
+                { "document type", "module" },
+                { "HelpInfoUri", moduleInfo.HelpInfoUri }, // was Download Help Link
+                { "Locale", locale?.Name ?? "en-us" },
+                { "PlatyPS schema version", "2024-05-01" },
+                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
+                { "title", $"{moduleInfo.Name} Module" },
+                { "Module Name", moduleInfo.Name },
+                { "Module Guid", moduleInfo.Guid },
+            };
+            return metadata;
+        }
+
         /// <summary>
         /// Retrieve the base metadata for a module help file
         /// </summary>
