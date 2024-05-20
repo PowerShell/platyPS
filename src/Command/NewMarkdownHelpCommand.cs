@@ -137,9 +137,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     try
                     {
-                        var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
-                        pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
-                        WriteProgress(pr);
+                        if (cmdCollection.Count > 10)
+                        {
+                            var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
+                            pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
+                            WriteProgress(pr);
+                        }
                         cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
                     }
                     catch (Exception e)

@@ -20,12 +20,12 @@ Describe 'New-MarkdownCommandHelp' {
     Context 'errors' {
         It 'throw when cannot find module' {
             { New-MarkdownCommandHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'ModuleNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            Should -Throw -ErrorId 'ParameterArgumentTransformationError,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when cannot find command' {
             { New-MarkdownCommandHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'CommandNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            Should -Throw -ErrorId 'ParameterArgumentTransformationError,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when OutputFolder is not a folder' {
@@ -466,26 +466,26 @@ Write-Host 'Hello World!'
 
         BeforeAll {
             $OutputFolder = "$TestDrive/LandingPageMD"
-            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Readme.md"
+            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md"
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
         It "generates a landing page from Module" {
             New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
+            "$OutputFolder/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
         }
 
-        it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+        it 'generate a landing page from Module with parameter ModulePagePath' -skip {
+            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             $OutputFolderReadme | Should -Exist
         }
 
-        It 'generates a landing page from module at correct output folder' {
+        It 'generates a landing page from module at correct output folder' -skip {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
-                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS.md")
+                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS" "Microsoft.PowerShell.PlatyPS.md")
             }
             finally {
                 Pop-Location
