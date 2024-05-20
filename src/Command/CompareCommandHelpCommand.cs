@@ -97,6 +97,16 @@ namespace Microsoft.PowerShell.PlatyPS
                     DiagnosticMessages.Add($"Inspecting dictionary {objectPath}.{property.Name}");
                     var rDictionary = (IDictionary)property.Value;
                     var dDictionary = (IDictionary)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
+
+                    foreach(var key in dDictionary.Keys)
+                    {
+                        if (!rDictionary.Contains(key))
+                        {
+                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} does not exist in reference");
+                            HadDifferences = true;
+                        }
+                    }
+
                     foreach (var key in rDictionary.Keys)
                     {
                         if (LanguagePrimitives.Equals(rDictionary[key], dDictionary[key]))

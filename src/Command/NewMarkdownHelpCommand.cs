@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-using System.Runtime.Serialization;
+
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -63,10 +63,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter WithModulePage { get; set; }
 
         [Parameter]
-        public SwitchParameter AlphabeticParamsOrder { get; set; } = true;
-
-        [Parameter]
-        public SwitchParameter UseFullTypeName { get; set; }
+        public SwitchParameter AbbreviateParameterTypename { get; set; }
 
         public PSSession? Session { get; set; }
 
@@ -74,7 +71,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         List<CommandInfo> cmdCollection = new();
         private string outputFolderBase = string.Empty;
-        private Dictionary<string, Guid> moduleGuids = new();
 
         protected override void BeginProcessing()
         {
@@ -97,13 +93,6 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             if (Command.Length > 0)
             {
-                foreach(var cmd in Command)
-                {
-                    if (cmd?.Module?.Guid is not null)
-                    {
-                        moduleGuids[cmd.ModuleName] = cmd.Module.Guid;
-                    }
-                }
                 cmdCollection.AddRange(Command);
             }
 
@@ -111,7 +100,6 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (var mod in Module)
                 {
-                    moduleGuids[mod.Name] = mod.Guid;
                     cmdCollection.AddRange(mod.ExportedCommands.Values.Where<CommandInfo>(c => c.CommandType != CommandTypes.Alias));
                 }
             }
@@ -130,7 +118,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     TransformSettings transformSettings = new TransformSettings
                     {
-                        AlphabeticParamsOrder = AlphabeticParamsOrder,
                         CreateModulePage = WithModulePage,
                         DoubleDashList = false,
                         ExcludeDontShow = false,
@@ -141,17 +128,14 @@ namespace Microsoft.PowerShell.PlatyPS
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         OnlineVersionUrl = HelpUri,
                         Session = Session,
-                        UseFullTypeName = UseFullTypeName
+                        UseFullTypeName = ! AbbreviateParameterTypename
                     };
 
                     try
                     {
-                        if (cmdCollection.Count > 10)
-                        {
-                            var pr = new ProgressRecord(0, "Scanning cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
-                            pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
-                            WriteProgress(pr);
-                        }
+                        var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
+                        pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
+                        WriteProgress(pr);
                         cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
                     }
                     catch (Exception e)
@@ -171,17 +155,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 string moduleName = group.First<CommandHelp>().ModuleName;
-                string moduleTitle = $"{moduleName} Module";
                 string moduleFolder = Path.Combine(outputFolderBase, moduleName);
-                ModuleFileInfo moduleFileInfo = new(moduleTitle, moduleName, group.First<CommandHelp>().Locale);
-                if (moduleFileInfo.Description == string.Empty)
-                {
-                    moduleFileInfo.Description = "{{ Add module description here. }}";
-                }
-
+                ModuleFileInfo moduleFileInfo = new(group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().Locale);
+                moduleFileInfo.Description = "{{ Add module description here. }}";
                 foreach(var cmdHelp in group)
                 {
-
+                    moduleName = cmdHelp.ModuleName;
                     moduleFolder = Path.Combine(outputFolderBase, moduleName);
                     var mci = new ModuleCommandInfo()
                     {

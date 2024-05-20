@@ -233,7 +233,7 @@ Write-Host 'Hello World!'
         }
     }
 
-    Context 'AlphabeticParamsOrder' {
+    Context 'Parameter order is alphabetic by default' {
         function global:Get-Alpha
         {
             param(
@@ -274,7 +274,7 @@ Write-Host 'Hello World!'
 ### -WhatIf
 
 '@
-            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force
             $files | Should -HaveCount 1
             normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should -Be $expectedOrder
         }
@@ -517,7 +517,7 @@ Write-Host 'Hello World!'
             )
             $expectedSyntax = 'Get-Alpha [-WhatIf] [[-CCC] <System.String>] [[-ddd] <System.Nullable<System.Int32>>] [<CommonParameters>]'
 
-            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force
             $commandHelp = Import-MarkdownCommandHelp $files
             $commandHelp.Syntax.SyntaxParameters.ParameterType | Should -Be $expectedParameters
             $commandHelp.Syntax[0].ToString() | Should -Be $expectedSyntax
@@ -527,7 +527,7 @@ Write-Host 'Hello World!'
             $expectedParameterNames = "CCC","ddd","WhatIf"
             $expectedParameterTypes = "String","Nullable<System.Int32>","SwitchParameter"
             $expectedSyntax = "Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Nullable<System.Int32>>] [<CommonParameters>]"
-            $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypename
             $ch = Import-MarkdownCommandHelp $file
             $ch.Parameters.Name | Should -Be $expectedParameterNames
             $ch.Parameters.Type | Should -Be $expectedParameterTypes

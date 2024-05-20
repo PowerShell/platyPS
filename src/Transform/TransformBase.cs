@@ -145,14 +145,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 parameters.Add(param);
             }
 
-            if (Settings?.AlphabeticParamsOrder == true)
-            {
-                return parameters.OrderBy(param => param.Name);
-            }
-            else
-            {
-                return parameters;
-            }
+            return parameters.OrderBy(param => param.Name);
         }
 
         protected static IEnumerable<Example> GetExamples(dynamic helpItem, bool addDefaultString)
