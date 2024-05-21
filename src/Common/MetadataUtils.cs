@@ -94,44 +94,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", moduleFileInfo.Title },
                 { "Module Name", moduleFileInfo.Title },
-                { "Module Guid", Guid.Empty },
-            };
-            return metadata;
-        }
-
-        public static OrderedDictionary GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
-        {
-            OrderedDictionary metadata = new()
-            {
-                { "document type", "module" },
-                { "HelpInfoUri", moduleInfo.HelpInfoUri }, // was Download Help Link
-                { "Locale", locale?.Name ?? "en-us" },
-                { "PlatyPS schema version", "2024-05-01" },
-                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
-                { "title", $"{moduleInfo.Name} Module" },
-                { "Module Name", moduleInfo.Name },
-                { "Module Guid", moduleInfo.Guid },
-            };
-            return metadata;
-        }
-
-        /// <summary>
-        /// Retrieve the base metadata for a module help file
-        /// </summary>
-        /// <param name="help">A ModuleFileInfo object to use.</param>
-        /// <returns>A Dictionary with the base metadata for a command help file.</returns>
-        public static OrderedDictionary GetModuleFileBaseMetadata(string title, string name, CultureInfo? locale)
-        {
-            OrderedDictionary metadata = new()
-            {
-                { "document type", "module" },
-                { "HelpInfoUri", string.Empty }, // was Download Help Link
-                { "Locale", locale?.Name ?? "en-US" },
-                { "PlatyPS schema version", "2024-05-01" },
-                { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
-                { "title", title },
-                { "Module Name", name },
-                { "Module Guid", Guid.Empty },
             };
             return metadata;
         }
