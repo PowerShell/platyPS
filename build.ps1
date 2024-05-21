@@ -52,7 +52,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
             throw "Build failure."
         }
 
-        $expectedBuildPath = "./bin/$Configuration/net462/"
+        $expectedBuildPath = "./bin/$Configuration/net472/"
         $expectedDllPath = "$expectedBuildPath/${ModuleName}.dll"
         $expectedPdbPath = "$expectedBuildPath/${ModuleName}.pdb"
 

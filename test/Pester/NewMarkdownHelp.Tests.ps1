@@ -15,6 +15,7 @@ Describe 'New-MarkdownCommandHelp' {
         }
 
         $commonParameterNames = [System.Management.Automation.Internal.CommonParameters].GetProperties().ForEach({$_.Name})
+        $ProgressPreference = 'SilentlyContinue'
     }
 
     Context 'errors' {

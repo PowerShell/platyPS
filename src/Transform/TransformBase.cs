@@ -434,7 +434,8 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (string.Equals(parameter.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return GetStringFromDescriptionArray(parameter.description);
+                    var paramDescription = GetStringFromDescriptionArray(parameter.description);
+                    return paramDescription == string.Empty ? null : paramDescription;
                 }
             }
 
@@ -454,7 +455,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (string.Equals(parameter.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return parameter.defaultValue.ToString();
+                    return parameter.defaultValue is null ? string.Empty : parameter.defaultValue.ToString();
                 }
             }
 
