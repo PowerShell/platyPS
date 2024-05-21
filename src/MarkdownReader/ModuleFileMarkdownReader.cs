@@ -16,6 +16,7 @@ using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 using YamlDotNet;
 using YamlDotNet.Serialization;
+using System.Management.Automation;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -115,10 +116,22 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public ModuleFileInfo(string title, string moduleName, CultureInfo? locale)
         {
-            Metadata = new();
+            Metadata = MetadataUtils.GetModuleFileBaseMetadata(title, moduleName, locale);
             Title = title;
             Module = moduleName;
             Description = string.Empty;
+            OptionalElement = string.Empty;
+            Diagnostics = new();
+            Commands = new();
+            Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
+        }
+
+        public ModuleFileInfo(PSModuleInfo moduleInfo, CultureInfo? locale)
+        {
+            Metadata = MetadataUtils.GetModuleFileBaseMetadata(moduleInfo, locale);
+            Title = $"{moduleInfo.Name} Module";
+            Module = $"{moduleInfo.Name}";
+            Description = moduleInfo.Description;
             OptionalElement = string.Empty;
             Diagnostics = new();
             Commands = new();

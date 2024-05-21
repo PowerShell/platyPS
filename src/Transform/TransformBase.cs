@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Management.Automation;
 using System.Text;
 
@@ -99,6 +100,11 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             List<Parameter> parameters = new();
 
+            if (cmdletInfo.Parameters is null || cmdletInfo.Parameters.Count < 1)
+            {
+                return parameters;
+            }
+
             foreach (KeyValuePair<string, ParameterMetadata> parameterMetadata in cmdletInfo.Parameters)
             {
                 string parameterName = parameterMetadata.Key;
@@ -139,14 +145,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 parameters.Add(param);
             }
 
-            if (Settings?.AlphabeticParamsOrder == true)
-            {
-                return parameters.OrderBy(param => param.Name);
-            }
-            else
-            {
-                return parameters;
-            }
+            return parameters.OrderBy(param => param.Name);
         }
 
         protected static IEnumerable<Example> GetExamples(dynamic helpItem, bool addDefaultString)
@@ -193,7 +192,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             List<Links> links = new();
 
-            if (helpItem.relatedLinks?.navigationLink is not null)
+            if (helpItem?.relatedLinks?.navigationLink is not null)
             {
                 Collection<PSObject>? navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
 

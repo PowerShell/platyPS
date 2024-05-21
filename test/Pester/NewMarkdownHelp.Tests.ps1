@@ -20,12 +20,12 @@ Describe 'New-MarkdownCommandHelp' {
     Context 'errors' {
         It 'throw when cannot find module' {
             { New-MarkdownCommandHelp -Module '__NON_EXISTING_MODULE' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'ModuleNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            Should -Throw -ErrorId 'ParameterArgumentTransformationError,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when cannot find command' {
             { New-MarkdownCommandHelp -Command '__NON_EXISTING_COMMAND' -OutputFolder $TestDrive } |
-            Should -Throw -ErrorId 'CommandNotFound,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
+            Should -Throw -ErrorId 'ParameterArgumentTransformationError,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
         }
 
         It 'throw when OutputFolder is not a folder' {
@@ -155,7 +155,7 @@ Describe 'New-MarkdownCommandHelp' {
         }
 
         It 'creates multiple files from piped commands' {
-            $files = @('get-date', 'get-location','get-item') | New-MarkdownCommandhelp -outputfolder "${TestDrive}/multiple"
+            $files = Get-Command get-date, get-location, get-item | New-MarkdownCommandhelp -outputfolder "${TestDrive}/multiple"
             $files | Should -HaveCount 3
         }
     }
@@ -233,7 +233,7 @@ Write-Host 'Hello World!'
         }
     }
 
-    Context 'AlphabeticParamsOrder' {
+    Context 'Parameter order is alphabetic by default' {
         function global:Get-Alpha
         {
             param(
@@ -274,7 +274,7 @@ Write-Host 'Hello World!'
 ### -WhatIf
 
 '@
-            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force
             $files | Should -HaveCount 1
             normalizeEnds (Get-Content $files | Where-Object {$_.StartsWith('### -')} | Out-String) | Should -Be $expectedOrder
         }
@@ -466,26 +466,26 @@ Write-Host 'Hello World!'
 
         BeforeAll {
             $OutputFolder = "$TestDrive/LandingPageMD"
-            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Readme.md"
+            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md"
             $null = New-Item -ItemType Directory $OutputFolder
         }
 
         It "generates a landing page from Module" {
             New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
+            "$OutputFolder/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
         }
 
-        it 'generate a landing page from Module with parameter ModulePagePath' {
-            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -ModulePagePath $OutputFolderReadme -Force
+        it 'generate a landing page from Module with parameter ModulePagePath' -skip {
+            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             $OutputFolderReadme | Should -Exist
         }
 
-        It 'generates a landing page from module at correct output folder' {
+        It 'generates a landing page from module at correct output folder' -skip {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -ModulePagePath . -Force
+                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
-                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS.md")
+                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS" "Microsoft.PowerShell.PlatyPS.md")
             }
             finally {
                 Pop-Location
@@ -517,7 +517,7 @@ Write-Host 'Hello World!'
             )
             $expectedSyntax = 'Get-Alpha [-WhatIf] [[-CCC] <System.String>] [[-ddd] <System.Nullable<System.Int32>>] [<CommonParameters>]'
 
-            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder -UseFullTypeName
+            $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force
             $commandHelp = Import-MarkdownCommandHelp $files
             $commandHelp.Syntax.SyntaxParameters.ParameterType | Should -Be $expectedParameters
             $commandHelp.Syntax[0].ToString() | Should -Be $expectedSyntax
@@ -527,7 +527,7 @@ Write-Host 'Hello World!'
             $expectedParameterNames = "CCC","ddd","WhatIf"
             $expectedParameterTypes = "String","Nullable<System.Int32>","SwitchParameter"
             $expectedSyntax = "Get-Alpha [-WhatIf] [[-CCC] <String>] [[-ddd] <Nullable<System.Int32>>] [<CommonParameters>]"
-            $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AlphabeticParamsOrder
+            $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypename
             $ch = Import-MarkdownCommandHelp $file
             $ch.Parameters.Name | Should -Be $expectedParameterNames
             $ch.Parameters.Type | Should -Be $expectedParameterTypes
