@@ -19,6 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string? OnlineVersionUrl { get; set; }
         public bool? CreateModulePage { get; set; }
         public bool? DoubleDashList { get; set; }
+        public bool? AlphabeticParamsOrder { get; set; }
         public bool? UseFullTypeName { get; set; }
         public PSSession? Session { get; set; }
         public bool? ExcludeDontShow { get; set; }

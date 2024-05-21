@@ -280,7 +280,6 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 commandHelp.AddParameter(parameter);
             }
-            commandHelp.Parameters.Sort((x,y) => x.Name.CompareTo(y.Name));
 
             if (parameterDiagnostics is not null && parameterDiagnostics.Count > 0)
             {
@@ -837,6 +836,10 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static List<InputOutput> GetInputOutput(ParsedMarkdownContent md)
         {
             List<InputOutput> ioList = new();
+            if (md.GetCurrent() is HeadingBlock)
+            {
+                md.Take();
+            }
 
             // find the next major header
             var nextSectionIndex = md.FindHeader(2, string.Empty);
@@ -845,14 +848,6 @@ namespace Microsoft.PowerShell.PlatyPS
             if (md.CurrentIndex + 1 == nextSectionIndex)
             {
                 return ioList;
-            }
-
-            if (md.GetCurrent() is HeadingBlock header)
-            {
-                if (header.Level == 2)
-                {
-                    md.Take();
-                }
             }
 
             string description;
