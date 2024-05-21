@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Management.Automation;
 using System.Text;
 
@@ -21,8 +20,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal abstract Collection<CommandHelp> Transform(string[] source);
 
-        protected CommandHelp ConvertCmdletInfo(CommandInfo commandInfo)
+        protected CommandHelp ConvertCmdletInfo(CommandInfo? commandInfo)
         {
+            if (commandInfo is null)
+            {
+                throw new ArgumentNullException();
+            }
+
             string cmdName = commandInfo is ExternalScriptInfo ? commandInfo.Source : commandInfo.Name;
 
             Collection<PSObject> help = PowerShellAPI.GetHelpForCmdlet(cmdName, Settings.Session);
@@ -46,6 +50,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 addDefaultStrings = true;
             }
+
 
             CommandHelp cmdHelp = new(commandInfo.Name, commandInfo.ModuleName, Settings.Locale);
             cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadataFromCommandInfo(commandInfo);
@@ -73,21 +78,27 @@ namespace Microsoft.PowerShell.PlatyPS
             // Sometime the help content does not have any input type
             if (helpItem?.inputTypes?.inputType is not null)
             {
-                cmdHelp.AddInputItem(
-                    GetInputOutputItem(
+                var ioItem = GetInputOutputItem(
                         helpItem.inputTypes.inputType,
-                        addDefaultStrings ? Constants.NoneString : null,
-                        addDefaultStrings ? string.Empty : null));
+                        addDefaultStrings ? Constants.NoneString : string.Empty,
+                        addDefaultStrings ? Constants.FillInDescription : string.Empty);
+                if (ioItem is not null)
+                {
+                    cmdHelp.AddInputItem(ioItem);
+                }
             }
 
             // Sometime the help content does not have any output type
             if (helpItem?.returnValues?.returnValue is not null)
             {
-                cmdHelp.AddOutputItem(
-                    GetInputOutputItem(
+                var ioItem = GetInputOutputItem(
                         helpItem.returnValues.returnValue,
-                        addDefaultStrings ? Constants.SystemObjectTypename : null,
-                        addDefaultStrings ? string.Empty : null));
+                        addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
+                        addDefaultStrings ? Constants.FillInDescription : string.Empty);
+                if (ioItem is not null)
+                {
+                    cmdHelp.AddOutputItem(ioItem);
+                }
             }
 
             cmdHelp.Notes = GetNotes(helpItem, addDefaultStrings);
@@ -96,7 +107,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return cmdHelp;
         }
 
-        protected IEnumerable<Parameter> GetParameters(CommandInfo cmdletInfo, dynamic helpItem, bool addDefaultString)
+        protected IEnumerable<Parameter> GetParameters(CommandInfo cmdletInfo, dynamic? helpItem, bool addDefaultString)
         {
             List<Parameter> parameters = new();
 
@@ -148,7 +159,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameters.OrderBy(param => param.Name);
         }
 
-        protected static IEnumerable<Example> GetExamples(dynamic helpItem, bool addDefaultString)
+        protected static IEnumerable<Example> GetExamples(dynamic? helpItem, bool addDefaultString)
         {
             List<Example> examples = new();
 
@@ -164,11 +175,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 int exampleCounter = 1;
 
-                var examplesArray = helpItem.examples?.example;
+                var examplesArray = helpItem?.examples?.example;
 
                 if (examplesArray is not null)
                 {
-                    Collection<PSObject>? examplesAsCollection = MakePSObjectEnumerable(examplesArray);
+                    Collection<PSObject> examplesAsCollection = MakePSObjectEnumerable(examplesArray);
 
                     foreach (dynamic item in examplesAsCollection)
                     {
@@ -188,26 +199,33 @@ namespace Microsoft.PowerShell.PlatyPS
             return examples;
         }
 
-        protected static List<Links> GetRelatedLinks(dynamic helpItem)
+        protected static List<Links> GetRelatedLinks(dynamic? helpItem)
         {
             List<Links> links = new();
 
             if (helpItem?.relatedLinks?.navigationLink is not null)
             {
-                Collection<PSObject>? navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
+                Collection<PSObject> navigationLinkCollection = MakePSObjectEnumerable(helpItem.relatedLinks.navigationLink);
 
                 foreach (dynamic navlink in navigationLinkCollection)
                 {
-                    links.Add(new Links(navlink.uri?.ToString(), navlink.linkText?.ToString()));
+                    var uri = navlink?.uri is null ? string.Empty : navlink.uri.ToString();
+                    var linkText = navlink?.linkText is null ? string.Empty : navlink.linkText.ToString();
+                    links.Add(new Links(uri, linkText));
                 }
             }
 
             return links;
         }
 
-        protected IEnumerable<SyntaxItem> GetSyntaxItem(CommandInfo cmdletInfo, dynamic helpItem)
+        protected IEnumerable<SyntaxItem> GetSyntaxItem(CommandInfo? cmdletInfo, dynamic? helpItem)
         {
             List<SyntaxItem> syntaxItems = new();
+
+            if (cmdletInfo is null)
+            {
+                return syntaxItems;
+            }
 
             foreach (CommandParameterSetInfo parameterSetInfo in cmdletInfo.ParameterSets)
             {
@@ -298,7 +316,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return typeName;
         }
 
-        protected Parameter GetParameterInfo(CommandInfo cmdletInfo, dynamic helpItem, CommandParameterInfo paramInfo)
+        protected Parameter GetParameterInfo(CommandInfo? cmdletInfo, dynamic? helpItem, CommandParameterInfo paramInfo)
         {
             var paramAttribInfo = GetParameterAtributeInfo(paramInfo.Attributes);
 
@@ -403,7 +421,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return Constants.EmptyStringList;
         }
 
-        protected static string? GetParameterDescriptionFromHelp(dynamic helpItem, string parameterName)
+        protected static string? GetParameterDescriptionFromHelp(dynamic? helpItem, string parameterName)
         {
             if (helpItem?.parameters?.parameter == null)
             {
@@ -423,11 +441,11 @@ namespace Microsoft.PowerShell.PlatyPS
             return null;
         }
 
-        protected static string? GetParameterDefaultValueFromHelp(dynamic helpItem, string parameterName)
+        protected static string GetParameterDefaultValueFromHelp(dynamic? helpItem, string parameterName)
         {
             if (helpItem?.parameters?.parameter == null)
             {
-                return null;
+                return string.Empty;
             }
 
             Collection<PSObject>? parameterAsCollection = MakePSObjectEnumerable(helpItem.parameters.parameter);
@@ -436,14 +454,14 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (string.Equals(parameter.name.ToString(), parameterName, StringComparison.OrdinalIgnoreCase))
                 {
-                    return parameter.defaultValue?.ToString();
+                    return parameter.defaultValue.ToString();
                 }
             }
 
-            return null;
+            return string.Empty;
         }
 
-        protected static string? GetNotes(dynamic helpItem, bool addDefaultString)
+        protected static string? GetNotes(dynamic? helpItem, bool addDefaultString)
         {
             if (addDefaultString)
             {
@@ -453,11 +471,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 return helpItem?.alertSet?.alert is not null ?
                     GetStringFromDescriptionArray(helpItem.alertSet.alert) :
-                    null;
+                    string.Empty;
             }
         }
 
-        protected static string GetDescription(dynamic helpItem, bool addDefaultStrings)
+        protected static string GetDescription(dynamic? helpItem, bool addDefaultStrings)
         {
             if (addDefaultStrings)
             {
@@ -465,7 +483,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else
             {
-                if (helpItem == null)
+                if (helpItem is null)
                 {
                     throw new ArgumentNullException(nameof(helpItem));
                 }
@@ -474,7 +492,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        protected static string GetSynopsis(dynamic helpItem, bool addDefaultStrings)
+        protected static string GetSynopsis(dynamic? helpItem, bool addDefaultStrings)
         {
             if (addDefaultStrings)
             {
@@ -510,11 +528,11 @@ namespace Microsoft.PowerShell.PlatyPS
             return inputOutput;
         }
 
-        protected static string? GetStringFromDescriptionArray(dynamic description)
+        protected static string GetStringFromDescriptionArray(dynamic? description)
         {
             if (description == null)
             {
-                return null;
+                return string.Empty;
             }
 
             if (description is string)
@@ -545,9 +563,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        private static Collection<PSObject>? MakePSObjectEnumerable(dynamic psObject)
+        private static Collection<PSObject> MakePSObjectEnumerable(dynamic psObject)
         {
-            Collection<PSObject>? forceEnumerable = null;
+            Collection<PSObject> forceEnumerable = new();
 
             if (psObject is PSObject)
             {
