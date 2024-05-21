@@ -36,7 +36,6 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             transformSettings = new TransformSettings()
             {
-                AlphabeticParamsOrder = true,
                 CreateModulePage = false,
                 DoubleDashList = false,
                 ExcludeDontShow = true,

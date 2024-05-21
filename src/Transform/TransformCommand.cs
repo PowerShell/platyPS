@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -11,6 +12,16 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public TransformCommand(TransformSettings settings) : base(settings)
         {
+        }
+
+        internal List<CommandHelp> Transform(List<CommandInfo> command)
+        {
+            List<CommandHelp> cmdHelpList = new();
+            foreach(var cmd in command)
+            {
+                cmdHelpList.Add(Transform(cmd));
+            }
+            return cmdHelpList;
         }
 
         internal CommandHelp Transform(CommandInfo command)
