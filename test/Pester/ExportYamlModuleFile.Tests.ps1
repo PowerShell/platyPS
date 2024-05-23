@@ -16,6 +16,15 @@ Describe "Export-YamlModuleFile tests" {
             $outputFile | Should -Exist
         }
 
+        It "Will add additional metadata if supplied" {
+            $outputFolder = "${TestDrive}/new0"
+            $newMetadata = @{ newkey1 = "new metadata 1"; "new key 2" = "new metadata[withspecialchar]"}
+            $outFile = $moduleFileInfos[0] | Export-YamlModuleFile -OutputFolder ${outputFolder} -Metadata $newMetadata
+            $readModuleFile = Import-YamlModuleFile $outFile
+            $readModuleFile.Metadata['newkey1'] | Should -BeExactly $newMetadata['newkey1']
+            $readModuleFile.Metadata['new key 2'] | Should -BeExactly $newMetadata['new key 2']
+        }
+
         It "Will not create a new file if one already exists" {
             $outputFolder = "${TestDrive}/new1"
             $outFile = $moduleFileInfos | Export-YamlModuleFile -OutputFolder ${outputFolder}

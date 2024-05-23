@@ -15,7 +15,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "YamlModuleFile", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "YamlModuleFile", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class ExportYamlModuleFileCommand : PSCmdlet
     {
@@ -35,30 +35,28 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
 
+        [Parameter()]
+        public Hashtable Metadata { get; set; } = new();
+
         #endregion
 
-        private string outputFolderPath = string.Empty;
+        private DirectoryInfo? outputFolder;
 
         protected override void BeginProcessing()
         {
-            outputFolderPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
-
-            if (File.Exists(outputFolderPath))
-            {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputFolderPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputFolderPath);
-                ThrowTerminatingError(err);
-            }
-
-            if (!Directory.Exists(outputFolderPath))
-            {
-                Directory.CreateDirectory(outputFolderPath);
-            }
+            outputFolder = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
         }
 
         protected override void ProcessRecord()
         {
             string moduleName;
+            if (outputFolder is null)
+            {
+                var missingOutputFolder = new ItemNotFoundException(OutputFolder);
+                ThrowTerminatingError(new ErrorRecord(missingOutputFolder, "ExportYamlModuleFile,MissingOutputFolder", ErrorCategory.ObjectNotFound, OutputFolder));
+                throw missingOutputFolder; // not reached
+            }
+
             foreach (ModuleFileInfo moduleFile in ModuleFile)
             {
                 if (moduleFile.Metadata.Contains("Module Name"))
@@ -71,7 +69,9 @@ namespace Microsoft.PowerShell.PlatyPS
                     continue;
                 }
 
-                var yamlPath = Path.Combine($"{outputFolderPath}", $"{moduleName}.yml");
+                MetadataUtils.MergeNewModulefileMetadata(Metadata, moduleFile);
+
+                var yamlPath = Path.Combine($"{outputFolder.FullName}", $"{moduleName}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?
@@ -81,7 +81,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new WriterSettings(Encoding, yamlPath);
                     var mfWrt = new ModulePageYamlWriter(settings);
-                    WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
+                    if (ShouldProcess(yamlPath))
+                    {
+                        WriteObject(this.InvokeProvider.Item.Get(mfWrt.Write(moduleFile).FullName));
+                    }
                 }
             }
         }

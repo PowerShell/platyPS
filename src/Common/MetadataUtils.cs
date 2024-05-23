@@ -280,6 +280,40 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static string[] ProtectedMetadataKeys = new string[] {
                 "PlatyPS schema version"
             };
+
+        internal static void MergeNewCommandHelpMetadata(Hashtable newMetadata, CommandHelp commandHelp)
+        {
+            if (newMetadata is null || newMetadata.Keys.Count == 0)
+            {
+                return;
+            }
+
+            if (commandHelp.Metadata is null)
+            {
+                commandHelp.Metadata = new();
+            }
+
+            // This will overwrite values in the module file
+            foreach (var key in newMetadata.Keys)
+            {
+                commandHelp.Metadata[key] = newMetadata[key];
+            }
+
+        }
+
+        internal static void MergeNewModulefileMetadata(Hashtable newMetadata, ModuleFileInfo moduleFile)
+        {
+            if (newMetadata.Keys.Count == 0)
+            {
+                return;
+            }
+
+            // This will overwrite values in the module file
+            foreach (var key in newMetadata.Keys)
+            {
+                moduleFile.Metadata[key] = newMetadata[key];
+            }
+        }
     }
 
 
