@@ -2,6 +2,7 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Management.Automation;
 using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MAML;
 using Microsoft.PowerShell.PlatyPS.Model;
+using System.Management.Automation.Language;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -27,7 +29,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
-        [ArgumentEncodingCompletions]
+        [ArgumentCompleter(typeof(EncodingCompleter))]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         [Parameter()]

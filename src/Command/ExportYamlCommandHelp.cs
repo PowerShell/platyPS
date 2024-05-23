@@ -28,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
-        [ArgumentEncodingCompletions]
+        [ArgumentCompleter(typeof(EncodingCompleter))]
         public System.Text.Encoding Encoding { get; set; } = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         [Parameter()]

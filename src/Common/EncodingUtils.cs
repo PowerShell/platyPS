@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Management.Automation;
 using System.Management.Automation.Language;
@@ -206,6 +207,20 @@ namespace Microsoft.PowerShell.PlatyPS
                     yield return new CompletionResult(str, str, CompletionResultType.ParameterValue, str);
                 }
             }
+        }
+    }
+
+    internal class EncodingCompleter : IArgumentCompleter
+    {
+        IEnumerable<CompletionResult> IArgumentCompleter.CompleteArgument(string commandName, string parameterName, string wordToComplete, CommandAst commandAst, IDictionary fakeBoundParameters)
+        {
+            return GetAllowedNames().
+                Where(new WildcardPattern(wordToComplete+"*",WildcardOptions.IgnoreCase).IsMatch).
+                Select(s => new CompletionResult(s));
+        }
+
+        private static string[] GetAllowedNames() {
+            return new string[] { "ansi", "ascii", "bigendianunicode", "bigendianutf32", "unicode", "utf7", "utf8", "utf8BOM", "utf8NoBOM", "utf32" };
         }
     }
 }
