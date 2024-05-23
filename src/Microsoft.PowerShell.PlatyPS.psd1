@@ -48,7 +48,7 @@ CmdletsToExport = @(
     'Export-YamlModuleFile',
     'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp',
-    'ConvertTo-CommandHelp',
+    'New-CommandHelp',
     'Compare-CommandHelp'
 )
 

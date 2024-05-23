@@ -2,14 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
+using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MAML;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -37,23 +34,15 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter Force { get; set; }
 
         [Parameter(Mandatory = true, Position = 1)]
-        public string OutputFile { get; set; } = string.Empty;
+        public string OutputDirectory { get; set; } = string.Empty;
 
         private List<CommandHelp> _commandHelps = new List<CommandHelp>();
-        private FileInfo? fileInfo;
         #endregion
+
+        private DirectoryInfo? outputDirectory = null;
 
         protected override void BeginProcessing()
         {
-            string fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFile);
-            fileInfo = new FileInfo(fullPath);
-
-            if (fileInfo.Exists && ! Force)
-            {
-                var exception = new InvalidOperationException($"File {fullPath} exists");
-                ErrorRecord err = new ErrorRecord(exception, "FileExists", ErrorCategory.InvalidOperation, fullPath);
-                ThrowTerminatingError(err);
-            }
         }
 
         protected override void ProcessRecord()
@@ -66,22 +55,33 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
-            if (fileInfo is null)
+            if (ShouldProcess(OutputDirectory))
             {
-                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("file is null"), "fileInfo is null", ErrorCategory.InvalidOperation, OutputFile));
-                throw new InvalidOperationException("fileInfo is null");
+                outputDirectory = PathUtils.CreateOrGetOutputDirectory(this, OutputDirectory, Force);
+            }
+            else
+            {
+                // Just report on the creation of the base directory.
+                return;
             }
 
-            if (ShouldProcess(fileInfo.FullName, "Export-MamlCommandHelp"))
+            if (outputDirectory is null)
             {
-                if (! fileInfo.Directory.Exists)
-                {
-                    Directory.CreateDirectory(fileInfo.Directory.FullName);
-                }
+                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("file is null"), "fileInfo is null", ErrorCategory.InvalidOperation, OutputDirectory));
+                throw new InvalidOperationException("fileInfo is null"); // not reached
+            }
 
+            var helpGroup = _commandHelps.GroupBy(c => c.ModuleName);
+
+            foreach(var group in helpGroup)
+            {
+                string moduleName = group.First().ModuleName;
+                var helpInfos = MamlConversionHelper.ConvertCommandHelpToMamlHelpItems(group.ToList<CommandHelp>());
                 // Convert the command help to MAML and write the file
-                var helpInfos = MamlConversionHelper.ConvertCommandHelpToMamlHelpItems(_commandHelps);
-                MamlConversionHelper.WriteToFile(helpInfos, fileInfo.FullName, Encoding);
+                var moduleDirectory = Path.Combine(outputDirectory.FullName, moduleName);
+                Directory.CreateDirectory(moduleDirectory);
+                var moduleMamlPath = Path.Combine(moduleDirectory, $"{moduleName}-Help.xml");
+                MamlConversionHelper.WriteToFile(helpInfos, moduleMamlPath, Encoding);
             }
         }
     }

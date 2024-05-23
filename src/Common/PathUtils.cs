@@ -76,5 +76,40 @@ namespace Microsoft.PowerShell.PlatyPS
 
             return new List<string>(resolvedPaths);
         }
+
+        internal static DirectoryInfo CreateOrGetOutputDirectory(PSCmdlet cmdlet, string outputDirectory, bool Force)
+        {
+            string fullPath = cmdlet.SessionState.Path.GetUnresolvedProviderPathFromPSPath(outputDirectory);
+            var fileInfo = new FileInfo(fullPath);
+
+            if (fileInfo.Exists && ! Force)
+            {
+                var exception = new InvalidOperationException($"File {fullPath} exists");
+                ErrorRecord err = new ErrorRecord(exception, "FileExists", ErrorCategory.InvalidOperation, fullPath);
+                cmdlet.ThrowTerminatingError(err);
+            }
+
+            DirectoryInfo? outputDir = null;
+
+            try
+            {
+                outputDir = Directory.CreateDirectory(fullPath);
+            }
+            catch (Exception e)
+            {
+                ErrorRecord err = new ErrorRecord(e, "CreateDirectory", ErrorCategory.OpenError, fullPath);
+                cmdlet.ThrowTerminatingError(err);
+            }
+
+            if (outputDir is null)
+            {
+                var exception = new InvalidOperationException("Error creating directory.");
+                ErrorRecord err = new ErrorRecord(exception, "CreateDirectory", ErrorCategory.InvalidOperation, fullPath);
+                cmdlet.ThrowTerminatingError(err);
+                throw exception; // not reached
+            }
+
+            return outputDir;
+        }
     }
 }

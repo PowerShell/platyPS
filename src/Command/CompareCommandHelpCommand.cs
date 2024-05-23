@@ -18,6 +18,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// </summary>
 
     [Cmdlet(VerbsData.Compare, "CommandHelp")]
+    [OutputType(typeof(System.String[]))]
     public class CompareCommandHelpCommand : PSCmdlet
     {
         /// <summary>
@@ -102,7 +103,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         if (!rDictionary.Contains(key))
                         {
-                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} does not exist in reference");
+                            DiagnosticMessages.Add($"D {spaces}  {objectPath}.{property.Name}: {key} does not exist in reference");
                             HadDifferences = true;
                         }
                     }

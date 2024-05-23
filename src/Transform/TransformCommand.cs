@@ -14,7 +14,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
         }
 
-        internal List<CommandHelp> Transform(List<CommandInfo> command)
+        internal List<CommandHelp> Transform(IEnumerable<CommandInfo> command)
         {
             List<CommandHelp> cmdHelpList = new();
             foreach(var cmd in command)

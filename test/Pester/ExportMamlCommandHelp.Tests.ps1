@@ -6,52 +6,52 @@ Describe "Export-MamlCommandHelp tests" {
         $assetDir = Join-Path $PSScriptRoot "assets"
         $markdownFiles = 'get-date.md', 'Import-Module.md', 'Invoke-Command.md', 'Out-Null.md'
         $chObjects = $markdownFiles | Foreach-Object { Import-MarkdownCommandHelp  (Join-Path $assetDir $_) }
-        $outputFile = Join-Path $TESTDRIVE "ExportMamlCommand.Help.xml"
+        $outputDirectory = Join-Path $TESTDRIVE MamlBase
     }
 
     Context "Basic Operations" {
 
         # needed by subesequent tests
         It "Should create a file" {
-            $chObjects | Export-MamlCommandHelp -OutputFile $outputFile
-            $outputFile | Should -Exist
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory
+            $outputDirectory | Should -Exist
         }
 
         # this test relies on the previous test to create the file
         It "Should have the proper default encoding" {
-            $bytes = Get-Content -Path $outputFile -AsByteStream | Select-Object -First 2
+            $bytes = Get-Content -Path $outputDirectory -AsByteStream | Select-Object -First 2
             $bytes | Should -Be 60, 63
         }
 
         It "Should have an error if the file already exists" {
-            { $chObjects | Export-MamlCommandHelp -OutputFile $outputFile } | Should -Throw
+            { $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory } | Should -Throw
         }
 
         It "Should not have an error if the file already exists and -Force is used" {
             Start-Sleep -Seconds 5
-            $chObjects | Export-MamlCommandHelp -OutputFile $outputFile -Force
-            $fi = Get-ChildItem $outputFile
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Force
+            $fi = Get-ChildItem $outputDirectory
             $fi.LastWriteTime | Should -BeGreaterThan (Get-Date).AddSeconds(-5)
         }
 
         It "Should create the file with the proper encoding" {
-            Remove-Item -Path $outputFile -ErrorAction SilentlyContinue
-            $chObjects | Export-MamlCommandHelp -OutputFile $outputFile -Encoding ([System.Text.Encoding]::Unicode)
-            $bytes = Get-Content -Path $outputFile -AsByteStream | Select-Object -First 2
+            Remove-Item -Path $outputDirectory -ErrorAction SilentlyContinue
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Encoding ([System.Text.Encoding]::Unicode)
+            $bytes = Get-Content -Path $outputDirectory -AsByteStream | Select-Object -First 2
             $bytes | Should -Be 255, 254
         }
 
         It "Using WhatIf should not result in a file" {
-            Remove-Item -Path $outputFile
-            $chObjects | Export-MamlCommandHelp -OutputFile $outputFile -WhatIf
-            $outputFile | Should -Not -Exist
+            Remove-Item -Path $outputDirectory
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -WhatIf
+            $outputDirectory | Should -Not -Exist
         }
     }
 
     Context "Content Tests" {
         BeforeAll {
-            $chObjects | Export-MamlCommandHelp -OutputFile $outputFile -Force
-            $xml = [xml](Get-Content -Path $outputFile)
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Force
+            $xml = [xml](Get-Content -Path $outputDirectory)
             $namespace = $xml.helpItems.NamespaceURI
             $ns = [System.Xml.XmlNamespaceManager]::new($xml.NameTable)
             $ns.AddNamespace('maml', $xml.helpItems.maml)

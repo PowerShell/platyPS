@@ -81,7 +81,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     $sb = "Import-Module -Max 4.99 Pester
         `$PSModuleAutoloadingPreference = 'none'
-        `$env:PSModulePath = '${OutputDir}/out:${env:PSModulePath}'
+        `$env:PSModulePath = '${OutputDir}:${env:PSModulePath}'
         Import-Module -Name '${ModuleName}' -Force
         Push-Location $pesterTestRoot
         Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath $TestPath"

@@ -18,18 +18,18 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to import a markdown file and convert it to a CommandHelp object.
     /// </summary>
-    [Cmdlet(VerbsData.ConvertTo, "CommandHelp")]
-    public sealed class ConvertToCommandHelpCommand : PSCmdlet
+    [Cmdlet(VerbsCommon.New, "CommandHelp")]
+    [OutputType(typeof(Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]))]
+    public sealed class NewCommandHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
-
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
-        public string[] CommandInfo { get; set; } = new string[0];
-
+        [ValidateNotNullOrEmpty]
+        [StringToCommandInfoTransformation]
+        public CommandInfo[] CommandInfo { get; set; } = new CommandInfo[0];
 #endregion
 
-        Collection<CommandHelp>? cmdHelpObjs = null;
-
+        List<CommandHelp>? cmdHelpObjs = null;
         TransformSettings transformSettings = new();
 
         protected override void BeginProcessing()
