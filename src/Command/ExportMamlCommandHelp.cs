@@ -78,10 +78,17 @@ namespace Microsoft.PowerShell.PlatyPS
                 string moduleName = group.First().ModuleName;
                 var helpInfos = MamlConversionHelper.ConvertCommandHelpToMamlHelpItems(group.ToList<CommandHelp>());
                 // Convert the command help to MAML and write the file
-                var moduleDirectory = Path.Combine(outputDirectory.FullName, moduleName);
-                Directory.CreateDirectory(moduleDirectory);
-                var moduleMamlPath = Path.Combine(moduleDirectory, $"{moduleName}-Help.xml");
-                MamlConversionHelper.WriteToFile(helpInfos, moduleMamlPath, Encoding);
+                // var moduleDirectory = Path.Combine(outputDirectory.FullName, moduleName);
+                // Directory.CreateDirectory(moduleDirectory);
+                var moduleMamlPath = Path.Combine(outputDirectory.FullName, $"{moduleName}-Help.xml");
+                if (File.Exists(moduleMamlPath) && ! Force)
+                {
+                    WriteError(new ErrorRecord(new ArgumentException(moduleMamlPath), "ExportMamlCommand,FilePresent", ErrorCategory.ResourceExists, moduleMamlPath));
+                }
+                else
+                {
+                    WriteObject(this.InvokeProvider.Item.Get(MamlConversionHelper.WriteToFile(helpInfos, moduleMamlPath, Encoding).FullName));
+                }
             }
         }
     }

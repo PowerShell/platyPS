@@ -22,13 +22,15 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         /// <summary>
         /// Write the help items to a file.
         /// </summary>
-        public static void WriteToFile(HelpItems helpItems, string path, Encoding encoding)
+        public static FileInfo WriteToFile(HelpItems helpItems, string path, Encoding encoding)
         {
             var outputFile = new FileInfo(path);
             using(var writer = new StreamWriter(new FileStream(outputFile.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite), encoding))
             {
                 helpItems.WriteTo(writer);
             }
+
+            return new FileInfo(outputFile.FullName);
         }
 
         /// <summary>
