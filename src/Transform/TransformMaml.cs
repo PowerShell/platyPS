@@ -552,7 +552,7 @@ namespace Microsoft.PowerShell.PlatyPS
             // we will set the required attributed to all parameter sets since MAML doesn't have a way to disambiguate.
             parameter.ParameterSets.ForEach(x => x.IsRequired = required);
             parameter.VariableLength = variableLength;
-            parameter.Globbing = globbing;
+            parameter.SupportsWildcards = globbing;
             parameter.Aliases = aliases ?? string.Empty;
 
             // need to go the end of command:parameter

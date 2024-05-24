@@ -421,7 +421,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -450,7 +450,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: LastWriteTime
   dontShow: false
   acceptedValues: []
@@ -480,7 +480,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -504,7 +504,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues:
@@ -560,7 +560,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -584,7 +584,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -601,7 +601,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -614,7 +614,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -627,7 +627,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -640,7 +640,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -666,7 +666,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -694,7 +694,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: UnixTime
   dontShow: false
   acceptedValues: []
@@ -718,7 +718,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   variableLength: true
-  globbing: false
+  supportsWildcards: false
   aliases: ''
   dontShow: false
   acceptedValues: []

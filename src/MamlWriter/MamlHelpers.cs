@@ -167,7 +167,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var newParameter = new MAML.Parameter();
             newParameter.Name = parameter.Name;
             newParameter.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
-            newParameter.SupportsGlobbing = parameter.Globbing;
+            newParameter.SupportsGlobbing = parameter.SupportsWildcards;
             newParameter.Position = parameter.ParameterSets.FirstOrDefault().Position;
             newParameter.Value = GetParameterValue(parameter);
 

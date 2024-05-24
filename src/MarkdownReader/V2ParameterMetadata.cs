@@ -42,7 +42,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Type { get; set;}
         public string DefaultValue { get; set;}
         public bool VariableLength { get; set;}
-        public bool Globbing { get; set;}
+        public bool SupportsWildcards { get; set;}
         public List<string> ParameterValue { get; set;}
         public List<string> Aliases { get; set;}
         public List<ParameterSetV2> ParameterSets { get; set; }
@@ -56,7 +56,7 @@ namespace Microsoft.PowerShell.PlatyPS
             Type = string.Empty;
             DefaultValue = string.Empty;
             VariableLength = true;
-            Globbing = false;
+            SupportsWildcards = false;
             Aliases = new List<string>();
             ParameterSets = new List<ParameterSetV2>();
             DontShow = false;

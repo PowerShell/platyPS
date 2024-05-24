@@ -29,7 +29,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         // @TODO: find out what this is for??
         public bool VariableLength { get; set;} = true;
 
-        public bool Globbing { get; set;}
+        public bool SupportsWildcards { get; set;}
 
         public string Aliases { get; set;}
 
@@ -108,7 +108,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Description = description;
             VariableLength = metadata.VariableLength;
             DefaultValue = metadata.DefaultValue;
-            Globbing = metadata.Globbing;
+            SupportsWildcards = metadata.SupportsWildcards;
             Aliases = string.Join(",", metadata.Aliases);
             DontShow = metadata.DontShow;
             AcceptedValues = metadata.AcceptedValues;
@@ -151,7 +151,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             var metadata = new ParameterMetadataV2();
             metadata.Type = Type;
             metadata.VariableLength = VariableLength;
-            metadata.Globbing = Globbing;
+            metadata.SupportsWildcards = SupportsWildcards;
 
             if (AcceptedValues is not null && AcceptedValues.Count > 0)
             {
@@ -209,7 +209,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
                 VariableLength == other.VariableLength &&
-                Globbing == other.Globbing &&
+                SupportsWildcards == other.SupportsWildcards &&
                 DontShow == other.DontShow &&
                 ParameterSets.SequenceEqual(other.ParameterSets) &&
                 (AcceptedValues is null && other.AcceptedValues is null || AcceptedValues.SequenceEqual(other.AcceptedValues))
@@ -233,7 +233,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override int GetHashCode()
         {
-            return (Name, Type, Description, Aliases, DefaultValue, HelpMessage, VariableLength, Globbing, DontShow, ParameterSets, AcceptedValues).GetHashCode();
+            return (Name, Type, Description, Aliases, DefaultValue, HelpMessage, VariableLength, SupportsWildcards, DontShow, ParameterSets, AcceptedValues).GetHashCode();
         }
 
         public static bool operator ==(Parameter parameter1, Parameter parameter2)

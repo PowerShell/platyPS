@@ -609,7 +609,7 @@ Write-Host 'Hello World!'
         }
 
         It 'sets accepts wildcards property on parameters as expected' {
-            $file | Should -FileContentMatch 'Globbing: true'
+            $file | Should -FileContentMatch 'SupportsWildcards: true'
         }
     }
 }

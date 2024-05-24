@@ -129,7 +129,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 Parameter param = new(parameterMetadata.Value.Name, typeName); 
                 param.DontShow = paramAttribInfo.DontShow;
-                param.Globbing = paramAttribInfo.Globbing;
+                param.SupportsWildcards = paramAttribInfo.Globbing;
                 param.HelpMessage = paramAttribInfo.HelpMessage ?? string.Empty;
 
                 foreach (KeyValuePair<string, ParameterSetMetadata> paramSet in parameterMetadata.Value.ParameterSets)
