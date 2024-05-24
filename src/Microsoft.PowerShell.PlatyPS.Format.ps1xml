@@ -1,0 +1,77 @@
+<Configuration>
+ <ViewDefinitions>
+  <View>
+   <Name>platyPSDetail</Name>
+   <ViewSelectedBy>
+    <TypeName>Microsoft.PowerShell.PlatyPS.MarkdownCommandHelpValidationResult</TypeName>
+   </ViewSelectedBy>
+   <Controls>
+
+   <Control>
+	 <Name>MessageList</Name>
+     <CustomControl>
+	   <CustomEntries>
+	     <CustomEntry>
+	       <CustomItem>
+			 <Frame>
+				 <LeftIndent>2</LeftIndent>
+				 <CustomItem>
+					 <ExpressionBinding></ExpressionBinding>
+					 <NewLine/>
+				 </CustomItem>
+			 </Frame>
+		   </CustomItem>
+		 </CustomEntry>
+	   </CustomEntries>
+	 </CustomControl>
+   </Control>
+   </Controls>
+
+   <CustomControl>
+    <CustomEntries>
+     <CustomEntry>
+      <CustomItem>
+       <Text>Test-MarkdownCommandHelp</Text>
+       <NewLine/>
+       <Text>Valid: </Text>
+       <Frame>
+        <LeftIndent>2</LeftIndent>
+        <CustomItem>
+         <ExpressionBinding>
+          <PropertyName>IsValid</PropertyName>
+         </ExpressionBinding>
+         <NewLine/>
+        </CustomItem>
+       </Frame>
+       <Text>File: </Text>
+       <Frame>
+        <LeftIndent>2</LeftIndent>
+        <CustomItem>
+         <ExpressionBinding>
+          <PropertyName>Path</PropertyName>
+         </ExpressionBinding>
+         <NewLine/>
+        </CustomItem>
+       </Frame>
+       <NewLine/>
+       <Text>Messages:</Text>
+       <NewLine/>
+       <Frame>
+        <LeftIndent>0</LeftIndent>
+         <CustomItem>
+          <ExpressionBinding>
+           <PropertyName>Messages</PropertyName>
+		   <CustomControlName>MessageList</CustomControlName>
+           <EnumerateCollection/>
+          </ExpressionBinding>
+          <NewLine/>
+        </CustomItem>
+       </Frame>
+       <NewLine/>
+      </CustomItem>
+     </CustomEntry>
+    </CustomEntries>
+   </CustomControl>
+  </View>
+ </ViewDefinitions>
+</Configuration>

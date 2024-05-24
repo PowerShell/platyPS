@@ -30,6 +30,8 @@ Description = 'Generate PowerShell External Help files from Markdown'
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
 NestedModules = @('Microsoft.PowerShell.PlatyPS.dll')
 
+FormatsToProcess = @('Microsoft.PowerShell.PlatyPS.Format.ps1xml')
+
 # Functions to export from this module
 FunctionsToExport = @()
 
