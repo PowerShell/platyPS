@@ -1,0 +1,2427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" schema="maml" xmlns="http://msh">
+  <command:command>
+    <command:details>
+      <command:name>Get-ChildItem</command:name>
+      <maml:description>
+        <maml:para>Gets the items and child items in one or more specified locations.</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>ChildItem</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para>The `Get-ChildItem` cmdlet gets the items in one or more specified locations. If the item is a container, it gets the items inside the container, known as child items. You can use the **Recurse** parameter to get items in all child containers and use the **Depth** parameter to limit the number of levels to recurse.</maml:para>
+      <maml:para>`Get-ChildItem` doesn't display empty directories. When a `Get-ChildItem` command includes the **Depth** or **Recurse** parameters, empty directories aren't included in the output.</maml:para>
+      <maml:para>Locations are exposed to `Get-ChildItem` by PowerShell providers. A location can be a file system directory, registry hive, or a certificate store. Some parameters are only available for a specific provider. For more information, see [about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="0" aliases="none">
+          <maml:name>Path</maml:name>
+          <maml:description>
+            <maml:para>Specifies a path to one or more locations. Wildcards are accepted. The default location is the
+current directory (`.`).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>LiteralPath</maml:name>
+          <maml:description>
+            <maml:para>Specifies a path to one or more locations. The value of **LiteralPath** is used exactly as it's
+typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose
+it in single quotation marks. Single quotation marks tell PowerShell to not interpret any characters
+as escape sequences.</maml:para>
+            <maml:para>For more information, see [about_Quoting_Rules](../Microsoft.Powershell.Core/About/about_Quoting_Rules.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+      <command:syntaxItem>
+        <maml:name>Get-ChildItem</maml:name>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Attributes</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+            <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+            <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+            <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+            <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+            <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+            <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+            <maml:para>To combine attributes, use the following operators:</maml:para>
+            <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+            <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+            <maml:para>For common attributes, use the following abbreviations:</maml:para>
+            <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>CodeSigningCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Depth</maml:name>
+          <maml:description>
+            <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+            <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+            <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Directory</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DnsName</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>DocumentEncryptionCert</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Eku</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Exclude</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+            <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ExpiringInDays</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+            <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>File</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+          <maml:name>Filter</maml:name>
+          <maml:description>
+            <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>FollowSymlink</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+            <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Force</maml:name>
+          <maml:description>
+            <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Hidden</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Include</maml:name>
+          <maml:description>
+            <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+            <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Name</maml:name>
+          <maml:description>
+            <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>ReadOnly</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>Recurse</maml:name>
+          <maml:description>
+            <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>SSLServerAuthentication</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+            <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+        <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+          <maml:name>System</maml:name>
+          <maml:description>
+            <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+            <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+          </maml:description>
+          <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+        </command:parameter>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Attributes</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>Gets files and folders with the specified attributes. This parameter supports all attributes and
+lets you specify complex combinations of attributes.</maml:para>
+          <maml:para>For example, to get non-system files (not directories) that are encrypted or compressed, type:</maml:para>
+          <maml:para>`Get-ChildItem -Attributes !Directory+!System+Encrypted, !Directory+!System+Compressed`</maml:para>
+          <maml:para>To find files and folders with commonly used attributes, use the **Attributes** parameter. Or, the
+parameters **Directory**, **File**, **Hidden**, **ReadOnly**, and **System**.</maml:para>
+          <maml:para>The **Attributes** parameter supports the following properties:</maml:para>
+          <maml:para>- **Archive**
+- **Compressed**
+- **Device**
+- **Directory**
+- **Encrypted**
+- **Hidden**
+- **IntegrityStream**
+- **Normal**
+- **NoScrubData**
+- **NotContentIndexed**
+- **Offline**
+- **ReadOnly**
+- **ReparsePoint**
+- **SparseFile**
+- **System**
+- **Temporary**</maml:para>
+          <maml:para>For a description of these attributes, see the [FileAttributes Enumeration](/dotnet/api/system.io.fileattributes).</maml:para>
+          <maml:para>To combine attributes, use the following operators:</maml:para>
+          <maml:para>- `!` (NOT)
+- `+` (AND)
+- `,` (OR)</maml:para>
+          <maml:para>Don't use spaces between an operator and its attribute. Spaces are accepted after commas.</maml:para>
+          <maml:para>For common attributes, use the following abbreviations:</maml:para>
+          <maml:para>- `D` (Directory)
+- `H` (Hidden)
+- `R` (Read-only)
+- `S` (System)</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.FlagsExpression`1[System.IO.FileAttributes]</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>CodeSigningCert</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>To get a list of certificates that have `Code Signing` in their **EnhancedKeyUsageList** property
+value, use the **CodeSigningCert** parameter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Depth</maml:name>
+        <maml:description>
+          <maml:para>This parameter was added in PowerShell 5.0 and enables you to control the depth of recursion. By
+default, `Get-ChildItem` displays the contents of the parent directory. The **Depth** parameter
+determines the number of subdirectory levels that are included in the recursion and displays the
+contents.</maml:para>
+          <maml:para>For example, `-Depth 2` includes the **Path** parameter's directory, first level of subdirectories,
+and second level of subdirectories. By default directory names and filenames are included in the
+output.</maml:para>
+          <maml:para>&gt; [!NOTE]
+&gt; On a Windows computer from PowerShell or **cmd.exe**, you can display a graphical view of a
+&gt; directory structure with the **tree.com** command.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.UInt32</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Directory</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>To get a list of directories, use the **Directory** parameter or the **Attributes** parameter with
+the **Directory** property. You can use the **Recurse** parameter with **Directory**.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>DnsName</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>Specifies a domain name or name pattern to match with the **DNSNameList** property of certificates
+the cmdlet gets. The value of this parameter can either be `Unicode` or `ASCII`. Punycode values
+are converted to Unicode. Wildcard characters (`*`) are permitted.</maml:para>
+          <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">Microsoft.PowerShell.Commands.DnsNameRepresentation</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>DocumentEncryptionCert</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>To get a list of certificates that have `Document Encryption` in their **EnhancedKeyUsageList**
+property value, use the **DocumentEncryptionCert** parameter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Eku</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>Specifies text or a text pattern to match with the **EnhancedKeyUsageList** property of
+certificates the cmdlet gets. Wildcard characters (`*`) are permitted. The **EnhancedKeyUsageList**
+property contains the friendly name and the OID fields of the EKU.</maml:para>
+          <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Exclude</maml:name>
+        <maml:description>
+          <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is excluded from the output. Enter a path element or pattern, such as `*.txt` or `A*`.
+Wildcard characters are accepted.</maml:para>
+          <maml:para>A trailing asterisk (`*`) in the **Path** parameter is optional. For example, `-Path C:\Test\Logs`
+or `-Path C:\Test\Logs\*`. If a trailing asterisk (`*`) is included, the command recurses into the
+**Path** parameter's subdirectories. Without the asterisk (`*`), the contents of the **Path**
+parameter are displayed. More details are included in Example 5 and the Notes section.</maml:para>
+          <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ExpiringInDays</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>Specifies that the cmdlet should only return certificates that are expiring in or before the
+specified number of days. A value of zero (`0`) gets certificates that have expired.</maml:para>
+          <maml:para>This parameter was reintroduced in PowerShell 7.1</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Int32</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>File</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>To get a list of files, use the **File** parameter. You can use the **Recurse** parameter with
+**File**.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="1" aliases="none">
+        <maml:name>Filter</maml:name>
+        <maml:description>
+          <maml:para>Specifies a filter to qualify the **Path** parameter. The
+[FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider is the only
+installed PowerShell provider that supports filters. Filters are more efficient than other
+parameters. The provider applies filter when the cmdlet gets the objects rather than having
+PowerShell filter the objects after they're retrieved. The filter string is passed to the .NET API
+to enumerate files. The API only supports `*` and `?` wildcards.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.String</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>FollowSymlink</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>By default, the `Get-ChildItem` cmdlet displays symbolic links to directories found during
+recursion, but doesn't recurse into them. Use the **FollowSymlink** parameter to search the
+directories that target those symbolic links. The **FollowSymlink** is a dynamic parameter and is
+supported only in the **FileSystem** provider.</maml:para>
+          <maml:para>This parameter was introduced in PowerShell 6.0.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Force</maml:name>
+        <maml:description>
+          <maml:para>Allows the cmdlet to get items that otherwise can't be accessed by the user, such as hidden or
+system files. The **Force** parameter doesn't override security restrictions. Implementation varies
+among providers. For more information, see
+[about_Providers](../Microsoft.PowerShell.Core/About/about_Providers.md).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Hidden</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>To get only hidden items, use the **Hidden** parameter or the **Attributes** parameter with the
+**Hidden** property. By default, `Get-ChildItem` doesn't display hidden items. Use the **Force**
+parameter to get hidden items.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Include</maml:name>
+        <maml:description>
+          <maml:para>Specifies an array of one or more string patterns to be matched as the cmdlet gets child items. Any
+matching item is included in the output. Enter a path element or pattern, such as `"*.txt"`.
+Wildcard characters are permitted. The **Include** parameter is effective only when the command
+includes the contents of an item, such as `C:\Windows\*`, where the wildcard character specifies the
+contents of the `C:\Windows` directory.</maml:para>
+          <maml:para>The **Include** and **Exclude** parameters can be used together. However, the exclusions are applied
+after the inclusions, which can affect the final output.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>LiteralPath</maml:name>
+        <maml:description>
+          <maml:para>Specifies a path to one or more locations. The value of **LiteralPath** is used exactly as it's
+typed. No characters are interpreted as wildcards. If the path includes escape characters, enclose
+it in single quotation marks. Single quotation marks tell PowerShell to not interpret any characters
+as escape sequences.</maml:para>
+          <maml:para>For more information, see [about_Quoting_Rules](../Microsoft.Powershell.Core/About/about_Quoting_Rules.md).</maml:para>
+        </maml:description>
+        <command:parameterValue required="true" variableLength="true">System.String[]</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Name</maml:name>
+        <maml:description>
+          <maml:para>Gets only the names of the items in the location. The output is a string object that can be sent
+down the pipeline to other commands. The names returned are relative to the value of the **Path**
+parameter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="true" pipelineInput="false" position="0" aliases="none">
+        <maml:name>Path</maml:name>
+        <maml:description>
+          <maml:para>Specifies a path to one or more locations. Wildcards are accepted. The default location is the
+current directory (`.`).</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.String[]</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>ReadOnly</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>To get only read-only items, use the **ReadOnly** parameter or the **Attributes** parameter
+**ReadOnly** property.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>Recurse</maml:name>
+        <maml:description>
+          <maml:para>Gets the items in the specified locations and in all child items of the locations.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>SSLServerAuthentication</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [Certificate](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md) provider.</maml:para>
+          <maml:para>To get a list of certificates that have `Server Authentication` in their **EnhancedKeyUsageList**
+property value, use the **SSLServerAuthentication** parameter.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+      <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="Named" aliases="none">
+        <maml:name>System</maml:name>
+        <maml:description>
+          <maml:para>&gt; [!NOTE]
+&gt; This parameter is only available in the
+&gt; [FileSystem](../Microsoft.PowerShell.Core/About/about_FileSystem_Provider.md) provider.</maml:para>
+          <maml:para>Gets only system files and directories. To get only system files and folders, use the **System**
+parameter or **Attributes** parameter **System** property.</maml:para>
+        </maml:description>
+        <command:parameterValue required="false" variableLength="true">System.Management.Automation.SwitchParameter</command:parameterValue>
+      </command:parameter>
+    </command:parameters>
+    <command:inputTypes>
+      <command:inputType>
+        <dev:type>
+          <dev:name>System.String</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>You can pipe a string that contains a path to this cmdlet.</maml:para>
+        </maml:description>
+      </command:inputType>
+    </command:inputTypes>
+    <command:returnValues>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Management.Automation.AliasInfo</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs this type when accessing the `Alias:` drive.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>Microsoft.PowerShell.Commands.X509StoreLocation</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Security.Cryptography.X509Certificates.X509Store</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Security.Cryptography.X509Certificates.X509Certificate2</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs these types when accessing the `Cert:` drive.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Collections.DictionaryEntry</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs this type when accessing the `Env:` drive.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.IO.DirectoryInfo</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.IO.FileInfo</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs these types when accessing the Filesystem drives.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Management.Automation.FunctionInfo</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Management.Automation.FilterInfo</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs these types when accessing the `Function:` drives.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>Microsoft.Win32.RegistryKey</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs this type when accessing the Registry drives.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.Management.Automation.PSVariable</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs this type when accessing the `Variable:` drives.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>Microsoft.WSMan.Management.WSManConfigContainerElement</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para />
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>Microsoft.WSMan.Management.WSManConfigLeafElement</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>The cmdlet outputs these types when accessing the `WSMan:` drives.</maml:para>
+        </maml:description>
+      </command:returnValue>
+      <command:returnValue>
+        <dev:type>
+          <dev:name>System.String</dev:name>
+        </dev:type>
+        <maml:description>
+          <maml:para>When you use the **Name** parameter, this cmdlet returns the object names as strings.</maml:para>
+        </maml:description>
+      </command:returnValue>
+    </command:returnValues>
+    <maml:alertSet />
+    <command:examples>
+      <command:example>
+        <maml:title>--------- Example 1: Example 1: Get child items from a file system directory ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example gets the child items from a file system directory. The filenames and subdirectory
+names are displayed. For empty locations, the command doesn't return any output and returns to the
+PowerShell prompt.</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify the directory `C:\Test`.
+`Get-ChildItem` displays the files and directories in the PowerShell console.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Test
+```</maml:para>
+          <maml:para>```Output
+   Directory: C:\Test</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/15/2019     08:29                Logs
+-a----        2/13/2019     08:55             26 anotherfile.txt
+-a----        2/12/2019     15:40         118014 Command.txt
+-a----         2/1/2019     08:43            183 CreateTestFile.ps1
+-ar---        2/12/2019     14:31             27 ReadOnlyFile.txt
+```</maml:para>
+          <maml:para>By default `Get-ChildItem` lists the mode (**Attributes**), **LastWriteTime**, file size
+(**Length**), and the **Name** of the item. The letters in the **Mode** property can be interpreted
+as follows:</maml:para>
+          <maml:para>- `l` (link)
+- `d` (directory)
+- `a` (archive)
+- `r` (read-only)
+- `h` (hidden)
+- `s` (system)</maml:para>
+          <maml:para>For more information about the mode flags, see
+[about_Filesystem_Provider](../microsoft.powershell.core/about/about_filesystem_provider.md#attributes-flagsexpression).</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 2: Example 2: Get child item names in a directory ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example lists only the names of items in a directory.</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify the directory `C:\Test`. The
+**Name** parameter returns only the file or directory names from the specified path. The names
+returned are relative to the value of the **Path** parameter.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Test -Name
+```</maml:para>
+          <maml:para>```Output
+Logs
+anotherfile.txt
+Command.txt
+CreateTestFile.ps1
+ReadOnlyFile.txt
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 3: Example 3: Get child items in the current directory and subdirectories ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example displays `.txt` files that are located in the current directory and its
+subdirectories.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path .\*.txt -Recurse -Force
+```</maml:para>
+          <maml:para>```Output
+    Directory: C:\Test\Logs\Adirectory</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        2/12/2019     16:16             20 Afile4.txt
+-a-h--        2/12/2019     15:52             22 hiddenfile.txt
+-a----        2/13/2019     13:26             20 LogFile4.txt</maml:para>
+          <maml:para>Directory: C:\Test\Logs\Backup</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        2/12/2019     16:16             20 ATextFile.txt
+-a----        2/12/2019     15:50             20 LogFile3.txt</maml:para>
+          <maml:para>Directory: C:\Test\Logs</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        2/12/2019     16:16             20 Afile.txt
+-a-h--        2/12/2019     15:52             22 hiddenfile.txt
+-a----        2/13/2019     13:26             20 LogFile1.txt</maml:para>
+          <maml:para>Directory: C:\Test</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        2/13/2019     08:55             26 anotherfile.txt
+-a----        2/12/2019     15:40         118014 Command.txt
+-a-h--        2/12/2019     15:52             22 hiddenfile.txt
+-ar---        2/12/2019     14:31             27 ReadOnlyFile.txt
+```</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify `C:\Test\*.txt`. **Path** uses the
+asterisk (`*`) wildcard to specify all files with the filename extension `.txt`. The **Recurse**
+parameter searches the **Path** directory its subdirectories, as shown in the **Directory:**
+headings. The **Force** parameter displays hidden files such as `hiddenfile.txt` that have a mode of
+**h**.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 4: Example 4: Get child items using the Include parameter ---------</maml:title>
+        <maml:introduction>
+          <maml:para>In this example `Get-ChildItem` uses the **Include** parameter to find specific items from the
+directory specified by the **Path** parameter.</maml:para>
+          <maml:para>```powershell
+# When using the -Include parameter, if you don't include an asterisk in the path
+# the command returns no output.
+Get-ChildItem -Path C:\Test\ -Include *.txt
+```</maml:para>
+          <maml:para>```Output</maml:para>
+          <maml:para>```</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Test\* -Include *.txt
+```</maml:para>
+          <maml:para>```Output
+    Directory: C:\Test</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+-a----        2/13/2019     08:55             26 anotherfile.txt
+-a----        2/12/2019     15:40         118014 Command.txt
+-ar---        2/12/2019     14:31             27 ReadOnlyFile.txt
+```</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify the directory `C:\Test`. The
+**Path** parameter includes a trailing asterisk (`*`) wildcard to specify the directory's contents.
+The **Include** parameter uses an asterisk (`*`) wildcard to specify all files with the file name
+extension `.txt`.</maml:para>
+          <maml:para>When the **Include** parameter is used, the **Path** parameter needs a trailing asterisk (`*`)
+wildcard to specify the directory's contents. For example, `-Path C:\Test\*`.</maml:para>
+          <maml:para>- If the **Recurse** parameter is added to the command, the trailing asterisk (`*`) in the **Path**
+  parameter is optional. The **Recurse** parameter gets items from the **Path** directory and its
+  subdirectories. For example, `-Path C:\Test\ -Recurse -Include *.txt`
+- If a trailing asterisk (`*`) isn't included in the **Path** parameter, the command doesn't return
+  any output and returns to the PowerShell prompt. For example, `-Path C:\Test\`.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 5: Example 5: Get child items using the Exclude parameter ---------</maml:title>
+        <maml:introduction>
+          <maml:para>The example's output shows the contents of the directory `C:\Test\Logs`. The output is a reference
+for the other commands that use the **Exclude** and **Recurse** parameters.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Test\Logs
+```</maml:para>
+          <maml:para>```Output
+    Directory: C:\Test\Logs</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/15/2019     13:21                Adirectory
+d-----        2/15/2019     08:28                AnEmptyDirectory
+d-----        2/15/2019     13:21                Backup
+-a----        2/12/2019     16:16             20 Afile.txt
+-a----        2/13/2019     13:26             20 LogFile1.txt
+-a----        2/12/2019     16:24             23 systemlog1.log
+```</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Test\Logs\* -Exclude A*
+```</maml:para>
+          <maml:para>```Output
+    Directory: C:\Test\Logs</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/15/2019     13:21                Backup
+-a----        2/13/2019     13:26             20 LogFile1.txt
+-a----        2/12/2019     16:24             23 systemlog1.log
+```</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify the directory `C:\Test\Logs`. The
+**Exclude** parameter uses the asterisk (`*`) wildcard to specify any files or directories that
+begin with `A` or `a` are excluded from the output.</maml:para>
+          <maml:para>When the **Exclude** parameter is used, a trailing asterisk (`*`) in the **Path** parameter is
+optional. For example, `-Path C:\Test\Logs` or `-Path C:\Test\Logs\*`.</maml:para>
+          <maml:para>- If a trailing asterisk (`*`) isn't included in the **Path** parameter, the contents of the
+  **Path** parameter are displayed. The exceptions are filenames or subdirectory names that match
+  the **Exclude** parameter's value.
+- If a trailing asterisk (`*`) is included in the **Path** parameter, the command recurses into the
+  **Path** parameter's subdirectories. The exceptions are filenames or subdirectory names that match
+  the **Exclude** parameter's value.
+- If the **Recurse** parameter is added to the command, the recursion output is the same whether or
+  not the **Path** parameter includes a trailing asterisk (`*`).</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 6: Example 6: Get the registry keys from a registry hive ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example gets all the registry keys from `HKEY_LOCAL_MACHINE\HARDWARE`.</maml:para>
+          <maml:para>`Get-ChildItem` uses the **Path** parameter to specify the registry key `HKLM:\HARDWARE`. The hive's
+path and top level of registry keys are displayed in the PowerShell console.</maml:para>
+          <maml:para>For more information, see
+[about_Registry_Provider](../Microsoft.PowerShell.Core/About/about_Registry_Provider.md).</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path HKLM:\HARDWARE
+```</maml:para>
+          <maml:para>```Output
+    Hive: HKEY_LOCAL_MACHINE\HARDWARE</maml:para>
+          <maml:para>Name             Property
+----             --------
+ACPI
+DESCRIPTION
+DEVICEMAP
+RESOURCEMAP
+UEFI
+```</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path HKLM:\HARDWARE -Exclude D*
+```</maml:para>
+          <maml:para>```Output
+   Hive: HKEY_LOCAL_MACHINE\HARDWARE</maml:para>
+          <maml:para>Name                           Property
+----                           --------
+ACPI
+RESOURCEMAP
+```</maml:para>
+          <maml:para>The first command shows the contents of the `HKLM:\HARDWARE` registry key. The **Exclude** parameter
+tells `Get-ChildItem` not to return any subkeys that start with `D*`. Currently, the **Exclude**
+parameter only works on subkeys, not item properties.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 7: Example 7: Get all certificates with code-signing authority ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example gets each certificate in the PowerShell `Cert:` drive that has code-signing authority.</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify the Certificate provider with the
+`Cert:` drive. The **Recurse** parameter searches the directory specified by **Path** and its
+subdirectories. The **CodeSigningCert** parameter gets only certificates that have code-signing
+authority.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path Cert:\* -Recurse -CodeSigningCert
+```</maml:para>
+          <maml:para>For more information about the Certificate provider and the `Cert:` drive,
+see [about_Certificate_Provider](../Microsoft.PowerShell.Security/About/about_Certificate_Provider.md).</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 8: Example 8: Get items using the Depth parameter ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example displays the items in a directory and its subdirectories. The **Depth** parameter
+determines the number of subdirectory levels to include in the recursion. Empty directories are
+excluded from the output.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\Parent -Depth 2
+```</maml:para>
+          <maml:para>```Output
+    Directory: C:\Parent</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/14/2019     10:24                SubDir_Level1
+-a----        2/13/2019     08:55             26 file.txt</maml:para>
+          <maml:para>Directory: C:\Parent\SubDir_Level1</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/14/2019     10:24                SubDir_Level2
+-a----        2/13/2019     08:55             26 file.txt</maml:para>
+          <maml:para>Directory: C:\Parent\SubDir_Level1\SubDir_Level2</maml:para>
+          <maml:para>Mode                LastWriteTime         Length Name
+----                -------------         ------ ----
+d-----        2/14/2019     10:22                SubDir_Level3
+-a----        2/13/2019     08:55             26 file.txt
+```</maml:para>
+          <maml:para>The `Get-ChildItem` cmdlet uses the **Path** parameter to specify `C:\Parent`. The **Depth**
+parameter specifies two levels of recursion. `Get-ChildItem` displays the contents of the directory
+specified by the **Path** parameter and the two levels of subdirectories.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 9: Example 9: Getting hard link information ---------</maml:title>
+        <maml:introduction>
+          <maml:para>In PowerShell 6.2, an alternate view was added to get hard link information.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem -Path C:\PathContainingHardLink | Format-Table -View childrenWithHardLink
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 10: Example 10: Output for Non-Windows Operating Systems ---------</maml:title>
+        <maml:introduction>
+          <maml:para>In PowerShell 7.1 on Unix systems, the `Get-ChildItem` provides Unix-like output:</maml:para>
+          <maml:para>```powershell
+PS&gt; Get-ChildItem /etc/r*
+```</maml:para>
+          <maml:para>```Output
+    Directory: /etc</maml:para>
+          <maml:para>UnixMode   User Group    LastWriteTime Size Name
+--------   ---- -----    ------------- ---- ----
+drwxr-xr-x root wheel  9/30/2019 19:19  128 racoon
+-rw-r--r-- root wheel  9/26/2019 18:20 1560 rc.common
+-rw-r--r-- root wheel  7/31/2017 17:30 1560 rc.common~previous
+-rw-r--r-- root wheel  9/27/2019 20:34 5264 rc.netboot
+lrwxr-xr-x root wheel  11/8/2019 15:35   22 resolv.conf -&gt; /private/var/run/resolv.conf
+-rw-r--r-- root wheel 10/23/2019 17:41    0 rmtab
+-rw-r--r-- root wheel 10/23/2019 17:41 1735 rpc
+-rw-r--r-- root wheel  7/25/2017 18:37 1735 rpc~previous
+-rw-r--r-- root wheel 10/23/2019 18:42  891 rtadvd.conf
+-rw-r--r-- root wheel  8/24/2017 21:54  891 rtadvd.conf~previous
+```</maml:para>
+          <maml:para>The new properties that are now part of the output are:</maml:para>
+          <maml:para>- **UnixMode** is the file permissions as represented on a Unix system
+- **User** is the file owner
+- **Group** is the group owner
+- **Size** is the size of the file or directory as represented on a Unix system</maml:para>
+          <maml:para>&gt; [!NOTE]
+&gt; This feature was moved from experimental to mainstream in PowerShell 7.1.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 11: Example 11: Get the link target for a junction point ---------</maml:title>
+        <maml:introduction>
+          <maml:para>The `dir` command in the Windows Command Shell shows the target location of a filesystem junction
+point. In PowerShell, this information is available from the **LinkTarget** property of the
+filesystem object returned by `Get-ChildItem` and is displayed in the default output.</maml:para>
+          <maml:para>```powershell
+PS D:\&gt; New-Item -ItemType Junction -Name tmp -Target $env:TEMP
+PS D:\&gt; Get-ChildItem | Select-Object name,LinkTarget</maml:para>
+          <maml:para>Name     LinkTarget
+----     ----------
+tmp      C:\Users\user1\AppData\Local\Temp</maml:para>
+          <maml:para>PS D:\&gt; Get-ChildItem</maml:para>
+          <maml:para>Directory: D:\</maml:para>
+          <maml:para>Mode          LastWriteTime    Length Name
+----          -------------    ------ ----
+l----   12/16/2021  9:29 AM           tmp -&gt; C:\Users\user1\AppData\Local\Temp
+```</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+      <command:example>
+        <maml:title>--------- Example 12: Example 12: Get the link target for an AppX reparse point ---------</maml:title>
+        <maml:introduction>
+          <maml:para>This example attempts to get the target information for an AppX reparse point. Microsoft Store
+applications create AppX reparse points in the user's AppData directory.</maml:para>
+          <maml:para>```powershell
+Get-ChildItem ~\AppData\Local\Microsoft\WindowsApps\MicrosoftEdge.exe |
+    Select-Object Mode, LinkTarget, LinkType, Name
+```</maml:para>
+          <maml:para>```Output
+Mode  LinkTarget LinkType Name
+----  ---------- -------- ----
+la---                     MicrosoftEdge.exe
+```</maml:para>
+          <maml:para>At this time, Windows doesn't provide a way to get the target information for an AppX reparse point.
+The **LinkTarget** and **LinkType** properties of the filesystem object are empty.</maml:para>
+        </maml:introduction>
+        <dev:code />
+        <dev:remarks />
+      </command:example>
+    </command:examples>
+    <command:relatedLinks />
+  </command:command>
+</helpItems>
