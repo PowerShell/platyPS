@@ -2,10 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
+using System.Security.Policy;
 using System.Text;
 
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -59,7 +61,8 @@ namespace Microsoft.PowerShell.PlatyPS
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(commandInfo, helpItem));
             cmdHelp.Description = GetDescription(helpItem, addDefaultStrings);
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
-            cmdHelp.AddParameterRange(GetParameters(commandInfo, helpItem, addDefaultStrings));
+            var parameters = GetParameters(commandInfo, helpItem, addDefaultStrings);
+            cmdHelp.AddParameterRange(parameters);
 
             cmdHelp.HasCmdletBinding = (commandInfo is FunctionInfo funcInfo && funcInfo.CmdletBinding) ||
                 commandInfo is CmdletInfo ||
@@ -75,6 +78,42 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
+            foreach(var input in GetInputInfo(commandInfo.Parameters.Values, helpItem, addDefaultStrings))
+            {
+                cmdHelp.AddInputItem(input);
+            }
+
+            foreach(var output in GetOutputInfo(commandInfo, helpItem, addDefaultStrings))
+            {
+                cmdHelp.AddOutputItem(output);
+            }
+
+            cmdHelp.Notes = GetNotes(helpItem, addDefaultStrings);
+            cmdHelp.AddRelatedLinksRange(GetRelatedLinks(helpItem));
+
+            return cmdHelp;
+        }
+
+
+        // We don't want to return any arrays, so trim the last "[]" if it is found;
+        // We can also simplify the string if desired.
+        private string GetAdjustedTypename(Type t, bool simplify = false)
+        {
+            string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t) : tName = t.FullName;
+            if (tName.EndsWith("[]"))
+            {
+                tName = tName.Remove(tName.Length - 2);
+            }
+
+            return tName;
+        }
+
+        // We need to inspect both the help and the parameters for those that take pipeline input.
+        private List<InputOutput> GetInputInfo(IEnumerable<ParameterMetadata> parameters, dynamic? helpItem, bool addDefaultStrings)
+        {
+            List<InputOutput> inputList = new();
+            HashSet<string> inputTypeNames = new();
+
             // Sometime the help content does not have any input type
             if (helpItem?.inputTypes?.inputType is not null)
             {
@@ -84,27 +123,77 @@ namespace Microsoft.PowerShell.PlatyPS
                         addDefaultStrings ? Constants.FillInDescription : string.Empty);
                 if (ioItem is not null)
                 {
-                    cmdHelp.AddInputItem(ioItem);
+                    if (! inputTypeNames.Contains(ioItem.Typename))
+                    {
+                        inputList.Add(ioItem);
+                        inputTypeNames.Add(ioItem.Typename);
+                    }
                 }
             }
+
+            foreach(var parameter in parameters)
+            {
+                string parameterType = GetAdjustedTypename(parameter.ParameterType);
+                foreach(var pSet in parameter.ParameterSets)
+                {
+                    if (pSet.Value.ValueFromPipeline || pSet.Value.ValueFromPipelineByPropertyName)
+                    {
+                        if (! inputTypeNames.Contains(parameterType))
+                        {
+                            inputList.Add(new InputOutput(parameterType, Constants.FillInDescription));
+                            inputTypeNames.Add(parameterType);
+                        }
+                    }
+                }
+            }
+
+            return inputList;
+        }
+
+        private List<InputOutput> GetOutputInfo(CommandInfo commandInfo, dynamic? helpItem, bool addDefaultStrings)
+        {
+            List<InputOutput> outputList = new();
+            List<string> outputTypeList = new();
 
             // Sometime the help content does not have any output type
             if (helpItem?.returnValues?.returnValue is not null)
             {
-                var ioItem = GetInputOutputItem(
-                        helpItem.returnValues.returnValue,
-                        addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
-                        addDefaultStrings ? Constants.FillInDescription : string.Empty);
-                if (ioItem is not null)
+                if (helpItem.returnValues.returnValue is IEnumerable)
                 {
-                    cmdHelp.AddOutputItem(ioItem);
+                    foreach(var value in helpItem.returnValues.returnValue)
+                    {
+                        var ioItem = GetInputOutputItem(
+                                value,
+                                addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
+                                addDefaultStrings ? Constants.FillInDescription : string.Empty);
+                        if (ioItem is not null)
+                        {
+                            if(! outputTypeList.Contains(ioItem.Typename))
+                            {
+                                outputList.Add(ioItem);
+                                outputTypeList.Add(ioItem.Typename);
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    var ioItem = GetInputOutputItem(
+                            helpItem.returnValues.returnValue,
+                            addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
+                            addDefaultStrings ? Constants.FillInDescription : string.Empty);
+                    if (ioItem is not null)
+                    {
+                        if(! outputTypeList.Contains(ioItem.Typename))
+                        {
+                            outputList.Add(ioItem);
+                            outputTypeList.Add(ioItem.Typename);
+                        }
+                    }
                 }
             }
 
-            cmdHelp.Notes = GetNotes(helpItem, addDefaultStrings);
-            cmdHelp.AddRelatedLinksRange(GetRelatedLinks(helpItem));
-
-            return cmdHelp;
+            return outputList;
         }
 
         protected IEnumerable<Parameter> GetParameters(CommandInfo cmdletInfo, dynamic? helpItem, bool addDefaultString)
