@@ -1,9 +1,9 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Describe "ConvertTo-CommandHelp tests" {
+Describe "New-CommandHelp tests" {
     BeforeAll {
-        $result = ConvertTo-CommandHelp ConvertTo-CommandHelp
+        $result = New-CommandHelp New-CommandHelp
     }
 
     It "Should return a command help object" {
@@ -12,7 +12,7 @@ Describe "ConvertTo-CommandHelp tests" {
 
     It "Should have the appropriate metadata properties and values '<key> = <value>'" -TestCases @(
         @{ Key = "content type"; Value = "cmdlet" }
-        @{ Key = "title"; Value = "ConvertTo-CommandHelp" }
+        @{ Key = "title"; Value = "New-CommandHelp" }
         @{ Key = "Module Name"; Value = "microsoft.powershell.platyPS" }
         @{ Key = "Locale" ; Value = "{{ fill in locale }}" }
         @{ Key = "PlatyPS schema version"; Value = "2024-05-01" }
@@ -26,14 +26,14 @@ Describe "ConvertTo-CommandHelp tests" {
 
     It "Should be possible to retrieve from multiple commands" {
         $cmdInfo = Get-Command -Module Microsoft.PowerShell.PlatyPS
-        $chs = ConvertTo-CommandHelp $cmdInfo
+        $chs = New-CommandHelp $cmdInfo
         $chs.Count | Should -Be $cmdInfo.Count
         $chs.title | Should -Be $cmdInfo.Name
     }
 
     It "Should be possible to retrieve from multiple commands via pipeline" {
         $cmdInfo = Get-Command -Module Microsoft.PowerShell.PlatyPS
-        $chs = $cmdInfo | ConvertTo-CommandHelp
+        $chs = $cmdInfo | New-CommandHelp
         $chs.Count | Should -Be $cmdInfo.Count
         $chs.title | Should -Be $cmdInfo.Name
     }

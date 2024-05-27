@@ -325,11 +325,19 @@ namespace Microsoft.PowerShell.PlatyPS
                 p.HelpMessage = helpMsg.ToString();
             }
 
+            if (pDictionary.TryGetValue("supportsWildcards", out object supportsWildcards))
+            {
+                if (bool.TryParse(supportsWildcards?.ToString(), out bool result))
+                {
+                    p.SupportsWildcards = result;
+                }
+            }
+
             if (pDictionary.TryGetValue("globbing", out object canGlob))
             {
                 if (bool.TryParse(canGlob?.ToString(), out bool result))
                 {
-                    p.Globbing = result;
+                    p.SupportsWildcards = result;
                 }
             }
 

@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
@@ -30,7 +31,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter]
         [ArgumentToEncodingTransformation]
-        [ArgumentEncodingCompletions]
+        [ArgumentCompleter(typeof(EncodingCompleter))]
         public System.Text.Encoding Encoding { get; set; }  = new System.Text.UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
 
         [Parameter()]
@@ -79,28 +80,14 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new WriterSettings(Encoding, markdownPath);
                     var cmdWrt = new CommandHelpMarkdownWriter(settings);
+                    // Check for non-overridable keys in the provided Metadata
                     if (Metadata.Keys.Count > 0)
                     {
-                        foreach(DictionaryEntry kv in Metadata)
-                        {
-                            string key = kv.Key.ToString();
-                            if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
-                            {
-                                WriteWarning($"Metadata key '{key}' may not be overridden");
-                            }
-                            else
-                            {
-                                if (cmdletHelp.Metadata is null)
-                                {
-                                    cmdletHelp.Metadata = new();
-                                }
-
-                                cmdletHelp.Metadata[key] = kv.Value;
-                            }
-                        }
+                        var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                        badKeys.ForEach(k => Metadata.Remove(k));
                     }
 
-                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, null).FullName));
+                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdletHelp, Metadata).FullName));
                 }
             }
         }

@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Management.Automation;
 using System.Management.Automation.Language;
@@ -16,6 +17,7 @@ using Microsoft.PowerShell.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -112,6 +114,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "Module Name", moduleInfo.Name },
                 { "Module Guid", moduleInfo.Guid },
             };
+
             return metadata;
         }
 
@@ -280,6 +283,77 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static string[] ProtectedMetadataKeys = new string[] {
                 "PlatyPS schema version"
             };
+
+        internal static List<string> WarnBadKeys(PSCmdlet cmdlet, Hashtable metadata)
+        {
+            List<string>badKeys = new();
+            foreach(DictionaryEntry kv in metadata)
+            {
+                string key = kv.Key.ToString();
+                if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
+                {
+                    cmdlet.WriteWarning($"Metadata key '{key}' may not be overridden");
+                    badKeys.Add(key);
+                }
+            }
+            return badKeys;
+        }
+
+        internal static OrderedDictionary MergeCommandHelpMetadataWithNewMetadata(Hashtable? metadata, CommandHelp commandHelp)
+        {
+            OrderedDictionary newMetadata = new();
+            if (commandHelp.Metadata is not null)
+            {
+                foreach(var key in commandHelp.Metadata.Keys)
+                {
+                    newMetadata[key] = commandHelp.Metadata[key];
+                }
+            }
+
+            if (metadata is not null)
+            {
+                foreach(string key in metadata.Keys)
+                {
+                    newMetadata[key] = metadata[key];
+                }
+            }
+
+            return newMetadata;
+        }
+
+        internal static void MergeNewCommandHelpMetadata(Hashtable newMetadata, CommandHelp commandHelp)
+        {
+            if (newMetadata is null || newMetadata.Keys.Count == 0)
+            {
+                return;
+            }
+
+            if (commandHelp.Metadata is null)
+            {
+                commandHelp.Metadata = new();
+            }
+
+            // This will overwrite values in the module file
+            foreach (var key in newMetadata.Keys)
+            {
+                commandHelp.Metadata[key] = newMetadata[key];
+            }
+
+        }
+
+        internal static void MergeNewModulefileMetadata(Hashtable newMetadata, ModuleFileInfo moduleFile)
+        {
+            if (newMetadata.Keys.Count == 0)
+            {
+                return;
+            }
+
+            // This will overwrite values in the module file
+            foreach (var key in newMetadata.Keys)
+            {
+                moduleFile.Metadata[key] = newMetadata[key];
+            }
+        }
     }
 
 

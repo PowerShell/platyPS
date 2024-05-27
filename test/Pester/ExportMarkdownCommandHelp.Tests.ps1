@@ -81,10 +81,11 @@ Describe "Export-MarkdownCommandHelp" {
 
         It "Should not overwrite a protected metadata key" {
             $newValue = "additional metadata!"
-            $ch | Export-MarkdownCommandHelp -OutputFolder ${TestDrive} -Metadata @{ "PlatyPS schema version" = $newValue } -Force
+            $ch | Export-MarkdownCommandHelp -OutputFolder ${TestDrive} -Metadata @{ "PlatyPS schema version" = $newValue } -Force -WarningVariable warnVar
             $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
-            $ch2.Metadata.Keys.Count | Should -Be 9
             $ch2.Metadata['PlatyPS schema version'] | Should -Be $ch.Metadata['PlatyPS schema version']
+            $ch2.Metadata.Keys.Count | Should -Be $ch.Metadata.Keys.Count
+            $warnVar[0].Message | Should -Be "Metadata key 'PlatyPS schema version' may not be overridden"
         }
     }
 

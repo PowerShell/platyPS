@@ -272,7 +272,7 @@ namespace Microsoft.PowerShell.PlatyPS
             var result = new ParameterMetadataV2();
 			result.Type = Type;
 			result.DefaultValue = DefaultValue;
-			result.Globbing = AcceptWildcardCharacters;
+			result.SupportsWildcards = AcceptWildcardCharacters;
 			result.Aliases.AddRange(GetAliases());
 			result.DontShow = false;
             result.AcceptedValues = GetAcceptedValues();

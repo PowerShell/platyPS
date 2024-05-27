@@ -18,6 +18,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// </summary>
 
     [Cmdlet(VerbsData.Compare, "CommandHelp")]
+    [OutputType(typeof(System.String[]))]
     public class CompareCommandHelpCommand : PSCmdlet
     {
         /// <summary>
@@ -73,7 +74,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (PropertyNamesToExclude.Any(n => string.Compare(n, property.Name, true) == 0))
                 {
-                    DiagnosticMessages.Add($"excluding comparison of {objectPath}.{property.Name}");
+                    DiagnosticMessages.Add($"M excluding comparison of {objectPath}.{property.Name}");
                     continue;
                 }
 
@@ -84,17 +85,17 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         var vString = property.Value is null ? string.Empty : property.Value.ToString();
                         var val = vString.Length > 20 ? vString.Substring(0,17) : vString;
-                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} are the same ({val})");
+                        DiagnosticMessages.Add($"S {spaces}{objectPath}.{property.Name} are the same ({val})");
                     }
                     else
                     {
-                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} are not the same '{property.Value}' vs '{difProperty.Value}'");
+                        DiagnosticMessages.Add($"D {spaces}{objectPath}.{property.Name} are not the same '{property.Value}' vs '{difProperty.Value}'");
                         HadDifferences = true;
                     }
                 }
                 else if (property.Value is IDictionary)
                 {
-                    DiagnosticMessages.Add($"Inspecting dictionary {objectPath}.{property.Name}");
+                    DiagnosticMessages.Add($"M Inspecting dictionary {objectPath}.{property.Name}");
                     var rDictionary = (IDictionary)property.Value;
                     var dDictionary = (IDictionary)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
 
@@ -102,7 +103,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         if (!rDictionary.Contains(key))
                         {
-                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} does not exist in reference");
+                            DiagnosticMessages.Add($"D {spaces}  {objectPath}.{property.Name}: {key} does not exist in reference");
                             HadDifferences = true;
                         }
                     }
@@ -111,11 +112,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         if (LanguagePrimitives.Equals(rDictionary[key], dDictionary[key]))
                         {
-                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} are the same ({rDictionary[key]})");
+                            DiagnosticMessages.Add($"S {spaces}  {objectPath}.{property.Name}: {key} are the same ({rDictionary[key]})");
                         }
                         else
                         {
-                            DiagnosticMessages.Add($"{spaces}  {objectPath}.{property.Name}: {key} not the same {rDictionary[key]} vs {dDictionary[key]}");
+                            DiagnosticMessages.Add($"D {spaces}  {objectPath}.{property.Name}: {key} not the same {rDictionary[key]} vs {dDictionary[key]}");
                             HadDifferences = true;
                         }
                     }
@@ -123,15 +124,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else if (property.Value is IList rList)
                 {
-                    DiagnosticMessages.Add($"Inspecting list {objectPath}.{property.Name}");
+                    DiagnosticMessages.Add($"M Inspecting list {objectPath}.{property.Name}");
                     var dList = (IList)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
                     if (rList.Count == 0 && dList.Count == 0)
                     {
-                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} lists are empty");
+                        DiagnosticMessages.Add($"S {spaces}{objectPath}.{property.Name} lists are empty");
                     }
                     else if (rList.Count != dList.Count)
                     {
-                        DiagnosticMessages.Add($"{spaces}{objectPath}.{property.Name} lists are different sizes ({rList.Count} vs {dList.Count})");
+                        DiagnosticMessages.Add($"D {spaces}{objectPath}.{property.Name} lists are different sizes ({rList.Count} vs {dList.Count})");
                         HadDifferences = true;
                     }
                     else
@@ -146,15 +147,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else if (property.Value is Array rArray)
                 {
-                    DiagnosticMessages.Add($"Inspecting array {objectPath}.{property.Name}");
+                    DiagnosticMessages.Add($"M Inspecting array {objectPath}.{property.Name}");
                     var dArray = (Array)difObject.Properties.Where(p => string.Compare(property.Name, p.Name) == 0).First().Value;
                     if (rArray.Length == 0 && dArray.Length == 0)
                     {
-                        DiagnosticMessages.Add($"{spaces}Arrays are empty");
+                        DiagnosticMessages.Add($"S {spaces}Arrays are empty");
                     }
                     else if (rArray.Length != dArray.Length)
                     {
-                        DiagnosticMessages.Add($"{spaces}Arrays are different sizes ({rArray.Length} vs {dArray.Length})");
+                        DiagnosticMessages.Add($"D {spaces}Arrays are different sizes ({rArray.Length} vs {dArray.Length})");
                     }
                     else
                     {
@@ -168,7 +169,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else
                 {
-                    DiagnosticMessages.Add($"{spaces}Skipping {objectPath}.{property.Name}");
+                    DiagnosticMessages.Add($"M {spaces}Skipping {objectPath}.{property.Name}");
                 }
             }
         }

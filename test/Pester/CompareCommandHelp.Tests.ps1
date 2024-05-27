@@ -22,7 +22,7 @@ Describe "Compare-CommandHelp can find differences" {
             "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames",
             "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Examples.Title",
             "CommandHelp.Examples.Remarks", "CommandHelp.Diagnostics"
-        $observed = $result1.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.trim().split()[0]})
+        $observed = $result1.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.Substring(2).trim().split()[0]})
         $observed | Should -Be $expected
     }
 
@@ -31,7 +31,7 @@ Describe "Compare-CommandHelp can find differences" {
             "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames",
             "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Examples.Title",
             "CommandHelp.Examples.Remarks"
-        $observed = $result2.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.trim().split()[0]})
+        $observed = $result2.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.Substring(2).trim().split()[0]})
         $observed | Should -Be $expected
 
     }

@@ -63,7 +63,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         $moduleRoot = New-Item -Item Directory -Path "$OutputDir/${ModuleName}" -Force
         $depsFolder = New-Item -Item Directory -Path "$moduleRoot/Dependencies" -Force
 
-        $moduleFiles = "$PSScriptRoot/src/${ModuleName}.psd1", $expectedDllPath
+        $moduleFiles = "$PSScriptRoot/src/${ModuleName}.psd1", "$PSScriptRoot/src/${ModuleName}.Format.ps1xml",$expectedDllPath
         if ($configuration -eq "debug") {
             $moduleFiles += $expectedPdbPath
         }
@@ -81,7 +81,8 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     $sb = "Import-Module -Max 4.99 Pester
         `$PSModuleAutoloadingPreference = 'none'
-        Import-Module -Name '$OutputDir/${ModuleName}' -Force
+        `$env:PSModulePath = '${OutputDir}$([io.path]::PathSeparator)${env:PSModulePath}'
+        Import-Module -Name '${ModuleName}' -Force
         Push-Location $pesterTestRoot
         Invoke-Pester -Outputformat nunitxml -outputfile $PesterLogPath $TestPath"
 
