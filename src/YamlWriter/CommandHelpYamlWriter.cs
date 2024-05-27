@@ -42,39 +42,25 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
-            Hashtable metadataHashtable = new Hashtable();
-            OrderedDictionary baseMetadata = new();
-            
-            // we have no metadata in help and no supplied metadata.
-            if (help?.Metadata is null)
+
+            // Passing a null help object is going to cause difficulties
+            // so throw immediately
+            if (help is null)
             {
-                baseMetadata["content type"] = "cmdlet";
-                baseMetadata["external help file"] = $"{help?.ModuleName}-help.xml";
-                baseMetadata["Module Name"] = $"{help?.ModuleName}";
-                baseMetadata["online version"] = $"{help?.OnlineVersionUrl}";
-                baseMetadata["title"] = $"{help?.Title}";
-                baseMetadata[Constants.SchemaVersionKey] = Constants.SchemaVersion;
-            }
-            else
-            {
-                // we need to fix whatever was in the read in the markdownfile if it hasn't been already.
-                baseMetadata = MetadataUtils.FixUpCommandHelpMetadata(help.Metadata);
+                throw new InvalidOperationException("Help is null");
             }
 
-            OrderedDictionary fixedMetadata = MetadataUtils.FixUpCommandHelpMetadata(baseMetadata);
-            // Emit the metadata from the help object unless it is in the metadata hashtable.
+            Hashtable metadataHashtable = new Hashtable();
+            OrderedDictionary mergedMetadata = new();
 
             // Emit the metadata from the metadata hashtable if we have any.
             // This is not to be fixed, but passed without alteration
             if (metadata is not null)
             {
-                foreach (DictionaryEntry item in metadata)
-                {
-                    fixedMetadata[item.Key] = item.Value;
-                }
+                mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata(metadata, help);
             }
 
-            metadataHashtable["metadata"] = fixedMetadata;
+            metadataHashtable["metadata"] = mergedMetadata;
             sb.Append(YamlUtils.SerializeElement(metadataHashtable));
         }
 
@@ -284,7 +270,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
     {
         public string Title { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
-        
+
         public ExampleExport(string title, string description)
         {
             Title = title;

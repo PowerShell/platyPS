@@ -80,6 +80,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var settings = new WriterSettings(Encoding, yamlPath);
                     var yamlWriter = new CommandHelpYamlWriter(settings);
+                    // Check for non-overridable keys in the provided Metadata
+                    if (Metadata.Keys.Count > 0)
+                    {
+                        var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                        badKeys.ForEach(k => Metadata.Remove(k));
+                    }
+
                     if (ShouldProcess("Create yaml file {yamlPath}"))
                     {
                         WriteObject(this.InvokeProvider.Item.Get(yamlWriter.Write(ch, Metadata).FullName));

@@ -45,14 +45,16 @@ Describe 'New-MarkdownCommandHelp' {
             $h['FOO'] | Should -BeExactly 'BAR'
         }
 
-        It 'Duplicate keys in metadata should use the provided metadata value' -Pending {
+        It 'Duplicate keys in metadata should use the provided metadata value' {
             $mdArgs = @{
                 Command = "New-MarkdownCommandHelp"
                 OutputFolder = $TestDrive
-                Metadata = @{ "Module Name" = 'FOO' }
+                Metadata = @{ "Module Name" = 'NewModule' }
             }
             $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
-            { New-MarkdownCommandHelp @mdArgs } | Should -Throw -ErrorId $expectedErrorId
+            $file = New-MarkdownCommandHelp @mdArgs
+            $ch = Import-MarkdownCommandHelp $file.FullName
+            $ch.Metadata['Module Name'] | Should -Be "NewModule"
         }
 
         It "Metadata should contain the <Name> key" -testCases @(
@@ -467,24 +469,18 @@ Write-Host 'Hello World!'
 
         BeforeAll {
             $OutputFolder = "$TestDrive/LandingPageMD"
-            $OutputFolderReadme = "$TestDrive/LandingPageMD-ReadMe/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md"
-            $null = New-Item -ItemType Directory $OutputFolder
+            $OutputFolderModuleFile = "$TestDrive/LandingPageMD/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md"
         }
 
         It "generates a landing page from Module" {
             New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            "$OutputFolder/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md" | Should -Exist
+            "$OutputFolderModuleFile" | Should -Exist
         }
 
-        it 'generate a landing page from Module with parameter ModulePagePath' -skip {
-            New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
-            $OutputFolderReadme | Should -Exist
-        }
-
-        It 'generates a landing page from module at correct output folder' -skip {
+        It 'generates a landing page from module at correct output folder' {
             try {
                 Push-Location $TestDrive
-                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -UseFullTypeName -WithModulePage -Force
+                $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -WithModulePage -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
                 $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS" "Microsoft.PowerShell.PlatyPS.md")
             }

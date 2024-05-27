@@ -36,26 +36,12 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             }
         }
 
+        // Write the Metadata information.
         internal override void WriteMetadataHeader(CommandHelp help, Hashtable? metadata = null)
         {
             sb.AppendLine(Constants.MarkdownMetadataHeader);
-            if (help.Metadata is not null)
-            {
-                foreach (DictionaryEntry item in help.Metadata)
-                {
-                    sb.AppendFormat("{0}: {1}", item.Key, item.Value);
-                    sb.AppendLine();
-                }
-            }
-
-            if (metadata is not null)
-            {
-                foreach (DictionaryEntry item in metadata)
-                {
-                    sb.AppendFormat("{0}: {1}", item.Key, item.Value);
-                    sb.AppendLine();
-                }
-            }
+            var mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata (metadata, help);
+            sb.Append(YamlUtils.SerializeElement(mergedMetadata));
             sb.AppendLine(Constants.MarkdownMetadataHeader);
             sb.AppendLine();
         }

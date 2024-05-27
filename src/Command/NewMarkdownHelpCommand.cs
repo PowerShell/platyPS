@@ -38,12 +38,15 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter Force { get; set; }
 
         [Parameter]
+        [ValidateNotNullOrEmpty]
         public string HelpUri { get; set; } = string.Empty;
 
         [Parameter]
+        [ValidateNotNullOrEmpty]
         public string HelpInfoUri { get; set; } = string.Empty;
 
         [Parameter]
+        [ValidateNotNullOrEmpty]
         public string HelpVersion { get; set; } = string.Empty;
 
         [Parameter]
@@ -109,12 +112,22 @@ namespace Microsoft.PowerShell.PlatyPS
         protected override void EndProcessing()
         {
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
+            Dictionary<string, PSModuleInfo> moduleTable = new();
 
             if (cmdCollection.Count > 0)
             {
                 int currentOffset = 0;
                 foreach(var cmd in cmdCollection)
                 {
+                    if (cmd.Module is not null && ! string.IsNullOrEmpty(cmd.Module.Name) && ! moduleTable.ContainsKey(cmd.Module.Name))
+                    {
+                        moduleTable[cmd.Module.Name] = cmd.Module;
+                        if (HelpInfoUri == string.Empty && ! string.IsNullOrEmpty(cmd.Module.HelpInfoUri))
+                        {
+                            HelpInfoUri = cmd.Module.HelpInfoUri;
+                        }
+                    }
+
 
                     TransformSettings transformSettings = new TransformSettings
                     {
@@ -124,8 +137,8 @@ namespace Microsoft.PowerShell.PlatyPS
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion,
                         Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
-                        ModuleGuid = cmd.Module?.Guid is null ? null : cmd.Module.Guid,
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
+                        ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
                         Session = Session,
                         UseFullTypeName = ! AbbreviateParameterTypename
@@ -156,8 +169,27 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 string moduleName = group.First<CommandHelp>().ModuleName;
                 string moduleFolder = Path.Combine(outputFolderBase, moduleName);
-                ModuleFileInfo moduleFileInfo = new(group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().ModuleName, group.First<CommandHelp>().Locale);
-                moduleFileInfo.Description = "{{ Add module description here. }}";
+                CultureInfo locale = group.First<CommandHelp>().Locale;
+                ModuleFileInfo moduleFileInfo;
+
+                // Prefer psModuleInfo to create the moduleFileInfo.
+                if (moduleTable.TryGetValue(moduleName, out var psModuleInfo))
+                {
+                    moduleFileInfo = new ModuleFileInfo(psModuleInfo, locale);
+                }
+                else
+                {
+                    moduleFileInfo = new($"{moduleName} Module", moduleName, group.First<CommandHelp>().Locale)
+                    {
+                        Description = "{{ Add module description here. }}"
+                    };
+
+                    if (group.First<CommandHelp>().ModuleGuid is not null)
+                    {
+                        moduleFileInfo.Metadata["Module Guid"] = group.First<CommandHelp>().ModuleGuid.ToString();
+                    }
+                }
+
                 foreach(var cmdHelp in group)
                 {
                     moduleName = cmdHelp.ModuleName;
