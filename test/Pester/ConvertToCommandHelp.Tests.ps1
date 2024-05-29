@@ -154,6 +154,7 @@ Describe "New-CommandHelp tests" {
         }
 
         It "Should have the proper number of input types" {
+            Set-ItResult -Pending -Because "Get-Help erroneously includes parameters which have FromRemainingArguments as pipeline input"
             $ch.inputs.count | Should -Be 5 -Because "$($ch.inputs.typename -join ':')"
         }
 
