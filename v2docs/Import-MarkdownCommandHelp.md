@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Import-MarkdownCommandHelp
 ---
 
 # Import-MarkdownCommandHelp
@@ -18,13 +20,13 @@ Imports Markdown help content into **CommandHelp** objects.
 ### Path (Default)
 
 ```
-Import-MarkdownCommandHelp [-Path] <String[]> [<CommonParameters>]
+Import-MarkdownCommandHelp [-Path] <System.String[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-MarkdownCommandHelp -LiteralPath <String[]> [<CommonParameters>]
+Import-MarkdownCommandHelp -LiteralPath <System.String[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -78,14 +80,14 @@ For more information, see
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
 - Name: LiteralPath
-  Position: -2147483648
+  Position: Named
   IsRequired: true
   ValueByPipeline: true
   ValueByPipelineByPropertyName: false
@@ -105,9 +107,9 @@ items in the current location.
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -131,7 +133,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.String[]
+### System.String
 
 ## OUTPUTS
 

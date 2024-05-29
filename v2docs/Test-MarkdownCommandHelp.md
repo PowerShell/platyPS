@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Test-MarkdownCommandHelp
 ---
 
 # Test-MarkdownCommandHelp
@@ -18,7 +20,7 @@ Tests the structure of a Markdown help file.
 ### Default (Default)
 
 ```
-Test-MarkdownCommandHelp [-FullName] <String[]> [-DetailView] [<CommonParameters>]
+Test-MarkdownCommandHelp [-FullName] <System.String[]> [-DetailView] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -64,9 +66,9 @@ Instructs the command to output detailed validation information.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -87,9 +89,9 @@ The path to the Markdown help file to test.
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:

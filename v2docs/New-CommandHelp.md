@@ -1,13 +1,15 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: New-CommandHelp
 ---
 
-# ConvertTo-CommandHelp
+# New-CommandHelp
 
 ## SYNOPSIS
 
@@ -18,7 +20,7 @@ Creates **CommandHelp** objects for a PowerShell command that's loaded in the se
 ### Default (Default)
 
 ```
-ConvertTo-CommandHelp [-CommandInfo] <String[]> [<CommonParameters>]
+New-CommandHelp [-CommandInfo] <System.Management.Automation.CommandInfo[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -82,9 +84,9 @@ A list of one or more PowerShell commands (cmdlets, functions, scripts). The cmd
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -108,8 +110,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### System.String
-
+### System.Management.Automation.CommandInfo
 ## OUTPUTS
 
 ### Microsoft.PowerShell.PlatyPS.Model.CommandHelp

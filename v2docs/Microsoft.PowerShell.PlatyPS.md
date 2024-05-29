@@ -1,11 +1,12 @@
 ---
-Module Name: Microsoft.PowerShell.PlatyPS
-Module Guid: 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
-Download Help Link: ''
-Help Version: '1.0.0'
+document type: module
+HelpInfoUri:
 Locale: en-US
-ms.date: 05/21/2024
-content type: module
+Module Guid: 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Microsoft.PowerShell.PlatyPS Module
 ---
 
 # Microsoft.PowerShell.PlatyPS Module
@@ -19,10 +20,6 @@ This module contains cmdlets to help with the creation help content for PowerShe
 ### [Compare-CommandHelp](Compare-CommandHelp.md)
 
 Compares two **CommandHelp** objects and produces a detailed report showing the differences.
-
-### [ConvertTo-CommandHelp](ConvertTo-CommandHelp.md)
-
-Creates **CommandHelp** objects for a PowerShell command that's loaded in the session.
 
 ### [Export-MamlCommandHelp](Export-MamlCommandHelp.md)
 
@@ -63,6 +60,10 @@ Imports Yaml help content into **CommandHelp** objects.
 ### [Import-YamlModuleFile](Import-YamlModuleFile.md)
 
 Imports a Yaml module file into a **ModuleHelp** object.
+
+### [New-CommandHelp](New-CommandHelp.md)
+
+Creates **CommandHelp** objects for a PowerShell command that's loaded in the session.
 
 ### [New-MarkdownCommandHelp](New-MarkdownCommandHelp.md)
 

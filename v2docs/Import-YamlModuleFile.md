@@ -1,9 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri: 
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Import-YamlModuleFile
 ---
 
 # Import-YamlModuleFile
@@ -17,13 +20,13 @@ content type: cmdlet
 ### Path (Default)
 
 ```
-Import-YamlModuleFile [-Path] <String[]> [<CommonParameters>]
+Import-YamlModuleFile [-Path] <System.String[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-YamlModuleFile [-LiteralPath] <String[]> [<CommonParameters>]
+Import-YamlModuleFile -LiteralPath <System.String[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -53,14 +56,14 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
 - Name: LiteralPath
-  Position: 0
+  Position: Named
   IsRequired: true
   ValueByPipeline: true
   ValueByPipelineByPropertyName: false
@@ -76,9 +79,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -97,8 +100,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-For more information, see
+-ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

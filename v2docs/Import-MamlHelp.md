@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Import-MamlHelp
 ---
 
 # Import-MamlHelp
@@ -18,7 +20,8 @@ Imports MAML help from a file and creates **CommandHelp** objects for each comma
 ### Default (Default)
 
 ```
-Import-MamlHelp [-MamlFile] <String> [-Settings <TransformSettings>] [<CommonParameters>]
+Import-MamlHelp [-MamlFile] <System.String>
+ [-Settings <Microsoft.PowerShell.PlatyPS.TransformSettings>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -46,9 +49,9 @@ The path to the MAML help file.
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -69,9 +72,9 @@ HelpMessage: ''
 
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.TransformSettings
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:

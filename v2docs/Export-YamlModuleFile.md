@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Export-YamlModuleFile
 ---
 
 # Export-YamlModuleFile
@@ -18,8 +20,9 @@ Exports a **ModuleFileInfo** object to a Yaml file.
 ### Default (Default)
 
 ```
-Export-YamlModuleFile [-ModuleFile] <ModuleFileInfo[]> [-Encoding <Encoding>] [-Force]
- [-OutputFolder <String>] [<CommonParameters>]
+Export-YamlModuleFile [-ModuleFile] <Microsoft.PowerShell.PlatyPS.ModuleFileInfo[]>
+ [-Encoding <System.Text.Encoding>] [-Force] [-OutputFolder <System.String>]
+ [-Metadata <System.Collections.Hashtable>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -52,6 +55,30 @@ Mode                 LastWriteTime         Length Name
 
 ## PARAMETERS
 
+### -Confirm
+
+{{ Fill Confirm Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+VariableLength: true
+SupportsWildcards: false
+ParameterValue: []
+Aliases:
+- cf
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueByPipeline: false
+  ValueByPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -Encoding
 
 The encoding to use when writing the markdown file. If no value is specified, encoding defaults to
@@ -59,9 +86,9 @@ the value of the `$OutputEncoding` preference variable.
 
 ```yaml
 Type: System.Text.Encoding
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -82,9 +109,32 @@ Use the **Force** parameter to overwrite the output file if it already exists.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
+ParameterValue: []
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueByPipeline: false
+  ValueByPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -Metadata
+
+{{ Fill Metadata Description }}
+
+```yaml
+Type: System.Collections.Hashtable
+DefaultValue: ''
+VariableLength: true
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -106,9 +156,9 @@ or by using the **ModuleFile** parameter.
 
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.ModuleFileInfo[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -130,11 +180,35 @@ The **ModuleFileInfo** object to export to a markdown file. This object is creat
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueByPipeline: false
+  ValueByPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -WhatIf
+
+{{ Fill WhatIf Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+DefaultValue: ''
+VariableLength: true
+SupportsWildcards: false
+ParameterValue: []
+Aliases:
+- wi
 ParameterSets:
 - Name: (All)
   Position: Named

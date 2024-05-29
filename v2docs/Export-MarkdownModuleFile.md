@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/20/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Export-MarkdownModuleFile
 ---
 
 # Export-MarkdownModuleFile
@@ -18,8 +20,9 @@ Exports a **ModuleFileInfo** object to a markdown file.
 ### Default (Default)
 
 ```
-Export-MarkdownModuleFile [-ModuleFileInfo] <ModuleFileInfo[]> [-Encoding <Encoding>] [-Force]
- [-Metadata <Hashtable>] [-OutputFolder <String>] [<CommonParameters>]
+Export-MarkdownModuleFile [-ModuleFileInfo] <Microsoft.PowerShell.PlatyPS.ModuleFileInfo[]>
+ [-Encoding <System.Text.Encoding>] [-Force] [-Metadata <System.Collections.Hashtable>]
+ [-OutputFolder <System.String>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -61,9 +64,9 @@ the value of the `$OutputEncoding` preference variable.
 
 ```yaml
 Type: System.Text.Encoding
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -84,9 +87,9 @@ Use the **Force** parameter to overwrite the output file if it already exists.
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -109,9 +112,9 @@ existing frontmatter. The values of existing keys are overwritten.
 
 ```yaml
 Type: System.Collections.Hashtable
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -133,9 +136,9 @@ The **ModuleFileInfo** object to export to a markdown file. This object is creat
 
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.ModuleFileInfo[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -156,9 +159,9 @@ The folder where the markdown file is saved. If the folder doesn't exist, it's c
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:

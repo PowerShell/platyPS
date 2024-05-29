@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/21/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: New-MarkdownCommandHelp
 ---
 
 # New-MarkdownCommandHelp
@@ -18,10 +20,11 @@ Creates Markdown help files for PowerShell modules and commands.
 ### Default (Default)
 
 ```
-New-MarkdownCommandHelp [-Command <CommandInfo[]>] [-Encoding <Encoding>] [-Force]
- [-HelpUri <String>] [-HelpInfoUri <String>] [-HelpVersion <String>] [-Locale <String>]
- [-Metadata <Hashtable>] [-Module <PSModuleInfo[]>] -OutputFolder <String> [-WithModulePage]
- [-AbbreviateParameterTypename] [<CommonParameters>]
+New-MarkdownCommandHelp [-Command <System.Management.Automation.CommandInfo[]>]
+ [-Encoding <System.Text.Encoding>] [-Force] [-HelpUri <System.String>]
+ [-HelpInfoUri <System.String>] [-HelpVersion <System.String>] [-Locale <System.String>]
+ [-Metadata <System.Collections.Hashtable>] [-Module <System.Management.Automation.PSModuleInfo[]>]
+ -OutputFolder <System.String> [-WithModulePage] [-AbbreviateParameterTypename] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -51,9 +54,9 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -74,9 +77,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Management.Automation.CommandInfo[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -97,9 +100,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Text.Encoding
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -120,9 +123,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -143,9 +146,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -166,9 +169,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -189,9 +192,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -212,9 +215,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -235,9 +238,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Collections.Hashtable
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -258,32 +261,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Management.Automation.PSModuleInfo[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
-ParameterValue: []
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -ModulePagePath
-
-{{ Fill ModulePagePath Description }}
-
-```yaml
-Type: System.String
-DefaultValue: None
-VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -304,9 +284,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -327,9 +307,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -348,8 +328,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-For more information, see
+-ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

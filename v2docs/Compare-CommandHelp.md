@@ -1,10 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-ms.date: 05/20/2024
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Compare-CommandHelp
 ---
 
 # Compare-CommandHelp
@@ -18,8 +20,9 @@ Compares two **CommandHelp** objects and produces a detailed report showing the 
 ### Default (Default)
 
 ```
-Compare-CommandHelp [-Reference] <CommandHelp> [-Difference] <CommandHelp>
- [-PropertyNamesToExclude <String[]>] [<CommonParameters>]
+Compare-CommandHelp [-Reference] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp>
+ [-Difference] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp>
+ [-PropertyNamesToExclude <System.String[]>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -48,9 +51,9 @@ The CommandHelp object to compare against the reference object.
 
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -71,9 +74,9 @@ A list of one or more property names to exclude from the comparison.
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -94,9 +97,9 @@ The base CommandHelp object to be compared to the difference object.
 
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -124,7 +127,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### System.Text
+### System.String
 
 ## NOTES
 

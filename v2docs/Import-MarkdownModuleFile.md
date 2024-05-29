@@ -1,9 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri:
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Import-MarkdownModuleFile
 ---
 
 # Import-MarkdownModuleFile
@@ -17,13 +20,13 @@ Imports a Markdown module file into a **ModuleHelp** object.
 ### Path (Default)
 
 ```
-Import-MarkdownModuleFile [-Path] <String[]> [<CommonParameters>]
+Import-MarkdownModuleFile [-Path] <System.String[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-MarkdownModuleFile -LiteralPath <String[]> [<CommonParameters>]
+Import-MarkdownModuleFile -LiteralPath <System.String[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -70,14 +73,14 @@ For more information, see
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
 - Name: LiteralPath
-  Position: 0
+  Position: Named
   IsRequired: true
   ValueByPipeline: true
   ValueByPipelineByPropertyName: false
@@ -97,9 +100,9 @@ items in the current location.
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:

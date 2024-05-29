@@ -1,9 +1,12 @@
 ---
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
-Module Name: Microsoft.PowerShell.PlatyPS
-HelpUri: 
-PlatyPS schema version: 2024-05-01
 content type: cmdlet
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 05/29/2024
+PlatyPS schema version: 2024-05-01
+title: Import-YamlCommandHelp
 ---
 
 # Import-YamlCommandHelp
@@ -17,13 +20,13 @@ content type: cmdlet
 ### Path (Default)
 
 ```
-Import-YamlCommandHelp [-AsDictionary] [-Path] <String[]> [<CommonParameters>]
+Import-YamlCommandHelp [-AsDictionary] [-Path] <System.String[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-YamlCommandHelp [-AsDictionary] -LiteralPath <String[]> [<CommonParameters>]
+Import-YamlCommandHelp [-AsDictionary] -LiteralPath <System.String[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -53,9 +56,9 @@ PS C:\> {{ Add example code here }}
 
 ```yaml
 Type: System.Management.Automation.SwitchParameter
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -76,9 +79,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -99,9 +102,9 @@ HelpMessage: ''
 
 ```yaml
 Type: System.String[]
-DefaultValue: None
+DefaultValue: ''
 VariableLength: true
-Globbing: true
+SupportsWildcards: true
 ParameterValue: []
 Aliases:
 - FullName
@@ -121,8 +124,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-For more information, see
+-ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
