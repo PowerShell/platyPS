@@ -154,10 +154,10 @@ Describe "New-CommandHelp tests" {
         }
 
         It "Should have the proper number of input types" {
-            $ch.inputs.count | Should be 5
+            $ch.inputs.count | Should -Be 5 -Because "$($ch.inputs.typename -join ':')"
         }
 
-        It "Should have the output type '<type>'" -TestCases @(
+        It "Should have the input type '<type>'" -TestCases @(
             @{ Type = "System.Management.Automation.CommandTypes" }
             @{ Type = "System.Int32" }
             @{ Type = "Microsoft.PowerShell.Commands.ModuleSpecification" }
