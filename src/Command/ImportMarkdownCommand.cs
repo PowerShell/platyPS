@@ -19,6 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a markdown file and convert it to a CommandHelp object.
     /// </summary>
     [Cmdlet(VerbsData.Import, "MarkdownCommandHelp", DefaultParameterSetName = "Path", HelpUri = "")]
+    [OutputType(typeof(CommandHelp))]
     public sealed class ImportMarkdownHelpCommand : PSCmdlet
     {
 #region cmdlet parameters

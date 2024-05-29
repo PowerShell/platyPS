@@ -37,6 +37,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
 
     [Cmdlet(VerbsDiagnostic.Test, "MarkdownCommandHelp")]
+    [OutputType(typeof(bool))]
+    [OutputType(typeof(MarkdownCommandHelpValidationResult))]
     public class TestMarkdownCommandHelpCommand : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
