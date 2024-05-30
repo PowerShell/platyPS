@@ -13,7 +13,7 @@ Describe "New-CommandHelp tests" {
     }
 
     It "Should have the appropriate metadata properties and values '<key> = <value>'" -TestCases @(
-        @{ Key = "content type"; Value = "cmdlet" }
+        @{ Key = "document type"; Value = "cmdlet" }
         @{ Key = "title"; Value = "New-CommandHelp" }
         @{ Key = "Module Name"; Value = "microsoft.powershell.platyPS" }
         @{ Key = "Locale" ; Value = "{{ fill in locale }}" }

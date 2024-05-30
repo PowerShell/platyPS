@@ -65,7 +65,7 @@ Describe "Export-MarkdownCommandHelp" {
             @{ Key = "HelpUri"; Value = "https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp" }
             @{ Key = "PlatyPS schema version"; Value = "2024-05-01" }
             @{ Key = "title"; Value = "Get-Date" }
-            @{ Key = "content type"; Value = "cmdlet" }
+            @{ Key = "document type"; Value = "cmdlet" }
         ) {
             param ($key, $value)
             $observedMetadata[$key] | Should -Be $value

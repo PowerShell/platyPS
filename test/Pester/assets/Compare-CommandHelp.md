@@ -1,5 +1,5 @@
 ---
-content type: cmdlet
+document type: cmdlet
 title: Compare-CommandHelp
 Module Name: Microsoft.PowerShell.PlatyPS
 Locale: "en-US"

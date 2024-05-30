@@ -32,7 +32,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             OrderedDictionary metadata = new()
             {
-                { "content type", "cmdlet" },
+                { "document type", "cmdlet" },
                 { "title", help.Title },
                 { "Module Name", help.ModuleName },
                 { "Locale", help.Locale.Name },
@@ -53,7 +53,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             OrderedDictionary metadata = new()
             {
-                { "content type", "cmdlet" },
+                { "document type", "cmdlet" },
                 { "title", commandInfo.Name },
                 { "Module Name", commandInfo.ModuleName },
                 { "Locale", "{{ fill in locale }}" },
@@ -191,15 +191,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
 
-            // Be sure that content type is correctly present.
-            if (! od.Contains("content type"))
+            // Be sure that document type is correctly present.
+            if (! od.Contains("document type"))
             {
                 if (od.Contains("Module Guid"))
                 {
-                    od["content type"] = "module";
+                    od["document type"] = "module";
                 }
                 {
-                    od["content type"] = "cmdlet";
+                    od["document type"] = "cmdlet";
                 }
             }
 
@@ -241,10 +241,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
 
-            // Be sure that content type is correctly present.
-            if (! od.Contains("content type"))
+            // Be sure that document type is correctly present.
+            if (! od.Contains("document type"))
             {
-                od["content type"] = "module";
+                od["document type"] = "module";
             }
 
             return od;

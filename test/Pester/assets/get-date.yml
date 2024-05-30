@@ -6,7 +6,7 @@ metadata:
   HelpUri: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp
   PlatyPS schema version: 2024-05-01
   title: Get-Date
-  content type: cmdlet
+  document type: cmdlet
 title: Get-Date
 synopsis: 'Gets the current date and time.'
 syntaxes:

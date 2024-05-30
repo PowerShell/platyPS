@@ -88,7 +88,7 @@ no notes
         It 'can parse out yaml snippet' {
             $ch = Import-MarkdownCommandHelp "$TestDrive/foo.md"
             $d = $ch.Metadata
-            $expectedKeys = @("content type", "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title")
+            $expectedKeys = @("document type", "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title")
             $d.Keys | Should -HaveCount $expectedKeys.Count
             $d.Keys | Should -BeIn $expectedKeys
             $d["Locale"] | Should -Be 'en-US'

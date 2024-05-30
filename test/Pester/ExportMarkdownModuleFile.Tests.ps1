@@ -50,7 +50,7 @@ Describe "Export-MarkdownModuleFile" {
             @{ Name = "ms.date" }
             @{ Name = "PlatyPS schema version" }
             @{ Name = "title" }
-            @{ Name = "content type" }
+            @{ Name = "document type" }
         ) {
             param ($name)
             $testMF.Metadata[$name] | Should -Be $modObjects[3].Metadata[$name]

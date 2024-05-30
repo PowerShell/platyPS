@@ -110,7 +110,7 @@ Describe "Import-ModuleFile tests" {
             @{ Key = "ms.date"; Value = "02/20/2019" }
             @{ Key = "PlatyPS schema version"; Value = "2024-05-01" }
             @{ Key = "title"; Value = "CimCmdlets Module" }
-            @{ Key = "content type"; Value = "module" }
+            @{ Key = "document type"; Value = "module" }
         ) {
             param ($key, $value)
             $mf.Metadata[$key] | Should -Be $value
