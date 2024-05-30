@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -26,7 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         private List<string>? RequiredTrueParameterSets { get; set; }
         private List<string>? RequiredFalseParameterSets { get; set; }
 
-        // @TODO: find out what this is for??
+        [YamlIgnore]
         public bool VariableLength { get; set;} = true;
 
         public bool SupportsWildcards { get; set;}
@@ -208,7 +209,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
-                VariableLength == other.VariableLength &&
                 SupportsWildcards == other.SupportsWildcards &&
                 DontShow == other.DontShow &&
                 ParameterSets.SequenceEqual(other.ParameterSets) &&
@@ -233,7 +233,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override int GetHashCode()
         {
-            return (Name, Type, Description, Aliases, DefaultValue, HelpMessage, VariableLength, SupportsWildcards, DontShow, ParameterSets, AcceptedValues).GetHashCode();
+            return (Name, Type, Description, Aliases, DefaultValue, HelpMessage, SupportsWildcards, DontShow, ParameterSets, AcceptedValues).GetHashCode();
         }
 
         public static bool operator ==(Parameter parameter1, Parameter parameter2)
