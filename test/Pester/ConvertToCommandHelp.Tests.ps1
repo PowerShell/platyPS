@@ -16,7 +16,7 @@ Describe "New-CommandHelp tests" {
         @{ Key = "document type"; Value = "cmdlet" }
         @{ Key = "title"; Value = "New-CommandHelp" }
         @{ Key = "Module Name"; Value = "microsoft.powershell.platyPS" }
-        @{ Key = "Locale" ; Value = "{{ fill in locale }}" }
+        @{ Key = "Locale" ; Value = "en-US" }
         @{ Key = "PlatyPS schema version"; Value = "2024-05-01" }
         @{ Key = "HelpUri"; Value = "" }
         @{ Key = "ms.date"; Value = Get-Date -Format "MM/dd/yyyy" }

@@ -18,6 +18,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography.X509Certificates;
+using System.IO;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -56,7 +57,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "document type", "cmdlet" },
                 { "title", commandInfo.Name },
                 { "Module Name", commandInfo.ModuleName },
-                { "Locale", "{{ fill in locale }}" },
+                { "Locale", CultureInfo.CurrentCulture.Name == string.Empty ? "en-US" : CultureInfo.CurrentCulture.Name },
                 { "PlatyPS schema version", "2024-05-01" }, // was schema
                 { "HelpUri", GetHelpCodeMethods.GetHelpUri(new PSObject(commandInfo)) }, // was online version
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
@@ -67,17 +68,26 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private static string GetHelpFileFromCommandInfo(CommandInfo commandInfo)
         {
-            if (commandInfo is CmdletInfo cmdlet)
+            string helpFileName;
+            if (commandInfo is CmdletInfo cmdlet && ! string.IsNullOrEmpty(cmdlet.HelpFile))
             {
-                return cmdlet.HelpFile;
+                helpFileName = cmdlet.HelpFile;
+            }
+            else if (commandInfo is FunctionInfo function && ! string.IsNullOrEmpty(function.HelpFile))
+            {
+                helpFileName = function.HelpFile;
+            }
+            else if (! string.IsNullOrEmpty(commandInfo.ModuleName))
+            {
+                helpFileName = $"{commandInfo.ModuleName}-Help.xml";
+            }
+            else
+            {
+                helpFileName = $"{commandInfo.Name}-Help.xml";
             }
 
-            if (commandInfo is FunctionInfo function)
-            {
-                return function.HelpFile;
-            }
-
-            return string.Empty;
+            // return only the filename, not the full path.
+            return Path.GetFileName(helpFileName);
         }
 
         /// <summary>
