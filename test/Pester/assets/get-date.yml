@@ -717,8 +717,7 @@ parameters:
   description: |-
     This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
     -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
-    -ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-    For more information, see
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
     [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 inputs:
 - name: System.DateTime

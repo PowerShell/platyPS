@@ -158,7 +158,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 {
                     sb.AppendLine(Constants.CommonParametersYamlHeader);
                     sb.AppendLine("  description: |-");
-                    var commonParameters = ConstantsHelper.GetCommonParametersMessage();
+                    var commonParameters = ConstantsHelper.GetCommonParametersMessage(ConstantsHelper.CommonParametersVersions.PS7);
                     foreach(var line in commonParameters.Split(Constants.LineSplitter, stringSplitOptions))
                     {
                         sb.AppendLine($"    {line}");
