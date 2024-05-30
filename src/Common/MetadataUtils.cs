@@ -95,9 +95,9 @@ namespace Microsoft.PowerShell.PlatyPS
         /// </summary>
         /// <param name="help">A ModuleFileInfo object to use.</param>
         /// <returns>A Dictionary with the base metadata for a command help file.</returns>
-        public static OrderedDictionary GetModuleFileBaseMetadata(ModuleFileInfo moduleFileInfo)
+        public static SortedDictionary<string, string> GetModuleFileBaseMetadata(ModuleFileInfo moduleFileInfo)
         {
-            OrderedDictionary metadata = new()
+            SortedDictionary<string, string> metadata = new()
             {
                 { "document type", "module" },
                 { "HelpInfoUri", "xxx" }, // was Download Help Link
@@ -106,14 +106,14 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", moduleFileInfo.Title },
                 { "Module Name", moduleFileInfo.Title },
-                { "Module Guid", Guid.Empty },
+                { "Module Guid", Guid.Empty.ToString() },
             };
             return metadata;
         }
 
-        public static OrderedDictionary GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
+        public static SortedDictionary<string, string> GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
         {
-            OrderedDictionary metadata = new()
+            SortedDictionary<string, string> metadata = new()
             {
                 { "document type", "module" },
                 { "HelpInfoUri", moduleInfo.HelpInfoUri }, // was Download Help Link
@@ -122,7 +122,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", $"{moduleInfo.Name} Module" },
                 { "Module Name", moduleInfo.Name },
-                { "Module Guid", moduleInfo.Guid },
+                { "Module Guid", moduleInfo.Guid.ToString() },
             };
 
             return metadata;
@@ -133,9 +133,9 @@ namespace Microsoft.PowerShell.PlatyPS
         /// </summary>
         /// <param name="help">A ModuleFileInfo object to use.</param>
         /// <returns>A Dictionary with the base metadata for a command help file.</returns>
-        public static OrderedDictionary GetModuleFileBaseMetadata(string title, string name, CultureInfo? locale)
+        public static SortedDictionary<string, string> GetModuleFileBaseMetadata(string title, string name, CultureInfo? locale)
         {
-            OrderedDictionary metadata = new()
+            SortedDictionary<string, string> metadata = new()
             {
                 { "document type", "module" },
                 { "HelpInfoUri", string.Empty }, // was Download Help Link
@@ -144,7 +144,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", title },
                 { "Module Name", name },
-                { "Module Guid", Guid.Empty },
+                { "Module Guid", Guid.Empty.ToString() },
             };
             return metadata;
         }
@@ -220,39 +220,39 @@ namespace Microsoft.PowerShell.PlatyPS
         /// This ensures that we migrate the obsolete keys in metadata to the new versions.
         /// </summary>
         /// <param name="metadata"></param>
-        public static OrderedDictionary FixUpModuleFileMetadata(OrderedDictionary metadata)
+        public static SortedDictionary<string, string> FixUpModuleFileMetadata(OrderedDictionary metadata)
         {
-            OrderedDictionary od = new();
+            SortedDictionary<string, string> od = new();
             foreach (var key in metadata.Keys)
             {
                 if (keysToMigrate.ContainsKey(key))
                 {
                     // Create the new key and ignore the old key
-                    od[keysToMigrate[key]] = metadata[key];
+                    od[keysToMigrate[key].ToString()] = metadata[key].ToString();
                 }
                 else
                 {
-                    od[key] = metadata[key];
+                    od[key.ToString()] = metadata[key].ToString();
                 }
             }
 
             // Remove the older keys that should have been migrated.
             foreach (var key in keysToMigrate.Keys)
             {
-                if (od.Contains(key))
+                if (od.ContainsKey(key.ToString()))
                 {
-                    od.Remove(key);
+                    od.Remove(key.ToString());
                 }
             }
 
             // Fix the version for the new schema version
-            if (od.Contains(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
+            if (od.ContainsKey(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
             {
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
 
             // Be sure that document type is correctly present.
-            if (! od.Contains("document type"))
+            if (! od.ContainsKey("document type"))
             {
                 od["document type"] = "module";
             }
@@ -260,9 +260,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return od;
         }
 
-        internal static bool TryGetGuidFromMetadata(OrderedDictionary metadata, string term, out Guid guid)
+        internal static bool TryGetGuidFromMetadata(SortedDictionary<string, string> metadata, string term, out Guid guid)
         {
-            if (metadata.Contains(term))
+            if (metadata.ContainsKey(term))
             {
                 if (metadata[term] is not null && Guid.TryParse(metadata[term].ToString(), out var result))
                 {
@@ -275,9 +275,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return false;
         }
 
-        internal static bool TryGetStringFromMetadata(OrderedDictionary metadata, string term, out string str)
+        internal static bool TryGetStringFromMetadata(SortedDictionary<string, string> metadata, string term, out string str)
         {
-            if (metadata.Contains(term))
+            if (metadata.ContainsKey(term))
             {
                 if (metadata[term] is not null)
                 {
@@ -361,7 +361,7 @@ namespace Microsoft.PowerShell.PlatyPS
             // This will overwrite values in the module file
             foreach (var key in newMetadata.Keys)
             {
-                moduleFile.Metadata[key] = newMetadata[key];
+                moduleFile.Metadata[key.ToString()] = newMetadata[key].ToString();
             }
         }
     }

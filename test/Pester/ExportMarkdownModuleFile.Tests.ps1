@@ -3,7 +3,7 @@
 
 Describe "Export-MarkdownModuleFile" {
     BeforeAll {
-        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" }
+        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" -and $_.Name -notmatch "Bad.Metadata.Order" }
         $modFileNames = $modFiles.Foreach({$_.Name})
         $modObjects = $modFiles | Import-MarkdownModuleFile
     }

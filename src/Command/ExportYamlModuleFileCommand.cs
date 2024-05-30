@@ -59,7 +59,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (ModuleFileInfo moduleFile in ModuleFile)
             {
-                if (moduleFile.Metadata.Contains("Module Name"))
+                if (moduleFile.Metadata.ContainsKey("Module Name"))
                 {
                     moduleName = moduleFile.Metadata["Module Name"].ToString();
                 }

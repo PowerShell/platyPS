@@ -125,12 +125,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 var output = camelCaseDeserializer?.Deserialize<ModuleFileInfo>(File.ReadAllText(path));
                 if (output is not null)
                 {
-                    if (output.Metadata.Contains("Module Name"))
+                    if (output.Metadata.ContainsKey("Module Name"))
                     {
                         output.Module = output.Metadata["Module Name"].ToString();
                     }
 
-                    if (output.Metadata.Contains("Module Guid"))
+                    if (output.Metadata.ContainsKey("Module Guid"))
                     {
                         if (Guid.TryParse(output.Metadata["Module Guid"].ToString(), out Guid mGuid))
                         {

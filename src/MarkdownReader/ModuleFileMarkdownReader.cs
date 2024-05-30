@@ -88,7 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
     public class ModuleFileInfo : IEquatable<ModuleFileInfo>
     {
-        public OrderedDictionary Metadata { get; set; }
+        public SortedDictionary<string, string> Metadata { get; set; }
         public string Title { get; set; }
         [YamlIgnore]
         public string Module { get; set; }
