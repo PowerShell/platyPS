@@ -309,14 +309,14 @@ namespace Microsoft.PowerShell.PlatyPS
             return badKeys;
         }
 
-        internal static OrderedDictionary MergeCommandHelpMetadataWithNewMetadata(Hashtable? metadata, CommandHelp commandHelp)
+        internal static SortedDictionary<string, string> MergeCommandHelpMetadataWithNewMetadata(Hashtable? metadata, CommandHelp commandHelp)
         {
-            OrderedDictionary newMetadata = new();
+            SortedDictionary<string, string> newMetadata = new();
             if (commandHelp.Metadata is not null)
             {
                 foreach(var key in commandHelp.Metadata.Keys)
                 {
-                    newMetadata[key] = commandHelp.Metadata[key];
+                    newMetadata[key.ToString()] = commandHelp.Metadata[key].ToString();
                 }
             }
 
@@ -324,7 +324,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach(string key in metadata.Keys)
                 {
-                    newMetadata[key] = metadata[key];
+                    newMetadata[key] = metadata[key].ToString();
                 }
             }
 
