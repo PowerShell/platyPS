@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
 using System.Management.Automation.Language;
 using System.Security.Policy;
 using System.Text;
@@ -327,7 +328,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         syn.SyntaxParameters.Add(
                             new SyntaxParameter(
                                 paramInfo.Name,
-                                GetParameterTypeName(paramInfo.ParameterType),
+                                GetParameterTypeNameForSyntax(paramInfo.ParameterType, paramInfo.Attributes),
                                 paramInfo.Position == int.MinValue ? "named" : paramInfo.Position.ToString(),
                                 paramInfo.IsMandatory,
                                 paramInfo.Position != int.MinValue,
@@ -347,6 +348,136 @@ namespace Microsoft.PowerShell.PlatyPS
         private bool IsNotCommonParameter(string name)
         {
             return ! Constants.CommonParametersNames.Contains(name);
+        }
+
+        private string GetParameterTypeNameForSyntax(Type type, IEnumerable<Attribute> attributes)
+        {
+            string parameterTypeString;
+            PSTypeNameAttribute typeName;
+            if (attributes != null && (typeName = attributes.OfType<PSTypeNameAttribute>().FirstOrDefault()) != null)
+            {
+                // If we have a PSTypeName specified on the class, we assume it has a more useful type than the actual
+                // parameter type.  This is a reasonable assumption, the parameter binder does honor this attribute.
+                //
+                // This typename might be long, e.g.:
+                //     Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_Process
+                //     System.Management.ManagementObject#root\cimv2\Win32_Process
+                // To shorten this, we will drop the namespaces, both on the .Net side and the CIM/WMI side:
+                //     CimInstance#Win32_Process
+                // If our regex doesn't match, we'll just use the full name.
+                var match = Regex.Match(typeName.PSTypeName, "(.*\\.)?(?<NetTypeName>.*)#(.*[/\\\\])?(?<CimClassName>.*)");
+                if (match.Success)
+                {
+                    parameterTypeString = match.Groups["NetTypeName"].Value + "#" + match.Groups["CimClassName"].Value;
+                }
+                else
+                {
+                    parameterTypeString = typeName.PSTypeName;
+
+                    // Drop the namespace from the typename, if any.
+                    var lastDotIndex = parameterTypeString.LastIndexOf('.');
+                    if (lastDotIndex != -1 && lastDotIndex + 1 < parameterTypeString.Length)
+                    {
+                        parameterTypeString = parameterTypeString.Substring(lastDotIndex + 1);
+                    }
+                }
+
+                // If the type is really an array, but the typename didn't include [], then add it.
+                if (type.IsArray && !parameterTypeString.Contains("[]"))
+                {
+                    var t = type;
+                    while (t.IsArray)
+                    {
+                        parameterTypeString += "[]";
+                        t = t.GetElementType();
+                    }
+                }
+            }
+            else
+            {
+                Type parameterType = Nullable.GetUnderlyingType(type) ?? type;
+                parameterTypeString = GetAbbreviatedType(parameterType);
+            }
+
+            return parameterTypeString;
+        }
+
+        private void AddGenericArguments(StringBuilder sb, Type[] genericArguments)
+        {
+            sb.Append('[');
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                if (i > 0) { sb.Append(','); }
+
+                sb.Append(GetAbbreviatedType(genericArguments[i]));
+            }
+
+            sb.Append(']');
+        }
+
+        private string GetAbbreviatedType(Type type)
+        {
+            if (type is null)
+            {
+                return string.Empty;
+            }
+
+            string result;
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            {
+                string genericDefinition = GetAbbreviatedType(type.GetGenericTypeDefinition());
+                // For regular generic types, we find the backtick character, for example:
+                //      System.Collections.Generic.List`1[T] ->
+                //      System.Collections.Generic.List[string]
+                // For nested generic types, we find the left bracket character, for example:
+                //      System.Collections.Generic.Dictionary`2+Enumerator[TKey, TValue] ->
+                //      System.Collections.Generic.Dictionary`2+Enumerator[string,string]
+                int backtickOrLeftBracketIndex = genericDefinition.LastIndexOf(type.IsNested ? '[' : '`');
+                var sb = new StringBuilder(genericDefinition, 0, backtickOrLeftBracketIndex, 512);
+                AddGenericArguments(sb, type.GetGenericArguments());
+                result = sb.ToString();
+            }
+            else if (type.IsArray)
+            {
+                string elementDefinition = GetAbbreviatedType(type.GetElementType());
+                var sb = new StringBuilder(elementDefinition, elementDefinition.Length + 10);
+                sb.Append('[');
+                for (int i = 0; i < type.GetArrayRank() - 1; ++i)
+                {
+                    sb.Append(',');
+                }
+
+                sb.Append(']');
+                result = sb.ToString();
+            }
+            else
+            {
+                if (TranformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviation))
+                {
+                    return abbreviation;
+                }
+
+                if (type == typeof(PSCustomObject))
+                {
+                    return type.Name;
+                }
+
+                if (type.IsNested)
+                {
+                    // For nested types, we should return OuterType+InnerType. For example,
+                    //  System.Environment+SpecialFolder ->  Environment+SpecialFolder
+                    string fullName = type.ToString();
+                    result = type.Namespace == null
+                                ? fullName
+                                : fullName.Substring(type.Namespace.Length + 1);
+                }
+                else
+                {
+                    result = type.Name;
+                }
+            }
+
+            return result;
         }
 
         private string GetParameterTypeName(Type type)
