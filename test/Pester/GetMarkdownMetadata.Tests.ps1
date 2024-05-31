@@ -88,10 +88,20 @@ no notes
         It 'can parse out yaml snippet' {
             $ch = Import-MarkdownCommandHelp "$TestDrive/foo.md"
             $d = $ch.Metadata
-            $expectedKeys = @("content type", "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title")
+            $expectedKeys = @("document type", "external help file", "keywords", "Locale", "Module Name", "ms.date", "HelpUri", "PlatyPS schema version", "title")
             $d.Keys | Should -HaveCount $expectedKeys.Count
             $d.Keys | Should -BeIn $expectedKeys
             $d["Locale"] | Should -Be 'en-US'
+        }
+
+        It 'will sort metadata keys when exporting' {
+            $ch = Import-MarkdownCommandHelp -Path "${PSScriptRoot}/assets/get-date.md"
+            $originalMetadataKeys = $ch.Metadata.Keys
+            $sortedMetadataKeys = $originalMetadataKeys | Sort-Object
+            $originalMetadataKeys | Should -Not -Be $sortedMetadataKeys
+            $file = $ch | Export-MarkdownCommandHelp -OutputFolder ${TESTDRIVE}
+            $ch2 = $file | Import-MarkdownCommandHelp
+            $ch2.Metadata.Keys | Should -Be $sortedMetadataKeys
         }
     }
 }

@@ -1,5 +1,5 @@
 ---
-content type: cmdlet
+document type: cmdlet
 title: Compare-CommandHelp
 Module Name: Microsoft.PowerShell.PlatyPS
 Locale: "en-US"
@@ -60,7 +60,6 @@ description 3
 ```yaml
 Type: CommandHelp
 DefaultValue: ''
-VariableLength: true
 Globbing: false
 ParameterValue: []
 Aliases: []
@@ -83,7 +82,6 @@ HelpMessage: ''
 ```yaml
 Type: String[]
 DefaultValue: ''
-VariableLength: true
 Globbing: false
 ParameterValue: []
 Aliases: []
@@ -106,7 +104,6 @@ HelpMessage: ''
 ```yaml
 Type: CommandHelp
 DefaultValue: ''
-VariableLength: true
 Globbing: false
 ParameterValue: []
 Aliases: []

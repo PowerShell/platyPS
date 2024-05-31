@@ -164,14 +164,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            for (int i = 0; i < metadata1.Count; i++)
+            foreach(var k in metadata1.Keys)
             {
-                var key1 = metadata1.Cast<DictionaryEntry>().ElementAt(i).Key;
-                var value1 = metadata1.Cast<DictionaryEntry>().ElementAt(i).Value;
-                var key2 = metadata2.Cast<DictionaryEntry>().ElementAt(i).Key;
-                var value2 = metadata2.Cast<DictionaryEntry>().ElementAt(i).Value;
-
-                if (!key1.Equals(key2) || !value1.Equals(value2))
+                if (string.Compare(metadata1[k].ToString(), metadata2[k].ToString()) != 0)
                 {
                     return false;
                 }

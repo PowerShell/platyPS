@@ -92,7 +92,7 @@ namespace Microsoft.PowerShell.PlatyPS
                             }
                             else
                             {
-                                moduleFile.Metadata[key] = kv.Value;
+                                moduleFile.Metadata[key] = (string)kv.Value;
                             }
                         }
                     }

@@ -51,15 +51,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             }
 
             Hashtable metadataHashtable = new Hashtable();
-            OrderedDictionary mergedMetadata = new();
-
-            // Emit the metadata from the metadata hashtable if we have any.
-            // This is not to be fixed, but passed without alteration
-            if (metadata is not null)
-            {
-                mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata(metadata, help);
-            }
-
+            var mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata(metadata, help);
             metadataHashtable["metadata"] = mergedMetadata;
             sb.Append(YamlUtils.SerializeElement(metadataHashtable));
         }
@@ -158,7 +150,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 {
                     sb.AppendLine(Constants.CommonParametersYamlHeader);
                     sb.AppendLine("  description: |-");
-                    var commonParameters = ConstantsHelper.GetCommonParametersMessage();
+                    var commonParameters = ConstantsHelper.GetCommonParametersMessage(ConstantsHelper.CommonParametersVersions.PS7);
                     foreach(var line in commonParameters.Split(Constants.LineSplitter, stringSplitOptions))
                     {
                         sb.AppendLine($"    {line}");

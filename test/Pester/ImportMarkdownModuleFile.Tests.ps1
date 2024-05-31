@@ -3,7 +3,7 @@
 
 Describe "Import-ModuleFile tests" {
     BeforeAll {
-        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" }
+        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" -and $_.name -notmatch "Bad.Metadata.Order"}
     }
 
     Context "File creation" {
@@ -22,7 +22,7 @@ Describe "Import-ModuleFile tests" {
         BeforeAll {
             $mf0 = $modFiles[0] | Import-MarkdownModuleFile
             $testcases = @(
-                @{ PropertyName = "Metadata"; PropertyType = "ordered" }
+                @{ PropertyName = "Metadata"; PropertyType = "System.Collections.Generic.SortedDictionary[string,string]" }
                 @{ PropertyName = "Title"; PropertyType = "String" }
                 @{ PropertyName = "Module"; PropertyType = "String" }
                 @{ PropertyName = "ModuleGuid"; PropertyType = "Guid" }
@@ -110,14 +110,22 @@ Describe "Import-ModuleFile tests" {
             @{ Key = "ms.date"; Value = "02/20/2019" }
             @{ Key = "PlatyPS schema version"; Value = "2024-05-01" }
             @{ Key = "title"; Value = "CimCmdlets Module" }
-            @{ Key = "content type"; Value = "module" }
+            @{ Key = "document type"; Value = "module" }
         ) {
             param ($key, $value)
             $mf.Metadata[$key] | Should -Be $value
         }
         
         It "The key 'schema' should not be present" {
-            $mf.Metadata.Contains("schema") | Should -Be $false
+            $mf.Metadata.ContainsKey("schema") | Should -Be $false
+        }
+
+        It 'The metadata keys are alphabetical upon import' {
+            # these metadata keys are explicitly not in alpha-order
+            $mf = Import-MarkdownModuleFile "${PSScriptRoot}/assets/Bad.Metadata.Order.md"
+            $importedKeys = $mf.Metadata.Keys
+            $sortedKeys = $mf.Metadata.Keys | Sort-Object
+            $importedKeys | Should -Be $sortedKeys
         }
     }
 }

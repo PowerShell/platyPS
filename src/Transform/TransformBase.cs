@@ -7,9 +7,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Management.Automation;
+using System.Text.RegularExpressions;
+using System.Management.Automation.Language;
 using System.Security.Policy;
 using System.Text;
-
+using Markdig.Helpers;
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -78,7 +80,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            foreach(var input in GetInputInfo(commandInfo.Parameters.Values, helpItem, addDefaultStrings))
+            foreach(var input in GetInputInfo(commandInfo, helpItem, addDefaultStrings))
             {
                 cmdHelp.AddInputItem(input);
             }
@@ -99,38 +101,47 @@ namespace Microsoft.PowerShell.PlatyPS
         // We can also simplify the string if desired.
         private string GetAdjustedTypename(Type t, bool simplify = false)
         {
-            string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t) : tName = t.FullName;
+            string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t) : t.FullName;
             if (tName.EndsWith("[]"))
             {
-                tName = tName.Remove(tName.Length - 2);
+                tName = FixUpTypeName(tName);
             }
 
             return tName;
         }
 
         // We need to inspect both the help and the parameters for those that take pipeline input.
-        private List<InputOutput> GetInputInfo(IEnumerable<ParameterMetadata> parameters, dynamic? helpItem, bool addDefaultStrings)
+        private List<InputOutput> GetInputInfo(CommandInfo commandInfo, dynamic? helpItem, bool addDefaultStrings)
         {
+            IEnumerable<ParameterMetadata> parameters;
+            // It is possible that the Parameters member is null, so protect against that.
+            if (commandInfo.Parameters is null)
+            {
+                parameters = new List<ParameterMetadata>();
+            }
+            else
+            {
+                parameters = commandInfo.Parameters.Values;
+            }
             List<InputOutput> inputList = new();
             HashSet<string> inputTypeNames = new();
 
             // Sometime the help content does not have any input type
             if (helpItem?.inputTypes?.inputType is not null)
             {
-                var ioItem = GetInputOutputItem(
-                        helpItem.inputTypes.inputType,
-                        addDefaultStrings ? Constants.NoneString : string.Empty,
-                        addDefaultStrings ? Constants.FillInDescription : string.Empty);
-                if (ioItem is not null)
+                List<InputOutput> ioItems = GetInputOutputItemsFromHelp(helpItem.inputTypes.inputType);
+                foreach(var ioItem in ioItems)
                 {
                     if (! inputTypeNames.Contains(ioItem.Typename))
                     {
                         inputList.Add(ioItem);
                         inputTypeNames.Add(ioItem.Typename);
+
                     }
                 }
             }
 
+            // Check the parameters for ValueFromPipeline or ValueFromPipelineByPropertyName
             foreach(var parameter in parameters)
             {
                 string parameterType = GetAdjustedTypename(parameter.ParameterType);
@@ -153,43 +164,34 @@ namespace Microsoft.PowerShell.PlatyPS
         private List<InputOutput> GetOutputInfo(CommandInfo commandInfo, dynamic? helpItem, bool addDefaultStrings)
         {
             List<InputOutput> outputList = new();
-            List<string> outputTypeList = new();
+            HashSet<string> outputTypeNames = new();
 
             // Sometime the help content does not have any output type
             if (helpItem?.returnValues?.returnValue is not null)
             {
-                if (helpItem.returnValues.returnValue is IEnumerable)
+                List<InputOutput> outputItems = GetInputOutputItemsFromHelp(helpItem.returnValues.returnValue);
+                foreach(var o in outputItems)
                 {
-                    foreach(var value in helpItem.returnValues.returnValue)
+                    if (! outputTypeNames.Contains(o.Typename))
                     {
-                        var ioItem = GetInputOutputItem(
-                                value,
-                                addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
-                                addDefaultStrings ? Constants.FillInDescription : string.Empty);
-                        if (ioItem is not null)
-                        {
-                            if(! outputTypeList.Contains(ioItem.Typename))
-                            {
-                                outputList.Add(ioItem);
-                                outputTypeList.Add(ioItem.Typename);
-                            }
-                        }
+                        outputList.Add(o);
+                        outputTypeNames.Add(o.Typename);
                     }
                 }
-                else
+            }
+
+            // Check for the output on the CommandInfo object
+            foreach(var outputType in commandInfo.OutputType) {
+                string outputName = outputType.Name;
+                if (outputName.EndsWith("[]"))
                 {
-                    var ioItem = GetInputOutputItem(
-                            helpItem.returnValues.returnValue,
-                            addDefaultStrings ? Constants.SystemObjectTypename : string.Empty,
-                            addDefaultStrings ? Constants.FillInDescription : string.Empty);
-                    if (ioItem is not null)
-                    {
-                        if(! outputTypeList.Contains(ioItem.Typename))
-                        {
-                            outputList.Add(ioItem);
-                            outputTypeList.Add(ioItem.Typename);
-                        }
-                    }
+                    outputName = FixUpTypeName(outputName);
+                }
+
+                if (!outputTypeNames.Contains(outputName))
+                {
+                    outputList.Add(new InputOutput(outputName, Constants.FillInDescription));
+                    outputTypeNames.Add(outputName);
                 }
             }
 
@@ -326,7 +328,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         syn.SyntaxParameters.Add(
                             new SyntaxParameter(
                                 paramInfo.Name,
-                                GetParameterTypeName(paramInfo.ParameterType),
+                                GetParameterTypeNameForSyntax(paramInfo.ParameterType, paramInfo.Attributes),
                                 paramInfo.Position == int.MinValue ? "named" : paramInfo.Position.ToString(),
                                 paramInfo.IsMandatory,
                                 paramInfo.Position != int.MinValue,
@@ -346,6 +348,136 @@ namespace Microsoft.PowerShell.PlatyPS
         private bool IsNotCommonParameter(string name)
         {
             return ! Constants.CommonParametersNames.Contains(name);
+        }
+
+        private string GetParameterTypeNameForSyntax(Type type, IEnumerable<Attribute> attributes)
+        {
+            string parameterTypeString;
+            PSTypeNameAttribute typeName;
+            if (attributes != null && (typeName = attributes.OfType<PSTypeNameAttribute>().FirstOrDefault()) != null)
+            {
+                // If we have a PSTypeName specified on the class, we assume it has a more useful type than the actual
+                // parameter type.  This is a reasonable assumption, the parameter binder does honor this attribute.
+                //
+                // This typename might be long, e.g.:
+                //     Microsoft.Management.Infrastructure.CimInstance#root/cimv2/Win32_Process
+                //     System.Management.ManagementObject#root\cimv2\Win32_Process
+                // To shorten this, we will drop the namespaces, both on the .Net side and the CIM/WMI side:
+                //     CimInstance#Win32_Process
+                // If our regex doesn't match, we'll just use the full name.
+                var match = Regex.Match(typeName.PSTypeName, "(.*\\.)?(?<NetTypeName>.*)#(.*[/\\\\])?(?<CimClassName>.*)");
+                if (match.Success)
+                {
+                    parameterTypeString = match.Groups["NetTypeName"].Value + "#" + match.Groups["CimClassName"].Value;
+                }
+                else
+                {
+                    parameterTypeString = typeName.PSTypeName;
+
+                    // Drop the namespace from the typename, if any.
+                    var lastDotIndex = parameterTypeString.LastIndexOf('.');
+                    if (lastDotIndex != -1 && lastDotIndex + 1 < parameterTypeString.Length)
+                    {
+                        parameterTypeString = parameterTypeString.Substring(lastDotIndex + 1);
+                    }
+                }
+
+                // If the type is really an array, but the typename didn't include [], then add it.
+                if (type.IsArray && !parameterTypeString.Contains("[]"))
+                {
+                    var t = type;
+                    while (t.IsArray)
+                    {
+                        parameterTypeString += "[]";
+                        t = t.GetElementType();
+                    }
+                }
+            }
+            else
+            {
+                Type parameterType = Nullable.GetUnderlyingType(type) ?? type;
+                parameterTypeString = GetAbbreviatedType(parameterType);
+            }
+
+            return parameterTypeString;
+        }
+
+        private void AddGenericArguments(StringBuilder sb, Type[] genericArguments)
+        {
+            sb.Append('[');
+            for (int i = 0; i < genericArguments.Length; i++)
+            {
+                if (i > 0) { sb.Append(','); }
+
+                sb.Append(GetAbbreviatedType(genericArguments[i]));
+            }
+
+            sb.Append(']');
+        }
+
+        private string GetAbbreviatedType(Type type)
+        {
+            if (type is null)
+            {
+                return string.Empty;
+            }
+
+            string result;
+            if (type.IsGenericType && !type.IsGenericTypeDefinition)
+            {
+                string genericDefinition = GetAbbreviatedType(type.GetGenericTypeDefinition());
+                // For regular generic types, we find the backtick character, for example:
+                //      System.Collections.Generic.List`1[T] ->
+                //      System.Collections.Generic.List[string]
+                // For nested generic types, we find the left bracket character, for example:
+                //      System.Collections.Generic.Dictionary`2+Enumerator[TKey, TValue] ->
+                //      System.Collections.Generic.Dictionary`2+Enumerator[string,string]
+                int backtickOrLeftBracketIndex = genericDefinition.LastIndexOf(type.IsNested ? '[' : '`');
+                var sb = new StringBuilder(genericDefinition, 0, backtickOrLeftBracketIndex, 512);
+                AddGenericArguments(sb, type.GetGenericArguments());
+                result = sb.ToString();
+            }
+            else if (type.IsArray)
+            {
+                string elementDefinition = GetAbbreviatedType(type.GetElementType());
+                var sb = new StringBuilder(elementDefinition, elementDefinition.Length + 10);
+                sb.Append('[');
+                for (int i = 0; i < type.GetArrayRank() - 1; ++i)
+                {
+                    sb.Append(',');
+                }
+
+                sb.Append(']');
+                result = sb.ToString();
+            }
+            else
+            {
+                if (TranformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviation))
+                {
+                    return abbreviation;
+                }
+
+                if (type == typeof(PSCustomObject))
+                {
+                    return type.Name;
+                }
+
+                if (type.IsNested)
+                {
+                    // For nested types, we should return OuterType+InnerType. For example,
+                    //  System.Environment+SpecialFolder ->  Environment+SpecialFolder
+                    string fullName = type.ToString();
+                    result = type.Namespace == null
+                                ? fullName
+                                : fullName.Substring(type.Namespace.Length + 1);
+                }
+                else
+                {
+                    result = type.Name;
+                }
+            }
+
+            return result;
         }
 
         private string GetParameterTypeName(Type type)
@@ -594,28 +726,70 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
-        protected InputOutput? GetInputOutputItem(dynamic typesInfo, string defaultTypeName, string defaultDescription)
+        protected List<InputOutput> GetInputOutputItemsFromHelp(dynamic typesInfo)
         {
-            var inputOutput = new InputOutput(defaultTypeName, defaultDescription);
-            if (string.IsNullOrEmpty(defaultTypeName) && string.IsNullOrEmpty(defaultDescription))
-            {
-                dynamic ioTypes = typesInfo;
+            dynamic ioTypes = typesInfo;
+            List<InputOutput> itemList = new();
 
-                if (ioTypes is IEnumerable<PSObject>)
+            if (ioTypes is IEnumerable<PSObject>)
+            {
+                foreach (dynamic ioType in typesInfo)
                 {
-                    foreach (dynamic ioType in typesInfo)
+                    string typeName = FixUpTypeName(ioType.type.ToString());
+                    if (! string.IsNullOrEmpty(typeName) && string.Compare(typeName, "None", true) != 0)
                     {
-                        string typeName = ioType.type.ToString();
-                        inputOutput = new InputOutput(typeName, GetStringFromDescriptionArray(ioType.description));
+                        string description = GetStringFromDescriptionArray(ioType.description).Trim();
+                        itemList.Add(new InputOutput(typeName, string.IsNullOrEmpty(description) ? Constants.FillInDescription : description));
                     }
                 }
-                else if (ioTypes is PSObject)
+            }
+            else if (ioTypes is PSObject)
+            {
+                if  (ioTypes.type.name is string name)
                 {
-                    inputOutput = new InputOutput(ioTypes.type.name.ToString(), GetStringFromDescriptionArray(ioTypes.description));
+                    name = name.Trim();
+                    // Sometimes, help will return lines which have embedded newlines.
+                    // these are really multiple entries, so split them here.
+                    if (name.IndexOf("\n") == -1 && string.Compare(name, "None", true) != 0)
+                    {
+                        itemList.Add(new InputOutput(FixUpTypeName(name), Constants.FillInDescription));
+                    }
+                    else
+                    {
+                        foreach(var tName in name.Replace("\\r","").Split('\n'))
+                        {
+                            if (string.Compare(tName, "None", true) != 0)
+                            {
+                                itemList.Add(new InputOutput(FixUpTypeName(tName), Constants.FillInDescription));
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    string typeName = FixUpTypeName(ioTypes.type.name.ToString());
+                    if (! string.IsNullOrEmpty(typeName) && string.Compare(typeName, "None", true) != 0)
+                    {
+                        string description = GetStringFromDescriptionArray(ioTypes.description).Trim();
+                        itemList.Add(new InputOutput(typeName, string.IsNullOrEmpty(description) ? Constants.FillInDescription : description));
+                    }
                 }
             }
 
-            return inputOutput;
+            return itemList;
+        }
+
+        // We have to remove carriage returns that might be present from help
+        // We also will remove trailing [] because we should generally return singletons
+        private string FixUpTypeName(string typename)
+        {
+            string fixedString = typename.Trim();
+            if (fixedString.EndsWith("[]"))
+            {
+                fixedString = fixedString.Remove(fixedString.Length - 2);
+            }
+
+            return fixedString;
         }
 
         protected static string GetStringFromDescriptionArray(dynamic? description)
@@ -628,6 +802,11 @@ namespace Microsoft.PowerShell.PlatyPS
             if (description is string)
             {
                 return description;
+            }
+
+            if (description is not IEnumerable && description is PSObject)
+            {
+                return description.ToString();
             }
 
             StringBuilder sb = Constants.StringBuilderPool.Get();

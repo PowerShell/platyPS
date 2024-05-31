@@ -19,6 +19,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a markdown file and convert it to a ModuleFile object.
     /// </summary>
     [Cmdlet(VerbsData.Import, "MarkdownModuleFile", DefaultParameterSetName = "Path", HelpUri = "")]
+    [OutputType(typeof(ModuleFileInfo))]
     public sealed class ImportMarkdownModuleFileCommand : PSCmdlet
     {
 #region cmdlet parameters

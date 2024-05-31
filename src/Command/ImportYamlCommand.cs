@@ -21,6 +21,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// </summary>
     [Cmdlet(VerbsData.Import, "YamlCommandHelp", HelpUri = "", DefaultParameterSetName = "Path")]
     [OutputType(typeof(Dictionary<object, object>))]
+    [OutputType(typeof(CommandHelp))]
     public sealed class ImportYamlMetadataCommand : PSCmdlet
     {
         #region cmdlet parameters

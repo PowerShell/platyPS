@@ -3,7 +3,7 @@
 
 Describe "Export-MarkdownModuleFile" {
     BeforeAll {
-        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" }
+        $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" -and $_.Name -notmatch "Bad.Metadata.Order" }
         $modFileNames = $modFiles.Foreach({$_.Name})
         $modObjects = $modFiles | Import-MarkdownModuleFile
     }
@@ -50,7 +50,7 @@ Describe "Export-MarkdownModuleFile" {
             @{ Name = "ms.date" }
             @{ Name = "PlatyPS schema version" }
             @{ Name = "title" }
-            @{ Name = "content type" }
+            @{ Name = "document type" }
         ) {
             param ($name)
             $testMF.Metadata[$name] | Should -Be $modObjects[3].Metadata[$name]

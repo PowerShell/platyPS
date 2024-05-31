@@ -154,7 +154,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 sb.AppendLine(Constants.mdCommonParametersHeader);
                 sb.AppendLine();
-                sb.AppendLine(ConstantsHelper.GetCommonParametersMessage());
+                sb.AppendLine(ConstantsHelper.GetCommonParametersMessage(ConstantsHelper.CommonParametersVersions.PS7));
                 sb.AppendLine();
             }
 

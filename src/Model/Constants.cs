@@ -5,24 +5,31 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.IO;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
     internal class ConstantsHelper
     {
-        internal static string GetCommonParametersMessage()
+        internal enum CommonParametersVersions
         {
-            List<string> paramWithDash = new();
-            foreach (string param in Constants.CommonParametersNames)
-            {
-                paramWithDash.Add($"-{param}");
-            }
+            PS5, // Common parameters for Windows PowerShell
+            PS7 // Common parameters for PowerShell 7
+        }
 
-            return
-                ParagraphFormatHelper.FormatParagraph(
-                    string.Format(Constants.CommonParametersFmt, string.Join(", ", paramWithDash)),
-                    new ParagraphFormatSettings(){LineLength = 100}
-                );
+        // Eventually, we wish to support both PS5 and PS7 common parameters messages.
+        // This will enable this more easily.
+        internal static string GetCommonParametersMessage(CommonParametersVersions version)
+        {
+            switch (version)
+            {
+                case CommonParametersVersions.PS5:
+                    return Constants.CommonParametersPS5;
+                case CommonParametersVersions.PS7:
+                    return Constants.CommonParametersPS7;
+                default:
+                    throw new InvalidDataException();
+            }
         }
     }
 
@@ -37,6 +44,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal static readonly string WorkflowCommonParametersMessage = "This cmdlet also supports workflow specific common parameters.\nFor information, see [about_WorkflowCommonParameters](../PSWorkflow/About/about_WorkflowCommonParameters.md).";
 
         internal const string CommonParametersFmt = "This cmdlet supports the common parameters: {0}.\nFor more information, see [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
+        internal const string CommonParametersPS5 = "This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,\n-InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,\n-Verbose, -WarningAction, and -WarningVariable. For more information, see\n[about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
+        internal const string CommonParametersPS7 = "This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,\n-InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,\n-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see\n[about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).";
+
         internal const string RequiredParamTemplate = "-{0} <{1}>";
         internal const string OptionalParamTemplate = "[-{0} <{1}>]";
         internal const string RequiredPositionalParamTemplate = "[-{0}] <{1}>";

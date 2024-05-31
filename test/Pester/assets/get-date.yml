@@ -1,12 +1,12 @@
 metadata:
+  document type: cmdlet
   external help file: Microsoft.PowerShell.Commands.Utility.dll-Help.xml
+  HelpUri: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp
   Locale: en-US
   Module Name: Microsoft.PowerShell.Utility
   ms.date: 12/12/2022
-  HelpUri: https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp
   PlatyPS schema version: 2024-05-01
   title: Get-Date
-  content type: cmdlet
 title: Get-Date
 synopsis: 'Gets the current date and time.'
 syntaxes:
@@ -420,7 +420,6 @@ parameters:
     This parameter was introduced in PowerShell 7.1.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -449,7 +448,6 @@ parameters:
     `Get-Date -Date "6/25/2019 12:30:22"` returns Tuesday, June 25, 2019 12:30:22
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: LastWriteTime
   dontShow: false
@@ -479,7 +477,6 @@ parameters:
     days to the month. For example, `Get-Date -Month 2 -Day 31` displays **March 3**, not **February 31**.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -503,7 +500,6 @@ parameters:
     - **DateTime**: displays the date and time
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -559,7 +555,6 @@ parameters:
       indicator). For example: 20190627T1540500718Z.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -583,7 +578,6 @@ parameters:
   description: Specifies the hour that is displayed. Enter a value from 0 to 23.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -600,7 +594,6 @@ parameters:
     This parameter was introduced in PowerShell 3.0.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -613,7 +606,6 @@ parameters:
   description: Specifies the minute that is displayed. Enter a value from 0 to 59.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -626,7 +618,6 @@ parameters:
   description: Specifies the month that is displayed. Enter a value from 1 to 12.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -639,7 +630,6 @@ parameters:
   description: Specifies the second that is displayed. Enter a value from 0 to 59.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -665,7 +655,6 @@ parameters:
     objects might not be available.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -693,7 +682,6 @@ parameters:
     This parameter was introduced in PowerShell 7.1.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: UnixTime
   dontShow: false
@@ -717,7 +705,6 @@ parameters:
   description: Specifies the year that is displayed. Enter a value from 1 to 9999.
   parameterValue: []
   defaultValue: None
-  variableLength: true
   supportsWildcards: false
   aliases: ''
   dontShow: false
@@ -730,8 +717,7 @@ parameters:
   description: |-
     This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
     -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
-    -ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-    For more information, see
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
     [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 inputs:
 - name: System.DateTime

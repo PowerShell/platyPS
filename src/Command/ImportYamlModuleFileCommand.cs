@@ -17,6 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a yaml file and convert it to a ModuleFile object.
     /// </summary>
     [Cmdlet(VerbsData.Import, "YamlModuleFile", DefaultParameterSetName = "Path", HelpUri = "")]
+    [OutputType(typeof(ModuleFileInfo))]
     public sealed class ImportYamlModuleFileCommand : PSCmdlet
     {
 #region cmdlet parameters
