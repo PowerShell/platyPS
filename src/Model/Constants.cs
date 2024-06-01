@@ -83,6 +83,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string FillHelpVersion = "{{ Please enter version of help manually (X.X.X.X) format }}";
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
+        internal const string skippingMessageFmt = "'{0}' exists, skipping. Use -Force to overwrite.";
 
         // TODO: ProgressAction is not a common parameter for all versions of PowerShell.
         //  This should not be added under all circumstances.

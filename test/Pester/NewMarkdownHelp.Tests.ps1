@@ -51,8 +51,7 @@ Describe 'New-MarkdownCommandHelp' {
                 OutputFolder = $TestDrive
                 Metadata = @{ "Module Name" = 'NewModule' }
             }
-            $expectedErrorId = 'NonUniqueMetadataKey,Microsoft.PowerShell.PlatyPS.NewMarkdownHelpCommand'
-            $file = New-MarkdownCommandHelp @mdArgs
+            $file = New-MarkdownCommandHelp @mdArgs -Force
             $ch = Import-MarkdownCommandHelp $file.FullName
             $ch.Metadata['Module Name'] | Should -Be "NewModule"
         }

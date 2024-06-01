@@ -73,8 +73,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 var yamlPath = Path.Combine($"{fullPath}", $"{ch.Title}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
-                    // should be error
-                    WriteWarning($"skipping {ch.Title}");
+                    // should be error?
+                    WriteWarning(string.Format(Constants.skippingMessageFmt, ch.Title));
                 }
                 else
                 {

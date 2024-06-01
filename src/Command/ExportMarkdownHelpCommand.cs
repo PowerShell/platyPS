@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "MarkdownCommandHelp", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class ExportMarkdownCommandHelpCommand : PSCmdlet
     {
@@ -48,6 +48,8 @@ namespace Microsoft.PowerShell.PlatyPS
         private string fullPath { get; set; } = string.Empty;
         private string outputPath { get; set; } = string.Empty;
 
+        private bool noProcess { get; set; }
+
         protected override void BeginProcessing()
         {
             outputPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
@@ -60,21 +62,33 @@ namespace Microsoft.PowerShell.PlatyPS
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(outputPath))
+            if (ShouldProcess(outputPath))
             {
-                Directory.CreateDirectory(outputPath);
+                if (!Directory.Exists(outputPath))
+                {
+                    Directory.CreateDirectory(outputPath);
+                }
+            }
+            else
+            {
+                noProcess = true;
             }
         }
 
         protected override void ProcessRecord()
         {
+            if (noProcess)
+            {
+                return;
+            }
+
             foreach (CommandHelp cmdletHelp in Command)
             {
                 var markdownPath = Path.Combine($"{outputPath}", $"{cmdletHelp.Title}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    // should be error
-                    WriteWarning($"skipping {cmdletHelp.Title}, use -Force to export.");
+                    // should be error?
+                    WriteWarning(string.Format(Constants.skippingMessageFmt, cmdletHelp.Title));
                 }
                 else
                 {

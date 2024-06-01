@@ -26,7 +26,7 @@ Describe "Export-MarkdownCommandHelp" {
             $file = New-Item -Type file "${TestDrive}/Get-Date.md"
             $w = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputFolder 3>&1
             $w | Should -BeOfType System.Management.Automation.WarningRecord
-            "$w" | Should -Be "skipping Get-Date, use -Force to export."
+            $w.Message | Should -Be "'Get-Date' exists, skipping. Use -Force to overwrite."
             $fi = Get-ChildItem $file
             $fi.Length | Should -Be 0
         }

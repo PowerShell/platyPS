@@ -26,6 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter(Mandatory=true, Position=0, ValueFromPipeline=true, ParameterSetName= "Path")]
         [ValidateNotNullOrEmpty]
+        [SupportsWildcards]
         public string[] Path { get; set; } = Array.Empty<string>();
 
         [Parameter(Mandatory=true, ValueFromPipeline=true, ParameterSetName= "LiteralPath")]

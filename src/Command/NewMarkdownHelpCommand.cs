@@ -111,6 +111,11 @@ namespace Microsoft.PowerShell.PlatyPS
         // now that the commands are all gathered, transform them into command help objects
         protected override void EndProcessing()
         {
+            if (!ShouldProcess(OutputFolder))
+            {
+                return;
+            }
+
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
             Dictionary<string, PSModuleInfo> moduleTable = new();
 
@@ -207,7 +212,14 @@ namespace Microsoft.PowerShell.PlatyPS
                         Directory.CreateDirectory(moduleFolder);
                     }
 
-                    var settings = new WriterSettings(Encoding, Path.Combine(moduleFolder, $"{cmdHelp.Title}.md"));
+                    var helpFilePath = Path.Combine(moduleFolder, $"{cmdHelp.Title}.md");
+                    if (new FileInfo(helpFilePath).Exists && ! Force)
+                    {
+                        WriteWarning(string.Format(Constants.skippingMessageFmt, helpFilePath));
+                        continue;
+                    }
+
+                    var settings = new WriterSettings(Encoding, helpFilePath);
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
                     WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
                 }
@@ -217,7 +229,14 @@ namespace Microsoft.PowerShell.PlatyPS
                     string moduleFilePath = Path.Combine(moduleFolder, $"{moduleName}.md");
                     var modulePageSettings = new WriterSettings(Encoding, moduleFilePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);
-                    WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                    if (new FileInfo(moduleFilePath).Exists && ! Force)
+                    {
+                        WriteWarning(string.Format(Constants.skippingMessageFmt, moduleFilePath));
+                    }
+                    else
+                    {
+                        WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                    }
                 }
             }
         }

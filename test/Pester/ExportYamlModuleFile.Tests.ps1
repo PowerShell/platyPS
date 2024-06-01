@@ -32,7 +32,7 @@ Describe "Export-YamlModuleFile tests" {
             Set-Content $outFile[0].FullName -Value $null
             $result = $moduleFileInfos[0] | Export-YamlModuleFile -OutputFolder ${outputFolder} 3>&1
             $result | Should -BeOfType [System.Management.Automation.WarningRecord] 
-            $result.Message | Should -Be "skipping Microsoft.PowerShell.Archive"
+            $result.Message | Should -Be "'Microsoft.PowerShell.Archive' exists, skipping. Use -Force to overwrite."
             (Get-ChildItem $outFile[0]).Length | Should -Be 0
         }
 

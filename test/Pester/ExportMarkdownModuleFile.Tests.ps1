@@ -20,7 +20,7 @@ Describe "Export-MarkdownModuleFile" {
             $result = $modObjects[1] | Export-MarkdownModuleFile -outputFolder ${TestDrive} 3>&1
             # this is a warning object, make it a string
             $result | Should -BeOfType System.Management.Automation.WarningRecord
-            "$result" | Should -Be "skipping Microsoft.PowerShell.Archive"
+            $result.Message | Should -Be "'Microsoft.PowerShell.Archive' exists, skipping. Use -Force to overwrite."
         }
 
         It "Should be able to export a number of module files" {
