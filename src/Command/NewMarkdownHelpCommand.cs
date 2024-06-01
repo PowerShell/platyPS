@@ -181,6 +181,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (moduleTable.TryGetValue(moduleName, out var psModuleInfo))
                 {
                     moduleFileInfo = new ModuleFileInfo(psModuleInfo, locale);
+                    if (string.IsNullOrEmpty(moduleFileInfo.Description.Trim()))
+                    {
+                        moduleFileInfo.Description = Constants.FillInDescription;
+                    }
                 }
                 else
                 {
@@ -199,11 +203,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     moduleName = cmdHelp.ModuleName;
                     moduleFolder = Path.Combine(outputFolderBase, moduleName);
+                    string synopsis = cmdHelp.Synopsis;
                     var mci = new ModuleCommandInfo()
                     {
                         Name = cmdHelp.Title,
                         Link = $"{cmdHelp.Title}.md",
-                        Description = "{{ Add description here }}"
+                        Description = string.IsNullOrEmpty(synopsis) ? Constants.FillInDescription : synopsis
                     };
                     moduleFileInfo.Commands.Add(mci);
 

@@ -464,11 +464,12 @@ Write-Host 'Hello World!'
         }
     }
 
-    Context 'Module Landing Page'{
+    Context 'Module Landing Page' {
 
         BeforeAll {
             $OutputFolder = "$TestDrive/LandingPageMD"
             $OutputFolderModuleFile = "$TestDrive/LandingPageMD/Microsoft.PowerShell.PlatyPS/Microsoft.PowerShell.PlatyPS.md"
+            $skipTest = "$(Get-Help Get-ChildItem -ErrorAction Ignore)" -eq ""
         }
 
         It "generates a landing page from Module" {
@@ -486,6 +487,21 @@ Write-Host 'Hello World!'
             finally {
                 Pop-Location
             }
+        }
+
+        It 'The commands in the landing page have a proper synopsis' -skip:$skipTest {
+            $outputFolder = join-path "${TESTDRIVE}" synopsistest
+            $cmd = Get-Command Get-ChildItem
+            $cmd | New-MarkdownCommandHelp -OutputFolder $outputFolder -WithModulePage
+            $cmdName = $cmd.Name
+            $moduleName = $cmd.ModuleName
+            $outputDirectory = Join-Path $outputFolder $moduleName
+            (Get-ChildItem $outputDirectory).Count | Should -Be 2
+            $landingPath = Join-Path $outputDirectory "${moduleName}.md"
+            $cmdHelpPath = Join-Path $outputDirectory "${cmdName}.md"
+            $mf = Import-MarkdownModuleFile $landingPath
+            $ch = Import-MarkdownCommandHelp $cmdHelpPath
+            $mf.Commands[0].Description | Should -Be $ch.Synopsis
         }
     }
 
