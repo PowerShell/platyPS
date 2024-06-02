@@ -85,7 +85,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 var moduleMamlPath = Path.Combine(outputDirectory.FullName, $"{moduleName}-Help.xml");
                 if (File.Exists(moduleMamlPath) && ! Force)
                 {
-                    WriteError(new ErrorRecord(new ArgumentException(moduleMamlPath), "ExportMamlCommand,FilePresent", ErrorCategory.ResourceExists, moduleMamlPath));
+                    WriteWarning(string.Format(Model.Constants.skippingMessageFmt, moduleMamlPath));
                 }
                 else
                 {
