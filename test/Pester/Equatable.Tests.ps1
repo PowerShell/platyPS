@@ -57,7 +57,7 @@ Describe "Test IEquatable" {
 
 
     Context "Reflection based testing for individual properties because CommandHelp object is not public" {
-    
+
         It "Should have the same Synopsis" {
             $CommandHelpObject1.Synopsis -eq $CommandHelpObject2.Synopsis | Should -Be $true
         }

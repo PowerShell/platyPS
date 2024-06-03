@@ -46,6 +46,5 @@ Describe "Test-MarkdownCommandHelp Tests" {
         param ($line)
         $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md) -DetailView
         $result.Messages | Should -Contain $line
-        
     }
 }

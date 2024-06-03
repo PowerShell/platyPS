@@ -10,7 +10,7 @@ Describe "Miscellaneous cmdlet tests" {
         It 'Cmdlet <cmdlet> should have a "LiteralPath" parameter to match Path' -testcases @(
         foreach($cmd in $platyPScmdlets.Where({$_.Parameters['Path']})) {
             @{ cmdlet = $cmd }
-        } 
+        }
         ) {
             param ($cmdlet)
             $cmdlet.Parameters['LiteralPath'] | Should -Not -BeNullOrEmpty
@@ -32,7 +32,7 @@ Describe "Miscellaneous cmdlet tests" {
             $platyPSCmdlets.Where({$_.Parameters['Encoding']}).Foreach({ @{ Cmdlet = $_; Parameter = $_.Parameters['Encoding'] }})
         ) {
             param ($cmdlet, $parameter)
-            $completerType = $parameter.Attributes.Where({$_.TypeId -eq [System.Management.Automation.ArgumentCompleterAttribute]}).Type.Name 
+            $completerType = $parameter.Attributes.Where({$_.TypeId -eq [System.Management.Automation.ArgumentCompleterAttribute]}).Type.Name
             $completerType | Should -Be "EncodingCompleter"
         }
     }
