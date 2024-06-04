@@ -19,7 +19,10 @@ param(
     [string] $XUnitLogPath = "$PSScriptRoot/xunit.tests.xml",
 
     [Parameter(ParameterSetName = "Test")]
-    [string] $PesterLogPath = "$PSScriptRoot/pester.tests.xml"
+    [string] $PesterLogPath = "$PSScriptRoot/pester.tests.xml",
+
+    [Parameter(ParameterSetName = "Package")]
+    [switch]$Package
 )
 
 $ModuleName = "Microsoft.PowerShell.PlatyPS"
@@ -94,4 +97,21 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
     if ($results."test-results".failures -ne 0) {
         throw "Pester Tests failed."
     }
+}
+
+if ($Package) {
+    if (! (Test-Path "$PSScriptRoot/out/Microsoft.PowerShell.PlatyPS")) {
+        throw "Module is missing, run build first"
+    }
+
+    $moduleDir = Join-Path $OutputDir $ModuleName
+    $localRepoName = [guid]::newguid().ToString("N")
+    try {
+        Register-PSRepository -Name $localRepoName -SourceLocation $PSScriptRoot -PublishLocation $PSScriptRoot -InstallationPolicy Trusted
+        Publish-Module -Repository $localRepoName -Path $moduleDir
+    }
+    finally {
+        Unregister-PSRepository -Name $localRepoName -ErrorAction SilentlyContinue
+    }
+    Get-ChildItem -Path $PSScriptRoot/*.nupkg
 }

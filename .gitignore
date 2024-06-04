@@ -201,3 +201,6 @@ publish/
 
 # For developing in VSCode
 .vscode/launch.json
+
+# exclude the module nupkg
+Microsoft.PowerShell.PlatyPS.*.nupkg
