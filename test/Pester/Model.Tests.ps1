@@ -4,7 +4,7 @@
 Describe "Model type tests" {
     BeforeAll {
         $cmdInfo = get-command New-MarkdownCommandHelp
-        $commandHelpType = $cmdInfo.ImplementingType.Assembly.GetType("Microsoft.PowerShell.PlatyPS.Model.CommandHelp")     
+        $commandHelpType = $cmdInfo.ImplementingType.Assembly.GetType("Microsoft.PowerShell.PlatyPS.Model.CommandHelp")
         $ObjectProperties = @(
             @{ type = 'System.Globalization.CultureInfo'; Nullable = $false; Name = "Locale" }
             @{ type = 'System.Nullable`1[System.Guid]'; Nullable = $true; Name = "ModuleGuid" }
@@ -33,6 +33,4 @@ Describe "Model type tests" {
         $property = $commandHelpType.GetProperty($name, $BindingFlags)
         $property.PropertyType.ToString() | Should -BeExactly $type
     }
-    
-    
 }

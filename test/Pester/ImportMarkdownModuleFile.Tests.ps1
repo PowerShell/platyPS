@@ -96,7 +96,7 @@ Describe "Import-ModuleFile tests" {
             $cimCmdletFile = $modFiles | Where-Object { $_.Name -eq "CimCmdlets.md" }
             $mf = Import-MarkdownModuleFile $cimCmdletFile
         }
-            
+
         It "Should have non null metadata" {
             $mf.Metadata | Should -Not -BeNullOrEmpty
         }
@@ -115,7 +115,7 @@ Describe "Import-ModuleFile tests" {
             param ($key, $value)
             $mf.Metadata[$key] | Should -Be $value
         }
-        
+
         It "The key 'schema' should not be present" {
             $mf.Metadata.ContainsKey("schema") | Should -Be $false
         }

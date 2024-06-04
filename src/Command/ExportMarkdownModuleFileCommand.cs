@@ -73,8 +73,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    // should be error
-                    WriteWarning($"skipping {moduleFile.Module}");
+                    // should be error?
+                    WriteWarning(string.Format(Constants.skippingMessageFmt, moduleFile.Module));
                 }
                 else
                 {

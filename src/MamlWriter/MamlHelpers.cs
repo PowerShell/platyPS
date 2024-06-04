@@ -10,7 +10,6 @@ using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Text;
 
-
 namespace Microsoft.PowerShell.PlatyPS.MAML
 {
     /// <summary>
@@ -168,7 +167,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             newParameter.Name = parameter.Name;
             newParameter.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
             newParameter.SupportsGlobbing = parameter.SupportsWildcards;
-            newParameter.Position = parameter.ParameterSets.FirstOrDefault().Position;
+            var pSet = parameter.ParameterSets.FirstOrDefault();
+            newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
             newParameter.Value = GetParameterValue(parameter);
 
             if (parameter.Description is not null)

@@ -42,6 +42,7 @@ namespace Microsoft.PowerShell.PlatyPS
     public class TestMarkdownCommandHelpCommand : PSCmdlet
     {
         [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        [SupportsWildcards]
         public string[] FullName { get; set; } = Array.Empty<string>();
 
         [Parameter]

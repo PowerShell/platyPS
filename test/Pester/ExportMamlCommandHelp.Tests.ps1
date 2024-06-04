@@ -29,8 +29,9 @@ Describe "Export-MamlCommandHelp tests" {
             $bytes | Should -Be 60, 63
         }
 
-        It "Should have an error if the file already exists" {
-            { $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -ErrorAction stop } | Should -Throw
+        It "Should have a warning if the file already exists" {
+            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -WarningVariable warnvar
+            $warnvar.Count | Should -Be 2
         }
 
         It "Should not have an error if the file already exists and -Force is used" {

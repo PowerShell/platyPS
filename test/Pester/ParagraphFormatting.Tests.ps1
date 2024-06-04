@@ -53,7 +53,7 @@ Describe "ParagraphFormatHelper" {
         $lines = "This is a test paragraph.", "This is a test paragraph.", "This is a test paragraph.", "This is a test paragraph.", "This is a test paragraph."
         $expected = "        This is a test paragraph. This is a test",
                     "    paragraph. This is a test paragraph. This is",
-                    "    a test paragraph. This is a test paragraph." 
+                    "    a test paragraph. This is a test paragraph."
         $result = [ParagraphFormatHelper]::FormatParagraph($lines, $settings) -split [System.Environment]::NewLine
         $result | Should -Be $expected
     }

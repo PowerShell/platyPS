@@ -75,7 +75,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?
-                    WriteWarning($"skipping {moduleName}");
+                    WriteWarning(string.Format(Constants.skippingMessageFmt, moduleName));
                 }
                 else
                 {
