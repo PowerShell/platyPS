@@ -13,7 +13,6 @@ trigger: none
 pr: none
 
 variables:
-  system.debug: ${{ parameters.debug }}
   BuildConfiguration: Release
   DOTNET_NOLOGO: true
   DOTNET_GENERATE_ASPNET_CERTIFICATE: false
