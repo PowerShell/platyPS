@@ -111,12 +111,13 @@ extends:
               signing_profile: external_distribution
               search_root: $(Build.SourcesDirectory)
               files_to_sign: "*.nupkg"
-          - task: PublishPipelineArtifact@1
-            displayName: Publish Nupkg
+          - task: ArchiveFiles@2
+            displayName: Zip nupkg
             inputs:
-              targetPath: $(Build.SourcesDirectory)\Microsoft.PowerShell.PlatyPS.$(package.nupkgversion).nupkg
-              artifact: ModuleNupkg
-              publishLocation: pipeline
+              rootFolderOrFile: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: out/Microsoft.PowerShell.PlatyPS.nupkg.zip
     - stage: release
       dependsOn: build
       variables:
@@ -149,6 +150,6 @@ extends:
           displayName: Publish ConsoleGuiTools to PowerShell Gallery
           inputs:
             command: push
-            packagesToPush: $(drop)/Microsoft.PowerShell.PlatyPS.$(version).nupkg
+            packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
             nuGetFeedType: external
             publishFeedCredentials: PowerShellGallery
