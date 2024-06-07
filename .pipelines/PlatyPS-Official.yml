@@ -48,8 +48,16 @@ extends:
           - pwsh: |
               Write-Verbose -Verbose ((Get-Item $(Build.SourcesDirectory)).FullName)
               Get-ChildItem $(Build.SourcesDirectory) -Recurse -File -Name | Write-Verbose -Verbose
-              $moduleVersion = (Import-PowerShellDataFile -Path src/Microsoft.PowerShell.PlatyPS.psd1).ModuleVersion
+              $manifestData = Import-PowerShellDataFile -Path src/Microsoft.PowerShell.PlatyPS.psd1
+              $moduleVersion = $manifestData.ModuleVersion
               Write-Output "##vso[task.setvariable variable=version;isOutput=true]$moduleVersion"
+              if ($manifestData.PrivateData.PsData.Prerelease) {
+                $prerel = $manifestData.PrivateData.PSData.Prerelease
+                $nupkgVersion = "${moduleVersion}-${prerel}"
+              } else {
+                $nupkgVersion = $moduleVersion
+              }
+              Write-Output "##vso[task.setvariable variable=nupkgversion;isOutput=true]$nupkgVersion"
             name: package
             displayName: Get version from project properties
           - task: onebranch.pipeline.version@1
@@ -103,6 +111,12 @@ extends:
               signing_profile: external_distribution
               search_root: $(Build.SourcesDirectory)
               files_to_sign: "*.nupkg"
+          - task: PublishPipelineArtifact@1
+            displayName: Publish Nupkg
+            inputs:
+              targetPath: $(Build.SourcesDirectory)\Microsoft.PowerShell.PlatyPS.$(package.nupkgversion).nupkg
+              artifact: ModuleNupkg
+              publishLocation: pipeline
     - stage: release
       dependsOn: build
       variables:
