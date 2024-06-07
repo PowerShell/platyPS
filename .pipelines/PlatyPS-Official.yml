@@ -28,6 +28,10 @@ extends:
       asyncSdl:
         enabled: true
         forStages: [build]
+      credscan:
+        enabled: true
+        scanfolder: $(Build.SourcesDirectory)
+        suppressionsFile: $(Build.SourcesDirectory)\.config\suppress.json
     stages:
     - stage: build
       jobs:
