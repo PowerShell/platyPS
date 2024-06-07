@@ -42,8 +42,8 @@ extends:
           value: $(Build.SourcesDirectory)\.config\suppress.json
         steps:
           - pwsh: |
-              Write-Verbose -Verbose ((Get-Item $(Build.SourceDirectory)).FullName)
-              Get-ChildItem $(Build.SourceDirectory) -Recurse -File -Name | Write-Verbose -Verbose
+              Write-Verbose -Verbose ((Get-Item $(Build.SourcesDirectory)).FullName)
+              Get-ChildItem $(Build.SourcesDirectory) -Recurse -File -Name | Write-Verbose -Verbose
               $moduleVersion = (Import-PowerShellDataFile -Path src/Microsoft.PowerShell.PlatyPS.psd1).ModuleVersion
               Write-Output "##vso[task.setvariable variable=version;isOutput=true]$moduleVersion"
             name: package
@@ -89,8 +89,8 @@ extends:
           - pwsh: |
               ./build -package
               Write-Verbose -Verbose ((Get-Item .).FullName)
-              Write-Verbose -Verbose ((Get-Item $(Build.SourceDirectory)).FullName)
-              Get-ChildItem $(Build.SourceDirectory) -Recurse -File -Name | Write-Verbose -Verbose
+              Write-Verbose -Verbose ((Get-Item $(Build.SourcesDirectory)).FullName)
+              Get-ChildItem $(Build.SourcesDirectory) -Recurse -File -Name | Write-Verbose -Verbose
             displayName: Package module
           - task: onebranch.pipeline.signing@1
             displayName: Sign NuGet package
