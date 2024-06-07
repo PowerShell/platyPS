@@ -70,7 +70,7 @@ extends:
             inputs:
               command: sign
               signing_profile: 135020002
-              search_root: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
+              search_root: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS/Dependencies
               files_to_sign: |
                 Markdig.Signed.dll;
                 YamlDotNet.dll;
@@ -80,7 +80,7 @@ extends:
               rootFolderOrFile: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
               includeRootFolder: false
               archiveType: zip
-              archiveFile: out/platyPS-v$(package.version).zip
+              archiveFile: out/Microsoft.PowerShell.PlatyPS-v$(package.version).zip
           - pwsh: ./build -package
             displayName: Package module
           - task: onebranch.pipeline.signing@1
@@ -88,7 +88,7 @@ extends:
             inputs:
               command: sign
               signing_profile: external_distribution
-              search_root: $(Build.SourcesDirectory)/out
+              search_root: $(Build.SourcesDirectory)
               files_to_sign: "*.nupkg"
     - stage: release
       dependsOn: build
