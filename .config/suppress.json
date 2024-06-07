@@ -1,0 +1,9 @@
+{
+    "tool": "Credential Scanner",
+    "suppressions": [
+       {
+         "file": "\\test\\Pester\\assets\\Microsoft.PowerShell.Commands.Utility.dll-Help.xml",
+          "_justification": "Documentation example."
+        }
+     ]
+}
