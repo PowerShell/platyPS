@@ -16,7 +16,7 @@ jobs:
     timeoutInMinutes: 10
 
   - ${{ parameters.powershellExecutable }}: |
-      Install-module Pester -Force -MaximumVersion 4.99
+      Install-Module Pester -Force -MaximumVersion 4.99 -SkipPublisherCheck
     displayName: Install dependencies - Pester
     timeoutInMinutes: 10
 

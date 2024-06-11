@@ -1,0 +1,155 @@
+name: PlatyPS-ModuleBuild-$(Build.BuildId)
+trigger: none
+pr: none
+
+variables:
+  BuildConfiguration: Release
+  DOTNET_NOLOGO: true
+  DOTNET_GENERATE_ASPNET_CERTIFICATE: false
+  DOTNET_CLI_TELEMETRY_OPTOUT: 1
+  POWERSHELL_TELEMETRY_OPTOUT: 1
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: 1
+  WindowsContainerImage: onebranch.azurecr.io/windows/ltsc2022/vse2022:latest
+
+resources:
+  repositories:
+  - repository: templates
+    type: git
+    name: OneBranch.Pipelines/GovernedTemplates
+    ref: refs/heads/main
+
+extends:
+  # https://aka.ms/obpipelines/templates
+  template: v2/OneBranch.Official.CrossPlat.yml@templates
+  parameters:
+    featureFlags:
+      WindowsHostVersion: '1ESWindows2022'
+    globalSdl: # https://aka.ms/obpipelines/sdl
+      asyncSdl:
+        enabled: true
+        forStages: [build]
+      credscan:
+        enabled: true
+        scanfolder: $(Build.SourcesDirectory)
+        suppressionsFile: $(Build.SourcesDirectory)\.config\suppress.json
+    stages:
+    - stage: build
+      jobs:
+      - job: main
+        displayName: Build package
+        pool:
+          type: windows
+        variables:
+        - name: ob_outputDirectory
+          value: $(Build.SourcesDirectory)/out
+        - name: ob_sdl_credscan_suppressionsFile
+          value: $(Build.SourcesDirectory)\.config\suppress.json
+        steps:
+          - pwsh: |
+              Write-Verbose -Verbose ((Get-Item $(Build.SourcesDirectory)).FullName)
+              Get-ChildItem $(Build.SourcesDirectory) -Recurse -File -Name | Write-Verbose -Verbose
+              $manifestData = Import-PowerShellDataFile -Path src/Microsoft.PowerShell.PlatyPS.psd1
+              $moduleVersion = $manifestData.ModuleVersion
+              Write-Output "##vso[task.setvariable variable=version;isOutput=true]$moduleVersion"
+              if ($manifestData.PrivateData.PsData.Prerelease) {
+                $prerel = $manifestData.PrivateData.PSData.Prerelease
+                $nupkgVersion = "${moduleVersion}-${prerel}"
+              } else {
+                $nupkgVersion = $moduleVersion
+              }
+              Write-Output "##vso[task.setvariable variable=nupkgversion;isOutput=true]$nupkgVersion"
+            name: package
+            displayName: Get version from project properties
+          - task: onebranch.pipeline.version@1
+            displayName: Set OneBranch version
+            inputs:
+              system: Custom
+              customVersion: $(package.version)
+          - task: UseDotNet@2
+            displayName: Use .NET SDK
+            inputs:
+              packageType: sdk
+              useGlobalJson: true
+          - pwsh: ./build.ps1 -Configuration $(BuildConfiguration)
+            displayName: Build
+          - task: onebranch.pipeline.signing@1
+            displayName: Sign 1st-party files
+            inputs:
+              command: sign
+              signing_profile: external_distribution
+              search_root: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
+              files_to_sign: |
+                *.psd1;
+                *.ps1xml;
+                Microsoft.PowerShell.*.dll;
+          - task: onebranch.pipeline.signing@1
+            displayName: Sign 3rd-party files
+            inputs:
+              command: sign
+              signing_profile: 135020002
+              search_root: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS/Dependencies
+              files_to_sign: |
+                Markdig.Signed.dll;
+                YamlDotNet.dll;
+          - task: ArchiveFiles@2
+            displayName: Zip module
+            inputs:
+              rootFolderOrFile: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: out/Microsoft.PowerShell.PlatyPS-v$(package.version).zip
+          - pwsh: |
+              ./build -package
+              Write-Verbose -Verbose ((Get-Item .).FullName)
+              Write-Verbose -Verbose ((Get-Item $(Build.SourcesDirectory)).FullName)
+              Get-ChildItem $(Build.SourcesDirectory) -Recurse -File -Name | Write-Verbose -Verbose
+            displayName: Package module
+          - task: onebranch.pipeline.signing@1
+            displayName: Sign NuGet package
+            inputs:
+              command: sign
+              signing_profile: external_distribution
+              search_root: $(Build.SourcesDirectory)
+              files_to_sign: "*.nupkg"
+          - task: ArchiveFiles@2
+            displayName: Zip nupkg
+            inputs:
+              rootFolderOrFile: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
+              includeRootFolder: false
+              archiveType: zip
+              archiveFile: out/Microsoft.PowerShell.PlatyPS.nupkg.zip
+    - stage: release
+      dependsOn: build
+      variables:
+        version: $[ stageDependencies.build.main.outputs['package.version'] ]
+        drop: $(Pipeline.Workspace)/drop_build_main
+      jobs:
+      - job: validation
+        displayName: Manual validation
+        pool:
+          type: agentless
+        timeoutInMinutes: 1440
+        steps:
+        - task: ManualValidation@0
+          displayName: Wait 24 hours for validation
+          inputs:
+            notifyUsers: $(Build.RequestedForEmail)
+            instructions: Please validate the release and then publish it!
+            timeoutInMinutes: 1440
+      - job: publish
+        dependsOn: validation
+        displayName: Publish to PowerShell Gallery
+        pool:
+          type: windows
+        variables:
+          ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
+        steps:
+        - download: current
+          displayName: Download artifacts
+        - task: NuGetCommand@2
+          displayName: Publish ConsoleGuiTools to PowerShell Gallery
+          inputs:
+            command: push
+            packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
+            nuGetFeedType: external
+            publishFeedCredentials: PowerShellGallery
