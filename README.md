@@ -113,3 +113,11 @@ Just pass `-Session $Session` parameter to the platyPS cmdlets and it will do th
 ## Build
 
 For information about building from sources and contributing see [contributing guidelines](CONTRIBUTING.md).
+
+## Code of Conduct
+
+Please see our [Code of Conduct](CODE_OF_CONDUCT.md) before participating in this project.
+
+## Security Policy
+
+For any security issues, please see our [Security Policy](SECURITY.md).
