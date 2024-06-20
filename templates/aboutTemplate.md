@@ -1,4 +1,5 @@
 # {{TOPIC NAME}}
+
 ## {{FileNameForHelpSystem}}
 
 ```
@@ -17,6 +18,7 @@ The second header should have no spaces.
 ```
 
 # SHORT DESCRIPTION
+
 {{ Short Description Placeholder }}
 
 ```
@@ -27,28 +29,35 @@ The generated about topic will be encoded UTF-8.
 ```
 
 # LONG DESCRIPTION
+
 {{ Long Description Placeholder }}
 
 ## Optional Subtopics
+
 {{ Optional Subtopic Placeholder }}
 
 # EXAMPLES
+
 {{ Code or descriptive examples of how to leverage the functions described. }}
 
 # NOTE
+
 {{ Note Placeholder - Additional information that a user needs to know.}}
 
 # TROUBLESHOOTING NOTE
+
 {{ Troubleshooting Placeholder - Warns users of bugs}}
 
 {{ Explains behavior that is likely to change with fixes }}
 
 # SEE ALSO
+
 {{ See also placeholder }}
 
 {{ You can also list related articles, blogs, and video URLs. }}
 
 # KEYWORDS
+
 {{List alternate names or titles for this topic that readers might use.}}
 
 - {{ Keyword Placeholder }}
