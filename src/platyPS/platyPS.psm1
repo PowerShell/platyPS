@@ -37,6 +37,9 @@ $script:MODULE_PAGE_FW_LINK = "Download Help Link"
 $script:MODULE_PAGE_HELP_VERSION = "Help Version"
 $script:MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
+$script:MAML_DATA_CONTENT = "Maml Content"
+$script:MAML_DATA_COMMAND_NAME = "Command Name"
+
 $script:MAML_ONLINE_LINK_DEFAULT_MONIKER = 'Online Version:'
 
 function New-MarkdownHelp
@@ -87,6 +90,10 @@ function New-MarkdownHelp
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
+        [switch]$SinglePage,
+
+        [Parameter(ParameterSetName="FromModule")]
+        [Parameter(ParameterSetName="FromMaml")]
         [switch]$WithModulePage,
 
         [Parameter(ParameterSetName="FromModule")]
@@ -101,12 +108,12 @@ function New-MarkdownHelp
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $HelpVersion = $LocalizedData.HelpVersion,
+        $HelpVersion = $null,
 
         [Parameter(ParameterSetName="FromModule")]
         [Parameter(ParameterSetName="FromMaml")]
         [string]
-        $FwLink = $LocalizedData.FwLink,
+        $FwLink = $null,
 
         [Parameter(ParameterSetName="FromMaml")]
         [string]
@@ -117,13 +124,53 @@ function New-MarkdownHelp
         $ModuleGuid = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX",
 
         [switch]
-        $ExcludeDontShow
+        $ExcludeDontShow,
+
+        [switch]
+        $NoInputOutputFormatting,
+
+        [switch]
+        $SkipEmptyFields,
+
+        [switch]
+        $CreateTableOfContent,
+
+        [switch]
+        $WithModuleMetaData
     )
 
     begin
     {
         validateWorkingProvider
         New-Item -Type Directory $OutputFolder -ErrorAction SilentlyContinue > $null
+
+        if(!$SkipEmptyFields.IsPresent) {
+            if([string]::IsNullOrWhiteSpace($HelpVersion)) {
+                $HelpVersion = $LocalizedData.HelpVersion
+            }
+            if([string]::IsNullOrWhiteSpace($FwLink)) {
+                $FwLink = $LocalizedData.FwLink
+            }
+        }
+
+        if($WithModuleMetaData.IsPresent) {
+            $ModuleMetaData = [PSCustomObject]@{
+                ModuleVersion = $null
+                GUID = $null
+                Author = $null
+                CompanyName = $null
+                Copyright = $null
+                ReleaseNotes = $null
+                Tags = @()
+                LicenseUri = $null
+                ProjectUri = $null
+                RequiredModules = @()
+                RequiredAssemblies = @()
+            }
+        }
+        else {
+            $ModuleMetaData = $null
+        }
     }
 
     process
@@ -140,7 +187,7 @@ function New-MarkdownHelp
             #
 
             # Example
-            if ($MamlCommandObject.Examples.Count -eq 0)
+            if (!$SkipEmptyFields.IsPresent -and $MamlCommandObject.Examples.Count -eq 0)
             {
                 $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
@@ -159,12 +206,13 @@ function New-MarkdownHelp
             }
         }
 
-        function processMamlObjectToFile
+        function processMamlObject
         {
             param(
                 [Parameter(ValueFromPipeline=$true)]
                 [ValidateNotNullOrEmpty()]
-                [Markdown.MAML.Model.MAML.MamlCommand]$mamlObject
+                [Markdown.MAML.Model.MAML.MamlCommand]$mamlObject,
+                [int]$rootLevel = 0
             )
 
             process
@@ -235,12 +283,32 @@ function New-MarkdownHelp
                         $script:EXTERNAL_HELP_FILE_YAML_HEADER = $helpFileName
                         $script:ONLINE_VERSION_YAML_HEADER = $online
                         $script:MODULE_PAGE_MODULE_NAME = $mamlObject.ModuleName
+                        
                     })
                 }
 
-                $md = ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -NoMetadata:$NoMetadata
+                return @{
+                    $script:MAML_DATA_CONTENT = (ConvertMamlModelToMarkdown -mamlCommand $mamlObject -metadata $newMetadata -rootLevel $rootLevel -NoMetadata:$NoMetadata -NoInputOutputFormatting:$NoInputOutputFormatting)
+                    $script:MAML_DATA_COMMAND_NAME = $commandName
+                }
+            }
+        }
 
-                MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md -Encoding $Encoding -Force:$Force
+        function processMamlObjectToFile
+        {
+            param(
+                [Parameter(ValueFromPipeline=$true)]
+                [ValidateNotNullOrEmpty()]
+                [Markdown.MAML.Model.MAML.MamlCommand]$mamlObject
+            )
+
+            process
+            {
+                $md = processMamlObject -mamlObject $mamlObject
+
+                $commandName = $md[$script:MAML_DATA_COMMAND_NAME]
+
+                MySetContent -path (Join-Path $OutputFolder "$commandName.md") -value $md[$script:MAML_DATA_CONTENT] -Encoding $Encoding -Force:$Force
             }
         }
 
@@ -257,7 +325,7 @@ function New-MarkdownHelp
                     throw $LocalizedData.CommandNotFound -f $_
                 }
 
-                GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow.IsPresent | processMamlObjectToFile
+                GetMamlObject -Session $Session -Cmdlet $_ -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | processMamlObjectToFile
             }
         }
         else
@@ -272,33 +340,83 @@ function New-MarkdownHelp
             }
 
             $iterator | ForEach-Object {
-                if ($PSCmdlet.ParameterSetName -eq 'FromModule')
-                {
-                    if (-not (GetCommands -AsNames -module $_))
+                $ModuleName = $null
+                $ModuleGuid = $null
+                $ModuleDescription = $null
+                $ModuleVersion = $null
+                
+                if($SinglePage.IsPresent) {
+                    $MamlContents = @()
+
+                    if ($PSCmdlet.ParameterSetName -eq 'FromModule')
                     {
-                        throw $LocalizedData.ModuleNotFound -f $_
+                        if (-not (GetCommands -AsNames -module $_))
+                        {
+                            throw $LocalizedData.ModuleNotFound -f $_
+                        }
+    
+                        $MamlContents = @(GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | processMamlObject -rootLevel 2 | ForEach-Object { return $_[$script:MAML_DATA_CONTENT] })
+    
+                        $ModuleName = $_
+                        $ModObj = (Get-Module $ModuleName)
+                        if($null -ne $ModObj) {
+                            $ModuleGuid = $ModObj.Guid
+                            $ModuleDescription = $ModObj.Description
+                            if($null -ne $ModObj.Version) {
+                                $ModuleVersion = $ModObj.Version.ToString()
+                            }
+                            if($null -ne $ModuleMetaData) {
+    
+                                $ModuleMetaData.ModuleVersion = $ModuleVersion
+                                $MetaDataGuid = $ModuleGuid.ToString()
+                                if(![string]::IsNullOrWhiteSpace($MetaDataGuid)) {
+                                    $ModuleMetaData.GUID = $MetaDataGuid
+                                }
+                                if(![string]::IsNullOrWhiteSpace($ModObj.Author)) {
+                                    $ModuleMetaData.Author = $ModObj.Author
+                                }
+                                if(![string]::IsNullOrWhiteSpace($ModObj.CompanyName)) {
+                                    $ModuleMetaData.CompanyName = $ModObj.CompanyName
+                                }
+                                if(![string]::IsNullOrWhiteSpace($ModObj.Copyright)) {
+                                    $ModuleMetaData.Copyright = $ModObj.Copyright
+                                }
+                                if(![string]::IsNullOrWhiteSpace($ModObj.ReleaseNotes)) {
+                                    $ModuleMetaData.ReleaseNotes = $ModObj.ReleaseNotes
+                                }
+                                if($null -ne $ModObj.Tags) {
+                                    $FilteredTags = @($ModObj.Tags | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+                                    if($FilteredTags.Count -gt 0) {
+                                        $ModuleMetaData.Tags = @($FilteredTags)
+                                    }
+                                }
+                                if($null -ne $ModObj.LicenseUri -and ![string]::IsNullOrWhiteSpace($ModObj.LicenseUri.OriginalString)) {
+                                    $ModuleMetaData.LicenseUri = $ModObj.LicenseUri.OriginalString.Trim()
+                                }
+                                if($null -ne $ModObj.ProjectUri -and ![string]::IsNullOrWhiteSpace($ModObj.ProjectUri.OriginalString)) {
+                                    $ModuleMetaData.ProjectUri = $ModObj.ProjectUri.OriginalString.Trim()
+                                }
+                                $ModuleMetaData.RequiredModules = @($ModObj.RequiredModules)
+                                $ModuleMetaData.RequiredAssemblies = @($ModObj.RequiredAssemblies)
+                            }
+                        }
+                        $CmdletNames = GetCommands -AsNames -Module $ModuleName
+                    }
+                    else # 'FromMaml'
+                    {
+                        # Set ModuleName to MamlModule (since it's set to null at the beginning now)
+                        $ModuleName = "MamlModule"
+
+                        if (-not (Test-Path $_))
+                        {
+                            throw $LocalizedData.FileNotFound -f $_
+                        }
+    
+                        $MamlContents = @(GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | processMamlObject -rootLevel 2 | Select-Object -ExpandProperty $script:MAML_DATA_CONTENT)
+    
+                        $CmdletNames += GetMamlObject -MamlFile $_ -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | ForEach-Object {$_.Name}
                     }
 
-                    GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow.IsPresent | processMamlObjectToFile
-
-                    $ModuleName = $_
-                    $ModuleGuid = (Get-Module $ModuleName).Guid
-                    $CmdletNames = GetCommands -AsNames -Module $ModuleName
-                }
-                else # 'FromMaml'
-                {
-                    if (-not (Test-Path $_))
-                    {
-                        throw $LocalizedData.FileNotFound -f $_
-                    }
-
-                    GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists  -ExcludeDontShow:$ExcludeDontShow.IsPresent | processMamlObjectToFile
-
-                    $CmdletNames += GetMamlObject -MamlFile $_ -ExcludeDontShow:$ExcludeDontShow.IsPresent | ForEach-Object {$_.Name}
-                }
-
-                if($WithModulePage)
-                {
                     if(-not $ModuleGuid)
                     {
                         $ModuleGuid = "00000000-0000-0000-0000-000000000000"
@@ -307,17 +425,121 @@ function New-MarkdownHelp
                     {
                         Write-Warning -Message $LocalizedData.MoreThanOneGuid
                     }
+
                     # yeild
-                    NewModuleLandingPage  -Path $OutputFolder `
+                    NewModuleLandingPage -Path $OutputFolder `
                                         -ModulePagePath $ModulePagePath `
                                         -ModuleName $ModuleName `
                                         -ModuleGuid $ModuleGuid `
+                                        -ModuleDescription $ModuleDescription `
+                                        -ModuleVersion $ModuleVersion `
+                                        -ModuleMetaData $ModuleMetaData `
                                         -CmdletNames $CmdletNames `
+                                        -MamlContents $MamlContents `
                                         -Locale $Locale `
                                         -Version $HelpVersion `
                                         -FwLink $FwLink `
                                         -Encoding $Encoding `
-                                        -Force:$Force
+                                        -Force:$Force `
+                                        -SkipEmptyFields:$SkipEmptyFields `
+                                        -CreateTableOfContent:$CreateTableOfContent
+                }
+                else {
+                    if ($PSCmdlet.ParameterSetName -eq 'FromModule')
+                    {
+                        if (-not (GetCommands -AsNames -module $_))
+                        {
+                            throw $LocalizedData.ModuleNotFound -f $_
+                        }
+    
+                        GetMamlObject -Session $Session -Module $_ -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | processMamlObjectToFile
+    
+                        $ModuleName = $_
+                        $ModObj = (Get-Module $ModuleName)
+                        $ModuleGuid = $ModObj.Guid
+                        $ModuleDescription = $ModObj.Description
+                        if($null -ne $ModObj.Version) {
+                            $ModuleVersion = $ModObj.Version.ToString()
+                        }
+                        if($null -ne $ModuleMetaData) {
+
+                            $ModuleMetaData.ModuleVersion = $ModuleVersion
+                            $MetaDataGuid = $ModuleGuid.ToString()
+                            if(![string]::IsNullOrWhiteSpace($MetaDataGuid)) {
+                                $ModuleMetaData.GUID = $MetaDataGuid
+                            }
+                            if(![string]::IsNullOrWhiteSpace($ModObj.Author)) {
+                                $ModuleMetaData.Author = $ModObj.Author
+                            }
+                            if(![string]::IsNullOrWhiteSpace($ModObj.CompanyName)) {
+                                $ModuleMetaData.CompanyName = $ModObj.CompanyName
+                            }
+                            if(![string]::IsNullOrWhiteSpace($ModObj.Copyright)) {
+                                $ModuleMetaData.Copyright = $ModObj.Copyright
+                            }
+                            if(![string]::IsNullOrWhiteSpace($ModObj.ReleaseNotes)) {
+                                $ModuleMetaData.ReleaseNotes = $ModObj.ReleaseNotes
+                            }
+                            if($null -ne $ModObj.Tags) {
+                                $FilteredTags = @($ModObj.Tags | Where-Object { ![string]::IsNullOrWhiteSpace($_) } | Sort-Object -Unique)
+                                if($FilteredTags.Count -gt 0) {
+                                    $ModuleMetaData.Tags = @($FilteredTags)
+                                }
+                            }
+                            if($null -ne $ModObj.LicenseUri -and ![string]::IsNullOrWhiteSpace($ModObj.LicenseUri.OriginalString)) {
+                                $ModuleMetaData.LicenseUri = $ModObj.LicenseUri.OriginalString.Trim()
+                            }
+                            if($null -ne $ModObj.ProjectUri -and ![string]::IsNullOrWhiteSpace($ModObj.ProjectUri.OriginalString)) {
+                                $ModuleMetaData.ProjectUri = $ModObj.ProjectUri.OriginalString.Trim()
+                            }
+                            $ModuleMetaData.RequiredModules = @($ModObj.RequiredModules)
+                            $ModuleMetaData.RequiredAssemblies = @($ModObj.RequiredAssemblies)
+                        }
+                        $CmdletNames = GetCommands -AsNames -Module $ModuleName
+                    }
+                    else # 'FromMaml'
+                    {
+                        # Set ModuleName to MamlModule (since it's set to null at the beginning now)
+                        $ModuleName = "MamlModule"
+
+                        if (-not (Test-Path $_))
+                        {
+                            throw $LocalizedData.FileNotFound -f $_
+                        }
+    
+                        GetMamlObject -MamlFile $_ -ConvertNotesToList:$ConvertNotesToList -ConvertDoubleDashLists:$ConvertDoubleDashLists -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | processMamlObjectToFile
+    
+                        $CmdletNames += GetMamlObject -MamlFile $_ -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields | ForEach-Object {$_.Name}
+                    }
+    
+                    if($WithModulePage)
+                    {
+                        if(-not $ModuleGuid)
+                        {
+                            $ModuleGuid = "00000000-0000-0000-0000-000000000000"
+                        }
+                        if($ModuleGuid.Count -gt 1)
+                        {
+                            Write-Warning -Message $LocalizedData.MoreThanOneGuid
+                        }
+
+                        # yeild
+                        NewModuleLandingPage -Path $OutputFolder `
+                                            -ModulePagePath $ModulePagePath `
+                                            -ModuleName $ModuleName `
+                                            -ModuleGuid $ModuleGuid `
+                                            -ModuleDescription $ModuleDescription `
+                                            -ModuleVersion $ModuleVersion `
+                                            -ModuleMetaData $ModuleMetaData `
+                                            -CmdletNames $CmdletNames `
+                                            -Locale $Locale `
+                                            -Version $HelpVersion `
+                                            -FwLink $FwLink `
+                                            -Encoding $Encoding `
+                                            -Force:$Force `
+                                            -SkipEmptyFields:$SkipEmptyFields `
+                                            -CreateTableOfContent:$CreateTableOfContent
+                    }    
                 }
             }
         }
@@ -378,7 +600,9 @@ function Update-MarkdownHelp
         [switch]$UpdateInputOutput,
         [Switch]$Force,
         [System.Management.Automation.Runspaces.PSSession]$Session,
-        [switch]$ExcludeDontShow
+        [switch]$ExcludeDontShow,
+        [switch]$NoInputOutputFormatting,
+        [switch]$SkipEmptyFields
     )
 
     begin
@@ -456,8 +680,8 @@ function Update-MarkdownHelp
 
             # update the help file entry in the metadata
             $metadata = Get-MarkdownMetadata $filePath
-            $metadata["external help file"] = GetHelpFileName $command
-            $reflectionModel = GetMamlObject -Session $Session -Cmdlet $name -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow.IsPresent
+            $metadata[$script:EXTERNAL_HELP_FILE_YAML_HEADER] = GetHelpFileName $command
+            $reflectionModel = GetMamlObject -Session $Session -Cmdlet $name -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields
             $metadata[$script:MODULE_PAGE_MODULE_NAME] = $reflectionModel.ModuleName
 
             $merger = New-Object Markdown.MAML.Transformer.MamlModelMerger -ArgumentList $infoCallback
@@ -468,7 +692,7 @@ function Update-MarkdownHelp
                 SortParamsAlphabetically $newModel
             }
 
-            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $metadata -PreserveFormatting -NoInputOutputFormatting:$NoInputOutputFormatting
             MySetContent -path $file.FullName -value $md -Encoding $Encoding -Force # yield
         }
     }
@@ -492,6 +716,8 @@ function Merge-MarkdownHelp
         [Switch]$ExplicitApplicableIfAll,
 
         [Switch]$Force,
+
+        [switch]$NoInputOutputFormatting,
 
         [string]$MergeMarker = "!!! "
     )
@@ -573,7 +799,7 @@ function Merge-MarkdownHelp
             $merger = New-Object Markdown.MAML.Transformer.MamlMultiModelMerger -ArgumentList $null, (-not $ExplicitApplicableIfAll), $MergeMarker
             $newModel = $merger.Merge($dict)
 
-            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting
+            $md = ConvertMamlModelToMarkdown -mamlCommand $newModel -metadata $newMetadata -PreserveFormatting -NoInputOutputFormatting:$NoInputOutputFormatting
             $outputFilePath = Join-Path $OutputPath $groupName
             MySetContent -path $outputFilePath -value $md -Encoding $Encoding -Force:$Force # yeild
         }
@@ -600,7 +826,8 @@ function Update-MarkdownHelpModule
         [switch]$UpdateInputOutput,
         [switch]$Force,
         [System.Management.Automation.Runspaces.PSSession]$Session,
-        [switch]$ExcludeDontShow
+        [switch]$ExcludeDontShow,
+        [switch]$SkipEmptyFields
     )
 
     begin
@@ -677,7 +904,7 @@ function Update-MarkdownHelpModule
                 $MamlModel = New-Object System.Collections.Generic.List[Markdown.MAML.Model.MAML.MamlCommand]
                 $files = @()
                 $MamlModel = GetMamlModelImpl $affectedFiles -ForAnotherMarkdown -Encoding $Encoding
-                NewModuleLandingPage  -RefreshModulePage -ModulePagePath $ModulePagePath -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force
+                NewModuleLandingPage -RefreshModulePage -ModulePagePath $ModulePagePath -Path $modulePath -ModuleName $module -Module $MamlModel -Encoding $Encoding -Force -SkipEmptyFields:$SkipEmptyFields
             }
         }
     }
@@ -2000,18 +2227,30 @@ function NewModuleLandingPage
         [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $ModuleGuid,
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
+        [string]
+        $ModuleDescription,
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
+        [string]
+        $ModuleVersion,
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
+        [PSCustomObject]
+        $ModuleMetaData = $null,
         [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string[]]
         $CmdletNames,
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
+        [string[]]
+        $MamlContents = $null,
         [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
         [string]
         $Locale,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
         [string]
-        $Version,
-        [Parameter(mandatory=$true,ParameterSetName="NewLandingPage")]
+        $Version = $null,
+        [Parameter(mandatory=$false,ParameterSetName="NewLandingPage")]
         [string]
-        $FwLink,
+        $FwLink = $null,
         [Parameter(ParameterSetName="UpdateLandingPage")]
         [switch]
         $RefreshModulePage,
@@ -2021,7 +2260,9 @@ function NewModuleLandingPage
         $Module,
         [Parameter(mandatory=$true)]
         [System.Text.Encoding]$Encoding = $script:UTF8_NO_BOM,
-        [switch]$Force
+        [switch]$Force,
+        [switch]$SkipEmptyFields,
+        [switch]$CreateTableOfContent
     )
 
     begin
@@ -2036,7 +2277,16 @@ function NewModuleLandingPage
 
     process
     {
-        $Description = $LocalizedData.Description
+        if($SkipEmptyFields.IsPresent) {
+            $Description = $null
+        }
+        else {
+            $Description = $LocalizedData.Description
+        }
+
+        if(![string]::IsNullOrWhiteSpace($ModuleDescription)) {
+            $Description = $ModuleDescription.Trim()
+        }
 
         if($RefreshModulePage)
         {
@@ -2068,38 +2318,192 @@ function NewModuleLandingPage
             }
             else
             {
-                $ModuleGuid = $LocalizedData.ModuleGuid
-                $FwLink = $LocalizedData.FwLink
-                $Version = $LocalizedData.Version
-                $Locale = $LocalizedData.Locale
-                $Description = $LocalizedData.Description
+                if($SkipEmptyFields.IsPresent) {
+                    $ModuleGuid = $null
+                    $FwLink = $null
+                    $Version = $null
+                    $Locale = $null
+                    $Description = $null
+                }
+                else {
+                    $ModuleGuid = $LocalizedData.ModuleGuid
+                    $FwLink = $LocalizedData.FwLink
+                    $Version = $LocalizedData.Version
+                    $Locale = $LocalizedData.Locale
+                    $Description = $LocalizedData.Description
+                }
             }
         }
 
-        $Content = "---`r`nModule Name: $ModuleName`r`nModule Guid: $ModuleGuid`r`nDownload Help Link: $FwLink`r`n"
-        $Content += "Help Version: $Version`r`nLocale: $Locale`r`n"
+        $Content = "---`r`n"
+        $Content += "Module Name: $ModuleName`r`n"
+        if(![string]::IsNullOrWhiteSpace($ModuleGuid)) {
+            $Content += "Module Guid: $ModuleGuid`r`n"
+        }
+        if(![string]::IsNullOrWhiteSpace($ModuleVersion)) {
+            $Content += "Module Version: $ModuleVersion`r`n"
+        }
+        if(![string]::IsNullOrWhiteSpace($FwLink)) {
+            $Content += "Download Help Link: $FwLink`r`n"
+        }
+        if(![string]::IsNullOrWhiteSpace($Version)) {
+            $Content += "Help Version: $Version`r`n"
+        }
+        if(![string]::IsNullOrWhiteSpace($Locale)) {
+            $Content += "Locale: $Locale`r`n"
+        }
         $Content += "---`r`n`r`n"
-        $Content += "# $ModuleName Module`r`n## Description`r`n"
-        $Content += "$Description`r`n`r`n## $ModuleName Cmdlets`r`n"
+        $Content += "# $ModuleName Module`r`n`r`n"
+        if(![string]::IsNullOrWhiteSpace($Description)) {
+            $Content += "## Description`r`n$Description`r`n`r`n"
+        }
+        if($null -ne $ModuleMetaData) {
+            $Content += "## Module Metadata`r`n"
 
-        if($RefreshModulePage)
-        {
-            $Module | ForEach-Object {
-                $command = $_
-                if(-not $command.Synopsis)
-                {
-                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ModuleVersion)) {
+                $Content += "* Module version: " + $ModuleMetaData.ModuleVersion + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.GUID)) {
+                $Content += "* Module GUID: " + $ModuleMetaData.GUID + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.Author)) {
+                $Content += "* Author: " + $ModuleMetaData.Author + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.CompanyName)) {
+                $Content += "* Company: " + $ModuleMetaData.CompanyName + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.Copyright)) {
+                $Content += "* Copyright: " + $ModuleMetaData.Copyright + "`r`n"
+            }
+            if($ModuleMetaData.Tags.Count -gt 0) {
+                $Content += "* Tags: " + ($ModuleMetaData.Tags -join ", ") + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.LicenseUri)) {
+                $Content += "* License Uri: " + $ModuleMetaData.LicenseUri + "`r`n"
+            }
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ProjectUri)) {
+                $Content += "* Project Uri: " + $ModuleMetaData.ProjectUri + "`r`n"
+            }
+            $Content += "`r`n"
+
+            if(![string]::IsNullOrWhiteSpace($ModuleMetaData.ReleaseNotes)) {
+                $Content += "### Release Notes`r`n"
+                $Content += ($ModuleMetaData.ReleaseNotes -replace "\r\n", "<br/>`r`n") + "`r`n`r`n"
+            }
+
+            if($null -ne $ModuleMetaData.RequiredModules -and $ModuleMetaData.RequiredModules.Count -gt 0) {
+                $Content += "### Required Modules`r`n"
+                $ModuleMetaData.RequiredModules | ForEach-Object {
+                    $Content += "* $($_.Name)"
+                    if($null -ne $_.Version -and ![string]::IsNullOrWhiteSpace($_.Version.ToString())) {
+                        $Content += " ($($_.Version.ToString()))"
+                    }
+                    $Content += "`r`n"
                 }
-                else
-                {
-                    $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $command.Synopsis + "`r`n`r`n"
+                $Content += "`r`n"
+            }
+            if($null -ne $ModuleMetaData.RequiredAssemblies -and $ModuleMetaData.RequiredAssemblies.Count -gt 0) {
+                $Content += "### Required Assemblies`r`n"
+                $ModuleMetaData.RequiredAssemblies | ForEach-Object {
+                    $Content += "* $_`r`n"
                 }
+                $Content += "`r`n"
+            }    
+        }
+        
+        if($CreateTableOfContent.IsPresent) {
+            $Content += "## Content`r`n"
+            $Content += "<<<!!!REPLACE CONTENT!!!>>>`r`n"
+            $ContentIndexCount = @{}
+        }
+        
+        $Content += "`r`n"
+        $Content += "## $ModuleName Cmdlets`r`n"
+
+        if($null -ne $MamlContents -and $MamlContents.Count -gt 0) {
+            $MamlContents | ForEach-Object {
+                $Content += "$_`r`n`r`n"
             }
         }
-        else
-        {
-            $CmdletNames | ForEach-Object {
-                $Content += "### [" + $_ + "](" + $_ + ".md)`r`n" + $LocalizedData.Description + "`r`n`r`n"
+        else {
+            if($RefreshModulePage)
+            {
+                $Module | ForEach-Object {
+                    $command = $_
+                    if(-not $command.Synopsis)
+                    {
+                        $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n"
+                        if(!$SkipEmptyFields.IsPresent) {
+                            $Content += $LocalizedData.Description + "`r`n"
+                        }
+                        $Content += "`r`n"
+                    }
+                    else
+                    {
+                        $Content += "### [" + $command.Name + "](" + $command.Name + ".md)`r`n" + $command.Synopsis + "`r`n`r`n"
+                    }
+                }
+            }
+            else
+            {
+                $CmdletNames | ForEach-Object {
+                    $Content += "### [" + $_ + "](" + $_ + ".md)`r`n"
+                    if(!$SkipEmptyFields.IsPresent) {
+                        $Content += $LocalizedData.Description + "`r`n"
+                    }
+                    $Content += "`r`n"
+                }
+            }    
+        }
+
+        if($CreateTableOfContent.IsPresent) {
+            $IndexContent = ""
+            $Matches = [RegEx]::Matches($Content, "^\s*(?<indent>##+)\s*(?<heading>.+)`$", [System.Text.RegularExpressions.RegexOptions]::Multiline)
+
+            if($null -ne $Matches) {
+                foreach($SingleMatch in $Matches) {
+                    if($SingleMatch.Success `
+                            -and $SingleMatch.Groups["indent"].Success `
+                            -and $SingleMatch.Groups["heading"].Success) {
+                        $CntIndent = $SingleMatch.Groups["indent"].Value.Length-2
+                        $Name = $SingleMatch.Groups["heading"].Value.Trim()
+
+                        if(![string]::IsNullOrWhiteSpace($Name)) {
+                            $OriginalLinkName = $Name.ToLower().Replace(" ", "-")
+
+                            if($OriginalLinkName -in $ContentIndexCount.Keys) {
+                                $LinkName = $OriginalLinkName + "-" + $ContentIndexCount[$OriginalLinkName]
+                                $ContentIndexCount[$OriginalLinkName]++
+                            }
+                            else {
+                                $LinkName = $OriginalLinkName
+                                $ContentIndexCount[$LinkName] = 1
+                            }
+
+                            $LeadingSpaces = New-Object -TypeName string -ArgumentList " ", (2*$CntIndent)
+                            $ListChar = "*"
+                            <#
+                            $ListNrMod = $CntIndent % 3
+                            if($ListNrMod -eq 1) {
+                                $ListChar = "+"
+                            }
+                            elseIf($ListNrMod -eq 2) {
+                                $ListChar = "-"
+                            }
+                            #>
+        
+                            $IndexContent += $LeadingSpaces + $ListChar + " [" + $Name + "](#" + $LinkName + ")`r`n"
+                        }
+                    }
+                }
+
+                if($null -ne $IndexContent) {
+                    $IndexContent = $IndexContent.Trim()
+
+                    if(![string]::IsNullOrWhiteSpace($IndexContent)) {
+                        $Content = $Content.Replace("<<<!!!REPLACE CONTENT!!!>>>", $IndexContent)
+                    }
+                }
             }
         }
 
@@ -2117,9 +2521,13 @@ function ConvertMamlModelToMarkdown
 
         [hashtable]$metadata,
 
+        [int]$rootLevel = 0,
+
         [switch]$NoMetadata,
 
-        [switch]$PreserveFormatting
+        [switch]$PreserveFormatting,
+
+        [switch]$NoInputOutputFormatting
     )
 
     begin
@@ -2133,11 +2541,11 @@ function ConvertMamlModelToMarkdown
     {
         if (($count++) -eq 0 -and (-not $NoMetadata))
         {
-            return $r.MamlModelToString($mamlCommand, $metadata)
+            return $r.MamlModelToString($rootLevel, $mamlCommand, $metadata, $NoInputOutputFormatting.IsPresent)
         }
         else
         {
-            return $r.MamlModelToString($mamlCommand, $true) # skip version header
+            return $r.MamlModelToString($rootLevel, $mamlCommand, $true, $NoInputOutputFormatting.IsPresent) # skip version header
         }
     }
 }
@@ -2396,7 +2804,8 @@ function GetMamlObject
         [parameter(parametersetname="Cmdlet")]
         [parameter(parametersetname="Module")]
         [System.Management.Automation.Runspaces.PSSession]$Session,
-        [switch]$ExcludeDontShow
+        [switch]$ExcludeDontShow,
+        [switch]$SkipEmptyFields
     )
 
     function CommandHasAutogeneratedSynopsis
@@ -2411,7 +2820,7 @@ function GetMamlObject
         Write-Verbose -Message ($LocalizedData.Processing -f $Cmdlet)
         $Help = Get-Help $Cmdlet
         $Command = MyGetCommand -Session $Session -Cmdlet $Cmdlet
-        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow
+        return ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help) -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields
     }
     elseif ($Module)
     {
@@ -2423,7 +2832,7 @@ function GetMamlObject
             Write-Verbose -Message ("`t" + ($LocalizedData.Processing -f $Command.Name))
             $Help = Get-Help $Command.Name
             # yield
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UsePlaceholderForSynopsis:(CommandHasAutogeneratedSynopsis $Help)  -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields
         }
     }
     else # Maml
@@ -2444,7 +2853,7 @@ function GetMamlObject
             }
 
             # yield
-            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata  -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow
+            ConvertPsObjectsToMamlModel -Command $Command -Help $Help -UseHelpForParametersMetadata  -UseFullTypeName:$UseFullTypeName -ExcludeDontShow:$ExcludeDontShow -SkipEmptyFields:$SkipEmptyFields
         }
     }
 }
@@ -2524,7 +2933,8 @@ function ConvertPsObjectsToMamlModel
         [switch]$UseHelpForParametersMetadata,
         [switch]$UsePlaceholderForSynopsis,
         [switch]$UseFullTypeName,
-        [switch]$ExcludeDontShow
+        [switch]$ExcludeDontShow,
+        [switch]$SkipEmptyFields
     )
 
     function isCommonParameterName
@@ -2635,7 +3045,12 @@ function ConvertPsObjectsToMamlModel
 
     #Get Description
     #Not provided by the command object.
-    $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Description)
+    if($SkipEmptyFields.IsPresent) {
+        $MamlCommandObject.Description = $null
+    }
+    else {
+        $MamlCommandObject.Description = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Description)
+    }
 
     #endregion
 
@@ -2757,16 +3172,21 @@ function ConvertPsObjectsToMamlModel
                 $ParameterObject.Description = if ([String]::IsNullOrEmpty($Parameter.HelpMessage))
                 {
                     # additional new-lines are needed for Update-MarkdownHelp scenario.
-                    switch ($Parameter.Name)
-                    {
-                        # we have well-known parameters and can generate a reasonable description for them
-                        # https://github.com/PowerShell/platyPS/issues/211
-                        'Confirm' { $LocalizedData.Confirm + "`r`n`r`n" }
-                        'WhatIf' { $LocalizedData.WhatIf + "`r`n`r`n" }
-                        'IncludeTotalCount' { $LocalizedData.IncludeTotalCount + "`r`n`r`n" }
-                        'Skip' { $LocalizedData.Skip + "`r`n`r`n" }
-                        'First' { $LocalizedData.First + "`r`n`r`n" }
-                        default { ($LocalizedData.ParameterDescription -f $Parameter.Name) + "`r`n`r`n" }
+                    if($SkipEmptyFields.IsPresent) {
+                        $null
+                    }
+                    else {
+                        switch ($Parameter.Name)
+                        {
+                            # we have well-known parameters and can generate a reasonable description for them
+                            # https://github.com/PowerShell/platyPS/issues/211
+                            'Confirm' { $LocalizedData.Confirm + "`r`n`r`n" }
+                            'WhatIf' { $LocalizedData.WhatIf + "`r`n`r`n" }
+                            'IncludeTotalCount' { $LocalizedData.IncludeTotalCount + "`r`n`r`n" }
+                            'Skip' { $LocalizedData.Skip + "`r`n`r`n" }
+                            'First' { $LocalizedData.First + "`r`n`r`n" }
+                            default { ($LocalizedData.ParameterDescription -f $Parameter.Name) + "`r`n`r`n" }
+                        }    
                     }
                 }
                 else
@@ -2850,10 +3270,15 @@ function ConvertPsObjectsToMamlModel
     #Get Synopsis
     if ($UsePlaceholderForSynopsis)
     {
-        # Help object ALWAYS contains SYNOPSIS.
-        # If it's not available, it's auto-generated.
-        # We don't want to include auto-generated SYNOPSIS (see https://github.com/PowerShell/platyPS/issues/110)
-        $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Synopsis)
+        if($SkipEmptyFields.IsPresent) {
+            $MamlCommandObject.Synopsis = $null
+        }
+        else {
+            # Help object ALWAYS contains SYNOPSIS.
+            # If it's not available, it's auto-generated.
+            # We don't want to include auto-generated SYNOPSIS (see https://github.com/PowerShell/platyPS/issues/110)
+            $MamlCommandObject.Synopsis = New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody ($LocalizedData.Synopsis)
+        }
     }
     else
     {
@@ -2867,7 +3292,7 @@ function ConvertPsObjectsToMamlModel
     }
 
     #Get Description
-    if($Help.description -ne $null)
+    if($null -ne $Help.description)
     {
         $MamlCommandObject.Description =  New-Object -TypeName Markdown.MAML.Model.Markdown.SectionBody (
             $Help.description |
@@ -2908,15 +3333,20 @@ function ConvertPsObjectsToMamlModel
     {
         $MamlExampleObject = New-Object -TypeName Markdown.MAML.Model.MAML.MamlExample
 
-        $MamlExampleObject.Introduction = $Example.introduction
+        $MamlExampleObject.Introduction = $Example.introduction |
+                                                    DescriptionToPara |
+                                                    AddLineBreaksForParagraphs
+
+        $MamlExampleObject.Introduction = @($MamlExampleObject.Introduction | Where-Object { $_ -ne "PS >" -and $_ -ne "PS>" -and $_ -ne "PS C:\>"})
+
         $MamlExampleObject.Title = $Example.title
         $MamlExampleObject.Code = @(
             New-Object -TypeName Markdown.MAML.Model.MAML.MamlCodeBlock ($Example.code, '')
-        )
+        )    
 
         $RemarkText = $Example.remarks |
-            DescriptionToPara |
-            AddLineBreaksForParagraphs
+                        DescriptionToPara |
+                        AddLineBreaksForParagraphs
 
         $MamlExampleObject.Remarks = $RemarkText
         $MamlCommandObject.Examples.Add($MamlExampleObject)
@@ -2930,7 +3360,7 @@ function ConvertPsObjectsToMamlModel
     $Help.inputTypes.inputType | ForEach-Object {
         $InputDescription = $_.description
         $inputtypes = $_.type.name
-        if ($_.description -eq $null -and $_.type.name -ne $null)
+        if ($null -eq $_.description -and $null -ne $_.type.name)
         {
             $inputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }
@@ -2957,7 +3387,7 @@ function ConvertPsObjectsToMamlModel
     $Help.returnValues.returnValue | ForEach-Object {
         $OuputDescription = $_.description
         $Outputtypes = $_.type.name
-        if ($_.description -eq $null -and $_.type.name -ne $null)
+        if ($null -eq $_.description -and $null -ne $_.type.name)
         {
             $Outputtypes = $_.type.name.split("`n", [System.StringSplitOptions]::RemoveEmptyEntries)
         }

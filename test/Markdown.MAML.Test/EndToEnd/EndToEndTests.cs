@@ -72,6 +72,123 @@ And this is my last line.
         }
 
         [Fact]
+        public void PreserveMarkdownWhenUpdatingMarkdownHelpWithoutNotesOrLinks()
+        {
+            var expected = @"# Update-MarkdownHelp
+
+## SYNOPSIS
+
+Example markdown to test that markdown is preserved.
+
+## SYNTAX
+
+```
+Update-MarkdownHelp [-Name] <String> [-Path <String>]
+```
+
+## DESCRIPTION
+When calling Update-MarkdownHelp line breaks should be preserved.
+
+## EXAMPLES
+
+### Example 1: With no line break or description
+```powershell
+PS C:\> Write-Host 'This is output.'
+```
+
+```
+This is output.
+```
+
+This is example 1 remark.
+
+### Example 2: With no line break
+This is an example description.
+
+```powershell
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 2 remark.
+
+### Example 3: With line break and no description
+
+```powershell
+PS C:\> Update-MarkdownHelp
+```
+
+This is example 3 remark.
+
+### Example 4: With line break and description
+
+This is an example description.
+
+```preserve
+PS C:\> Update-MarkdownHelp
+```
+
+```text
+Output
+```
+
+This is example 4 remark.
+
+## PARAMETERS
+
+### -Name
+
+Parameter name description with line break.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Path
+Parameter path description with no line break.
+
+```yaml
+Type: String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+## INPUTS
+
+### String[]
+
+This is an input description.
+
+## OUTPUTS
+
+### System.Object
+
+This is an output description.
+
+";
+
+            // Parse markdown and convert back to markdown to make sure there are no changes
+            var actualFull = MarkdownStringToMarkdownString(expected, ParserMode.Full);
+            var actualFormattingPreserve = MarkdownStringToMarkdownString(expected, ParserMode.FormattingPreserve);
+
+            Common.AssertMultilineEqual(expected, actualFull);
+            Common.AssertMultilineEqual(expected, actualFormattingPreserve);
+        }
+
+        [Fact]
         public void PreserveMarkdownWhenUpdatingMarkdownHelp()
         {
             var expected = @"# Update-MarkdownHelp
@@ -180,7 +297,12 @@ This is an output description.
 
 ## NOTES
 
+These are test notes
+
 ## RELATED LINKS
+
+http://www.google.com
+http://www.microsoft.com
 ";
             
             // Parse markdown and convert back to markdown to make sure there are no changes

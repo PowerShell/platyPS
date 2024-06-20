@@ -18,9 +18,9 @@ namespace Markdown.MAML.Renderer
             var model = new YamlCommand
             {
                 Name = mamlCommand.Name,
-                Notes = mamlCommand.Notes.Text,
-                Remarks = mamlCommand.Description.Text,
-                Summary = mamlCommand.Synopsis.Text,
+                Notes = mamlCommand.Notes?.Text,
+                Remarks = mamlCommand.Description?.Text,
+                Summary = mamlCommand.Synopsis?.Text,
                 Examples = mamlCommand.Examples.Select(CreateExample).ToList(),
                 Inputs = mamlCommand.Inputs.Select(CreateInputOutput).ToList(),
                 Links = mamlCommand.Links.Select(CreateLink).ToList(),
