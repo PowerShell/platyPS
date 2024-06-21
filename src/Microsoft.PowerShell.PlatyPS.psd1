@@ -51,7 +51,8 @@ CmdletsToExport = @(
     'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp',
     'New-CommandHelp',
-    'Compare-CommandHelp'
+    'Compare-CommandHelp',
+    'Update-MarkdownCommandHelp'
 )
 
 # Variables to export from this module

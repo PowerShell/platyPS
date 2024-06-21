@@ -12,7 +12,7 @@ using System.Management.Automation.Language;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
 using YamlDotNet.Core.Tokens;
-using System.Net.Configuration;
+// using System.Net.Configuration;
 using Microsoft.PowerShell.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
