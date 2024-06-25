@@ -32,6 +32,7 @@ xunit.xml
 
 #Pester
 Pester.Tests.xml
+pester.tests.xml
 
 # Build Results of an ATL Project
 [Dd]ebugPS/
