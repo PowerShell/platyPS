@@ -360,7 +360,7 @@ This command adds the commands in the History01.xml file to the current session 
 
 
 ## RELATED LINKS
-[Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289569)
+[Online Version:](https://go.microsoft.com/fwlink/p/?linkid=289569)
 [Clear-History]()
 [Get-History]()
 [Invoke-History]()
@@ -411,9 +411,9 @@ When you use the PassThru parameter, Add-PSSnapin returns a PSSnapInInfo object 
 ## NOTES
 Beginning in Windows PowerShell 3.0, the core commands that are installed with Windows PowerShell are packaged in modules. In Windows PowerShell 2.0, and in host programs that create older-style sessions in later versions of Windows PowerShell, the core commands are packaged in snap-ins (""PSSnapins""). The exception is Microsoft.PowerShell.Core, which is always a snap-in. Also, remote sessions, such as those started by the New-PSSession cmdlet, are older-style sessions that include core snap-ins.
 For information about the CreateDefault2 method that creates newer-style sessions with core modules, see ""CreateDefault2 Method"" in MSDN at [http://msdn.microsoft.com/en-us/library/windows/desktop/system.management.automation.runspaces.initialsessionstate.createdefault2(v=VS.85).aspx]().
-For detailed information about snap-ins in Windows PowerShell, see about_Pssnapins. For information about how to create a Windows PowerShell snap-in, see ""How to Create a Windows PowerShell Snap-in"" in the MSDN (Microsoft Developer Network) library at http://go.microsoft.com/fwlink/?LinkId=144762http://go.microsoft.com/fwlink/?LinkId=144762.
+For detailed information about snap-ins in Windows PowerShell, see about_Pssnapins. For information about how to create a Windows PowerShell snap-in, see ""How to Create a Windows PowerShell Snap-in"" in the MSDN (Microsoft Developer Network) library at https://go.microsoft.com/fwlink/?LinkId=144762https://go.microsoft.com/fwlink/?LinkId=144762.
 Add-PSSnapin adds the snap-in only to the current session. To add the snap-in to all Windows PowerShell sessions, add it to your Windows PowerShell profile. For more information, see about_Profiles.
-You can add any Windows PowerShell snap-in that has been registered by using the Microsoft .NET Framework install utility. For more information, see ""How to Register Cmdlets, Providers, and Host Applications"" in the MSDN library at http://go.microsoft.com/fwlink/?LinkID=143619http://go.microsoft.com/fwlink/?LinkID=143619.
+You can add any Windows PowerShell snap-in that has been registered by using the Microsoft .NET Framework install utility. For more information, see ""How to Register Cmdlets, Providers, and Host Applications"" in the MSDN library at https://go.microsoft.com/fwlink/?LinkID=143619https://go.microsoft.com/fwlink/?LinkID=143619.
 To get a list of snap-ins that are registered on your computer, type get-pssnapin -registered.
 Before adding a snap-in, Add-PSSnapin checks the version of the snap-in to verify that it is compatible with the current version of Windows PowerShell. If the snap-in fails the version check, Windows PowerShell reports an error.
 
@@ -477,7 +477,7 @@ This example demonstrates the process of registering a snap-in on your system an
 
 
 ## RELATED LINKS
-[Online Version:](http://go.microsoft.com/fwlink/p/?linkid=289570)
+[Online Version:](https://go.microsoft.com/fwlink/p/?linkid=289570)
 [Get-PSSnapin]()
 [Remove-PSSnapin]()
 [about_Profiles]()
