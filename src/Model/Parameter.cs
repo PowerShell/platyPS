@@ -54,6 +54,23 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Description = string.Empty;
             HelpMessage = string.Empty;
         }
+        
+        /// <summary>
+        /// Copy a parameter.
+        /// </summary>
+        /// <param name="parameter">The parameter to copy.</param>
+        public Parameter (Parameter parameter)
+        {
+            Name = parameter.Name;
+            Type = parameter.Type;
+            ParameterSets = new List<ParameterSet>(parameter.ParameterSets);
+            ParameterValue = new List<string>(parameter.ParameterValue);
+            Aliases = parameter.Aliases;
+            AcceptedValues = new List<string>(parameter.AcceptedValues);
+            DefaultValue = parameter.DefaultValue;
+            Description = parameter.Description;
+            HelpMessage = parameter.HelpMessage;
+        }
 
         public void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)
         {

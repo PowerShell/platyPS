@@ -3,6 +3,7 @@
 
 using System;
 using System.Linq;
+using Markdig.Extensions.AutoLinks;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -11,14 +12,24 @@ namespace Microsoft.PowerShell.PlatyPS.Model
     /// </summary>
     public class Links : IEquatable<Links>
     {
+        public string Uri { get; set;}
+        public string LinkText { get; set;}
+
         public Links(string uri, string linkText)
         {
             Uri = uri;
             LinkText = linkText;
         }
 
-        public string Uri { get; set;}
-        public string LinkText { get; set;}
+        /// <summary>
+        /// Create a new Links object from an existing one.
+        /// </summary>
+        /// <param name="link">The link to copy.</param>
+        public Links (Links link)
+        {
+            Uri = link.Uri;
+            LinkText = link.LinkText;
+        }
 
         internal string ToRelatedLinksString(string fmt)
         {

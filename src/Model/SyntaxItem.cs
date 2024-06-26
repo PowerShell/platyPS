@@ -54,6 +54,25 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _alphabeticOrderParameters = new SortedList<string, Parameter>();
         }
 
+        /// <summary>
+        /// Create a copy of a syntax item.
+        /// </summary>
+        /// <param name="syntaxItem">The syntax item to copy.</param>
+        public SyntaxItem(SyntaxItem syntaxItem)
+        {
+            CommandName = syntaxItem.CommandName;
+            ParameterSetName = syntaxItem.ParameterSetName;
+            IsDefaultParameterSet = syntaxItem.IsDefaultParameterSet;
+            SyntaxParameters = new List<SyntaxParameter>(syntaxItem.SyntaxParameters);
+            HasCmdletBinding = syntaxItem.HasCmdletBinding;
+            Parameters = new List<Parameter>(syntaxItem.Parameters);
+
+            _positionalParameters = new SortedList<int, Parameter>(syntaxItem._positionalParameters);
+            _requiredParameters = new SortedList<string, Parameter>(syntaxItem._requiredParameters);
+            _alphabeticOrderParameters = new SortedList<string, Parameter>(syntaxItem._alphabeticOrderParameters);
+            _parameterNames = new List<string>(syntaxItem._parameterNames);
+        }
+
         public void AddParameter(Parameter parameter)
         {
             string name = parameter.Name;

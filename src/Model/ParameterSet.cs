@@ -29,6 +29,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Name = name;
         }
 
+        /// <summary>
+        /// Create a copy of a parameter set.
+        /// </summary>
+        /// <param name="pSet">The parameter set to copy.</param>
+        public ParameterSet(ParameterSet pSet)
+        {
+            Name = pSet.Name;
+            Position = pSet.Position;
+            IsRequired = pSet.IsRequired;
+            ValueByPipeline = pSet.ValueByPipeline;
+            ValueByPipelineByPropertyName = pSet.ValueByPipelineByPropertyName;
+            ValueFromRemainingArguments = pSet.ValueFromRemainingArguments;
+        }
+
         public bool Equals(ParameterSet other)
         {
             if (other is null)
