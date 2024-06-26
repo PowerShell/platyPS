@@ -9,7 +9,6 @@ using System.Linq;
 using System.Management.Automation;
 using System.Text.RegularExpressions;
 using System.Management.Automation.Language;
-// using System.Security.Policy;
 using System.Text;
 using Markdig.Helpers;
 using Microsoft.PowerShell.PlatyPS.Model;
