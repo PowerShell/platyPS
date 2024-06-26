@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Linq;
+using System.Management.Automation.Language;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -20,6 +21,16 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         {
             Typename = typename;
             Description = description;
+        }
+
+        /// <summary>
+        /// Create a new inputoutput object from an existing one.
+        /// </summary>
+        /// <param name="inputOutput">the inputoutput to copy.</param>
+        public InputOutput(InputOutput inputOutput)
+        {
+            Typename = inputOutput.Typename;
+            Description = inputOutput.Description;
         }
 
         internal string ToInputOutputString(string fmt)

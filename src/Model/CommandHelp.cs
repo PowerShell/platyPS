@@ -97,6 +97,46 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Diagnostics = new();
         }
 
+        /// <summary>
+        /// Create a new CommandHelp from an existing one.
+        /// </summary>
+        /// <param name="help">The CommandHelp to copy.</param>
+        public CommandHelp(CommandHelp help)
+        {
+            Syntax = new List<SyntaxItem>(help.Syntax);
+            Aliases = new List<string>(help.Aliases);
+            Description = help.Description;
+            Examples = new List<Example>(help.Examples);
+            ExternalHelpFile = help.ExternalHelpFile;
+            HasCmdletBinding = help.HasCmdletBinding;
+            HasWorkflowCommonParameters = help.HasWorkflowCommonParameters;
+            Inputs = new List<InputOutput>(help.Inputs);
+            Locale = help.Locale;
+            Metadata = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
+            if (help.Metadata is not null)
+            {
+                foreach (var key in help.Metadata.Keys)
+                {
+                    Metadata[key] = help.Metadata[key];
+                }
+            }
+            ModuleGuid = help.ModuleGuid;
+            ModuleName = help.ModuleName;
+            Notes = help.Notes;
+            OnlineVersionUrl = help.OnlineVersionUrl;
+            Outputs = new List<InputOutput>(help.Outputs);
+            Parameters = new List<Parameter>(help.Parameters);
+            RelatedLinks = new List<Links>(help.RelatedLinks);
+            SchemaVersion = help.SchemaVersion;
+            Synopsis = help.Synopsis;
+            Syntax = new List<SyntaxItem>(help.Syntax);
+            Title = help.Title;
+
+            SyntaxDictionary = new Dictionary<string, SyntaxItem>(help.SyntaxDictionary);
+            Diagnostics = new();
+            Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.General, "Copied Diagnostics", DiagnosticSeverity.Information, "Copy Constructor", 0));
+        }
+
         public override string ToString()
         {
             return Title;

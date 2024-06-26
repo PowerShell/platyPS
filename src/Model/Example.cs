@@ -21,6 +21,16 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Remarks = remarks;
         }
 
+        /// <summary>
+        /// Create a new example from an existing one.
+        /// </summary>
+        /// <param name="example">The example to copy.</param>
+        public Example(Example example)
+        {
+            Title = example.Title;
+            Remarks = example.Remarks;
+        }
+
         internal string ToExampleItemString(string fmt, int serialNumber)
         {
             StringBuilder sb = Constants.StringBuilderPool.Get();

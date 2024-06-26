@@ -39,6 +39,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsPositional = isPositional;
             IsSwitchParameter = isSwitchParameter;
         }
+
+        /// <summary>
+        /// Create a copy of a syntax parameter.
+        /// </summary>
+        /// <param name="syntaxParameter">The syntax parameter to copy.</param>
+        public SyntaxParameter(SyntaxParameter syntaxParameter)
+        {
+            SyntaxParameter copy = new SyntaxParameter(syntaxParameter.ParameterName);
+            ParameterType = syntaxParameter.ParameterType;
+            Position = syntaxParameter.Position;
+            IsMandatory = syntaxParameter.IsMandatory;
+            IsPositional = syntaxParameter.IsPositional;
+            IsSwitchParameter = syntaxParameter.IsSwitchParameter;
+        }
     
         /// <summary>
         /// We build the string that is identical to the output of Get-Command -Syntax
