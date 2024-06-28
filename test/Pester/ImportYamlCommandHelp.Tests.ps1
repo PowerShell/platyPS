@@ -25,7 +25,7 @@ Describe "Import-YamlCommandHelp tests" {
         }
 
         It "should handle literal paths" {
-            $literalPath = "${testDrive}.[get-date].yml"
+            $literalPath = "${testDrive}/[get-date].yml"
             copy-item $yamlFile $literalPath
             $yml = Import-YamlCommandHelp -LiteralPath $literalPath
             $yml -eq $mdch | Should -Be $true

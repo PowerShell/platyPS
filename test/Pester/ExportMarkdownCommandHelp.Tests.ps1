@@ -8,23 +8,24 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File creation" {
         BeforeAll {
-            $outputFolder = ${TestDrive}.FullName
+            $outputBaseFolder = ${TestDrive}.FullName
+            $outputFolder = Join-Path ${TestDrive}.FullName Microsoft.PowerShell.Utility
         }
 
         It "Creates a file if one does not exist" {
-            Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputFolder
+            Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder
             "${outputFolder}/Get-Date.md" | Should -Exist
         }
 
         It "Doesn't create a file if it already exists" {
-            $mdPath = "${TestDrive}/Get-Date.md"
+            $mdPath = "${outputFolder}/Get-Date.md"
             if (test-path $mdPath)
             {
                 Remove-Item -Force $mdPath
             }
 
-            $file = New-Item -Type file "${TestDrive}/Get-Date.md"
-            $w = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputFolder 3>&1
+            $file = New-Item -Type file "${outputFolder}/Get-Date.md"
+            $w = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder 3>&1
             $w | Should -BeOfType System.Management.Automation.WarningRecord
             $w.Message | Should -Be "'Get-Date' exists, skipping. Use -Force to overwrite."
             $fi = Get-ChildItem $file
@@ -32,15 +33,15 @@ Describe "Export-MarkdownCommandHelp" {
         }
 
         It "Creates a file if it exists and -force is used" {
-            $mdPath = "${TestDrive}/Get-Date.md"
+            $mdPath = "${outputFolder}/Get-Date.md"
             if (test-path $mdPath)
             {
                 Remove-Item -Force $mdPath
             }
 
-            $result1 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputFolder
+            $result1 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder
             start-sleep 1
-            $result2 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputFolder -Force
+            $result2 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder -Force
             $result1.Length | Should -Be $result2.Length
             $result1.LastWriteTime | Should -Not -Be $result2.LastWriteTime
         }
@@ -48,8 +49,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Metadata" {
         BeforeAll {
-            $ch | Export-MarkdownCommandHelp -OutputFolder $TestDrive
-            $newCh = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | Export-MarkdownCommandHelp -OutputFolder $outputBaseFolder
+            $newCh = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $observedMetadata = $newCh.Metadata
         }
 
@@ -73,16 +74,16 @@ Describe "Export-MarkdownCommandHelp" {
 
         It "Should add new metadata if supplied" {
             $newValue = "additional metadata!"
-            $ch | Export-MarkdownCommandHelp -OutputFolder ${TestDrive} -Metadata @{ BAR = $newValue } -Force
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | Export-MarkdownCommandHelp -OutputFolder ${outputBaseFolder} -Metadata @{ BAR = $newValue } -Force
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $ch2.Metadata.Keys.Count | Should -Be 9
             $ch2.Metadata['BAR'] | Should -Be $newValue
         }
 
         It "Should not overwrite a protected metadata key" {
             $newValue = "additional metadata!"
-            $ch | Export-MarkdownCommandHelp -OutputFolder ${TestDrive} -Metadata @{ "PlatyPS schema version" = $newValue } -Force -WarningVariable warnVar
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | Export-MarkdownCommandHelp -OutputFolder ${outputBaseFolder} -Metadata @{ "PlatyPS schema version" = $newValue } -Force -WarningVariable warnVar
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $ch2.Metadata['PlatyPS schema version'] | Should -Be $ch.Metadata['PlatyPS schema version']
             $ch2.Metadata.Keys.Count | Should -Be $ch.Metadata.Keys.Count
             $warnVar[0].Message | Should -Be "Metadata key 'PlatyPS schema version' may not be overridden"
@@ -91,8 +92,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Syntax" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $testCases = 0..3 | Foreach-object { @{ Number = $_ } }
         }
 
@@ -116,8 +117,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Notes" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
         }
 
         It "Exported notes should be the same as the source" {
@@ -127,8 +128,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Examples" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $expectedCount = $ch.Examples.Count
             $testCases = 0..($expectedCount - 1) | Foreach-Object {
                 @{ number = $_ }
@@ -148,8 +149,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Parameters" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $expectedCount = $ch.Parameters.Count
             $testCases = 0..($expectedCount - 1) | Foreach-Object {
                 @{ number = $_ }
@@ -168,8 +169,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Input/Output" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $expectedInputCount = $ch.Inputs.Count
             $expectedOutputCount = $ch.Outputs.Count
             $inputTestCases = 0..($expectedInputCount - 1) | Foreach-Object { @{ number = $_ } }
@@ -197,8 +198,8 @@ Describe "Export-MarkdownCommandHelp" {
 
     Context "File Content - Related Links" {
         BeforeAll {
-            $ch | export-markdowncommandhelp -force -outputfolder ${TestDrive}
-            $ch2 = Import-MarkdownCommandHelp "${TestDrive}/Get-Date.md"
+            $ch | export-markdowncommandhelp -force -outputfolder ${outputBaseFolder}
+            $ch2 = Import-MarkdownCommandHelp "${outputFolder}/Get-Date.md"
             $expectedCount = $ch.RelatedLinks.Count
             $testCases = 0..($expectedCount - 1) | Foreach-Object {
                 @{ number = $_ }
