@@ -97,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         Directory.CreateDirectory(moduleDir);
                     }
-                    
+
                     markdownPath = Path.Combine(moduleDir, $"{cmdletHelp.Title}.md");
                 }
 
