@@ -12,8 +12,8 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Name { get; set;}
         public string Position { get; set; }
         public bool IsRequired { get; set; }
-        public bool ValueByPipeline { get; set; }
-        public bool ValueByPipelineByPropertyName { get; set; }
+        public bool ValueFromPipeline { get; set; }
+        public bool ValueFromPipelineByPropertyName { get; set; }
         public bool ValueFromRemainingArguments { get; set; }
 
         public ParameterSetV2()
@@ -21,8 +21,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Name = string.Empty;
             Position = string.Empty;
             IsRequired = false;
-            ValueByPipeline = false;
-            ValueByPipelineByPropertyName = false;
+            ValueFromPipeline = false;
+            ValueFromPipelineByPropertyName = false;
             ValueFromRemainingArguments = false;
         }
 
@@ -31,8 +31,8 @@ namespace Microsoft.PowerShell.PlatyPS
 			Name = name;
             Position = position;
             IsRequired = false;
-            ValueByPipeline = false;
-            ValueByPipelineByPropertyName = false;
+            ValueFromPipeline = false;
+            ValueFromPipelineByPropertyName = false;
             ValueFromRemainingArguments = false;
 		}
     }

@@ -279,8 +279,8 @@ namespace Microsoft.PowerShell.PlatyPS
 			foreach(var pSetName in GetParameterSetList())
 			{
 				var pSetV2 = new ParameterSetV2(pSetName, Position);
-				pSetV2.ValueByPipeline = GetByValue(AcceptPipelineInput);
-				pSetV2.ValueByPipelineByPropertyName = GetByProperty(AcceptPipelineInput);
+				pSetV2.ValueFromPipeline = GetByValue(AcceptPipelineInput);
+				pSetV2.ValueFromPipelineByPropertyName = GetByProperty(AcceptPipelineInput);
                 if (TryGetRequiredAsBool(out var required))
                 {
                     pSetV2.IsRequired = required;

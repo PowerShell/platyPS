@@ -15,8 +15,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         public string Name { get; set;} = string.Empty;
         public string Position { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = false;
-        public bool ValueByPipeline { get; set; } = false;
-        public bool ValueByPipelineByPropertyName { get; set; } = false;
+        public bool ValueFromPipeline { get; set; } = false;
+        public bool ValueFromPipelineByPropertyName { get; set; } = false;
         public bool ValueFromRemainingArguments { get; set; } = false;
 
         public ParameterSet()
@@ -38,8 +38,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Name = pSet.Name;
             Position = pSet.Position;
             IsRequired = pSet.IsRequired;
-            ValueByPipeline = pSet.ValueByPipeline;
-            ValueByPipelineByPropertyName = pSet.ValueByPipelineByPropertyName;
+            ValueFromPipeline = pSet.ValueFromPipeline;
+            ValueFromPipelineByPropertyName = pSet.ValueFromPipelineByPropertyName;
             ValueFromRemainingArguments = pSet.ValueFromRemainingArguments;
         }
 
@@ -54,8 +54,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Position, other.Position, StringComparison.CurrentCulture) == 0 &&
                 IsRequired == other.IsRequired &&
-                ValueByPipeline == other.ValueByPipeline &&
-                ValueByPipelineByPropertyName == other.ValueByPipelineByPropertyName &&
+                ValueFromPipeline == other.ValueFromPipeline &&
+                ValueFromPipelineByPropertyName == other.ValueFromPipelineByPropertyName &&
                 ValueFromRemainingArguments == other.ValueFromRemainingArguments);
         }
 
@@ -76,7 +76,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override int GetHashCode()
         {
-            return (Name, Position, IsRequired, ValueByPipeline, ValueByPipelineByPropertyName, ValueFromRemainingArguments).GetHashCode();
+            return (Name, Position, IsRequired, ValueFromPipeline, ValueFromPipelineByPropertyName, ValueFromRemainingArguments).GetHashCode();
         }
 
         public static bool operator ==(ParameterSet parameterSet1, ParameterSet parameterSet2)

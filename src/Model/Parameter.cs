@@ -32,6 +32,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public bool SupportsWildcards { get; set;}
 
+        public bool IsDynamic { get; set ; }
+
         public string Aliases { get; set;}
 
         public bool DontShow { get; set;}
@@ -144,8 +146,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                         Name = parameterSet.Name,
                         Position = parameterSet.Position,
                         IsRequired = parameterSet.IsRequired,
-                        ValueByPipeline = parameterSet.ValueByPipeline,
-                        ValueByPipelineByPropertyName = parameterSet.ValueByPipelineByPropertyName,
+                        ValueFromPipeline = parameterSet.ValueFromPipeline,
+                        ValueFromPipelineByPropertyName = parameterSet.ValueFromPipelineByPropertyName,
                         ValueFromRemainingArguments = parameterSet.ValueFromRemainingArguments
                     }
                 );
@@ -204,12 +206,39 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 pSet.Name = string.Compare(paramSet.Name, "__AllParameterSets", true) == 0 ? "(All)" : paramSet.Name;
                 pSet.Position = paramSet.Position;
                 pSet.IsRequired = paramSet.IsRequired;
-                pSet.ValueByPipeline = paramSet.ValueByPipeline;
-                pSet.ValueByPipelineByPropertyName = paramSet.ValueByPipelineByPropertyName;
+                pSet.ValueFromPipeline = paramSet.ValueFromPipeline;
+                pSet.ValueFromPipelineByPropertyName = paramSet.ValueFromPipelineByPropertyName;
                 pSet.ValueFromRemainingArguments = paramSet.ValueFromRemainingArguments;
                 metadata.ParameterSets.Add(pSet);
             }
             return metadata;
+        }
+
+        /// <summary>
+        /// This is a specialized equals check which does not include
+        /// the description in the check.
+        /// </summary>
+        /// <param name="other"></param>
+        /// <returns>A boolean representing whether the parameters are the same (without the description).</returns>
+        public bool EqualsNoDescription(Parameter other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return (
+                string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
+                string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
+                SupportsWildcards == other.SupportsWildcards &&
+                DontShow == other.DontShow &&
+                IsDynamic == other.IsDynamic &&
+                ParameterSets.SequenceEqual(other.ParameterSets) &&
+                (AcceptedValues is null && other.AcceptedValues is null || AcceptedValues.SequenceEqual(other.AcceptedValues))
+            );
         }
 
         public bool Equals(Parameter other)
@@ -227,6 +256,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
                 SupportsWildcards == other.SupportsWildcards &&
+                IsDynamic == other.IsDynamic &&
                 DontShow == other.DontShow &&
                 ParameterSets.SequenceEqual(other.ParameterSets) &&
                 (AcceptedValues is null && other.AcceptedValues is null || AcceptedValues.SequenceEqual(other.AcceptedValues))
