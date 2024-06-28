@@ -59,6 +59,15 @@ Describe "Export-MarkdownCommandHelp" {
             $fi.FullName | Should -Exist
         }
 
+        It "Multiple command help objects from different modules should create multiple directories." {
+            $CmdInfos = Get-Module | Foreach-Object { Get-Command -Type cmdlet -module $_ |Select-Object -First 1}
+            $chs = $CmdInfos | New-CommandHelp
+            $exportedHelp = $chs | Export-MarkdownCommandHelp -output ${outputBaseFolder}
+            $chs.Count| Should -Be $exportedHelp.Count
+            $dirs = Get-ChildItem -Dir ${outputBaseFolder}
+            $dirs.Count | Should -Be $chs.Count
+        }
+
     }
 
     Context "File Content - Metadata" {
