@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Linq.Expressions;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
 using System.Text;
@@ -126,9 +128,98 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
+        /// <summary>
+        /// Merge the new data found in the cmdlet object.
+        /// </summary>
+        /// <param name="fromMarkdown"></param>
+        /// <param name="fromCmdlet"></param>
+        /// <returns></returns>
         CommandHelp Merge(CommandHelp fromMarkdown, CommandHelp fromCmdlet)
         {
-            return fromMarkdown;
+            CommandHelp template = new (fromMarkdown);
+            // Syntax
+            if (TryGetMergedSyntax(template.Syntax, fromCmdlet.Syntax, out var mergedSyntaxList, out var mergeSyntaxDiagnosticMessages))
+            {
+                foreach(var msg in mergeSyntaxDiagnosticMessages)
+                {
+                    template.Diagnostics.TryAddDiagnostic(msg);
+                }
+
+                template.Syntax.Clear();
+                template.Syntax.AddRange(mergedSyntaxList);
+            }
+
+            // Parameters
+            if (TryGetMergedParameters(template.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var mergeParameterDiagnosticMessages))
+            {
+                foreach(var msg in mergeParameterDiagnosticMessages)
+                {
+                    template.Diagnostics.TryAddDiagnostic(msg);
+                }
+
+                template.Parameters.Clear();
+                template.Parameters.AddRange(mergedParametersList);
+            }
+
+            // TODO:
+            // INPUT
+            // OUTPUT
+
+            return template;
+        }
+
+        private bool  TryGetMergedSyntax(List<SyntaxItem>fromHelp, List<SyntaxItem>fromCommand, out List<SyntaxItem>mergedSyntax, out List<DiagnosticMessage>diagnosticMessages)
+        {
+            diagnosticMessages = new();
+            mergedSyntax = new List<SyntaxItem>();
+            // They're the same, just return false
+            if (fromHelp.SequenceEqual(fromCommand))
+            {
+                return false;
+            }
+
+            // We believe the command as a source over the help.
+            mergedSyntax = fromCommand;
+            return true;
+        }
+
+        private bool TryGetMergedParameters(List<Parameter>fromHelp, List<Parameter>fromCommand, out List<Parameter>mergedParameters, out List<DiagnosticMessage>diagnosticMessages)
+        {
+            diagnosticMessages = new();
+            mergedParameters = new();
+            // They're the same, just return false
+            if  (fromHelp.SequenceEqual(fromCommand))
+            {
+                diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, "Parameters are the same", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
+                return false;
+            }
+
+            // TODO: dynamic parameters
+            foreach(var param in fromCommand)
+            {
+                var helpParam = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0).First<Parameter>();
+                if (helpParam is null)
+                {
+                    diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {param.Name}, not found in help.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
+                    var newParameter = new Parameter(param);
+                    param.Description = "**FILL IN DESCRIPTION**";
+                    mergedParameters.Add(param);
+                }
+                else if (helpParam == param)
+                {
+                    diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"No change to {param.Name}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
+                    mergedParameters.Add(helpParam);
+                }
+                else
+                {
+                    diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {param.Name}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
+                    var newParameter = new Parameter(param);
+                    param.Description = helpParam.Description;
+                    mergedParameters.Add(newParameter);
+                }
+            }
+
+            return true;
         }
 
         Encoding GetFileEncoding(string filePath)
