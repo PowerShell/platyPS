@@ -9,7 +9,7 @@ Describe "Export-MarkdownCommandHelp" {
     Context "File creation" {
         BeforeAll {
             $outputBaseFolder = ${TestDrive}.FullName
-            $outputFolder = Join-Path ${TestDrive}.FullName Microsoft.PowerShell.Utility
+            $outputFolder = Join-Path ${TestDrive}.FullName $ch.ModuleName
         }
 
         It "Creates a file if one does not exist" {
@@ -45,6 +45,20 @@ Describe "Export-MarkdownCommandHelp" {
             $result1.Length | Should -Be $result2.Length
             $result1.LastWriteTime | Should -Not -Be $result2.LastWriteTime
         }
+
+        It "CommandHelp without modulename should be exported to the OutputFolder" {
+            function Invoke-TestFunction {
+                [CmdletBinding()]
+                param ([parameter()][string]$parameter1)
+            }
+
+            $fci = Get-Command Invoke-TestFunction
+            $fch = New-CommandHelp -CommandInfo $fci
+            $fi = $fch | Export-MarkdownCommandHelp -output $TestDrive
+            $fi.FullName | Should -Be (Join-Path $TestDrive "Invoke-TestFunction.md")
+            $fi.FullName | Should -Exist
+        }
+
     }
 
     Context "File Content - Metadata" {
