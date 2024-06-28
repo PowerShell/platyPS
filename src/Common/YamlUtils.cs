@@ -431,19 +431,19 @@ namespace Microsoft.PowerShell.PlatyPS
                                 }
                             }
 
-                            if (pSetDetail.TryGetValue("valueByPipeline", out var pipeline))
+                            if (pSetDetail.TryGetValue("valueFromPipeline", out var pipeline))
                             {
                                 if (bool.TryParse(pipeline.ToString(), out bool result))
                                 {
-                                    set.ValueByPipeline = result;
+                                    set.ValueFromPipeline = result;
                                 }
                             }
 
-                            if (pSetDetail.TryGetValue("valueByPipelineByPropertyName", out var propName))
+                            if (pSetDetail.TryGetValue("valueFromPipelineByPropertyName", out var propName))
                             {
                                 if (bool.TryParse(propName.ToString(), out bool result))
                                 {
-                                    set.ValueByPipelineByPropertyName = result;
+                                    set.ValueFromPipelineByPropertyName = result;
                                 }
                             }
 

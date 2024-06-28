@@ -421,6 +421,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -429,8 +430,8 @@ parameters:
     name: (All)
     position: Named
     isRequired: false
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   helpMessage: ''
 - name: Date
@@ -449,6 +450,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: LastWriteTime
   dontShow: false
   acceptedValues: []
@@ -456,14 +458,14 @@ parameters:
   - name: DateAndFormat
     position: 0
     isRequired: false
-    valueByPipeline: true
-    valueByPipelineByPropertyName: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: true
     valueFromRemainingArguments: false
   - name: DateAndUFormat
     position: 0
     isRequired: false
-    valueByPipeline: true
-    valueByPipelineByPropertyName: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: true
     valueFromRemainingArguments: false
   helpMessage: ''
 - name: Day
@@ -478,6 +480,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -501,6 +504,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues:
@@ -556,6 +560,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -563,14 +568,14 @@ parameters:
   - name: DateAndFormat
     position: Named
     isRequired: false
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   - name: UnixTimeSecondsAndFormat
     position: Named
     isRequired: false
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   helpMessage: ''
 - name: Hour
@@ -579,6 +584,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -595,6 +601,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -607,6 +614,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -619,6 +627,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -631,6 +640,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -656,6 +666,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []
@@ -663,14 +674,14 @@ parameters:
   - name: DateAndUFormat
     position: Named
     isRequired: false
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   - name: UnixTimeSecondsAndUFormat
     position: Named
     isRequired: false
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   helpMessage: ''
 - name: UnixTimeSeconds
@@ -683,6 +694,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: UnixTime
   dontShow: false
   acceptedValues: []
@@ -690,14 +702,14 @@ parameters:
   - name: UnixTimeSecondsAndFormat
     position: Named
     isRequired: true
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   - name: UnixTimeSecondsAndUFormat
     position: Named
     isRequired: true
-    valueByPipeline: false
-    valueByPipelineByPropertyName: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
     valueFromRemainingArguments: false
   helpMessage: ''
 - name: Year
@@ -706,6 +718,7 @@ parameters:
   parameterValue: []
   defaultValue: None
   supportsWildcards: false
+  isDynamic: false
   aliases: ''
   dontShow: false
   acceptedValues: []

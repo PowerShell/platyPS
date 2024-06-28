@@ -67,8 +67,8 @@ ParameterSets:
 - Name: (All)
   Position: 1
   IsRequired: true
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -89,8 +89,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -111,8 +111,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []

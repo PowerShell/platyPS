@@ -84,7 +84,27 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (CommandHelp cmdletHelp in Command)
             {
-                var markdownPath = Path.Combine($"{outputPath}", $"{cmdletHelp.Title}.md");
+#if MODULE_DIR
+                // construct the path to the exported file
+                string markdownPath;
+                if (string.IsNullOrEmpty(cmdletHelp.ModuleName))
+                {
+                    markdownPath = Path.Combine(outputPath, $"{cmdletHelp.Title}.md");
+                }
+                else
+                {
+                    var moduleDir = Path.Combine(outputPath, "{cmdletHelp.ModuleName}");
+                    if (!Directory.Exists(moduleDir))
+                    {
+                        Directory.CreateDirectory(moduleDir);
+                    }
+                    
+                    markdownPath = Path.Combine(moduleDir, $"{cmdletHelp.Title}.md");
+                }
+#else
+                string markdownPath = Path.Combine(outputPath, $"{cmdletHelp.Title}.md");
+#endif
+
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
                     // should be error?

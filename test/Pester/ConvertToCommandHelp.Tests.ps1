@@ -119,8 +119,8 @@ Describe "New-CommandHelp tests" {
         It "Value for Parameter All '<PropertyName>' should be '<ExpectedValue>'" -TestCases @(
             @{ PropertyName = "Position"; ExpectedValue = "Named" }
             @{ PropertyName = "IsRequired"; ExpectedValue = $false } # IsMandatory
-            @{ PropertyName = "ValueByPipeline"; ExpectedValue = $false }
-            @{ PropertyName = "ValueByPipelineByPropertyName"; ExpectedValue = $true }
+            @{ PropertyName = "ValueFromPipeline"; ExpectedValue = $false }
+            @{ PropertyName = "ValueFromPipelineByPropertyName"; ExpectedValue = $true }
             @{ PropertyName = "ValueFromRemainingArguments"; ExpectedValue = $False }
         ) {
             param ($PropertyName, $ExpectedValue )

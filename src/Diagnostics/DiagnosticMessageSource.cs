@@ -17,5 +17,6 @@
         Outputs,
         Notes,
         Links,
-        General
+        General,
+        Merge
     }

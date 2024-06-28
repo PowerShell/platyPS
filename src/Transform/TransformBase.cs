@@ -230,8 +230,8 @@ namespace Microsoft.PowerShell.PlatyPS
                     var pSet = new Model.ParameterSet(parameterSetName);
                     pSet.Position = metadata.Position == int.MinValue ? Constants.NamedString : paramSet.Value.Position.ToString();
                     pSet.IsRequired = metadata.IsMandatory;
-                    pSet.ValueByPipeline = metadata.ValueFromPipeline;
-                    pSet.ValueByPipelineByPropertyName = metadata.ValueFromPipelineByPropertyName;
+                    pSet.ValueFromPipeline = metadata.ValueFromPipeline;
+                    pSet.ValueFromPipelineByPropertyName = metadata.ValueFromPipelineByPropertyName;
                     pSet.ValueFromRemainingArguments = metadata.ValueFromRemainingArguments;
                     param.ParameterSets.Add(pSet);
                 }
