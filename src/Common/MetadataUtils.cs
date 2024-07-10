@@ -291,7 +291,8 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         internal static string[] ProtectedMetadataKeys = new string[] {
-                "PlatyPS schema version"
+                "PlatyPS schema version",
+                "document type"
             };
 
         internal static List<string> WarnBadKeys(PSCmdlet cmdlet, Hashtable metadata)

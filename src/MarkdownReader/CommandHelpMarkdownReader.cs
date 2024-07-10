@@ -15,6 +15,7 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
+using System.CodeDom;
 // using System.Management.Automation.Language;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -262,7 +263,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             List<DiagnosticMessage> descriptionDiagnostics = new();
-            commandHelp.Description = GetDescriptionFromMarkdown(markdownContent, out descriptionDiagnostics);
+            commandHelp.Description = GetDescriptionFromMarkdown(markdownContent, out descriptionDiagnostics).Trim();
             if (descriptionDiagnostics is not null && descriptionDiagnostics.Count > 0)
             {
                 descriptionDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
@@ -361,7 +362,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 string[] kv = s.Split(fieldSeparator, 2, StringSplitOptions.None);
                 if (kv.Length == 2)
                 {
-                    od[kv[0].Trim()] = kv[1].Trim();
+                    var value = kv[1].Trim();
+                    if (value == "''") // If we have an empty space, don't save empty quotes
+                    {
+                        value = string.Empty;
+                    }
+
+                    od[kv[0].Trim()] = value;
                 }
             }
 
@@ -513,7 +520,7 @@ namespace Microsoft.PowerShell.PlatyPS
             markdownContent.Seek(start);
             markdownContent.Take();
             var end = markdownContent.FindHeader(2, string.Empty);
-            return markdownContent.GetStringFromAst(end);
+            return markdownContent.GetStringFromAst(end).Trim();
         }
 
         internal static List<SyntaxItem> GetSyntaxFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
@@ -768,6 +775,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return synopsisString;
         }
 
+        // Avoid turning boilerplate into an alias
         internal static List<string> GetAliases(MarkdownDocument md, int startIndex)
         {
             List<string> aliases = new List<string>();
@@ -782,7 +790,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         if (item is LiteralInline line)
                         {
-                            aliases.Add(line.ToString());
+                            var alias = line.ToString();
+                            if (! ContainsAliasBoilerPlate(alias))
+                            {
+                                aliases.Add(alias);
+                            }
                         }
 
                         item = item.NextSibling;
@@ -793,6 +805,21 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return aliases;
+        }
+
+        private static bool ContainsAliasBoilerPlate(string aliasString)
+        {
+            if (string.Compare(aliasString, Constants.AliasMessage1) == 0)
+            {
+                return true;
+            }
+
+            if (string.Compare(aliasString, Constants.AliasMessage2) == 0)
+            {
+                return true;
+            }
+
+            return false;
         }
 
         internal static List<Links> GetLinks(ParsedMarkdownContent md)
@@ -814,9 +841,16 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (item is LinkInline link)
                     {
-                        if (link is not null && link.Url is not null && link.FirstChild is not null)
+                        if (link is not null && link.Url is not null)
                         {
-                            links.Add(new Links(link.Url, link.FirstChild.ToString()));
+                            // While not common, the linkText may be null
+                            // but that does not invalidate the related link.
+                            string linkText = string.Empty;
+                            if (link.FirstChild is not null)
+                            {
+                                linkText = link.FirstChild.ToString();
+                            }
+                            links.Add(new Links(link.Url, linkText));
                         }
                     }
 

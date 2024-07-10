@@ -510,7 +510,7 @@ Write-Host 'Hello World!'
         {
             param(
                 [Switch]
-                [Parameter(Position=1)]
+                [Parameter()]
                 $WhatIf,
                 [string]
                 [Parameter(Position=2)]
@@ -523,11 +523,11 @@ Write-Host 'Hello World!'
 
         It 'use full type name when specified' {
             $expectedParameters = @(
-                "SwitchParameter"
                 "string"
                 "int"
+                "SwitchParameter"
             )
-            $expectedSyntax = 'Get-Alpha [-WhatIf] [[-CCC] <string>] [[-ddd] <int>] [<CommonParameters>]'
+            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
 
             $files = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force
             $commandHelp = Import-MarkdownCommandHelp $files
@@ -538,7 +538,7 @@ Write-Host 'Hello World!'
         It 'does not use full type name when specified' {
             $expectedParameterNames = "CCC","ddd","WhatIf"
             $expectedParameterTypes = "String","Nullable<System.Int32>","SwitchParameter"
-            $expectedSyntax = "Get-Alpha [-WhatIf] [[-CCC] <string>] [[-ddd] <int>] [<CommonParameters>]"
+            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
             $file = New-MarkdownCommandHelp -Command Get-Alpha -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypename
             $ch = Import-MarkdownCommandHelp $file
             $ch.Parameters.Name | Should -Be $expectedParameterNames

@@ -5,6 +5,9 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Globalization;
+using System.IO;
+using System.Text;
+using Microsoft.PowerShell.PlatyPS.Test;
 using YamlDotNet.Serialization;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
@@ -140,6 +143,20 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         public override string ToString()
         {
             return Title;
+        }
+
+        public string ToMarkdownString()
+        {
+            WriterSettings settings = new(Encoding.UTF8, Path.GetTempPath());
+            var cmdWrt = new MarkdownWriter.CommandHelpMarkdownWriter(settings);
+            return cmdWrt.WriteString(this);
+        }
+
+        public string ToYamlString()
+        {
+            WriterSettings settings = new(Encoding.UTF8, Path.GetTempPath());
+            var cmdWrt = new YamlWriter.CommandHelpYamlWriter(settings);
+            return cmdWrt.WriteString(this);
         }
 
         internal void AddMetadata(string key, object value)

@@ -22,9 +22,9 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to import a markdown file and merge it with the session cmdlet of the same name.
     /// </summary>
-    [Cmdlet(VerbsData.Update, "MarkdownCommandHelp", DefaultParameterSetName = "Path", SupportsShouldProcess = true, HelpUri = "")]
+    [Cmdlet(VerbsData.Update, "CommandHelp", DefaultParameterSetName = "Path", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(CommandHelp))]
-    public sealed class UpdateMarkdownHelpCommand : PSCmdlet
+    public sealed class UpdateHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
 
@@ -36,18 +36,6 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter(Mandatory=true, ValueFromPipeline=true, ParameterSetName= "LiteralPath")]
         [ValidateNotNullOrEmpty]
         public string[] LiteralPath { get; set; } = Array.Empty<string>();
-
-        /// <summary>
-        /// Do not create a backup of the file.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter NoBackup { get; set; }
-
-        /// <summary>
-        /// Return the newly created CommandHelp object.
-        /// </summary>
-        [Parameter]
-        public SwitchParameter PassThru { get; set; }
 
 #endregion
 
@@ -81,7 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
                     var commandName = commandHelpObject.Title;
-                    var cmdInfo = SessionState.InvokeCommand.GetCmdlet(commandName);
+                    var cmdInfo = SessionState.InvokeCommand.GetCommand(commandName, CommandTypes.Function|CommandTypes.Filter|CommandTypes.Cmdlet);
                     if (cmdInfo is null)
                     {
                         var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName); 
@@ -100,28 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
 
                     var mergedCommandHelp = Merge(commandHelpObject, helpObjectFromCmdlet);
-                    if (ShouldProcess(path))
-                    {
-                        FileInfo fi = new FileInfo(path);
-                        Encoding encoding = GetFileEncoding(path);
-                        if (! NoBackup)
-                        {
-                            fi.MoveTo($"{path}.bak");
-                        }
-                        else
-                        {
-                            fi.Delete();
-                        }
-
-                        var settings = new WriterSettings(encoding, path);
-                        var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        cmdWrt.Write(mergedCommandHelp, null);
-
-                        if (PassThru)
-                        {
-                            WriteObject(mergedCommandHelp);
-                        }
-                    }
+                    WriteObject(mergedCommandHelp);
                 }
                 catch (Exception e)
                 {
@@ -243,10 +210,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 return false;
             }
 
-            // dynamic parameters are currently unhandled
+            // dynamic parameters are currently unhandled on the command side.
+            // They will still be copied if they are in the help.
             foreach(var param in fromCommand)
             {
-                var helpParam = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0).First<Parameter>();
+                // We should find 0 or 1 parameters that have the same name as the parameter in the cmdlet.
+                var foundParams = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0);
+                var helpParam = foundParams.Count() > 0 ? foundParams.First() : null;
                 if (helpParam is null)
                 {
                     diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {param.Name}, not found in help.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
@@ -287,10 +257,10 @@ namespace Microsoft.PowerShell.PlatyPS
         private bool TryGetMergedInputOutputs(List<InputOutput>fromHelp, List<InputOutput>fromCommand, out List<InputOutput>mergedInputOutput, out List<DiagnosticMessage>diagnostics)
         {
             diagnostics = new();
+            mergedInputOutput = new(fromCommand);
             if (fromHelp.SequenceEqual(fromCommand))
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, "Input/Output are the same", DiagnosticSeverity.Information, "TryGetMergedInputOutput", -1));
-                mergedInputOutput = new();
                 return false;
             }
 
@@ -298,7 +268,6 @@ namespace Microsoft.PowerShell.PlatyPS
             if (newList.Count() == 0)
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, "Input/Output names are the same", DiagnosticSeverity.Information, "TryGetMergedInputOutput", -1));
-                mergedInputOutput = new();
                 return false;
             }
 

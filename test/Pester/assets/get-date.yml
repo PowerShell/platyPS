@@ -30,6 +30,7 @@ syntaxes:
   isDefault: false
   parameters:
   - '[[-Date] <DateTime>]'
+  - -UFormat <String>
   - '[-Year <Int32>]'
   - '[-Month <Int32>]'
   - '[-Day <Int32>]'
@@ -38,7 +39,6 @@ syntaxes:
   - '[-Second <Int32>]'
   - '[-Millisecond <Int32>]'
   - '[-DisplayHint <DisplayHintType>]'
-  - -UFormat <String>
 - commandName: Get-Date
   parameterSetName: UnixTimeSecondsAndFormat
   isDefault: false
@@ -59,6 +59,7 @@ syntaxes:
   isDefault: false
   parameters:
   - -UnixTimeSeconds <Int64>
+  - -UFormat <String>
   - '[-Year <Int32>]'
   - '[-Month <Int32>]'
   - '[-Day <Int32>]'
@@ -67,7 +68,6 @@ syntaxes:
   - '[-Second <Int32>]'
   - '[-Millisecond <Int32>]'
   - '[-DisplayHint <DisplayHintType>]'
-  - -UFormat <String>
 aliases:
 description: |-
   The `Get-Date` cmdlet gets a **DateTime** object that represents the current date or a date that you

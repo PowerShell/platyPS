@@ -60,7 +60,7 @@ namespace Microsoft.PowerShell.PlatyPS
             cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(commandInfo, helpItem));
-            cmdHelp.Description = GetDescription(helpItem, addDefaultStrings);
+            cmdHelp.Description = GetDescription(helpItem, addDefaultStrings).Trim();
             cmdHelp.AddExampleItemRange(GetExamples(helpItem, addDefaultStrings));
             var parameters = GetParameters(commandInfo, helpItem, addDefaultStrings);
             cmdHelp.AddParameterRange(parameters);
@@ -277,7 +277,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         Example exp = new(
                             title,
-                            GetStringFromDescriptionArray(item.remarks)
+                            GetExampleDetailFromItem(item)
                             );
 
                         examples.Add(exp);
@@ -288,6 +288,50 @@ namespace Microsoft.PowerShell.PlatyPS
 
             return examples;
         }
+
+
+
+        /// <summary>
+        /// Retrieve the example string from an item.
+        /// This checks 3 different possible properties:
+        /// - code
+        /// - remarks
+        /// and constructs a string representing the example.
+        /// introduction is excluded (it seems to be just 'PS >')
+        /// </summary>
+        /// <param name="item"></param>
+        /// <returns></returns>
+        static string GetExampleDetailFromItem(dynamic? item)
+        {
+            StringBuilder sb = Constants.StringBuilderPool.Get();
+            if (item?.code is not null)
+            {
+                sb.AppendLine(item.code.ToString().Trim());
+            }
+
+
+            if (item?.remarks is not null)
+            {
+                var description = GetStringFromDescriptionArray(item.remarks);
+                // If we found something in code, be sure to separate it with a newline.
+                if (sb.Length > 0)
+                {
+                    sb.AppendLine();
+                }
+
+                sb.AppendLine(description);
+            }
+
+            try
+            {
+                return sb.ToString().Trim();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
+        }
+
 
         protected static List<Links> GetRelatedLinks(dynamic? helpItem)
         {

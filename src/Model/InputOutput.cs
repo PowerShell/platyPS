@@ -23,6 +23,23 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Description = description;
         }
 
+        private bool EqualityIncludeDescription = false;
+
+        public void IncludeDescriptionForEqualityCheck()
+        {
+            EqualityIncludeDescription = true;
+        }
+
+        public void ExcludeDescriptionForEqualityCheck()
+        {
+            EqualityIncludeDescription = false;
+        }
+
+        public bool GetDescriptionCheckState()
+        {
+            return EqualityIncludeDescription;
+        }
+
         /// <summary>
         /// Create a new inputoutput object from an existing one.
         /// </summary>
@@ -62,7 +79,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            return (other.Typename == Typename && other.Description == Description);
+            var typenameIsSame = other.Typename == Typename;
+            var areEqual = EqualityIncludeDescription ? other.Description == Description && typenameIsSame : typenameIsSame;
+            return areEqual;
         }
 
         public override bool Equals(object other)

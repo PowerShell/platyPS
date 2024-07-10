@@ -52,7 +52,8 @@ CmdletsToExport = @(
     'Test-MarkdownCommandHelp',
     'New-CommandHelp',
     'Compare-CommandHelp',
-    'Update-MarkdownCommandHelp'
+    'Update-MarkdownCommandHelp',
+    'Update-CommandHelp'
 )
 
 # Variables to export from this module

@@ -72,13 +72,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             }
 
             // Positional parameters are surrounded by square brackets
-            if (IsPositional)
+            if (IsPositional && ! IsSwitchParameter) // JWT???
             {
                 sb.Append("[");
             }
 
             sb.Append($"-{ParameterName}");
-            if (IsPositional || IsSwitchParameter)
+            if (IsPositional || (IsSwitchParameter && ! IsMandatory))
             {
                 sb.Append("]");
             }
@@ -113,8 +113,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                     other.IsPositional == IsPositional &&
                     other.IsSwitchParameter == IsSwitchParameter &&
                     string.Compare(other.ParameterName, ParameterName, true) == 0 &&
-                    string.Compare(other.ParameterType, ParameterType, true) == 0 &&
-                    string.Compare(other.Position, Position, true) == 0;
+                    string.Compare(other.ParameterType, ParameterType, true) == 0;
+                    // Don't compare position for syntax parameter because we can't tell 
+                    // what the starting position is.
         }
 
         public override bool Equals(object other)
