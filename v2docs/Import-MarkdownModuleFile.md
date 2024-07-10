@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Import-MarkdownModuleFile
 ---
@@ -20,13 +20,13 @@ Imports a Markdown module file into a **ModuleHelp** object.
 ### Path (Default)
 
 ```
-Import-MarkdownModuleFile [-Path] <System.String[]> [<CommonParameters>]
+Import-MarkdownModuleFile [-Path] <string[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-MarkdownModuleFile -LiteralPath <System.String[]> [<CommonParameters>]
+Import-MarkdownModuleFile -LiteralPath <string[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -74,7 +74,6 @@ For more information, see
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -82,8 +81,8 @@ ParameterSets:
 - Name: LiteralPath
   Position: Named
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -101,7 +100,6 @@ items in the current location.
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: true
 ParameterValue: []
 Aliases: []
@@ -109,8 +107,8 @@ ParameterSets:
 - Name: Path
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -121,7 +119,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -130,7 +128,7 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+### Microsoft.PowerShell.PlatyPS.ModuleFileInfo
 
 ## NOTES
 

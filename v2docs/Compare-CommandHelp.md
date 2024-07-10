@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Compare-CommandHelp
 ---
@@ -20,9 +20,8 @@ Compares two **CommandHelp** objects and produces a detailed report showing the 
 ### Default (Default)
 
 ```
-Compare-CommandHelp [-Reference] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp>
- [-Difference] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp>
- [-PropertyNamesToExclude <System.String[]>] [<CommonParameters>]
+Compare-CommandHelp [-Reference] <CommandHelp> [-Difference] <CommandHelp>
+ [-PropertyNamesToExclude <string[]>] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -60,8 +59,8 @@ ParameterSets:
 - Name: (All)
   Position: 1
   IsRequired: true
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -83,8 +82,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -98,7 +97,6 @@ The base CommandHelp object to be compared to the difference object.
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -106,8 +104,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -118,7 +116,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

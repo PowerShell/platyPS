@@ -1,10 +1,10 @@
 ﻿---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Export-MamlCommandHelp
 ---
@@ -20,9 +20,8 @@ Exports **CommandHelp** objects to a MAML file.
 ### Default (Default)
 
 ```
-Export-MamlCommandHelp [-Command] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]>
- [-Encoding <System.Text.Encoding>] [-Force] [-OutputDirectory] <System.String> [-WhatIf] [-Confirm]
- [<CommonParameters>]
+Export-MamlCommandHelp [-Command] <CommandHelp[]> [-Encoding <Encoding>] [-Force]
+ [-OutputDirectory] <string> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -50,7 +49,6 @@ One or more **CommandHelp** objects to export.
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -58,8 +56,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -73,7 +71,6 @@ Prompts you for confirmation before running the cmdlet.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases:
@@ -82,8 +79,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -98,7 +95,6 @@ the value of the `$OutputEncoding` preference variable.
 ```yaml
 Type: System.Text.Encoding
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -106,8 +102,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -121,7 +117,6 @@ Use the **Force** parameter to overwrite the output file if it already exists.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -129,8 +124,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -145,7 +140,6 @@ following pattern: `ModuleName-help.xml`.
 ```yaml
 Type: System.String
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -153,8 +147,8 @@ ParameterSets:
 - Name: (All)
   Position: 1
   IsRequired: true
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -168,7 +162,6 @@ Shows what would happen if the cmdlet runs. The cmdlet isn't run.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases:
@@ -177,8 +170,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -189,7 +182,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

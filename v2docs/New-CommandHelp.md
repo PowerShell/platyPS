@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: New-CommandHelp
 ---
@@ -20,7 +20,7 @@ Creates **CommandHelp** objects for a PowerShell command that's loaded in the se
 ### Default (Default)
 
 ```
-New-CommandHelp [-CommandInfo] <System.Management.Automation.CommandInfo[]> [<CommonParameters>]
+New-CommandHelp [-CommandInfo] <CommandInfo[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -83,18 +83,17 @@ A list of one or more PowerShell commands (cmdlets, functions, scripts). The cmd
 **CommandHelp** object for each command.
 
 ```yaml
-Type: System.String[]
+Type: System.Management.Automation.CommandInfo[]
 DefaultValue: ''
-VariableLength: true
-SupportsWildcards: true
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -105,12 +104,13 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
 ### System.Management.Automation.CommandInfo
+
 ## OUTPUTS
 
 ### Microsoft.PowerShell.PlatyPS.Model.CommandHelp
