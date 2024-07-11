@@ -1,0 +1,70 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: "''"
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: Compare-CommandHelp
+title: Compare-CommandHelp
+synopsis: 'Compares two **CommandHelp** objects and produces a detailed report showing the differences.'
+syntaxes:
+- commandName: Compare-CommandHelp
+  parameterSetName: Default
+  isDefault: true
+  parameters:
+  - '[-Reference] <CommandHelp>'
+  - '[-Difference] <CommandHelp>'
+  - '[-PropertyNamesToExclude <string[]>]'
+aliases:
+description: |-
+  `Compare-CommandHelp` is a troubleshooting tool that compares two CommandHelp objects and produces a
+  detailed report showing the differences. For example, you can use this to compare objects imported
+  from different sources, such as two different versions of Markdown files.
+examples:
+- title: Example 1
+  description: >-
+    ```powershell
+
+    $refcmd = Import-MarkdownCommandHelp -Path .\v1\Compare-CommandHelp.md
+
+    $diffcmd = Import-MarkdownCommandHelp -Path .\v2\Compare-CommandHelp.md
+
+    Compare-CommandHelp -Reference $refcmd -Difference $diffcmd > .\diff.log
+
+    ```
+parameters:
+- name: Reference
+  type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description: The base CommandHelp object to be compared to the difference object.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 0
+    isRequired: true
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: true
+    valueFromRemainingArguments: false
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description:
+outputs:
+- name: System.String
+  description:
+notes:
+links:

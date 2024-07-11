@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Import-MamlHelp
 ---
@@ -17,11 +17,16 @@ Imports MAML help from a file and creates **CommandHelp** objects for each comma
 
 ## SYNTAX
 
-### Default (Default)
+### Path (Default)
 
 ```
-Import-MamlHelp [-MamlFile] <System.String>
- [-Settings <Microsoft.PowerShell.PlatyPS.TransformSettings>] [<CommonParameters>]
+Import-MamlHelp [-Path] <string[]> [<CommonParameters>]
+```
+
+### LiteralPath
+
+```
+Import-MamlHelp -LiteralPath <string[]> [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -36,53 +41,55 @@ be used to generate Markdown help files.
 ### Example 1
 
 ```powershell
-PS C:\> {{ Add example code here }}
+Import-MamlHelp -Path .\Microsoft.PowerShell.PlatyPS.dll-Help.xml
 ```
-
-{{ Add example description here }}
 
 ## PARAMETERS
 
-### -MamlFile
+### -LiteralPath
 
-The path to the MAML help file.
+The path to the MAML help file. Specifies a path to one or more locations. The value of LiteralPath
+is used exactly as it's typed. No characters are interpreted as wildcards. If the path includes
+escape characters, enclose it in single quotation marks. Single quotation marks tell PowerShell not
+to interpret any characters as escape sequences.
+
+For more information, see
+[about_Quoting_Rules](/powershell/module/microsoft.powershell.core/about/about_quoting_rules).
 
 ```yaml
-Type: System.String
+Type: System.String[]
 DefaultValue: ''
-VariableLength: true
-SupportsWildcards: true
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
-- Name: (All)
-  Position: 0
+- Name: LiteralPath
+  Position: Named
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -Settings
+### -Path
 
-{{ Fill Settings Description }}
+The path to the MAML help file. Specifies a path to one or more locations.
 
 ```yaml
-Type: Microsoft.PowerShell.PlatyPS.TransformSettings
+Type: System.String[]
 DefaultValue: ''
-VariableLength: true
-SupportsWildcards: false
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+- Name: Path
+  Position: 0
+  IsRequired: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -93,7 +100,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -108,5 +115,4 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+[Export-MamlHelp](Export-MamlCommandHelp.md)

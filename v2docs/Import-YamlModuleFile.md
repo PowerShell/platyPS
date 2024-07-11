@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Import-YamlModuleFile
 ---
@@ -13,51 +13,66 @@ title: Import-YamlModuleFile
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
+Imports a Yaml module file into a **ModuleHelp** object.
 
 ## SYNTAX
 
 ### Path (Default)
 
 ```
-Import-YamlModuleFile [-Path] <System.String[]> [<CommonParameters>]
+Import-YamlModuleFile [-Path] <string[]> [<CommonParameters>]
 ```
 
 ### LiteralPath
 
 ```
-Import-YamlModuleFile -LiteralPath <System.String[]> [<CommonParameters>]
+Import-YamlModuleFile -LiteralPath <string[]> [<CommonParameters>]
 ```
 
 ## ALIASES
 
-This cmdlet has the following aliases,
-  {{Insert list of aliases}}
-
 ## DESCRIPTION
 
-{{ Fill in the Description }}
+The command imports Yaml files containing module help and creates **ModuleHelp** objects. The
+**ModuleHelp** object is a structured representation of the help content that can be used to export
+to different formats.
 
 ## EXAMPLES
 
-### Example 1
+### Example 1 - Import a Yaml module file to a **ModuleHelp** object
 
 ```powershell
-PS C:\> {{ Add example code here }}
+Import-YamlModuleFile .\Microsoft.PowerShell.PlatyPS.yml
 ```
 
-{{ Add example description here }}
+```Output
+Metadata        : {[document type, module], [HelpInfoUri, ], [Locale, en-US], [Module Guid,
+                  0bdcabef-a4b7-4a6d-bf7e-d879817ebbff]…}
+Title           : Microsoft.PowerShell.PlatyPS Module
+Module          : Microsoft.PowerShell.PlatyPS
+ModuleGuid      : 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
+Description     : This module contains cmdlets to help with the creation help content for PowerShell commands.
+Locale          : en-US
+OptionalElement :
+Commands        : {Compare-CommandHelp, Export-MamlCommandHelp, Export-MarkdownCommandHelp, Export-MarkdownModuleFile…}
+Diagnostics     : Microsoft.PowerShell.PlatyPS.Model.Diagnostics
+```
 
 ## PARAMETERS
 
 ### -LiteralPath
 
-{{ Fill LiteralPath Description }}
+Specifies a path to one or more locations containing yaml module files. The value of **LiteralPath**
+is used exactly as it's typed. No characters are interpreted as wildcards. If the path includes
+escape characters, enclose it in single quotation marks. Single quotation marks tell PowerShell not
+to interpret any characters as escape sequences.
+
+For more information, see
+[about_Quoting_Rules](/powershell/module/microsoft.powershell.core/about/about_CommonParameters).
 
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -65,8 +80,8 @@ ParameterSets:
 - Name: LiteralPath
   Position: Named
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -75,12 +90,11 @@ HelpMessage: ''
 
 ### -Path
 
-{{ Fill Path Description }}
+Specifies a path to one or more locations containing yaml module files.
 
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: true
 ParameterValue: []
 Aliases: []
@@ -88,8 +102,8 @@ ParameterSets:
 - Name: Path
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -100,7 +114,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
@@ -109,11 +123,10 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## OUTPUTS
 
-### System.Object
+### Microsoft.PowerShell.PlatyPS.ModuleFileInfo
 
 ## NOTES
 
 ## RELATED LINKS
 
-{{ Fill in the related links here }}
-
+[Import-MarkdownModuleFile](Import-MarkdownModuleFile.md)

@@ -4,7 +4,7 @@ HelpInfoUri:
 Locale: en-US
 Module Guid: 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Microsoft.PowerShell.PlatyPS Module
 ---
@@ -23,7 +23,7 @@ Compares two **CommandHelp** objects and produces a detailed report showing the 
 
 ### [Export-MamlCommandHelp](Export-MamlCommandHelp.md)
 
-{{ Fill in the Description }}
+Exports **CommandHelp** objects to a MAML file.
 
 ### [Export-MarkdownCommandHelp](Export-MarkdownCommandHelp.md)
 

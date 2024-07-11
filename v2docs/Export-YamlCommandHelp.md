@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Export-YamlCommandHelp
 ---
@@ -20,9 +20,8 @@ Exports **CommandHelp** objects to YAML files.
 ### Default (Default)
 
 ```
-Export-YamlCommandHelp [-Command] <Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]>
- [-Encoding <System.Text.Encoding>] [-Force] [-OutputFolder <System.String>]
- [-Metadata <System.Collections.Hashtable>] [-WhatIf] [-Confirm] [<CommonParameters>]
+Export-YamlCommandHelp [-Command] <CommandHelp[]> [-Encoding <Encoding>] [-Force]
+ [-OutputFolder <string>] [-Metadata <hashtable>] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -81,7 +80,6 @@ using the **Command** parameter.
 ```yaml
 Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -89,8 +87,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -104,7 +102,6 @@ Prompts you for confirmation before running the cmdlet.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases:
@@ -113,8 +110,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -129,7 +126,6 @@ the value of the `$OutputEncoding` preference variable.
 ```yaml
 Type: System.Text.Encoding
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -137,8 +133,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -152,7 +148,6 @@ Use the **Force** parameter to overwrite the output file if it already exists.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -160,8 +155,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -177,7 +172,6 @@ existing frontmatter. The values of existing keys are overwritten.
 ```yaml
 Type: System.Collections.Hashtable
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -185,8 +179,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -200,7 +194,6 @@ The folder where the markdown file is saved. If the folder doesn't exist, it's c
 ```yaml
 Type: System.String
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -208,8 +201,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -223,7 +216,6 @@ Shows what would happen if the cmdlet runs. The cmdlet isn't run.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases:
@@ -232,8 +224,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -244,7 +236,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS

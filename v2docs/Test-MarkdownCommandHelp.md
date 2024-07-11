@@ -1,10 +1,10 @@
 ---
-content type: cmdlet
+document type: cmdlet
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.date: 05/29/2024
+ms.date: 07/10/2024
 PlatyPS schema version: 2024-05-01
 title: Test-MarkdownCommandHelp
 ---
@@ -20,7 +20,7 @@ Tests the structure of a Markdown help file.
 ### Default (Default)
 
 ```
-Test-MarkdownCommandHelp [-FullName] <System.String[]> [-DetailView] [<CommonParameters>]
+Test-MarkdownCommandHelp [-FullName] <string[]> [-DetailView] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -67,7 +67,6 @@ Instructs the command to output detailed validation information.
 ```yaml
 Type: System.Management.Automation.SwitchParameter
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: false
 ParameterValue: []
 Aliases: []
@@ -75,8 +74,8 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueByPipeline: false
-  ValueByPipelineByPropertyName: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -90,7 +89,6 @@ The path to the Markdown help file to test.
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-VariableLength: true
 SupportsWildcards: true
 ParameterValue: []
 Aliases: []
@@ -98,8 +96,8 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueByPipeline: true
-  ValueByPipelineByPropertyName: true
+  ValueFromPipeline: true
+  ValueFromPipelineByPropertyName: true
   ValueFromRemainingArguments: false
 DontShow: false
 AcceptedValues: []
@@ -110,7 +108,7 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable. For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
