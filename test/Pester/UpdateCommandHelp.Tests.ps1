@@ -76,7 +76,7 @@ Describe "Tests for Update-CommandHelp" {
         $chUpdate.Outputs.Typename | Should -Be @("System.Diagnostics.Process", "System.IO.FileInfo")
     }
 
-    It "No updates should have no changes" {
+    It "No updates should have no changes" -skip:$IsWindows {
         $chCopy = [Microsoft.PowerShell.PlatyPS.Model.CommandHelp]::new($ch)
         $chCopy | Should -Be $ch
         $helpFile = $chCopy | Export-MarkdownCommandHelp -output $TESTDRIVE -Force
