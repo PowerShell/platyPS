@@ -1,0 +1,150 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: "''"
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: Export-MamlCommandHelp
+title: Export-MamlCommandHelp
+synopsis: 'Exports **CommandHelp** objects to a MAML file.'
+syntaxes:
+- commandName: Export-MamlCommandHelp
+  parameterSetName: Default
+  isDefault: true
+  parameters:
+  - '[-Command] <CommandHelp[]>'
+  - '[-Encoding <Encoding>]'
+  - '[-Force]'
+  - '[-OutputDirectory] <string>'
+  - '[-WhatIf]'
+  - '[-Confirm]'
+aliases:
+description: |-
+  This command is used to convert **CommandHelp** objects to a MAML file. The MAML file contains help
+  content in the format used by the `Get-Help` command.
+examples:
+- title: Example 1
+  description: >-
+    ```powershell
+
+    Import-MarkdownCommandHelp -Path .\v2\*-*.md |
+        Export-MamlCommandHelp -OutputFile Microsoft.PowerShell.PlatyPS-help.xml
+    ```
+parameters:
+- name: Command
+  type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
+  description: One or more **CommandHelp** objects to export.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 0
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Confirm
+  type: System.Management.Automation.SwitchParameter
+  description: Prompts you for confirmation before running the cmdlet.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: cf
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - &o0
+    name: (All)
+    position: Named
+    isRequired: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Encoding
+  type: System.Text.Encoding
+  description: >-
+    The encoding to use when writing the markdown file. If no value is specified, encoding defaults to
+
+    the value of the `$OutputEncoding` preference variable.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: Force
+  type: System.Management.Automation.SwitchParameter
+  description: Use the **Force** parameter to overwrite the output file if it already exists.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: OutputFile
+  type: System.String
+  description: >-
+    The full path to the output file, including the filename and extension. Typically, the filename uses
+
+    following pattern: `ModuleName-help.xml`.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 1
+    isRequired: true
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: WhatIf
+  type: System.Management.Automation.SwitchParameter
+  description: Shows what would happen if the cmdlet runs. The cmdlet isn't run.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: wi
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description:
+outputs:
+- name: System.IO.FileInfo
+  description:
+notes:
+links:
