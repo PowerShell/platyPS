@@ -12,7 +12,7 @@ using System.Management.Automation.Language;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
 using YamlDotNet.Core.Tokens;
-using System.Net.Configuration;
+// using System.Net.Configuration;
 using Microsoft.PowerShell.Commands;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -291,7 +291,8 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         internal static string[] ProtectedMetadataKeys = new string[] {
-                "PlatyPS schema version"
+                "PlatyPS schema version",
+                "document type"
             };
 
         internal static List<string> WarnBadKeys(PSCmdlet cmdlet, Hashtable metadata)

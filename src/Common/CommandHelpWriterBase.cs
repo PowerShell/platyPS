@@ -37,6 +37,7 @@ namespace Microsoft.PowerShell.PlatyPS
         /// <returns>FileInfo object of the created file</returns>
         internal FileInfo Write(CommandHelp help, Hashtable? metadata = null)
         {
+            sb.Clear();
             // Always write the metadata header first.
             WriteMetadataHeader(help, metadata);
 
@@ -75,6 +76,43 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
+        // Just write the markdown string
+        internal string WriteString(CommandHelp help)
+        {
+            sb.Clear();
+            // Always write the metadata header first.
+            WriteMetadataHeader(help, null);
+
+            WriteTitle(help);
+
+            WriteSynopsis(help);
+
+            WriteSyntax(help);
+
+            WriteAliases(help);
+
+            WriteDescription(help);
+
+            WriteExamples(help);
+
+            WriteParameters(help);
+
+            if (help.Inputs is not null)
+            {
+                WriteInputsOutputs(help.Inputs, isInput: true);
+            }
+
+            if (help.Outputs is not null)
+            {
+                WriteInputsOutputs(help.Outputs, isInput: false);
+            }
+
+            WriteNotes(help);
+
+            WriteRelatedLinks(help);
+
+            return sb.ToString().TrimEnd();
+        }
         public void Dispose()
         {
             Constants.StringBuilderPool.Return(sb);

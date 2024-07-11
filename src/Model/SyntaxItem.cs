@@ -87,6 +87,49 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             _alphabeticOrderParameters.Add(name, parameter);
         }
 
+        /// <summary>
+        /// This process takes our syntax parameters and sorts them like get-command does
+        /// </summary>
+        public void SortParameters()
+        {
+            List<SyntaxParameter> sortedList = new();
+            List<SyntaxParameter> positionList = new();
+            List<SyntaxParameter> mandatoryList = new();
+            List<SyntaxParameter> namedList = new();
+            foreach(var parameter in SyntaxParameters)
+            {
+                if (string.Compare(parameter.Position, "named") != 0)
+                {
+                    positionList.Add(parameter);
+                }
+                else if (parameter.IsMandatory)
+                {
+                    mandatoryList.Add(parameter);
+                }
+                else
+                {
+                    namedList.Add(parameter);
+                }
+            }
+
+            if (positionList.Count > 0)
+            {
+                sortedList.AddRange(positionList.OrderBy(p => int.Parse(p.Position)));
+            }
+
+            if (mandatoryList.Count > 0)
+            {
+                sortedList.AddRange(mandatoryList);
+            }
+
+            if (namedList.Count > 0)
+            {
+                sortedList.AddRange(namedList);
+            }
+
+            SyntaxParameters = sortedList;
+        }
+
         public void AddParameter(SyntaxParameter parameter)
         {
             string name = parameter.ParameterName;
@@ -164,6 +207,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         /// <returns></returns>
         public string ToStringWithWrap()
         {
+            SortParameters();
             StringBuilder sb = Constants.StringBuilderPool.Get();
             StringBuilder currentLine = Constants.StringBuilderPool.Get();
             currentLine.Append(CommandName);
@@ -225,6 +269,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public override string ToString()
         {
+            SortParameters();
             StringBuilder sb = Constants.StringBuilderPool.Get(); 
             try
             {
@@ -255,11 +300,13 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 return false;
             }
-            // TODO: compare syntax string
+
             return (
                 string.Compare(CommandName, other.CommandName, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(ParameterSetName, other.ParameterSetName, StringComparison.CurrentCulture) == 0 &&
-                IsDefaultParameterSet == other.IsDefaultParameterSet
+                IsDefaultParameterSet == other.IsDefaultParameterSet &&
+                SyntaxParameters.Count == other.SyntaxParameters.Count &&
+                SyntaxParameters.SequenceEqual<SyntaxParameter>(other.SyntaxParameters)
                 );
         }
 

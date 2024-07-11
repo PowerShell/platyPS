@@ -47,7 +47,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter]
         [ValidateNotNullOrEmpty]
-        public string HelpVersion { get; set; } = string.Empty;
+        public Version HelpVersion { get; set; } = new Version(1, 0, 0, 0);
 
         [Parameter]
         public string? Locale { get; set; }
@@ -140,7 +140,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         DoubleDashList = false,
                         ExcludeDontShow = false,
                         FwLink = HelpInfoUri,
-                        HelpVersion = HelpVersion,
+                        HelpVersion = HelpVersion.ToString(),
                         Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
@@ -240,6 +240,8 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                     else
                     {
+                        // Update the help version in the module metadata
+                        moduleFileInfo.Metadata["Help Version"] = HelpVersion.ToString();
                         WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
                     }
                 }

@@ -16,7 +16,10 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string mdSyntaxHeader = "## SYNTAX";
         internal const string mdDescriptionHeader = "## DESCRIPTION";
         internal const string mdAliasHeader = "## ALIASES";
-        internal const string AliasMessage = "This cmdlet has the following aliases,\n  {{Insert list of aliases}}";
+        internal const string AliasMessage1 = "This cmdlet has the following aliases,";
+        internal const string AliasMessage2 = "{{Insert list of aliases}}";
+        internal const string AliasMessage = $"{AliasMessage1}\n  {AliasMessage2}";
+        // internal const string AliasMessage = "This cmdlet has the following aliases,\n  {{Insert list of aliases}}";
         internal const string mdExamplesHeader = "## EXAMPLES";
         internal const string mdParametersHeader = "## PARAMETERS";
         internal const string mdCommonParametersHeader = "### CommonParameters";
