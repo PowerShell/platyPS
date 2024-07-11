@@ -86,6 +86,18 @@ namespace Microsoft.PowerShell.PlatyPS
 
     }
 
+    public class ModuleCommandGroup
+    {
+        public string GroupTitle { get; set; }
+        public List<ModuleCommandInfo> Commands { get; set; }
+
+        public ModuleCommandGroup(string title)
+        {
+            GroupTitle = title;
+            Commands = new();
+        }
+    }
+
     public class ModuleFileInfo : IEquatable<ModuleFileInfo>
     {
         public SortedDictionary<string, string> Metadata { get; set; }
@@ -97,8 +109,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Description { get; set; }
         [YamlIgnore]
         public CultureInfo Locale { get; set; }
-        public string OptionalElement { get; set; }
-        public List<ModuleCommandInfo> Commands { get; set; }
+        public List<ModuleCommandGroup> CommandGroups { get; set; }
         [YamlIgnore]
         public Diagnostics Diagnostics { get; set; }
 
@@ -108,9 +119,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = string.Empty;
             Module = string.Empty;
             Description = string.Empty;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -120,9 +130,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = title;
             Module = moduleName;
             Description = string.Empty;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -132,9 +141,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = $"{moduleInfo.Name} Module";
             Module = $"{moduleInfo.Name}";
             Description = moduleInfo.Description;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -154,7 +162,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Compare(Title, other.Title, StringComparison.CurrentCultureIgnoreCase) == 0 &&
                 string.Compare(Module, other.Module, StringComparison.CurrentCultureIgnoreCase) == 0 &&
                 string.Compare(Description, other.Description, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                Commands.SequenceEqual(other.Commands)
+                CommandGroups.SequenceEqual(other.CommandGroups)
                 );
         }
 
@@ -247,6 +255,13 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
+            var commandGroups = GetCommandGroupsFromMarkdown(markdownContent, out List<DiagnosticMessage> diagnostics);
+            if (commandGroups.Count > 0)
+            {
+                moduleFileInfo.CommandGroups.AddRange(commandGroups);
+            }
+            diagnostics.ForEach(d => moduleFileInfo.Diagnostics.TryAddDiagnostic(d));
+            /*
             var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);
             if (optionalDescription is not null)
             {
@@ -257,8 +272,16 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 moduleFileInfo.Commands.Add(moduleCommandInfo);
             }
+            */
 
             return moduleFileInfo;
+        }
+
+        internal static List<ModuleCommandGroup> GetCommandGroupsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
+        {
+            List<ModuleCommandGroup> commandGroups = new();
+            diagnostics = new();
+            return commandGroups;
         }
 
         internal static string GetModuleFileTitleFromMarkdown(ParsedMarkdownContent md)

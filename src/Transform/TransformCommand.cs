@@ -38,7 +38,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 cmdHelp.Add(ConvertCmdletInfo(cmdletInfo));
             }
-            
+
             return cmdHelp;
         }
 

@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             FileName = string.Empty;
             Messages = new List<DiagnosticMessage>();
             HadErrors = false;
-        }   
+        }
 
         public Diagnostics(string fileName)
         {
@@ -49,7 +49,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             {
                 return false;
             }
-        }   
+        }
         public bool TryAddDiagnostic(DiagnosticMessageSource source, string message, DiagnosticSeverity severity, string identifier, int line)
         {
             try
@@ -65,7 +65,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             catch // Any exception is a failure to add the message
             {
                 return false;
-            }   
+            }
         }
     }
-}    
+}

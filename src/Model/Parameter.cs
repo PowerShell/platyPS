@@ -56,7 +56,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Description = string.Empty;
             HelpMessage = string.Empty;
         }
-        
+
         /// <summary>
         /// Copy a parameter.
         /// </summary>

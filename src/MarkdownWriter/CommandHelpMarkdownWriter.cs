@@ -216,7 +216,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 foreach (var link in help.RelatedLinks)
                 {
                     sb.AppendLine(link.ToRelatedLinksString(Constants.mdRelatedLinksFmt));
-                    sb.AppendLine();
                 }
             }
             else

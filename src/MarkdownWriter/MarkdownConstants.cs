@@ -28,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string mdOutputsHeader = "## OUTPUTS";
         internal const string mdNotesHeader = "## NOTES";
         internal const string mdRelatedLinksHeader = "## RELATED LINKS";
-        internal const string mdRelatedLinksFmt = "[{0}]({1})";
+        internal const string mdRelatedLinksFmt = "- [{0}]({1})";
 
         internal const string mdExampleItemHeaderTemplate = "### Example {0}: {1}";
 

@@ -36,7 +36,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         [XmlArray("description", Namespace = Constants.XmlNamespace.MAML, Order = 1)]
         [XmlArrayItem("para", Namespace = Constants.XmlNamespace.MAML)]
         public List<string> Description { get; set; } = new List<string>();
-        
+
         /// <summary>
         ///     The command's syntax variants.
         /// </summary>

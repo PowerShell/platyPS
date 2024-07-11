@@ -355,6 +355,13 @@ namespace Microsoft.PowerShell.PlatyPS
         // convert the string we read to an ordered dictionary
         internal static OrderedDictionary ConvertTextToOrderedDictionary(string text)
         {
+            // Try to get the metadata via the yaml deserializer
+            if (YamlUtils.TryGetMetadataFromText(text, out OrderedDictionary md))
+            {
+                return md;
+            }
+
+
             OrderedDictionary od = new OrderedDictionary(StringComparer.OrdinalIgnoreCase);
 			char[] fieldSeparator = { ':' };
             foreach(string s in text.Split(Constants.LineSplitter))
@@ -395,9 +402,8 @@ namespace Microsoft.PowerShell.PlatyPS
             var dm1 = new DiagnosticMessage(DiagnosticMessageSource.Links, "Links found", DiagnosticSeverity.Information, "GetRelatedLinks", markdownContent.GetTextLine(start));
             diagnostics.Add(dm1);
             markdownContent.Seek(start);
-            var links = GetLinks(markdownContent);
-            var dm2 = new DiagnosticMessage(DiagnosticMessageSource.Links, "Links found", DiagnosticSeverity.Information, $"{links.Count} links found", markdownContent.GetTextLine(start));
-            diagnostics.Add(dm2);
+            var links = GetLinks(markdownContent, out var linkDiagnostics);
+            diagnostics.AddRange(linkDiagnostics);
             return links;
         }
 
@@ -822,9 +828,10 @@ namespace Microsoft.PowerShell.PlatyPS
             return false;
         }
 
-        internal static List<Links> GetLinks(ParsedMarkdownContent md)
+        internal static List<Links> GetLinks(ParsedMarkdownContent md, out List<DiagnosticMessage>diagnostics)
         {
             List<Links> links = new List<Links>();
+            diagnostics = new List<DiagnosticMessage>();
             int start = -1;
 
             if (md.GetCurrent() is HeadingBlock)
@@ -833,6 +840,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 md.Take();
             }
 
+            // This is the v1 style of Links which were paragraphs
+            // [text1](uri1)
+            //
+            // [text2](uri2)
+            //
+            // [text3](uri3)
             while (md.GetCurrent() is ParagraphBlock pb)
             {
                 var item = pb?.Inline?.FirstChild;
@@ -864,7 +877,23 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            var dm = new DiagnosticMessage(DiagnosticMessageSource.Links, links.Count > 0 ? "Links found" : "No links found", DiagnosticSeverity.Information, $"{links.Count} links found", md.GetTextLine(start));
+            // This is link v2 where links are presented as a list
+            // - [text1](uri1)
+            // - [text2](uri2)
+            // - [text3](uri3)
+            if ((! md.IsEnd()) && md.GetCurrent() is ListBlock lb)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Links, "Found related links as unordered list.", DiagnosticSeverity.Information, "", md.GetTextLine(start)));
+                foreach(var inlineLink in lb.Descendants<LinkInline>())
+                {
+                    string url = inlineLink.Url is null ?  string.Empty : inlineLink.Url;
+                    string linkText = inlineLink.FirstChild is null ? string.Empty : inlineLink.FirstChild.ToString();
+                    diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Links, $"adding link [{linkText}]({url})", DiagnosticSeverity.Information, "", md.GetTextLine(start)));
+                    links.Add(new Links(url, linkText));
+                }
+            }
+
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Links, links.Count > 0 ? "Links found" : "No links found", DiagnosticSeverity.Information, $"{links.Count} links found", md.GetTextLine(start)));
             return links;
         }
 

@@ -26,7 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
             Path = path;
             IsValid = isValid;
             Messages = messages;
-        }   
+        }
 
         public override string ToString()
         {
