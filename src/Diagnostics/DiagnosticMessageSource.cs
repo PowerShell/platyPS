@@ -18,5 +18,9 @@
         Notes,
         Links,
         General,
-        Merge
+        Merge,
+        ModuleFileTitle,
+        ModuleFileDescription,
+        ModuleFileGroup,
+        ModuleFileCommand
     }

@@ -28,8 +28,7 @@ Describe "Import-ModuleFile tests" {
                 @{ PropertyName = "ModuleGuid"; PropertyType = "Guid" }
                 @{ PropertyName = "Description"; PropertyType = "String" }
                 @{ PropertyName = "Locale"; PropertyType = "CultureInfo" }
-                @{ PropertyName = "OptionalElement"; PropertyType = "String" }
-                @{ PropertyName = "Commands"; PropertyType = "System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.ModuleCommandInfo]" }
+                @{ PropertyName = "CommandGroups"; PropertyType = "System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.ModuleCommandGroup]" }
                 @{ PropertyName = "Diagnostics"; PropertyType = "Microsoft.PowerShell.PlatyPS.Model.Diagnostics" }
             )
         }
@@ -47,7 +46,6 @@ Describe "Import-ModuleFile tests" {
             @{ PropertyName = "ModuleGuid"; Value = "fb6cc51d-c096-4b38-b78d-0fed6277096a" }
             @{ PropertyName = "Description"; Value = "Contains cmdlets that interact with Common Information Model (CIM) Servers like the Windows","Management Instrumentation (WMI) service.","This module is only available on the Windows platform." }
             @{ PropertyName = "Locale"; Value = "en-US" }
-            @{ PropertyName = "OptionalElement"; Value = "" }
         ) {
             param ($propertyName, $value)
             $rawValue = $mf0.$propertyName
@@ -64,7 +62,7 @@ Describe "Import-ModuleFile tests" {
         }
 
         It "The commands property should have the correct count" {
-            $mf0.Commands.Count | Should -Be 14
+            $mf0.CommandGroups[0].Commands.Count | Should -Be 14
         }
 
         It "The command '<Offset>' properties should have the correct values" -TestCases $(
@@ -84,9 +82,9 @@ Describe "Import-ModuleFile tests" {
             @{ Offset = 13; Name = "Set-CimInstance"; Link = "Set-CimInstance.md"; Description = "Modifies a CIM instance on a CIM server by calling the **ModifyInstance** method of the CIM class." }
         ) {
             param ($offset, $Name, $Link, $description )
-            $mf0.Commands[$offset].Name | Should -Be $Name
-            $mf0.Commands[$offset].Link | Should -Be $Link
-            $mf0.Commands[$offset].Description | Should -Be $Description
+            $mf0.CommandGroups[0].Commands[$offset].Name | Should -Be $Name
+            $mf0.CommandGroups[0].Commands[$offset].Link | Should -Be $Link
+            $mf0.CommandGroups[0].Commands[$offset].Description | Should -Be $Description
 
         }
     }

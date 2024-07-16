@@ -10,6 +10,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
+using YamlDotNet.Core.Tokens;
 
 namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 {
@@ -50,9 +51,15 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 throw new InvalidOperationException("Help is null");
             }
 
-            Hashtable metadataHashtable = new Hashtable();
             var mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata(metadata, help);
-            metadataHashtable["metadata"] = mergedMetadata;
+            SortedDictionary<string, object> sortedMetadata = new();
+            foreach(string key in mergedMetadata.Keys)
+            {
+                sortedMetadata[key] = mergedMetadata[key];
+            }
+
+            Hashtable metadataHashtable = new Hashtable();
+            metadataHashtable["metadata"] = sortedMetadata;
             sb.Append(YamlUtils.SerializeElement(metadataHashtable));
         }
 

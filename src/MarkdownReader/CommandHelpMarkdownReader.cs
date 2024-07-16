@@ -871,17 +871,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 md.Take();
-                if (md.IsEnd())
-                {
-                    break;
-                }
             }
 
             // This is link v2 where links are presented as a list
             // - [text1](uri1)
             // - [text2](uri2)
             // - [text3](uri3)
-            if ((! md.IsEnd()) && md.GetCurrent() is ListBlock lb)
+            if (md.GetCurrent() is ListBlock lb)
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Links, "Found related links as unordered list.", DiagnosticSeverity.Information, "", md.GetTextLine(start)));
                 foreach(var inlineLink in lb.Descendants<LinkInline>())
@@ -1465,7 +1461,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 sb = Constants.StringBuilderPool.Get();
                 var nextHeaderIndex = GetNextHeaderIndex(md.Ast, expectedHeaderLevel: expectedLevel, startIndex: startIndex+1);
                 int startLine = md.Ast[startIndex].Line;
-                int endLine = md.Ast[nextHeaderIndex].Line - 1;
+                int endLine = md.MarkdownLines.Count - 1; // by default, read to the end of the lines.
+                if (nextHeaderIndex != -1)
+                {
+                    endLine = md.Ast[nextHeaderIndex].Line - 1;
+                }
                 // don't capture the empty lines at the end
                 while (md.MarkdownLines[endLine].Trim().Length == 0)
                 {
@@ -1698,7 +1698,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public bool IsEnd()
         {
-            return CurrentIndex >= Ast.Count;
+            return CurrentIndex < 0 || CurrentIndex >= Ast.Count - 1;
         }
 
         public object? Peek()
@@ -1711,9 +1711,16 @@ namespace Microsoft.PowerShell.PlatyPS
             return Ast[CurrentIndex+1];
         }
 
-        public object GetCurrent()
+        public object? GetCurrent()
         {
-            return Ast[CurrentIndex];
+            if (CurrentIndex < 0 || CurrentIndex >= Ast.Count)
+            {
+                return null;
+            }
+            else
+            {
+                return Ast[CurrentIndex];
+            }
         }
 
         public void Seek(int index)
@@ -1723,12 +1730,26 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public object? Take()
         {
-            if (IsEnd() || CurrentIndex < 0)
+            if (CurrentIndex >= Ast.Count || CurrentIndex < 0)
             {
                 return null;
             }
 
-            return Ast[CurrentIndex++];
+            try
+            {
+                return Ast[CurrentIndex];
+            }
+            finally
+            {
+                if (IsEnd())
+                {
+                    CurrentIndex = -1;
+                }
+                else
+                {
+                    CurrentIndex++;
+                }
+            }
         }
 
         public int GetTextLine(int offset)

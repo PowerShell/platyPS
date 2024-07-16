@@ -41,7 +41,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.MarkdownMetadataHeader);
             var mergedMetadata = MetadataUtils.MergeCommandHelpMetadataWithNewMetadata (metadata, help);
-            sb.Append(YamlUtils.SerializeElement(mergedMetadata));
+            sb.Append(YamlUtils.SerializeMetadata(mergedMetadata));
             sb.AppendLine(Constants.MarkdownMetadataHeader);
             sb.AppendLine();
         }

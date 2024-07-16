@@ -167,7 +167,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             foreach(var group in moduleInfo.CommandGroups)
             {
-                sb.AppendLine($"## {group.GroupTitle} Cmdlets");
+                sb.AppendLine($"## {group.GroupTitle}");
                 sb.AppendLine();
                 foreach (var command in group.Commands)
                 {

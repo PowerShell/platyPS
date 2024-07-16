@@ -13,6 +13,7 @@ using Markdig.Parsers;
 using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
 using YamlDotNet;
+using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -123,9 +124,21 @@ namespace Microsoft.PowerShell.PlatyPS
             return serializer.Serialize(o);
         }
 
+        /// <summary>
+        /// Serialize the metadata for exporting.
+        /// We convert the ordered dictionary into a sorted dictionary.
+        /// </summary>
+        /// <param name="metadata">An ordered dictionary representing the metadata</param>
+        /// <returns>System.String</returns>
         internal static string SerializeMetadata(OrderedDictionary metadata)
         {
-            return metadataSerializer.Serialize(metadata);
+            SortedDictionary<string, object> sortedMetadata = new();
+            foreach (string key in metadata.Keys)
+            {
+                sortedMetadata[key] = metadata[key];
+            }
+
+            return metadataSerializer.Serialize(sortedMetadata);
         }
 
         /// <summary>

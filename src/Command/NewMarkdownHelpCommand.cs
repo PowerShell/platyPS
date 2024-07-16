@@ -234,6 +234,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     ModuleCommandGroup mcg = new(moduleName);
                     mcg.Commands.AddRange(mciList);
+                    moduleFileInfo.CommandGroups.Add(mcg);
                     string moduleFilePath = Path.Combine(moduleFolder, $"{moduleName}.md");
                     var modulePageSettings = new WriterSettings(Encoding, moduleFilePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);

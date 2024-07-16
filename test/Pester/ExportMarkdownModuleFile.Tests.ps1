@@ -69,15 +69,15 @@ Describe "Export-MarkdownModuleFile" {
 
         It "Should have the same values for the command '<name>'" -TestCases $(
             $offset = 0
-            $modObjects[3].Commands | foreach-object {
+            $modObjects[3].CommandGroups[0].Commands | foreach-object {
                 @{ Offset = $offset; Name = $_.Name; Link = $_.Link; Description = $_.Description }
                 $offset++
                 }
         ) {
             param ($offset, $name, $link, $description)
-            $testMF.Commands[$offset].Name | Should -Be $name
-            $testMF.Commands[$offset].Link | Should -Be $link
-            $testMF.Commands[$offset].Description | Should -Be $description
+            $testMF.CommandGroups[0].Commands[$offset].Name | Should -Be $name
+            $testMF.CommandGroups[0].Commands[$offset].Link | Should -Be $link
+            $testMF.CommandGroups[0].Commands[$offset].Description | Should -Be $description
         }
     }
 }
