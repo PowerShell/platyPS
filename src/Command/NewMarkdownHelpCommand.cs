@@ -141,7 +141,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         ExcludeDontShow = false,
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion.ToString(),
-                        Locale = Locale is null ? CultureInfo.GetCultureInfo("en-US") : new CultureInfo(Locale),
+                        Locale = Locale is null ? CultureInfo.CurrentUICulture : new CultureInfo(Locale),
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
@@ -199,6 +199,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                 }
 
+                List<ModuleCommandInfo> mciList = new();
                 foreach(var cmdHelp in group)
                 {
                     moduleName = cmdHelp.ModuleName;
@@ -210,7 +211,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         Link = $"{cmdHelp.Title}.md",
                         Description = string.IsNullOrEmpty(synopsis) ? Constants.FillInDescription : synopsis
                     };
-                    moduleFileInfo.Commands.Add(mci);
+                    mciList.Add(mci);
 
                     if (! Directory.Exists(moduleFolder))
                     {
@@ -231,6 +232,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 if (WithModulePage)
                 {
+                    ModuleCommandGroup mcg = new(moduleName);
+                    mcg.Commands.AddRange(mciList);
+                    moduleFileInfo.CommandGroups.Add(mcg);
                     string moduleFilePath = Path.Combine(moduleFolder, $"{moduleName}.md");
                     var modulePageSettings = new WriterSettings(Encoding, moduleFilePath);
                     using var modulePageWriter = new ModulePageWriter(modulePageSettings);

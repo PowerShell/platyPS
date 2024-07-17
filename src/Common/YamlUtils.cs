@@ -13,6 +13,7 @@ using Markdig.Parsers;
 using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
 using YamlDotNet;
+using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -26,6 +27,17 @@ namespace Microsoft.PowerShell.PlatyPS
         private static Deserializer deserializer = (Deserializer)new DeserializerBuilder().Build();
         private static Deserializer camelCaseDeserializer = (Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         private static Serializer serializer = (Serializer)new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+
+        // we have a specific serializer for metadata as it is not a simple string/string dictionary
+        // and we want it to look like: no-loc: [Cmdlet, -Parameter]
+        // rather than
+        // no-loc:
+        //   - Cmdlet
+        //   - -Parameter
+        private static Serializer metadataSerializer = (Serializer)new SerializerBuilder()
+            .WithTypeConverter(new LayoutSequenceStyle())
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
 
 
         /// <summary>
@@ -111,7 +123,24 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             return serializer.Serialize(o);
         }
-        
+
+        /// <summary>
+        /// Serialize the metadata for exporting.
+        /// We convert the ordered dictionary into a sorted dictionary.
+        /// </summary>
+        /// <param name="metadata">An ordered dictionary representing the metadata</param>
+        /// <returns>System.String</returns>
+        internal static string SerializeMetadata(OrderedDictionary metadata)
+        {
+            SortedDictionary<string, object> sortedMetadata = new();
+            foreach (string key in metadata.Keys)
+            {
+                sortedMetadata[key] = metadata[key];
+            }
+
+            return metadataSerializer.Serialize(sortedMetadata);
+        }
+
         /// <summary>
         /// Try to read a file and convert it to a moduleInfoFile.
         /// The expectation is that path is a fully qualified path to the yaml file.
@@ -288,7 +317,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     p = new Parameter(name.ToString(), type.ToString());
                 }
             }
-            
+
             if (p is null)
             {
                 return null;
@@ -302,7 +331,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 p.Description = string.Empty;
             }
-            
+
             if (pDictionary.TryGetValue("defaultValue", out var defaultVal))
             {
                 p.DefaultValue = defaultVal.ToString();
@@ -311,7 +340,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 p.DefaultValue = string.Empty;
             }
-            
+
             if (pDictionary.TryGetValue("variableLength", out object varLength))
             {
                 if (bool.TryParse(varLength.ToString(), out bool result))
@@ -454,7 +483,7 @@ namespace Microsoft.PowerShell.PlatyPS
                                     set.ValueFromRemainingArguments = result;
                                 }
                             }
-                        
+
                             pSetList.Add(set);
                         }
                     }
@@ -555,7 +584,7 @@ namespace Microsoft.PowerShell.PlatyPS
             if (dictionary["syntaxes"] is List<object> syntaxList)
             foreach (var syntax in syntaxList)
             {
-                if (syntax is IDictionary<object, object> syntaxDictionary)    
+                if (syntax is IDictionary<object, object> syntaxDictionary)
                 {
                     SyntaxItem si;
                     var cName = syntaxDictionary["commandName"].ToString();
@@ -656,6 +685,20 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return od;
+        }
+
+        internal static bool TryGetMetadataFromText(string text, out OrderedDictionary metadata)
+        {
+            try
+            {
+                metadata = deserializer.Deserialize<OrderedDictionary>(text);
+                return true;
+            }
+            catch
+            {
+                metadata = new();
+                return false;
+            }
         }
     }
 }

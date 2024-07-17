@@ -17,6 +17,8 @@ using Microsoft.PowerShell.PlatyPS.Model;
 using YamlDotNet;
 using YamlDotNet.Serialization;
 using System.Management.Automation;
+using System.Security.Cryptography;
+using System.Data.Common;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -86,6 +88,77 @@ namespace Microsoft.PowerShell.PlatyPS
 
     }
 
+    public class ModuleCommandGroup : IEquatable<ModuleCommandGroup>
+    {
+        public string GroupTitle { get; set; }
+        public List<ModuleCommandInfo> Commands { get; set; }
+
+        public ModuleCommandGroup()
+        {
+            GroupTitle = string.Empty;
+            Commands = new();
+        }
+
+        public ModuleCommandGroup(string title)
+        {
+            GroupTitle = title;
+            Commands = new();
+        }
+
+       public override int GetHashCode()
+        {
+            return (GroupTitle, Commands).GetHashCode();
+        }
+
+        public bool Equals(ModuleCommandGroup other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            return (
+                string.Compare(GroupTitle, other.GroupTitle, StringComparison.CurrentCultureIgnoreCase) == 0 &&
+                Commands.SequenceEqual(other.Commands)
+                );
+        }
+
+        public override bool Equals(object other)
+        {
+            if (other is null)
+            {
+                return false;
+            }
+
+            if (other is ModuleCommandGroup group2)
+            {
+                return Equals(group2);
+            }
+
+            return false;
+        }
+
+        public static bool operator == (ModuleCommandGroup group1, ModuleCommandGroup group2)
+        {
+            if (group1 is not null && group2 is not null)
+            {
+                return group1.Equals(group2);
+            }
+
+            return false;
+        }
+
+        public static bool operator !=(ModuleCommandGroup group1, ModuleCommandGroup group2)
+        {
+            if (group1 is not null && group2 is not null)
+            {
+                return ! group1.Equals(group2);
+            }
+
+            return false;
+        }
+    }
+
     public class ModuleFileInfo : IEquatable<ModuleFileInfo>
     {
         public SortedDictionary<string, string> Metadata { get; set; }
@@ -97,8 +170,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Description { get; set; }
         [YamlIgnore]
         public CultureInfo Locale { get; set; }
-        public string OptionalElement { get; set; }
-        public List<ModuleCommandInfo> Commands { get; set; }
+        public List<ModuleCommandGroup> CommandGroups { get; set; }
         [YamlIgnore]
         public Diagnostics Diagnostics { get; set; }
 
@@ -108,9 +180,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = string.Empty;
             Module = string.Empty;
             Description = string.Empty;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -120,9 +191,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = title;
             Module = moduleName;
             Description = string.Empty;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -132,9 +202,8 @@ namespace Microsoft.PowerShell.PlatyPS
             Title = $"{moduleInfo.Name} Module";
             Module = $"{moduleInfo.Name}";
             Description = moduleInfo.Description;
-            OptionalElement = string.Empty;
             Diagnostics = new();
-            Commands = new();
+            CommandGroups = new();
             Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
         }
 
@@ -154,7 +223,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Compare(Title, other.Title, StringComparison.CurrentCultureIgnoreCase) == 0 &&
                 string.Compare(Module, other.Module, StringComparison.CurrentCultureIgnoreCase) == 0 &&
                 string.Compare(Description, other.Description, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                Commands.SequenceEqual(other.Commands)
+                CommandGroups.SequenceEqual(other.CommandGroups)
                 );
         }
 
@@ -223,10 +292,17 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             moduleFileInfo.Metadata = MetadataUtils.FixUpModuleFileMetadata(metadata);
-            moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent);
+            moduleFileInfo.Title = GetModuleFileTitleFromMarkdown(markdownContent, out List<DiagnosticMessage> titleDiagnostics);
+            titleDiagnostics.ForEach(m => moduleFileInfo.Diagnostics.TryAddDiagnostic(m));
+
             if (MetadataUtils.TryGetGuidFromMetadata(moduleFileInfo.Metadata, "Module Guid", out Guid guid))
             {
+                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage());
                 moduleFileInfo.ModuleGuid = guid;
+            }
+            else
+            {
+
             }
 
             if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Module Name", out string name))
@@ -246,26 +322,61 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
 
-            moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent);
-            var optionalDescription = GetModuleFileOptionalDescriptionFromMarkdown(markdownContent);
-            if (optionalDescription is not null)
+            moduleFileInfo.Description = GetModuleFileDescriptionFromMarkdown(markdownContent, out List<DiagnosticMessage> descriptionDiagnostics);
+            descriptionDiagnostics.ForEach(m => moduleFileInfo.Diagnostics.TryAddDiagnostic(m));
+
+            List<DiagnosticMessage> commandGroupDiagnostics;
+            var commandGroups = GetCommandGroupsFromMarkdown(markdownContent, out commandGroupDiagnostics);
+            if (commandGroups.Count > 0)
             {
-                moduleFileInfo.OptionalElement = optionalDescription;
+                moduleFileInfo.CommandGroups.AddRange(commandGroups);
             }
 
-            foreach(var moduleCommandInfo in GetModuleFileCommandsFromMarkdown(markdownContent))
-            {
-                moduleFileInfo.Commands.Add(moduleCommandInfo);
-            }
-
+            commandGroupDiagnostics.ForEach(d => moduleFileInfo.Diagnostics.TryAddDiagnostic(d));
             return moduleFileInfo;
         }
 
-        internal static string GetModuleFileTitleFromMarkdown(ParsedMarkdownContent md)
+        internal static List<ModuleCommandGroup> GetCommandGroupsFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
         {
+            List<ModuleCommandGroup> commandGroups = new();
+            diagnostics = new();
+            while(!markdownContent.IsEnd())
+            {
+                var groupStartIndex = markdownContent.FindHeader(2, "");
+                if (groupStartIndex == -1)
+                {
+                    return commandGroups;
+                }
+
+                markdownContent.CurrentIndex = groupStartIndex;
+                var groupHeader = (HeadingBlock)markdownContent.Ast[groupStartIndex];
+                string groupName;
+                if (groupHeader?.Inline?.FirstChild is null)
+                {
+                    groupName = "unknown group";
+                }
+                else
+                {
+                    groupName = groupHeader.Inline.FirstChild.ToString();
+                }
+
+                var ModuleCommandGroup = new ModuleCommandGroup(groupName);
+                List <DiagnosticMessage> moduleCommandDiagnostics;
+                List <ModuleCommandInfo> groupModuleCommands = GetModuleFileCommandsFromMarkdown(markdownContent, out moduleCommandDiagnostics);
+                ModuleCommandGroup.Commands.AddRange(groupModuleCommands);
+                commandGroups.Add(ModuleCommandGroup);
+            }
+
+            return commandGroups;
+        }
+
+        internal static string GetModuleFileTitleFromMarkdown(ParsedMarkdownContent md, out List<DiagnosticMessage> diagnostics)
+        {
+            diagnostics = new();
             var index = md.FindHeader(1, "");
             if (index == -1)
             {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileTitle, "No title header found", DiagnosticSeverity.Error, "GetModuleFileTitle", -1));
                 return string.Empty;
             }
 
@@ -276,20 +387,35 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             catch
             {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileTitle, "No title block found", DiagnosticSeverity.Error, "GetModuleFileTitle", -1));
                 return string.Empty;
             }
 
             var titleString = titleBlock.Inline?.FirstChild?.ToString().Trim(); 
+            if (titleString is null)
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileTitle, "Null title", DiagnosticSeverity.Error, "GetModuleFileTitle", -1));
+            }
+            else
+            {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileTitle, $"Title {titleString} found", DiagnosticSeverity.Information, "GetModuleFileTitle", titleBlock.Line));
+            }
+
             return titleString ?? string.Empty;
         }
-        internal static string GetModuleFileDescriptionFromMarkdown(ParsedMarkdownContent md)
+
+        internal static string GetModuleFileDescriptionFromMarkdown(ParsedMarkdownContent md, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new();
             var index = md.FindHeader(2, "Description");
             if (index == -1)
             {
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "No module description found", DiagnosticSeverity.Warning, "GetModuleFileDescription", -1));
                 return string.Empty;
             }
+
             index++;
+            md.CurrentIndex = index;
 
             int nextHeaderLevel = 2;
             var nextHeader = md.FindHeader(nextHeaderLevel, "");
@@ -299,11 +425,8 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             string descriptionString = MarkdownConverter.GetLinesTillNextHeader(md, nextHeaderLevel, index);
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "Module description found", DiagnosticSeverity.Warning, "GetModuleFileDescription", md.Ast[index].Line));
             return descriptionString.Trim();
-        }
-        internal static string GetModuleFileOptionalDescriptionFromMarkdown(ParsedMarkdownContent md)
-        {
-            return string.Empty;
         }
 
         /// <summary>
@@ -311,26 +434,54 @@ namespace Microsoft.PowerShell.PlatyPS
         /// "### [name](markdownfile.md)
         /// Description
         /// </summary>
-        internal static List<ModuleCommandInfo> GetModuleFileCommandsFromMarkdown(ParsedMarkdownContent md)
+        internal static List<ModuleCommandInfo> GetModuleFileCommandsFromMarkdown(ParsedMarkdownContent md, out List<DiagnosticMessage> diagnostics)
         {
+            diagnostics = new();
             List<ModuleCommandInfo> list = new();
-            md.CurrentIndex = md.FindHeader(3, "");
-            int index = md.CurrentIndex;
-            while (!md.IsEnd())
+            var commandListStart = md.FindHeader(3, "");
+            if (commandListStart == -1)
             {
-                var moduleCommandInfoLink = md.Take() as HeadingBlock;
-                var moduleCommandInfoDescription = md.Take() as ParagraphBlock;
-                if (moduleCommandInfoLink is not null && moduleCommandInfoDescription is not null)
+                return list;
+            }
+
+            md.CurrentIndex = commandListStart;
+            var nextGroupIndex = md.FindHeader(2, "");
+            if (nextGroupIndex == -1)
+            {
+                nextGroupIndex = md.Ast.Count;
+            }
+
+            while (md.CurrentIndex >= 0 && md.CurrentIndex < nextGroupIndex)
+            {
+                if (md.GetCurrent() is HeadingBlock moduleCommandInfoLink && moduleCommandInfoLink.Level == 3)
                 {
+                    md.Take();
+
+                    // The description may be missing, so peek before taking it.
+                    ParagraphBlock? moduleCommandInfoDescription = null;
+                    if (md.GetCurrent() is ParagraphBlock)
+                    {
+                        moduleCommandInfoDescription = md.Take() as ParagraphBlock;
+                    }
+
                     var mfci = new ModuleCommandInfo();
                     mfci.Name = ((moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.FirstChild as LiteralInline)?.ToString() ?? string.Empty;
                     mfci.Link = (moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.Url ?? string.Empty;
-                    mfci.Description = md.MarkdownLines[moduleCommandInfoDescription.Line] ?? string.Empty;
+                    mfci.Description = moduleCommandInfoDescription is null ? string.Empty : md.MarkdownLines[moduleCommandInfoDescription.Line];
                     list.Add(mfci);
                 }
-                // index = md.FindHeader(3, "");
+                else // Not sure what we got but we're going to ignore it
+                {
+                    var ignoredAst = md.Take() as MarkdownObject;
+                    if (ignoredAst is not null)
+                    {
+                        diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileCommand, $"Ignore index {md.CurrentIndex}", DiagnosticSeverity.Warning, "GetFileCommandsFromMarkdown", ignoredAst.Line ));
+                    }
+                }
             }
 
+            // Back up as we're now at the next header
+            md.UnGet();
             return list;
         }
     }

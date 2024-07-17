@@ -501,7 +501,7 @@ Write-Host 'Hello World!'
             $cmdHelpPath = Join-Path $outputDirectory "${cmdName}.md"
             $mf = Import-MarkdownModuleFile $landingPath
             $ch = Import-MarkdownCommandHelp $cmdHelpPath
-            $mf.Commands[0].Description | Should -Be $ch.Synopsis
+            $mf.CommandGroups[0].Commands[0].Description | Should -Be $ch.Synopsis
         }
     }
 

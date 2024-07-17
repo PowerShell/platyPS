@@ -29,7 +29,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         /// </summary>
         [XmlElement("code", Namespace = Constants.XmlNamespace.Dev, Order = 2)]
         public string Code { get; set; } = string.Empty;
-        
+
         /// <summary>
         ///     An introduction to the example (one or more paragraphs; "dev:remarks/maml:para").
         /// </summary>

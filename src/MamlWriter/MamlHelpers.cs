@@ -102,7 +102,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 {
                     command.RelatedLinks.Add(ConvertLink(link));
                 }
-            }   
+            }
 
             return command;
         }

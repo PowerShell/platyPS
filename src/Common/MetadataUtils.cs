@@ -310,14 +310,14 @@ namespace Microsoft.PowerShell.PlatyPS
             return badKeys;
         }
 
-        internal static SortedDictionary<string, string> MergeCommandHelpMetadataWithNewMetadata(Hashtable? metadata, CommandHelp commandHelp)
+        internal static OrderedDictionary MergeCommandHelpMetadataWithNewMetadata(Hashtable? metadata, CommandHelp commandHelp)
         {
-            SortedDictionary<string, string> newMetadata = new();
+            OrderedDictionary newMetadata = new();
             if (commandHelp.Metadata is not null)
             {
                 foreach(var key in commandHelp.Metadata.Keys)
                 {
-                    newMetadata[key.ToString()] = commandHelp.Metadata[key].ToString();
+                    newMetadata[key.ToString()] = commandHelp.Metadata[key];
                 }
             }
 
@@ -325,7 +325,10 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach(string key in metadata.Keys)
                 {
-                    newMetadata[key] = metadata[key].ToString();
+                    if (! ProtectedMetadataKeys.Contains(key))
+                    {
+                        newMetadata[key] = metadata[key];
+                    }
                 }
             }
 
@@ -365,7 +368,16 @@ namespace Microsoft.PowerShell.PlatyPS
                 moduleFile.Metadata[key.ToString()] = newMetadata[key].ToString();
             }
         }
-    }
 
+        internal static OrderedDictionary DeserializeMetadataText(string metadataBlock)
+        {
+            if (YamlUtils.TryGetMetadataFromText(metadataBlock, out OrderedDictionary md))
+            {
+                return md;
+            }
+
+            throw new InvalidOperationException("Cannot convert to dictionary");
+        }
+    }
 
 }

@@ -165,14 +165,17 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal void WriteCommandBlock(ModuleFileInfo moduleInfo)
         {
-            sb.AppendLine($"## {moduleInfo.Title} Cmdlets");
-            sb.AppendLine();
-            foreach (var command in moduleInfo.Commands)
+            foreach(var group in moduleInfo.CommandGroups)
             {
-                sb.AppendLine($"### [{command.Name}]({command.Link})");
+                sb.AppendLine($"## {group.GroupTitle}");
                 sb.AppendLine();
-                sb.AppendLine($"{command.Description}");
-                sb.AppendLine();
+                foreach (var command in group.Commands)
+                {
+                    sb.AppendLine($"### [{command.Name}]({command.Link})");
+                    sb.AppendLine();
+                    sb.AppendLine($"{command.Description}");
+                    sb.AppendLine();
+                }
             }
         }
 

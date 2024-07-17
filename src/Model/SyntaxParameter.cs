@@ -53,7 +53,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsPositional = syntaxParameter.IsPositional;
             IsSwitchParameter = syntaxParameter.IsSwitchParameter;
         }
-    
+
         /// <summary>
         /// We build the string that is identical to the output of Get-Command -Syntax
         /// This could look like:

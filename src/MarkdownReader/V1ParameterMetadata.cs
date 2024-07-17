@@ -180,7 +180,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 return false;
             }
-    
+
             var stringValue = byValueAndProperty.Trim();
 
 			if (string.Compare(stringValue, "true", true) == 0)
@@ -218,7 +218,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 return false;
             }
-    
+
 			var stringValue = byValueAndProperty.Trim();
             // If it just says "True"
 			if (string.Compare(stringValue, "true", true) == 0)

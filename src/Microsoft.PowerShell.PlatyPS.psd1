@@ -28,7 +28,7 @@ Copyright = '(c) 2016 PowerShell team. All rights reserved.'
 Description = 'Generate PowerShell External Help files from Markdown'
 
 # Modules to import as nested modules of the module specified in RootModule/ModuleToProcess
-NestedModules = @('Microsoft.PowerShell.PlatyPS.dll')
+NestedModules = @('Dependencies/YamlDotNet.dll', 'Dependencies/Markdig.Signed.dll', 'Microsoft.PowerShell.PlatyPS.dll')
 
 FormatsToProcess = @('Microsoft.PowerShell.PlatyPS.Format.ps1xml')
 
