@@ -6,6 +6,7 @@ Describe "Export-MarkdownModuleFile" {
         $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" -and $_.Name -notmatch "Bad.Metadata.Order" }
         $modFileNames = $modFiles.Foreach({$_.Name})
         $modObjects = $modFiles | Import-MarkdownModuleFile
+        $testModuleFile = $modObjects | Where-Object { $_.title -match 'Microsoft.PowerShell.Archive' }
     }
 
     Context "Basic Operation" {
@@ -16,8 +17,8 @@ Describe "Export-MarkdownModuleFile" {
         }
 
         It "Should produce a warning if the file already exists" {
-            $modObjects[1] | Export-MarkdownModuleFile -outputFolder ${TestDrive}
-            $result = $modObjects[1] | Export-MarkdownModuleFile -outputFolder ${TestDrive} 3>&1
+            $testModuleFile | Export-MarkdownModuleFile -outputFolder ${TestDrive}
+            $result = $testModuleFile | Export-MarkdownModuleFile -outputFolder ${TestDrive} 3>&1
             # this is a warning object, make it a string
             $result | Should -BeOfType System.Management.Automation.WarningRecord
             $result.Message | Should -Be "'Microsoft.PowerShell.Archive' exists, skipping. Use -Force to overwrite."

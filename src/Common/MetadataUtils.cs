@@ -250,6 +250,10 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
+            else if (!od.ContainsKey(Constants.SchemaVersionKey))
+            {
+                od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
+            }
 
             // Be sure that document type is correctly present.
             if (! od.ContainsKey("document type"))

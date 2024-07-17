@@ -9,7 +9,7 @@ Describe "Import-ModuleFile tests" {
     Context "File creation" {
         It "Should be able to read module files" {
             $results = $modFiles | Import-MarkdownModuleFile
-            $results.Count | Should -Be 12
+            $results.Count | Should -Be 13
         }
 
         It "Should produce the correct type of object" {
@@ -124,6 +124,12 @@ Describe "Import-ModuleFile tests" {
             $importedKeys = $mf.Metadata.Keys
             $sortedKeys = $mf.Metadata.Keys | Sort-Object
             $importedKeys | Should -Be $sortedKeys
+        }
+
+        It 'Should add PSVersion schema version if it does not exist' {
+            $mFile = $modFiles.Where({$_.name -eq "exchange.md"})
+            $testMF = $mFile | Import-MarkdownModuleFile
+            $testMF.Metadata['PlatyPS schema version'] | Should -Be "2024-05-01"
         }
     }
 }
