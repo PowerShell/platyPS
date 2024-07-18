@@ -487,7 +487,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 return new Collection<Parameter>();
             }
 
-            var parameters = GetParameters(markdownContent, start + 1, out List<DiagnosticMessage> parameterDiagnostics);
+            var parameters = GetParameters(markdownContent, start, out List<DiagnosticMessage> parameterDiagnostics);
             var dm = new DiagnosticMessage(DiagnosticMessageSource.Parameter, "Parameters", DiagnosticSeverity.Information, $"{parameters.Count} parameters found", start);
             diagnostics.Add(dm);
             diagnostics.AddRange(parameterDiagnostics);

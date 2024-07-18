@@ -41,7 +41,6 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public string Type { get; set;}
         public string DefaultValue { get; set;}
-        [YamlIgnore]
         public bool VariableLength { get; set;}
         public bool SupportsWildcards { get; set;}
         public List<string> ParameterValue { get; set;}

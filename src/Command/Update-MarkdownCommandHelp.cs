@@ -246,17 +246,20 @@ namespace Microsoft.PowerShell.PlatyPS
             // dynamic parameters are currently unhandled
             foreach(var param in fromCommand)
             {
-                var helpParam = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0).First<Parameter>();
-                if (helpParam is null)
+                var helpParams = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0);
+                if (helpParams.Count() == 0)
                 {
                     diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {param.Name}, not found in help.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                     var newParameter = new Parameter(param)
                     {
-                        Description = "**FILL IN DESCRIPTION**"
+                        Description = Constants.FillInDescription,
                     };
                     mergedParameters.Add(param);
+                    continue;
                 }
-                else if (helpParam == param)
+
+                var helpParam = helpParams.First<Parameter>();
+                if (helpParam == param)
                 {
                     diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"No change to {param.Name}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                     mergedParameters.Add(helpParam);

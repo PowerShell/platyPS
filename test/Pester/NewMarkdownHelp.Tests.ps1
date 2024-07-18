@@ -77,10 +77,19 @@ Describe 'New-MarkdownCommandHelp' {
         }
     }
 
-    Context 'from PlatyPS module' {
+    Context 'using module parameter' {
         It 'creates few help files for PlatyPS' {
             $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
+        }
+
+        It 'Will create an object from a module which is not imported' {
+            $moduleName = Microsoft.PowerShell.Archive
+            $files = New-MarkdownCommandHelp -Module $moduleName -OutputFolder "$TestDrive"
+            $files.Count | Should -BeGreaterOrEqual 2
+            $expectedCommandNames = (Get-Module -List $moduleName).ExportedCommands.Keys | Sort-Object
+            $observedCommandNames = $files.foreach({$_.BaseName}) | Sort-Object
+            $observedCommandNames | Should -Be $expectedCommandNames
         }
     }
 
@@ -475,6 +484,7 @@ Write-Host 'Hello World!'
         It "generates a landing page from Module" {
             New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolderModuleFile" | Should -Exist
+
         }
 
         It 'generates a landing page from module at correct output folder' {

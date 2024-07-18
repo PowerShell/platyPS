@@ -228,11 +228,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (keysToMigrate.ContainsKey(key))
                 {
                     // Create the new key and ignore the old key
-                    od[keysToMigrate[key].ToString()] = metadata[key].ToString();
+                    od[keysToMigrate[key].ToString()] = metadata[key] is null ? string.Empty : metadata[key].ToString();
                 }
                 else
                 {
-                    od[key.ToString()] = metadata[key].ToString();
+                    od[key.ToString()] = metadata[key] is null ? string.Empty : metadata[key].ToString();
                 }
             }
 

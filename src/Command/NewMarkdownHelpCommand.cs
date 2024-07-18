@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-
+using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -118,6 +118,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
             Dictionary<string, PSModuleInfo> moduleTable = new();
+            foreach (var providedModule in Module)
+            {
+                moduleTable[providedModule.Name] = providedModule;
+            }
 
             if (cmdCollection.Count > 0)
             {
@@ -126,7 +130,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (cmd.Module is not null && ! string.IsNullOrEmpty(cmd.Module.Name) && ! moduleTable.ContainsKey(cmd.Module.Name))
                     {
-                        moduleTable[cmd.Module.Name] = cmd.Module;
                         if (HelpInfoUri == string.Empty && ! string.IsNullOrEmpty(cmd.Module.HelpInfoUri))
                         {
                             HelpInfoUri = cmd.Module.HelpInfoUri;
