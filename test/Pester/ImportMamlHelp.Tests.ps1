@@ -26,5 +26,22 @@ Describe "Import-YamlHelp tests" {
             $expected = "Adds custom properties and methods to an instance of a PowerShell object."
             $importedCmds.Where({$_.title -eq "Add-Member"}).Synopsis | Should -Be $expected
         }
+
+        Context "Metadata checks" {
+            It "has the proper metadata value for '<key>' for the Add-Member cmdlet" -testcases @(
+                @{ Key = 'document type'; Value = 'cmdlet' }
+                @{ Key = 'title'; Value = 'Add-Member' }
+                @{ Key = 'Module Name'; Value = 'Microsoft.PowerShell.Commands.Utility' }
+                @{ Key = 'Locale'; Value = 'en-US' }
+                @{ Key = 'PlatyPS schema version'; Value = '2024-05-01' }
+                @{ Key = 'HelpUri'; Value = 'https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/add-member?view=powershell-7.3&WT.mc_id=ps-gethelp' }
+                @{ Key = 'ms.date'; Value = '07/31/2024' }
+                @{ Key = 'external help file'; Value = 'Microsoft.PowerShell.Commands.Utility.dll-Help.xml' }
+            ) {
+                param ([string]$Key, [string]$Value)
+                $cmdlet = $importedCmds.Where({$_.title -eq "add-member"})
+                $cmdlet.Metadata[$key] | Should -Be $Value
+            }
+        }
     }
 }
