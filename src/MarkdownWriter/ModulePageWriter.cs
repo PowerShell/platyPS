@@ -4,8 +4,10 @@
 using Microsoft.PowerShell.PlatyPS.Model;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.IO;
 using System.Text;
 
@@ -85,7 +87,7 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         private void WriteMetadata(ModuleFileInfo moduleFileInfo)
         {
             sb.AppendLine("---");
-            sb.Append(YamlUtils.SerializeElement(moduleFileInfo.Metadata));
+            sb.Append(YamlUtils.SerializeMetadata(moduleFileInfo.Metadata));
             sb.AppendLine("---");
         }
 
@@ -173,8 +175,11 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 {
                     sb.AppendLine($"### [{command.Name}]({command.Link})");
                     sb.AppendLine();
-                    sb.AppendLine($"{command.Description}");
-                    sb.AppendLine();
+                    if (! string.IsNullOrEmpty(command.Description))
+                    {
+                        sb.AppendLine($"{command.Description}");
+                        sb.AppendLine();
+                    }
                 }
             }
         }
@@ -213,11 +218,14 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
             {
                 sb.AppendFormat(Constants.mdModulePageCmdletLinkTemplate, command.Name, command.Link);
                 sb.AppendLine();
-                sb.AppendLine();
-                sb.AppendLine(command.Description);
-                sb.AppendLine();
+                if (! string.IsNullOrEmpty(command.Description))
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(command.Description);
+                    sb.AppendLine();
+                }
             }
-        }
+            }
 
         internal void WriteCmdletBlock(List<string> commandNames)
         {

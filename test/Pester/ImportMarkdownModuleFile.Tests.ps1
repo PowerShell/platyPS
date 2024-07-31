@@ -22,7 +22,7 @@ Describe "Import-ModuleFile tests" {
         BeforeAll {
             $mf0 = $modFiles[0] | Import-MarkdownModuleFile
             $testcases = @(
-                @{ PropertyName = "Metadata"; PropertyType = "System.Collections.Generic.SortedDictionary[string,string]" }
+                @{ PropertyName = "Metadata"; PropertyType = "ordered" }
                 @{ PropertyName = "Title"; PropertyType = "String" }
                 @{ PropertyName = "Module"; PropertyType = "String" }
                 @{ PropertyName = "ModuleGuid"; PropertyType = "Guid" }
@@ -100,7 +100,7 @@ Describe "Import-ModuleFile tests" {
         }
 
         It "Should have the proper key '<key>' and value '<value>'" -TestCases $(
-            @{ Key = "Download Help Link"; Value = "https://aka.ms/powershell75-help" }
+            @{ Key = "HelpInfoUri"; Value = "https://aka.ms/powershell75-help" }
             @{ Key = "Help Version"; Value = "7.5.0.0" }
             @{ Key = "Locale"; Value = "en-US" }
             @{ Key = "Module Guid"; Value = "fb6cc51d-c096-4b38-b78d-0fed6277096a" }
@@ -115,12 +115,14 @@ Describe "Import-ModuleFile tests" {
         }
 
         It "The key 'schema' should not be present" {
-            $mf.Metadata.ContainsKey("schema") | Should -Be $false
+            $mf.Metadata.Contains("schema") | Should -Be $false
         }
 
-        It 'The metadata keys are alphabetical upon import' {
+        It 'The metadata keys are alphabetical upon export' {
             # these metadata keys are explicitly not in alpha-order
-            $mf = Import-MarkdownModuleFile "${PSScriptRoot}/assets/Bad.Metadata.Order.md"
+            $badOrder = Import-MarkdownModuleFile "${PSScriptRoot}/assets/Bad.Metadata.Order.md"
+            $outputFile = $badOrder | Export-MarkdownModuleFile -Output $TESTDRIVE
+            $mf = Import-MarkdownModuleFile $outputFile
             $importedKeys = $mf.Metadata.Keys
             $sortedKeys = $mf.Metadata.Keys | Sort-Object
             $importedKeys | Should -Be $sortedKeys

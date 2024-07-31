@@ -126,7 +126,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
         /// <summary>
         /// Serialize the metadata for exporting.
-        /// We convert the ordered dictionary into a sorted dictionary.
+        /// We convert the ordered dictionary into a sorted dictionary
+        /// because we want the keys to be more easily findable.
         /// </summary>
         /// <param name="metadata">An ordered dictionary representing the metadata</param>
         /// <returns>System.String</returns>
@@ -154,12 +155,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 var output = camelCaseDeserializer?.Deserialize<ModuleFileInfo>(File.ReadAllText(path));
                 if (output is not null)
                 {
-                    if (output.Metadata.ContainsKey("Module Name"))
+                    if (output.Metadata.Contains("Module Name"))
                     {
                         output.Module = output.Metadata["Module Name"].ToString();
                     }
 
-                    if (output.Metadata.ContainsKey("Module Guid"))
+                    if (output.Metadata.Contains("Module Guid"))
                     {
                         if (Guid.TryParse(output.Metadata["Module Guid"].ToString(), out Guid mGuid))
                         {
@@ -681,7 +682,7 @@ namespace Microsoft.PowerShell.PlatyPS
             OrderedDictionary od = new();
             foreach (var k in metadata.Keys)
             {
-                od[k.ToString()] = metadata[k].ToString();
+                od[k.ToString()] = metadata[k];
             }
 
             return od;

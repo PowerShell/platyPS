@@ -30,7 +30,8 @@ namespace Microsoft.PowerShell.PlatyPS
         internal const string Utf32 = "utf32";
 
         internal static readonly string[] TabCompletionResults = {
-                ANSI, Ascii, BigEndianUnicode, BigEndianUtf32, /* OEM, */ Unicode, Utf7, Utf8, Utf8Bom, Utf8NoBom, Utf32
+                // Remove OEM as completion result.
+                ANSI, Ascii, BigEndianUnicode, BigEndianUtf32, Unicode, Utf7, Utf8, Utf8Bom, Utf8NoBom, Utf32
             };
 
         internal static readonly Dictionary<string, Encoding> encodingMap = new(StringComparer.OrdinalIgnoreCase)

@@ -157,7 +157,21 @@ namespace Microsoft.PowerShell.PlatyPS
                         var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
                         pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
                         WriteProgress(pr);
-                        cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
+                        var transformedCommand = new TransformCommand(transformSettings).Transform(cmd);
+                        if (transformedCommand is not null && transformedCommand.Metadata is not null && ! string.IsNullOrEmpty(HelpInfoUri))
+                        {
+                            transformedCommand.Metadata["HelpInfoUri"] = HelpInfoUri;
+                        }
+
+                        if (transformedCommand is not null && transformedCommand.Metadata is not null && ! string.IsNullOrEmpty(HelpUri))
+                        {
+                            transformedCommand.Metadata["HelpUri"] = HelpUri;
+                        }
+
+                        if (transformedCommand is not null)
+                        {
+                            cmdHelpObjs.Add(transformedCommand);
+                        }
                     }
                     catch (Exception e)
                     {

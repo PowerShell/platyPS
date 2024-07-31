@@ -45,7 +45,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                 }
             }
-            
+
             // We could not convert it, just return it for parameter binding.
             return name;
         }

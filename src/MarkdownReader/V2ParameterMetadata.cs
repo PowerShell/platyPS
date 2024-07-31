@@ -41,6 +41,7 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public string Type { get; set;}
         public string DefaultValue { get; set;}
+        [YamlIgnore]
         public bool VariableLength { get; set;}
         public bool SupportsWildcards { get; set;}
         public List<string> ParameterValue { get; set;}
@@ -73,13 +74,13 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             try
             {
-                var result = new DeserializerBuilder().Build().Deserialize<ParameterMetadataV2>(yaml);
+                var result = new DeserializerBuilder().IgnoreUnmatchedProperties().Build().Deserialize<ParameterMetadataV2>(yaml);
                 v2 = result;
                 return true;
             }
-            catch
+            catch (Exception deserializationFailure)
             {
-                ; // do nothing we couldn't parse the yaml, and we'll return false.
+                Console.WriteLine(deserializationFailure.Message);
             }
 
             v2 = new ParameterMetadataV2();

@@ -22,5 +22,6 @@
         ModuleFileTitle,
         ModuleFileDescription,
         ModuleFileGroup,
-        ModuleFileCommand
+        ModuleFileCommand,
+        Identify
     }

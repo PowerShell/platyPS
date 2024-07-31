@@ -1,0 +1,33 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
+Describe "Export-MarkdownModuleFile" {
+    BeforeAll {
+        $idents = Get-ChildItem $PSScriptRoot/assets -filter *.md | Measure-PlatyPSMarkdown
+        $goodFile1 = $idents.Where({$_.FilePath -match "get-date.md$"})
+        $goodFile2 = $idents.Where({$_.FilePath -match "Compare-CommandHelp.md$"})
+    }
+
+    It "Should identify all the '<fileType>' assets" -TestCases @(
+        @{ fileType = "unknown"; expectedCount = 2 }
+        @{ fileType = "CommandHelp"; expectedCount = 32 }
+        @{ fileType = "ModuleFile"; expectedCount = 14 }
+        @{ fileType = "V1Schema"; expectedCount = 45 }
+        @{ fileType = "V2Schema"; expectedCount = 2 }
+    ) {
+        param ($fileType, $expectedCount)
+        $idents.Where({($_.FileType -band $fileType) -eq $fileType}).Count | Should -Be $expectedCount
+    }
+
+    It "Should have proper diagnostics for get-date.md" {
+        $goodFile1.DiagnosticMessages.Count | Should -Be 4
+        $goodFile1.FileType -band "v1schema" -eq "v1schema" | Should -Be $true
+        $goodFile1.DiagnosticMessages[-1].Message | Should -Match "PlatyPS.*schema.*marking as v1"
+    }
+
+    It "Should have proper diagnostics for Compare-CommandHelp.md" {
+        $goodFile2.DiagnosticMessages.Count | Should -Be 2
+        ($goodFile2.FileType -band "v2schema") -eq "v2schema" | Should -Be $true
+        $goodFile2.DiagnosticMessages[-1].Message | Should -Be "document type found: cmdlet"
+    }
+}

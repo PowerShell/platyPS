@@ -84,7 +84,7 @@ Describe 'New-MarkdownCommandHelp' {
         }
 
         It 'Will create an object from a module which is not imported' {
-            $moduleName = Microsoft.PowerShell.Archive
+            $moduleName = "Microsoft.PowerShell.Archive"
             $files = New-MarkdownCommandHelp -Module $moduleName -OutputFolder "$TestDrive"
             $files.Count | Should -BeGreaterOrEqual 2
             $expectedCommandNames = (Get-Module -List $moduleName).ExportedCommands.Keys | Sort-Object

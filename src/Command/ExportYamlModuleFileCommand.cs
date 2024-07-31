@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -59,7 +57,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (ModuleFileInfo moduleFile in ModuleFile)
             {
-                if (moduleFile.Metadata.ContainsKey("Module Name"))
+                if (moduleFile.Metadata.Contains("Module Name"))
                 {
                     moduleName = moduleFile.Metadata["Module Name"].ToString();
                 }

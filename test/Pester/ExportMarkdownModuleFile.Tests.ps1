@@ -43,7 +43,7 @@ Describe "Export-MarkdownModuleFile" {
 
         # Now check the hard way
         It "Should have the same metadata value for key '<Name>'" -TestCases $(
-            @{ Name = "Download Help Link" }
+            @{ Name = "HelpInfoUri" }
             @{ Name = "Help Version" }
             @{ Name = "Locale" }
             @{ Name = "Module Guid" }
