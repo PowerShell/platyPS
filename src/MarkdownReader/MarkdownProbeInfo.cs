@@ -81,7 +81,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         DiagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Identify, "document type found: cmdlet", DiagnosticSeverity.Information, "GetContentType", -1));
                         FileType = (MarkdownFileType.CommandHelp|MarkdownFileType.V2Schema);
                     }
-                    else if (documentType is not null && string.Compare(documentType.ToString(), "moduleFile", true) == 0)
+                    else if (documentType is not null && string.Compare(documentType.ToString(), "module", true) == 0)
                     {
                         FileType = (MarkdownFileType.ModuleFile|MarkdownFileType.V2Schema);
                         DiagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Identify, "document type found: modulefile", DiagnosticSeverity.Information, "GetContentType", -1));

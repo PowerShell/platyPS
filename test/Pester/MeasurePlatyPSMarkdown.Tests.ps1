@@ -6,6 +6,8 @@ Describe "Export-MarkdownModuleFile" {
         $idents = Get-ChildItem $PSScriptRoot/assets -filter *.md | Measure-PlatyPSMarkdown
         $goodFile1 = $idents.Where({$_.FilePath -match "get-date.md$"})
         $goodFile2 = $idents.Where({$_.FilePath -match "Compare-CommandHelp.md$"})
+        $mfPath = Import-MarkdownModuleFile $PSScriptRoot/assets/Microsoft.PowerShell.Archive.md |
+            Export-MarkdownModuleFile -outputFolder $TESTDRIVE
     }
 
     It "Should identify all the '<fileType>' assets" -TestCases @(
@@ -30,4 +32,10 @@ Describe "Export-MarkdownModuleFile" {
         ($goodFile2.FileType -band "v2schema") -eq "v2schema" | Should -Be $true
         $goodFile2.DiagnosticMessages[-1].Message | Should -Be "document type found: cmdlet"
     }
+
+    It "Should recognise a V2 module file" {
+        $v2ModuleFile = Measure-PlatyPSMarkdown -Path $mfPath.Fullname
+        $v2ModuleFile.Filetype | Should -Be "ModuleFile, V2Schema"
+    }
+
 }
