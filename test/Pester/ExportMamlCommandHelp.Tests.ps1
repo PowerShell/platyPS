@@ -15,7 +15,7 @@ Describe "Export-MamlCommandHelp tests" {
 
         # needed by subesequent tests
         It "Should create a file" {
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory
             $outputDirectory | Should -Exist
             $f1 | Should -Exist
             $f2 | Should -Exist
@@ -30,20 +30,20 @@ Describe "Export-MamlCommandHelp tests" {
         }
 
         It "Should have a warning if the file already exists" {
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -WarningVariable warnvar
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory -WarningVariable warnvar
             $warnvar.Count | Should -Be 2
         }
 
         It "Should not have an error if the file already exists and -Force is used" {
             Start-Sleep -Seconds 5
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Force
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory -Force
             $fi = Get-ChildItem $f1
             $fi.LastWriteTime | Should -BeGreaterThan (Get-Date).AddSeconds(-5)
         }
 
         It "Should create the file with the proper encoding" {
             Remove-Item -Path $outputDirectory -ErrorAction SilentlyContinue -Recurse
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Encoding ([System.Text.Encoding]::Unicode)
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory -Encoding ([System.Text.Encoding]::Unicode)
             $bytes = Get-Content -Path $f1 -AsByteStream | Select-Object -First 2
             $bytes | Should -Be 255, 254
             $bytes = Get-Content -Path $f1 -AsByteStream | Select-Object -First 2
@@ -52,14 +52,14 @@ Describe "Export-MamlCommandHelp tests" {
 
         It "Using WhatIf should not result in a file" {
             Remove-Item -Path $outputDirectory -Recurse
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -WhatIf
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory -WhatIf
             $outputDirectory | Should -Not -Exist
         }
     }
 
     Context "Content Tests" {
         BeforeAll {
-            $chObjects | Export-MamlCommandHelp -OutputDirectory $outputDirectory -Force
+            $chObjects | Export-MamlCommandHelp -OutputFolder $outputDirectory -Force
             $xml = [xml](Get-Content -Path $f1)
             $namespace = $xml.helpItems.NamespaceURI
             $ns = [System.Xml.XmlNamespaceManager]::new($xml.NameTable)
