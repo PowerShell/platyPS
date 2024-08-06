@@ -158,20 +158,24 @@ namespace Microsoft.PowerShell.PlatyPS
                         pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
                         WriteProgress(pr);
                         var transformedCommand = new TransformCommand(transformSettings).Transform(cmd);
-                        if (transformedCommand is not null && transformedCommand.Metadata is not null && ! string.IsNullOrEmpty(HelpInfoUri))
+
+                        if (transformedCommand is null)
                         {
-                            transformedCommand.Metadata["HelpInfoUri"] = HelpInfoUri;
+                            throw new InvalidDataException("Command transformation failed");
                         }
 
-                        if (transformedCommand is not null && transformedCommand.Metadata is not null && ! string.IsNullOrEmpty(HelpUri))
+                        if (transformedCommand.Metadata is null)
+                        {
+                            transformedCommand.Metadata = new();
+                        }
+
+                        // update the HelpUri if the parameter was used.
+                        if (! string.IsNullOrEmpty(HelpUri))
                         {
                             transformedCommand.Metadata["HelpUri"] = HelpUri;
                         }
 
-                        if (transformedCommand is not null)
-                        {
-                            cmdHelpObjs.Add(transformedCommand);
-                        }
+                        cmdHelpObjs.Add(transformedCommand);
                     }
                     catch (Exception e)
                     {
@@ -214,6 +218,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         moduleFileInfo.Metadata["Module Guid"] = group.First<CommandHelp>().ModuleGuid.ToString();
                     }
+                }
+
+                if (! string.IsNullOrEmpty(HelpInfoUri))
+                {
+                    moduleFileInfo.Metadata["HelpInfoUri"] = HelpInfoUri;
                 }
 
                 List<ModuleCommandInfo> mciList = new();
