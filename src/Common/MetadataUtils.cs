@@ -36,7 +36,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "document type", "cmdlet" },
                 { "title", help.Title },
                 { "Module Name", help.ModuleName },
-                { "Locale", help.Locale.Name },
+                { "Locale", string.IsNullOrEmpty(help.Locale.Name) ? "en-US" : help.Locale.Name },
                 { "PlatyPS schema version", "2024-05-01" }, // was schema
                 { "HelpUri", help.OnlineVersionUrl }, // was online version
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
@@ -101,7 +101,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 { "document type", "module" },
                 { "HelpInfoUri", "xxx" }, // was Download Help Link
-                { "Locale", moduleFileInfo.Locale.Name },
+                { "Locale", string.IsNullOrEmpty(moduleFileInfo.Locale.Name) ? "en-US" : moduleFileInfo.Locale.Name },
                 { "PlatyPS schema version", "2024-05-01" },
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", moduleFileInfo.Title },
@@ -117,7 +117,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 { "document type", "module" },
                 { "HelpInfoUri", moduleInfo.HelpInfoUri }, // was Download Help Link
-                { "Locale", locale?.Name ?? "en-us" },
+                { "Locale", locale?.Name ?? "en-US" },
                 { "PlatyPS schema version", "2024-05-01" },
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", $"{moduleInfo.Name} Module" },
