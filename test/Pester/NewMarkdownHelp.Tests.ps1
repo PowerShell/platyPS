@@ -14,6 +14,7 @@ Describe 'New-MarkdownCommandHelp' {
             schema = "2.0.0"
         }
 
+        $IsWindowsPowerShell = $PSVersionTable.PSVersion.Major -eq 5
         $commonParameterNames = [System.Management.Automation.Internal.CommonParameters].GetProperties().ForEach({$_.Name})
         $ProgressPreference = 'SilentlyContinue'
     }
@@ -83,7 +84,7 @@ Describe 'New-MarkdownCommandHelp' {
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
         }
 
-        It 'Will create an object from a module which is not imported' {
+        It 'Will create an object from a module which is not imported' -skip:$IsWindowsPowerShell {
             $moduleName = "Microsoft.PowerShell.Archive"
             $files = New-MarkdownCommandHelp -Module $moduleName -OutputFolder "$TestDrive"
             $files.Count | Should -BeGreaterOrEqual 2
