@@ -91,7 +91,9 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     write-verbose -verbose -message "$sb"
 
-    pwsh -noprofile -c "$sb"
+    # we need to run on both pwsh and powershell
+    $PSEXE = (Get-Process -Id $PID).MainModule.FileName
+    & $PSEXE -noprofile -c "$sb"
 
     $results = [xml](Get-Content $PesterLogPath)
     if ($results."test-results".failures -ne 0) {
