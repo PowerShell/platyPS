@@ -3,7 +3,8 @@
 
 Describe "Export-MarkdownModuleFile" {
     BeforeAll {
-        $idents = Get-ChildItem $PSScriptRoot/assets -filter *.md | Measure-PlatyPSMarkdown
+        $files = Get-ChildItem $PSScriptRoot/assets -filter *.md
+        $idents = $files.FullName | Measure-PlatyPSMarkdown
         $goodFile1 = $idents.Where({$_.FilePath -match "get-date.md$"})
         $goodFile2 = $idents.Where({$_.FilePath -match "Compare-CommandHelp.md$"})
         $mfPath = Import-MarkdownModuleFile $PSScriptRoot/assets/Microsoft.PowerShell.Archive.md |

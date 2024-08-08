@@ -48,7 +48,14 @@ Describe "New-CommandHelp tests" {
         }
 
         It "should have the proper number of parameters" {
-            $parameters.Count | Should -Be 17
+            if ($PSVersionTable.PSVersion.Major -eq 5) {
+                $expectedCount = 14
+            }
+            else {
+                $expectedCount = 17
+            }
+
+            $parameters.Count | Should -Be $expectedCount
         }
 
         # list retrieved from get-command
@@ -57,7 +64,6 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'ArgumentList'; Type = 'System.Object[]' },
             @{ Name = 'CommandType'; Type = 'System.Management.Automation.CommandTypes' },
             @{ Name = 'FullyQualifiedModule'; Type = 'Microsoft.PowerShell.Commands.ModuleSpecification[]' },
-            @{ Name = 'FuzzyMinimumDistance'; Type = 'System.UInt32' },
             @{ Name = 'ListImported'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'Module'; Type = 'System.String[]' },
             @{ Name = 'Name'; Type = 'System.String[]' },
@@ -67,9 +73,12 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'ShowCommandInfo'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'Syntax'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'TotalCount'; Type = 'System.Int32' },
-            @{ Name = 'UseAbbreviationExpansion'; Type = 'System.Management.Automation.SwitchParameter' },
-            @{ Name = 'UseFuzzyMatching'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'Verb'; Type = 'System.String[]' }
+            if ($PSVersionTable.PSVersion.Major -gt 5) {
+                @{ Name = 'FuzzyMinimumDistance'; Type = 'System.UInt32' },
+                @{ Name = 'UseAbbreviationExpansion'; Type = 'System.Management.Automation.SwitchParameter' },
+                @{ Name = 'UseFuzzyMatching'; Type = 'System.Management.Automation.SwitchParameter' }
+            }
         ) {
             param ($Name, $type)
             $ch.Parameters.Name | Should -Contain $Name
@@ -100,13 +109,12 @@ Describe "New-CommandHelp tests" {
             [string]($ch.Parameters.Where({$_.name -eq $Name}).Aliases) | Should -Be $alias
         }
 
-        It "Should have the same parameter sets (excluding '(All)')" {
+        It "Should have the same parameter sets (excluding '(All)')" -Skip:($PSVersionTable.PSVersion.Major -eq 5) {
             $expected = $cmd.ParameterSets.Name | Sort-Object
             $observed = $ch.Parameters.ParameterSets.Name | Sort-Object -Unique | Where-Object { $_ -ne "(All)" }
             $observed | Should -Be $expected
         }
-
-        It "Should have the proper parameters in parameterset '<ParameterSetName>'"  -TestCases @(
+        It "Should have the proper parameters in parameterset '<ParameterSetName>'" -Skip:($PSVersionTable.PSVersion.Major -eq 5) -TestCases @(
             @{ ParameterSetName = 'CmdletSet';     Parameters = 'All:ArgumentList:FullyQualifiedModule:ListImported:Module:Noun:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:Verb' }
             @{ ParameterSetName = 'AllCommandSet'; Parameters = 'All:ArgumentList:CommandType:FullyQualifiedModule:FuzzyMinimumDistance:ListImported:Module:Name:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:UseAbbreviationExpansion:UseFuzzyMatching' }
         ) {
@@ -136,7 +144,13 @@ Describe "New-CommandHelp tests" {
         }
 
         It "Should have the proper number of output types" {
-            $ch.outputs.Count | should be 8
+            if ($PSVersionTable.PSVersion.Major -eq 5) {
+                $expectedCount = 9
+            }
+            else {
+                $expectedCount = 8
+            }
+            $ch.outputs.Count | should be $expectedCount
         }
 
         It "Should have the output type '<type>'" -TestCases @(

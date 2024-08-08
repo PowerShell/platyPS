@@ -74,7 +74,8 @@ Describe 'New-MarkdownCommandHelp' {
     Context 'encoding' {
         It 'writes appropriate encoding' {
             $file = New-MarkdownCommandHelp -command New-MarkdownCommandHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
-            Get-Content -AsByteStream $file | Select-Object -First 4 | Should -Be ([byte[]](255, 254, 0, 0))
+            $bytes = [io.file]::ReadAllBytes($file.fullname)[0..3]
+            $bytes | Should -Be ([byte[]](255, 254, 0, 0))
         }
     }
 
@@ -493,7 +494,7 @@ Write-Host 'Hello World!'
                 Push-Location $TestDrive
                 $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -WithModulePage -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
-                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS" "Microsoft.PowerShell.PlatyPS.md")
+                $landingPage.FullName | Should -BeExactly ([io.path]::Combine("$TestDrive","Microsoft.PowerShell.PlatyPS","Microsoft.PowerShell.PlatyPS.md"))
             }
             finally {
                 Pop-Location

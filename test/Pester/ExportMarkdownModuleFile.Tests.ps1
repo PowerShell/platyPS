@@ -5,7 +5,7 @@ Describe "Export-MarkdownModuleFile" {
     BeforeAll {
         $modFiles = Get-ChildItem -File "${PSScriptRoot}/assets" | Where-Object { $_.extension -eq ".md" -and $_.name -notmatch "-" -and $_.Name -notmatch "Bad.Metadata.Order" }
         $modFileNames = $modFiles.Foreach({$_.Name})
-        $modObjects = $modFiles | Import-MarkdownModuleFile
+        $modObjects = $modFiles.FullName | Import-MarkdownModuleFile
         $testModuleFile = $modObjects | Where-Object { $_.title -match 'Microsoft.PowerShell.Archive' }
     }
 
@@ -33,7 +33,7 @@ Describe "Export-MarkdownModuleFile" {
     Context "File Contents" {
         BeforeAll {
             $outputFile = $modObjects[3] | Export-MarkdownModuleFile -outputFolder ${TestDrive}
-            $testMF = Import-MarkdownModuleFile $outputFile
+            $testMF = Import-MarkdownModuleFile $outputFile.FullName
         }
 
         # This relies on implementation of IEquatable

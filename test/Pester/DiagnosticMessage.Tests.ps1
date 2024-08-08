@@ -3,7 +3,7 @@
 
 Describe "Test Diagnostic Messages" {
     BeforeAll {
-        $filePath = Join-Path $PSScriptRoot assets get-date.md
+        $filePath = [io.path]::Combine($PSScriptRoot, "assets", "get-date.md")
         $ch = Import-MarkdownCommandHelp $filePath
     }
 
@@ -46,7 +46,7 @@ Describe "Test Diagnostic Messages" {
 
     Context "Error Conditions" {
         BeforeAll {
-            $errorPath = Join-Path $PSScriptRoot assets get-datebad.md
+            $errorPath = [io.path]::Combine($PSScriptRoot, "assets", "get-datebad.md")
             $errorCh = Import-MarkdownCommandHelp $errorPath
         }
 

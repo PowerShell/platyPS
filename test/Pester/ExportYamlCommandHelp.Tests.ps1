@@ -40,7 +40,7 @@ Describe "Export-YamlCommandHelp tests" {
         ) {
             param ($key, $offset)
             $yamlDict.Contains($key) | Should -Be $true
-            $yamlDict.Keys[$offset] | Should -Be $key
+            @($yamlDict.Keys)[$offset] | Should -Be $key
         }
     }
 

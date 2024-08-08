@@ -8,21 +8,21 @@ Describe "Import-ModuleFile tests" {
 
     Context "File creation" {
         It "Should be able to read module files" {
-            $results = $modFiles | Import-MarkdownModuleFile
+            $results = $modFiles.FullName | Import-MarkdownModuleFile
             $results.Count | Should -Be 13
         }
 
         It "Should produce the correct type of object" {
-            $results = $modFiles | Import-MarkdownModuleFile
+            $results = $modFiles.FullName | Import-MarkdownModuleFile
             $results[0] | Should -BeOfType Microsoft.PowerShell.PlatyPS.ModuleFileInfo
         }
     }
 
     Context "Object properties" {
         BeforeAll {
-            $mf0 = $modFiles[0] | Import-MarkdownModuleFile
+            $mf0 = $modFiles[0].FullName | Import-MarkdownModuleFile
             $testcases = @(
-                @{ PropertyName = "Metadata"; PropertyType = "ordered" }
+                @{ PropertyName = "Metadata"; PropertyType = $(if ($PSVersionTable.PSVersion.Major -eq 5) { "System.Collections.Specialized.OrderedDictionary"} else { "ordered" }) }
                 @{ PropertyName = "Title"; PropertyType = "String" }
                 @{ PropertyName = "Module"; PropertyType = "String" }
                 @{ PropertyName = "ModuleGuid"; PropertyType = "Guid" }
@@ -92,7 +92,7 @@ Describe "Import-ModuleFile tests" {
     Context "Metadata content" {
         BeforeAll {
             $cimCmdletFile = $modFiles | Where-Object { $_.Name -eq "CimCmdlets.md" }
-            $mf = Import-MarkdownModuleFile $cimCmdletFile
+            $mf = Import-MarkdownModuleFile $cimCmdletFile.FullName
         }
 
         It "Should have non null metadata" {
@@ -130,7 +130,7 @@ Describe "Import-ModuleFile tests" {
 
         It 'Should add PSVersion schema version if it does not exist' {
             $mFile = $modFiles.Where({$_.name -eq "exchange.md"})
-            $testMF = $mFile | Import-MarkdownModuleFile
+            $testMF = $mFile.FullName | Import-MarkdownModuleFile
             $testMF.Metadata['PlatyPS schema version'] | Should -Be "2024-05-01"
         }
     }

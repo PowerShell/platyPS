@@ -40,10 +40,9 @@ Describe "Export-MarkdownCommandHelp" {
             }
 
             $result1 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder
-            start-sleep 1
+            "" > $result1.FullName
             $result2 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder -Force
             $result1.Length | Should -Be $result2.Length
-            $result1.LastWriteTime | Should -Not -Be $result2.LastWriteTime
         }
 
         It "CommandHelp without modulename should be exported to the OutputFolder" {

@@ -71,7 +71,13 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
             $moduleFiles += $expectedPdbPath
         }
 
-        Copy-Item -Path "$expectedBuildPath/Markdig.Signed.dll", "$expectedBuildPath/YamlDotNet.dll" -Destination $depsFolder -Verbose
+        $neededAssemblies = "System.Buffers.dll", "System.Memory.dll",
+            "System.Numerics.Vectors.dll", "System.Runtime.CompilerServices.Unsafe.dll",
+            "Markdig.Signed.dll","YamlDotNet.dll"
+        
+        $neededAssemblyLocations = $neededAssemblies | ForEach-Object { "${expectedBuildPath}/${_}" }
+
+        Copy-Item -Path $neededAssemblyLocations -Destination $depsFolder -Verbose
         Copy-Item -Path $moduleFiles -Destination $moduleRoot -Verbose
     }
     finally {
@@ -93,6 +99,7 @@ elseif ($PSCmdlet.ParameterSetName -eq 'Test') {
 
     # we need to run on both pwsh and powershell
     $PSEXE = (Get-Process -Id $PID).MainModule.FileName
+    Write-Verbose -Verbose -Message ("Running tests on PowerShell Version: " + $PSVersionTable.PSVersion)
     & $PSEXE -noprofile -c "$sb"
 
     $results = [xml](Get-Content $PesterLogPath)

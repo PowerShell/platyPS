@@ -24,7 +24,8 @@ Describe "Interactive experience tests" {
             } 
         ) {
             param ($cmdlet)
-            $result = TabExpansion2 "$cmdlet -Encoding "
+            $cmdString = "$cmdlet -Encoding "
+            $result = TabExpansion2 $cmdString $cmdString.Length
             $result.CompletionMatches.CompletionText | Should -Be $expectedEncoding
         }
     }
