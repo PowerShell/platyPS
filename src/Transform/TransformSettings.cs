@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         public TransformSettings()
         {
-            Locale = CultureInfo.CurrentUICulture;
+            Locale = CultureInfo.CurrentCulture;
         }
 
         public TransformSettings(CultureInfo cultureInfo)

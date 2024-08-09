@@ -10,7 +10,9 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         public bool Accepts(Type type)
         {
-            return typeof(IEnumerable<string>).IsAssignableFrom(type);
+            bool fromString = typeof(IEnumerable<string>).IsAssignableFrom(type);
+            bool fromObject = typeof(IEnumerable<object>).IsAssignableFrom(type);
+            return fromString || fromObject;
         }
 
         public object ReadYaml(IParser parser, Type type)
@@ -25,7 +27,28 @@ namespace Microsoft.PowerShell.PlatyPS
                 throw new ArgumentException("object to serialize must not be null");
             }
 
-            var sequence = (IEnumerable<string>)value;
+            IEnumerable<string> sequence;
+            if (value is IEnumerable<object> collection)
+            {
+                List<string> stringCollection = new();
+                foreach (var item in collection)
+                {
+                    if (item is not null)
+                    {
+                        stringCollection.Add(item.ToString());
+                    }
+                    else
+                    {
+                        stringCollection.Add(string.Empty);
+                    }
+                }
+                sequence = stringCollection;
+            }
+            else
+            {
+                sequence = (IEnumerable<string>)value;
+            }
+
             emitter.Emit(new SequenceStart(default, default, false, SequenceStyle.Flow));
 
             foreach (var item in sequence)

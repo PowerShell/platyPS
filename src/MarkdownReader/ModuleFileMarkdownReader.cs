@@ -4,266 +4,14 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
-using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
-using YamlDotNet;
-using YamlDotNet.Serialization;
-using System.Management.Automation;
-using System.Security.Cryptography;
-using System.Data.Common;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-    public class ModuleCommandInfo : IEquatable<ModuleCommandInfo>
-    {
-        public string Name { get; set; }
-        public string Link { get; set; }
-        public string Description { get; set; }
-        public ModuleCommandInfo()
-        {
-            Name = string.Empty;
-            Link = string.Empty;
-            Description = string.Empty;
-        }
-
-        public override int GetHashCode()
-        {
-            return Name.GetHashCode() ^ Link.GetHashCode() ^ Description.GetHashCode();
-        }
-
-        public bool Equals(ModuleCommandInfo other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            return string.Compare(Name, other.Name) == 0 &&
-                string.Compare(Link, other.Link) == 0 &&
-                string.Compare(Description, other.Description) == 0;
-        }
-
-        public override bool Equals(object other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (other is ModuleCommandInfo info2)
-            {
-                return Equals(info2);
-            }
-
-            return false;
-        }
-
-        public static bool operator == (ModuleCommandInfo info1, ModuleCommandInfo info2)
-        {
-            if (info1 is not null && info2 is not null)
-            {
-                return info1.Equals(info2);
-            }
-
-            return false;
-        }
-
-        public static bool operator !=(ModuleCommandInfo info1, ModuleCommandInfo info2)
-        {
-            if (info1 is not null && info2 is not null)
-            {
-                return ! info1.Equals(info2);
-            }
-
-            return false;
-        }
-
-    }
-
-    public class ModuleCommandGroup : IEquatable<ModuleCommandGroup>
-    {
-        public string GroupTitle { get; set; }
-        public List<ModuleCommandInfo> Commands { get; set; }
-
-        public ModuleCommandGroup()
-        {
-            GroupTitle = string.Empty;
-            Commands = new();
-        }
-
-        public ModuleCommandGroup(string title)
-        {
-            GroupTitle = title;
-            Commands = new();
-        }
-
-       public override int GetHashCode()
-        {
-            return (GroupTitle, Commands).GetHashCode();
-        }
-
-        public bool Equals(ModuleCommandGroup other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            return (
-                string.Compare(GroupTitle, other.GroupTitle, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                Commands.SequenceEqual(other.Commands)
-                );
-        }
-
-        public override bool Equals(object other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (other is ModuleCommandGroup group2)
-            {
-                return Equals(group2);
-            }
-
-            return false;
-        }
-
-        public static bool operator == (ModuleCommandGroup group1, ModuleCommandGroup group2)
-        {
-            if (group1 is not null && group2 is not null)
-            {
-                return group1.Equals(group2);
-            }
-
-            return false;
-        }
-
-        public static bool operator !=(ModuleCommandGroup group1, ModuleCommandGroup group2)
-        {
-            if (group1 is not null && group2 is not null)
-            {
-                return ! group1.Equals(group2);
-            }
-
-            return false;
-        }
-    }
-
-    public class ModuleFileInfo : IEquatable<ModuleFileInfo>
-    {
-        public SortedDictionary<string, string> Metadata { get; set; }
-        public string Title { get; set; }
-        [YamlIgnore]
-        public string Module { get; set; }
-        [YamlIgnore]
-        public Guid? ModuleGuid { get; set; }
-        public string Description { get; set; }
-        [YamlIgnore]
-        public CultureInfo Locale { get; set; }
-        public List<ModuleCommandGroup> CommandGroups { get; set; }
-        [YamlIgnore]
-        public Diagnostics Diagnostics { get; set; }
-
-        public ModuleFileInfo()
-        {
-            Metadata = new();
-            Title = string.Empty;
-            Module = string.Empty;
-            Description = string.Empty;
-            Diagnostics = new();
-            CommandGroups = new();
-            Locale = CultureInfo.GetCultureInfo("en-US");
-        }
-
-        public ModuleFileInfo(string title, string moduleName, CultureInfo? locale)
-        {
-            Metadata = MetadataUtils.GetModuleFileBaseMetadata(title, moduleName, locale);
-            Title = title;
-            Module = moduleName;
-            Description = string.Empty;
-            Diagnostics = new();
-            CommandGroups = new();
-            Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
-        }
-
-        public ModuleFileInfo(PSModuleInfo moduleInfo, CultureInfo? locale)
-        {
-            Metadata = MetadataUtils.GetModuleFileBaseMetadata(moduleInfo, locale);
-            Title = $"{moduleInfo.Name} Module";
-            Module = $"{moduleInfo.Name}";
-            Description = moduleInfo.Description;
-            Diagnostics = new();
-            CommandGroups = new();
-            Locale = locale ?? CultureInfo.GetCultureInfo("en-US");
-        }
-
-        public override int GetHashCode()
-        {
-            return (Metadata, Title, Description).GetHashCode();
-        }
-
-        public bool Equals(ModuleFileInfo other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            return (
-                string.Compare(Title, other.Title, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                string.Compare(Module, other.Module, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                string.Compare(Description, other.Description, StringComparison.CurrentCultureIgnoreCase) == 0 &&
-                CommandGroups.SequenceEqual(other.CommandGroups)
-                );
-        }
-
-        public override bool Equals(object other)
-        {
-            if (other is null)
-            {
-                return false;
-            }
-
-            if (other is ModuleFileInfo info2)
-            {
-                return Equals(info2);
-            }
-
-            return false;
-        }
-
-        public static bool operator == (ModuleFileInfo info1, ModuleFileInfo info2)
-        {
-            if (info1 is not null && info2 is not null)
-            {
-                return info1.Equals(info2);
-            }
-
-            return false;
-        }
-
-        public static bool operator !=(ModuleFileInfo info1, ModuleFileInfo info2)
-        {
-            if (info1 is not null && info2 is not null)
-            {
-                return ! info1.Equals(info2);
-            }
-
-            return false;
-        }
-
-    }
-
     public partial class MarkdownConverter
     {
         public static ModuleFileInfo GetModuleFileInfoFromMarkdownFile(string path)
@@ -277,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static ModuleFileInfo GetModuleFileInfoFromMarkdown(ParsedMarkdownContent markdownContent)
         {
             /*
-            GetMetadataFromMarkdown
+            GetMetadata
             GetTitleFromMarkdown
             GetDescription
             GetModuleInfo - optional
@@ -297,17 +45,22 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (MetadataUtils.TryGetGuidFromMetadata(moduleFileInfo.Metadata, "Module Guid", out Guid guid))
             {
-                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage());
+                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"found guid {guid}", DiagnosticSeverity.Information, "GetMetadata", -1));
                 moduleFileInfo.ModuleGuid = guid;
             }
             else
             {
-
+                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"no module guid found.", DiagnosticSeverity.Warning, "GetMetadata", -1));
             }
 
             if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Module Name", out string name))
             {
+                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"found module name {name}", DiagnosticSeverity.Information, "GetMetadata", -1));
                 moduleFileInfo.Module = name;
+            }
+            else
+            {
+                moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"no module name found.", DiagnosticSeverity.Warning, "GetMetadata", -1));
             }
 
             if (MetadataUtils.TryGetStringFromMetadata(moduleFileInfo.Metadata, "Locale", out string locale))
@@ -315,9 +68,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 try
                 {
                     moduleFileInfo.Locale = CultureInfo.GetCultureInfo(locale);
+                    moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"locale set to {locale}", DiagnosticSeverity.Information, "GetMetadata", -1));
                 }
                 catch
                 {
+                    moduleFileInfo.Diagnostics.TryAddDiagnostic(new DiagnosticMessage(DiagnosticMessageSource.Metadata, $"could not set locale to {locale}, using CurrentCulture", DiagnosticSeverity.Warning, "GetMetadata", -1));
                     moduleFileInfo.Locale = CultureInfo.CurrentCulture;
                 }
             }
@@ -363,6 +118,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 var ModuleCommandGroup = new ModuleCommandGroup(groupName);
                 List <DiagnosticMessage> moduleCommandDiagnostics;
                 List <ModuleCommandInfo> groupModuleCommands = GetModuleFileCommandsFromMarkdown(markdownContent, out moduleCommandDiagnostics);
+                if (moduleCommandDiagnostics.Count > 0)
+                {
+                    diagnostics.AddRange(moduleCommandDiagnostics);
+                }
+
                 ModuleCommandGroup.Commands.AddRange(groupModuleCommands);
                 commandGroups.Add(ModuleCommandGroup);
             }
@@ -425,7 +185,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             string descriptionString = MarkdownConverter.GetLinesTillNextHeader(md, nextHeaderLevel, index);
-            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "Module description found", DiagnosticSeverity.Warning, "GetModuleFileDescription", md.Ast[index].Line));
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "Module description found", DiagnosticSeverity.Information, "GetModuleFileDescription", md.Ast[index].Line));
             return descriptionString.Trim();
         }
 
@@ -469,6 +229,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     mfci.Link = (moduleCommandInfoLink?.Inline?.FirstChild as LinkInline)?.Url ?? string.Empty;
                     mfci.Description = moduleCommandInfoDescription is null ? string.Empty : md.MarkdownLines[moduleCommandInfoDescription.Line];
                     list.Add(mfci);
+                    diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileCommand, $"command {mfci.Name} found", DiagnosticSeverity.Information, "GetModuleFileCommandsFromMarkdown", moduleCommandInfoLink is null ? -1 : moduleCommandInfoLink.Line));
                 }
                 else // Not sure what we got but we're going to ignore it
                 {

@@ -3,5 +3,6 @@
      "files.exclude": {
         "out/**": true
     },
-    "dotnet.defaultSolution": "platyPS.sln"
+    "dotnet.defaultSolution": "platyPS.sln",
+    "sarif-viewer.connectToGithubCodeScanning": "off"
 }

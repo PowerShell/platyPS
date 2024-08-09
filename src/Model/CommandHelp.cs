@@ -37,6 +37,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public List<SyntaxItem> Syntax { get; private set; }
 
+        // This is needed because if we find the header, but no aliases, we should not emit the boilerplate.
+        public bool AliasHeaderFound { get; set; }
+
         public List<string>? Aliases { get; private set; }
 
         public string? Description { get; set; }

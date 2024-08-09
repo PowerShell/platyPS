@@ -10,8 +10,11 @@ $yamlDotNetAsm = Join-Path $depRoot "YamlDotNet.dll"
 #Get-ChildItem -Recurse $modRoot -File | Foreach-Object { $_ | Write-Verbose -Verbose }
 #$null = import-Module $markDigAsm -ErrorAction SilentlyContinue
 #$null = import-Module $yamlDotNetAsm -ErrorAction SilentlyContinue
-Add-Type -Assembly $markDigAsm
-Add-Type -Assembly $yamlDotNetAsm
+if ($null -eq ("YamlDotNet.Serialization.DeserializerBuilder" -as [type])) {
+    Add-Type -Assembly $yamlDotNetAsm
+}
+
+# Add-Type -Assembly $markDigAsm
 
 class inputOutput {
     [string]$name
@@ -122,7 +125,12 @@ function Import-CommandYaml  {
                 # $result = $YamlDeserializeMethod.Invoke($yamldes, $yaml)
                 # fix up some of the object elements
                 $null = $result.parameters.where({$_.name -eq "CommonParameters"}).Foreach({$result.parameters.Remove($_); $result.HasCmdletBinding = $true})
-                $result.Locale = $result['metadata']['Locale'] ?? "en-US"
+                $locale = $result['metadata']['Locale']
+                if ($locale -eq "" -or $null -eq $locale)
+                {
+                    $locale = "en-US"
+                }
+                $result.Locale = $locale
                 $result.ExternalHelpfile = $result['metadata']['external help file']
                 $result
             }
@@ -160,7 +168,13 @@ function ConvertTo-CommandYaml {
             $cHelp.Examples.Add($example)
         }
 
-        $cHelp.Aliases = $ch.Aliases?.split(",")
+        if ($null -eq $ch.Aliases) {
+            $cHelp.Aliases = @()
+        }
+        else {
+            $cHelp.Aliases = $ch.aliases.Split(",")
+        }
+
         $cHelp
     }
 }

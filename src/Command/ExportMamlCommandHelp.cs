@@ -36,7 +36,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter Force { get; set; }
 
         [Parameter(Mandatory = true, Position = 1)]
-        public string OutputDirectory { get; set; } = string.Empty;
+        public string OutputFolder { get; set; } = string.Empty;
 
         private List<CommandHelp> _commandHelps = new List<CommandHelp>();
         #endregion
@@ -57,9 +57,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
-            if (ShouldProcess(OutputDirectory))
+            if (ShouldProcess(OutputFolder))
             {
-                outputDirectory = PathUtils.CreateOrGetOutputDirectory(this, OutputDirectory, Force);
+                outputDirectory = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
             }
             else
             {
@@ -69,7 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (outputDirectory is null)
             {
-                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("file is null"), "fileInfo is null", ErrorCategory.InvalidOperation, OutputDirectory));
+                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("file is null"), "fileInfo is null", ErrorCategory.InvalidOperation, OutputFolder));
                 throw new InvalidOperationException("fileInfo is null"); // not reached
             }
 

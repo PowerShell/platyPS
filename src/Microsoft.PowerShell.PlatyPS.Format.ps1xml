@@ -1,6 +1,82 @@
 <Configuration>
  <ViewDefinitions>
   <View>
+   <Name>platyPSDiagnostic</Name>
+    <ViewSelectedBy>
+     <TypeName>Microsoft.PowerShell.PlatyPS.Model.Diagnostics</TypeName>
+    </ViewSelectedBy>
+    <Controls>
+        <Control>
+            <Name>DiagnosticMessageList</Name>
+            <CustomControl>
+            <CustomEntries>
+                <CustomEntry>
+                <CustomItem>
+                    <Frame>
+                        <LeftIndent>2</LeftIndent>
+                        <CustomItem>
+                            <ExpressionBinding></ExpressionBinding>
+                            <NewLine/>
+                        </CustomItem>
+                    </Frame>
+                </CustomItem>
+                </CustomEntry>
+            </CustomEntries>
+            </CustomControl>
+        </Control>
+    </Controls>
+
+   <CustomControl>
+    <CustomEntries>
+     <CustomEntry>
+      <CustomItem>
+       <Text>Diagnostic Output</Text>
+       <NewLine/>
+
+       <Text>File: </Text>
+       <Frame>
+        <LeftIndent>2</LeftIndent>
+        <CustomItem>
+         <ExpressionBinding>
+          <PropertyName>FileName</PropertyName>
+         </ExpressionBinding>
+         <NewLine/>
+        </CustomItem>
+       </Frame>
+
+       <Text>HadErrors: </Text>
+       <Frame>
+        <LeftIndent>2</LeftIndent>
+        <CustomItem>
+         <ExpressionBinding>
+          <PropertyName>HadErrors</PropertyName>
+         </ExpressionBinding>
+         <NewLine/>
+        </CustomItem>
+       </Frame>
+
+       <NewLine/>
+       <Text>Messages:</Text>
+       <NewLine/>
+       <Frame>
+        <LeftIndent>0</LeftIndent>
+         <CustomItem>
+          <ExpressionBinding>
+           <PropertyName>Messages</PropertyName>
+		   <CustomControlName>DiagnosticMessageList</CustomControlName>
+           <EnumerateCollection/>
+          </ExpressionBinding>
+          <NewLine/>
+        </CustomItem>
+       </Frame>
+       <NewLine/>
+      </CustomItem>
+     </CustomEntry>
+    </CustomEntries>
+   </CustomControl>
+
+  </View>
+  <View>
    <Name>platyPSDetail</Name>
    <ViewSelectedBy>
     <TypeName>Microsoft.PowerShell.PlatyPS.MarkdownCommandHelpValidationResult</TypeName>
@@ -25,6 +101,7 @@
 	   </CustomEntries>
 	 </CustomControl>
    </Control>
+   
    </Controls>
 
    <CustomControl>
@@ -73,5 +150,55 @@
     </CustomEntries>
    </CustomControl>
   </View>
+
+    <View>
+    <Name>MarkdownProbeInfoTable</Name>
+    <ViewSelectedBy>
+     <TypeName>Microsoft.PowerShell.PlatyPS.MarkdownProbeInfo</TypeName>
+    </ViewSelectedBy>
+    <TableControl>
+     <TableHeaders>
+      <TableColumnHeader><Label>Title</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Filetype</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Filepath</Label></TableColumnHeader>
+     </TableHeaders>
+     <TableRowEntries>
+      <TableRowEntry>
+       <TableColumnItems>
+        <TableColumnItem><PropertyName>title</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>filetype</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>filepath</PropertyName></TableColumnItem>
+       </TableColumnItems>
+      </TableRowEntry>
+     </TableRowEntries>
+    </TableControl>
+   </View>
+   <View>
+    <Name>DiagnosticMessageTable</Name>
+    <ViewSelectedBy>
+     <TypeName>Microsoft.PowerShell.PlatyPS.Model.DiagnosticMessage</TypeName>
+    </ViewSelectedBy>
+    <TableControl>
+     <TableHeaders>
+      <TableColumnHeader><Label>Source</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Severity</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Message</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Identifier</Label></TableColumnHeader>
+      <TableColumnHeader><Label>Line</Label></TableColumnHeader>
+     </TableHeaders>
+     <TableRowEntries>
+      <TableRowEntry>
+       <TableColumnItems>
+        <TableColumnItem><PropertyName>Source</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>Severity</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>Message</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>Identifier</PropertyName></TableColumnItem>
+        <TableColumnItem><PropertyName>Line</PropertyName></TableColumnItem>
+       </TableColumnItems>
+      </TableRowEntry>
+     </TableRowEntries>
+    </TableControl>
+   </View>
+
  </ViewDefinitions>
 </Configuration>

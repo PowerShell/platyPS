@@ -14,6 +14,7 @@ Describe 'New-MarkdownCommandHelp' {
             schema = "2.0.0"
         }
 
+        $IsWindowsPowerShell = $PSVersionTable.PSVersion.Major -eq 5
         $commonParameterNames = [System.Management.Automation.Internal.CommonParameters].GetProperties().ForEach({$_.Name})
         $ProgressPreference = 'SilentlyContinue'
     }
@@ -73,14 +74,24 @@ Describe 'New-MarkdownCommandHelp' {
     Context 'encoding' {
         It 'writes appropriate encoding' {
             $file = New-MarkdownCommandHelp -command New-MarkdownCommandHelp -OutputFolder $TestDrive -Force -Encoding ([System.Text.Encoding]::UTF32) -Metadata $defaultMetadata
-            Get-Content -AsByteStream $file | Select-Object -First 4 | Should -Be ([byte[]](255, 254, 0, 0))
+            $bytes = [io.file]::ReadAllBytes($file.fullname)[0..3]
+            $bytes | Should -Be ([byte[]](255, 254, 0, 0))
         }
     }
 
-    Context 'from PlatyPS module' {
+    Context 'using module parameter' {
         It 'creates few help files for PlatyPS' {
             $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder "$TestDrive/platyPS" -Force
             ($files | Measure-Object).Count | Should -BeGreaterOrEqual 2
+        }
+
+        It 'Will create an object from a module which is not imported' -skip:$IsWindowsPowerShell {
+            $moduleName = "Microsoft.PowerShell.Archive"
+            $files = New-MarkdownCommandHelp -Module $moduleName -OutputFolder "$TestDrive"
+            $files.Count | Should -BeGreaterOrEqual 2
+            $expectedCommandNames = (Get-Module -List $moduleName).ExportedCommands.Keys | Sort-Object
+            $observedCommandNames = $files.foreach({$_.BaseName}) | Sort-Object
+            $observedCommandNames | Should -Be $expectedCommandNames
         }
     }
 
@@ -475,6 +486,7 @@ Write-Host 'Hello World!'
         It "generates a landing page from Module" {
             New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder $OutputFolder -WithModulePage -Force
             "$OutputFolderModuleFile" | Should -Exist
+
         }
 
         It 'generates a landing page from module at correct output folder' {
@@ -482,7 +494,7 @@ Write-Host 'Hello World!'
                 Push-Location $TestDrive
                 $files = New-MarkdownCommandHelp -Module Microsoft.PowerShell.PlatyPS -OutputFolder . -WithModulePage -Force
                 $landingPage = $files | Where-Object { $_.Name -eq 'Microsoft.PowerShell.PlatyPS.md' }
-                $landingPage.FullName | Should -BeExactly (Join-Path "$TestDrive" "Microsoft.PowerShell.PlatyPS" "Microsoft.PowerShell.PlatyPS.md")
+                $landingPage.FullName | Should -BeExactly ([io.path]::Combine("$TestDrive","Microsoft.PowerShell.PlatyPS","Microsoft.PowerShell.PlatyPS.md"))
             }
             finally {
                 Pop-Location

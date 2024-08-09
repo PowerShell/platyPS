@@ -10,7 +10,7 @@ using System.IO;
 using System.Linq;
 using System.Management.Automation;
 using System.Management.Automation.Runspaces;
-
+using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -118,6 +118,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
             Dictionary<string, PSModuleInfo> moduleTable = new();
+            foreach (var providedModule in Module)
+            {
+                moduleTable[providedModule.Name] = providedModule;
+            }
 
             if (cmdCollection.Count > 0)
             {
@@ -126,7 +130,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (cmd.Module is not null && ! string.IsNullOrEmpty(cmd.Module.Name) && ! moduleTable.ContainsKey(cmd.Module.Name))
                     {
-                        moduleTable[cmd.Module.Name] = cmd.Module;
                         if (HelpInfoUri == string.Empty && ! string.IsNullOrEmpty(cmd.Module.HelpInfoUri))
                         {
                             HelpInfoUri = cmd.Module.HelpInfoUri;
@@ -141,7 +144,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         ExcludeDontShow = false,
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion.ToString(),
-                        Locale = Locale is null ? CultureInfo.CurrentUICulture : new CultureInfo(Locale),
+                        Locale = Locale is null ? CultureInfo.CurrentCulture : new CultureInfo(Locale),
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
@@ -154,7 +157,25 @@ namespace Microsoft.PowerShell.PlatyPS
                         var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
                         pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
                         WriteProgress(pr);
-                        cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
+                        var transformedCommand = new TransformCommand(transformSettings).Transform(cmd);
+
+                        if (transformedCommand is null)
+                        {
+                            throw new InvalidDataException("Command transformation failed");
+                        }
+
+                        if (transformedCommand.Metadata is null)
+                        {
+                            transformedCommand.Metadata = new();
+                        }
+
+                        // update the HelpUri if the parameter was used.
+                        if (! string.IsNullOrEmpty(HelpUri))
+                        {
+                            transformedCommand.Metadata["HelpUri"] = HelpUri;
+                        }
+
+                        cmdHelpObjs.Add(transformedCommand);
                     }
                     catch (Exception e)
                     {
@@ -197,6 +218,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         moduleFileInfo.Metadata["Module Guid"] = group.First<CommandHelp>().ModuleGuid.ToString();
                     }
+                }
+
+                if (! string.IsNullOrEmpty(HelpInfoUri))
+                {
+                    moduleFileInfo.Metadata["HelpInfoUri"] = HelpInfoUri;
                 }
 
                 List<ModuleCommandInfo> mciList = new();
