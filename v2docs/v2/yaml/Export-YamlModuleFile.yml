@@ -1,0 +1,184 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: ''
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: Export-YamlModuleFile
+title: Export-YamlModuleFile
+synopsis: 'Exports a **ModuleFileInfo** object to a Yaml file.'
+syntaxes:
+- commandName: Export-YamlModuleFile
+  parameterSetName: __AllParameterSets
+  isDefault: false
+  parameters:
+  - '[-ModuleFile] <ModuleFileInfo[]>'
+  - '[-Encoding <Encoding>]'
+  - '[-Force]'
+  - '[-OutputFolder <string>]'
+  - '[-Metadata <hashtable>]'
+  - '[-WhatIf]'
+  - '[-Confirm]'
+aliases:
+description: |-
+  This command exports a **ModuleFileInfo** object to a markdown file. You can get a
+  **ModuleFileInfo** object by using the `Import-MarkdownModuleFile` cmdlet. You can import a module
+  file that's written in the old format and export it to the new format.
+examples:
+- title: Example 1 - Export a ModuleFileInfo object to a markdown file
+  description: >-
+    In this example, a **ModuleFileInfo** object by importing a module Markdown file. That object is
+
+    then exported to a Yaml file using the `Export-YamlModuleFile`.
+
+
+    ```powershell
+
+    Import-MarkdownModuleFile -Path .\v2\Microsoft.PowerShell.PlatyPS.md |
+        Export-YamlModuleFile -OutputFolder .
+    ```
+
+
+    ```Output
+        Directory: D:\Git\PS-Src\platyPS\v2docs
+
+    Mode                 LastWriteTime         Length Name
+
+    ----                 -------------         ------ ----
+
+    -a---           5/20/2024  5:02 PM           1709 Microsoft.PowerShell.PlatyPS.yml
+
+    ```
+parameters:
+- name: Confirm
+  type: System.Management.Automation.SwitchParameter
+  description: Prompts you for confirmation before running the cmdlet.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: cf
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - &o0
+    name: (All)
+    position: Named
+    isRequired: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Encoding
+  type: System.Text.Encoding
+  description: >-
+    The encoding to use when writing the markdown file. If no value is specified, encoding defaults to
+
+    the value of the `$OutputEncoding` preference variable.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: Force
+  type: System.Management.Automation.SwitchParameter
+  description: Use the **Force** parameter to overwrite the output file if it already exists.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: Metadata
+  type: System.Collections.Hashtable
+  description: The metadata to add to the markdown file. The metadata is a hashtable that contains key-value pairs.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: ModuleFile
+  type: Microsoft.PowerShell.PlatyPS.ModuleFileInfo[]
+  description: >-
+    The **ModuleFileInfo** object to export. You can pass the **ModuleFileInfo** object on the pipeline
+
+    or by using the **ModuleFile** parameter.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 0
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: OutputFolder
+  type: System.String
+  description: >-
+    The **ModuleFileInfo** object to export to a markdown file. This object is created by the
+
+    `Import-MarkdownModuleFile` cmdlet.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+- name: WhatIf
+  type: System.Management.Automation.SwitchParameter
+  description: Shows what would happen if the cmdlet runs. The cmdlet is not run.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: wi
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - *o0
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: Microsoft.PowerShell.PlatyPS.ModuleFileInfo
+  description:
+outputs:
+- name: System.IO.FileInfo
+  description:
+notes:
+links:
+- text: 'Export-MarkdownModuleFile'
+  href: Export-MarkdownModuleFile.md
+- text: 'Import-MarkdownModuleFile'
+  href: Import-MarkdownModuleFile.md

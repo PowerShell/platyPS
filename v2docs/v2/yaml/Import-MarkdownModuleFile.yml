@@ -1,0 +1,137 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: ''
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: Import-MarkdownModuleFile
+title: Import-MarkdownModuleFile
+synopsis: 'Imports a Markdown module file into a **ModuleHelp** object.'
+syntaxes:
+- commandName: Import-MarkdownModuleFile
+  parameterSetName: Path
+  isDefault: true
+  parameters:
+  - '[-Path] <string[]>'
+- commandName: Import-MarkdownModuleFile
+  parameterSetName: LiteralPath
+  isDefault: false
+  parameters:
+  - -LiteralPath <string[]>
+aliases:
+description: |-
+  The command imports Markdown files containing module help and creates **ModuleHelp** objects. The
+  **ModuleHelp** object is a structured representation of the help content that can be used to export
+  to different formats.
+examples:
+- title: Example 1 - Convert
+  description: >-
+    ```powershell
+
+    Import-MarkdownModuleFile .\v2\Microsoft.PowerShell.PlatyPS.md
+
+    ```
+
+
+    ```Output
+
+    Metadata        : {[Module Name, Microsoft.PowerShell.PlatyPS], [Module Guid, 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff],
+                      [Download Help Link, ''], [Help Version, '1.0.0']…}
+    Title           : Microsoft.PowerShell.PlatyPS Module
+
+    Module          : Microsoft.PowerShell.PlatyPS
+
+    ModuleGuid      : 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
+
+    Description     : This module contains cmdlets to help with the creation help content for PowerShell commands.
+
+    Locale          : en-US
+
+    OptionalElement :
+
+    Commands        : {Compare-CommandHelp, ConvertTo-CommandHelp, Export-MamlCommandHelp, Export-MarkdownCommandHelp…}
+
+    Diagnostics     : Microsoft.PowerShell.PlatyPS.Model.Diagnostics
+
+
+    ```
+parameters:
+- name: LiteralPath
+  type: System.String[]
+  description: >-
+    Specifies a path to one or more locations containing markdown files. The value of **LiteralPath** is
+
+    used exactly as it's typed. No characters are interpreted as wildcards. If the path includes escape
+
+    characters, enclose it in single quotation marks. Single quotation marks tell PowerShell not to
+
+    interpret any characters as escape sequences.
+
+
+    For more information, see
+
+    [about_Quoting_Rules](/powershell/module/microsoft.powershell.core/about/about_CommonParameters).
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: LiteralPath
+    position: Named
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Path
+  type: System.String[]
+  description: >-
+    Specifies the path to an item. This cmdlet gets the item at the specified location. Wildcard
+
+    characters are permitted. This parameter is required, but the parameter name Path is optional.
+
+
+    Use a dot (`.`) to specify the current location. Use the wildcard character (`*`) to specify all
+
+    items in the current location.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: true
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: Path
+    position: 0
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: System.String
+  description:
+outputs:
+- name: Microsoft.PowerShell.PlatyPS.ModuleFileInfo
+  description:
+notes:
+links:
+- text: 'Export-MarkdownModuleFile'
+  href: Export-MarkdownModuleFile.md
+- text: 'Export-YamlModuleFile'
+  href: Export-YamlModuleFile.md
+- text: 'Import-MarkdownModuleFile'
+  href: Import-MarkdownModuleFile.md

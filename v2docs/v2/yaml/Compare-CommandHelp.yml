@@ -1,0 +1,110 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: ''
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: Compare-CommandHelp
+title: Compare-CommandHelp
+synopsis: 'Compares two **CommandHelp** objects and produces a detailed report showing the differences.'
+syntaxes:
+- commandName: Compare-CommandHelp
+  parameterSetName: __AllParameterSets
+  isDefault: false
+  parameters:
+  - '[-Reference] <CommandHelp>'
+  - '[-Difference] <CommandHelp>'
+  - '[-PropertyNamesToExclude <string[]>]'
+aliases:
+description: |-
+  `Compare-CommandHelp` is a troubleshooting tool that compares two CommandHelp objects and produces a
+  detailed report showing the differences. For example, you can use this to compare objects imported
+  from different sources, such as two different versions of Markdown files.
+examples:
+- title: Example 1
+  description: >-
+    ```powershell
+
+    $refcmd = Import-MarkdownCommandHelp -Path .\v1\Microsoft.PowerShell.PlatyPS\Compare-CommandHelp.md
+
+    $diffcmd = Import-MarkdownCommandHelp -Path .\v2\Microsoft.PowerShell.PlatyPS\Compare-CommandHelp.md
+
+    Compare-CommandHelp -Reference $refcmd -Difference $diffcmd > .\diff.log
+
+    ```
+parameters:
+- name: Difference
+  type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description: The CommandHelp object to compare against the reference object.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 1
+    isRequired: true
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: true
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: PropertyNamesToExclude
+  type: System.String[]
+  description: A list of one or more property names to exclude from the comparison.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: Named
+    isRequired: false
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Reference
+  type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description: The base CommandHelp object to be compared to the difference object.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 0
+    isRequired: true
+    valueFromPipeline: false
+    valueFromPipelineByPropertyName: true
+    valueFromRemainingArguments: false
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description:
+outputs:
+- name: System.String
+  description:
+notes:
+links:
+- text: 'Import-MarkdownHelp'
+  href: Import-MarkdownHelp.md
+- text: 'Import-YamlCommandHelp'
+  href: Import-YamlCommandHelp.md
