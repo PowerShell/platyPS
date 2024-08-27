@@ -1,0 +1,198 @@
+---
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+Module Name: Microsoft.PowerShell.PlatyPS
+online version:
+schema: 2.0.0
+---
+
+# Update-MarkdownModuleFile
+
+## SYNOPSIS
+{{ Fill in the Synopsis }}
+
+## SYNTAX
+
+```
+Update-MarkdownModuleFile [-ModuleFile] <ModuleFileInfo> [-CommandHelp] <CommandHelp[]> [-Encoding <Encoding>]
+ [-Force] [-HelpUri <String>] [-HelpInfoUri <String>] [-HelpVersion <Version>] [-Locale <String>]
+ [-Metadata <Hashtable>] -OutputFolder <String> [<CommonParameters>]
+```
+
+## DESCRIPTION
+{{ Fill in the Description }}
+
+## EXAMPLES
+
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
+## PARAMETERS
+
+### -CommandHelp
+{{ Fill CommandHelp Description }}
+
+```yaml
+Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 1
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Encoding
+{{ Fill Encoding Description }}
+
+```yaml
+Type: System.Text.Encoding
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Force
+{{ Fill Force Description }}
+
+```yaml
+Type: System.Management.Automation.SwitchParameter
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HelpInfoUri
+{{ Fill HelpInfoUri Description }}
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HelpUri
+{{ Fill HelpUri Description }}
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -HelpVersion
+{{ Fill HelpVersion Description }}
+
+```yaml
+Type: System.Version
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Locale
+{{ Fill Locale Description }}
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -Metadata
+{{ Fill Metadata Description }}
+
+```yaml
+Type: System.Collections.Hashtable
+Parameter Sets: (All)
+Aliases:
+
+Required: False
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -ModuleFile
+{{ Fill ModuleFile Description }}
+
+```yaml
+Type: Microsoft.PowerShell.PlatyPS.ModuleFileInfo
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### -OutputFolder
+{{ Fill OutputFolder Description }}
+
+```yaml
+Type: System.String
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
+
+## OUTPUTS
+
+### System.IO.FileInfo[]
+
+## NOTES
+
+## RELATED LINKS
