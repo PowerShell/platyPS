@@ -1,0 +1,83 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: ''
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 08/26/2024
+  PlatyPS schema version: 2024-05-01
+  title: Measure-PlatyPSMarkdown
+title: Measure-PlatyPSMarkdown
+synopsis: '{{ Fill in the Synopsis }}'
+syntaxes:
+- commandName: Measure-PlatyPSMarkdown
+  parameterSetName: Path
+  isDefault: true
+  parameters:
+  - '[-Path] <string[]>'
+- commandName: Measure-PlatyPSMarkdown
+  parameterSetName: LiteralPath
+  isDefault: false
+  parameters:
+  - -LiteralPath <string[]>
+aliases:
+description: |-
+  {{ Fill in the Description }}
+examples:
+- title: Example 1
+  description: '{{ Add example description here }}'
+parameters:
+- name: LiteralPath
+  type: System.String[]
+  description: '{{ Fill LiteralPath Description }}'
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: LiteralPath
+    position: Named
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+- name: Path
+  type: System.String[]
+  description: '{{ Fill Path Description }}'
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: true
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: Path
+    position: 0
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: System.String
+  description: |-
+    {{ Fill in the Description }}
+outputs:
+- name: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description: |-
+    {{ Fill in the Description }}
+notes: |-
+  {{ Fill in the Notes }}
+links:

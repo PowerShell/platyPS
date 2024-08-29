@@ -1,0 +1,82 @@
+---
+external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+Module Name: Microsoft.PowerShell.PlatyPS
+online version:
+schema: 2.0.0
+---
+
+# Measure-PlatyPSMarkdown
+
+## SYNOPSIS
+{{ Fill in the Synopsis }}
+
+## SYNTAX
+
+### Path (Default)
+```
+Measure-PlatyPSMarkdown [-Path] <String[]> [<CommonParameters>]
+```
+
+### LiteralPath
+```
+Measure-PlatyPSMarkdown -LiteralPath <String[]> [<CommonParameters>]
+```
+
+## DESCRIPTION
+{{ Fill in the Description }}
+
+## EXAMPLES
+
+### Example 1
+```powershell
+PS C:\> {{ Add example code here }}
+```
+
+{{ Add example description here }}
+
+## PARAMETERS
+
+### -LiteralPath
+{{ Fill LiteralPath Description }}
+
+```yaml
+Type: System.String[]
+Parameter Sets: LiteralPath
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: False
+```
+
+### -Path
+{{ Fill Path Description }}
+
+```yaml
+Type: System.String[]
+Parameter Sets: Path
+Aliases:
+
+Required: True
+Position: 0
+Default value: None
+Accept pipeline input: True (ByValue)
+Accept wildcard characters: True
+```
+
+### CommonParameters
+This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable, -InformationAction, -InformationVariable, -OutVariable, -OutBuffer, -PipelineVariable, -Verbose, -WarningAction, and -WarningVariable. For more information, see [about_CommonParameters](http://go.microsoft.com/fwlink/?LinkID=113216).
+
+## INPUTS
+
+### System.String[]
+
+## OUTPUTS
+
+### Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+
+## NOTES
+
+## RELATED LINKS

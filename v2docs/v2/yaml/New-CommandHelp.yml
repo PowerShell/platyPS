@@ -1,0 +1,138 @@
+metadata:
+  document type: cmdlet
+  external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+  HelpUri: ''
+  Locale: en-US
+  Module Name: Microsoft.PowerShell.PlatyPS
+  ms.date: 07/10/2024
+  PlatyPS schema version: 2024-05-01
+  title: New-CommandHelp
+title: New-CommandHelp
+synopsis: 'Creates **CommandHelp** objects for a PowerShell command thats loaded in the session.'
+syntaxes:
+- commandName: New-CommandHelp
+  parameterSetName: __AllParameterSets
+  isDefault: false
+  parameters:
+  - '[-CommandInfo] <CommandInfo[]>'
+aliases:
+description: |-
+  This cmdlet takes a list of one or more PowerShell commands and creates **CommandHelp** objects for
+  each command. The **CommandHelp** object is a structured representation of the help content that can
+  be used to export to different formats.
+examples:
+- title: Example 1 - Creates a
+  description: >-
+    The following example creates a **CommandHelp** object for the `New-PSSession` cmdlet. The
+
+    `Get-Member` cmdlet is used to display the properties and methods of the **CommandHelp** object.
+
+
+    ```powershell
+
+    ConvertTo-CommandHelp New-PSSession | Get-Member
+
+    ```
+
+
+    ```Output
+       TypeName: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+
+    Name                        MemberType Definition
+
+    ----                        ---------- ----------
+
+    Equals                      Method     bool Equals(Microsoft.PowerShell.PlatyPS.Model.CommandHelp other), bool Equals(Syst…
+
+    GetHashCode                 Method     int GetHashCode()
+
+    GetType                     Method     type GetType()
+
+    ToString                    Method     string ToString()
+
+    TryGetParameter             Method     bool TryGetParameter(string name, [ref] Microsoft.PowerShell.PlatyPS.Model.Paramete…
+
+    Aliases                     Property   System.Collections.Generic.List[string] Aliases {get;}
+
+    Description                 Property   string Description {get;set;}
+
+    Diagnostics                 Property   Microsoft.PowerShell.PlatyPS.Model.Diagnostics Diagnostics {get;set;}
+
+    Examples                    Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Example] Example…
+
+    ExternalHelpFile            Property   string ExternalHelpFile {get;set;}
+
+    HasCmdletBinding            Property   bool HasCmdletBinding {get;set;}
+
+    HasWorkflowCommonParameters Property   bool HasWorkflowCommonParameters {get;set;}
+
+    Inputs                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Inp…
+
+    Locale                      Property   cultureinfo Locale {get;set;}
+
+    Metadata                    Property   ordered Metadata {get;set;}
+
+    ModuleGuid                  Property   System.Nullable[guid] ModuleGuid {get;set;}
+
+    ModuleName                  Property   string ModuleName {get;set;}
+
+    Notes                       Property   string Notes {get;set;}
+
+    OnlineVersionUrl            Property   string OnlineVersionUrl {get;set;}
+
+    Outputs                     Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.InputOutput] Out…
+
+    Parameters                  Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Parameter] Param…
+
+    RelatedLinks                Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.Links] RelatedLi…
+
+    SchemaVersion               Property   string SchemaVersion {get;set;}
+
+    Synopsis                    Property   string Synopsis {get;set;}
+
+    Syntax                      Property   System.Collections.Generic.List[Microsoft.PowerShell.PlatyPS.Model.SyntaxItem] Synt…
+
+    Title                       Property   string Title {get;set;}
+
+    ```
+parameters:
+- name: CommandInfo
+  type: System.Management.Automation.CommandInfo[]
+  description: >-
+    A list of one or more PowerShell commands (cmdlets, functions, scripts). The cmdlet creates a
+
+    **CommandHelp** object for each command.
+  parameterValue: []
+  defaultValue: ''
+  supportsWildcards: false
+  isDynamic: false
+  aliases: ''
+  dontShow: false
+  acceptedValues: []
+  parameterSets:
+  - name: (All)
+    position: 0
+    isRequired: true
+    valueFromPipeline: true
+    valueFromPipelineByPropertyName: false
+    valueFromRemainingArguments: false
+  helpMessage: ''
+
+- name: CommonParameters
+  description: |-
+    This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
+    -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
+    -ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
+    [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
+inputs:
+- name: System.Management.Automation.CommandInfo
+  description:
+outputs:
+- name: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
+  description:
+notes:
+links:
+- text: 'Export-MarkdownCommandHelp'
+  href: Export-MarkdownCommandHelp.md
+- text: 'Export-YamlCommandHelp'
+  href: Export-YamlCommandHelp.md
