@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class ExportMarkdownModuleFileCommand : PSCmdlet
     {
@@ -49,7 +49,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void BeginProcessing()
         {
-
             fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
             if (File.Exists(fullPath))
@@ -59,7 +58,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(fullPath))
+            if (!Directory.Exists(fullPath) && ShouldProcess(fullPath))
             {
                 Directory.CreateDirectory(fullPath);
             }
@@ -67,9 +66,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void ProcessRecord()
         {
-
             foreach (var moduleFile in ModuleFileInfo)
             {
+                if (! this.ShouldProcess($"{moduleFile.Module}"))
+                {
+                    continue;
+                }
+
                 var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
@@ -83,17 +86,13 @@ namespace Microsoft.PowerShell.PlatyPS
                     // Add any additional supplied metadata
                     if (Metadata.Keys.Count > 0)
                     {
+                        // Check for non-overridable keys in the provided Metadata
+                        var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                        badKeys.ForEach(k => Metadata.Remove(k));
                         foreach(DictionaryEntry kv in Metadata)
                         {
                             string key = kv.Key.ToString();
-                            if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
-                            {
-                                WriteWarning($"Metadata key '{key}' may not be overridden");
-                            }
-                            else
-                            {
-                                moduleFile.Metadata[key] = kv.Value;
-                            }
+                            moduleFile.Metadata[key] = kv.Value;
                         }
                     }
 

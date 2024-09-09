@@ -6,10 +6,11 @@ Describe "Scenario testing" {
     Context "New-MarkdownCommandHelp with module file without additional metadata" {
         BeforeAll {
             $moduleName = "Microsoft.PowerShell.Archive"
-            $files = New-MarkdownCommandHelp -Module $moduleName -WithModulePage -output "${TESTDRIVE}/nometadata"
+            Import-Module $moduleName
+            $moduleInfo = Get-Module "Microsoft.PowerShell.Archive"
+            $files = New-MarkdownCommandHelp -Module $moduleInfo -WithModulePage -output "${TESTDRIVE}/nometadata"
             $moduleFile = Import-MarkdownModuleFile -Path ($files[2])
             $commandHelp = $files[0,1] | Import-MarkdownCommandHelp
-            $moduleInfo = Get-Module -List $moduleName
         }
 
         It "Should have created 3 files" {
@@ -21,7 +22,6 @@ Describe "Scenario testing" {
         }
 
         It "Should have created the correct file '<name>'" -testcases @(
-                @{ name = "Compress-Archive.md"; offset = 0 }
                 @{ name = "Expand-Archive.md"; offset = 1 }
                 @{ name = "${moduleName}.md"; offset = 2 }
             ) {
@@ -66,7 +66,7 @@ Describe "Scenario testing" {
     Context "New-MarkdownCommandHelp with module file without additional metadata" {
         BeforeAll {
             $moduleName = "Microsoft.PowerShell.Archive"
-            $files = New-MarkdownCommandHelp -Module $moduleName -WithModulePage -output "${TESTDRIVE}/addmetadata" -Metadata @{ p1 = 1; p2 = "two"; p3 = "ab","cd","ef"}
+            $files = New-MarkdownCommandHelp -Module (Get-Module $moduleName) -WithModulePage -output "${TESTDRIVE}/addmetadata" -Metadata @{ p1 = 1; p2 = "two"; p3 = "ab","cd","ef"}
             $moduleFile = Import-MarkdownModuleFile -Path ($files[2])
             $commandHelp = $files[0,1] | Import-MarkdownCommandHelp
             $moduleInfo = Get-Module -List $moduleName

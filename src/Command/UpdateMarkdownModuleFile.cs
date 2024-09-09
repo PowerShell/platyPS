@@ -16,14 +16,14 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to update the markdown module file.
     /// </summary>
-    [Cmdlet(VerbsData.Update, "MarkdownModuleFile", HelpUri = "")]
+    [Cmdlet(VerbsData.Update, "MarkdownModuleFile", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class UpdateMarkdownModuleFileCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, Position = 0)]
-        public ModuleFileInfo ModuleFile { get; set; } = new();
+        public ModuleFileInfo ModuleFileInfo { get; set; } = new();
 
         [Parameter(ValueFromPipeline = true, Mandatory = true, Position = 1)]
         public CommandHelp[] CommandHelp { get; set; } = Array.Empty<CommandHelp>();
@@ -94,7 +94,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             // Check to be sure that all of the command help objects are in all in the same module.
-            var wrongModules = allCommandHelp.Where<CommandHelp>(ch => string.Compare(ch.ModuleName, ModuleFile.Module) != 0);
+            var wrongModules = allCommandHelp.Where<CommandHelp>(ch => string.Compare(ch.ModuleName, ModuleFileInfo.Module) != 0);
             if (wrongModules.Count() != 0)
             {
                 ThrowTerminatingError(
@@ -109,16 +109,24 @@ namespace Microsoft.PowerShell.PlatyPS
 
 
             // work on a copy of the original
-            newModuleFile = new ModuleFileInfo(ModuleFile);
+            newModuleFile = new ModuleFileInfo(ModuleFileInfo);
             // Remove all of the command groups, we only use what was provided by the user.
             newModuleFile.CommandGroups.Clear();
             var moduleName = newModuleFile.Module;
 
             if (Metadata?.Keys.Count > 0)
             {
+                // Check for non-overridable keys in the provided Metadata
+                if (Metadata.Keys.Count > 0)
+                {
+                    var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                    badKeys.ForEach(k => Metadata.Remove(k));
+                }
+
                 MetadataUtils.MergeNewModulefileMetadata(Metadata, newModuleFile);
             }
 
+            newModuleFile.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
             string moduleFolder = Path.Combine(outputFolderBase, moduleName);
             CultureInfo locale = string.IsNullOrEmpty(Locale) ? newModuleFile.Locale : CultureInfo.GetCultureInfo(Locale);
 

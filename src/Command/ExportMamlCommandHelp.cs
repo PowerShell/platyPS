@@ -25,7 +25,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
+        public CommandHelp[] CommandHelp { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
@@ -49,7 +49,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void ProcessRecord()
         {
-            foreach (CommandHelp commandHelp in Command)
+            foreach (CommandHelp commandHelp in CommandHelp)
             {
                 _commandHelps.Add(commandHelp);
             }
