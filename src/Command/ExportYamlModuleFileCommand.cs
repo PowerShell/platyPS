@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public ModuleFileInfo[] ModuleFile { get; set; } = Array.Empty<ModuleFileInfo>();
+        public ModuleFileInfo[] ModuleFileInfo { get; set; } = Array.Empty<ModuleFileInfo>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -55,7 +55,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 throw missingOutputFolder; // not reached
             }
 
-            foreach (ModuleFileInfo moduleFile in ModuleFile)
+            foreach (ModuleFileInfo moduleFile in ModuleFileInfo)
             {
                 if (moduleFile.Metadata.Contains("Module Name"))
                 {
@@ -65,6 +65,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     WriteError(new ErrorRecord(new InvalidDataException(moduleFile.Module), "ExportYamlModuleFile,BadModuleInfo", ErrorCategory.InvalidData, moduleFile));
                     continue;
+                }
+
+                // Check for non-overridable keys in the provided Metadata
+                if (Metadata.Keys.Count > 0)
+                {
+                    var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                    badKeys.ForEach(k => Metadata.Remove(k));
                 }
 
                 MetadataUtils.MergeNewModulefileMetadata(Metadata, moduleFile);

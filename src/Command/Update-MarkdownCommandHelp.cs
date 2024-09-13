@@ -115,11 +115,12 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         var settings = new WriterSettings(encoding, path);
                         var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        cmdWrt.Write(mergedCommandHelp, null);
+                        var helpPath = cmdWrt.Write(mergedCommandHelp, null).FullName;
 
+                        /// JWT - actually pass back the new fileinfo
                         if (PassThru)
                         {
-                            WriteObject(mergedCommandHelp);
+                            WriteObject(this.InvokeProvider.Item.Get(helpPath));
                         }
                     }
                 }
@@ -169,7 +170,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 helpCopy.Outputs.Clear();
                 helpCopy.Outputs.AddRange(mergedOutputs);
             }
+
             outputDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
+            if (helpCopy.Metadata is not null)
+            {
+                helpCopy.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
+            }
 
             return helpCopy;
         }

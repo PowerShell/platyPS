@@ -16,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownModuleFile", HelpUri = "")]
+    [Cmdlet(VerbsCommon.New, "MarkdownModuleFile", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownModuleFileCommand : PSCmdlet
     {
@@ -69,7 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(outputFolderBase))
+            if (!Directory.Exists(outputFolderBase) && ShouldProcess(outputFolderBase))
             {
                 Directory.CreateDirectory(outputFolderBase);
             }
@@ -130,11 +130,17 @@ namespace Microsoft.PowerShell.PlatyPS
                 ModuleCommandGroup mcg = new(moduleName);
                 foreach(var cmdHelp in group)
                 {
+                    string description = Constants.FillInDescription;
+                    if (! string.IsNullOrEmpty(cmdHelp.Synopsis)) 
+                    {
+                        description = cmdHelp.Synopsis;
+                    }
+
                     var moduleCommandInfo = new ModuleCommandInfo()
                     {
                         Name = cmdHelp.Title,
                         Link = $"{cmdHelp.Title}.md",
-                        Description = Constants.FillInDescription,
+                        Description = description
                     };
 
                     mcg.Commands.Add(moduleCommandInfo);

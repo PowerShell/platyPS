@@ -27,7 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
+        public CommandHelp[] CommandHelp { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -82,7 +82,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 return;
             }
 
-            foreach (CommandHelp cmdletHelp in Command)
+            foreach (CommandHelp cmdletHelp in CommandHelp)
             {
                 // construct the path to the exported file
                 string markdownPath;

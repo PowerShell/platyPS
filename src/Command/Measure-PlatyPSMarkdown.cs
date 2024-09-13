@@ -12,7 +12,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to determine the type of markdown file.
     /// </summary>
     [Cmdlet(VerbsDiagnostic.Measure, "PlatyPSMarkdown", DefaultParameterSetName = "Path", HelpUri = "")]
-    [OutputType(typeof(CommandHelp))]
+    [OutputType(typeof(MarkdownProbeInfo))]
     public sealed class MeasurePlatyPSMarkdown : PSCmdlet
     {
 #region cmdlet parameters

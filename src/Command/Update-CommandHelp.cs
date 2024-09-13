@@ -88,6 +88,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
 
                     var mergedCommandHelp = Merge(commandHelpObject, helpObjectFromCmdlet);
+                    if (mergedCommandHelp.Metadata is not null)
+                    {
+                        mergedCommandHelp.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
+                    }
+
                     WriteObject(mergedCommandHelp);
                 }
                 catch (Exception e)

@@ -13,6 +13,8 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Security.Cryptography.X509Certificates;
+using System.Runtime.CompilerServices;
+using System.Runtime.Serialization;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -20,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Import a yaml command help file.
     /// </summary>
     [Cmdlet(VerbsData.Import, "YamlCommandHelp", HelpUri = "", DefaultParameterSetName = "Path")]
-    [OutputType(typeof(Dictionary<object, object>))]
+    [OutputType(typeof(OrderedDictionary))]
     [OutputType(typeof(CommandHelp))]
     public sealed class ImportYamlMetadataCommand : PSCmdlet
     {
@@ -100,7 +102,30 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 foreach (var resolvedPath in resolvedPaths)
                 {
-                    var result = yamlDeserializer?.Deserialize<OrderedDictionary>(File.ReadAllText(resolvedPath));
+                    OrderedDictionary? result = null;
+                    try
+                    {
+                        result = yamlDeserializer?.Deserialize<OrderedDictionary>(File.ReadAllText(resolvedPath));
+                    }
+                    catch(Exception serializationFailure)
+                    {
+                        WriteError(new ErrorRecord(serializationFailure, "ImportYamlCommandHelp,SerializationFailure", ErrorCategory.OperationStopped, resolvedPath));
+                        continue;
+                    }
+
+                    if (result is null)
+                    {
+                        WriteError(new ErrorRecord(new SerializationException(), "ImportYamlCommandHelp,SerializationNullResult", ErrorCategory.OperationStopped, resolvedPath));
+                        continue;
+                    }
+
+                    var metadata = result["metadata"] as IDictionary<object, object>;
+                    if (metadata is null || metadata.ContainsKey("Module Guid"))
+                    {
+                        WriteError(new ErrorRecord(new SerializationException("File is not CommandHelp."), "ImportYamlCommandHelp,FileNotCommandHelp", ErrorCategory.OperationStopped, resolvedPath));
+                        continue;
+                    }
+
                     if (AsDictionary)
                     {
                         WriteObject(result);

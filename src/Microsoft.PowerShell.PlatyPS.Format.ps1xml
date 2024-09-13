@@ -1,6 +1,28 @@
 <Configuration>
  <ViewDefinitions>
   <View>
+    <Name>CommandHelpTable</Name>
+    <ViewSelectedBy>
+      <TypeName>Microsoft.PowerShell.PlatyPS.Model.CommandHelp</TypeName>
+    </ViewSelectedBy>
+    <TableControl>
+      <TableHeaders>
+        <TableColumnHeader><Label>Title</Label></TableColumnHeader>
+        <TableColumnHeader><Label>ModuleName</Label></TableColumnHeader>
+        <TableColumnHeader><Label>Synopsis</Label></TableColumnHeader>
+      </TableHeaders>
+      <TableRowEntries>
+        <TableRowEntry>
+          <TableColumnItems>
+            <TableColumnItem><PropertyName>Title</PropertyName></TableColumnItem>
+            <TableColumnItem><PropertyName>ModuleName</PropertyName></TableColumnItem>
+            <TableColumnItem><PropertyName>Synopsis</PropertyName></TableColumnItem>
+          </TableColumnItems>
+        </TableRowEntry>
+      </TableRowEntries>
+    </TableControl>
+  </View>
+  <View>
    <Name>platyPSDiagnostic</Name>
     <ViewSelectedBy>
      <TypeName>Microsoft.PowerShell.PlatyPS.Model.Diagnostics</TypeName>

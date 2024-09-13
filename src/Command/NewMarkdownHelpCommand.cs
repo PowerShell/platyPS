@@ -19,15 +19,14 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(ValueFromPipeline = true)]
-        [StringToCommandInfoTransformation]
-        public CommandInfo[] Command { get; set; } = Array.Empty<CommandInfo>();
+        public CommandInfo[] CommandInfo { get; set; } = Array.Empty<CommandInfo>();
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
@@ -56,8 +55,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public Hashtable? Metadata { get; set; }
 
         [Parameter(ValueFromPipeline = true)]
-        [StringToPsModuleInfoTransformation]
-        public PSModuleInfo[] Module { get; set; } = Array.Empty<PSModuleInfo>();
+        public PSModuleInfo[] ModuleInfo { get; set; } = Array.Empty<PSModuleInfo>();
 
         [Parameter(Mandatory = true)]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
@@ -87,21 +85,24 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (!Directory.Exists(outputFolderBase))
             {
-                Directory.CreateDirectory(outputFolderBase);
+                if (ShouldProcess(outputFolderBase))
+                {
+                    Directory.CreateDirectory(outputFolderBase);
+                }
             }
         }
 
         // Gather up all of the commands from modules or commands
         protected override void ProcessRecord()
         {
-            if (Command.Length > 0)
+            if (CommandInfo.Length > 0)
             {
-                cmdCollection.AddRange(Command);
+                cmdCollection.AddRange(CommandInfo);
             }
 
-            if (Module.Length > 0)
+            if (ModuleInfo.Length > 0)
             {
-                foreach (var mod in Module)
+                foreach (var mod in ModuleInfo)
                 {
                     cmdCollection.AddRange(mod.ExportedCommands.Values.Where<CommandInfo>(c => c.CommandType != CommandTypes.Alias));
                 }
@@ -111,14 +112,9 @@ namespace Microsoft.PowerShell.PlatyPS
         // now that the commands are all gathered, transform them into command help objects
         protected override void EndProcessing()
         {
-            if (!ShouldProcess(OutputFolder))
-            {
-                return;
-            }
-
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
             Dictionary<string, PSModuleInfo> moduleTable = new();
-            foreach (var providedModule in Module)
+            foreach (var providedModule in ModuleInfo)
             {
                 moduleTable[providedModule.Name] = providedModule;
             }
@@ -239,7 +235,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     };
                     mciList.Add(mci);
 
-                    if (! Directory.Exists(moduleFolder))
+                    if (! Directory.Exists(moduleFolder) && ShouldProcess(moduleFolder))
                     {
                         Directory.CreateDirectory(moduleFolder);
                     }
@@ -253,7 +249,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     var settings = new WriterSettings(Encoding, helpFilePath);
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
+                    if (ShouldProcess(cmdHelp.ToString()))
+                    {
+                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
+                    }
                 }
 
                 if (WithModulePage)
@@ -272,7 +271,10 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         // Update the help version in the module metadata
                         moduleFileInfo.Metadata["Help Version"] = HelpVersion.ToString();
-                        WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                        if (ShouldProcess(moduleFilePath))
+                        {
+                            WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                        }
                     }
                 }
             }

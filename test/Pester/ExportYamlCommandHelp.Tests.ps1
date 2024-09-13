@@ -70,6 +70,15 @@ Describe "Export-YamlCommandHelp tests" {
     }
 
     Context "Synopsis" {
+        It "Can handle unexpected strings" {
+            $str = "This is ""goin'"" to work!"
+            $h = Get-Command New-CommandHelp | New-CommandHelp
+            $h.Synopsis = $str
+            $yamlFile = $h | Export-YamlCommandHelp -outputfolder $TestDrive
+            $y = Import-YamlCommandHelp $yamlFile
+            $y.synopsis | Should -BeExactly $str
+        }
+
         It "Should preserve the synopsis" {
             $yamlDict['synopsis'] | Should -Be $ch.Synopsis
         }
