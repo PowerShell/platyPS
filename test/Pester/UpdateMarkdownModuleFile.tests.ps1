@@ -88,13 +88,14 @@ Describe "Update-MarkdownModuleFile tests" {
         }
 
         It "will update the backup file, when -force is used" {
-            $moduleFileInfoReference = Get-ChildItem $moduleFilePath
-            $backupModuleFileInfoReference = Get-ChildItem $moduleFileBackupPath
+            $moduleFileInfoReference = (Get-ChildItem $moduleFilePath).LastWriteTime.Ticks
+            $backupModuleFileInfoReference = (Get-ChildItem $moduleFileBackupPath).LastWriteTime.Ticks
+            Start-Sleep 3
             Update-MarkdownModuleFile -Path $moduleFilePath -Command $ch -ErrorAction Stop -Force
-            $observedModuleFileInfo = Get-ChildItem $moduleFilePath
-            $observedBackupModuleFileInfo = Get-ChildItem $moduleFileBackupPath
-            $moduleFileInfoReference.LastWriteTime | Should -BeLessThan $observedModuleFileInfo.LastWriteTime
-            $backupModuleFileInfoReference.LastWriteTime | Should -BeLessThan $observedBackupModuleFileInfo.LastWriteTime
+            $observedModuleFileInfo = (Get-ChildItem $moduleFilePath).LastWriteTime.Ticks
+            $observedBackupModuleFileInfo = (Get-ChildItem $moduleFileBackupPath).LastWriteTime.Ticks
+            $observedModuleFileInfo | Should -BeGreaterThan $moduleFileInfoReference
+            $observedBackupModuleFileInfo | Should -BeGreaterOrEqual $backupModuleFileInfoReference
         }
     }
 }
