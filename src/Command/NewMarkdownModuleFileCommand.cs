@@ -130,11 +130,17 @@ namespace Microsoft.PowerShell.PlatyPS
                 ModuleCommandGroup mcg = new(moduleName);
                 foreach(var cmdHelp in group)
                 {
+                    string description = Constants.FillInDescription;
+                    if (! string.IsNullOrEmpty(cmdHelp.Synopsis)) 
+                    {
+                        description = cmdHelp.Synopsis;
+                    }
+
                     var moduleCommandInfo = new ModuleCommandInfo()
                     {
                         Name = cmdHelp.Title,
                         Link = $"{cmdHelp.Title}.md",
-                        Description = Constants.FillInDescription,
+                        Description = description
                     };
 
                     mcg.Commands.Add(moduleCommandInfo);

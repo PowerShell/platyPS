@@ -52,6 +52,16 @@ namespace Microsoft.PowerShell.PlatyPS
             GetContentType();
         }
 
+        public bool IsModuleFile()
+        {
+            return (FileType & MarkdownFileType.ModuleFile) == MarkdownFileType.ModuleFile;
+        }
+
+        public bool IsCommandHelp()
+        {
+            return (FileType & MarkdownFileType.CommandHelp) == MarkdownFileType.CommandHelp;
+        }
+
         private void GetContentType()
         {
             FileType = MarkdownFileType.Unknown;

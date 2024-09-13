@@ -22,8 +22,11 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         #region cmdlet parameters
 
-        [Parameter(Mandatory = true, Position = 0)]
-        public ModuleFileInfo ModuleFileInfo { get; set; } = new();
+        [Parameter(Mandatory = true, ParameterSetName = "path", Position = 0)]
+        public string Path { get; set; } = string.Empty;
+
+        [Parameter(Mandatory = true, ParameterSetName = "literalpath")]
+        public string LiteralPath { get; set; } = string.Empty;
 
         [Parameter(ValueFromPipeline = true, Mandatory = true, Position = 1)]
         public CommandHelp[] CommandHelp { get; set; } = Array.Empty<CommandHelp>();
@@ -54,29 +57,30 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public Hashtable? Metadata { get; set; }
 
-        [Parameter(Mandatory = true)]
-        public string OutputFolder { get; set; } = Environment.CurrentDirectory;
+        [Parameter()]
+        public SwitchParameter NoBackup { get; set; }
 
         #endregion
 
-        private string outputFolderBase = string.Empty;
+        private string resolvedModuleFilePath { get; set; } = string.Empty;
         private List<CommandHelp> allCommandHelp = new();
 
-        ModuleFileInfo? newModuleFile;
         protected override void BeginProcessing()
         {
-            outputFolderBase = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
-            if (File.Exists(outputFolderBase))
+            bool isLiteralPath = ParameterSetName == "literalpath" ? true : false;
+            string[] modulefilepath = isLiteralPath ? new string[] { LiteralPath } : new string[] { Path };
+            var resolvedPaths = PathUtils.ResolvePath(this, modulefilepath, isLiteralPath);
+            if (resolvedPaths.Count != 1)
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, outputFolderBase));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, outputFolderBase);
-                ThrowTerminatingError(err);
+                ThrowTerminatingError(
+                    new ErrorRecord(
+                        new InvalidOperationException("Single path required"),
+                        "UpdateMarkdownModuleFile,ModuleFileError",
+                        ErrorCategory.InvalidArgument, resolvedPaths)
+                );
             }
 
-            if (!Directory.Exists(outputFolderBase))
-            {
-                Directory.CreateDirectory(outputFolderBase);
-            }
+            resolvedModuleFilePath = resolvedPaths.First<string>();
         }
 
         // Gather up all of the commands from modules or commands
@@ -88,28 +92,36 @@ namespace Microsoft.PowerShell.PlatyPS
         // now that the commands are all gathered, transform them into command help objects
         protected override void EndProcessing()
         {
-            if (!ShouldProcess(OutputFolder))
-            {
-                return;
-            }
-
-            // Check to be sure that all of the command help objects are in all in the same module.
-            var wrongModules = allCommandHelp.Where<CommandHelp>(ch => string.Compare(ch.ModuleName, ModuleFileInfo.Module) != 0);
-            if (wrongModules.Count() != 0)
+            var identity = MarkdownProbe.Identify(resolvedModuleFilePath);
+            if (! identity.IsModuleFile())
             {
                 ThrowTerminatingError(
                     new ErrorRecord(
-                        new InvalidOperationException("All help must be in a single module"),
+                        new ArgumentException($"{resolvedModuleFilePath}"),
+                        "UpdateMarkdownModuleFile,InvalidModuleFile",
+                        ErrorCategory.InvalidData,
+                        identity)
+                );
+            }
+
+            var mf = MarkdownConverter.GetModuleFileInfoFromMarkdownFile(resolvedModuleFilePath);
+
+            // Check to be sure that all of the command help objects are in all in the same module.
+            var wrongModuleCommands = allCommandHelp.Where<CommandHelp>(ch => string.Compare(ch.ModuleName, mf.Module) != 0);
+            if (wrongModuleCommands.Count() != 0)
+            {
+                ThrowTerminatingError(
+                    new ErrorRecord(
+                        new InvalidOperationException($"All help must be in the '{mf.Module}' module"),
                         "UpdateMarkdownModuleFile,InvalidOperation",
                         ErrorCategory.InvalidOperation,
-                        wrongModules.ToArray()
+                        wrongModuleCommands.ToArray()
                     )
                 );
             }
 
-
             // work on a copy of the original
-            newModuleFile = new ModuleFileInfo(ModuleFileInfo);
+            var newModuleFile = new ModuleFileInfo(mf);
             // Remove all of the command groups, we only use what was provided by the user.
             newModuleFile.CommandGroups.Clear();
             var moduleName = newModuleFile.Module;
@@ -127,7 +139,6 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             newModuleFile.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
-            string moduleFolder = Path.Combine(outputFolderBase, moduleName);
             CultureInfo locale = string.IsNullOrEmpty(Locale) ? newModuleFile.Locale : CultureInfo.GetCultureInfo(Locale);
 
             // Group the commands by Module Name
@@ -158,12 +169,41 @@ namespace Microsoft.PowerShell.PlatyPS
                 newModuleFile.CommandGroups.Add(mcg);
 
                 // ready the module file writer
-                string moduleFilePath = Path.Combine(moduleFolder, $"{moduleName}.md");
-                var modulePageSettings = new WriterSettings(Encoding, moduleFilePath);
+                var modulePageSettings = new WriterSettings(Encoding, resolvedModuleFilePath);
                 using var modulePageWriter = new ModulePageWriter(modulePageSettings);
-                if (new FileInfo(moduleFilePath).Exists && ! Force)
+                if (! NoBackup)
                 {
-                    WriteWarning(string.Format(Constants.skippingMessageFmt, moduleFilePath));
+                    var backupPath = $"{resolvedModuleFilePath}.bak";
+                    if (File.Exists(backupPath))
+                    {
+                        if (! Force)
+                        {
+                            ThrowTerminatingError(
+                                new ErrorRecord(
+                                    new InvalidOperationException($"Backup file '{backupPath}' exists, use -Force to overwrite."),
+                                    "BackupExists",
+                                    ErrorCategory.InvalidOperation,
+                                    backupPath
+                                )
+                            );
+                        }
+
+                        File.Delete(backupPath);
+                    }
+
+                    File.Move(resolvedModuleFilePath, backupPath);
+                }
+
+                if (new FileInfo(resolvedModuleFilePath).Exists && ! Force)
+                {
+                    ThrowTerminatingError(
+                        new ErrorRecord(
+                            new InvalidOperationException($"Module file '{resolvedModuleFilePath}' exists, use -Force to overwrite."),
+                            "ModuleFileExists",
+                            ErrorCategory.InvalidOperation,
+                            resolvedModuleFilePath
+                        )
+                    );
                 }
                 else
                 {
