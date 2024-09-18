@@ -79,6 +79,19 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
+                    var identity = MarkdownProbe.Identify(path);
+                    if (! identity.IsCommandHelp())
+                    {
+                        WriteError(
+                            new ErrorRecord(
+                                new ArgumentException($"'{path}' is not a CommandHelp file."),
+                                "UpdateMarkdownHelpCommand,InvalidCommandHelpFile",
+                                ErrorCategory.InvalidData,
+                                identity)
+                        );
+                        continue;
+                    }
+
                     var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
                     var commandName = commandHelpObject.Title;
                     var cmdInfo = SessionState.InvokeCommand.GetCmdlet(commandName);
@@ -117,7 +130,6 @@ namespace Microsoft.PowerShell.PlatyPS
                         var cmdWrt = new CommandHelpMarkdownWriter(settings);
                         var helpPath = cmdWrt.Write(mergedCommandHelp, null).FullName;
 
-                        /// JWT - actually pass back the new fileinfo
                         if (PassThru)
                         {
                             WriteObject(this.InvokeProvider.Item.Get(helpPath));

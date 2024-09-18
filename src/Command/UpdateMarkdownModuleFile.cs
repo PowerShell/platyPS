@@ -97,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 ThrowTerminatingError(
                     new ErrorRecord(
-                        new ArgumentException($"{resolvedModuleFilePath}"),
+                        new ArgumentException($"'{resolvedModuleFilePath}' is not a module file."),
                         "UpdateMarkdownModuleFile,InvalidModuleFile",
                         ErrorCategory.InvalidData,
                         identity)

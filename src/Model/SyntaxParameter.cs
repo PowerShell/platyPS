@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
@@ -38,6 +39,16 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsMandatory = isMandatory;
             IsPositional = isPositional;
             IsSwitchParameter = isSwitchParameter;
+        }
+
+        public SyntaxParameter(Parameter p)
+        {
+            ParameterName = p.Name;
+            ParameterType = p.Type;
+            // IsMandatory = p.ParameterSets.First().IsRequired;
+            // Position = p.ParameterSets.First().Position;
+            // IsSwitchParameter = string.Compare(ParameterType, "SwitchParameter", true) == 0;
+            // IsPositional = Int32.TryParse(Position, out var _) ? true : false;
         }
 
         /// <summary>
