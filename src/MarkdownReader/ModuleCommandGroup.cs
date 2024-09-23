@@ -3,22 +3,7 @@
 
 using System;
 using System.Collections.Generic;
-// using System.Collections.Specialized;
-// using System.Collections.ObjectModel;
-// using System.Globalization;
-// using System.IO;
 using System.Linq;
-// using System.Text;
-// using System.Text.RegularExpressions;
-// using Markdig.Syntax;
-// using Markdig.Syntax.Inlines;
-// using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
-// using Microsoft.PowerShell.PlatyPS.Model;
-// using YamlDotNet;
-// using YamlDotNet.Serialization;
-// using System.Management.Automation;
-// using System.Security.Cryptography;
-// using System.Data.Common;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
