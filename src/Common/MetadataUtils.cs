@@ -376,7 +376,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static OrderedDictionary DeserializeMetadataText(string metadataBlock)
         {
-            if (YamlUtils.TryGetMetadataFromText(metadataBlock, out OrderedDictionary md))
+            if (YamlUtils.TryGetOrderedDictionaryFromText(metadataBlock, out OrderedDictionary md))
             {
                 return md;
             }

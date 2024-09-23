@@ -365,7 +365,7 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static OrderedDictionary ConvertTextToOrderedDictionary(string text)
         {
             // Try to get the metadata via the yaml deserializer
-            if (YamlUtils.TryGetMetadataFromText(text, out OrderedDictionary md))
+            if (YamlUtils.TryGetOrderedDictionaryFromText(text, out OrderedDictionary md))
             {
                 return md;
             }

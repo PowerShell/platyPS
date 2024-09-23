@@ -688,16 +688,16 @@ namespace Microsoft.PowerShell.PlatyPS
             return od;
         }
 
-        internal static bool TryGetMetadataFromText(string text, out OrderedDictionary metadata)
+        internal static bool TryGetOrderedDictionaryFromText(string text, out OrderedDictionary oDictionary)
         {
             try
             {
-                metadata = deserializer.Deserialize<OrderedDictionary>(text);
+                oDictionary = deserializer.Deserialize<OrderedDictionary>(text);
                 return true;
             }
             catch
             {
-                metadata = new();
+                oDictionary = new();
                 return false;
             }
         }
