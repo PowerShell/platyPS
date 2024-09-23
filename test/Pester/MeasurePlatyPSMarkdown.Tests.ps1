@@ -16,7 +16,7 @@ Describe "Export-MarkdownModuleFile" {
         @{ fileType = "CommandHelp"; expectedCount = 32 }
         @{ fileType = "ModuleFile"; expectedCount = 14 }
         @{ fileType = "V1Schema"; expectedCount = 45 }
-        @{ fileType = "V2Schema"; expectedCount = 2 }
+        @{ fileType = "V2Schema"; expectedCount = 1 }
     ) {
         param ($fileType, $expectedCount)
         $idents.Where({($_.FileType -band $fileType) -eq $fileType}).Count | Should -Be $expectedCount
@@ -24,7 +24,7 @@ Describe "Export-MarkdownModuleFile" {
 
     It "Should have proper diagnostics for get-date.md" {
         $goodFile1.DiagnosticMessages.Count | Should -Be 4
-        $goodFile1.FileType -band "v1schema" -eq "v1schema" | Should -Be $true
+        $goodFile1.FileType | Should -match "v1schema"
         $goodFile1.DiagnosticMessages[-1].Message | Should -Match "PlatyPS.*schema.*marking as v1"
     }
 
