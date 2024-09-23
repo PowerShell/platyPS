@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
 using Microsoft.PowerShell.PlatyPS.YamlWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 

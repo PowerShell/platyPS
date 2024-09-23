@@ -4,13 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Microsoft.PowerShell.PlatyPS
 {

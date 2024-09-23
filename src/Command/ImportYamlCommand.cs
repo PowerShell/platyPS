@@ -6,15 +6,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using YamlDotNet;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 using Microsoft.PowerShell.PlatyPS.Model;
-using System.Security.Cryptography.X509Certificates;
-using System.Runtime.CompilerServices;
-using System.Runtime.Serialization;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -74,14 +67,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private string[] _paths = Array.Empty<string>();
 
         private bool useLiteralPath { get; set; }
-
-        private IDeserializer? yamlDeserializer;
         #endregion
-
-        protected override void BeginProcessing()
-        {
-            yamlDeserializer = new DeserializerBuilder().Build();
-        }
 
         protected override void ProcessRecord()
         {
@@ -103,26 +89,16 @@ namespace Microsoft.PowerShell.PlatyPS
                 foreach (var resolvedPath in resolvedPaths)
                 {
                     OrderedDictionary? result = null;
-                    try
+                    if (! YamlUtils.TryGetOrderedDictionaryFromText(File.ReadAllText(resolvedPath), out result))
                     {
-                        result = yamlDeserializer?.Deserialize<OrderedDictionary>(File.ReadAllText(resolvedPath));
-                    }
-                    catch(Exception serializationFailure)
-                    {
-                        WriteError(new ErrorRecord(serializationFailure, "ImportYamlCommandHelp,SerializationFailure", ErrorCategory.OperationStopped, resolvedPath));
-                        continue;
-                    }
-
-                    if (result is null)
-                    {
-                        WriteError(new ErrorRecord(new SerializationException(), "ImportYamlCommandHelp,SerializationNullResult", ErrorCategory.OperationStopped, resolvedPath));
+                        WriteError(new ErrorRecord(new InvalidOperationException($"TryGetOrderedDictionaryFrom{resolvedPath}"), "ImportYamlCommandHelp,SerializationFailure", ErrorCategory.OperationStopped, resolvedPath));
                         continue;
                     }
 
                     var metadata = result["metadata"] as IDictionary<object, object>;
                     if (metadata is null || metadata.ContainsKey("Module Guid"))
                     {
-                        WriteError(new ErrorRecord(new SerializationException("File is not CommandHelp."), "ImportYamlCommandHelp,FileNotCommandHelp", ErrorCategory.OperationStopped, resolvedPath));
+                        WriteError(new ErrorRecord(new InvalidOperationException("File is not CommandHelp."), "ImportYamlCommandHelp,FileNotCommandHelp", ErrorCategory.OperationStopped, resolvedPath));
                         continue;
                     }
 
