@@ -19,7 +19,6 @@ namespace Microsoft.PowerShell.PlatyPS
 #region cmdlet parameters
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
         [ValidateNotNullOrEmpty]
-        [StringToCommandInfoTransformation]
         public CommandInfo[] CommandInfo { get; set; } = new CommandInfo[0];
 #endregion
 
