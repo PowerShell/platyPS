@@ -123,5 +123,11 @@ Describe "Export-MamlCommandHelp tests" {
             $observedStr = ($observed -join "") -replace "[`n`r ]"
             $observedStr | Should -Be $expectedStr
         }
+
+        It "Should have proper titles for examples" {
+            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Examples.Title.Foreach({"--------- ${_} ---------"})
+            $observed = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).examples.example.title
+            $observed | Should -Be $expected
+        }
     }
 }
