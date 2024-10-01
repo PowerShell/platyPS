@@ -38,22 +38,22 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        private string fullPath = string.Empty;
+        private string basePath = string.Empty;
 
         protected override void BeginProcessing()
         {
-            fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
+            basePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
-            if (File.Exists(fullPath))
+            if (File.Exists(basePath))
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, basePath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, basePath);
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(fullPath) && ShouldProcess(fullPath))
+            if (!Directory.Exists(basePath) && ShouldProcess(basePath))
             {
-                Directory.CreateDirectory(fullPath);
+                Directory.CreateDirectory(basePath);
             }
         }
 
@@ -66,10 +66,16 @@ namespace Microsoft.PowerShell.PlatyPS
                     continue;
                 }
 
-                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
+                // Module files should also go into a directory structure.
+                var moduleFolder = Path.Combine($"{basePath}", $"{moduleFile.Module}");
+                if (!Directory.Exists(moduleFolder))
+                {
+                    Directory.CreateDirectory(moduleFolder);
+                }
+
+                var markdownPath = Path.Combine($"{moduleFolder}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    // should be error?
                     WriteWarning(string.Format(Constants.skippingMessageFmt, moduleFile.Module));
                 }
                 else
