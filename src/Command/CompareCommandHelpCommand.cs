@@ -28,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public CommandHelp? DifferenceCommandHelp { get; set; }
 
         [Parameter]
-        public string[] PropertyNamesToExclude { get; set; } = new string[] { "Diagnostics", "ParameterNames" };
+        public string[] PropertyNamesToExclude { get; set; } = new string[] { "Diagnostics", "ParameterNames", "AliasHeaderFound" };
 
         List<String> DiagnosticMessages = new();
 
