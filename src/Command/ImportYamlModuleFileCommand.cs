@@ -49,7 +49,6 @@ namespace Microsoft.PowerShell.PlatyPS
             // These should be resolved paths, whether -LiteralPath was used or not.
             foreach (string path in resolvedPaths)
             {
-
                 if (AsDictionary)
                 {
                     if (YamlUtils.TryGetOrderedDictionaryFromText(File.ReadAllText(path), out var dictionaryResult))
@@ -69,7 +68,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else
                 {
-                    WriteError(new ErrorRecord(deserializationError, "ImportYamlModuleFile,FailedToConvertYamltoModuleFileInfo", ErrorCategory.InvalidOperation, path));
+                    var wrappedException = new InvalidDataException($"Could not parse file as a module file. '{path}'", deserializationError);
+                    WriteError(new ErrorRecord(wrappedException, "ImportYamlModuleFile,FailedToConvertYamltoModuleFileInfo", ErrorCategory.InvalidOperation, path));
                 }
             }
         }

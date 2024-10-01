@@ -4,16 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Management.Automation.Runspaces;
-using System.Runtime.InteropServices;
-using Markdig.Parsers;
-using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
-using YamlDotNet;
-using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -213,6 +205,10 @@ namespace Microsoft.PowerShell.PlatyPS
             if (dictionary["notes"] is string notes)
             {
                 help.Notes = notes;
+            }
+            else
+            {
+                help.Notes = string.Empty;
             }
 
             help.Syntax.AddRange(GetSyntaxFromDictionary(dictionary));
@@ -653,6 +649,13 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 sp.IsPositional = true;
                 sp.Position = position.ToString();
+                position++;
+            }
+            else if (pName.StartsWith("[") && pName.EndsWith("]")) // [-Thing] <type> mandatory, positional
+            {
+                sp.IsPositional = true;
+                sp.Position = position.ToString();
+                sp.IsMandatory = true;
                 position++;
             }
             else // [-Thing <type>] optional, but named

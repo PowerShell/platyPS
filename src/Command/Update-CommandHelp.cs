@@ -112,6 +112,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
 
+            // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            helpCopy.AliasHeaderFound = true;
+
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))
             {

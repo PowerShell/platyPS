@@ -69,6 +69,21 @@ Describe "Export-MarkdownCommandHelp" {
 
     }
 
+    Context "File Content - Alias" {
+        BeforeAll {
+            $chCopy = [Microsoft.PowerShell.PlatyPS.Model.CommandHelp]::new($ch)
+            $chCopy.AliasHeaderFound = $true
+        }
+
+        It "Should not add alias boiler plate" {
+            $ch.AliasHeaderFound | Should -Be $false
+            $noAlias = $chCopy | Export-MarkdownCommandHelp -OutputFolder $outputBaseFolder
+            $observed = $noAlias | Import-MarkdownCommandHelp
+            $observed.Alias.Count | Should -Be 0
+            $observed.AliasHeaderFound | Should -Be $true
+        }
+    }
+
     Context "File Content - Metadata" {
         BeforeAll {
             $ch | Export-MarkdownCommandHelp -OutputFolder $outputBaseFolder

@@ -26,7 +26,8 @@ Describe "Update-MarkdownModuleFile tests" {
         $mfDescription = "This is a test description for a module file"
         $mf.Description = $mfDescription
         $mf.Metadata['ms.date'] = "01/01/2002"
-        $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}/testModule" -Force
+        # $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}/testModule" -Force
+        $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}" -Force
         remove-module $testModule
     }
 
@@ -97,5 +98,16 @@ Describe "Update-MarkdownModuleFile tests" {
             $observedModuleFileInfo | Should -BeGreaterThan $moduleFileInfoReference
             $observedBackupModuleFileInfo | Should -BeGreaterOrEqual $backupModuleFileInfoReference
         }
+
+        It "will remove incorrect metadata entry 'HelpUri'" {
+            $mf = Import-MarkdownModuleFile -Path $moduleFilePath -ErrorAction Stop
+            $mf.Metadata.Contains('HelpUri') | Should -Be $false
+        }
+
+        It "will contain correct metadata entry 'HelpInfoUri'" {
+            $mf = Import-MarkdownModuleFile -Path $moduleFilePath -ErrorAction Stop
+            $mf.Metadata.Contains('HelpInfoUri') | Should -Be $true
+        }
+
     }
 }
