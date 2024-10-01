@@ -32,7 +32,7 @@ namespace Microsoft.PowerShell.PlatyPS
         /// The path to the markdown file
         /// </summary>
         public string FilePath { get; set; }
-        
+
         /// <summary>
         /// The title of the markdown file.
         /// This might be null if the file cannot be identified
