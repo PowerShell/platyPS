@@ -84,4 +84,9 @@ Describe "Tests for Update-CommandHelp" {
         $chUpdate | Should -Be $ch
     }
 
+    It "Should not update the aliases element with boiler plate" {
+        $ch = Update-CommandHelp -Path ([io.path]::Combine($PSScriptRoot, "assets", "get-date.md"))
+        $ch.AliasHeaderFound | Should -Be $true
+    }
+
 }

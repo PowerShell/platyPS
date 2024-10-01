@@ -17,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a markdown file and merge it with the session cmdlet of the same name.
     /// </summary>
     [Cmdlet(VerbsData.Update, "MarkdownCommandHelp", DefaultParameterSetName = "Path", SupportsShouldProcess = true, HelpUri = "")]
-    [OutputType(typeof(CommandHelp))]
+    [OutputType(typeof(FileInfo))]
     public sealed class UpdateMarkdownHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
@@ -88,7 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
                     var commandName = commandHelpObject.Title;
-                    var cmdInfo = SessionState.InvokeCommand.GetCmdlet(commandName);
+                    var cmdInfo = PowerShellAPI.GetCommandInfo(commandName);
                     if (cmdInfo is null)
                     {
                         var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName); 
@@ -97,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         continue;
                     }
 
-                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo);
+                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo.First());
                     if (helpObjectFromCmdlet is null)
                     {
                         var err = new ErrorRecord(new InvalidOperationException(commandName), "UpdateMarkdownCommandHelp,CmdletConversion", ErrorCategory.InvalidResult, commandName); 
@@ -153,6 +153,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 helpCopy.Syntax.AddRange(mergedSyntaxList);
             }
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
+
+            // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            helpCopy.AliasHeaderFound = true;
 
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))
