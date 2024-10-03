@@ -39,16 +39,24 @@ namespace Microsoft.PowerShell.PlatyPS
         #endregion
 
         private DirectoryInfo? outputFolder;
+        private bool outputFolderCheck = true;
 
         protected override void BeginProcessing()
         {
-            outputFolder = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
+            if (Force || ShouldProcess(OutputFolder))
+            {
+                outputFolder = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
+            }
+            else
+            {
+                outputFolderCheck = false;
+            }
         }
 
         protected override void ProcessRecord()
         {
             string moduleName;
-            if (outputFolder is null)
+            if (outputFolderCheck && outputFolder is null)
             {
                 var missingOutputFolder = new ItemNotFoundException(OutputFolder);
                 ThrowTerminatingError(new ErrorRecord(missingOutputFolder, "ExportYamlModuleFile,MissingOutputFolder", ErrorCategory.ObjectNotFound, OutputFolder));
@@ -57,6 +65,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
             foreach (ModuleFileInfo moduleFile in ModuleFileInfo)
             {
+                if (! ShouldProcess(moduleFile.Module))
+                {
+                    continue;
+                }
+
                 if (moduleFile.Metadata.Contains("Module Name"))
                 {
                     moduleName = moduleFile.Metadata["Module Name"].ToString();
@@ -76,7 +89,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 MetadataUtils.MergeNewModulefileMetadata(Metadata, moduleFile);
 
-                var yamlPath = Path.Combine($"{outputFolder.FullName}", $"{moduleName}.yml");
+                var moduleFolder = Path.Combine(outputFolder?.FullName, moduleName);
+                if (!Directory.Exists(moduleFolder))
+                {
+                    Directory.CreateDirectory(moduleFolder);
+                }
+
+                var yamlPath = Path.Combine($"{moduleFolder}", $"{moduleName}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?
