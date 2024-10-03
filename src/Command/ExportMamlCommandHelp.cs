@@ -77,8 +77,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 string moduleName = group.First().ModuleName;
                 var helpInfos = MamlConversionHelper.ConvertCommandHelpToMamlHelpItems(group.ToList<CommandHelp>());
                 // Convert the command help to MAML and write the file
-                // var moduleDirectory = Path.Combine(outputDirectory.FullName, moduleName);
-                // Directory.CreateDirectory(moduleDirectory);
                 var moduleMamlPath = Path.Combine(outputDirectory.FullName, $"{moduleName}-Help.xml");
                 if (File.Exists(moduleMamlPath) && ! Force)
                 {
