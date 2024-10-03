@@ -31,6 +31,30 @@ Describe "Update-MarkdownModuleFile tests" {
         remove-module $testModule
     }
 
+    Context "General Tests" {
+        BeforeAll {
+            $testDirectory = Join-Path $TESTDRIVE generaltests
+            New-Item -ItemType Directory -Path $testDirectory
+            $getdateCH = Import-MarkdownCommandHelp "${PSScriptRoot}/assets/get-date.md"
+            $modFilePath = Copy-Item -PassThru -Path "${PSScriptRoot}/assets/Microsoft.PowerShell.Utility.md" -Destination $testDirectory
+        }
+
+        It "will not update a module file when -WhatIf is used" {
+            $getdateCH | Update-MarkdownModuleFile -Path $modFilePath -WhatIf
+            (Get-Item $modFilePath).Length | Should -Be $modFilePath.Length
+        }
+
+        It "will update a module file when -WhatIf is not used" {
+            $getdateCH | Update-MarkdownModuleFile -Path $modFilePath
+            (Get-Item $modFilePath).Length | Should -Not -Be $modFilePath.Length
+        }
+
+        It "Will have the new content in the module file" {
+            $mf = Import-MarkdownModuleFile -Path $modFilePath
+            $mf.CommandGroups.Commands.Count | Should -Be 1
+        }
+    }
+
     Context "Setup tests" {
         BeforeAll {
             $lmf = Import-MarkdownModuleFile "${testDrive}/testModule/testModule.md"
@@ -108,6 +132,5 @@ Describe "Update-MarkdownModuleFile tests" {
             $mf = Import-MarkdownModuleFile -Path $moduleFilePath -ErrorAction Stop
             $mf.Metadata.Contains('HelpInfoUri') | Should -Be $true
         }
-
     }
 }

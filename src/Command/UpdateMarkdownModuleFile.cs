@@ -120,6 +120,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 );
             }
 
+            if (! ShouldProcess(resolvedModuleFilePath))
+            {
+                return;
+            }
+
             // work on a copy of the original
             var newModuleFile = new ModuleFileInfo(mf);
             // Remove all of the command groups, we only use what was provided by the user.
@@ -159,7 +164,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var moduleCommandInfo = new ModuleCommandInfo()
                     {
                         Name = cmdHelp.Title,
-                        Link = $"{cmdHelp.Title}.md", // JWT - should this be a property of the command help object?
+                        Link = $"{cmdHelp.Title}.md",
                         Description = cmdHelp.Synopsis,
                     };
 
