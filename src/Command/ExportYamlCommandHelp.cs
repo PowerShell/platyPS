@@ -66,7 +66,18 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             foreach (CommandHelp ch in CommandHelp)
             {
-                var yamlPath = Path.Combine($"{fullPath}", $"{ch.Title}.yml");
+                if (! ShouldProcess(ch.ToString()))
+                {
+                    continue;
+                }
+
+                var yamlBasePath = Path.Combine($"{fullPath}", $"{ch.ModuleName}");
+                if (! Directory.Exists(yamlBasePath))
+                {
+                    Directory.CreateDirectory(yamlBasePath);
+                }
+
+                var yamlPath = Path.Combine($"{yamlBasePath}", $"{ch.Title}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?
