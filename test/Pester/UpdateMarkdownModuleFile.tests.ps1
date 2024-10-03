@@ -26,8 +26,33 @@ Describe "Update-MarkdownModuleFile tests" {
         $mfDescription = "This is a test description for a module file"
         $mf.Description = $mfDescription
         $mf.Metadata['ms.date'] = "01/01/2002"
-        $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}/testModule" -Force
+        # $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}/testModule" -Force
+        $null = $mf | Export-MarkdownModuleFile -outputfolder "${testDrive}" -Force
         remove-module $testModule
+    }
+
+    Context "General Tests" {
+        BeforeAll {
+            $testDirectory = Join-Path $TESTDRIVE generaltests
+            New-Item -ItemType Directory -Path $testDirectory
+            $getdateCH = Import-MarkdownCommandHelp "${PSScriptRoot}/assets/get-date.md"
+            $modFilePath = Copy-Item -PassThru -Path "${PSScriptRoot}/assets/Microsoft.PowerShell.Utility.md" -Destination $testDirectory
+        }
+
+        It "will not update a module file when -WhatIf is used" {
+            $getdateCH | Update-MarkdownModuleFile -Path $modFilePath -WhatIf
+            (Get-Item $modFilePath).Length | Should -Be $modFilePath.Length
+        }
+
+        It "will update a module file when -WhatIf is not used" {
+            $getdateCH | Update-MarkdownModuleFile -Path $modFilePath
+            (Get-Item $modFilePath).Length | Should -Not -Be $modFilePath.Length
+        }
+
+        It "Will have the new content in the module file" {
+            $mf = Import-MarkdownModuleFile -Path $modFilePath
+            $mf.CommandGroups.Commands.Count | Should -Be 1
+        }
     }
 
     Context "Setup tests" {
@@ -96,6 +121,16 @@ Describe "Update-MarkdownModuleFile tests" {
             $observedBackupModuleFileInfo = (Get-ChildItem $moduleFileBackupPath).LastWriteTime.Ticks
             $observedModuleFileInfo | Should -BeGreaterThan $moduleFileInfoReference
             $observedBackupModuleFileInfo | Should -BeGreaterOrEqual $backupModuleFileInfoReference
+        }
+
+        It "will remove incorrect metadata entry 'HelpUri'" {
+            $mf = Import-MarkdownModuleFile -Path $moduleFilePath -ErrorAction Stop
+            $mf.Metadata.Contains('HelpUri') | Should -Be $false
+        }
+
+        It "will contain correct metadata entry 'HelpInfoUri'" {
+            $mf = Import-MarkdownModuleFile -Path $moduleFilePath -ErrorAction Stop
+            $mf.Metadata.Contains('HelpInfoUri') | Should -Be $true
         }
     }
 }

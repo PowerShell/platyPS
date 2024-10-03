@@ -422,6 +422,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 while (reader.ReadToNextSibling(Constants.MamlCommandParameterTag))
                 {
                     var parameter = ReadParameter(reader.ReadSubtree(), parameterSetCount: -1);
+                    syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
                     try
                     {
                         // This may possibly throw because the position is duplicated.
@@ -430,6 +431,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         // In this case, we will try to add the parameter with a negative position to show we
                         // could not assign it appropriately.
                         syntaxItem.AddParameter(parameter);
+                        syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
                     }
                     catch
                     {

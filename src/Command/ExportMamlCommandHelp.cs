@@ -2,15 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MAML;
 using Microsoft.PowerShell.PlatyPS.Model;
-using System.Management.Automation.Language;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -57,32 +54,42 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void EndProcessing()
         {
+            bool outputDirectoryCheck = true;
             if (ShouldProcess(OutputFolder))
             {
                 outputDirectory = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
             }
             else
             {
-                // Just report on the creation of the base directory.
-                return;
+                outputDirectoryCheck = false;
             }
 
-            if (outputDirectory is null)
+            if (outputDirectoryCheck && outputDirectory is null)
             {
-                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("file is null"), "fileInfo is null", ErrorCategory.InvalidOperation, OutputFolder));
-                throw new InvalidOperationException("fileInfo is null"); // not reached
+                ThrowTerminatingError(new ErrorRecord(new InvalidOperationException("outputDirectory is null"), "OutputFolderNotFound", ErrorCategory.InvalidOperation, OutputFolder));
             }
 
+            // emit a MAML file for each group of CommandHelp objects
             var helpGroup = _commandHelps.GroupBy(c => c.ModuleName);
-
             foreach(var group in helpGroup)
             {
                 string moduleName = group.First().ModuleName;
+                string helpFileName = $"{moduleName}-Help.xml";
+
+                if (!ShouldProcess(helpFileName))
+                {
+                    continue;
+                }
+
+                var moduleMamlBasePath = Path.Combine(outputDirectory?.FullName, moduleName);
+                var moduleMamlPath = Path.Combine(moduleMamlBasePath, helpFileName);
                 var helpInfos = MamlConversionHelper.ConvertCommandHelpToMamlHelpItems(group.ToList<CommandHelp>());
                 // Convert the command help to MAML and write the file
-                // var moduleDirectory = Path.Combine(outputDirectory.FullName, moduleName);
-                // Directory.CreateDirectory(moduleDirectory);
-                var moduleMamlPath = Path.Combine(outputDirectory.FullName, $"{moduleName}-Help.xml");
+                if (!Directory.Exists(moduleMamlBasePath))
+                {
+                    Directory.CreateDirectory(moduleMamlBasePath);
+                }
+
                 if (File.Exists(moduleMamlPath) && ! Force)
                 {
                     WriteWarning(string.Format(Model.Constants.skippingMessageFmt, moduleMamlPath));

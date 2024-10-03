@@ -8,12 +8,16 @@ Describe "Export-YamlModuleFile tests" {
     }
 
     Context "Basic tests" {
-        It "Can export yaml module file '<name>'" -TestCases @(
+        It "Can export yaml module file '<name>' in the proper location" -TestCases @(
             $moduleFileList.ForEach({@{ name = ([io.path]::GetFileName($_)); path = "$_" }})
         )  {
             param ($path, $name)
             $outputFile = Import-MarkdownModuleFile -Path $path | Export-YamlModuleFile -OutputFolder ${TestDrive}
             $outputFile | Should -Exist
+            $moduleName = [io.path]::GetFileNameWithoutExtension($outputFile.FullName)
+            $moduleFile = [io.path]::GetFileName($outputFile.FullName)
+            $expectedLocation = [io.Path]::Combine($TestDrive, $moduleName, $moduleFile)
+            $outputFile.FullName | Should -Be $expectedLocation
         }
 
         It "Will add additional metadata if supplied" {

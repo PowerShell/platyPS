@@ -7,8 +7,8 @@ Describe "Export-MamlCommandHelp tests" {
         $markdownFiles = 'get-date.md', 'Import-Module.md', 'Invoke-Command.md', 'Out-Null.md'
         $chObjects = $markdownFiles | Foreach-Object { Import-MarkdownCommandHelp  (Join-Path $assetDir $_) }
         $outputDirectory = Join-Path $TESTDRIVE MamlBase
-        $f1 = "$outputDirectory/Microsoft.PowerShell.Core-Help.xml"
-        $f2 = "$outputDirectory/Microsoft.PowerShell.Utility-Help.xml"
+        $f1 = "$outputDirectory/Microsoft.PowerShell.Core/Microsoft.PowerShell.Core-Help.xml"
+        $f2 = "$outputDirectory/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility-Help.xml"
     }
 
     Context "Basic Operations" {
@@ -122,6 +122,12 @@ Describe "Export-MamlCommandHelp tests" {
             $expectedStr = ($expected -join "") -replace "[`n`r ]"
             $observedStr = ($observed -join "") -replace "[`n`r ]"
             $observedStr | Should -Be $expectedStr
+        }
+
+        It "Should have proper titles for examples" {
+            $expected = $chObjects.Where({$_.title -eq "Get-Date"}).Examples.Title.Foreach({"--------- ${_} ---------"})
+            $observed = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).examples.example.title
+            $observed | Should -Be $expected
         }
     }
 }

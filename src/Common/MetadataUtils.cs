@@ -4,21 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Management.Automation;
-using System.Management.Automation.Language;
-using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
-using YamlDotNet.Core.Tokens;
-// using System.Net.Configuration;
-using Microsoft.PowerShell.Commands;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Management.Automation;
+using Microsoft.PowerShell.PlatyPS.Model;
+using Microsoft.PowerShell.Commands;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -376,7 +368,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static OrderedDictionary DeserializeMetadataText(string metadataBlock)
         {
-            if (YamlUtils.TryGetMetadataFromText(metadataBlock, out OrderedDictionary md))
+            if (YamlUtils.TryGetOrderedDictionaryFromText(metadataBlock, out OrderedDictionary md))
             {
                 return md;
             }

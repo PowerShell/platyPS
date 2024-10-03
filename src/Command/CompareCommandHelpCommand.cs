@@ -4,13 +4,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Linq;
-using System.Runtime.InteropServices;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -32,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public CommandHelp? DifferenceCommandHelp { get; set; }
 
         [Parameter]
-        public string[] PropertyNamesToExclude { get; set; } = new string[] { "Diagnostics", "ParameterNames" };
+        public string[] PropertyNamesToExclude { get; set; } = new string[] { "Diagnostics", "ParameterNames", "AliasHeaderFound" };
 
         List<String> DiagnosticMessages = new();
 

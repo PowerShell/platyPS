@@ -2,17 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Text;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -23,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a markdown file and merge it with the session cmdlet of the same name.
     /// </summary>
     [Cmdlet(VerbsData.Update, "MarkdownCommandHelp", DefaultParameterSetName = "Path", SupportsShouldProcess = true, HelpUri = "")]
-    [OutputType(typeof(CommandHelp))]
+    [OutputType(typeof(FileInfo))]
     public sealed class UpdateMarkdownHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
@@ -79,9 +73,22 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
+                    var identity = MarkdownProbe.Identify(path);
+                    if (! identity.IsCommandHelp())
+                    {
+                        WriteError(
+                            new ErrorRecord(
+                                new ArgumentException($"'{path}' is not a CommandHelp file."),
+                                "UpdateMarkdownHelpCommand,InvalidCommandHelpFile",
+                                ErrorCategory.InvalidData,
+                                identity)
+                        );
+                        continue;
+                    }
+
                     var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
                     var commandName = commandHelpObject.Title;
-                    var cmdInfo = SessionState.InvokeCommand.GetCmdlet(commandName);
+                    var cmdInfo = PowerShellAPI.GetCommandInfo(commandName);
                     if (cmdInfo is null)
                     {
                         var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName); 
@@ -90,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         continue;
                     }
 
-                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo);
+                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo.First());
                     if (helpObjectFromCmdlet is null)
                     {
                         var err = new ErrorRecord(new InvalidOperationException(commandName), "UpdateMarkdownCommandHelp,CmdletConversion", ErrorCategory.InvalidResult, commandName); 
@@ -117,7 +124,6 @@ namespace Microsoft.PowerShell.PlatyPS
                         var cmdWrt = new CommandHelpMarkdownWriter(settings);
                         var helpPath = cmdWrt.Write(mergedCommandHelp, null).FullName;
 
-                        /// JWT - actually pass back the new fileinfo
                         if (PassThru)
                         {
                             WriteObject(this.InvokeProvider.Item.Get(helpPath));
@@ -147,6 +153,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 helpCopy.Syntax.AddRange(mergedSyntaxList);
             }
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
+
+            // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            helpCopy.AliasHeaderFound = true;
 
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))

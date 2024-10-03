@@ -3,7 +3,7 @@
 
 Describe "New-CommandHelp tests" {
     BeforeAll {
-        $result = New-CommandHelp New-CommandHelp
+        $result = New-CommandHelp (Get-Command New-CommandHelp)
         $commonParameters = 'Debug', 'ErrorAction', 'ErrorVariable', 'InformationAction', 'InformationVariable',
             'OutBuffer', 'OutVariable', 'PipelineVariable', 'ProgressAction', 'Verbose', 'WarningAction', 'WarningVariable'
     }

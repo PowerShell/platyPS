@@ -38,7 +38,9 @@ Describe "Compare-CommandHelp can find differences" {
     }
 
     It "Default excluded properties should be Diagnostics and ParameterNames" {
-        $expected = "M excluding comparison of CommandHelp.Diagnostics","M excluding comparison of CommandHelp.Syntax.ParameterNames"
+        $expected = "M excluding comparison of CommandHelp.AliasHeaderFound",
+                    "M excluding comparison of CommandHelp.Diagnostics",
+                    "M excluding comparison of CommandHelp.Syntax.ParameterNames"
         $observed = $result3.split("`n").Where({$_ -match "excluding comparison"})|Sort-Object -Unique
         $observed | Should -Be $expected
     }

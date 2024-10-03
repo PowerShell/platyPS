@@ -4,13 +4,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using Microsoft.PowerShell.Commands;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -65,8 +62,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter]
         public SwitchParameter AbbreviateParameterTypename { get; set; }
-
-        public PSSession? Session { get; set; }
 
         #endregion
 
@@ -144,7 +139,6 @@ namespace Microsoft.PowerShell.PlatyPS
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
-                        Session = Session,
                         UseFullTypeName = ! AbbreviateParameterTypename
                     };
 

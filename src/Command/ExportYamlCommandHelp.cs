@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
 using Microsoft.PowerShell.PlatyPS.YamlWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -70,7 +66,18 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             foreach (CommandHelp ch in CommandHelp)
             {
-                var yamlPath = Path.Combine($"{fullPath}", $"{ch.Title}.yml");
+                if (! ShouldProcess(ch.ToString()))
+                {
+                    continue;
+                }
+
+                var yamlBasePath = Path.Combine($"{fullPath}", $"{ch.ModuleName}");
+                if (! Directory.Exists(yamlBasePath))
+                {
+                    Directory.CreateDirectory(yamlBasePath);
+                }
+
+                var yamlPath = Path.Combine($"{yamlBasePath}", $"{ch.Title}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?

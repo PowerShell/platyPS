@@ -12,7 +12,8 @@ Describe "Export-MarkdownModuleFile" {
     Context "Basic Operation" {
         It "Should be able to export a module file" {
             $null = $modObjects[0] | Export-MarkdownModuleFile -outputFolder ${TestDrive}
-            $expectedFile = "${TestDrive}/" + $modObjects[0].Module + ".md"
+            $moduleName = $modObjects[0].Module
+            $expectedFile = "${TestDrive}/${moduleName}/${moduleName}.md"
             $expectedFile | Should -Exist
         }
 

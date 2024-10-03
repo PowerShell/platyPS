@@ -97,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 ThrowTerminatingError(
                     new ErrorRecord(
-                        new ArgumentException($"{resolvedModuleFilePath}"),
+                        new ArgumentException($"'{resolvedModuleFilePath}' is not a module file."),
                         "UpdateMarkdownModuleFile,InvalidModuleFile",
                         ErrorCategory.InvalidData,
                         identity)
@@ -118,6 +118,11 @@ namespace Microsoft.PowerShell.PlatyPS
                         wrongModuleCommands.ToArray()
                     )
                 );
+            }
+
+            if (! ShouldProcess(resolvedModuleFilePath))
+            {
+                return;
             }
 
             // work on a copy of the original
@@ -159,7 +164,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var moduleCommandInfo = new ModuleCommandInfo()
                     {
                         Name = cmdHelp.Title,
-                        Link = $"{cmdHelp.Title}.md", // JWT - should this be a property of the command help object?
+                        Link = $"{cmdHelp.Title}.md",
                         Description = cmdHelp.Synopsis,
                     };
 

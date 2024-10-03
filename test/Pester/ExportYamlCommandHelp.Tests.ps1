@@ -9,8 +9,8 @@ Describe "Export-YamlCommandHelp tests" {
         $testMDFile = "$TestDrive/Get-Date.md"
         Get-Content $markdownFile | Set-Content "$testMDFile"
         $ch = Import-MarkdownCommandHelp $testMDFile
-        $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
-        $outputFile = "$TESTDRIVE/Get-Date.yml"
+        $yamlFilePath = $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
+        $outputFile = $yamlFilePath.FullName
         Import-Module "$PSScriptRoot/PlatyPS.Test.psm1"
         $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
     }

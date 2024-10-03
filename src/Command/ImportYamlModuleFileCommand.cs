@@ -5,12 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-using System.Runtime.Serialization;
-using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -54,16 +49,15 @@ namespace Microsoft.PowerShell.PlatyPS
             // These should be resolved paths, whether -LiteralPath was used or not.
             foreach (string path in resolvedPaths)
             {
-
                 if (AsDictionary)
                 {
-                    if (YamlUtils.TryGetMetadataFromText(File.ReadAllText(path), out var dictionaryResult))
+                    if (YamlUtils.TryGetOrderedDictionaryFromText(File.ReadAllText(path), out var dictionaryResult))
                     {
                         WriteObject(dictionaryResult);
                     }
                     else
                     {
-                        WriteError(new ErrorRecord(new SerializationException("DeserializationError"), "ImportYamlModuleFile,FailedToConvertYamlToDictionary", ErrorCategory.InvalidOperation, path));
+                        WriteError(new ErrorRecord(new InvalidOperationException("DeserializationError"), "ImportYamlModuleFile,FailedToConvertYamlToDictionary", ErrorCategory.InvalidOperation, path));
                     }
                     continue;
                 }
@@ -74,7 +68,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else
                 {
-                    WriteError(new ErrorRecord(deserializationError, "ImportYamlModuleFile,FailedToConvertYamltoModuleFileInfo", ErrorCategory.InvalidOperation, path));
+                    var wrappedException = new InvalidDataException($"Could not parse file as a module file. '{path}'", deserializationError);
+                    WriteError(new ErrorRecord(wrappedException, "ImportYamlModuleFile,FailedToConvertYamltoModuleFileInfo", ErrorCategory.InvalidOperation, path));
                 }
             }
         }
