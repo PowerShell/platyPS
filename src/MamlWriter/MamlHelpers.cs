@@ -185,7 +185,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         private static CommandExample ConvertExample(Example example, int exampleNumber)
         {
             var newExample = new CommandExample();
-            newExample.Title = string.Format($"--------- Example {exampleNumber}: {example.Title} ---------");
+            var title = $"Example {exampleNumber}";
+            newExample.Title = string.Format("--------- {0} ---------", title == example.Title ? title : $"{title}: {example.Title}");
             foreach(string s in example.Remarks.Split(new string[] { "\n\n" }, StringSplitOptions.None))
             {
                 newExample.Description.Add(s.Trim());
