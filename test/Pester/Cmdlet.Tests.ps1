@@ -27,6 +27,18 @@ Describe "Miscellaneous cmdlet tests" {
         }
     }
 
+    Context "Parameter name/type tests" {
+        It "Parameters which accept command help objects should be named CommandHelp" -TestCases @(
+            $platyPScmdlets.
+                Foreach({$_.Parameters.Values}).
+                Where({$_.parametertype -match "CommandHelp"}).
+                Foreach({ @{ Parameter = $_} })
+        ) {
+            param ($parameter)
+            $parameter.Name | Should -Match "CommandHelp"
+        }
+    }
+
     Context "Tab completion for encoding parameter" {
         It "Cmdlet '<cmdlet>' should have a completer for the Encoding parameter" -testcases @(
             $platyPSCmdlets.Where({$_.Parameters['Encoding']}).Foreach({ @{ Cmdlet = $_; Parameter = $_.Parameters['Encoding'] }})
@@ -44,5 +56,19 @@ Describe "Miscellaneous cmdlet tests" {
             param ($cmdlet)
             $cmdlet.Parameters['Metadata'] | Should -Not -BeNullOrEmpty
         }
+    }
+
+    Context "Cmdlets which change state" {
+        It "Cmdlet '<name>' should support ShouldProcess" -testcase @(
+            $platyPScmdlets.
+                where({$_.verb -match "Export|New|Update"}).
+                Where({$_.noun -ne "CommandHelp"}).
+                foreach({ @{ Cmdlet = $_ ; name = $_.Name } })
+        ) {
+            param ($cmdlet)
+            $cmdletAttribute = $cmdlet.ImplementingType.GetCustomAttributes($true).Where({$_.TypeId.Name -eq "CmdletAttribute"})
+            $cmdletAttribute.SupportsShouldProcess | Should -Be $true
+        }
+
     }
 }

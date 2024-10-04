@@ -3,15 +3,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Language;
-using System.Management.Automation.Runspaces;
-
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -20,7 +13,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module or from a MAML file.
     /// </summary>
-    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", HelpUri = "")]
+    [Cmdlet(VerbsData.Export, "MarkdownModuleFile", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class ExportMarkdownModuleFileCommand : PSCmdlet
     {
@@ -45,35 +38,44 @@ namespace Microsoft.PowerShell.PlatyPS
 
         #endregion
 
-        private string fullPath = string.Empty;
+        private string basePath = string.Empty;
 
         protected override void BeginProcessing()
         {
+            basePath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
 
-            fullPath = this.SessionState.Path.GetUnresolvedProviderPathFromPSPath(OutputFolder);
-
-            if (File.Exists(fullPath))
+            if (File.Exists(basePath))
             {
-                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, fullPath));
-                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, fullPath);
+                var exception = new InvalidOperationException(string.Format(Microsoft_PowerShell_PlatyPS_Resources.PathIsNotFolder, basePath));
+                ErrorRecord err = new ErrorRecord(exception, "PathIsNotFolder", ErrorCategory.InvalidOperation, basePath);
                 ThrowTerminatingError(err);
             }
 
-            if (!Directory.Exists(fullPath))
+            if (!Directory.Exists(basePath) && ShouldProcess(basePath))
             {
-                Directory.CreateDirectory(fullPath);
+                Directory.CreateDirectory(basePath);
             }
         }
 
         protected override void ProcessRecord()
         {
-
             foreach (var moduleFile in ModuleFileInfo)
             {
-                var markdownPath = Path.Combine($"{fullPath}", $"{moduleFile.Module}.md");
+                if (! this.ShouldProcess($"{moduleFile.Module}"))
+                {
+                    continue;
+                }
+
+                // Module files should also go into a directory structure.
+                var moduleFolder = Path.Combine($"{basePath}", $"{moduleFile.Module}");
+                if (!Directory.Exists(moduleFolder))
+                {
+                    Directory.CreateDirectory(moduleFolder);
+                }
+
+                var markdownPath = Path.Combine($"{moduleFolder}", $"{moduleFile.Module}.md");
                 if (new FileInfo(markdownPath).Exists && ! Force)
                 {
-                    // should be error?
                     WriteWarning(string.Format(Constants.skippingMessageFmt, moduleFile.Module));
                 }
                 else
@@ -83,17 +85,13 @@ namespace Microsoft.PowerShell.PlatyPS
                     // Add any additional supplied metadata
                     if (Metadata.Keys.Count > 0)
                     {
+                        // Check for non-overridable keys in the provided Metadata
+                        var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                        badKeys.ForEach(k => Metadata.Remove(k));
                         foreach(DictionaryEntry kv in Metadata)
                         {
                             string key = kv.Key.ToString();
-                            if (MetadataUtils.ProtectedMetadataKeys.Any(k => string.Compare(key, k, true) == 0))
-                            {
-                                WriteWarning($"Metadata key '{key}' may not be overridden");
-                            }
-                            else
-                            {
-                                moduleFile.Metadata[key] = (string)kv.Value;
-                            }
+                            moduleFile.Metadata[key] = kv.Value;
                         }
                     }
 

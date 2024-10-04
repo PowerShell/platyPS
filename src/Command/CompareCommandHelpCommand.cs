@@ -4,9 +4,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Globalization;
-using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
 using System.Linq;
@@ -25,13 +22,13 @@ namespace Microsoft.PowerShell.PlatyPS
         /// The reference for comparison.
         /// </summary>
         [Parameter(Position = 0, Mandatory = true, ValueFromPipelineByPropertyName = true)]
-        public CommandHelp? Reference { get; set; }
+        public CommandHelp? ReferenceCommandHelp { get; set; }
 
         [Parameter(Position = 1, Mandatory = true, ValueFromPipelineByPropertyName = true)]
-        public CommandHelp? Difference { get; set; }
+        public CommandHelp? DifferenceCommandHelp { get; set; }
 
         [Parameter]
-        public string[] PropertyNamesToExclude { get; set; } = new string[0];
+        public string[] PropertyNamesToExclude { get; set; } = new string[] { "Diagnostics", "ParameterNames", "AliasHeaderFound" };
 
         List<String> DiagnosticMessages = new();
 
@@ -40,23 +37,23 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void ProcessRecord()
         {
-            if (Reference is null)
+            if (ReferenceCommandHelp is null)
             {
                 WriteError(new ErrorRecord(new ArgumentNullException("Reference object may not be null"), "errorId", ErrorCategory.InvalidData, null));
                 return;
             }
 
-            if (Difference is null)
+            if (DifferenceCommandHelp is null)
             {
                 WriteError(new ErrorRecord(new ArgumentNullException("Difference object may not be null"), "errorId", ErrorCategory.InvalidData, null));
                 return;
             }
 
 
-            var refObject = new PSObject((CommandHelp)Reference);
-            var difObject = new PSObject((CommandHelp)Difference);
+            var refObject = new PSObject((CommandHelp)ReferenceCommandHelp);
+            var difObject = new PSObject((CommandHelp)DifferenceCommandHelp);
 
-            CompareProperty(refObject, difObject, 0, Reference.GetType().Name);
+            CompareProperty(refObject, difObject, 0, ReferenceCommandHelp.GetType().Name);
 
             WriteObject(DiagnosticMessages, true);
             DiagnosticMessages.Clear();

@@ -1,26 +1,20 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-// using Markdig.Extensions.CustomContainers;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Linq;
-// using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
-using System.CodeDom;
-// using System.Management.Automation.Language;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-
     /// <summary>
     /// A class to represent a parse error.
     /// This might occur at any time, but especially when invalid yaml is included in the markdown.
@@ -187,7 +181,7 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static CommandHelp GetCommandHelpFromMarkdown(ParsedMarkdownContent markdownContent)
         {
             /*
-            GetMetadataFromMarkdown
+            GetMetadata
             GetTitleFromMarkdown
             GetSynopsisFromMarkdown // Not parsed
             GetSyntaxFromMarkdown // Must be parsed
@@ -206,7 +200,7 @@ namespace Microsoft.PowerShell.PlatyPS
             OrderedDictionary? metadata = GetMetadata(markdownContent.Ast);
             if (metadata is null)
             {
-                throw new InvalidDataException("null metadata");
+                throw new InvalidDataException($"No metadata found in {markdownContent.FilePath}");
             }
             else
             {
@@ -256,7 +250,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             List<DiagnosticMessage> aliasesDiagnostics = new();
-            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics));
+            bool aliasHeaderFound = false;
+            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics, out aliasHeaderFound));
+            commandHelp.AliasHeaderFound = aliasHeaderFound;
             if (aliasesDiagnostics is not null && aliasesDiagnostics.Count > 0)
             {
                 aliasesDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
@@ -347,6 +343,13 @@ namespace Microsoft.PowerShell.PlatyPS
                         return ConvertTextToOrderedDictionary(metadataText.Content.Text);
                     }
                 }
+                else if (ast[2] is Markdig.Syntax.ThematicBreakBlock && ast[1] is ParagraphBlock paragraph)
+                {
+                    if (paragraph.Inline?.FirstChild is LiteralInline metadataAsParagraph)
+                    {
+                        return ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
+                    }
+                }
             }
 
             return null;
@@ -356,7 +359,7 @@ namespace Microsoft.PowerShell.PlatyPS
         internal static OrderedDictionary ConvertTextToOrderedDictionary(string text)
         {
             // Try to get the metadata via the yaml deserializer
-            if (YamlUtils.TryGetMetadataFromText(text, out OrderedDictionary md))
+            if (YamlUtils.TryGetOrderedDictionaryFromText(text, out OrderedDictionary md))
             {
                 return md;
             }
@@ -732,9 +735,10 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameters;
         }
 
-        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics)
+        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics, out bool aliasHeaderFound)
         {
             diagnostics = new List<DiagnosticMessage>();
+            aliasHeaderFound = false;
             var start = markdownContent.FindHeader(2, "ALIASES");
             if (start == -1)
             {
@@ -744,6 +748,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             var aliasList = GetAliases(markdownContent.Ast, start + 1);
             diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} aliases found", markdownContent.GetTextLine(start)));
+            aliasHeaderFound = true;
             return aliasList;
         }
 
@@ -1034,24 +1039,6 @@ namespace Microsoft.PowerShell.PlatyPS
                     if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
                     {
                         exampleTitle = example.Trim();
-                        /*
-                        // example title with a number and a colon
-                        var exampleRegex1 = new System.Text.RegularExpressions.Regex(@"^Example\s+\d+[ :-]+\s");
-                        // no actual example title
-                        var exampleRegex2 = new System.Text.RegularExpressions.Regex(@"^Example\s+\d+[ :-]$");
-                        if (exampleRegex1.IsMatch(example))
-                        {
-                            exampleTitle = exampleRegex1.Replace(example, string.Empty).Trim();
-                        }
-                        else if (exampleRegex1.IsMatch(example))
-                        {
-                            exampleTitle = exampleRegex2.Replace(example, string.Empty).Trim();
-                        }
-                        else
-                        {
-                            exampleTitle = example.Trim();
-                        }
-                        */
                     }
                 }
 
@@ -1176,19 +1163,19 @@ namespace Microsoft.PowerShell.PlatyPS
                     // yaml does not allow '*' to start a value, so we need to change this to be (all).
                     // yamlBlock = yamlBlock.Replace("* (all)","\"(all)\"");
 
-                    if (ParameterMetadataV2.TryConvertToV2(yamlBlock, out var v2))
-                    {
-                        diagnostics.Add(
-                            new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "Version 2 metadata found", md[parameterItemIndex].Line + 1)
-                        );
-                        parameters.Add(new Parameter(parameterName, description, v2));
-                    }
-                    else if (ParameterMetadataV1.TryConvertToV1(yamlBlock, out var v1))
+                    if (ParameterMetadataV1.TryConvertToV1(yamlBlock, out var v1))
                     {
                         diagnostics.Add(
                             new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "Version 1 metadata found", md[parameterItemIndex].Line + 1)
                         );
                         parameters.Add(Parameter.ConvertV1ParameterToV2(parameterName, description, v1));
+                    }
+                    else if (ParameterMetadataV2.TryConvertToV2(yamlBlock, out var v2))
+                    {
+                        diagnostics.Add(
+                            new DiagnosticMessage(DiagnosticMessageSource.Parameter, $"{parameterName} found", DiagnosticSeverity.Information, "Version 2 metadata found", md[parameterItemIndex].Line + 1)
+                        );
+                        parameters.Add(new Parameter(parameterName, description, v2));
                     }
                     else if (YamlUtils.TryConvertYamlToDictionary(yamlBlock, out var yamlDict))
                     {
@@ -1616,225 +1603,6 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics.Add(dm);
             return index > -1;
         }
-    }
-
-    public class ParsedMarkdownContent
-    {
-        public string FilePath { get; set; }
-        public List<string> MarkdownLines { get; set; }
-        public MarkdownDocument Ast { get; set; }
-        public int CurrentIndex { get; set; }
-        public List<string> Errors { get; set; }
-        public List<string> Warnings { get; set; }
-        public ParsedMarkdownContent(string fileContent)
-        {
-            MarkdownLines = new List<string>(fileContent.Replace("\r", "").Split(Constants.LineSplitter));
-            Ast = Markdig.Markdown.Parse(fileContent);
-            CurrentIndex = 0;
-            Errors = new List<string>();
-            Warnings = new List<string>();
-            FilePath = string.Empty;
-        }
-
-        public ParsedMarkdownContent(string[] lines)
-        {
-            MarkdownLines = new List<string>(lines);
-            Ast = Markdig.Markdown.Parse(string.Join("\n", lines));
-            CurrentIndex = 0;
-            Errors = new List<string>();
-            Warnings = new List<string>();
-            FilePath = string.Empty;
-        }
-
-        public static ParsedMarkdownContent ParseFile(string path)
-        {
-            var parsedMarkdownContent = new ParsedMarkdownContent(File.ReadAllLines(path));
-            parsedMarkdownContent.FilePath = path;
-            return parsedMarkdownContent;
-        }
-
-        public void AddError(string error)
-        {
-            Errors.Add(error);
-        }
-
-        public void AddWarning(string warning)
-        {
-            Warnings.Add(warning);
-        }
-
-        public void UnGet()
-        {
-            if (CurrentIndex > 0)
-            {
-                CurrentIndex--;
-            }
-        }
-
-        public void Reset()
-        {
-            CurrentIndex = 0;
-        }
-
-        public int FindHeader(int level, string title)
-        {
-            for(int i = CurrentIndex+1; i < Ast.Count; i++)
-            {
-                if (Ast[i] is HeadingBlock headerItem && headerItem.Level == level)
-                {
-                    if (title == string.Empty)
-                    {
-                        return i;
-                    }
-                    else if (string.Equals(headerItem?.Inline?.FirstChild?.ToString(), title, StringComparison.OrdinalIgnoreCase))
-                    {
-                        return i;
-                    }
-                }
-            }
-
-            return -1;
-        }
-
-        public bool IsEnd()
-        {
-            return CurrentIndex < 0 || CurrentIndex >= Ast.Count - 1;
-        }
-
-        public object? Peek()
-        {
-            if (IsEnd())
-            {
-                return null;
-            }
-
-            return Ast[CurrentIndex+1];
-        }
-
-        public object? GetCurrent()
-        {
-            if (CurrentIndex < 0 || CurrentIndex >= Ast.Count)
-            {
-                return null;
-            }
-            else
-            {
-                return Ast[CurrentIndex];
-            }
-        }
-
-        public void Seek(int index)
-        {
-            CurrentIndex = index;
-        }
-
-        public object? Take()
-        {
-            if (CurrentIndex >= Ast.Count || CurrentIndex < 0)
-            {
-                return null;
-            }
-
-            try
-            {
-                return Ast[CurrentIndex];
-            }
-            finally
-            {
-                if (IsEnd())
-                {
-                    CurrentIndex = -1;
-                }
-                else
-                {
-                    CurrentIndex++;
-                }
-            }
-        }
-
-        public int GetTextLine(int offset)
-        {
-            if (offset < 0 || offset >= Ast.Count)
-            {
-                return -1;
-            }
-            else
-            {
-                return Ast[offset].Line + 1; // internally, we are 0 based
-            }
-        }
-
-        public bool IsEmptyHeader(int Level)
-        {
-            var currentHeader = Ast[CurrentIndex] as HeadingBlock;
-            var nextHeader = Ast[CurrentIndex + 1] as HeadingBlock;
-            if (currentHeader is not null && nextHeader is not null)
-            {
-                if (currentHeader.Level == Level && nextHeader.Level == Level)
-                {
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        public string GetStringFromAst(int endIndex)
-        {
-            if (endIndex <= CurrentIndex)
-            {
-                return string.Empty;
-            }
-
-            StringBuilder? sb = null;
-            try
-            {
-                sb = Constants.StringBuilderPool.Get();
-                int startLine = Ast[CurrentIndex].Line;
-                int endLine = Ast[endIndex].Line;
-                if (Ast[endIndex] is HeadingBlock)
-                {
-                    endLine--;
-                }
-
-                for(int i = startLine; i < endLine; i++)
-                {
-                    sb.AppendLine(MarkdownLines[i].TrimEnd());
-                }
-                return sb.ToString().Replace("\r", "").Trim();
-            }
-            finally
-            {
-                if (sb is not null)
-                {
-                    Constants.StringBuilderPool.Return(sb);
-                }
-            }
-        }
-
-        public string GetStringFromFile(int lineCount)
-        {
-            StringBuilder? sb = null;
-            try
-            {
-                sb = Constants.StringBuilderPool.Get();
-                int startLine = Ast[CurrentIndex].Line;
-                for(int i = startLine; i < startLine + lineCount; i++)
-                {
-                    sb.AppendLine(MarkdownLines[i].TrimEnd());
-                }
-
-                return sb.ToString().Replace("\r", "");
-            }
-            finally
-            {
-                if (sb is not null)
-                {
-                    Constants.StringBuilderPool.Return(sb);
-                }
-            }
-        }
-
     }
 
     public class MarkdownElement

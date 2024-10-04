@@ -3,22 +3,22 @@
 
 Describe "Test-MarkdownCommandHelp Tests" {
     It "Returns a boolean" {
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md)
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot", "assets", "get-date.md"))
         $result | Should -BeOfType boolean
     }
 
     It "Should report true with a good markdown file" {
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md)
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot", "assets","get-date.md"))
         $result | Should -Be $true
     }
 
     It "Should report false with a bad markdown file" {
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets bad-commandhelp.md)
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot","assets","bad-commandhelp.md"))
         $result | Should -Be $false
     }
 
     It "Should report details with the -DetailView parameter" {
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md) -DetailView
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot","assets","get-date.md")) -DetailView
         $result | Should -BeOfType Microsoft.PowerShell.PlatyPS.MarkdownCommandHelpValidationResult
         $result.Path | Should -BeOfType string
         $result.Path | Should -Exist
@@ -27,7 +27,7 @@ Describe "Test-MarkdownCommandHelp Tests" {
     }
 
     It "Should report no failures in the details with a good markdown file" {
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md) -DetailView
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot","assets","get-date.md")) -DetailView
         $result.Messages | Should -Not -cMatch "FAIL"
     }
 
@@ -44,7 +44,7 @@ Describe "Test-MarkdownCommandHelp Tests" {
         @{ line = 'PASS: RELATED LINKS found.' }
         ) {
         param ($line)
-        $result = Test-MarkdownCommandHelp (Join-Path $PSScriptRoot assets get-date.md) -DetailView
+        $result = Test-MarkdownCommandHelp ([io.path]::Combine("$PSScriptRoot", "assets", "get-date.md")) -DetailView
         $result.Messages | Should -Contain $line
     }
 }

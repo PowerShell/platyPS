@@ -70,7 +70,10 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteSynopsis(CommandHelp help)
         {
-            sb.AppendLine(string.Format("{0} '{1}'", Constants.SynopsisYamlHeader, help.Synopsis));
+            var synopsisHash = new Hashtable();
+            synopsisHash.Add("synopsis", help.Synopsis);
+            var synopsisString = YamlUtils.SerializeElement(synopsisHash).Trim();
+            sb.AppendLine(synopsisString);
         }
 
         internal override void WriteSyntax(CommandHelp help)

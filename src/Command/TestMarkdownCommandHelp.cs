@@ -2,78 +2,59 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Management.Automation;
-using System.Text;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-    public class MarkdownCommandHelpValidationResult
-    {
-        public string Path { get; set; }
-        public bool IsValid { get; set; }
-        public List<string> Messages { get; set; }
-        public MarkdownCommandHelpValidationResult()
-        {
-            Path = string.Empty;
-            IsValid = true;
-            Messages = new List<string>();
-        }
-
-        public MarkdownCommandHelpValidationResult(string path, bool isValid, List<string> messages)
-        {
-            Path = path;
-            IsValid = isValid;
-            Messages = messages;
-        }
-
-        public override string ToString()
-        {
-            return $"Path: {Path}, IsValid: {IsValid}";
-        }
-
-    }
-
-
     [Cmdlet(VerbsDiagnostic.Test, "MarkdownCommandHelp")]
     [OutputType(typeof(bool))]
     [OutputType(typeof(MarkdownCommandHelpValidationResult))]
     public class TestMarkdownCommandHelpCommand : PSCmdlet
     {
-        [Parameter(Position = 0, Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
+        /// <summary>
+        /// Gets or Sets the path to the item.
+        /// </summary>
+        [Parameter(Position = 0, ParameterSetName = "Item", Mandatory = true, ValueFromPipeline = true, ValueFromPipelineByPropertyName = true)]
         [SupportsWildcards]
-        public string[] FullName { get; set; } = Array.Empty<string>();
+        public string[] Path { get; set; } = Array.Empty<string>();
+
+        /// <summary>
+        /// Gets or Sets the literal path to the item.
+        /// </summary>
+        [Parameter(Mandatory = true, ValueFromPipelineByPropertyName = true, ParameterSetName = "Literal")]
+        [Alias("PSPath", "LP")]
+        public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
         [Parameter]
         public SwitchParameter DetailView { get; set; }
 
         protected override void ProcessRecord()
         {
-            foreach (var name in FullName)
+            List<string> resolvedPaths;
+            try
             {
-                foreach(var globbedPath in this.SessionState.Path.GetResolvedPSPathFromPSPath(name))
+                // This is a list because the resolution process can result in multiple paths (in the case of non-literal path).
+                resolvedPaths = PathUtils.ResolvePath(this, (ParameterSetName == "LiteralPath" ? LiteralPath : Path), ParameterSetName == "LiteralPath" ? true : false);
+            }
+            catch (Exception e)
+            {
+                WriteError(new ErrorRecord(e, "Could not resolve Path", ErrorCategory.InvalidOperation, ParameterSetName == "LiteralPath" ? LiteralPath : Path));
+                return;
+            }
+
+            foreach (var resolvedPath in resolvedPaths)
+            {
+                var result = MarkdownConverter.ValidateMarkdownFile(resolvedPath, out var Detail);
+                if (DetailView)
                 {
-                    List<string> Detail;
-                    if (globbedPath.Provider.Name.Equals("FileSystem"))
-                    {
-                        var result = MarkdownConverter.ValidateMarkdownFile(globbedPath.Path, out Detail);
-                        if (DetailView)
-                        {
-                            WriteObject(new MarkdownCommandHelpValidationResult(globbedPath.Path, result, Detail));
-                        }
-                        else
-                        {
-                            WriteObject(result);
-                        }
-                    }
-                    else
-                    {
-                        WriteError(new ErrorRecord(new ArgumentException("Path must be a file path"), "NotAFilePath", ErrorCategory.InvalidArgument, globbedPath.Path));
-                    }
+                    WriteObject(new MarkdownCommandHelpValidationResult(resolvedPath, result, Detail));
+                }
+                else
+                {
+                    WriteObject(result);
                 }
             }
         }
-
     }
 }

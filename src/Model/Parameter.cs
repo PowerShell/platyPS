@@ -72,6 +72,10 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             DefaultValue = parameter.DefaultValue;
             Description = parameter.Description;
             HelpMessage = parameter.HelpMessage;
+            SupportsWildcards = parameter.SupportsWildcards;
+            IsDynamic = parameter.IsDynamic;
+            DontShow = parameter.DontShow;
+            VariableLength = parameter.VariableLength;
         }
 
         public void AddRequiredParameterSetsRange(bool required, IEnumerable<string> parameterSetNames)

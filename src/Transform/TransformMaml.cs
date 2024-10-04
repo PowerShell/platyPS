@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
@@ -11,6 +12,7 @@ using System.Text;
 using System.Xml;
 
 using Microsoft.PowerShell.PlatyPS.Model;
+using Microsoft.PowerShell.PlatyPS.YamlWriter;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -49,6 +51,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
             var mamlFileInfo = new FileInfo(mamlFile);
             string moduleName = mamlFileInfo.Name.Remove(mamlFileInfo.Name.Length - Constants.MamlFileExtensionSuffix.Length);
+            if (moduleName.EndsWith(".dll", true, CultureInfo.InvariantCulture))
+            {
+                moduleName = moduleName.Remove(moduleName.Length - 4);
+            }
 
             using StreamReader stream = new(mamlFile);
 
@@ -68,6 +74,17 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (cmdHelp is not null)
                 {
                     cmdHelp.ModuleName = moduleName;
+                    // Fix up some metadata from the help object
+                    if (cmdHelp.Metadata is not null)
+                    {
+                        cmdHelp.Metadata["external help file"] = mamlFileInfo.Name;
+                        var link = cmdHelp.RelatedLinks.Where(rl => string.Compare(rl.LinkText, "Online Version:", true) == 0);
+                        if (link is not null && link.Count() > 0)
+                        {
+                            cmdHelp.Metadata["HelpUri"] = link.First<Links>().Uri;
+                        }
+                    }
+
                     commandHelps.Add(cmdHelp);
                 }
             }
@@ -100,6 +117,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     cmdHelp.Parameters.RemoveAll(p => string.Compare(p.Name, MAML.Constants.NoCommonParameter, true) == 0);
                 }
+
+                cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdHelp);
 
                 _paramSetMap.Clear();
             }
@@ -403,6 +422,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 while (reader.ReadToNextSibling(Constants.MamlCommandParameterTag))
                 {
                     var parameter = ReadParameter(reader.ReadSubtree(), parameterSetCount: -1);
+                    syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
                     try
                     {
                         // This may possibly throw because the position is duplicated.
@@ -411,6 +431,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         // In this case, we will try to add the parameter with a negative position to show we
                         // could not assign it appropriately.
                         syntaxItem.AddParameter(parameter);
+                        syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
                     }
                     catch
                     {

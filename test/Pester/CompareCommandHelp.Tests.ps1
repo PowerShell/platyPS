@@ -5,8 +5,9 @@ Describe "Compare-CommandHelp can find differences" {
     BeforeAll {
         $ch1 = Import-MarkdownCommandHelp "${PSScriptRoot}/assets/get-date.md"
         $ch2 = Import-MarkdownCommandHelp "${PSScriptRoot}/assets/get-date.alt01.md"
-        $result1 = Compare-CommandHelp $ch1 $ch2
+        $result1 = Compare-CommandHelp $ch1 $ch2 -PropertyNamesToExclude @()
         $result2 = Compare-CommandHelp $ch1 $ch2 -PropertyNamesToExclude Diagnostics
+        $result3 = Compare-CommandHelp $ch1 $ch2
     }
 
     It "Should properly identify that the objects are different" {
@@ -34,5 +35,13 @@ Describe "Compare-CommandHelp can find differences" {
         $observed = $result2.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.Substring(2).trim().split()[0]})
         $observed | Should -Be $expected
 
+    }
+
+    It "Default excluded properties should be Diagnostics and ParameterNames" {
+        $expected = "M excluding comparison of CommandHelp.AliasHeaderFound",
+                    "M excluding comparison of CommandHelp.Diagnostics",
+                    "M excluding comparison of CommandHelp.Syntax.ParameterNames"
+        $observed = $result3.split("`n").Where({$_ -match "excluding comparison"})|Sort-Object -Unique
+        $observed | Should -Be $expected
     }
 }

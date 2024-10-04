@@ -18,22 +18,35 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal object AttemptParameterConvert(EngineIntrinsics engineIntrinsics, string name, Type type)
         {
-            if (type == typeof(PSModuleInfo))
+            using (var powershell = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace))
             {
-                var module = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace).AddCommand("Get-Module").AddParameter("Name", name).Invoke<PSModuleInfo>().First();
-                if (module is not null)
+                if (type == typeof(PSModuleInfo))
                 {
-                    return module;
+                    var results = powershell.AddCommand("Get-Module").AddParameter("Name", name).Invoke<PSModuleInfo>();
+                    powershell.Commands.Clear();
+                    if (results.Count == 0)
+                    {
+                        results = powershell.AddCommand("Import-Module").AddParameter("Name", name).AddParameter("PassThru").Invoke<PSModuleInfo>();
+                        powershell.Commands.Clear();
+                    }
+
+                    if (results.Count == 1 && results[0] is PSModuleInfo module)
+                    {
+                        return module;
+                    }
+                }
+
+                if (type == typeof(CommandInfo))
+                {
+                    var cmd = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace).AddCommand("Get-Command").AddParameter("Name", name).Invoke<CommandInfo>().First();
+                    if (cmd is not null)
+                    {
+                        return cmd;
+                    }
                 }
             }
-            if (type == typeof(CommandInfo))
-            {
-                var cmd = System.Management.Automation.PowerShell.Create(RunspaceMode.CurrentRunspace).AddCommand("Get-Command").AddParameter("Name", name).Invoke<CommandInfo>().First();
-                if (cmd is not null)
-                {
-                    return cmd;
-                }
-            }
+
+            // We could not convert it, just return it for parameter binding.
             return name;
         }
 

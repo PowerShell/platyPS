@@ -60,6 +60,16 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 }
             }
 
+            // Notes are reconstituted as Alerts in AlertSet
+            // We don't break up these lines, but provide a single paragraph
+            // to get better formatting.
+            if (commandHelp.Notes is not null)
+            {
+                AlertItem alert = new();
+                alert.Remark.Add(commandHelp.Notes);
+                command.AlertSet.Add(alert);
+            }
+
             if (commandHelp.Syntax is not null)
             {
                 foreach (var syntax in commandHelp.Syntax)

@@ -3,12 +3,8 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
 using Microsoft.PowerShell.PlatyPS.YamlWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -24,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public CommandHelp[] Command { get; set; } = Array.Empty<CommandHelp>();
+        public CommandHelp[] CommandHelp { get; set; } = Array.Empty<CommandHelp>();
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
@@ -68,9 +64,20 @@ namespace Microsoft.PowerShell.PlatyPS
 
         protected override void ProcessRecord()
         {
-            foreach (CommandHelp ch in Command)
+            foreach (CommandHelp ch in CommandHelp)
             {
-                var yamlPath = Path.Combine($"{fullPath}", $"{ch.Title}.yml");
+                if (! ShouldProcess(ch.ToString()))
+                {
+                    continue;
+                }
+
+                var yamlBasePath = Path.Combine($"{fullPath}", $"{ch.ModuleName}");
+                if (! Directory.Exists(yamlBasePath))
+                {
+                    Directory.CreateDirectory(yamlBasePath);
+                }
+
+                var yamlPath = Path.Combine($"{yamlBasePath}", $"{ch.Title}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?

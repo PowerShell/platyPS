@@ -94,8 +94,24 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
         {
             sb.AppendLine(Constants.mdAliasHeader);
             sb.AppendLine();
-            sb.AppendLine(Constants.AliasMessage);
-            sb.AppendLine();
+            if (help is null)
+            {
+                return;
+            }
+            else if (help?.Aliases is not null && help.Aliases.Count > 0 )
+            {
+                sb.AppendLine(Constants.AliasMessage1);
+                foreach(var alias in help.Aliases)
+                {
+                    sb.AppendLine($"   {alias}");
+                }
+                sb.AppendLine();
+            }
+            else if (help is not null && ! help.AliasHeaderFound)
+            {
+                sb.AppendLine(Constants.AliasMessage);
+                sb.AppendLine();
+            }
         }
 
         internal override void WriteExamples(CommandHelp help)
@@ -115,17 +131,6 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
                 sb.AppendLine($"{example.Remarks}");
                 sb.AppendLine();
             }
-
-            /*
-            int? totalExamples = help?.Examples?.Count;
-
-            for (int i = 0; i < totalExamples; i++)
-            {
-                sb.Append(help?.Examples?[i].ToExampleItemString(Constants.mdExampleItemHeaderTemplate, i + 1));
-                sb.AppendLine(); // new line for ToExampleItemString
-                sb.AppendLine(); // new line after each example
-            }
-            */
         }
 
         internal override void WriteParameters(CommandHelp help)

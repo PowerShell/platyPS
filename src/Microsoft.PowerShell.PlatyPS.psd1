@@ -51,8 +51,11 @@ CmdletsToExport = @(
     'Export-MamlCommandHelp',
     'Test-MarkdownCommandHelp',
     'New-CommandHelp',
+    'New-MarkdownModuleFile',
     'Compare-CommandHelp',
+    'Measure-PlatyPSMarkdown',
     'Update-MarkdownCommandHelp',
+    'Update-MarkdownModuleFile',
     'Update-CommandHelp'
 )
 

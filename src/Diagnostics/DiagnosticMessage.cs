@@ -69,5 +69,16 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Identifier = identifier;
             Line = line;
         }
+
+        public override string ToString()
+        {
+            var message = string.IsNullOrEmpty(Identifier) ? Message[0] : Identifier;
+            if (message.Length > 65)
+            {
+                message = message.Substring(0, 65) + "...";
+            }
+
+            return string.Format("{0,-12} {1,-22} {2}", Severity.ToString(), Source.ToString(), message);
+        }
     }
 }

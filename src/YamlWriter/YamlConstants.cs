@@ -17,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string YamlExtension = "yml";
         internal const string Example1 = "Example 1";
         internal const string ModuleNameHeaderTemplate = "Module Name: {0}";
-        internal const string DownloadHelpLinkTitle = "Download Help Link: ";
+        internal const string DownloadHelpLinkTitle = "HelpInfoUri: ";
         internal const string HelpVersionTitle = "Help Version: ";
         internal const string LocaleTemplate = "Locale: {0}";
         internal const string ModuleGuidHeaderTemplate = "Module Guid: {0}";

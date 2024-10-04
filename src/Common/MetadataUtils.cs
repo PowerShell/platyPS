@@ -4,21 +4,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Management.Automation;
-using System.Management.Automation.Language;
-using Microsoft.PowerShell.PlatyPS.Model;
 using System.Collections.Specialized;
-using YamlDotNet.Core.Tokens;
-// using System.Net.Configuration;
-using Microsoft.PowerShell.Commands;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Runtime.InteropServices;
-using System.Security.Cryptography.X509Certificates;
+using System.Globalization;
 using System.IO;
+using System.Linq;
+using System.Management.Automation;
+using Microsoft.PowerShell.PlatyPS.Model;
+using Microsoft.PowerShell.Commands;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -36,7 +28,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 { "document type", "cmdlet" },
                 { "title", help.Title },
                 { "Module Name", help.ModuleName },
-                { "Locale", help.Locale.Name },
+                { "Locale", string.IsNullOrEmpty(help.Locale.Name) ? "en-US" : help.Locale.Name },
                 { "PlatyPS schema version", "2024-05-01" }, // was schema
                 { "HelpUri", help.OnlineVersionUrl }, // was online version
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
@@ -101,7 +93,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 { "document type", "module" },
                 { "HelpInfoUri", "xxx" }, // was Download Help Link
-                { "Locale", moduleFileInfo.Locale.Name },
+                { "Locale", string.IsNullOrEmpty(moduleFileInfo.Locale.Name) ? "en-US" : moduleFileInfo.Locale.Name },
                 { "PlatyPS schema version", "2024-05-01" },
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", moduleFileInfo.Title },
@@ -111,13 +103,13 @@ namespace Microsoft.PowerShell.PlatyPS
             return metadata;
         }
 
-        public static SortedDictionary<string, string> GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
+        public static OrderedDictionary GetModuleFileBaseMetadata(PSModuleInfo moduleInfo, CultureInfo? locale)
         {
-            SortedDictionary<string, string> metadata = new()
+            OrderedDictionary metadata = new()
             {
                 { "document type", "module" },
                 { "HelpInfoUri", moduleInfo.HelpInfoUri }, // was Download Help Link
-                { "Locale", locale?.Name ?? "en-us" },
+                { "Locale", locale?.Name ?? "en-US" },
                 { "PlatyPS schema version", "2024-05-01" },
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
                 { "title", $"{moduleInfo.Name} Module" },
@@ -133,9 +125,9 @@ namespace Microsoft.PowerShell.PlatyPS
         /// </summary>
         /// <param name="help">A ModuleFileInfo object to use.</param>
         /// <returns>A Dictionary with the base metadata for a command help file.</returns>
-        public static SortedDictionary<string, string> GetModuleFileBaseMetadata(string title, string name, CultureInfo? locale)
+        public static OrderedDictionary GetModuleFileBaseMetadata(string title, string name, CultureInfo? locale)
         {
-            SortedDictionary<string, string> metadata = new()
+            OrderedDictionary metadata = new()
             {
                 { "document type", "module" },
                 { "HelpInfoUri", string.Empty }, // was Download Help Link
@@ -162,6 +154,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private static Hashtable keysToMigrate = new Hashtable()
         {
+            { "Download Help Link", "HelpInfoUri" },
             { "online version", "HelpUri" },
             { "schema", "PlatyPS schema version" },
         };
@@ -220,39 +213,43 @@ namespace Microsoft.PowerShell.PlatyPS
         /// This ensures that we migrate the obsolete keys in metadata to the new versions.
         /// </summary>
         /// <param name="metadata"></param>
-        public static SortedDictionary<string, string> FixUpModuleFileMetadata(OrderedDictionary metadata)
+        public static OrderedDictionary FixUpModuleFileMetadata(OrderedDictionary metadata)
         {
-            SortedDictionary<string, string> od = new();
+            OrderedDictionary od = new();
             foreach (var key in metadata.Keys)
             {
                 if (keysToMigrate.ContainsKey(key))
                 {
                     // Create the new key and ignore the old key
-                    od[keysToMigrate[key].ToString()] = metadata[key].ToString();
+                    od[keysToMigrate[key].ToString()] = metadata[key] is null ? string.Empty : metadata[key];
                 }
                 else
                 {
-                    od[key.ToString()] = metadata[key].ToString();
+                    od[key.ToString()] = metadata[key] is null ? string.Empty : metadata[key];
                 }
             }
 
             // Remove the older keys that should have been migrated.
             foreach (var key in keysToMigrate.Keys)
             {
-                if (od.ContainsKey(key.ToString()))
+                if (od.Contains(key.ToString()))
                 {
                     od.Remove(key.ToString());
                 }
             }
 
             // Fix the version for the new schema version
-            if (od.ContainsKey(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
+            if (od.Contains(Constants.SchemaVersionKey) && string.Compare(od[Constants.SchemaVersionKey].ToString(), "2.0.0") == 0)
+            {
+                od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
+            }
+            else if (!od.Contains(Constants.SchemaVersionKey))
             {
                 od[Constants.SchemaVersionKey] = Constants.SchemaVersion;
             }
 
             // Be sure that document type is correctly present.
-            if (! od.ContainsKey("document type"))
+            if (! od.Contains("document type"))
             {
                 od["document type"] = "module";
             }
@@ -260,9 +257,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return od;
         }
 
-        internal static bool TryGetGuidFromMetadata(SortedDictionary<string, string> metadata, string term, out Guid guid)
+        internal static bool TryGetGuidFromMetadata(OrderedDictionary metadata, string term, out Guid guid)
         {
-            if (metadata.ContainsKey(term))
+            if (metadata.Contains(term))
             {
                 if (metadata[term] is not null && Guid.TryParse(metadata[term].ToString(), out var result))
                 {
@@ -275,9 +272,9 @@ namespace Microsoft.PowerShell.PlatyPS
             return false;
         }
 
-        internal static bool TryGetStringFromMetadata(SortedDictionary<string, string> metadata, string term, out string str)
+        internal static bool TryGetStringFromMetadata(OrderedDictionary metadata, string term, out string str)
         {
-            if (metadata.ContainsKey(term))
+            if (metadata.Contains(term))
             {
                 if (metadata[term] is not null)
                 {
@@ -371,7 +368,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         internal static OrderedDictionary DeserializeMetadataText(string metadataBlock)
         {
-            if (YamlUtils.TryGetMetadataFromText(metadataBlock, out OrderedDictionary md))
+            if (YamlUtils.TryGetOrderedDictionaryFromText(metadataBlock, out OrderedDictionary md))
             {
                 return md;
             }

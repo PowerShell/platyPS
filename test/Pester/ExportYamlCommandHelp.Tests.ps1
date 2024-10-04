@@ -9,8 +9,8 @@ Describe "Export-YamlCommandHelp tests" {
         $testMDFile = "$TestDrive/Get-Date.md"
         Get-Content $markdownFile | Set-Content "$testMDFile"
         $ch = Import-MarkdownCommandHelp $testMDFile
-        $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
-        $outputFile = "$TESTDRIVE/Get-Date.yml"
+        $yamlFilePath = $ch | Export-YamlCommandHelp -outputfolder $TESTDRIVE -Force
+        $outputFile = $yamlFilePath.FullName
         Import-Module "$PSScriptRoot/PlatyPS.Test.psm1"
         $yamlDict = Import-CommandYaml $outputFile -PreserveOrder
     }
@@ -40,7 +40,7 @@ Describe "Export-YamlCommandHelp tests" {
         ) {
             param ($key, $offset)
             $yamlDict.Contains($key) | Should -Be $true
-            $yamlDict.Keys[$offset] | Should -Be $key
+            @($yamlDict.Keys)[$offset] | Should -Be $key
         }
     }
 
@@ -70,6 +70,15 @@ Describe "Export-YamlCommandHelp tests" {
     }
 
     Context "Synopsis" {
+        It "Can handle unexpected strings" {
+            $str = "This is ""goin'"" to work!"
+            $h = Get-Command New-CommandHelp | New-CommandHelp
+            $h.Synopsis = $str
+            $yamlFile = $h | Export-YamlCommandHelp -outputfolder $TestDrive
+            $y = Import-YamlCommandHelp $yamlFile
+            $y.synopsis | Should -BeExactly $str
+        }
+
         It "Should preserve the synopsis" {
             $yamlDict['synopsis'] | Should -Be $ch.Synopsis
         }

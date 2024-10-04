@@ -74,13 +74,13 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             try
             {
-                var result = new DeserializerBuilder().Build().Deserialize<ParameterMetadataV2>(yaml);
+                var result = new DeserializerBuilder().IgnoreUnmatchedProperties().Build().Deserialize<ParameterMetadataV2>(yaml);
                 v2 = result;
                 return true;
             }
-            catch
+            catch (Exception deserializationFailure)
             {
-                ; // do nothing we couldn't parse the yaml, and we'll return false.
+                Console.WriteLine(deserializationFailure.Message);
             }
 
             v2 = new ParameterMetadataV2();

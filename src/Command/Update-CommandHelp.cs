@@ -2,19 +2,12 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Text;
-using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -88,6 +81,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
 
                     var mergedCommandHelp = Merge(commandHelpObject, helpObjectFromCmdlet);
+                    if (mergedCommandHelp.Metadata is not null)
+                    {
+                        mergedCommandHelp.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
+                    }
+
                     WriteObject(mergedCommandHelp);
                 }
                 catch (Exception e)
@@ -113,6 +111,9 @@ namespace Microsoft.PowerShell.PlatyPS
                 helpCopy.Syntax.AddRange(mergedSyntaxList);
             }
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
+
+            // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            helpCopy.AliasHeaderFound = true;
 
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))

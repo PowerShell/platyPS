@@ -4,16 +4,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using System.IO;
-using System.Linq;
-using System.Management.Automation.Runspaces;
-using System.Runtime.InteropServices;
-using Markdig.Parsers;
-using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
-using YamlDotNet;
-using YamlDotNet.Core.Tokens;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -126,7 +118,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
         /// <summary>
         /// Serialize the metadata for exporting.
-        /// We convert the ordered dictionary into a sorted dictionary.
+        /// We convert the ordered dictionary into a sorted dictionary
+        /// because we want the keys to be more easily findable.
         /// </summary>
         /// <param name="metadata">An ordered dictionary representing the metadata</param>
         /// <returns>System.String</returns>
@@ -154,12 +147,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 var output = camelCaseDeserializer?.Deserialize<ModuleFileInfo>(File.ReadAllText(path));
                 if (output is not null)
                 {
-                    if (output.Metadata.ContainsKey("Module Name"))
+                    if (output.Metadata.Contains("Module Name"))
                     {
                         output.Module = output.Metadata["Module Name"].ToString();
                     }
 
-                    if (output.Metadata.ContainsKey("Module Guid"))
+                    if (output.Metadata.Contains("Module Guid"))
                     {
                         if (Guid.TryParse(output.Metadata["Module Guid"].ToString(), out Guid mGuid))
                         {
@@ -212,6 +205,10 @@ namespace Microsoft.PowerShell.PlatyPS
             if (dictionary["notes"] is string notes)
             {
                 help.Notes = notes;
+            }
+            else
+            {
+                help.Notes = string.Empty;
             }
 
             help.Syntax.AddRange(GetSyntaxFromDictionary(dictionary));
@@ -654,6 +651,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 sp.Position = position.ToString();
                 position++;
             }
+            else if (pName.StartsWith("[") && pName.EndsWith("]")) // [-Thing] <type> mandatory, positional
+            {
+                sp.IsPositional = true;
+                sp.Position = position.ToString();
+                sp.IsMandatory = true;
+                position++;
+            }
             else // [-Thing <type>] optional, but named
             {
                 sp.Position = "named";
@@ -681,22 +685,22 @@ namespace Microsoft.PowerShell.PlatyPS
             OrderedDictionary od = new();
             foreach (var k in metadata.Keys)
             {
-                od[k.ToString()] = metadata[k].ToString();
+                od[k.ToString()] = metadata[k];
             }
 
             return od;
         }
 
-        internal static bool TryGetMetadataFromText(string text, out OrderedDictionary metadata)
+        internal static bool TryGetOrderedDictionaryFromText(string text, out OrderedDictionary oDictionary)
         {
             try
             {
-                metadata = deserializer.Deserialize<OrderedDictionary>(text);
+                oDictionary = deserializer.Deserialize<OrderedDictionary>(text);
                 return true;
             }
             catch
             {
-                metadata = new();
+                oDictionary = new();
                 return false;
             }
         }

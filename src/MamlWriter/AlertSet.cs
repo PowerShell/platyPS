@@ -15,7 +15,12 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         ///     The command name for this syntax.
         /// </summary>
         [XmlElement("para", Namespace = Constants.XmlNamespace.MAML, Order = 0)]
-        public string Remark { get; set; } = string.Empty;
+        public List<string> Remark { get; set; }
+
+        public AlertItem()
+        {
+            Remark = new();
+        }
 
     }
 }

@@ -40,10 +40,9 @@ Describe "Export-MarkdownCommandHelp" {
             }
 
             $result1 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder
-            start-sleep 1
+            "" > $result1.FullName
             $result2 = Export-MarkdownCommandHelp -Command $ch -OutputFolder $outputBaseFolder -Force
             $result1.Length | Should -Be $result2.Length
-            $result1.LastWriteTime | Should -Not -Be $result2.LastWriteTime
         }
 
         It "CommandHelp without modulename should be exported to the OutputFolder" {
@@ -68,6 +67,21 @@ Describe "Export-MarkdownCommandHelp" {
             $dirs.Count | Should -Be $chs.Count
         }
 
+    }
+
+    Context "File Content - Alias" {
+        BeforeAll {
+            $chCopy = [Microsoft.PowerShell.PlatyPS.Model.CommandHelp]::new($ch)
+            $chCopy.AliasHeaderFound = $true
+        }
+
+        It "Should not add alias boiler plate" {
+            $ch.AliasHeaderFound | Should -Be $false
+            $noAlias = $chCopy | Export-MarkdownCommandHelp -OutputFolder $outputBaseFolder
+            $observed = $noAlias | Import-MarkdownCommandHelp
+            $observed.Alias.Count | Should -Be 0
+            $observed.AliasHeaderFound | Should -Be $true
+        }
     }
 
     Context "File Content - Metadata" {

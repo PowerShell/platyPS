@@ -3,8 +3,6 @@
 
 using System;
 using System.Collections;
-using System.Collections.ObjectModel;
-using System.Globalization;
 using System.IO;
 using System.Management.Automation;
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -22,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
         #region cmdlet parameters
 
         [Parameter(Mandatory = true, ValueFromPipeline = true, Position = 0)]
-        public ModuleFileInfo[] ModuleFile { get; set; } = Array.Empty<ModuleFileInfo>();
+        public ModuleFileInfo[] ModuleFileInfo { get; set; } = Array.Empty<ModuleFileInfo>();
 
         [Parameter]
         [ArgumentToEncodingTransformation]
@@ -41,25 +39,38 @@ namespace Microsoft.PowerShell.PlatyPS
         #endregion
 
         private DirectoryInfo? outputFolder;
+        private bool outputFolderCheck = true;
 
         protected override void BeginProcessing()
         {
-            outputFolder = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
+            if (Force || ShouldProcess(OutputFolder))
+            {
+                outputFolder = PathUtils.CreateOrGetOutputDirectory(this, OutputFolder, Force);
+            }
+            else
+            {
+                outputFolderCheck = false;
+            }
         }
 
         protected override void ProcessRecord()
         {
             string moduleName;
-            if (outputFolder is null)
+            if (outputFolderCheck && outputFolder is null)
             {
                 var missingOutputFolder = new ItemNotFoundException(OutputFolder);
                 ThrowTerminatingError(new ErrorRecord(missingOutputFolder, "ExportYamlModuleFile,MissingOutputFolder", ErrorCategory.ObjectNotFound, OutputFolder));
                 throw missingOutputFolder; // not reached
             }
 
-            foreach (ModuleFileInfo moduleFile in ModuleFile)
+            foreach (ModuleFileInfo moduleFile in ModuleFileInfo)
             {
-                if (moduleFile.Metadata.ContainsKey("Module Name"))
+                if (! ShouldProcess(moduleFile.Module))
+                {
+                    continue;
+                }
+
+                if (moduleFile.Metadata.Contains("Module Name"))
                 {
                     moduleName = moduleFile.Metadata["Module Name"].ToString();
                 }
@@ -69,9 +80,22 @@ namespace Microsoft.PowerShell.PlatyPS
                     continue;
                 }
 
+                // Check for non-overridable keys in the provided Metadata
+                if (Metadata.Keys.Count > 0)
+                {
+                    var badKeys = MetadataUtils.WarnBadKeys(this, Metadata);
+                    badKeys.ForEach(k => Metadata.Remove(k));
+                }
+
                 MetadataUtils.MergeNewModulefileMetadata(Metadata, moduleFile);
 
-                var yamlPath = Path.Combine($"{outputFolder.FullName}", $"{moduleName}.yml");
+                var moduleFolder = Path.Combine(outputFolder?.FullName, moduleName);
+                if (!Directory.Exists(moduleFolder))
+                {
+                    Directory.CreateDirectory(moduleFolder);
+                }
+
+                var yamlPath = Path.Combine($"{moduleFolder}", $"{moduleName}.yml");
                 if (new FileInfo(yamlPath).Exists && ! Force)
                 {
                     // should be error?

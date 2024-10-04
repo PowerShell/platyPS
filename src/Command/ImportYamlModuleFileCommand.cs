@@ -3,13 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
-using Microsoft.PowerShell.PlatyPS;
 using Microsoft.PowerShell.PlatyPS.Model;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -31,6 +27,9 @@ namespace Microsoft.PowerShell.PlatyPS
         [ValidateNotNullOrEmpty]
         public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
+        [Parameter]
+        public SwitchParameter AsDictionary { get; set; }
+
 #endregion
 
         protected override void ProcessRecord()
@@ -50,13 +49,27 @@ namespace Microsoft.PowerShell.PlatyPS
             // These should be resolved paths, whether -LiteralPath was used or not.
             foreach (string path in resolvedPaths)
             {
+                if (AsDictionary)
+                {
+                    if (YamlUtils.TryGetOrderedDictionaryFromText(File.ReadAllText(path), out var dictionaryResult))
+                    {
+                        WriteObject(dictionaryResult);
+                    }
+                    else
+                    {
+                        WriteError(new ErrorRecord(new InvalidOperationException("DeserializationError"), "ImportYamlModuleFile,FailedToConvertYamlToDictionary", ErrorCategory.InvalidOperation, path));
+                    }
+                    continue;
+                }
+                
                 if (YamlUtils.TryReadModuleFile(path, out ModuleFileInfo? moduleFileInfo, out Exception? deserializationError))
                 {
                     WriteObject(moduleFileInfo);
                 }
                 else
                 {
-                    WriteError(new ErrorRecord(deserializationError, "FailedToImportYaml", ErrorCategory.InvalidOperation, path));
+                    var wrappedException = new InvalidDataException($"Could not parse file as a module file. '{path}'", deserializationError);
+                    WriteError(new ErrorRecord(wrappedException, "ImportYamlModuleFile,FailedToConvertYamltoModuleFileInfo", ErrorCategory.InvalidOperation, path));
                 }
             }
         }

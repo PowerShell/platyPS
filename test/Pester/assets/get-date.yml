@@ -8,7 +8,7 @@ metadata:
   PlatyPS schema version: 2024-05-01
   title: Get-Date
 title: Get-Date
-synopsis: 'Gets the current date and time.'
+synopsis: Gets the current date and time.
 syntaxes:
 - commandName: Get-Date
   parameterSetName: DateAndFormat

@@ -2,17 +2,11 @@
 // Licensed under the MIT License.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Drawing.Text;
 using System.Globalization;
 using System.IO;
-using System.IO.Compression;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
 using System.Text;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
@@ -23,7 +17,7 @@ namespace Microsoft.PowerShell.PlatyPS
     /// Cmdlet to import a markdown file and merge it with the session cmdlet of the same name.
     /// </summary>
     [Cmdlet(VerbsData.Update, "MarkdownCommandHelp", DefaultParameterSetName = "Path", SupportsShouldProcess = true, HelpUri = "")]
-    [OutputType(typeof(CommandHelp))]
+    [OutputType(typeof(FileInfo))]
     public sealed class UpdateMarkdownHelpCommand : PSCmdlet
     {
 #region cmdlet parameters
@@ -79,9 +73,22 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 try
                 {
+                    var identity = MarkdownProbe.Identify(path);
+                    if (! identity.IsCommandHelp())
+                    {
+                        WriteError(
+                            new ErrorRecord(
+                                new ArgumentException($"'{path}' is not a CommandHelp file."),
+                                "UpdateMarkdownHelpCommand,InvalidCommandHelpFile",
+                                ErrorCategory.InvalidData,
+                                identity)
+                        );
+                        continue;
+                    }
+
                     var commandHelpObject = MarkdownConverter.GetCommandHelpFromMarkdownFile(path);
                     var commandName = commandHelpObject.Title;
-                    var cmdInfo = SessionState.InvokeCommand.GetCmdlet(commandName);
+                    var cmdInfo = PowerShellAPI.GetCommandInfo(commandName);
                     if (cmdInfo is null)
                     {
                         var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName); 
@@ -90,7 +97,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         continue;
                     }
 
-                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo);
+                    var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo.First());
                     if (helpObjectFromCmdlet is null)
                     {
                         var err = new ErrorRecord(new InvalidOperationException(commandName), "UpdateMarkdownCommandHelp,CmdletConversion", ErrorCategory.InvalidResult, commandName); 
@@ -115,11 +122,11 @@ namespace Microsoft.PowerShell.PlatyPS
 
                         var settings = new WriterSettings(encoding, path);
                         var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                        cmdWrt.Write(mergedCommandHelp, null);
+                        var helpPath = cmdWrt.Write(mergedCommandHelp, null).FullName;
 
                         if (PassThru)
                         {
-                            WriteObject(mergedCommandHelp);
+                            WriteObject(this.InvokeProvider.Item.Get(helpPath));
                         }
                     }
                 }
@@ -147,6 +154,9 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
 
+            // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            helpCopy.AliasHeaderFound = true;
+
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))
             {
@@ -169,7 +179,12 @@ namespace Microsoft.PowerShell.PlatyPS
                 helpCopy.Outputs.Clear();
                 helpCopy.Outputs.AddRange(mergedOutputs);
             }
+
             outputDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
+            if (helpCopy.Metadata is not null)
+            {
+                helpCopy.Metadata["ms.date"] = DateTime.Now.ToString("MM/dd/yyyy");
+            }
 
             return helpCopy;
         }
@@ -246,17 +261,20 @@ namespace Microsoft.PowerShell.PlatyPS
             // dynamic parameters are currently unhandled
             foreach(var param in fromCommand)
             {
-                var helpParam = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0).First<Parameter>();
-                if (helpParam is null)
+                var helpParams = fromHelp.Where(x => string.Compare(x.Name, param.Name) == 0);
+                if (helpParams.Count() == 0)
                 {
                     diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {param.Name}, not found in help.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                     var newParameter = new Parameter(param)
                     {
-                        Description = "**FILL IN DESCRIPTION**"
+                        Description = Constants.FillInDescription,
                     };
                     mergedParameters.Add(param);
+                    continue;
                 }
-                else if (helpParam == param)
+
+                var helpParam = helpParams.First<Parameter>();
+                if (helpParam == param)
                 {
                     diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"No change to {param.Name}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                     mergedParameters.Add(helpParam);

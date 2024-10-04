@@ -3,6 +3,7 @@
 
 Describe "Create valid yaml" {
     BeforeAll {
+        $moduleName = "Microsoft.PowerShell.Core"
         New-Item -Type Directory -Path "${TESTDRIVE}/markdown"
         New-Item -Type Directory -Path "${TESTDRIVE}/yaml"
         New-Item -Type Directory -Path "${TESTDRIVE}/psdocs"
@@ -12,7 +13,7 @@ Describe "Create valid yaml" {
             push-location "${TESTDRIVE}/psdocs"
             try {
                 git clone "https://github.com/PowerShell/PowerShell-Docs"
-                push-location "PowerShell-Docs/reference/7.4/Microsoft.PowerShell.Core"
+                push-location "PowerShell-Docs/reference/7.4/${moduleName}"
                 $mdfiles = Get-ChildItem -filter *.md | Where-Object { $verbs.Verb -Contains ($_.name.split("-")[0]) }
                 Copy-Item $mdfiles "${TESTDRIVE}/markdown"
             }
@@ -41,7 +42,7 @@ Describe "Create valid yaml" {
         }
 
         try {
-            $yamlFilePath = Join-Path "${TESTDRIVE}/yaml" $yamlFileName
+            $yamlFilePath = [io.path]::Combine("${TESTDRIVE}/yaml", $moduleName, $yamlFileName)
             $result = $yamlFilePath | Import-CommandYaml
             $result | Should -Not -BeNullOrEmpty
             $result.GetType().Name | Should -Be "hashtable"

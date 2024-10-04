@@ -4,13 +4,10 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
-using System.Management.Automation.Runspaces;
-
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -19,15 +16,14 @@ namespace Microsoft.PowerShell.PlatyPS
     /// <summary>
     /// Cmdlet to generate the markdown help for commands, all commands in a module.
     /// </summary>
-    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", HelpUri = "")]
+    [Cmdlet(VerbsCommon.New, "MarkdownCommandHelp", SupportsShouldProcess = true, HelpUri = "")]
     [OutputType(typeof(FileInfo[]))]
     public sealed class NewMarkdownHelpCommand : PSCmdlet
     {
         #region cmdlet parameters
 
         [Parameter(ValueFromPipeline = true)]
-        [StringToCommandInfoTransformation]
-        public CommandInfo[] Command { get; set; } = Array.Empty<CommandInfo>();
+        public CommandInfo[] CommandInfo { get; set; } = Array.Empty<CommandInfo>();
 
         [Parameter()]
         [ArgumentToEncodingTransformation]
@@ -56,8 +52,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public Hashtable? Metadata { get; set; }
 
         [Parameter(ValueFromPipeline = true)]
-        [StringToPsModuleInfoTransformation]
-        public PSModuleInfo[] Module { get; set; } = Array.Empty<PSModuleInfo>();
+        public PSModuleInfo[] ModuleInfo { get; set; } = Array.Empty<PSModuleInfo>();
 
         [Parameter(Mandatory = true)]
         public string OutputFolder { get; set; } = Environment.CurrentDirectory;
@@ -67,8 +62,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter]
         public SwitchParameter AbbreviateParameterTypename { get; set; }
-
-        public PSSession? Session { get; set; }
 
         #endregion
 
@@ -87,21 +80,24 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (!Directory.Exists(outputFolderBase))
             {
-                Directory.CreateDirectory(outputFolderBase);
+                if (ShouldProcess(outputFolderBase))
+                {
+                    Directory.CreateDirectory(outputFolderBase);
+                }
             }
         }
 
         // Gather up all of the commands from modules or commands
         protected override void ProcessRecord()
         {
-            if (Command.Length > 0)
+            if (CommandInfo.Length > 0)
             {
-                cmdCollection.AddRange(Command);
+                cmdCollection.AddRange(CommandInfo);
             }
 
-            if (Module.Length > 0)
+            if (ModuleInfo.Length > 0)
             {
-                foreach (var mod in Module)
+                foreach (var mod in ModuleInfo)
                 {
                     cmdCollection.AddRange(mod.ExportedCommands.Values.Where<CommandInfo>(c => c.CommandType != CommandTypes.Alias));
                 }
@@ -111,13 +107,12 @@ namespace Microsoft.PowerShell.PlatyPS
         // now that the commands are all gathered, transform them into command help objects
         protected override void EndProcessing()
         {
-            if (!ShouldProcess(OutputFolder))
-            {
-                return;
-            }
-
             List<CommandHelp> cmdHelpObjs = new List<CommandHelp>();
             Dictionary<string, PSModuleInfo> moduleTable = new();
+            foreach (var providedModule in ModuleInfo)
+            {
+                moduleTable[providedModule.Name] = providedModule;
+            }
 
             if (cmdCollection.Count > 0)
             {
@@ -126,7 +121,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     if (cmd.Module is not null && ! string.IsNullOrEmpty(cmd.Module.Name) && ! moduleTable.ContainsKey(cmd.Module.Name))
                     {
-                        moduleTable[cmd.Module.Name] = cmd.Module;
                         if (HelpInfoUri == string.Empty && ! string.IsNullOrEmpty(cmd.Module.HelpInfoUri))
                         {
                             HelpInfoUri = cmd.Module.HelpInfoUri;
@@ -141,11 +135,10 @@ namespace Microsoft.PowerShell.PlatyPS
                         ExcludeDontShow = false,
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion.ToString(),
-                        Locale = Locale is null ? CultureInfo.CurrentUICulture : new CultureInfo(Locale),
+                        Locale = Locale is null ? CultureInfo.CurrentCulture : new CultureInfo(Locale),
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
-                        Session = Session,
                         UseFullTypeName = ! AbbreviateParameterTypename
                     };
 
@@ -154,7 +147,25 @@ namespace Microsoft.PowerShell.PlatyPS
                         var pr = new ProgressRecord(0, "Transforming cmdlet", $"{cmd.ModuleName}\\{cmd.Name}");
                         pr.PercentComplete = (int)Math.Round(((double)currentOffset++ / (double)(cmdCollection.Count)) * 100);
                         WriteProgress(pr);
-                        cmdHelpObjs.Add(new TransformCommand(transformSettings).Transform(cmd));
+                        var transformedCommand = new TransformCommand(transformSettings).Transform(cmd);
+
+                        if (transformedCommand is null)
+                        {
+                            throw new InvalidDataException("Command transformation failed");
+                        }
+
+                        if (transformedCommand.Metadata is null)
+                        {
+                            transformedCommand.Metadata = new();
+                        }
+
+                        // update the HelpUri if the parameter was used.
+                        if (! string.IsNullOrEmpty(HelpUri))
+                        {
+                            transformedCommand.Metadata["HelpUri"] = HelpUri;
+                        }
+
+                        cmdHelpObjs.Add(transformedCommand);
                     }
                     catch (Exception e)
                     {
@@ -199,6 +210,11 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                 }
 
+                if (! string.IsNullOrEmpty(HelpInfoUri))
+                {
+                    moduleFileInfo.Metadata["HelpInfoUri"] = HelpInfoUri;
+                }
+
                 List<ModuleCommandInfo> mciList = new();
                 foreach(var cmdHelp in group)
                 {
@@ -213,7 +229,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     };
                     mciList.Add(mci);
 
-                    if (! Directory.Exists(moduleFolder))
+                    if (! Directory.Exists(moduleFolder) && ShouldProcess(moduleFolder))
                     {
                         Directory.CreateDirectory(moduleFolder);
                     }
@@ -227,7 +243,10 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     var settings = new WriterSettings(Encoding, helpFilePath);
                     using var cmdWrt = new CommandHelpMarkdownWriter(settings);
-                    WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
+                    if (ShouldProcess(cmdHelp.ToString()))
+                    {
+                        WriteObject(this.InvokeProvider.Item.Get(cmdWrt.Write(cmdHelp, Metadata).FullName));
+                    }
                 }
 
                 if (WithModulePage)
@@ -246,7 +265,10 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         // Update the help version in the module metadata
                         moduleFileInfo.Metadata["Help Version"] = HelpVersion.ToString();
-                        WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                        if (ShouldProcess(moduleFilePath))
+                        {
+                            WriteObject(this.InvokeProvider.Item.Get(modulePageWriter.Write(moduleFileInfo).FullName));
+                        }
                     }
                 }
             }
