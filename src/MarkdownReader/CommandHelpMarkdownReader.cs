@@ -746,8 +746,14 @@ namespace Microsoft.PowerShell.PlatyPS
                 return new List<string>();
             }
 
-            var aliasList = GetAliases(markdownContent.Ast, start + 1);
-            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} aliases found", markdownContent.GetTextLine(start)));
+            var end = markdownContent.FindHeader(2, string.Empty);
+
+            var aliasList = GetAliases(markdownContent, start + 1);
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} alias strings found", markdownContent.GetTextLine(start)));
+            int totalAliasLength = 0;
+            aliasList.ForEach(a => totalAliasLength += a.Length);
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "Alias string length", DiagnosticSeverity.Information, $"alias string length: {totalAliasLength}", markdownContent.GetTextLine(start+1)));
+
             aliasHeaderFound = true;
             return aliasList;
         }
@@ -787,32 +793,15 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         // Avoid turning boilerplate into an alias
-        internal static List<string> GetAliases(MarkdownDocument md, int startIndex)
+        internal static List<string> GetAliases(ParsedMarkdownContent md, int startIndex)
         {
             List<string> aliases = new List<string>();
 
-            while (md[startIndex] is not HeadingBlock)
+            var lines = GetLinesTillNextHeader(md, 2, startIndex);
+            // don't include the boilerplate
+            if (lines.IndexOf(Constants.AliasMessage2) == -1)
             {
-                if (md[startIndex] is ParagraphBlock pb)
-                {
-                    var item = pb?.Inline?.FirstChild;
-
-                    while (item != null)
-                    {
-                        if (item is LiteralInline line)
-                        {
-                            var alias = line.ToString();
-                            if (! ContainsAliasBoilerPlate(alias))
-                            {
-                                aliases.Add(alias);
-                            }
-                        }
-
-                        item = item.NextSibling;
-                    }
-                }
-
-                startIndex++;
+                aliases.Add(lines);
             }
 
             return aliases;

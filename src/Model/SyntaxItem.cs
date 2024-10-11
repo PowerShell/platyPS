@@ -114,7 +114,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
             if (positionList.Count > 0)
             {
-                sortedList.AddRange(positionList.OrderBy(p => int.Parse(p.Position)));
+                sortedList.AddRange(positionList.OrderBy(p => int.TryParse(p.Position, out var pos) ? pos : int.MaxValue));
             }
 
             if (mandatoryList.Count > 0)

@@ -185,33 +185,55 @@ namespace Microsoft.PowerShell.PlatyPS
             if (dictionary["metadata"] is IDictionary<object, object> metadata)
             {
                 help.Metadata = GetMetadataFromDictionary(metadata);
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.General, "Found Metadata", DiagnosticSeverity.Information, "yaml metadata", -1);
             }
 
             if (dictionary["synopsis"] is string synopsis)
             {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Synopsis, $"Synopsis length: {synopsis.Length} ", DiagnosticSeverity.Information, "yaml synopsis", -1);
                 help.Synopsis = synopsis;
+            }
+            else
+            {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Synopsis, "No synopsis", DiagnosticSeverity.Warning, "yaml synopsis", -1);
             }
 
             if (dictionary["title"] is string title)
             {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.General, $"Title length: {title.Length} ", DiagnosticSeverity.Information, "yaml title", -1);
                 help.Title = title;
+            }
+            else
+            {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.General, "No title", DiagnosticSeverity.Warning, "yaml title", -1);
             }
 
             if (dictionary["description"] is string description)
             {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Description, $"Description length: {description.Length} ", DiagnosticSeverity.Information, "yaml description", -1);
                 help.Description = description;
+            }
+            else
+            {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Description, "No description", DiagnosticSeverity.Warning, "yaml description", -1);
             }
 
             if (dictionary["notes"] is string notes)
             {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Notes, $"notes length: {notes.Length} ", DiagnosticSeverity.Information, "yaml notes", -1);
                 help.Notes = notes;
             }
             else
             {
+                help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.Notes, "No description", DiagnosticSeverity.Information, "yaml notes", -1);
                 help.Notes = string.Empty;
             }
 
             help.Syntax.AddRange(GetSyntaxFromDictionary(dictionary));
+            if (help.Aliases is not null)
+            {
+                help.Aliases.AddRange(GetAliasesFromDictionary(dictionary));
+            }
             help.Examples?.AddRange(GetExamplesFromDictionary(dictionary));
             help.Parameters.AddRange(GetParametersFromDictionary(dictionary));
             help.Inputs.AddRange(GetInputsFromDictionary(dictionary));
@@ -225,9 +247,6 @@ namespace Microsoft.PowerShell.PlatyPS
             if (help.Metadata is not null)
             {
                 help.ModuleGuid = help.Metadata.Contains("ModuleGuid") ? new Guid(help.Metadata["ModuleGuid"].ToString()) : null;
-                // help.ExternalHelpFile = help.Metadata.Contains("external help file") ? help.Metadata["external help file"].ToString() : string.Empty;
-                // help.OnlineVersionUrl = help.Metadata.Contains("HelpUri") ? help.Metadata["HelpUri"].ToString() : string.Empty;
-                // help.SchemaVersion = help.Metadata.Contains("PlatyPS schema version") ? help.Metadata["PlatyPS schema version"].ToString() : string.Empty;
                 help.ModuleName = help.Metadata.Contains("Module Name") ? help.Metadata["Module Name"].ToString() : string.Empty;
             }
 
@@ -557,6 +576,19 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
             }
             return links;
+        }
+
+        private static List<string> GetAliasesFromDictionary(OrderedDictionary dictionary)
+        {
+            List<string> aliases = new();
+            if (dictionary["aliases"] is List<object> aliasList)
+            {
+                foreach(var alias in aliasList)
+                {
+                    aliases.Add(alias.ToString());
+                }
+            }
+            return aliases;
         }
 
         private static List<Example> GetExamplesFromDictionary(OrderedDictionary dictionary)
