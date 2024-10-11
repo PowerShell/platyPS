@@ -1,3 +1,6 @@
+# Copyright (c) Microsoft Corporation.
+# Licensed under the MIT License.
+
 Describe "Export-YamlModuleFile tests" {
     BeforeAll {
         $moduleFileNames = "Microsoft.PowerShell.Archive.md", "Microsoft.PowerShell.Core.md",

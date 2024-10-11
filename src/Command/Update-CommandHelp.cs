@@ -113,7 +113,13 @@ namespace Microsoft.PowerShell.PlatyPS
             syntaxDiagnostics.ForEach(d => helpCopy.Diagnostics.TryAddDiagnostic(d));
 
             // Alias - there are no aliases to be found in the cmdlet, but we shouldn't add the boiler plate.
+            // If the boiler plate is found, we'll clear the aliases.
             helpCopy.AliasHeaderFound = true;
+            if (helpCopy.Aliases.Any(s => s.IndexOf(Constants.AliasMessage2, StringComparison.OrdinalIgnoreCase) >= 0))
+            {
+                helpCopy.Aliases?.Clear();
+            }
+
 
             // Parameters
             if (TryGetMergedParameters(helpCopy.Parameters, fromCmdlet.Parameters, out var mergedParametersList, out var paramDiagnostics))

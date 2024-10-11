@@ -117,8 +117,10 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
         {
             if (help.Aliases?.Count > 0)
             {
-                string aliasString = string.Join(", ", help.Aliases);
-                sb.AppendLine($"{Constants.yamlAliasHeader} {aliasString}");
+                Hashtable aliasHash = new();
+                aliasHash.Add("aliases", help.Aliases);
+                string aliasString = YamlUtils.SerializeElement(aliasHash).Trim();
+                sb.AppendLine(aliasString);
             }
             else
             {
