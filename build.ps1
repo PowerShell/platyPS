@@ -66,7 +66,7 @@ if ($PSCmdlet.ParameterSetName -eq 'Build') {
         $moduleRoot = New-Item -Item Directory -Path "$OutputDir/${ModuleName}" -Force
         $depsFolder = New-Item -Item Directory -Path "$moduleRoot/Dependencies" -Force
 
-        $moduleFiles = "$PSScriptRoot/src/${ModuleName}.psd1", "$PSScriptRoot/src/${ModuleName}.Format.ps1xml",$expectedDllPath
+        $moduleFiles = "$PSScriptRoot/src/${ModuleName}.psd1", "${PSScriptRoot}/src/${ModuleName}.psm1", "$PSScriptRoot/src/${ModuleName}.Format.ps1xml",$expectedDllPath
         if ($configuration -eq "debug") {
             $moduleFiles += $expectedPdbPath
         }

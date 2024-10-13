@@ -8,6 +8,7 @@
 
 @{
 
+RootModule = 'Microsoft.PowerShell.PlatyPS.psm1'
 # Version number of this module.
 # Do not edit the version. The version is updated by the build script.
 ModuleVersion = '1.0.0'
@@ -33,7 +34,10 @@ NestedModules = @('Dependencies/YamlDotNet.dll', 'Dependencies/Markdig.Signed.dl
 FormatsToProcess = @('Microsoft.PowerShell.PlatyPS.Format.ps1xml')
 
 # Functions to export from this module
-FunctionsToExport = @()
+FunctionsToExport = @(
+    'Show-HelpPreview',
+    'New-HelpCabinetFile'
+)
 
 # Cmdlets to export from this module
 CmdletsToExport = @(
