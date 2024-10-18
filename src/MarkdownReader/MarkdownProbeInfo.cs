@@ -90,6 +90,16 @@ namespace Microsoft.PowerShell.PlatyPS
             return (FileType & MarkdownFileType.CommandHelp) == MarkdownFileType.CommandHelp;
         }
 
+        public bool IsAboutTopic()
+        {
+            return (FileType & MarkdownFileType.AboutTopic) == MarkdownFileType.AboutTopic;
+        }
+
+        public override string ToString()
+        {
+            return $"{Title}";
+        }
+
         /// <summary>
         /// Determine the content type by looking at various properties.
         /// This method inspects the metadata, if it exists, as well as the markdown content.

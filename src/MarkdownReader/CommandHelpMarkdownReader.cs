@@ -746,10 +746,18 @@ namespace Microsoft.PowerShell.PlatyPS
                 return new List<string>();
             }
 
+            markdownContent.Take();
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"alias header is AST {start}", markdownContent.GetTextLine(start)));
             var end = markdownContent.FindHeader(2, string.Empty);
+            // If there is no content between the ALIASES header and the next header, report that as no aliases found.
+            if (start + 1 == end)
+            {
+                aliasHeaderFound = true;
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "No ALIASES found", DiagnosticSeverity.Information, "Alias header AST {start} - next header AST {end}", markdownContent.GetTextLine(start)));
+                return new List<string>();
+            }
 
             var aliasList = GetAliases(markdownContent, start + 1);
-            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} alias strings found", markdownContent.GetTextLine(start)));
             int totalAliasLength = 0;
             aliasList.ForEach(a => totalAliasLength += a.Length);
             diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "Alias string length", DiagnosticSeverity.Information, $"alias string length: {totalAliasLength}", markdownContent.GetTextLine(start+1)));
@@ -1168,6 +1176,9 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                     else if (YamlUtils.TryConvertYamlToDictionary(yamlBlock, out var yamlDict))
                     {
+                        diagnostics.Add(
+                            new DiagnosticMessage(DiagnosticMessageSource.Parameter, "LastChance! Yaml may be invalid.", DiagnosticSeverity.Warning, yamlBlock, md[parameterItemIndex].Line + 1)
+                        );
                         // Last ditch effort - try a dictionary
                         AddParseError(parameterName, "YAML may have illegal elements, trying last chance", paramYamlBlock.Line);
                         if (YamlUtils.TryLastChance(yamlBlock, out var lastChance))

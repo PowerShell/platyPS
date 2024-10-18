@@ -45,6 +45,21 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         }
     }
 
+    Context "Validate Aliases" {
+        It "Should handle empty aliases" {
+            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-Date.V2.md"
+            $ch.Aliases | Should -BeNullOrEmpty
+        }
+
+        It "Should handle present aliases" {
+            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.V2.md"
+            $regex = ([regex]::new("^PowerShell.*dir.*gci.*ls", "SingleLine"))
+            $ch.Aliases.Count | Should -Be 1    
+            $ch.Aliases[0] | Should -Match $regex
+
+        }
+    }
+
     Context 'Validate RelatedLinks' {
         BeforeAll {
             $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.md"

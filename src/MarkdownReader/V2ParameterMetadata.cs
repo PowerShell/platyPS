@@ -50,6 +50,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public bool DontShow { get; set;}
         public List<string> AcceptedValues { get; set; }
         public string HelpMessage { get; set; }
+        internal string? DeserializationErrorMessage { get; set; }
 
         public ParameterMetadataV2()
         {
@@ -80,10 +81,10 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             catch (Exception deserializationFailure)
             {
-                Console.WriteLine(deserializationFailure.Message);
+                v2 = new ParameterMetadataV2();
+                v2.DeserializationErrorMessage = deserializationFailure.Message;
             }
 
-            v2 = new ParameterMetadataV2();
             return false;
         }
 
