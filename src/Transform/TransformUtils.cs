@@ -66,7 +66,7 @@ namespace Microsoft.PowerShell.PlatyPS
             { "System.SByte" , "sbyte" },
             { "System.String" , "string" },
             { "System.Management.Automation.SupportsWildcardsAttribute" , "SupportsWildcards" },
-            { "System.Management.Automation.SwitchParameter" , "switch" },
+            { "System.Management.Automation.SwitchParameter" , "switch" }, // Should this be SwitchParameter?
             { "System.Globalization.CultureInfo" , "cultureinfo" },
             { "System.Numerics.BigInteger" , "bigint" },
             { "System.Security.SecureString" , "securestring" },

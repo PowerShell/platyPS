@@ -365,8 +365,9 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 SyntaxItem syn = new(cmdletInfo.Name, parameterSetInfo.Name, parameterSetInfo.IsDefault);
 
-                foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters)
-                    {
+                // Take the positional parameters first, and order them by position.
+                foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters.Where(p => p.Position != int.MinValue).OrderBy(p => p.Position))
+                {
                     if (IsNotCommonParameter(paramInfo.Name)) {
                         syn.SyntaxParameters.Add(
                             new SyntaxParameter(
@@ -377,6 +378,23 @@ namespace Microsoft.PowerShell.PlatyPS
                                 paramInfo.Position != int.MinValue,
                                 string.Compare(paramInfo.ParameterType.Name, "SwitchParameter", true) == 0)
                         );
+                    }
+                    Parameter param = GetParameterInfo(cmdletInfo, helpItem, paramInfo);
+                    syn.AddParameter(param);
+                }
+
+                // now take the named parameters.
+                foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters.Where(p => p.Position == int.MinValue))
+                {
+                    if (IsNotCommonParameter(paramInfo.Name)) {
+                        var sParm = new SyntaxParameter(
+                            paramInfo.Name,
+                            GetParameterTypeNameForSyntax(paramInfo.ParameterType, paramInfo.Attributes),
+                            paramInfo.Position == int.MinValue ? "named" : paramInfo.Position.ToString(),
+                            paramInfo.IsMandatory,
+                            paramInfo.Position != int.MinValue,
+                            string.Compare(paramInfo.ParameterType.Name, "SwitchParameter", true) == 0);
+                        syn.SyntaxParameters.Add(sParm);
                     }
                     Parameter param = GetParameterInfo(cmdletInfo, helpItem, paramInfo);
                     syn.AddParameter(param);
@@ -439,7 +457,15 @@ namespace Microsoft.PowerShell.PlatyPS
             else
             {
                 Type parameterType = Nullable.GetUnderlyingType(type) ?? type;
-                parameterTypeString = GetAbbreviatedType(parameterType);
+                // don't over abbreviate the type if it's a switch parameter, since we don't print it in the syntax.
+                if (parameterType == typeof(System.Management.Automation.SwitchParameter))
+                {
+                    parameterTypeString = "SwitchParameter";
+                }
+                else
+                {
+                    parameterTypeString = GetAbbreviatedType(parameterType);
+                }
             }
 
             return parameterTypeString;
@@ -447,7 +473,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private void AddGenericArguments(StringBuilder sb, Type[] genericArguments)
         {
-            sb.Append('[');
+            sb.Append($"`{genericArguments.Length}[");
             for (int i = 0; i < genericArguments.Length; i++)
             {
                 if (i > 0) { sb.Append(','); }
@@ -547,7 +573,8 @@ namespace Microsoft.PowerShell.PlatyPS
                         sb.Append(genericName);
                     }
 
-                    sb.Append(Constants.GenericParameterTypeNameStart);
+                    // sb.Append(Constants.GenericParameterTypeNameStart);
+                    sb.Append(string.Format("`{0}[", type.GetGenericArguments().Length));
 
                     List<string> genericParameters = new();
 
@@ -561,7 +588,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     sb.Append(string.Join(",", genericParameters));
 
-                    sb.Append(Constants.GenericParameterTypeNameEnd);
+                    // sb.Append(Constants.GenericParameterTypeNameEnd);
+                    sb.Append("]");
 
                     typeName = sb.ToString();
                 }
