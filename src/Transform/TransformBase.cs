@@ -573,8 +573,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         sb.Append(genericName);
                     }
 
-                    // sb.Append(Constants.GenericParameterTypeNameStart);
-                    sb.Append(string.Format("`{0}[", type.GetGenericArguments().Length));
+                    sb.Append(string.Format(Constants.GenericParameterTypeNameStart, type.GetGenericArguments().Length));
 
                     List<string> genericParameters = new();
 
@@ -588,8 +587,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     sb.Append(string.Join(",", genericParameters));
 
-                    // sb.Append(Constants.GenericParameterTypeNameEnd);
-                    sb.Append("]");
+                    sb.Append(Constants.GenericParameterTypeNameEnd);
 
                     typeName = sb.ToString();
                 }

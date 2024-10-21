@@ -37,8 +37,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string CodeBlock = "```";
 
         internal const string GenericParameterBackTick = "`";
-        internal const string GenericParameterTypeNameStart = "<";
-        internal const string GenericParameterTypeNameEnd = ">";
+        internal const string GenericParameterTypeNameStart = "`{0}[";
+        internal const string GenericParameterTypeNameEnd = "]";
 
         internal const string mdNotesItemHeaderTemplate = "### {0}";
 
