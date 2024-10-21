@@ -40,7 +40,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         // This is needed because if we find the header, but no aliases, we should not emit the boilerplate.
         public bool AliasHeaderFound { get; set; }
 
-        public List<string>? Aliases { get; private set; }
+        public string Aliases { get; set; }
 
         public string? Description { get; set; }
 
@@ -69,7 +69,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public CommandHelp(string title, string moduleName, CultureInfo? cultureInfo)
         {
-            Aliases = new();
+            Aliases = string.Empty;
             Title = title;
             ModuleName = moduleName;
             Locale = cultureInfo ?? CultureInfo.GetCultureInfo("en-US");
@@ -88,7 +88,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         public CommandHelp()
         {
             Syntax = new();
-            Aliases = new();
+            Aliases = string.Empty;
             Locale = CultureInfo.GetCultureInfo("en-US");
             Synopsis = string.Empty;
             Examples = new();
@@ -110,7 +110,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         public CommandHelp(CommandHelp help)
         {
             Syntax = new List<SyntaxItem>(help.Syntax);
-            Aliases = new List<string>(help.Aliases);
+            Aliases = help.Aliases;
             Description = help.Description;
             Examples = new List<Example>(help.Examples);
             ExternalHelpFile = help.ExternalHelpFile;
@@ -185,12 +185,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 var pSetName = syntax.ParameterSetName ?? "Default";
                 SyntaxDictionary.Add(pSetName, syntax);
             }
-        }
-
-        internal void AddAlias(string alias)
-        {
-            Aliases ??= new();
-            Aliases.Add(alias);
         }
 
         internal void AddExampleItem(Example example)

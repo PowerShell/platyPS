@@ -12,6 +12,7 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
+using Markdig.Renderers;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -251,7 +252,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<DiagnosticMessage> aliasesDiagnostics = new();
             bool aliasHeaderFound = false;
-            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics, out aliasHeaderFound));
+            commandHelp.Aliases = GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics, out aliasHeaderFound);
             commandHelp.AliasHeaderFound = aliasHeaderFound;
             if (aliasesDiagnostics is not null && aliasesDiagnostics.Count > 0)
             {
@@ -735,7 +736,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameters;
         }
 
-        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics, out bool aliasHeaderFound)
+        internal static string GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics, out bool aliasHeaderFound)
         {
             diagnostics = new List<DiagnosticMessage>();
             aliasHeaderFound = false;
@@ -743,7 +744,7 @@ namespace Microsoft.PowerShell.PlatyPS
             if (start == -1)
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header not found", DiagnosticSeverity.Warning, string.Empty, -1));
-                return new List<string>();
+                return string.Empty;
             }
 
             markdownContent.Take();
@@ -754,12 +755,11 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 aliasHeaderFound = true;
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "No ALIASES found", DiagnosticSeverity.Information, "Alias header AST {start} - next header AST {end}", markdownContent.GetTextLine(start)));
-                return new List<string>();
+                return string.Empty;
             }
 
             var aliasList = GetAliases(markdownContent, start + 1);
-            int totalAliasLength = 0;
-            aliasList.ForEach(a => totalAliasLength += a.Length);
+            int totalAliasLength = aliasList.Length;
             diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "Alias string length", DiagnosticSeverity.Information, $"alias string length: {totalAliasLength}", markdownContent.GetTextLine(start+1)));
 
             aliasHeaderFound = true;
@@ -801,18 +801,16 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         // Avoid turning boilerplate into an alias
-        internal static List<string> GetAliases(ParsedMarkdownContent md, int startIndex)
+        internal static string GetAliases(ParsedMarkdownContent md, int startIndex)
         {
-            List<string> aliases = new List<string>();
-
             var lines = GetLinesTillNextHeader(md, 2, startIndex);
             // don't include the boilerplate
             if (lines.IndexOf(Constants.AliasMessage2) == -1)
             {
-                aliases.Add(lines);
+                return lines;
             }
 
-            return aliases;
+            return string.Empty;
         }
 
         private static bool ContainsAliasBoilerPlate(string aliasString)
@@ -1033,16 +1031,37 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 if (md[exampleItemIndex] is HeadingBlock exampleTitleBlock)
                 {
-                    if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
+                    if (exampleTitleBlock is not null)
                     {
-                        exampleTitle = example.Trim();
+                        // First try to get the title from the markdown text
+                        // This is because the markdown text may have embedded (e.g. **emphasis**)
+                        // which requires more parsing, and won't improve the output.
+                        try
+                        {
+                            // The title is expected to be in the format "### Title"
+                            exampleTitle = mdc.MarkdownLines[exampleTitleBlock.Line].Substring(4).Trim();
+                        }
+                        catch
+                        {
+                            // Fallback to the AST
+                            if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
+                            {
+                                exampleTitle = example.Trim();
+                            }
+                            else
+                            {
+                                exampleTitle = string.Empty;
+                            }
+                        }
                     }
+
                 }
 
                 exampleDescription = GetLinesTillNextHeader(mdc, expectedLevel: -1, startIndex: exampleItemIndex + 1).Trim();
                 examples.Add(new Example(exampleTitle, exampleDescription));
                 currentIndex = exampleItemIndex + 1;
             }
+
             return examples;
         }
 

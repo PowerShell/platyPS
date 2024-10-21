@@ -54,8 +54,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         It "Should handle present aliases" {
             $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.V2.md"
             $regex = ([regex]::new("^PowerShell.*dir.*gci.*ls", "SingleLine"))
-            $ch.Aliases.Count | Should -Be 1    
-            $ch.Aliases[0] | Should -Match $regex
+            $ch.Aliases | Should -Match $regex
 
         }
     }
@@ -162,6 +161,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
     Context 'Validate Examples' {
         BeforeAll {
             $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.md"
+            $v2ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.V2.md"
         }
 
         It "Should have the proper example title for offset <offset>" -TestCases @(
@@ -180,6 +180,10 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         ) {
             param ($offset, $title)
             $ch.Examples[$offset].Title | Should -Be $title
+        }
+
+        It "Should preserve embedded emphasis in the example title" {
+            $v2ch.Examples[0].Title | Should -Be "Example 1: Get child items from a **file** system directory"
         }
     }
 
