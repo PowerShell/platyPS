@@ -123,7 +123,7 @@ For any security issues, please see our [Security Policy][08].
 <!-- link references -->
 [01]: CODE_OF_CONDUCT.md
 [02]: docs/developer/platyPS/CONTRIBUTING.md
-[03]: docs/deveopler/platyPS.schema.md
+[03]: docs/developer/platyPS/platyPS.schema.md
 [04]: https://code.visualstudio.com/
 [05]: https://docs.microsoft.com/powershell/module/microsoft.powershell.utility/import-pssession
 [06]: https://learn.microsoft.com/powershell/module/platyps/
