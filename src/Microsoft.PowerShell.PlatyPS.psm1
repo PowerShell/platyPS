@@ -275,7 +275,7 @@ function New-HelpCabinetFile {
             throw "'New-HelpCabinetFile' is only supported on Windows."
         }
 
-        if (Test-Path $outputFolder -Leaf) {
+        if (Test-Path -Path $outputFolder -PathType Leaf) {
             throw "Output folder '$outputFolder' is not a directory."
         }
 
@@ -288,7 +288,7 @@ function New-HelpCabinetFile {
         $MODULE_PAGE_MODULE_NAME = "Module Name"
         $MODULE_PAGE_GUID = "Module Guid"
         $MODULE_PAGE_LOCALE = "Locale"
-        $MODULE_PAGE_FW_LINK = "Download Help Link"
+        $MODULE_PAGE_FW_LINK = "HelpInfoUri" # was 'Download Help Link'
         $MODULE_PAGE_HELP_VERSION = "Help Version"
         $MODULE_PAGE_ADDITIONAL_LOCALE = "Additional Locale"
 
@@ -305,19 +305,19 @@ function New-HelpCabinetFile {
             Assert-TargetInFilesystem -target $OutputFolder
         }
 
-        Assert-Command MakeCabe.exe
+        Assert-Command MakeCab.exe
         #Testing for files in source directory
-        if((Get-ChildItem -Path $CabFilesFolder).Count -le 0) {
-            throw "Path '${CabFilesFolder}' does not contain any files."
+        if((Get-ChildItem -Path $CabinetFilesFolder).Count -le 0) {
+            throw "Path '${CabinetFilesFolder}' does not contain any files."
         }
 
         #Testing for valid help file types
         $ValidHelpFileTypes = '.xml', '.txt'
-        $HelpFiles = Get-ChildItem -Path $CabFilesFolder -File
+        $HelpFiles = Get-ChildItem -Path $CabinetFilesFolder -File
         $ValidHelpFiles = $HelpFiles | Where-Object { $_.Extension -in $ValidHelpFileTypes }
         $InvalidHelpFiles = $HelpFiles | Where-Object { $_.Extension -notin $ValidHelpFileTypes }
         if(-not $ValidHelpFiles) {
-            throw "No valid help files found in '${CabFilesFolder}'."
+            throw "No valid help files found in '${CabinetFilesFolder}'."
         }
 
         if($InvalidHelpFiles) {
@@ -327,7 +327,7 @@ function New-HelpCabinetFile {
         }
 
         ###Get Yaml Metadata here
-        $mf = Get-MarkdownModuleFile -Path $LandingPagePath
+        $mf = Import-MarkdownModuleFile -Path $MarkdownModuleFile
 
         $ModuleName = $mf.Metadata[$MODULE_PAGE_MODULE_NAME]
         $Guid = $mf.Metadata[$MODULE_PAGE_GUID]
@@ -379,11 +379,11 @@ function New-HelpCabinetFile {
         $outputFiles += MakeHelpInfoXml -ModuleName $ModuleName -GUID $Guid -HelpCulture $Locale -HelpVersion $HelpVersion -URI $FwLink -OutputFolder $OutputFolder
 
         if($AdditionalLocale) {
-            $allLocales = $AdditionalLocale -split ','
+            $allLocales = $AdditionalLocale
 
             foreach($loc in $allLocales) {
                 #Create the HelpInfo Xml for each locale
-                $locVersion = $Metadata["$loc Version"]
+                $locVersion = $mf.Metadata["$loc Version"]
 
                 if([String]::IsNullOrEmpty($locVersion)) {
                     Write-Warning -Message "No version found for Locale '{$loc}'."
