@@ -4,8 +4,8 @@ external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS10
-ms.date: 09/17/2024
+ms.custom: OPS12
+ms.date: 10/14/2024
 PlatyPS schema version: 2024-05-01
 title: Import-MamlHelp
 ---
@@ -83,7 +83,7 @@ The path to the MAML help file. Specifies a path to one or more locations.
 ```yaml
 Type: System.String[]
 DefaultValue: ''
-SupportsWildcards: false
+SupportsWildcards: true
 ParameterValue: []
 Aliases: []
 ParameterSets:
