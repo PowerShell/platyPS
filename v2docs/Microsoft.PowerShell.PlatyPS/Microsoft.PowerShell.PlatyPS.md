@@ -1,11 +1,12 @@
 ---
 document type: module
-HelpInfoUri: ''
+Help Version: 1.0.0.0
+HelpInfoUri: 
 Locale: en-US
 Module Guid: 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS10
-ms.date: 09/18/2024
+ms.custom: OPS12
+ms.date: 10/15/2024
 PlatyPS schema version: 2024-05-01
 title: Microsoft.PowerShell.PlatyPS Module
 ---
