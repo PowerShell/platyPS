@@ -1,9 +1,12 @@
-CHANGELOG
--------------
+# CHANGELOG
 
 ## Not released
 
-# 0.14.2
+## 1.0.0-preview1
+
+- Total rewrite of the module in C#
+
+## 0.14.2
 
 - Add HelpInfoUri for platyPS module
 - CI changes to exclude build on v2 branch
@@ -13,21 +16,21 @@ CHANGELOG
   - Make sure for script module .psm1 is added to the external help file metadata for nested module
 - New-Yaml help generates YAML for common parameters
 
-# 0.14.1
+## 0.14.1
 
 - Fix appveyor build script
   - Update-Help for selected modules only
   - Pin Pester to version 4.10.1
 - Add makecab directive to set size limit to `CDROM`
 
-# 0.14.0
+## 0.14.0
 
 * Fix passing `ExcludeDontShow` flag to modules (#459)
 * Make `CommonParameters` text use proper link format (#449)
 * Modified `GetSchemaVersion` function to assume `2.0.0` if no schema version found (#452)
 * Fix errors for `New-MarkdownHelp` `ps1` input (#450)
 
-# 0.13.0
+## 0.13.0
 
 * Fix `Update-MarkdownHelp` to not rewrite files if there are not updates (#412) (Thanks @iricigor)
 * Add `-ModulePagePath` parameter to `New-MarkdownHelp` for better placement of generated file (#416) (Thanks @PrzemyslawKlys)
