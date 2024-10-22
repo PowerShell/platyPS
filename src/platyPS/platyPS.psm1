@@ -2542,7 +2542,8 @@ function ConvertPsObjectsToMamlModel
                 'InformationVariable',
                 'OutVariable',
                 'OutBuffer',
-                'PipelineVariable'
+                'PipelineVariable',
+                'ProgressAction'
         ) -contains $parameterName) {
             return $true
         }
