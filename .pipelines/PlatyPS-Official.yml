@@ -178,4 +178,4 @@ extends:
             command: push
             packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
             nuGetFeedType: external
-            publishFeedCredentials: PlatyPSPowerShellGallery
+            publishFeedCredentials: PlatyPSGallery
