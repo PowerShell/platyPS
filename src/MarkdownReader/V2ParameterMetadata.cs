@@ -4,6 +4,8 @@ using System.Collections;
 using System.Collections.Generic;
 using YamlDotNet.Serialization;
 using System.Text;
+using YamlDotNet.Core;
+using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -79,13 +81,50 @@ namespace Microsoft.PowerShell.PlatyPS
                 v2 = result;
                 return true;
             }
-            catch (Exception deserializationFailure)
+            catch (SemanticErrorException deserializationFailure)
             {
                 v2 = new ParameterMetadataV2();
-                v2.DeserializationErrorMessage = deserializationFailure.Message;
+                v2.DeserializationErrorMessage = GetDeserializationErrorMessage(deserializationFailure, yaml);
+            }
+            catch (Exception failure)
+            {
+                v2 = new ParameterMetadataV2();
+                v2.DeserializationErrorMessage = failure.Message;
             }
 
             return false;
+        }
+
+        private static string GetDeserializationErrorMessage(SemanticErrorException deserializationFailure, string yaml)
+        {
+            var sb = Model.Constants.StringBuilderPool.Get();
+            try
+            {
+                var errorStart = deserializationFailure.Start.Index;
+                var errorEnd = deserializationFailure.End.Index;
+                var length = errorEnd - errorStart;
+                if (20 + length < yaml.Length)
+                {
+                    sb.AppendLine(deserializationFailure.Message);
+                    sb.AppendLine("Error in the following YAML segment:");
+                    sb.Append(new string(' ', 3));
+                    sb.Append(yaml.Substring(errorStart - 20, length + 20));
+                    sb.AppendLine(new string(' ', 3));
+                    sb.Append(" ".PadLeft(23));
+                    sb.Append(new string('^', length));
+                    return sb.ToString();
+                }
+            }
+            catch (Exception) // take no action if there's an error, we will return the generic error message below.
+            {
+                ;
+            }
+            finally
+            {
+                Model.Constants.StringBuilderPool.Return(sb);
+            }
+
+            return deserializationFailure.Message;
         }
 
 		public string ToYamlString()

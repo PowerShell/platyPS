@@ -4,7 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
 using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
@@ -237,8 +236,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 if (helpParam is not null && cmdParam is not null && helpParam != cmdParam)
                 {
                     var dm = new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {pName}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1);
-                    dm.Message.Add("helpParam: " + JsonSerializer.Serialize(helpParam, helpParam.GetType()));
-                    dm.Message.Add("cmdParam: " + JsonSerializer.Serialize(cmdParam, cmdParam.GetType()));
                     diagnosticMessages.Add(dm);
                     var newParameter = new Parameter(cmdParam)
                     {

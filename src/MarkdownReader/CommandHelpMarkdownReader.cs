@@ -1198,6 +1198,16 @@ namespace Microsoft.PowerShell.PlatyPS
                         diagnostics.Add(
                             new DiagnosticMessage(DiagnosticMessageSource.Parameter, "LastChance! Yaml may be invalid.", DiagnosticSeverity.Warning, yamlBlock, md[parameterItemIndex].Line + 1)
                         );
+
+                        // We need to get the error from the V2 conversion, so do that first.
+                        if(! ParameterMetadataV2.TryConvertToV2(yamlBlock, out var v2again) && v2again.DeserializationErrorMessage != null)
+                        {
+                            diagnostics.Add(
+                                new DiagnosticMessage(DiagnosticMessageSource.Parameter, "YAML Parse Failure", DiagnosticSeverity.Error, v2again.DeserializationErrorMessage, md[parameterItemIndex].Line + 1)
+
+                            );
+                        }
+
                         // Last ditch effort - try a dictionary
                         AddParseError(parameterName, "YAML may have illegal elements, trying last chance", paramYamlBlock.Line);
                         if (YamlUtils.TryLastChance(yamlBlock, out var lastChance))
