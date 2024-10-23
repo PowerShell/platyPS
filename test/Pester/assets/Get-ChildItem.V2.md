@@ -93,7 +93,7 @@ provider. For more information, see
 
 ## EXAMPLES
 
-### Example 1: Get child items from a file system directory
+### Example 1: Get child items from a **file** system directory
 
 This example gets the child items from a file system directory. The filenames and subdirectory
 names are displayed. For empty locations, the command doesn't return any output and returns to the

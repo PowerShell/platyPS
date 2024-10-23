@@ -552,7 +552,7 @@ Write-Host 'Hello World!'
 
         It 'does not use full type name when specified' {
             $expectedParameterNames = "CCC","ddd","WhatIf"
-            $expectedParameterTypes = "String","Nullable<System.Int32>","SwitchParameter"
+            $expectedParameterTypes = "String","Nullable``1[System.Int32]","SwitchParameter"
             $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
             $file = New-MarkdownCommandHelp -Command (get-command Get-Alpha) -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypename
             $ch = Import-MarkdownCommandHelp $file

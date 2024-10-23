@@ -230,10 +230,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             help.Syntax.AddRange(GetSyntaxFromDictionary(dictionary));
-            if (help.Aliases is not null)
-            {
-                help.Aliases.AddRange(GetAliasesFromDictionary(dictionary));
-            }
+            help.Aliases = dictionary["aliases"] is string aliasStr ? aliasStr : string.Empty;
             help.Examples?.AddRange(GetExamplesFromDictionary(dictionary));
             help.Parameters.AddRange(GetParametersFromDictionary(dictionary));
             help.Inputs.AddRange(GetInputsFromDictionary(dictionary));

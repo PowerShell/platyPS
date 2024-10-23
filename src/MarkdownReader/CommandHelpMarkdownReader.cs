@@ -12,6 +12,7 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
+using Markdig.Renderers;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -251,7 +252,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             List<DiagnosticMessage> aliasesDiagnostics = new();
             bool aliasHeaderFound = false;
-            commandHelp.Aliases?.AddRange(GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics, out aliasHeaderFound));
+            commandHelp.Aliases = GetAliasesFromMarkdown(markdownContent, out aliasesDiagnostics, out aliasHeaderFound);
             commandHelp.AliasHeaderFound = aliasHeaderFound;
             if (aliasesDiagnostics is not null && aliasesDiagnostics.Count > 0)
             {
@@ -735,7 +736,7 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameters;
         }
 
-        internal static List<string> GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics, out bool aliasHeaderFound)
+        internal static string GetAliasesFromMarkdown(ParsedMarkdownContent markdownContent, out List<DiagnosticMessage> diagnostics, out bool aliasHeaderFound)
         {
             diagnostics = new List<DiagnosticMessage>();
             aliasHeaderFound = false;
@@ -743,15 +744,22 @@ namespace Microsoft.PowerShell.PlatyPS
             if (start == -1)
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header not found", DiagnosticSeverity.Warning, string.Empty, -1));
-                return new List<string>();
+                return string.Empty;
             }
 
+            markdownContent.Take();
+            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"alias header is AST {start}", markdownContent.GetTextLine(start)));
             var end = markdownContent.FindHeader(2, string.Empty);
+            // If there is no content between the ALIASES header and the next header, report that as no aliases found.
+            if (start + 1 == end)
+            {
+                aliasHeaderFound = true;
+                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "No ALIASES found", DiagnosticSeverity.Information, "Alias header AST {start} - next header AST {end}", markdownContent.GetTextLine(start)));
+                return string.Empty;
+            }
 
             var aliasList = GetAliases(markdownContent, start + 1);
-            diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "ALIASES header found", DiagnosticSeverity.Information, $"{aliasList.Count} alias strings found", markdownContent.GetTextLine(start)));
-            int totalAliasLength = 0;
-            aliasList.ForEach(a => totalAliasLength += a.Length);
+            int totalAliasLength = aliasList.Length;
             diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.Alias, "Alias string length", DiagnosticSeverity.Information, $"alias string length: {totalAliasLength}", markdownContent.GetTextLine(start+1)));
 
             aliasHeaderFound = true;
@@ -793,18 +801,16 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         // Avoid turning boilerplate into an alias
-        internal static List<string> GetAliases(ParsedMarkdownContent md, int startIndex)
+        internal static string GetAliases(ParsedMarkdownContent md, int startIndex)
         {
-            List<string> aliases = new List<string>();
-
             var lines = GetLinesTillNextHeader(md, 2, startIndex);
             // don't include the boilerplate
             if (lines.IndexOf(Constants.AliasMessage2) == -1)
             {
-                aliases.Add(lines);
+                return lines;
             }
 
-            return aliases;
+            return string.Empty;
         }
 
         private static bool ContainsAliasBoilerPlate(string aliasString)
@@ -1025,16 +1031,37 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 if (md[exampleItemIndex] is HeadingBlock exampleTitleBlock)
                 {
-                    if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
+                    if (exampleTitleBlock is not null)
                     {
-                        exampleTitle = example.Trim();
+                        // First try to get the title from the markdown text
+                        // This is because the markdown text may have embedded (e.g. **emphasis**)
+                        // which requires more parsing, and won't improve the output.
+                        try
+                        {
+                            // The title is expected to be in the format "### Title"
+                            exampleTitle = mdc.MarkdownLines[exampleTitleBlock.Line].Substring(4).Trim();
+                        }
+                        catch
+                        {
+                            // Fallback to the AST
+                            if (exampleTitleBlock?.Inline?.FirstChild?.ToString() is string example)
+                            {
+                                exampleTitle = example.Trim();
+                            }
+                            else
+                            {
+                                exampleTitle = string.Empty;
+                            }
+                        }
                     }
+
                 }
 
                 exampleDescription = GetLinesTillNextHeader(mdc, expectedLevel: -1, startIndex: exampleItemIndex + 1).Trim();
                 examples.Add(new Example(exampleTitle, exampleDescription));
                 currentIndex = exampleItemIndex + 1;
             }
+
             return examples;
         }
 
@@ -1168,6 +1195,19 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                     else if (YamlUtils.TryConvertYamlToDictionary(yamlBlock, out var yamlDict))
                     {
+                        diagnostics.Add(
+                            new DiagnosticMessage(DiagnosticMessageSource.Parameter, "LastChance! Yaml may be invalid.", DiagnosticSeverity.Warning, yamlBlock, md[parameterItemIndex].Line + 1)
+                        );
+
+                        // We need to get the error from the V2 conversion, so do that first.
+                        if(! ParameterMetadataV2.TryConvertToV2(yamlBlock, out var v2again) && v2again.DeserializationErrorMessage != null)
+                        {
+                            diagnostics.Add(
+                                new DiagnosticMessage(DiagnosticMessageSource.Parameter, "YAML Parse Failure", DiagnosticSeverity.Error, v2again.DeserializationErrorMessage, md[parameterItemIndex].Line + 1)
+
+                            );
+                        }
+
                         // Last ditch effort - try a dictionary
                         AddParseError(parameterName, "YAML may have illegal elements, trying last chance", paramYamlBlock.Line);
                         if (YamlUtils.TryLastChance(yamlBlock, out var lastChance))

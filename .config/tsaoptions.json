@@ -1,7 +1,7 @@
 {
     "instanceUrl": "https://msazure.visualstudio.com",
     "projectName": "One",
-    "areaPath": "One\\MGMT\\Compute\\Powershell\\Powershell",
+    "areaPath": "One\\MGMT\\Compute\\Powershell\\Powershell\\PowerShell Core\\Platyps",
     "codebaseName": "TFSMSAzure_platyPS",
     "notificationAliases": [ "jimtru@microsoft.com", "slee@microsoft.com" ],
     "tools": [ "CredScan", "PoliCheck", "BinSkim" ]

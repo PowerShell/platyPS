@@ -92,26 +92,29 @@ namespace Microsoft.PowerShell.PlatyPS.MarkdownWriter
 
         internal override void WriteAliases(CommandHelp help)
         {
+            // No matter what, we need to write the alias header.
             sb.AppendLine(Constants.mdAliasHeader);
             sb.AppendLine();
             if (help is null)
             {
                 return;
             }
-            else if (help?.Aliases is not null && help.Aliases.Count > 0 )
+
+            // If there are no aliases, and the header was found, then we don't need to write anything.
+            // otherwise, we need to write the default message.
+            if (help.Aliases == string.Empty)
             {
-                sb.AppendLine(Constants.AliasMessage1);
-                foreach(var alias in help.Aliases)
+                if (! help.AliasHeaderFound)
                 {
-                    sb.AppendLine($"   {alias}");
+                    sb.AppendLine(Constants.AliasMessage);
+                    sb.AppendLine();
                 }
-                sb.AppendLine();
+
+                return;
             }
-            else if (help is not null && ! help.AliasHeaderFound)
-            {
-                sb.AppendLine(Constants.AliasMessage);
-                sb.AppendLine();
-            }
+
+            sb.AppendLine(help.Aliases);
+            sb.AppendLine();
         }
 
         internal override void WriteExamples(CommandHelp help)

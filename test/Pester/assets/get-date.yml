@@ -68,7 +68,7 @@ syntaxes:
   - '[-Second <Int32>]'
   - '[-Millisecond <Int32>]'
   - '[-DisplayHint <DisplayHintType>]'
-aliases:
+aliases: ''
 description: |-
   The `Get-Date` cmdlet gets a **DateTime** object that represents the current date or a date that you
   specify. `Get-Date` can format the date and time in several .NET and UNIX formats. You can use

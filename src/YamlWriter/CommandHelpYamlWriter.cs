@@ -115,6 +115,11 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteAliases(CommandHelp help)
         {
+            Hashtable aliasHash = new();
+            aliasHash.Add("aliases", help.Aliases);
+            string aliasString = YamlUtils.SerializeElement(aliasHash).Trim();
+            sb.AppendLine(aliasString);
+            /*
             if (help.Aliases?.Count > 0)
             {
                 Hashtable aliasHash = new();
@@ -126,6 +131,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
             {
                 sb.AppendLine(Constants.yamlAliasHeader);
             }
+            */
         }
 
         internal override void WriteExamples(CommandHelp help)

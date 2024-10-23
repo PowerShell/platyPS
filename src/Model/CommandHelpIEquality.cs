@@ -96,14 +96,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return false;
             }
 
-            if (this.Aliases is not null && other?.Aliases is not null && this.Aliases.SequenceEqual(other.Aliases) == false)
-            {
-                return false;
-            }
-            else if (
-                (this.Aliases is null && other?.Aliases is not null && other.Aliases.Count != 0) ||
-                (this.Aliases is not null && this.Aliases.Count != 0 && other?.Aliases is null)
-                )
+            if (string.Compare(this.Aliases, other?.Aliases, StringComparison.CurrentCulture) != 0)
             {
                 return false;
             }

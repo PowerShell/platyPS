@@ -44,6 +44,19 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public string HelpMessage { get; set; }
 
+        public Parameter()
+        {
+            Name = string.Empty;
+            Type = string.Empty;
+            Description = string.Empty;
+            ParameterSets = new();
+            ParameterValue = new();
+            Aliases = string.Empty;
+            AcceptedValues = new();
+            DefaultValue = string.Empty;
+            HelpMessage = string.Empty;
+        }
+
         public Parameter(string name, string type)
         {
             Name = name;
