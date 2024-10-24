@@ -164,16 +164,21 @@ extends:
             timeoutInMinutes: 1440
       - job: publish
         dependsOn: validation
+        templateContext:
+          inputs:
+            - input: pipelineArtifact
+              artifactName: drop_build_main
         displayName: Publish to PowerShell Gallery
         pool:
-          type: windows
+          type: release
+          os: linux
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
         steps:
         - download: current
           displayName: Download artifacts
         - task: NuGetCommand@2
-          displayName: Publish ConsoleGuiTools to PowerShell Gallery
+          displayName: Push PlatyPS to PowerShell Gallery
           inputs:
             command: push
             packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
