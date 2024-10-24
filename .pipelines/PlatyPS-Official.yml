@@ -138,7 +138,7 @@ extends:
               archiveType: zip
               archiveFile: out/Microsoft.PowerShell.PlatyPS.nupkg.zip
           - pwsh: |
-              Write-Verbose -Verbose -Message Validating nupkg exists
+              Write-Verbose -Verbose -Message "Validating nupkg exists"
               $nupkgPath = "$(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg"
               $exists = Test-Path $nupkgPath
               Write-Verbose -Verbose -Message "'$nupkgPath' exists: $exists"
