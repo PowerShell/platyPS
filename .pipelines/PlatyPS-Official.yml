@@ -177,10 +177,25 @@ extends:
         steps:
         - download: current
           displayName: Download artifacts
+        - task: powershell@2
+          inputs:
+            pwsh: true
+            targetType: inline
+            script: |
+              $artifactPath = "$(Pipeline.Workspace)"
+              $zipItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg.zip" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg.zip" } | Select-Object -First 1
+              Expand-Archive -Path $nupkgItem.FullName -DestinationPath $artifactPath
+              $nupkgItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
+              if (-not $nupkgItem) {
+                Write-Error "No nupkg found in '$artifactPath'"
+                exit 1
+              }
+              $nupkgPath = $nupkgItem.FullName
+              Write-Output "##vso[task.setvariable variable=nupkgPath;isOutput=true]${nupkgPath}"
         - task: NuGetCommand@2
           displayName: Push PlatyPS to PowerShell Gallery
           inputs:
             command: push
-            packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
+            packagesToPush: $(nupkgPath)
             nuGetFeedType: external
             publishFeedCredentials: PlatyPSGallery
