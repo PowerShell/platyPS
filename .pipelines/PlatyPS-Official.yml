@@ -181,8 +181,16 @@ extends:
             pwsh: true
             targetType: inline
             script: |
+              Write-Verbose -Verbose -Message "Current directory: $PWD, getting file list"
+              Get-ChildItem -Recurse -File -Name | Write-Verbose -Verbose
               $artifactPath = "$(Pipeline.Workspace)"
+              Write-Verbose -Verbose -Message "Artifact path: $artifactPath"
+              Get-ChildItem -Path $artifactPath -Recurse -File -Name | Write-Verbose -Verbose
               $zipItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg.zip" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg.zip" } | Select-Object -First 1
+              if (-not $zipItem) {
+                Write-Error "No zip found in '$artifactPath'"
+                exit 1
+              }
               Expand-Archive -Path $nupkgItem.FullName -DestinationPath $artifactPath
               $nupkgItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
               if (-not $nupkgItem) {
