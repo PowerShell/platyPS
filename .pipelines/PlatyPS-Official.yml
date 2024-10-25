@@ -2,6 +2,20 @@ name: PlatyPS-ModuleBuild-$(Build.BuildId)
 trigger: none
 pr: none
 
+schedules:
+- cron: '0 3 * * 1'
+  displayName: Weekly Build
+  branches:
+    include:
+    - v2
+  always: true
+
+parameters:
+  - name: 'publishToPowerShellGallery'
+    displayName: 'Publish module to PowerShell gallery'
+    type: boolean
+    default: false
+
 variables:
   BuildConfiguration: Release
   DOTNET_NOLOGO: true
@@ -79,8 +93,9 @@ extends:
               signing_profile: external_distribution
               search_root: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
               files_to_sign: |
-                *.psd1;
-                *.ps1xml;
+                **/*.psm1;
+                **/*.psd1;
+                **/*.ps1xml;
                 Microsoft.PowerShell.*.dll;
           - task: onebranch.pipeline.signing@1
             displayName: Sign 3rd-party files
@@ -91,6 +106,10 @@ extends:
               files_to_sign: |
                 Markdig.Signed.dll;
                 YamlDotNet.dll;
+                System.Buffers.dll
+                System.Memory.dll
+                System.Numerics.Vectors.dll
+                System.Runtime.CompilerServices.Unsafe.dll
           - task: ArchiveFiles@2
             displayName: Zip module
             inputs:
@@ -118,8 +137,15 @@ extends:
               includeRootFolder: false
               archiveType: zip
               archiveFile: out/Microsoft.PowerShell.PlatyPS.nupkg.zip
+          - pwsh: |
+              Write-Verbose -Verbose -Message "Validating nupkg exists"
+              $nupkgPath = "$(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg"
+              $exists = Test-Path $nupkgPath
+              Write-Verbose -Verbose -Message "'$nupkgPath' exists: $exists"
+            displayName: Validate nupkg existence
     - stage: release
       dependsOn: build
+      condition: ${{ parameters.publishToPowerShellGallery }}
       variables:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
         drop: $(Pipeline.Workspace)/drop_build_main
@@ -138,18 +164,38 @@ extends:
             timeoutInMinutes: 1440
       - job: publish
         dependsOn: validation
+        templateContext:
+          inputs:
+            - input: pipelineArtifact
+              artifactName: drop_build_main
         displayName: Publish to PowerShell Gallery
         pool:
-          type: windows
+          type: release
+          os: linux
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
         steps:
         - download: current
           displayName: Download artifacts
+        - task: powershell@2
+          inputs:
+            pwsh: true
+            targetType: inline
+            script: |
+              $artifactPath = "$(Pipeline.Workspace)"
+              $zipItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg.zip" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg.zip" } | Select-Object -First 1
+              Expand-Archive -Path $nupkgItem.FullName -DestinationPath $artifactPath
+              $nupkgItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
+              if (-not $nupkgItem) {
+                Write-Error "No nupkg found in '$artifactPath'"
+                exit 1
+              }
+              $nupkgPath = $nupkgItem.FullName
+              Write-Output "##vso[task.setvariable variable=nupkgPath;isOutput=true]${nupkgPath}"
         - task: NuGetCommand@2
-          displayName: Publish ConsoleGuiTools to PowerShell Gallery
+          displayName: Push PlatyPS to PowerShell Gallery
           inputs:
             command: push
-            packagesToPush: $(Build.SourcesDirectory)/Microsoft.PowerShell.PlatyPS.$(package.nupkgVersion).nupkg
+            packagesToPush: $(nupkgPath)
             nuGetFeedType: external
-            publishFeedCredentials: PowerShellGallery
+            publishFeedCredentials: PlatyPSGallery
