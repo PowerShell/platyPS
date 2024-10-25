@@ -170,8 +170,7 @@ extends:
               artifactName: drop_build_main
         displayName: Publish to PowerShell Gallery
         pool:
-          type: release
-          os: linux
+          type: windows
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
         steps:
