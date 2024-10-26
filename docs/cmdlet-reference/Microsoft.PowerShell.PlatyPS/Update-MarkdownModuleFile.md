@@ -4,8 +4,8 @@ external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS10
-ms.date: 09/17/2024
+ms.custom: OPS13
+ms.date: 10/25/2024
 PlatyPS schema version: 2024-05-01
 title: Update-MarkdownModuleFile
 ---
@@ -169,6 +169,28 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
+### -HelpUri
+
+{{ Fill HelpUri Description }}
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+ParameterValue: []
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
 ### -HelpVersion
 
 This parameter allows you to specify the version of the help. The default value is `1.0.0.0`. This
@@ -270,29 +292,6 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -ModuleFile
-
-A **ModuleFileInfo** object that represents the module to update. This can be imported from the
-existing Markdown module file.
-
-```yaml
-Type: Microsoft.PowerShell.PlatyPS.ModuleFileInfo
-DefaultValue: ''
-SupportsWildcards: false
-ParameterValue: []
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: 0
-  IsRequired: true
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
 ### -NoBackup
 
 By default, the cmdlet creates a backup of the original Markdown file before updating it. Use this
@@ -308,29 +307,6 @@ ParameterSets:
 - Name: (All)
   Position: Named
   IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -OutputFolder
-
-Specifies the location of where the Markdown module file is written. The cmdlet creates a folder for
-each module based on the **CommandHelp** object being processed.
-
-```yaml
-Type: System.String
-DefaultValue: ''
-SupportsWildcards: false
-ParameterValue: []
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: true
   ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
