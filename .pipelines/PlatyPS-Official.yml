@@ -182,19 +182,11 @@ extends:
             targetType: inline
             script: |
               Write-Verbose -Verbose -Message "Current directory: $PWD, getting file list"
-              Get-ChildItem -Recurse -File -Name | Write-Verbose -Verbose
-              $artifactPath = "$(Pipeline.Workspace)"
-              Write-Verbose -Verbose -Message "Artifact path: $artifactPath"
-              Get-ChildItem -Path $artifactPath -Recurse -File -Name | Write-Verbose -Verbose
-              $zipItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg.zip" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg.zip" } | Select-Object -First 1
-              if (-not $zipItem) {
-                Write-Error "No zip found in '$artifactPath'"
-                exit 1
-              }
-              Expand-Archive -Path $nupkgItem.FullName -DestinationPath $artifactPath
-              $nupkgItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
+              Get-ChildItem -Recurse -File | Write-Verbose -Verbose -Message { $_.FullName }
+              Expand-Archive -Path ./drop_build_main/Microsoft.PowerShell.PlatyPS.nupkg.zip -DestinationPath ./drop_build_main
+              $nupkgItem = Get-ChildItem -Path ./drop_build_main -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
               if (-not $nupkgItem) {
-                Write-Error "No nupkg found in '$artifactPath'"
+                Write-Error "No nupkg found in '$PWD'"
                 exit 1
               }
               $nupkgPath = $nupkgItem.FullName
