@@ -4,8 +4,8 @@ external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS10
-ms.date: 09/17/2024
+ms.custom: OPS13
+ms.date: 10/25/2024
 PlatyPS schema version: 2024-05-01
 title: Test-MarkdownCommandHelp
 ---
@@ -17,12 +17,6 @@ title: Test-MarkdownCommandHelp
 Tests the structure of a Markdown help file.
 
 ## SYNTAX
-
-### __AllParameterSets
-
-```
-Test-MarkdownCommandHelp [-FullName] <string[]> [-DetailView] [<CommonParameters>]
-```
 
 ### Item
 

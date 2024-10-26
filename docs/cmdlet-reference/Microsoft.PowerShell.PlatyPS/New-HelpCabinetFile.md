@@ -1,64 +1,67 @@
 ﻿---
 document type: cmdlet
-external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+external help file: Microsoft.PowerShell.PlatyPS-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
 ms.custom: OPS13
 ms.date: 10/25/2024
 PlatyPS schema version: 2024-05-01
-title: Export-MamlCommandHelp
+title: New-HelpCabinetFile
 ---
 
-# Export-MamlCommandHelp
+# New-HelpCabinetFile
 
 ## SYNOPSIS
 
-Exports **CommandHelp** objects to a MAML file.
+Creates a help cabinet file for a module that can be published as updateable help content.
 
 ## SYNTAX
 
 ### __AllParameterSets
 
 ```
-Export-MamlCommandHelp [-CommandHelp] <CommandHelp[]> [-OutputFolder] <string>
- [-Encoding <Encoding>] [-Force] [-WhatIf] [-Confirm] [<CommonParameters>]
+New-HelpCabinetFile [-CabinetFilesFolder] <string> [-MarkdownModuleFile] <string>
+ [-OutputFolder] <string> [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
 
 ## DESCRIPTION
 
-This command converts **CommandHelp** objects to a MAML file. The MAML file contains help content in
-the format used by the `Get-Help` command.
+This cmdlet create `.cab` and `.zip` files that contain help files for a module.
+
+> [!NOTE]
+> This cmdlet depends on the `MakeCab.exe` native command, which is only available on Windows. This
+> cmdlet raises an error if used on non-Windows machines.
+
+This cmdlet uses metadata stored in the module Markdown file to name your `.cab` and `.zip` files.
+This naming matches the pattern that the PowerShell help system requires for use as updatable help.
+
+This cmdlet also generates or updates an existing `Helpinfo.xml` file. That file provides versioning
+and locale details to the PowerShell help system.
 
 ## EXAMPLES
 
-### Example 1 - Create the MAML help file for a module
+### Example 1 - Create updateable help files for a module
 
 ```powershell
-$mdfiles = Measure-PlatyPSMarkdown -Path .\v2\Microsoft.PowerShell.PlatyPS\*.md
-$mdfiles | Where-Object Filetype -match 'CommandHelp' |
-    Import-MarkdownCommandHelp -Path {$_.FilePath} |
-    Export-MamlCommandHelp -OutputFolder .\maml
-```
-
-```Output
-    Directory: D:\Git\PS-Src\platyPS\v2docs\maml
-
-Mode                 LastWriteTime         Length Name
-----                 -------------         ------ ----
--a---           8/26/2024  3:18 PM         160928 Microsoft.PowerShell.PlatyPS-Help.xml
+$params = @{
+    CabinetFilesFolder = '.\maml\Microsoft.PowerShell.PlatyPS'
+    MarkdownModuleFile = '.\Microsoft.PowerShell.PlatyPS\Microsoft.PowerShell.PlatyPS.md'
+    OutputFolder       = '.\cab'
+}
+New-HelpCabinetFile @params
 ```
 
 ## PARAMETERS
 
-### -CommandHelp
+### -CabinetFilesFolder
 
-One or more **CommandHelp** objects to export.
+The path to the folder containing the MAML file to be packaged.
 
 ```yaml
-Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp[]
+Type: System.String
 DefaultValue: ''
 SupportsWildcards: false
 ParameterValue: []
@@ -67,7 +70,7 @@ ParameterSets:
 - Name: (All)
   Position: 0
   IsRequired: true
-  ValueFromPipeline: true
+  ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
   ValueFromRemainingArguments: false
 DontShow: false
@@ -98,54 +101,9 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -Encoding
+### -MarkdownModuleFile
 
-The encoding to use when writing the markdown file. If no value is specified, encoding defaults to
-the value of the `$OutputEncoding` preference variable.
-
-```yaml
-Type: System.Text.Encoding
-DefaultValue: ''
-SupportsWildcards: false
-ParameterValue: []
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -Force
-
-Use the **Force** parameter to overwrite the output file if it already exists.
-
-```yaml
-Type: System.Management.Automation.SwitchParameter
-DefaultValue: ''
-SupportsWildcards: false
-ParameterValue: []
-Aliases: []
-ParameterSets:
-- Name: (All)
-  Position: Named
-  IsRequired: false
-  ValueFromPipeline: false
-  ValueFromPipelineByPropertyName: false
-  ValueFromRemainingArguments: false
-DontShow: false
-AcceptedValues: []
-HelpMessage: ''
-```
-
-### -OutputFolder
-
-The folder where the markdown file is saved. If the folder doesn't exist, it's created.
+Specifies the full path of the module Markdown file.
 
 ```yaml
 Type: System.String
@@ -156,6 +114,28 @@ Aliases: []
 ParameterSets:
 - Name: (All)
   Position: 1
+  IsRequired: true
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -OutputFolder
+
+The location where you want to write the `.cab`, `.zip`, and `HelpInfo.xml` files.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+ParameterValue: []
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: 2
   IsRequired: true
   ValueFromPipeline: false
   ValueFromPipelineByPropertyName: false
@@ -197,14 +177,12 @@ This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable
 
 ## INPUTS
 
-### Microsoft.PowerShell.PlatyPS.Model.CommandHelp
-
 ## OUTPUTS
 
 ### System.IO.FileInfo
 
+The **FileInfo** objects that represent the files created by this cmdlet.
+
 ## NOTES
 
 ## RELATED LINKS
-
-- [Import-MarkdownCommandHelp](Import-MarkdownCommandHelp.md)
