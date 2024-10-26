@@ -4,8 +4,8 @@ external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
 HelpUri: ''
 Locale: en-US
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS12
-ms.date: 10/14/2024
+ms.custom: OPS13
+ms.date: 10/25/2024
 PlatyPS schema version: 2024-05-01
 title: New-MarkdownModuleFile
 ---
@@ -171,6 +171,28 @@ HelpMessage: ''
 
 This parameter allows you to specify the URI used for updateable help. By default, the cmdlet uses
 the HelpInfoUri specified in the module manifest.
+
+```yaml
+Type: System.String
+DefaultValue: ''
+SupportsWildcards: false
+ParameterValue: []
+Aliases: []
+ParameterSets:
+- Name: (All)
+  Position: Named
+  IsRequired: false
+  ValueFromPipeline: false
+  ValueFromPipelineByPropertyName: false
+  ValueFromRemainingArguments: false
+DontShow: false
+AcceptedValues: []
+HelpMessage: ''
+```
+
+### -HelpUri
+
+{{ Fill HelpUri Description }}
 
 ```yaml
 Type: System.String

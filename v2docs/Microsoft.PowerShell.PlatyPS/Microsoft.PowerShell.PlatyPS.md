@@ -1,12 +1,12 @@
 ---
 document type: module
 Help Version: 1.0.0.0
-HelpInfoUri: 
+HelpInfoUri: https://somehost/somepath/
 Locale: en-US
 Module Guid: 0bdcabef-a4b7-4a6d-bf7e-d879817ebbff
 Module Name: Microsoft.PowerShell.PlatyPS
-ms.custom: OPS12
-ms.date: 10/15/2024
+ms.custom: OPS13
+ms.date: 10/26/2024
 PlatyPS schema version: 2024-05-01
 title: Microsoft.PowerShell.PlatyPS Module
 ---
@@ -71,6 +71,10 @@ Determines the type of Markdown file.
 
 Creates **CommandHelp** objects for a PowerShell command that's loaded in the session.
 
+### [New-HelpCabinetFile](New-HelpCabinetFile.md)
+
+Creates a help cabinet file for a module that can be published as updateable help content.
+
 ### [New-MarkdownCommandHelp](New-MarkdownCommandHelp.md)
 
 Creates Markdown help files for PowerShell modules and commands.
@@ -78,6 +82,10 @@ Creates Markdown help files for PowerShell modules and commands.
 ### [New-MarkdownModuleFile](New-MarkdownModuleFile.md)
 
 Creates the Markdown module file for a PowerShell module.
+
+### [Show-HelpPreview](Show-HelpPreview.md)
+
+View MAML file contents as it would appear when output by `Get-Help`.
 
 ### [Test-MarkdownCommandHelp](Test-MarkdownCommandHelp.md)
 
