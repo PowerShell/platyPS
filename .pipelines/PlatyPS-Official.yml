@@ -189,7 +189,7 @@ extends:
                 throw "'$zipFile' does not exist!"
               }
               Write-Verbose -Verbose -Message ("exists: $zipFile " + (Test-Path $zipFile))
-              Expand-Archive -Path $(drop)/$zipFile -DestinationPath $(drop)
+              Expand-Archive -Path $zipFile -DestinationPath $(drop)
               $nupkgItem = Get-ChildItem -Path $(drop) -Filter "Microsoft.PowerShell.PlatyPS.*.nupkg" |
                Select-Object -First 1
               if (-not $nupkgItem) {
