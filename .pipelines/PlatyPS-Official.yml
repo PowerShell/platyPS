@@ -184,7 +184,7 @@ extends:
             script: |
               $zipFile = "$(drop)/Microsoft.PowerShell.PlatyPS.nupkg.zip"
               $zipExists = Test-Path $zipFile
-              if (-not $zipExist) {
+              if (-not $zipExists) {
                 Get-ChildItem -Recurse $(pipeline.Workspace) | %{ Write-Verbose -Verbose -Message $_.FullName }
                 throw "'$zipFile' does not exist!"
               }
