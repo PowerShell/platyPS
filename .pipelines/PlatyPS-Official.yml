@@ -143,27 +143,15 @@ extends:
               $exists = Test-Path $nupkgPath
               Write-Verbose -Verbose -Message "'$nupkgPath' exists: $exists"
             displayName: Validate nupkg existence
-    - stage: release
+    - stage: release_official_platyps
       dependsOn: build
       condition: ${{ parameters.publishToPowerShellGallery }}
       variables:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
         drop: $(Pipeline.Workspace)/drop_build_main
+        ob_release_environment: Production
       jobs:
-      - job: validation
-        displayName: Manual validation
-        pool:
-          type: agentless
-        timeoutInMinutes: 1440
-        steps:
-        - task: ManualValidation@0
-          displayName: Wait 24 hours for validation
-          inputs:
-            notifyUsers: $(Build.RequestedForEmail)
-            instructions: Please validate the release and then publish it!
-            timeoutInMinutes: 1440
-      - job: publish
-        dependsOn: validation
+      - job: ReleaseJob
         templateContext:
           inputs:
             - input: pipelineArtifact
@@ -171,12 +159,10 @@ extends:
         displayName: Publish to PowerShell Gallery
         pool:
           type: release
+          os: windows
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
         steps:
-        - download: current
-          displayName: Download artifacts
-          artifact: drop_build_main
         - task: powershell@2
           inputs:
             pwsh: true
