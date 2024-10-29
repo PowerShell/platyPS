@@ -144,7 +144,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             }
             foreach(var parameter in syntax.GetParametersInOrder())
             {
-                newSyntax.Parameters.Add(ConvertParameter(parameter));
+                SyntaxParameter? syntaxParam = syntax.SyntaxParameters.FirstOrDefault(x => x.ParameterName == parameter.Name);
+                newSyntax.Parameters.Add(ConvertParameter(parameter, syntaxParam));
             }
 
             return newSyntax;
@@ -157,12 +158,28 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return pipelineInput;
         }
 
-        private static ParameterValue GetParameterValue(Model.Parameter parameter)
+        private static ParameterValue? GetParameterValue(Model.Parameter parameter, Model.SyntaxParameter? syntaxParameter = null)
         {
+            // dont render <command:parameterValue> element when the parameter type is SwichParameter
+            if (parameter.Type is "SwitchParameter" or "System.Management.Automation.SwitchParameter")
+            {
+                return null;
+            }
             var parameterValue = new ParameterValue();
             if (parameter is not null)
             {
-                parameterValue.DataType = parameter.Type;
+                // Set SyntaxParameter's parameter type name for <command:syntaxItem>
+                if (syntaxParameter is null)
+                {
+                    var t = parameter.Type;
+                    parameterValue.DataType = (t.StartsWith("System.Nullable`1[", StringComparison.OrdinalIgnoreCase)
+                                               && t.EndsWith("]", StringComparison.OrdinalIgnoreCase))
+                                              ? t.Substring(18, t.Length - 18 - 1) : t;
+                }
+                else
+                {
+                    parameterValue.DataType = syntaxParameter.ParameterType;
+                }
                 parameterValue.IsVariableLength = parameter.VariableLength;
                 // We just mark mandatory if one of the parameter sets is mandatory since MAML doesn't
                 // have a way to disambiguate these.
@@ -171,7 +188,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return parameterValue;
         }
 
-        private static Parameter ConvertParameter(Model.Parameter parameter)
+        private static Parameter ConvertParameter(Model.Parameter parameter, Model.SyntaxParameter? syntaxParameter = null)
         {
             var newParameter = new MAML.Parameter();
             newParameter.Name = parameter.Name;
@@ -179,7 +196,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             newParameter.SupportsGlobbing = parameter.SupportsWildcards;
             var pSet = parameter.ParameterSets.FirstOrDefault();
             newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
-            newParameter.Value = GetParameterValue(parameter);
+            newParameter.Value = GetParameterValue(parameter, syntaxParameter);
+            newParameter.Type.Name = parameter.Type;
 
             if (parameter.Description is not null)
             {

@@ -129,5 +129,18 @@ Describe "Export-MamlCommandHelp tests" {
             $observed = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).examples.example.title
             $observed | Should -Be $expected
         }
+
+        It "Should have proper type and not have 'parameterValue' for 'Force' SwitchParameter" {
+            $switchParameter = $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Import-Module"}).Parameters.parameter.Where({$_.Name -eq "Force"})
+            $switchParameter.parameterValue | Should -Be $null
+            $switchParameter.type.name | Should -Be "System.Management.Automation.SwitchParameter"
+        }
+
+        It "Should have proper type and propertyValue for all parameters without SwitchParameter" {
+            $params = $xml.SelectNodes('//command:command', $ns).Parameters.parameter.Where({$_.type.name -ne "System.Management.Automation.SwitchParameter"})
+            $expectedCount = $params.Count
+            $params.parameterValue.Where({$null -ne $_}).Count | Should -Be $expectedCount
+            $params.type.name.Where({$null -ne $_}).Count | Should -Be $expectedCount
+        }
     }
 }
