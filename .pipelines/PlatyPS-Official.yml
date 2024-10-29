@@ -176,21 +176,27 @@ extends:
         steps:
         - download: current
           displayName: Download artifacts
+          artifact: drop_build_main
         - task: powershell@2
           inputs:
             pwsh: true
             targetType: inline
             script: |
-              Write-Verbose -Verbose -Message "Current directory: $PWD, getting file list"
-              Get-ChildItem -Recurse -File | Write-Verbose -Verbose -Message { $_.FullName }
-              Expand-Archive -Path ./drop_build_main/Microsoft.PowerShell.PlatyPS.nupkg.zip -DestinationPath ./drop_build_main
-              $nupkgItem = Get-ChildItem -Path ./drop_build_main -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
+              $zipFile = "$(drop)/Microsoft.PowerShell.PlatyPS.nupkg.zip"
+              $zipExists = Test-Path $zipFile
+              if (-not $zipExist) {
+                Get-ChildItem -Recurse $(pipeline.Workspace) | %{ Write-Verbose -Verbose -Message $_.FullName }
+                throw "'$zipFile' does not exist!"
+              }
+              Write-Verbose -Verbose -Message ("exists: $zipFile " + (Test-Path $zipFile))
+              Expand-Archive -Path $(drop)/$zipFile -DestinationPath $(drop)
+              $nupkgItem = Get-ChildItem -Path $(drop) -Filter "Microsoft.PowerShell.PlatyPS.*.nupkg" |
+               Select-Object -First 1
               if (-not $nupkgItem) {
-                Write-Error "No nupkg found in '$PWD'"
-                exit 1
+               throw "No nupkg found in '$(drop)'"
               }
               $nupkgPath = $nupkgItem.FullName
-              Write-Output "##vso[task.setvariable variable=nupkgPath;isOutput=true]${nupkgPath}"
+              Write-Output "##vso[task.setvariable variable=nupkgPath]${nupkgPath}"
         - task: NuGetCommand@2
           displayName: Push PlatyPS to PowerShell Gallery
           inputs:
