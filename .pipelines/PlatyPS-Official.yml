@@ -36,6 +36,8 @@ extends:
   # https://aka.ms/obpipelines/templates
   template: v2/OneBranch.Official.CrossPlat.yml@templates
   parameters:
+    release:
+      category: NonAzure
     featureFlags:
       WindowsHostVersion: '1ESWindows2022'
     globalSdl: # https://aka.ms/obpipelines/sdl
@@ -143,27 +145,15 @@ extends:
               $exists = Test-Path $nupkgPath
               Write-Verbose -Verbose -Message "'$nupkgPath' exists: $exists"
             displayName: Validate nupkg existence
-    - stage: release
+    - stage: Prod_release_official_platyps
       dependsOn: build
       condition: ${{ parameters.publishToPowerShellGallery }}
       variables:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
         drop: $(Pipeline.Workspace)/drop_build_main
+        ob_release_environment: Production
       jobs:
-      - job: validation
-        displayName: Manual validation
-        pool:
-          type: agentless
-        timeoutInMinutes: 1440
-        steps:
-        - task: ManualValidation@0
-          displayName: Wait 24 hours for validation
-          inputs:
-            notifyUsers: $(Build.RequestedForEmail)
-            instructions: Please validate the release and then publish it!
-            timeoutInMinutes: 1440
-      - job: publish
-        dependsOn: validation
+      - job: ReleaseJob
         templateContext:
           inputs:
             - input: pipelineArtifact
@@ -171,27 +161,29 @@ extends:
         displayName: Publish to PowerShell Gallery
         pool:
           type: release
-          os: linux
+          os: windows
         variables:
           ob_outputDirectory: $(Build.SourcesDirectory)/out/Microsoft.PowerShell.PlatyPS
         steps:
-        - download: current
-          displayName: Download artifacts
         - task: powershell@2
           inputs:
-            pwsh: true
             targetType: inline
             script: |
-              $artifactPath = "$(Pipeline.Workspace)"
-              $zipItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg.zip" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg.zip" } | Select-Object -First 1
-              Expand-Archive -Path $nupkgItem.FullName -DestinationPath $artifactPath
-              $nupkgItem = Get-ChildItem -Path $artifactPath -Recurse -Filter "*.nupkg" | Where-Object { $_.Name -like "Microsoft.PowerShell.PlatyPS.*.nupkg" } | Select-Object -First 1
+              $zipFile = "$(drop)/Microsoft.PowerShell.PlatyPS.nupkg.zip"
+              $zipExists = Test-Path $zipFile
+              if (-not $zipExists) {
+                Get-ChildItem -Recurse $(pipeline.Workspace) | %{ Write-Verbose -Verbose -Message $_.FullName }
+                throw "'$zipFile' does not exist!"
+              }
+              Write-Verbose -Verbose -Message ("exists: $zipFile " + (Test-Path $zipFile))
+              Expand-Archive -Path $zipFile -DestinationPath $(drop)
+              $nupkgItem = Get-ChildItem -Path $(drop) -Filter "Microsoft.PowerShell.PlatyPS.*.nupkg" |
+               Select-Object -First 1
               if (-not $nupkgItem) {
-                Write-Error "No nupkg found in '$artifactPath'"
-                exit 1
+               throw "No nupkg found in '$(drop)'"
               }
               $nupkgPath = $nupkgItem.FullName
-              Write-Output "##vso[task.setvariable variable=nupkgPath;isOutput=true]${nupkgPath}"
+              Write-Output "##vso[task.setvariable variable=nupkgPath]${nupkgPath}"
         - task: NuGetCommand@2
           displayName: Push PlatyPS to PowerShell Gallery
           inputs:
