@@ -150,7 +150,7 @@ extends:
       condition: ${{ parameters.publishToPowerShellGallery }}
       variables:
         version: $[ stageDependencies.build.main.outputs['package.version'] ]
-        drop: $(Pipeline.Workspace)/drop_build_main
+        drop: $(Pipeline.Workspace)
         ob_release_environment: Production
       jobs:
       - job: ReleaseJob
