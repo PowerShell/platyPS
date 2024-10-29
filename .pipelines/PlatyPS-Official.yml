@@ -143,7 +143,7 @@ extends:
               $exists = Test-Path $nupkgPath
               Write-Verbose -Verbose -Message "'$nupkgPath' exists: $exists"
             displayName: Validate nupkg existence
-    - stage: release_official_platyps
+    - stage: Prod_release_official_platyps
       dependsOn: build
       condition: ${{ parameters.publishToPowerShellGallery }}
       variables:
