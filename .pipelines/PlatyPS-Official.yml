@@ -167,7 +167,6 @@ extends:
         steps:
         - task: powershell@2
           inputs:
-            pwsh: true
             targetType: inline
             script: |
               $zipFile = "$(drop)/Microsoft.PowerShell.PlatyPS.nupkg.zip"
