@@ -36,6 +36,8 @@ extends:
   # https://aka.ms/obpipelines/templates
   template: v2/OneBranch.Official.CrossPlat.yml@templates
   parameters:
+    release:
+      category: NonAzure
     featureFlags:
       WindowsHostVersion: '1ESWindows2022'
     globalSdl: # https://aka.ms/obpipelines/sdl
