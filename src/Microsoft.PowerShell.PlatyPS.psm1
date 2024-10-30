@@ -248,8 +248,8 @@ function MakeHelpInfoXml {
         [xml] $HelpInfoContent = $xml
     }
 
+    $null = $HelpInfoContent.Save($outputFullPath)
     $outputItem = Get-Item $outputFullPath
-    $null = $HelpInfoContent.Save($outputItem.FullName)
     # return this to the caller
     $outputItem
 }
@@ -260,7 +260,7 @@ function New-HelpCabinetFile {
     param(
         [parameter(Mandatory=$true)]
         [ValidateScript({(Test-Path $_ -PathType Container)})]
-        [string] $CabinetFilesFolder,
+        [string] $HelpFilesFolder,
 
         [parameter(Mandatory=$true)]
         [ValidateScript({(Test-Path $_ -PathType Leaf)})]
@@ -307,22 +307,22 @@ function New-HelpCabinetFile {
 
         Assert-Command MakeCab.exe
         #Testing for files in source directory
-        if((Get-ChildItem -Path $CabinetFilesFolder).Count -le 0) {
-            throw "Path '${CabinetFilesFolder}' does not contain any files."
+        if((Get-ChildItem -Path $HelpFilesFolder).Count -le 0) {
+            throw "Path '${HelpFilesFolder}' does not contain any files."
         }
 
         #Testing for valid help file types
         $ValidHelpFileTypes = '.xml', '.txt'
-        $HelpFiles = Get-ChildItem -Path $CabinetFilesFolder -File
+        $HelpFiles = Get-ChildItem -Path $HelpFilesFolder -File
         $ValidHelpFiles = $HelpFiles | Where-Object { $_.Extension -in $ValidHelpFileTypes }
         $InvalidHelpFiles = $HelpFiles | Where-Object { $_.Extension -notin $ValidHelpFileTypes }
         if(-not $ValidHelpFiles) {
-            throw "No valid help files found in '${CabinetFilesFolder}'."
+            throw "No valid help files found in '${HelpFilesFolder}'."
         }
 
         if($InvalidHelpFiles) {
             $InvalidHelpFiles | ForEach-Object {
-                    Write-Warning -Message "File '${$_}' is not a valid help file type. Excluding from Cab file."
+                    Write-Warning -Message "File '$_' is not a valid help file type. Excluding from Cab file."
                 }
         }
 
@@ -393,7 +393,7 @@ function New-HelpCabinetFile {
                 }
             }
         }
-        
+
         $outputFiles
     }
 }
