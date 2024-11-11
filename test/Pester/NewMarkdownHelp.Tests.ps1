@@ -554,7 +554,7 @@ Write-Host 'Hello World!'
             $expectedParameterNames = "CCC","ddd","WhatIf"
             $expectedParameterTypes = "String","Nullable``1[System.Int32]","SwitchParameter"
             $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
-            $file = New-MarkdownCommandHelp -Command (get-command Get-Alpha) -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypename
+            $file = New-MarkdownCommandHelp -Command (get-command Get-Alpha) -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypeName
             $ch = Import-MarkdownCommandHelp $file
             $ch.Parameters.Name | Should -Be $expectedParameterNames
             $ch.Parameters.Type | Should -Be $expectedParameterTypes
