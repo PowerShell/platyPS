@@ -57,7 +57,7 @@ It closely resembles output of `Get-Help`.
         
         // one or more times, codesnippet
         // it's useful to put the ```powershell code
-        // before the plain text command exectution output
+        // before the plain text command execution output
             ```{Syntax language, i.e. PowerShell or nothing for plain text}
             {{Example body}}
             ```
@@ -92,11 +92,11 @@ It closely resembles output of `Get-Help`.
             ```
         // if supports workflow parameters
         ### <WorkflowCommonParameters>
-        {{ Workflow common parameters text, would be ingored during maml generation }}
+        {{ Workflow common parameters text, would be ignored during maml generation }}
 
         // if supports common parameters
         ### <CommonParameters>
-        {{ Common parameters text, would be ingored during maml generation }}
+        {{ Common parameters text, would be ignored during maml generation }}
 
     ## INPUTS
     // for every input type
