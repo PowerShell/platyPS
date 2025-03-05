@@ -211,7 +211,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
                 }
                 else
                 {
-                    sb.AppendLine("  description:");
+                    sb.AppendLine("  description: ''");
                 }
             }
         }
@@ -226,7 +226,7 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
             if (string.IsNullOrEmpty(help.Notes.Trim()))
             {
-                sb.AppendLine(Constants.NotesYamlHeader);
+                sb.AppendLine(Constants.NotesYamlHeader + " ''");
                 return;
             }
 
@@ -239,14 +239,19 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
         internal override void WriteRelatedLinks(CommandHelp help)
         {
-            sb.AppendLine(Constants.RelatedLinksYamlHeader);
             if (help.RelatedLinks?.Count > 0)
             {
+                sb.AppendLine(Constants.RelatedLinksYamlHeader);
+
                 foreach (var link in help.RelatedLinks)
                 {
                     sb.AppendLine(string.Format("- text: '{0}'", link.LinkText));
                     sb.AppendLine(string.Format("  href: {0}", link.Uri));
                 }
+            }
+            else
+            {
+                sb.AppendLine(Constants.RelatedLinksYamlHeader + " []");
             }
         }
     }
