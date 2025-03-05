@@ -3,7 +3,7 @@
 
 Describe 'Yaml formatting tests' {
     It 'Inputs output and notes should have empty array when empty' {
-        Import-MarkdownCommandHelp -Path 'test/Pester/assets/New-EmptyCommand.md' | Export-YamlCommandHelp -OutputFolder $TestDrive
+        Import-MarkdownCommandHelp -Path 'assets/New-EmptyCommand.md' | Export-YamlCommandHelp -OutputFolder $TestDrive
         $yaml = Get-Content "$TestDrive/New-EmptyCommand.yml" -Raw
 
         $inputPattern = if ($IsWindows) { 'inputs:\r\n- name: System\.String\r\n  description: ''' } else { 'inputs:\n- name: System\.String\n  description: ''' }
