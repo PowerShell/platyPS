@@ -20,6 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public string Description { get; set;}
 
+        [YamlIgnore]
         public List<string> ParameterValue { get; set;}
 
         public string DefaultValue { get; set;}
