@@ -13,10 +13,10 @@ Describe "Export-MarkdownModuleFile" {
 
     It "Should identify all the '<fileType>' assets" -TestCases @(
         @{ fileType = "unknown"; expectedCount = 2 }
-        @{ fileType = "CommandHelp"; expectedCount = 34 }
+        @{ fileType = "CommandHelp"; expectedCount = 35 }
         @{ fileType = "ModuleFile"; expectedCount = 14 }
         @{ fileType = "V1Schema"; expectedCount = 45 }
-        @{ fileType = "V2Schema"; expectedCount = 3 }
+        @{ fileType = "V2Schema"; expectedCount = 4 }
     ) {
         param ($fileType, $expectedCount)
         $idents.Where({($_.FileType -band $fileType) -eq $fileType}).Count | Should -Be $expectedCount
