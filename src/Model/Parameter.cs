@@ -34,7 +34,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public bool IsDynamic { get; set ; }
 
-        public string Aliases { get; set;}
+        public List<string> Aliases { get; set;}
 
         public bool DontShow { get; set;}
 
@@ -51,7 +51,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Description = string.Empty;
             ParameterSets = new();
             ParameterValue = new();
-            Aliases = string.Empty;
+            Aliases = new();
             AcceptedValues = new();
             DefaultValue = string.Empty;
             HelpMessage = string.Empty;
@@ -63,7 +63,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             Type = type;
             ParameterSets = new();
             ParameterValue = new();
-            Aliases = string.Empty;
+            Aliases = new();
             AcceptedValues = new();
             DefaultValue = string.Empty;
             Description = string.Empty;
@@ -146,7 +146,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             VariableLength = metadata.VariableLength;
             DefaultValue = metadata.DefaultValue;
             SupportsWildcards = metadata.SupportsWildcards;
-            Aliases = string.Join(",", metadata.Aliases);
+            Aliases = metadata.Aliases;
             DontShow = metadata.DontShow;
             AcceptedValues = metadata.AcceptedValues;
             HelpMessage = metadata.HelpMessage;
@@ -200,16 +200,9 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 metadata.DefaultValue = DefaultValue;
             }
 
-            if (! string.IsNullOrEmpty(Aliases))
+            if (Aliases is not null)
             {
-                var aliases = Aliases?.Split(Constants.Comma, StringSplitOptions.RemoveEmptyEntries);
-                if (aliases is not null)
-                    {
-                    foreach(var alias in aliases)
-                    {
-                        metadata.Aliases.Add(alias.Trim());
-                    }
-                }
+                metadata.Aliases = Aliases;
             }
 
             if (ParameterValue is not null && ParameterValue.Count > 0)
@@ -247,7 +240,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             return (
                 string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
-                string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
+                Aliases.SequenceEqual(other.Aliases, StringComparer.CurrentCulture) &&
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
                 SupportsWildcards == other.SupportsWildcards &&
@@ -269,7 +262,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 string.Compare(Name, other.Name, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Type, other.Type, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(Description, other.Description, StringComparison.CurrentCulture) == 0 &&
-                string.Compare(Aliases, other.Aliases, StringComparison.CurrentCulture) == 0 &&
+                Aliases.SequenceEqual(other.Aliases, StringComparer.CurrentCulture) &&
                 string.Compare(DefaultValue, other.DefaultValue, StringComparison.CurrentCulture) == 0 &&
                 string.Compare(HelpMessage, other.HelpMessage, StringComparison.CurrentCulture) == 0 &&
                 SupportsWildcards == other.SupportsWildcards &&

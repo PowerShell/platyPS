@@ -422,7 +422,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -451,7 +451,8 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: LastWriteTime
+  aliases:
+  - LastWriteTime
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -481,7 +482,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -505,7 +506,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues:
   - Date
@@ -561,7 +562,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -585,7 +586,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -602,7 +603,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -615,7 +616,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -628,7 +629,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -641,7 +642,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -667,7 +668,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -695,7 +696,8 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: UnixTime
+  aliases:
+  - UnixTime
   dontShow: false
   acceptedValues: []
   parameterSets:
@@ -719,7 +721,7 @@ parameters:
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
-  aliases: ''
+  aliases: []
   dontShow: false
   acceptedValues: []
   parameterSets:

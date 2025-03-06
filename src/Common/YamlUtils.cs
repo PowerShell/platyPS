@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
+using System.Linq;
 using Microsoft.PowerShell.PlatyPS.Model;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -360,7 +361,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     p.VariableLength = result;
                 }
-            } 
+            }
 
             if (pDictionary.TryGetValue("helpMessage", out object helpMsg))
             {
@@ -387,7 +388,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (aliases is string aliasStr)
                 {
-                    p.Aliases = aliasStr;
+                    p.Aliases = new List<string> { aliasStr };
                 }
                 else if (aliases is List<object> aliasList)
                 {
@@ -396,7 +397,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         aList.Add(alias.ToString());
                     }
-                    p.Aliases = string.Join(", ", aList);
+                    p.Aliases = aList;
                 }
             }
 
@@ -526,7 +527,7 @@ namespace Microsoft.PowerShell.PlatyPS
                             {
                                 inputs.Add(new InputOutput(name.ToString(), string.Empty));
                             }
-                        } 
+                        }
                     }
                 }
             }
