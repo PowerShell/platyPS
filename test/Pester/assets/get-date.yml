@@ -418,7 +418,6 @@ parameters:
 
 
     This parameter was introduced in PowerShell 7.1.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -447,7 +446,6 @@ parameters:
 
 
     `Get-Date -Date "6/25/2019 12:30:22"` returns Tuesday, June 25, 2019 12:30:22
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -477,7 +475,6 @@ parameters:
     If the specified value is greater than the number of days in a month, PowerShell adds the number of
 
     days to the month. For example, `Get-Date -Month 2 -Day 31` displays **March 3**, not **February 31**.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -501,7 +498,6 @@ parameters:
     - **Time**: displays only the time
 
     - **DateTime**: displays the date and time
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -557,7 +553,6 @@ parameters:
       using a 4-digit year, 2-digit month, 2-digit day, the letter `T` as a time separator, 2-digit
       hour, 2-digit minute, 2-digit second, 4-digit millisecond, and the letter `Z` as the UTC
       indicator). For example: 20190627T1540500718Z.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -581,7 +576,6 @@ parameters:
 - name: Hour
   type: System.Int32
   description: Specifies the hour that is displayed. Enter a value from 0 to 23.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -598,7 +592,6 @@ parameters:
 
 
     This parameter was introduced in PowerShell 3.0.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -611,7 +604,6 @@ parameters:
 - name: Minute
   type: System.Int32
   description: Specifies the minute that is displayed. Enter a value from 0 to 59.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -624,7 +616,6 @@ parameters:
 - name: Month
   type: System.Int32
   description: Specifies the month that is displayed. Enter a value from 1 to 12.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -637,7 +628,6 @@ parameters:
 - name: Second
   type: System.Int32
   description: Specifies the second that is displayed. Enter a value from 0 to 59.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -663,7 +653,6 @@ parameters:
     necessary to display the date. As a result, some of the properties and methods of **DateTime**
 
     objects might not be available.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -691,7 +680,6 @@ parameters:
 
 
     This parameter was introduced in PowerShell 7.1.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
@@ -715,7 +703,6 @@ parameters:
 - name: Year
   type: System.Int32
   description: Specifies the year that is displayed. Enter a value from 1 to 9999.
-  parameterValue: []
   defaultValue: None
   supportsWildcards: false
   isDynamic: false
