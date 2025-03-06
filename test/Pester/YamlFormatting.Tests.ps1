@@ -6,8 +6,10 @@ Describe 'Yaml formatting tests' {
         Import-MarkdownCommandHelp -Path 'assets/New-EmptyCommand.md' | Export-YamlCommandHelp -OutputFolder $TestDrive
         $yaml = Get-Content "$TestDrive/New-EmptyCommand.yml" -Raw
 
-        $inputPattern = if ($IsWindows) { 'inputs:\r\n- name: System\.String\r\n  description: ''' } else { 'inputs:\n- name: System\.String\n  description: ''' }
-        $outputPattern = if ($IsWindows) { 'outputs:\r\n- name: System\.String\r\n  description: ''' } else { 'outputs:\n- name: System\.String\n  description: ''' }
+        $isWinPS = $PSVersionTable.PSVersion.Major -eq 5
+
+        $inputPattern = if ($IsWindows -or $IsWinPS) { 'inputs:\r\n- name: System\.String\r\n  description: ''' } else { 'inputs:\n- name: System\.String\n  description: ''' }
+        $outputPattern = if ($IsWindows -or $IsWinPS) { 'outputs:\r\n- name: System\.String\r\n  description: ''' } else { 'outputs:\n- name: System\.String\n  description: ''' }
         $notesPattern = "notes: ''"
         $linksPattern = "links: \[\]"
 
