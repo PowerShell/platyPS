@@ -8,6 +8,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Management.Automation;
+using System.Management.Automation.Language;
 using System.Text;
 using System.Xml;
 
@@ -574,7 +575,7 @@ namespace Microsoft.PowerShell.PlatyPS
             parameter.ParameterSets.ForEach(x => x.IsRequired = required);
             parameter.VariableLength = variableLength;
             parameter.SupportsWildcards = globbing;
-            parameter.Aliases = aliases ?? string.Empty;
+            parameter.Aliases = aliases is not null ? new List<string> { aliases } : new List<string>();
 
             // need to go the end of command:parameter
             if (reader.ReadState != ReadState.EndOfFile)

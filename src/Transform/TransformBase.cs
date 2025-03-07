@@ -217,7 +217,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
                 string typeName = GetParameterTypeName(parameterMetadata.Value.ParameterType);
 
-                Parameter param = new(parameterMetadata.Value.Name, typeName); 
+                Parameter param = new(parameterMetadata.Value.Name, typeName);
                 param.DontShow = paramAttribInfo.DontShow;
                 param.SupportsWildcards = paramAttribInfo.Globbing;
                 param.HelpMessage = paramAttribInfo.HelpMessage ?? string.Empty;
@@ -236,7 +236,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
-                param.Aliases = string.Join(",", parameterMetadata.Value.Aliases);
+                param.Aliases = parameterMetadata.Value.Aliases.ToList();
 
                 string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage ?? string.Empty;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
@@ -620,7 +620,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
                 descriptionFromHelp;
 
-            param.Aliases = string.Join("-", paramInfo.Aliases);
+            param.Aliases = paramInfo.Aliases.ToList();
             param.ParameterSets.ForEach(x => x.IsRequired = paramInfo.IsMandatory);
 
             string defaultValueFromHelp = GetParameterDefaultValueFromHelp(helpItem, param.Name);
