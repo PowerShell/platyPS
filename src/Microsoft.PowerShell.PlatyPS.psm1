@@ -248,8 +248,9 @@ function MakeHelpInfoXml {
         [xml] $HelpInfoContent = $xml
     }
 
-    $outputItem = Get-Item $outputFullPath
-    $null = $HelpInfoContent.Save($outputItem.FullName)
+    $null = $HelpInfoContent.Save($OutputFullPath)
+    $outputItem = Get-Item $OutputFullPath
+
     # return this to the caller
     $outputItem
 }
@@ -393,7 +394,7 @@ function New-HelpCabinetFile {
                 }
             }
         }
-        
+
         $outputFiles
     }
 }
