@@ -43,6 +43,22 @@ Describe 'Import-MarkdownCommandHelp Tests' {
             $metadata[$name] | Should -Be $expectedValue
 
         }
+
+        It 'Should be able to read metata with alias as list' {
+            $result = Import-MarkdownCommandHelp -Path "$assetdir/Get-ChildItem-WithListAliases.md"
+            $result.Metadata.aliases.Count | Should -Be 3
+            $result.Metadata.aliases[0] | Should -Be "dir"
+            $result.Metadata.aliases[1] | Should -Be "ls"
+            $result.Metadata.aliases[2] | Should -Be "gci"
+        }
+
+        It 'Should be able to read metata with alias as string' {
+            $result = Import-MarkdownCommandHelp -Path "$assetdir/Get-ChildItem-WithStringAliases.md"
+            $result.Metadata.aliases.Count | Should -Be 3
+            $result.Metadata.aliases[0] | Should -Be "dir"
+            $result.Metadata.aliases[1] | Should -Be "ls"
+            $result.Metadata.aliases[2] | Should -Be "gci"
+        }
     }
 
     Context "Validate Aliases" {
