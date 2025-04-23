@@ -202,6 +202,10 @@ Describe "Export-MarkdownCommandHelp" {
             param ($number)
             $ch.Parameters[$number] -eq $ch2.Parameters[$number] | Should -Be $true
         }
+
+        It "Parameter yaml block should not have parameterValue" {
+            Get-Content "${outputFolder}/Get-Date.md" | Should -Not -Match "parameterValue"
+        }
     }
 
     Context "File Content - Input/Output" {
