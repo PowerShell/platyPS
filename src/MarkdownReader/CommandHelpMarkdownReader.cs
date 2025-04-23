@@ -351,6 +351,13 @@ namespace Microsoft.PowerShell.PlatyPS
                         return ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
                     }
                 }
+                else if (ast[2] is Markdig.Syntax.ListBlock && ast[1] is ParagraphBlock paragraphWithList)
+                {
+                    if (paragraphWithList.Inline?.FirstChild is LiteralInline metadataAsParagraph)
+                    {
+                        return ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
+                    }
+                }
             }
 
             return null;
