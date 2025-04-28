@@ -351,6 +351,38 @@ namespace Microsoft.PowerShell.PlatyPS
                         return ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
                     }
                 }
+                else if (ast[2] is Markdig.Syntax.ListBlock && ast[1] is ParagraphBlock paragraphWithList)
+                {
+                    List<string> listItems = new();
+
+                    if (ast[2] is Markdig.Syntax.ListBlock listBlock)
+                    {
+                        foreach (var listItem in listBlock)
+                        {
+                            if (listItem is ListItemBlock listItemBlock)
+                            {
+                                if (listItemBlock is ContainerBlock containerBlock)
+                                {
+                                    if (containerBlock.LastChild is ParagraphBlock paragraphListItem)
+                                    {
+                                        if (paragraphListItem.Inline?.FirstChild is LiteralInline listItemText)
+                                        {
+                                            listItems.Add(listItemText.Content.ToString().Trim());
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (paragraphWithList.Inline?.FirstChild is LiteralInline metadataAsParagraph)
+                    {
+                        var metadataDictionary = ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
+                        // update the metadata dictionary with the list items of aliases
+                        metadataDictionary["aliases"] = listItems;
+                        return metadataDictionary;
+                    }
+                }
             }
 
             return null;
