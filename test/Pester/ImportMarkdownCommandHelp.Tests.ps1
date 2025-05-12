@@ -201,6 +201,12 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         It "Should preserve embedded emphasis in the example title" {
             $v2ch.Examples[0].Title | Should -Be "Example 1: Get child items from a **file** system directory"
         }
+
+        It 'Should work if only 1 example is present' {
+            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-MPIOSetting.md"
+            $ch.Examples.Count | Should -Be 1
+            $ch.Examples[0].Title | Should -Be "Example 1: Get MPIO settings"
+        }
     }
 
     Context 'Syntax' {
