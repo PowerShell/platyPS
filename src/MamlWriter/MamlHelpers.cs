@@ -216,8 +216,18 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var details = new CommandDetails();
             details.Name = commandHelp.Title;
             string[] verbNoun = commandHelp.Title.Split('-');
-            details.Verb = verbNoun[0];
-            details.Noun = verbNoun[1];
+
+            if (verbNoun.Length == 2)
+            {
+                details.Verb = verbNoun[0];
+                details.Noun = verbNoun[1];
+            }
+            else
+            {
+                details.Verb = commandHelp.Title;
+                details.Noun = string.Empty;
+            }
+
             details.Synopsis.Add(commandHelp.Synopsis);
             return details;
         }
