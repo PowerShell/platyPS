@@ -175,7 +175,7 @@ Describe "New-CommandHelp tests" {
         It "Should have the input type '<type>'" -TestCases @(
             @{ Type = "System.Management.Automation.CommandTypes" }
             @{ Type = "System.Int32" }
-            @{ Type = "Microsoft.PowerShell.Commands.ModuleSpecification" }
+            @{ Type = "Microsoft.PowerShell.Commands.ModuleSpecification[]" }
             @{ Type = "System.String" }
             @{ Type = "System.Management.Automation.SwitchParameter" }
         ) {

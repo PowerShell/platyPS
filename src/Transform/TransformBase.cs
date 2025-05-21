@@ -101,11 +101,6 @@ namespace Microsoft.PowerShell.PlatyPS
         private string GetAdjustedTypename(Type t, bool simplify = false)
         {
             string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t) : t.FullName;
-            if (tName.EndsWith("[]"))
-            {
-                tName = FixUpTypeName(tName);
-            }
-
             return tName;
         }
 
