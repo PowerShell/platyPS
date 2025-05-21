@@ -35,10 +35,6 @@ namespace Microsoft.PowerShell.PlatyPS
 
         [Parameter]
         [ValidateNotNullOrEmpty]
-        public string HelpUri { get; set; } = string.Empty;
-
-        [Parameter]
-        [ValidateNotNullOrEmpty]
         public string HelpInfoUri { get; set; } = string.Empty;
 
         [Parameter]
@@ -131,7 +127,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 foreach(var cmdHelp in group)
                 {
                     string description = Constants.FillInDescription;
-                    if (! string.IsNullOrEmpty(cmdHelp.Synopsis)) 
+                    if (! string.IsNullOrEmpty(cmdHelp.Synopsis))
                     {
                         description = cmdHelp.Synopsis;
                     }

@@ -39,9 +39,6 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter()]
         public SwitchParameter Force { get; set; }
 
-        [Parameter]
-        [ValidateNotNullOrEmpty]
-        public string HelpUri { get; set; } = string.Empty;
 
         [Parameter]
         [ValidateNotNullOrEmpty]
