@@ -1056,7 +1056,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 var exampleItemIndex = GetNextHeaderIndex(md, expectedHeaderLevel: 3, startIndex: currentIndex);
 
-                if (exampleItemIndex > endExampleIndex)
+                if (exampleItemIndex > endExampleIndex || exampleItemIndex == -1)
                 {
                     break;
                 }
