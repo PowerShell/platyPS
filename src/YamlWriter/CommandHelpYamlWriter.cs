@@ -245,7 +245,9 @@ namespace Microsoft.PowerShell.PlatyPS.YamlWriter
 
                 foreach (var link in help.RelatedLinks)
                 {
-                    sb.AppendLine(string.Format("- text: '{0}'", link.LinkText));
+                    var yamlQuote = link.LinkText.Contains("'") ? "\"" : "'";
+
+                    sb.AppendLine(string.Format("- text: {0}{1}{0}", yamlQuote, link.LinkText));
                     sb.AppendLine(string.Format("  href: {0}", link.Uri));
                 }
             }
