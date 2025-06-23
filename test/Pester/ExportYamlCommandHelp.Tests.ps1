@@ -229,5 +229,11 @@ Describe "Export-YamlCommandHelp tests" {
             $relatedLinks[$offset]['text'] | Should -Be $linktext
             $relatedLinks[$offset]['href'] | Should -Be $uri
         }
+
+        It 'Should preserve the related links text with single quote characters' {
+            $cmd = Import-MarkdownCommandHelp -Path "$PSScriptRoot/assets/Remove-SqlSensitivityClassification.md"
+            $yamlFile = $cmd | Export-YamlCommandHelp -outputfolder $TestDrive -Force
+            (Import-YamlCommandHelp $yamlFile).RelatedLinks[0].LinkText | Should -Match "'"
+        }
     }
 }
