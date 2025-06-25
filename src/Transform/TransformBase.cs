@@ -799,10 +799,10 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (dynamic ioType in typesInfo)
                 {
-                    string typeName = FixUpTypeName(ioType.type.ToString());
+                    string typeName = FixUpTypeName(ioType.type.name?.Split()?[0] ?? string.Empty);
                     if (! string.IsNullOrEmpty(typeName) && string.Compare(typeName, "None", true) != 0)
                     {
-                        string description = GetStringFromDescriptionArray(ioType.description).Trim();
+                        string description = GetStringFromDescriptionArray(ioType.description)?.Trim() ?? string.Empty;
                         itemList.Add(new InputOutput(typeName, string.IsNullOrEmpty(description) ? Constants.FillInDescription : description));
                     }
                 }
