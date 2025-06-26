@@ -186,7 +186,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 var cmdParam = matchingCommandParameter.Count() > 0 ? matchingCommandParameter.First() : null;
                 var foundParams = fromHelp.Where(x => string.Compare(x.Name, pName) == 0);
                 var helpParam = foundParams.Count() > 0 ? foundParams.First() : null;
-                
+
                 // This should never happen, but if it does, we'll log it.
                 if (helpParam is null && cmdParam is null)
                 {
@@ -237,9 +237,25 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     var dm = new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {pName}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1);
                     diagnosticMessages.Add(dm);
+
+                    var checkTemplate = string.Format(Constants.FillInParameterDescriptionTemplate, helpParam.Name);
+
+                    var description = helpParam.Description;
+
+                    if (string.Equals(helpParam.Description, checkTemplate, StringComparison.OrdinalIgnoreCase))
+                    {
+                        diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has no description in the help.", DiagnosticSeverity.Warning, "TryGetMergedParameters", -1));
+                        description = cmdParam.Description;
+                    }
+                    else if (!string.Equals(helpParam.Description, cmdParam.Description, StringComparison.OrdinalIgnoreCase))
+                    {
+                        diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has the different description in the help and the command. Concatinating.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
+                        description = string.Join(Environment.NewLine, helpParam.Description, cmdParam.Description);
+                    }
+
                     var newParameter = new Parameter(cmdParam)
                     {
-                        Description = helpParam.Description,
+                        Description = description,
                         DontShow = helpParam.DontShow,
                         DefaultValue = helpParam.DefaultValue
                     };
