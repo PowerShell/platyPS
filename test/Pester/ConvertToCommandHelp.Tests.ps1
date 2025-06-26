@@ -141,6 +141,20 @@ Describe "New-CommandHelp tests" {
         BeforeAll {
             $cmd = Get-Command Get-Command
             $ch = $cmd | New-CommandHelp
+
+            function global:Test-InputOutputTypes
+            {
+                [CmdletBinding()]
+                [OutputType()]
+                param(
+                    [Parameter(Mandatory = $true, ValueFromPipeline = $true)]
+                    [Nullable[int]]$InputString
+                )
+
+                Write-Output "Processed: $InputString"
+            }
+
+            $io = New-CommandHelp -Command (Get-Command Test-InputOutputTypes)
         }
 
         It "Should have the proper number of output types" {
@@ -182,6 +196,10 @@ Describe "New-CommandHelp tests" {
             param ($type)
             $ch.inputs.typename | Should -Contain $type
         }
-    }
 
+        It "Should not have Nullable in the input type" {
+            $io.inputs.typename | Should -Not -Contain "Nullable"
+            $io.inputs.typename | Should -Be "System.Int32"
+        }
+    }
 }
