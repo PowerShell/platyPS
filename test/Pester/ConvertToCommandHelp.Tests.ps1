@@ -190,7 +190,7 @@ Describe "New-CommandHelp tests" {
             @{ Type = "System.Management.Automation.CommandTypes" }
             @{ Type = "System.Int32" }
             @{ Type = "Microsoft.PowerShell.Commands.ModuleSpecification[]" }
-            @{ Type = "System.String" }
+            @{ Type = "System.String[]" }
             @{ Type = "System.Management.Automation.SwitchParameter" }
         ) {
             param ($type)

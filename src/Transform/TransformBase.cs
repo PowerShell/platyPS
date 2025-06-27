@@ -849,7 +849,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private string FixUpTypeName(string typename)
         {
             // If the type is a generic type, we need to remove the backtick and the number.
-            string fixedString = typename.Replace("System.Nullable`1[[", string.Empty);
+            string fixedString = typename.Replace("System.Nullable`1[[", string.Empty).Trim();
             int commaIndex = fixedString.IndexOf(',');
             if (commaIndex >= 0)
             {
