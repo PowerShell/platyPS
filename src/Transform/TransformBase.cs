@@ -100,7 +100,8 @@ namespace Microsoft.PowerShell.PlatyPS
         // We can also simplify the string if desired.
         private string GetAdjustedTypename(Type t, bool simplify = false)
         {
-            string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t) : t.FullName;
+            var t2 = Nullable.GetUnderlyingType(t) ?? t;
+            string tName = simplify ?  LanguagePrimitives.ConvertTo<string>(t2) : t2.FullName;
             return tName;
         }
 
@@ -847,7 +848,14 @@ namespace Microsoft.PowerShell.PlatyPS
         // We also will remove trailing [] because we should generally return singletons
         private string FixUpTypeName(string typename)
         {
-            string fixedString = typename.Trim();
+            // If the type is a generic type, we need to remove the backtick and the number.
+            string fixedString = typename.Replace("System.Nullable`1[[", string.Empty).Trim();
+            int commaIndex = fixedString.IndexOf(',');
+            if (commaIndex >= 0)
+            {
+                fixedString = fixedString.Substring(0, commaIndex).Trim();
+            }
+
             if (fixedString.EndsWith("[]"))
             {
                 fixedString = fixedString.Remove(fixedString.Length - 2);
