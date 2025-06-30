@@ -561,7 +561,7 @@ namespace Microsoft.PowerShell.PlatyPS
             diagnostics.Add(new DiagnosticMessage( DiagnosticMessageSource.Description, "DESCRIPTION header found", DiagnosticSeverity.Information, "DESCRIPTION", markdownContent.GetTextLine(start)));
             markdownContent.Seek(start);
             markdownContent.Take();
-            var end = markdownContent.FindHeader(2, string.Empty);
+            var end = markdownContent.FindHeader(2, "EXAMPLES");
             return markdownContent.GetStringFromAst(end).Trim();
         }
 
