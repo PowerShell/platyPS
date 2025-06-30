@@ -251,4 +251,14 @@ Describe 'Import-MarkdownCommandHelp Tests' {
             $ch.Syntax[$offset].ToString() | Should -Be $string
         }
     }
+
+    Context 'Validate Description' {
+        BeforeAll {
+            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Compare-CommandHelp.md"
+        }
+
+        It "Should handle empty description" {
+            $ch.Description | Should -BeNullOrEmpty
+        }
+    }
 }
