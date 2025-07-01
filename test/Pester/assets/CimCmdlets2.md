@@ -3,7 +3,7 @@ Download Help Link: https://aka.ms/powershell74-help
 Help Version: 7.4.0.0
 Locale: en-US
 Module Guid: fb6cc51d-c096-4b38-b78d-0fed6277096a
-Module Name: CimCmdlets
+Module Name: CimCmdlets2
 ms.date: 02/20/2019
 schema: 2.0.0
 title: CimCmdlets Module
@@ -12,7 +12,7 @@ foo:
   - bar
 test: true
 ---
-# CimCmdlets Module
+# CimCmdlets2 Module
 
 ## Description
 
