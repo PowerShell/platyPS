@@ -12,7 +12,7 @@ using Markdig.Syntax;
 using Markdig.Syntax.Inlines;
 using Microsoft.PowerShell.PlatyPS.MarkdownWriter;
 using Microsoft.PowerShell.PlatyPS.Model;
-using Markdig.Renderers;
+using System.Collections;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
@@ -198,7 +198,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
             CommandHelp commandHelp;
 
-            OrderedDictionary? metadata = GetMetadata(markdownContent.Ast);
+            OrderedDictionary? metadata = GetMetadata(markdownContent);
             if (metadata is null)
             {
                 throw new InvalidDataException($"No metadata found in {markdownContent.FilePath}");
@@ -327,8 +327,9 @@ namespace Microsoft.PowerShell.PlatyPS
 
         }
 
-        internal static OrderedDictionary? GetMetadata(MarkdownDocument ast)
+        internal static OrderedDictionary? GetMetadata(ParsedMarkdownContent md)
         {
+            var ast = md.Ast;
             // The metadata must be the first block in the markdown
             if (ast.Count < 2)
             {
@@ -353,33 +354,36 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else if (ast[2] is Markdig.Syntax.ListBlock && ast[1] is ParagraphBlock paragraphWithList)
                 {
-                    List<string> listItems = new();
-
-                    if (ast[2] is Markdig.Syntax.ListBlock listBlock)
-                    {
-                        foreach (var listItem in listBlock)
-                        {
-                            if (listItem is ListItemBlock listItemBlock)
-                            {
-                                if (listItemBlock is ContainerBlock containerBlock)
-                                {
-                                    if (containerBlock.LastChild is ParagraphBlock paragraphListItem)
-                                    {
-                                        if (paragraphListItem.Inline?.FirstChild is LiteralInline listItemText)
-                                        {
-                                            listItems.Add(listItemText.Content.ToString().Trim());
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-
                     if (paragraphWithList.Inline?.FirstChild is LiteralInline metadataAsParagraph)
                     {
                         var metadataDictionary = ConvertTextToOrderedDictionary(metadataAsParagraph.Content.Text);
-                        // update the metadata dictionary with the list items of aliases
-                        metadataDictionary["aliases"] = listItems;
+
+                        StringBuilder? sb = null;
+
+                        try
+                        {
+                            sb = Constants.StringBuilderPool.Get();
+                            int startIndex = ast[2].Line - 1; // -1 because we are 0 based
+                            int endIndex = ast[3].Line - 1; // -1 because we are 0 based
+                            for (int i = startIndex; i < endIndex; i++)
+                            {
+                                sb.AppendLine(md.MarkdownLines[i].TrimEnd());
+                            }
+                            string blockContent = sb.ToString().Replace("\r", "").Trim();
+
+                            foreach(DictionaryEntry kv in ConvertTextToOrderedDictionary(blockContent))
+                            {
+                                metadataDictionary[kv.Key] = kv.Value;
+                            }
+                        }
+                        finally
+                        {
+                            if (sb is not null)
+                            {
+                                Constants.StringBuilderPool.Return(sb);
+                            }
+                        }
+
                         return metadataDictionary;
                     }
                 }
