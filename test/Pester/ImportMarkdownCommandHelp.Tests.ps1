@@ -254,7 +254,7 @@ Describe 'Import-MarkdownCommandHelp Tests' {
 
     Context 'Validate Description' {
         BeforeAll {
-            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Compare-CommandHelp.md"
+            $ch = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Compare-CommandHelp2.md"
         }
 
         It "Should handle empty description" {

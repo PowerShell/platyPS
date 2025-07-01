@@ -1,66 +1,45 @@
 ---
 document type: cmdlet
-title: Compare-CommandHelp
-Module Name: Microsoft.PowerShell.PlatyPS
-Locale: "en-US"
-PlatyPS schema version: 2024-05-01
-HelpUri: 
-ms.date: 05/20/2024
 external help file: Microsoft.PowerShell.PlatyPS.dll-Help.xml
+HelpUri: ''
+Locale: en-US
+Module Name: Microsoft.PowerShell.PlatyPS
+ms.date: 03/07/2025
+PlatyPS schema version: 2024-05-01
+title: Compare-CommandHelp
 ---
 
 # Compare-CommandHelp
 
 ## SYNOPSIS
 
-{{ Fill in the Synopsis }}
-
 ## SYNTAX
 
 ### __AllParameterSets
 
 ```
-Compare-CommandHelp [-Reference] <CommandHelp> [-Difference] <CommandHelp>
- [-PropertyNamesToExclude <String[]>] [<CommonParameters>]
+Compare-CommandHelp [-ReferenceCommandHelp] <CommandHelp> [-DifferenceCommandHelp] <CommandHelp>
+ [-PropertyNamesToExclude <string[]>] [<CommonParameters>]
 ```
 
 ## ALIASES
 
 This cmdlet has the following aliases,
-  {{Insert list of aliases}}
 
 ## DESCRIPTION
 
-{{ Fill in the Description }}
-
 ## EXAMPLES
 
-### My Example
-
-description
-
-```powershell
-PS> write-output hi
-hi
-```
-
-description 2
-
-```powershell
-PS> echo bye
-bye
-```
-
-description 3
+### Example 1
 
 ## PARAMETERS
 
-### -Difference
+### -DifferenceCommandHelp
 
 ```yaml
-Type: CommandHelp
+Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
 DefaultValue: ''
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -77,12 +56,10 @@ HelpMessage: ''
 
 ### -PropertyNamesToExclude
 
-{{ Fill PropertyNamesToExclude Description }}
-
 ```yaml
-Type: String[]
+Type: System.String[]
 DefaultValue: ''
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -97,14 +74,12 @@ AcceptedValues: []
 HelpMessage: ''
 ```
 
-### -Reference
-
-{{ Fill Reference Description }}
+### -ReferenceCommandHelp
 
 ```yaml
-Type: CommandHelp
+Type: Microsoft.PowerShell.PlatyPS.Model.CommandHelp
 DefaultValue: ''
-Globbing: false
+SupportsWildcards: false
 ParameterValue: []
 Aliases: []
 ParameterSets:
@@ -123,23 +98,17 @@ HelpMessage: ''
 
 This cmdlet supports the common parameters: -Debug, -ErrorAction, -ErrorVariable,
 -InformationAction, -InformationVariable, -OutBuffer, -OutVariable, -PipelineVariable,
--ProgressAction, -Verbose, -WarningAction, -WarningVariable.
-For more information, see
+-ProgressAction, -Verbose, -WarningAction, and -WarningVariable. For more information, see
 [about_CommonParameters](https://go.microsoft.com/fwlink/?LinkID=113216).
 
 ## INPUTS
 
-### System.Management.Automation.HiThere
+### Microsoft.PowerShell.PlatyPS.Model.CommandHelp
 
 ## OUTPUTS
 
-### System.Object
+### System.String
 
 ## NOTES
 
-Just a note
-
 ## RELATED LINKS
-
-
-
