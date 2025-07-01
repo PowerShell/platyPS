@@ -364,7 +364,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             sb = Constants.StringBuilderPool.Get();
                             int startIndex = ast[2].Line - 1; // -1 because we are 0 based
-                            int endIndex = ast[3].Line - 1; // -1 because we are 0 based
+                            int endIndex = ast[3].Line;
                             for (int i = startIndex; i < endIndex; i++)
                             {
                                 sb.AppendLine(md.MarkdownLines[i].TrimEnd());
