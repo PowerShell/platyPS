@@ -24,6 +24,8 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         BeforeAll {
             $result = Import-MarkdownCommandHelp -Path $goodMarkdownPath
             $metadata = $result.GetType().GetProperty('Metadata', [System.Reflection.BindingFlags]'Public,NonPublic,Instance').GetValue($result, $null)
+
+            $md = Import-MarkdownModuleFile -Path "$assetdir/CimCmdlets2.md"
         }
 
         It 'Should be a valid CommandHelp object' {
@@ -58,6 +60,10 @@ Describe 'Import-MarkdownCommandHelp Tests' {
             $result.Metadata.aliases[0] | Should -Be "dir"
             $result.Metadata.aliases[1] | Should -Be "ls"
             $result.Metadata.aliases[2] | Should -Be "gci"
+        }
+
+        It 'Should be able to read multiline metadata' {
+            $md.Metadata['foo'] | Should -Be "bar"
         }
     }
 

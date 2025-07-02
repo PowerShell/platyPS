@@ -33,7 +33,7 @@ namespace Microsoft.PowerShell.PlatyPS
             */
 
             ModuleFileInfo moduleFileInfo = new();
-            OrderedDictionary? metadata = GetMetadata(markdownContent.Ast);
+            OrderedDictionary? metadata = GetMetadata(markdownContent);
             if (metadata is null)
             {
                 throw new InvalidDataException("null metadata");
@@ -151,7 +151,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 return string.Empty;
             }
 
-            var titleString = titleBlock.Inline?.FirstChild?.ToString().Trim(); 
+            var titleString = titleBlock.Inline?.FirstChild?.ToString().Trim();
             if (titleString is null)
             {
                 diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileTitle, "Null title", DiagnosticSeverity.Error, "GetModuleFileTitle", -1));
@@ -190,7 +190,7 @@ namespace Microsoft.PowerShell.PlatyPS
         }
 
         /// <summary>
-        /// Read the module file looking for 
+        /// Read the module file looking for
         /// "### [name](markdownfile.md)
         /// Description
         /// </summary>

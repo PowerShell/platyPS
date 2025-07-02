@@ -9,7 +9,7 @@ Describe "Import-ModuleFile tests" {
     Context "File creation" {
         It "Should be able to read module files" {
             $results = $modFiles.FullName | Import-MarkdownModuleFile
-            $results.Count | Should -Be 13
+            $results.Count | Should -Be 14
         }
 
         It "Should produce the correct type of object" {

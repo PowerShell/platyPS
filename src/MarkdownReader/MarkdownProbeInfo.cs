@@ -68,7 +68,7 @@ namespace Microsoft.PowerShell.PlatyPS
             FilePath = filePath;
             DiagnosticMessages = new();
             MarkdownContent = ParsedMarkdownContent.ParseFile(filePath);
-            MetaData = MarkdownConverter.GetMetadata(MarkdownContent.Ast);
+            MetaData = MarkdownConverter.GetMetadata(MarkdownContent);
             DetermineContentType();
         }
 
