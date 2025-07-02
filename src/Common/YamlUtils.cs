@@ -19,7 +19,10 @@ namespace Microsoft.PowerShell.PlatyPS
     {
         private static Deserializer deserializer = (Deserializer)new DeserializerBuilder().Build();
         private static Deserializer camelCaseDeserializer = (Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
-        private static Serializer serializer = (Serializer)new SerializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
+        private static Serializer serializer = (Serializer)new SerializerBuilder()
+            .WithEventEmitter(nextEmitter => new QuotedNullStringEvenEmitter(nextEmitter))
+            .WithNamingConvention(CamelCaseNamingConvention.Instance)
+            .Build();
 
         // we have a specific serializer for metadata as it is not a simple string/string dictionary
         // and we want it to look like: no-loc: [Cmdlet, -Parameter]
