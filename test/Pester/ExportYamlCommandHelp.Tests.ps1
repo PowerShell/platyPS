@@ -164,6 +164,12 @@ Describe "Export-YamlCommandHelp tests" {
                 }
         }
 
+        It 'Should be able to handle accepted values with NULL' {
+            $cmd = Import-MarkdownCommandHelp -Path "$PSScriptRoot/assets/Resolve-DnsName.md"
+            $yamlFile = $cmd | Export-YamlCommandHelp -outputfolder $TestDrive -Force
+            $yamlDict = Import-YamlCommandHelp $yamlFile.FullName
+            $yamlDict.Parameters[-1].AcceptedValues | Should -Contain "'NULL'"
+        }
     }
 
     Context "Input" {
