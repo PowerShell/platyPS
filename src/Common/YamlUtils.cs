@@ -20,7 +20,7 @@ namespace Microsoft.PowerShell.PlatyPS
         private static Deserializer deserializer = (Deserializer)new DeserializerBuilder().Build();
         private static Deserializer camelCaseDeserializer = (Deserializer)new DeserializerBuilder().WithNamingConvention(CamelCaseNamingConvention.Instance).Build();
         private static Serializer serializer = (Serializer)new SerializerBuilder()
-            .WithEventEmitter(nextEmitter => new QuotedNullStringEvenEmitter(nextEmitter))
+            .WithEventEmitter(nextEmitter => new QuotedNullStringEventEmitter(nextEmitter))
             .WithNamingConvention(CamelCaseNamingConvention.Instance)
             .Build();
 

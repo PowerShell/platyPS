@@ -7,9 +7,9 @@ using YamlDotNet.Core.Events;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.EventEmitters;
 
-public class QuotedNullStringEvenEmitter : ChainedEventEmitter
+public class QuotedNullStringEventEmitter : ChainedEventEmitter
 {
-    public QuotedNullStringEvenEmitter(IEventEmitter nextEmitter) : base(nextEmitter)
+    public QuotedNullStringEventEmitter(IEventEmitter nextEmitter) : base(nextEmitter)
     {
     }
 
