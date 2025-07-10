@@ -1,4 +1,12 @@
-# PlatyPS
+# PlatyPS v0.14.2
+
+> [!IMPORTANT]
+> This branch contains the source code for the legacy version of PlatyPS named **platyPS**. This
+> version is no longer actively maintained, but it is available for reference and legacy support.
+> The latest version of this code is v0.14.2. The code and documentation in this branch are provided
+> for historical purposes.
+
+## What is PlatyPS?
 
 PlatyPS provides a way to:
 
