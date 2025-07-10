@@ -22,7 +22,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         /// <summary>
         ///     The command parameters associated with this syntax.
         /// </summary>
-        [XmlElement("uri", Namespace = Constants.XmlNamespace.Command, Order = 1)]
+        [XmlElement("uri", Namespace = Constants.XmlNamespace.MAML, Order = 1)]
         public string Uri { get; set; } = string.Empty;
 
         public bool Equals(NavigationLink other)
