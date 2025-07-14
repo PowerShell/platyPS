@@ -7,7 +7,8 @@ schedules:
   displayName: Weekly Build
   branches:
     include:
-    - v2
+    - release/*
+    - main
   always: true
 
 parameters:

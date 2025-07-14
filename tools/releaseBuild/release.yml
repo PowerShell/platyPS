@@ -4,8 +4,8 @@ trigger: none
 pr:
   branches:
     include:
-    - v2
-    - release/v2/*
+    - main
+    - release/*
 
 variables:
   - group: ESRP
@@ -38,7 +38,6 @@ stages:
         $versionString = if ($env:RELEASE_VERSION -eq 'fromBranch') {
           $branch = $env:BUILD_SOURCEBRANCH
           $branchOnly = $branch -replace '^refs/heads/'
-          $branchOnly -replace '^.*(release/v2[-/])'
         }
         else {
             $env:RELEASE_VERSION

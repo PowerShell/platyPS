@@ -6,7 +6,7 @@ parameters:
 stages:
 - stage: ${{ parameters.stageName }}
   displayName: Release Microsoft.PowerShell.PlatyPS to '${{ parameters.stageName }}'
-  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release/v2'))
+  condition: and(succeeded(), eq(variables['Build.Reason'], 'Manual'), startsWith(variables['Build.SourceBranch'], 'refs/heads/release'))
 
   jobs:
   - deployment: Publish_${{ parameters.stageName }}

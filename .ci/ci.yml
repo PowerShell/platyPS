@@ -4,15 +4,15 @@ trigger:
   batch: true
   branches:
     include:
-    - master
+    - main
     - release/*
-    - v2
+    - v1
 pr:
   branches:
     include:
-    - master
+    - main
     - release/*
-    - v2
+    - v1
 
 resources:
   repositories:
