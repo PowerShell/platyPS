@@ -13,7 +13,10 @@ Describe "Miscellaneous cmdlet tests" {
         }
         ) {
             param ($cmdlet)
-            $cmdlet.Parameters['LiteralPath'] | Should -Not -BeNullOrEmpty
+            $param = $cmdlet.Parameters['LiteralPath']
+            $param | Should -Not -BeNullOrEmpty
+            $param.Aliases | Should -Contain "PSPath"
+            $param.Aliases | Should -Contain "LP"
         }
     }
 
@@ -88,7 +91,7 @@ Describe "Miscellaneous cmdlet tests" {
             Import-Module Microsoft.PowerShell.Archive
             if (! $IsWindows) {
                $skipTest = $true
-               return 
+               return
             }
 
             $OutputPath = "$TestDrive\CabTesting"
