@@ -638,4 +638,23 @@ Write-Host 'Hello World!'
             $file | Should -FileContentMatch 'SupportsWildcards: true'
         }
     }
+
+    Context 'Confirm Whatif description' {
+        BeforeAll {
+            function global:Test-ConfirmWhatIfDescription {
+                [CmdletBinding(SupportsShouldProcess = $true)]
+                param (
+                    [Parameter()]
+                    [string] $Name
+                )
+            }
+
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-ConfirmWhatIfDescription') -OutputFolder "$TestDrive/NewMarkDownHelp"
+        }
+
+        It 'should have a description for Confirm and WhatIf parameters' {
+            $file | Should -FileContentMatch 'Prompts you for confirmation before running the cmdlet.'
+            $file | Should -FileContentMatch 'Tells PowerShell to run the command in a mode that only reports what would happen, but not actually let the command run or make changes.'
+        }
+    }
 }
