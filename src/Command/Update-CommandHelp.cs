@@ -27,6 +27,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string[] Path { get; set; } = Array.Empty<string>();
 
         [Parameter(Mandatory=true, ValueFromPipeline=true, ParameterSetName= "LiteralPath")]
+        [Alias("PSPath", "LP")]
         [ValidateNotNullOrEmpty]
         public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
@@ -65,7 +66,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var cmdInfo = SessionState.InvokeCommand.GetCommand(commandName, CommandTypes.Function|CommandTypes.Filter|CommandTypes.Cmdlet);
                     if (cmdInfo is null)
                     {
-                        var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName); 
+                        var err = new ErrorRecord(new CommandNotFoundException(commandName), "UpdateMarkdownCommandHelp,CommandNotFound", ErrorCategory.ObjectNotFound, commandName);
                         err.ErrorDetails = new($"Did you import the module which includes '{commandName}'?");
                         WriteError(err);
                         continue;
@@ -74,7 +75,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var helpObjectFromCmdlet = new TransformCommand(transformSettings).Transform(cmdInfo);
                     if (helpObjectFromCmdlet is null)
                     {
-                        var err = new ErrorRecord(new InvalidOperationException(commandName), "UpdateMarkdownCommandHelp,CmdletConversion", ErrorCategory.InvalidResult, commandName); 
+                        var err = new ErrorRecord(new InvalidOperationException(commandName), "UpdateMarkdownCommandHelp,CmdletConversion", ErrorCategory.InvalidResult, commandName);
                         err.ErrorDetails = new($"Could not convert {commandName} to CommandHelp.");
                         WriteError(err);
                         continue;

@@ -24,6 +24,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string[] Path { get; set; } = Array.Empty<string>();
 
         [Parameter(Mandatory=true, ValueFromPipeline=true, ParameterSetName= "LiteralPath")]
+        [Alias("PSPath", "LP")]
         [ValidateNotNullOrEmpty]
         public string[] LiteralPath { get; set; } = Array.Empty<string>();
 
@@ -61,7 +62,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     }
                     continue;
                 }
-                
+
                 if (YamlUtils.TryReadModuleFile(path, out ModuleFileInfo? moduleFileInfo, out Exception? deserializationError))
                 {
                     WriteObject(moduleFileInfo);

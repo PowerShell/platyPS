@@ -51,6 +51,7 @@ namespace Microsoft.PowerShell.PlatyPS
         /// An array of literal paths to get the markdown metadata from.
         /// </summary>
         [Parameter(Mandatory = true, ParameterSetName = "LiteralPath")]
+        [Alias("PSPath", "LP")]
         public string[] LiteralPath
         {
             get
