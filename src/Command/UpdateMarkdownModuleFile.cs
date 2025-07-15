@@ -26,6 +26,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public string Path { get; set; } = string.Empty;
 
         [Parameter(Mandatory = true, ParameterSetName = "literalpath")]
+        [Alias("PSPath", "LP")]
         public string LiteralPath { get; set; } = string.Empty;
 
         [Parameter(ValueFromPipeline = true, Mandatory = true, Position = 1)]
