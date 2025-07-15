@@ -15,7 +15,7 @@ using Microsoft.PowerShell.PlatyPS.Model;
 
 namespace Microsoft.PowerShell.PlatyPS
 {
-    public class TranformUtils
+    public class TransformUtils
     {
         private static Dictionary<string, string> TypeAbbreviations = new Dictionary<string, string> {
             { "System.Management.Automation.AliasAttribute" , "Alias" },
@@ -122,6 +122,27 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return false;
+        }
+
+        public static string GetParameterTemplateString(string paramName)
+        {
+            if (string.IsNullOrEmpty(paramName))
+            {
+                throw new ArgumentException("Parameter name cannot be null or empty.", nameof(paramName));
+            }
+
+            if (string.Equals(paramName, "Confirm", StringComparison.OrdinalIgnoreCase))
+            {
+                return Constants.ConfirmParameterDescription;
+            }
+            else if (string.Equals(paramName, "WhatIf", StringComparison.OrdinalIgnoreCase))
+            {
+                return Constants.WhatIfParameterDescription;
+            }
+            else
+            {
+                return string.Format(Constants.FillInParameterDescriptionTemplate, paramName);
+            }
         }
     }
 }

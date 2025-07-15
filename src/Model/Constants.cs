@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Linq;
 using System.IO;
+using System.Runtime.CompilerServices;
 
 namespace Microsoft.PowerShell.PlatyPS.Model
 {
@@ -84,6 +85,8 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string FillInGuid = "XXXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
         internal const string LocaleEnUs = "en-US";
         internal const string skippingMessageFmt = "'{0}' exists, skipping. Use -Force to overwrite.";
+        internal const string ConfirmParameterDescription = "{{ Fill Confirm Description }}";
+        internal const string WhatIfParameterDescription = "{{ Fill WhatIf Description }}";
 
         // TODO: ProgressAction is not a common parameter for all versions of PowerShell.
         //  This should not be added under all circumstances.

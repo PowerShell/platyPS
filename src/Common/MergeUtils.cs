@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using Microsoft.PowerShell.PlatyPS.Model;
 
@@ -238,7 +239,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     var dm = new DiagnosticMessage(DiagnosticMessageSource.Merge, $"updating {pName}.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1);
                     diagnosticMessages.Add(dm);
 
-                    var checkTemplate = string.Format(Constants.FillInParameterDescriptionTemplate, helpParam.Name);
+                    var checkTemplate = TransformUtils.GetParameterTemplateString(helpParam.Name);
 
                     var description = helpParam.Description;
 

@@ -236,7 +236,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage ?? string.Empty;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
-                    string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
+                    TransformUtils.GetParameterTemplateString(param.Name) :
                     descriptionFromHelp.Trim();
 
                 parameters.Add(param);
@@ -517,7 +517,7 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else
             {
-                if (TranformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviation))
+                if (TransformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviation))
                 {
                     return abbreviation;
                 }
@@ -613,7 +613,7 @@ namespace Microsoft.PowerShell.PlatyPS
             string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? paramAttribInfo.HelpMessage ?? string.Empty;
 
             param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
-                string.Format(Constants.FillInParameterDescriptionTemplate, param.Name) :
+                TransformUtils.GetParameterTemplateString(param.Name) :
                 descriptionFromHelp;
 
             param.Aliases = paramInfo.Aliases.ToList();
