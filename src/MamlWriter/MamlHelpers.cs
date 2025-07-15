@@ -194,12 +194,25 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
 
         private static CommandExample ConvertExample(Example example, int exampleNumber)
         {
+            var tempDescription = new List<string>();
             var newExample = new CommandExample();
             newExample.Title = string.Format($"--------- {example.Title} ---------");
             foreach(string s in example.Remarks.Split(new string[] { "\n\n" }, StringSplitOptions.None))
             {
-                newExample.Description.Add(s.Trim());
+                tempDescription.Add(s.Trim());
             }
+
+            for (int i = 0; i < tempDescription.Count; i++)
+            {
+                newExample.Description.Add(tempDescription[i]);
+
+                // Add an empty line after each item except the last
+                if (i < tempDescription.Count - 1)
+                {
+                    newExample.Description.Add("__REMOVE__ME__LINE__BREAK"); // Non-breaking space for empty line
+                }
+            }
+
             return newExample;
         }
 
