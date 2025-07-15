@@ -653,8 +653,8 @@ Write-Host 'Hello World!'
         }
 
         It 'should have a description for Confirm and WhatIf parameters' {
-            $file | Should -FileContentMatch '### -Confirm'
-            $file | Should -FileContentMatch '### -WhatIf'
+            $file | Should -FileContentMatch 'Prompts you for confirmation before running the cmdlet.'
+            $file | Should -FileContentMatch 'Tells PowerShell to run the command in a mode that only reports what would happen, but not actually let the command run or make changes.'
         }
     }
 }
