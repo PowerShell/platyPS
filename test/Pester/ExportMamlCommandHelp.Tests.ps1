@@ -129,5 +129,11 @@ Describe "Export-MamlCommandHelp tests" {
             $observed = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).examples.example.title
             $observed | Should -Be $expected
         }
+
+        It "Should have the line break workaround in the example code" {
+            $m = Import-MarkdownCommandHelp -Path (Join-Path $assetDir 'get-date.md')
+            $mamlFie = $m | Export-MamlCommandHelp -OutputFolder $outputDirectory -Force
+            $mamlFie | Should -FileContentMatch '<maml:para>&#x20;&#x08;</maml:para>'
+        }
     }
 }
