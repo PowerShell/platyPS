@@ -96,7 +96,15 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
                 else
                 {
-                    WriteObject(this.InvokeProvider.Item.Get(MamlConversionHelper.WriteToFile(helpInfos, moduleMamlPath, Encoding).FullName));
+                    var mamlFile = MamlConversionHelper.WriteToFile(helpInfos, moduleMamlPath, Encoding);
+
+                    // Read the MAML file and replace the specific line
+                    string mamlContent = File.ReadAllText(mamlFile.FullName, Encoding);
+                    // Replace the line break placeholder with a proper line break
+                    // This is a workaround for the issue where line breaks are not preserved in MAML files
+                    string updatedContent = mamlContent.Replace("<maml:para>__REMOVE_ME_LINE_BREAK__</maml:para>", "<maml:para>&#x20;&#x08;</maml:para>");
+                    File.WriteAllText(mamlFile.FullName, updatedContent, Encoding);
+                    WriteObject(this.InvokeProvider.Item.Get(mamlFile.FullName));
                 }
             }
         }

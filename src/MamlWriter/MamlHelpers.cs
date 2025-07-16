@@ -209,7 +209,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 // Add an empty line after each item except the last
                 if (i < tempDescription.Count - 1)
                 {
-                    newExample.Description.Add("__REMOVE__ME__LINE__BREAK"); // Non-breaking space for empty line
+                    newExample.Description.Add("__REMOVE_ME_LINE_BREAK__"); // Non-breaking space for empty line
                 }
             }
 
