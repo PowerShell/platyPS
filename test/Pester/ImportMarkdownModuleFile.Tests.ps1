@@ -9,7 +9,7 @@ Describe "Import-ModuleFile tests" {
     Context "File creation" {
         It "Should be able to read module files" {
             $results = $modFiles.FullName | Import-MarkdownModuleFile
-            $results.Count | Should -Be 14
+            $results.Count | Should -Be 15
         }
 
         It "Should produce the correct type of object" {
@@ -86,6 +86,12 @@ Describe "Import-ModuleFile tests" {
             $mf0.CommandGroups[0].Commands[$offset].Link | Should -Be $Link
             $mf0.CommandGroups[0].Commands[$offset].Description | Should -Be $Description
 
+        }
+
+        It "Should be able to parse even if description is missing" {
+            $mf = Import-MarkdownModuleFile "${PSScriptRoot}/assets/Microsoft.SystemCenter.ServiceManagementAutomation.md"
+            $mf.Description | Should -Be ""
+            $mf.CommandGroups.Count | Should -Be 1
         }
     }
 

@@ -181,7 +181,8 @@ namespace Microsoft.PowerShell.PlatyPS
             var nextHeader = md.FindHeader(nextHeaderLevel, "");
             if (nextHeader == -1)
             {
-                nextHeaderLevel = 3;
+                md.CurrentIndex--; // Back up to the description header
+                return string.Empty;
             }
 
             string descriptionString = MarkdownConverter.GetLinesTillNextHeader(md, nextHeaderLevel, index);
