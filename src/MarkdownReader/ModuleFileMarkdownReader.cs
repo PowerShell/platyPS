@@ -186,13 +186,6 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             string descriptionString = MarkdownConverter.GetLinesTillNextHeader(md, nextHeaderLevel, index);
-
-            if (string.Equals(descriptionString.Trim(), "## Description", StringComparison.OrdinalIgnoreCase))
-            {
-                diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "No description found", DiagnosticSeverity.Warning, "GetModuleFileDescription", md.Ast[index].Line));
-                return string.Empty;
-            }
-
             diagnostics.Add(new DiagnosticMessage(DiagnosticMessageSource.ModuleFileDescription, "Module description found", DiagnosticSeverity.Information, "GetModuleFileDescription", md.Ast[index].Line));
             return descriptionString.Trim();
         }
