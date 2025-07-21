@@ -16,7 +16,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         /// <summary>
         ///     The data-type name.
         /// </summary>
-        [XmlElement("name", Namespace = Constants.XmlNamespace.Dev, Order = 0)]
+        [XmlElement("name", Namespace = Constants.XmlNamespace.MAML, Order = 0)]
         public string Name { get; set; } = string.Empty;
 
         /// <summary>
