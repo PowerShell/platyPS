@@ -86,7 +86,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string LocaleEnUs = "en-US";
         internal const string skippingMessageFmt = "'{0}' exists, skipping. Use -Force to overwrite.";
         internal const string ConfirmParameterDescription = "Prompts you for confirmation before running the cmdlet.";
-        internal const string WhatIfParameterDescription = "Tells PowerShell to run the command in a mode that only reports what would happen, but not actually let the command run or make changes.";
+        internal const string WhatIfParameterDescription = "Runs the command in a mode that only reports what would happen without performing the actions.";
 
         // TODO: ProgressAction is not a common parameter for all versions of PowerShell.
         //  This should not be added under all circumstances.
