@@ -89,6 +89,11 @@ Describe "Tests for Update-CommandHelp" {
         $ch.AliasHeaderFound | Should -Be $true
     }
 
+    It "Should not append parameter descriptions with boiler plate if description is not boilerplate" {
+        $ch = Update-CommandHelp -Path ([io.path]::Combine($PSScriptRoot, "assets", "Export-Csv.md"))
+        $ch.Parameters.Where({$_.Name -eq "LiteralPath"}).Description | Should -Not -BeLike "*{{ Fill LiteralPath Description }}*"
+    }
+
     Context "Parameter attribute updates" {
         BeforeAll {
                 function test-update {

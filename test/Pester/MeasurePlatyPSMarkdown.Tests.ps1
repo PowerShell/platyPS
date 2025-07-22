@@ -13,9 +13,9 @@ Describe "Export-MarkdownModuleFile" {
 
     It "Should identify all the '<fileType>' assets" -TestCases @(
         @{ fileType = "unknown"; expectedCount = 2 }
-        @{ fileType = "CommandHelp"; expectedCount = 41 }
+        @{ fileType = "CommandHelp"; expectedCount = 42 }
         @{ fileType = "ModuleFile"; expectedCount = 16 }
-        @{ fileType = "V1Schema"; expectedCount = 52 }
+        @{ fileType = "V1Schema"; expectedCount = 53 }
         @{ fileType = "V2Schema"; expectedCount = 5 }
     ) {
         param ($fileType, $expectedCount)
