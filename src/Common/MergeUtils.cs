@@ -246,12 +246,15 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     var description = helpParam.Description;
 
+                    var templateDescription = string.Format(Constants.FillInParameterDescriptionTemplate, helpParam.Name);
+
                     if (string.Equals(helpParam.Description, checkTemplate, StringComparison.OrdinalIgnoreCase))
                     {
                         diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has no description in the help.", DiagnosticSeverity.Warning, "TryGetMergedParameters", -1));
                         description = cmdParam.Description;
                     }
-                    else if (!string.Equals(helpParam.Description, cmdParam.Description, StringComparison.OrdinalIgnoreCase))
+                    else if (!string.Equals(cmdParam.Description, templateDescription, StringComparison.OrdinalIgnoreCase)
+                     && !string.Equals(helpParam.Description, cmdParam.Description, StringComparison.OrdinalIgnoreCase))
                     {
                         diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has the different description in the help and the command. Concatinating.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                         description = string.Join(Environment.NewLine, helpParam.Description, cmdParam.Description);
