@@ -61,7 +61,7 @@ namespace Microsoft.PowerShell.PlatyPS
         public SwitchParameter WithModulePage { get; set; }
 
         [Parameter]
-        public SwitchParameter AbbreviateParameterTypename { get; set; }
+        public SwitchParameter AbbreviateParameterTypeName { get; set; }
 
         #endregion
 
@@ -139,7 +139,7 @@ namespace Microsoft.PowerShell.PlatyPS
                         ModuleName = cmd.ModuleName is null ? string.Empty : cmd.ModuleName,
                         ModuleGuid = cmd.Module?.Guid is null ? Guid.Empty : cmd.Module.Guid,
                         OnlineVersionUrl = HelpUri,
-                        UseFullTypeName = ! AbbreviateParameterTypename
+                        UseFullTypeName = ! AbbreviateParameterTypeName
                     };
 
                     try
