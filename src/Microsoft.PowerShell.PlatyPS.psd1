@@ -96,6 +96,6 @@ PrivateData = @{
 }
 
 # HelpInfo URI of this module
-# HelpInfoURI = ''
+HelpInfoURI = 'https://aka.ms/ps-modules-help'
 
 }
