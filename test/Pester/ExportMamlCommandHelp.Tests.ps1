@@ -133,7 +133,7 @@ Describe "Export-MamlCommandHelp tests" {
         It "Should have the line break workaround in the example code" {
             $m = Import-MarkdownCommandHelp -Path (Join-Path $assetDir 'get-date.md')
             $mamlFie = $m | Export-MamlCommandHelp -OutputFolder $outputDirectory -Force
-            $mamlFie | Should -FileContentMatch '<maml:para>&#x20;&#x08;</maml:para>'
+            $mamlFie | Should -FileContentMatch '<maml:para>&#x80;</maml:para>'
         }
     }
 }
