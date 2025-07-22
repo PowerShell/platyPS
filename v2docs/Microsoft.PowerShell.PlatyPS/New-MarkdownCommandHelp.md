@@ -24,7 +24,7 @@ Creates Markdown help files for PowerShell modules and commands.
 New-MarkdownCommandHelp -OutputFolder <string> [-CommandInfo <CommandInfo[]>] [-Encoding <Encoding>]
  [-Force] [-HelpUri <string>] [-HelpInfoUri <string>] [-HelpVersion <version>] [-Locale <string>]
  [-Metadata <hashtable>] [-ModuleInfo <psmoduleinfo[]>] [-WithModulePage]
- [-AbbreviateParameterTypeName] [-WhatIf] [-Confirm] [<CommonParameters>]
+ [-AbbreviateParameterTypename] [-WhatIf] [-Confirm] [<CommonParameters>]
 ```
 
 ## ALIASES
@@ -61,7 +61,7 @@ New-MarkdownCommandHelp @newMarkdownCommandHelpSplat
 
 ## PARAMETERS
 
-### -AbbreviateParameterTypeName
+### -AbbreviateParameterTypename
 
 By default, this command uses full type names in the parameter metadata and for the input and output
 types. When you use this parameter, the cmdlet outputs short type names.
