@@ -60,6 +60,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
         private static string GetHelpFileFromCommandInfo(CommandInfo commandInfo)
         {
+            // We are chosing upper case for the "Help.xml" file name to avoid issues with non-Windows platforms.
             string helpFileName;
             if (commandInfo is CmdletInfo cmdlet && ! string.IsNullOrEmpty(cmdlet.HelpFile))
             {
