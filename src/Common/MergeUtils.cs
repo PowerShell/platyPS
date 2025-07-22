@@ -29,6 +29,9 @@ namespace Microsoft.PowerShell.PlatyPS
             // We will update this copy with new information from the cmdlet.
             CommandHelp helpCopy = new (fromMarkdown);
 
+            // Copy the ExternalHelpFile from markdown on cmletinfo
+            helpCopy.ExternalHelpFile = fromMarkdown.ExternalHelpFile ?? fromCmdlet.ExternalHelpFile;
+
             // The following are not available in the cmdlet, so we will just use what was in the help.
             // - Synopsis
             // - Description

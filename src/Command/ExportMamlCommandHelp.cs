@@ -70,11 +70,12 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             // emit a MAML file for each group of CommandHelp objects
-            var helpGroup = _commandHelps.GroupBy(c => c.ModuleName);
+            var helpGroup = _commandHelps.GroupBy(c => c?.ExternalHelpFile ?? c?.ModuleName)
+                                         .OrderBy(g => g.Key);
             foreach(var group in helpGroup)
             {
                 string moduleName = group.First().ModuleName;
-                string helpFileName = $"{moduleName}-Help.xml";
+                string helpFileName = group.First().ExternalHelpFile ?? $"{moduleName}-Help.xml";
 
                 if (!ShouldProcess(helpFileName))
                 {
