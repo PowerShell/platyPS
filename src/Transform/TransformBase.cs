@@ -54,11 +54,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 addDefaultStrings = true;
             }
 
-
             CommandHelp cmdHelp = new(commandInfo.Name, commandInfo.ModuleName, Settings.Locale);
             cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadataFromCommandInfo(commandInfo);
             cmdHelp.ExternalHelpFile = cmdHelp.Metadata["external help file"].ToString() ?? string.Empty;
-            cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl;
+            cmdHelp.OnlineVersionUrl = Settings.OnlineVersionUrl ?? cmdHelp.Metadata["HelpUri"] as string;
+            cmdHelp.SchemaVersion = cmdHelp.Metadata["PlatyPS schema version"] as string ?? string.Empty;
             cmdHelp.Synopsis = GetSynopsis(helpItem, addDefaultStrings);
             cmdHelp.AddSyntaxItemRange(GetSyntaxItem(commandInfo, helpItem));
             cmdHelp.Description = GetDescription(helpItem, addDefaultStrings).Trim();

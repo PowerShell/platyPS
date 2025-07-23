@@ -224,6 +224,13 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             commandHelp.Metadata = metadata;
+            commandHelp.ExternalHelpFile = metadata["external help file"] as string ?? string.Empty;
+            commandHelp.SchemaVersion = metadata["PlatyPS schema version"] as string ?? string.Empty;
+            commandHelp.OnlineVersionUrl = metadata["HelpUri"] as string ?? string.Empty;
+
+            string? moduleGuid = metadata["ModuleGuid"] as string;
+            commandHelp.ModuleGuid = moduleGuid is not null ? new Guid(moduleGuid) : null;
+
             commandHelp.HasCmdletBinding = GetCmdletBindingState(markdownContent, out var cmdletBindingDiagnostics);
             if (cmdletBindingDiagnostics is not null)
             {

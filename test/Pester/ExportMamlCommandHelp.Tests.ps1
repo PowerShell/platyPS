@@ -7,8 +7,8 @@ Describe "Export-MamlCommandHelp tests" {
         $markdownFiles = 'get-date.md', 'Import-Module.md', 'Invoke-Command.md', 'Out-Null.md'
         $chObjects = $markdownFiles | Foreach-Object { Import-MarkdownCommandHelp  (Join-Path $assetDir $_) }
         $outputDirectory = Join-Path $TESTDRIVE MamlBase
-        $f1 = "$outputDirectory/Microsoft.PowerShell.Core/Microsoft.PowerShell.Core-Help.xml"
-        $f2 = "$outputDirectory/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Utility-Help.xml"
+        $f1 = "$outputDirectory/Microsoft.PowerShell.Core/System.Management.Automation.dll-Help.xml"
+        $f2 = "$outputDirectory/Microsoft.PowerShell.Utility/Microsoft.PowerShell.Commands.Utility.dll-Help.xml"
     }
 
     Context "Basic Operations" {
