@@ -65,6 +65,18 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         It 'Should be able to read multiline metadata' {
             $md.Metadata['foo'] | Should -Be "bar"
         }
+
+        It 'Should be able to set all metadata properties' {
+            $m = Import-MarkdownCommandHelp -Path "$assetdir/get-date.md"
+            $m.ExternalHelpFile | Should -Be "Microsoft.PowerShell.Commands.Utility.dll-Help.xml"
+            $m.Locale | Should -Be "en-US"
+            $m.SchemaVersion | Should -Be "2024-05-01"
+            $m.OnlineVersionUrl | Should -Be "https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp"
+            $m.ModuleGuid | Should -BeNullOrEmpty
+
+            $maml = $m | Export-MamlCommandHelp -OutputFolder $TestDrive -Force -Verbose
+            $maml.Name | Should -Be 'Microsoft.PowerShell.Commands.Utility.dll-Help.xml'
+        }
     }
 
     Context "Validate Aliases" {
