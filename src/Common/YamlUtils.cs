@@ -190,6 +190,10 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 help.Metadata = GetMetadataFromDictionary(metadata);
                 help.Diagnostics.TryAddDiagnostic(DiagnosticMessageSource.General, "Found Metadata", DiagnosticSeverity.Information, "yaml metadata", -1);
+
+                help.ExternalHelpFile = metadata["external help file"] as string ?? string.Empty;
+                help.SchemaVersion = metadata["PlatyPS schema version"] as string ?? string.Empty;
+                help.OnlineVersionUrl = metadata["HelpUri"] as string ?? string.Empty;
             }
 
             if (dictionary["synopsis"] is string synopsis)
