@@ -74,7 +74,7 @@ PrivateData = @{
 
     PSData = @{
 
-        Prerelease = 'rc3'
+        ## Prerelease = ''
 
         # Tags applied to this module. These help with module discovery in online galleries.
         Tags = @('help', 'markdown', 'MAML', 'PSEdition_Core', 'PSEdition_Desktop')
