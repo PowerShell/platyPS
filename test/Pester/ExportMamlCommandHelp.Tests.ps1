@@ -112,7 +112,7 @@ Describe "Export-MamlCommandHelp tests" {
         }
 
         It "Should have the proper number of relatedLinks" {
-            $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).relatedLinks.navigationLink.Count | Should -Be 6
+            $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).relatedLinks.navigationLink.Count | Should -Be 7
         }
 
         It "Should have the same content for the description" {
@@ -134,6 +134,14 @@ Describe "Export-MamlCommandHelp tests" {
             $m = Import-MarkdownCommandHelp -Path (Join-Path $assetDir 'get-date.md')
             $mamlFie = $m | Export-MamlCommandHelp -OutputFolder $outputDirectory -Force
             $mamlFie | Should -FileContentMatch '<maml:para>&#x80;</maml:para>'
+        }
+
+        It "Should have online help uri" {
+            $m = Import-MarkdownCommandHelp -Path (Join-Path $assetDir 'Get-Date.V2.md')
+            $mamlFile = $m | Export-MamlCommandHelp -OutputFolder "$outputDirectory/helpuri" -Force
+            $mamlFile | Should -Exist
+            $maml = Get-Content -Path $mamlFile -Raw
+            $maml | Should -BeLike '*<command:uri>https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&amp;WT.mc_id=ps-gethelp</command:uri>*'
         }
     }
 }
