@@ -40,7 +40,19 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var helpItems = new HelpItems();
             foreach(var command in commandHelp)
             {
-                helpItems.Commands.Add(ConvertCommandHelpToMamlCommand(command));
+                if (command is not null)
+                {
+                    var onlineHelpUri = command.Metadata?["HelpUri"]?.ToString();
+
+                    var mamlCommand = ConvertCommandHelpToMamlCommand(command);
+
+                    if (onlineHelpUri is not null)
+                    {
+                        mamlCommand.RelatedLinks.Insert(0, new NavigationLink { LinkText = "Online Version", Uri = onlineHelpUri });
+                    }
+
+                    helpItems.Commands.Add(mamlCommand);
+                }
             }
             return helpItems;
         }
