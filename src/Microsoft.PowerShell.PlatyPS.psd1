@@ -11,7 +11,7 @@
 RootModule = 'Microsoft.PowerShell.PlatyPS.psm1'
 # Version number of this module.
 # Do not edit the version. The version is updated by the build script.
-ModuleVersion = '1.0.0'
+ModuleVersion = '1.0.1'
 
 # ID used to uniquely identify this module
 GUID = '0bdcabef-a4b7-4a6d-bf7e-d879817ebbff'
