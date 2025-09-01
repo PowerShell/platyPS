@@ -87,6 +87,11 @@ Describe "Export-MamlCommandHelp tests" {
             $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).Parameters.parameter.Count | Should -Be 13
         }
 
+        It "Should have the proper aliases for Get-Date" {
+            $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).Parameters.parameter.
+                  Where({$_.Name -in @('Date', 'UnixTimeSeconds')}).aliases | Should -Be 'LastWriteTime', 'UnixTime'
+        }
+
         It "Should have the proper number of parameters for Import-Module" {
             $xml.SelectNodes('//command:command', $ns).Where({$_.details.name -eq "Import-Module"}).Parameters.parameter.Count | Should -Be 26
         }
