@@ -83,6 +83,7 @@ namespace Microsoft.PowerShell.PlatyPS.Model
                 return;
             }
 
+            Parameters.Add(parameter);
             _parameterNames.Add(name);
             _alphabeticOrderParameters.Add(name, parameter);
         }

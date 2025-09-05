@@ -202,4 +202,20 @@ Describe "New-CommandHelp tests" {
             $io.inputs.typename | Should -Be "System.Int32"
         }
     }
+
+    Context "AcceptedValues Validation" {
+        BeforeAll {
+            $cmd = Get-Command Get-Command
+            $ch = $cmd | New-CommandHelp
+            $expectedValues = 'Alias', 'Function', 'Filter', 'Cmdlet', 'ExternalScript', 'Application', 'Script', 'Configuration', 'All'
+        }
+
+        It "Parameter in Parameters should have proper accepted values" {
+            $ch.Parameters.Where({$_.Name -eq "CommandType"}).AcceptedValues | Should -Be $expectedValues
+        }
+
+        It "Parameter in Syntax should have proper accepted values" {
+            $ch.Syntax.Parameters.Where({$_.Name -eq "CommandType"}).AcceptedValues | Should -Be $expectedValues
+        }
+    }
 }

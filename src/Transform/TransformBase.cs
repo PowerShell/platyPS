@@ -233,6 +233,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                 param.DefaultValue = GetParameterDefaultValueFromHelp(helpItem, param.Name);
                 param.Aliases = parameterMetadata.Value.Aliases.ToList();
+                param.AddAcceptedValueRange(GetParameterAcceptedValuesFromHelp(helpItem, param.Name));
 
                 string descriptionFromHelp = GetParameterDescriptionFromHelp(helpItem, param.Name) ?? param.HelpMessage ?? string.Empty;
                 param.Description = string.IsNullOrEmpty(descriptionFromHelp) ?
@@ -625,6 +626,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 Constants.NoneString :
                 defaultValueFromHelp;
 
+            param.AddAcceptedValueRange(GetParameterAcceptedValuesFromHelp(helpItem, param.Name));
+
             return param;
         }
 
@@ -901,6 +904,46 @@ namespace Microsoft.PowerShell.PlatyPS
             finally
             {
                 Constants.StringBuilderPool.Return(sb);
+            }
+        }
+
+        protected IEnumerable<string> GetParameterAcceptedValuesFromHelp(dynamic? helpItem, string parameterName)
+        {
+            if (helpItem?.Syntax?.syntaxItem is null)
+            {
+                yield break;
+            }
+
+            Collection<PSObject>? syntaxItemCollection = MakePSObjectEnumerable(helpItem.Syntax.syntaxItem);
+
+            dynamic? param = null;
+            foreach (dynamic syntaxItem in syntaxItemCollection)
+            {
+                if (syntaxItem.parameter is null)
+                {
+                    continue;
+                }
+                var parameterAsCollection = MakePSObjectEnumerable(syntaxItem.parameter);
+                foreach (dynamic parameter in parameterAsCollection)
+                {
+                    var name = parameter.name as string;
+                    if (string.Equals(name, parameterName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        param = parameter;
+                        goto exitLoop;
+                    }
+                }
+            }
+            exitLoop:
+
+            var values = param?.parameterValueGroup?.parameterValue as object[];
+            if (values is null)
+            {
+                yield break;
+            }
+            foreach (object item in values)
+            {
+                yield return item.ToString();
             }
         }
 
