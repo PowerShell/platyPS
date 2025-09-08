@@ -683,4 +683,31 @@ Write-Host 'Hello World!'
             $commandHelp.Syntax[0].ToString() | Should -Not -Match 'Hidden|Break'
         }
     }
+
+    Context 'Locale parameter' {
+        BeforeAll {
+            function global:Test-Locale {
+                [CmdletBinding()]
+                param()
+            }
+        }
+
+        It 'No Locale parameter' {
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-Locale') -OutputFolder "$TestDrive/NewMarkdownHelp" -Force
+
+            Get-Content -Path $file -First 10 | Where-Object { $_ -match "^Locale" } | Should -Be "Locale: en-US"
+        }
+
+        It 'Invariant Locale parameter' {
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-Locale') -OutputFolder "$TestDrive/NewMarkdownHelp" -Force -Locale C
+
+            Get-Content -Path $file -First 10 | Where-Object { $_ -match "^Locale" } | Should -Be "Locale: en-US"
+        }
+
+        It 'ja-JP Locale parameter' {
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-Locale') -OutputFolder "$TestDrive/NewMarkdownHelp" -Force -Locale ja-JP
+
+            Get-Content -Path $file -First 10 | Where-Object { $_ -match "^Locale" } | Should -Be "Locale: ja-JP"
+        }
+    }
 }
