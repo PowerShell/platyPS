@@ -420,42 +420,27 @@ namespace Microsoft.PowerShell.PlatyPS
                     unnamedParameterSetName,
                     isDefaultParameterSet: false);
 
+                int position = int.MaxValue;
+                List<SyntaxParameter> positionalSyntaxParameters = [];
                 while (reader.ReadToNextSibling(Constants.MamlCommandParameterTag))
                 {
-                    var parameter = ReadParameter(reader.ReadSubtree(), parameterSetCount: -1);
-                    syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
-                    try
+                    var syntaxParameter = ReadSyntaxParameter(reader.ReadSubtree());
+                    syntaxItem.SyntaxParameters.Add(syntaxParameter);
+                    if (syntaxParameter.IsPositional)
                     {
-                        // This may possibly throw because the position is duplicated.
-                        // This is because we don't have a way to disambiguate between a positional parameter
-                        // in one parameter set and a non-positional parameter in another parameter set.
-                        // In this case, we will try to add the parameter with a negative position to show we
-                        // could not assign it appropriately.
-                        syntaxItem.AddParameter(parameter);
-                        syntaxItem.SyntaxParameters.Add(new SyntaxParameter(parameter));
+                        positionalSyntaxParameters.Add(syntaxParameter);
+                        // set the position value to the minimum value in each parameter
+                        if (int.TryParse(syntaxParameter.Position, NumberStyles.None, CultureInfo.InvariantCulture, out var p))
+                        {
+                            position = Math.Min(p, position);
+                        }
                     }
-                    catch
-                    {
-                        int minKey = syntaxItem.PositionalParameterKeys.Min(x => x);
-                        if (minKey >= 0)
-                        {
-                            minKey = -1;
-                        }
-                        else
-                        {
-                            minKey--;
-                        }
+                }
 
-                        parameter.ParameterSets.ForEach(x => x.Position = minKey.ToString());
-                        try
-                        {
-                            syntaxItem.AddParameter(parameter);
-                        }
-                        catch (Exception exception)
-                        {
-                            throw new InvalidOperationException($"Error adding parameter '{parameter.Name}' to syntax item {commandName}", exception);
-                        }
-                    }
+                // re-numbering positional parameters from the minimum value
+                foreach (var p in positionalSyntaxParameters.OrderBy(p => int.Parse(p.Position)))
+                {
+                    p.Position = (position++).ToString();
                 }
 
                 foreach(var paramName in syntaxItem.ParameterNames)
@@ -474,6 +459,76 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return null;
+        }
+
+        private SyntaxParameter ReadSyntaxParameter(XmlReader reader)
+        {
+            string name = string.Empty;
+            string type = string.Empty;
+            string position = Constants.NamedString;
+            bool required = false;
+
+            reader.Read();
+
+            if (reader.HasAttributes)
+            {
+                if (reader.MoveToAttribute("required"))
+                {
+                    bool.TryParse(reader.Value, out required);
+                }
+
+                if (reader.MoveToAttribute("position"))
+                {
+                    // Value is like '0' or 'named'
+                    position = reader.Value;
+                }
+
+                reader.MoveToElement();
+            }
+
+            if (reader.ReadToDescendant(Constants.MamlNameTag))
+            {
+                name = reader.ReadElementContentAsString();
+            }
+
+            // We read the next element and check the name as it could parameterValue or dev:type
+            while (reader.Read())
+            {
+                if (string.Equals(reader.Name, Constants.MamlCommandParameterValueTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    type = reader.ReadElementContentAsString();
+                }
+                else if (string.IsNullOrEmpty(type)
+                         && string.Equals(reader.Name, Constants.MamlDevTypeTag, StringComparison.OrdinalIgnoreCase))
+                {
+                    if (reader.ReadToDescendant(Constants.MamlNameTag))
+                    {
+                        type = reader.ReadElementContentAsString();
+                    }
+                }
+            }
+
+            if (string.IsNullOrEmpty(type))
+            {
+                throw new InvalidDataException($"Invalid syntaxItem.parameter data: <command:parameterValue> or <dev:type> is none");
+            }
+
+            SyntaxParameter syntaxParameter = new SyntaxParameter(name)
+            {
+                IsMandatory = required,
+                ParameterType = type,
+                IsPositional = int.TryParse(position, NumberStyles.None, CultureInfo.InvariantCulture, out _),
+                Position = position,
+                IsSwitchParameter = type is "SwitchParameter" or "System.Management.Automation.SwitchParameter",
+            };
+
+            // need to go the end of command:parameter
+            if (reader.ReadState != ReadState.EndOfFile)
+            {
+                reader.ReadEndElement();
+            }
+
+            return syntaxParameter;
         }
 
         private Parameter ReadParameter(XmlReader reader, int parameterSetCount)

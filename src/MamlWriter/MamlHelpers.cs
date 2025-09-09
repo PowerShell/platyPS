@@ -154,10 +154,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 newSyntax.CommandName = syntax.CommandName.Substring(0, firstSpace);
             }
-            foreach(var parameter in syntax.GetParametersInOrder())
-            {
-                newSyntax.Parameters.Add(ConvertParameter(parameter));
-            }
+            syntax.SortParameters();
+            newSyntax.Parameters.AddRange(syntax.SyntaxParameters.Select(ConvertSyntaxParameter));
 
             return newSyntax;
         }
@@ -201,6 +199,22 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 }
             }
 
+            return newParameter;
+        }
+
+        private static Parameter ConvertSyntaxParameter(Model.SyntaxParameter syntaxParam)
+        {
+            var newParameter = new MAML.Parameter()
+            {
+                Name = syntaxParam.ParameterName,
+                IsMandatory = syntaxParam.IsMandatory,
+                Position = syntaxParam.Position,
+                Value = new MAML.ParameterValue()
+                {
+                    DataType = syntaxParam.ParameterType,
+                    IsMandatory = true,
+                },
+            };
             return newParameter;
         }
 
