@@ -46,5 +46,31 @@ Describe "Import-YamlHelp tests" {
                 $cmdlet.Metadata[$key] | Should -Be $Value
             }
         }
+
+        Context "Syntax parameters checks" {
+            It "Add-Member cmdlet has correct number of syntax parameters" {
+                $cmdlet.Syntax[0].SyntaxParameters.Count | Should -be 8
+            }
+
+            It "'<Name>' of syntax parameter for Add-Member cmdlet has correct property values" -testcases @(
+                @{ Name = 'MemberType';  Type = 'System.Management.Automation.PSMemberTypes';   Position = '0';     IsMandatory = $true;  IsPositional = $true;  IsSwitchParameter = $false },
+                @{ Name = 'Name';        Type = 'System.String';                                Position = '1';     IsMandatory = $true;  IsPositional = $true;  IsSwitchParameter = $false },
+                @{ Name = 'Value';       Type = 'System.Object';                                Position = '2';     IsMandatory = $false; IsPositional = $true;  IsSwitchParameter = $false },
+                @{ Name = 'SecondValue'; Type = 'System.Object';                                Position = '3';     IsMandatory = $false; IsPositional = $true;  IsSwitchParameter = $false },
+                @{ Name = 'Force';       Type = 'System.Management.Automation.SwitchParameter'; Position = 'named'; IsMandatory = $false; IsPositional = $false; IsSwitchParameter = $true },
+                @{ Name = 'InputObject'; Type = 'System.Management.Automation.PSObject';        Position = 'named'; IsMandatory = $true;  IsPositional = $false; IsSwitchParameter = $false },
+                @{ Name = 'PassThru';    Type = 'System.Management.Automation.SwitchParameter'; Position = 'named'; IsMandatory = $false; IsPositional = $false; IsSwitchParameter = $true },
+                @{ Name = 'TypeName';    Type = 'System.String';                                Position = 'named'; IsMandatory = $false; IsPositional = $false; IsSwitchParameter = $false }
+            ) {
+                param ([string]$Name, [string]$Type, [string]$Position, [bool]$IsMandatory, [bool]$IsPositional, [bool]$IsSwitchParameter)
+                $syntaxParam = $cmdlet.Syntax[0].SyntaxParameters.Where({$_.ParameterName -eq $Name})
+                $syntaxParam.ParameterName | Should -be $Name
+                $syntaxParam.ParameterType | Should -be $Type
+                $syntaxParam.Position | should -be $Position
+                $syntaxParam.IsMandatory | should -be $IsMandatory
+                $syntaxParam.IsPositional | should -be $IsPositional
+                $syntaxParam.IsSwitchParameter | should -be $IsSwitchParameter
+            }
+        }
     }
 }
