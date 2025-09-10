@@ -15,23 +15,22 @@ Describe "Compare-CommandHelp can find differences" {
     }
 
     It "Should properly identify the number of differences" {
-        $result1.where({$_ -match "are not the same|are different"}).Count | Should -Be 11
+        $result1.where({$_ -match "are not the same|are different"}).Count | Should -Be 7
     }
 
     It "Should properly identify the elements which are different" {
-        $expected = "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName",
-            "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames",
-            "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Examples.Title",
-            "CommandHelp.Examples.Remarks", "CommandHelp.Diagnostics"
+        $expected = "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterSetName",
+                    "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterSetName",
+                    "CommandHelp.Examples.Title", "CommandHelp.Examples.Remarks",
+                    "CommandHelp.Diagnostics"
         $observed = $result1.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.Substring(2).trim().split()[0]})
         $observed | Should -Be $expected
     }
 
     It "Should be possible to exclude an element from comparison" {
-        $expected = "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName",
-            "CommandHelp.Syntax.ParameterNames", "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames",
-            "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterNames", "CommandHelp.Examples.Title",
-            "CommandHelp.Examples.Remarks"
+        $expected = "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterSetName",
+                    "CommandHelp.Syntax.ParameterSetName", "CommandHelp.Syntax.ParameterSetName",
+                    "CommandHelp.Examples.Title", "CommandHelp.Examples.Remarks"
         $observed = $result2.split("`n").Where({$_ -match "are not the same|are different"}).foreach({$_.Substring(2).trim().split()[0]})
         $observed | Should -Be $expected
 
@@ -39,8 +38,7 @@ Describe "Compare-CommandHelp can find differences" {
 
     It "Default excluded properties should be Diagnostics and ParameterNames" {
         $expected = "M excluding comparison of CommandHelp.AliasHeaderFound",
-                    "M excluding comparison of CommandHelp.Diagnostics",
-                    "M excluding comparison of CommandHelp.Syntax.ParameterNames"
+                    "M excluding comparison of CommandHelp.Diagnostics"
         $observed = $result3.split("`n").Where({$_ -match "excluding comparison"})|Sort-Object -Unique
         $observed | Should -Be $expected
     }

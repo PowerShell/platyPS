@@ -19,9 +19,6 @@ namespace Microsoft.PowerShell.PlatyPS
 {
     internal class TransformMaml : TransformBase
     {
-        // Dictionary of parameter name -> parameterset which it belongs
-        private Dictionary<string, List<string>> _paramSetMap = new();
-
         public TransformMaml(TransformSettings settings) : base(settings)
         {
         }
@@ -120,8 +117,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdHelp);
-
-                _paramSetMap.Clear();
             }
             else
             {
@@ -441,18 +436,6 @@ namespace Microsoft.PowerShell.PlatyPS
                 foreach (var p in positionalSyntaxParameters.OrderBy(p => int.Parse(p.Position)))
                 {
                     p.Position = (position++).ToString();
-                }
-
-                foreach(var paramName in syntaxItem.ParameterNames)
-                {
-                    if (_paramSetMap.ContainsKey(paramName))
-                    {
-                        _paramSetMap[paramName].Add(unnamedParameterSetName);
-                    }
-                    else
-                    {
-                        _paramSetMap.Add(paramName, new List<string>() { unnamedParameterSetName });
-                    }
                 }
 
                 return syntaxItem;

@@ -256,6 +256,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 syntaxDiagnostics.ForEach(d => commandHelp.Diagnostics.TryAddDiagnostic(d));
             }
+            commandHelp.Syntax.ForEach(si => si.HasCmdletBinding = commandHelp.HasCmdletBinding);
 
             List<DiagnosticMessage> aliasesDiagnostics = new();
             bool aliasHeaderFound = false;
