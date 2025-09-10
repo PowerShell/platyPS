@@ -164,8 +164,24 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
 
         private static PipelineInputType GetPipelineInputType(Model.Parameter parameter)
         {
+            var pipelineInput = PipelineInputType.None;
 
-            var pipelineInput = new PipelineInputType();
+            bool byValue = parameter.ParameterSets.Any(ps => ps.ValueFromPipeline);
+            bool byPropertyName = parameter.ParameterSets.Any(ps => ps.ValueFromPipelineByPropertyName);
+
+            if (byValue && byPropertyName)
+            {
+                pipelineInput = PipelineInputType.ByValue | PipelineInputType.ByPropertyName;
+            }
+            else if (byValue)
+            {
+                pipelineInput = PipelineInputType.ByValue;
+            }
+            else if (byPropertyName)
+            {
+                pipelineInput = PipelineInputType.ByPropertyName;
+            }
+
             return pipelineInput;
         }
 
@@ -192,6 +208,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var pSet = parameter.ParameterSets.FirstOrDefault();
             newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
             newParameter.Value = GetParameterValue(parameter);
+            newParameter.SupportsPipelineInput = GetPipelineInputType(parameter);
 
             if (parameter.Description is not null)
             {
@@ -259,4 +276,3 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
 
     }
 }
-
