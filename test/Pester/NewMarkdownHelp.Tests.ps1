@@ -397,6 +397,44 @@ Write-Host 'Hello World!'
         }
     }
 
+    Context 'Array type handling in pipeline parameters' {
+        function global:Test-ArrayPipelineFunction
+        {
+            [CmdletBinding()]
+            param(
+                [Parameter(Mandatory, ValueFromPipeline)]
+                [string[]]$ComputerName,
+                
+                [Parameter()]
+                [int[]]$Numbers
+            )
+        }
+
+        BeforeAll {
+            $file = New-MarkdownCommandHelp -Command (Get-Command Test-ArrayPipelineFunction) -OutputFolder "$TestDrive/arrayTest" -Force
+            $content = Import-MarkdownCommandHelp $file
+        }
+
+        It 'should generate correct input type for string array parameter' {
+            $content.Inputs.Count | Should -Be 1
+            $content.Inputs[0].Typename | Should -Be 'System.String[]'
+        }
+
+        It 'should not duplicate array and element types in inputs' {            
+            $inputTypes = $content.Inputs | ForEach-Object { $_.Typename }
+            $inputTypes | Should -Not -Contain 'System.String'
+            $inputTypes | Should -Contain 'System.String[]'
+        }
+
+        It 'should preserve array notation in markdown and parsing roundtrip' {
+            Update-MarkdownCommandHelp -Path $file -NoBackup
+            $updatedContent = Import-MarkdownCommandHelp $file
+            
+            $updatedContent.Inputs.Count | Should -Be 1
+            $updatedContent.Inputs[0].Typename | Should -Be 'System.String[]'
+        }
+    }
+
     Context 'Generated markdown features: no comment-based help' {
         function global:Test-PlatyPSFunction
         {

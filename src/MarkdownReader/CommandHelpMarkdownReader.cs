@@ -962,7 +962,8 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (md.GetCurrent() is HeadingBlock inputOutputHeader)
                 {
-                    string inputType = inputOutputHeader?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    // Extract full text content from all inline elements to handle arrays and other complex types
+                    string inputType = ExtractFullTextFromInline(inputOutputHeader?.Inline);
                     md.Take();
                     if (md.GetCurrent() is ParagraphBlock pBlock)
                     {
@@ -986,6 +987,50 @@ namespace Microsoft.PowerShell.PlatyPS
             }
 
             return ioList;
+        }
+
+        /// <summary>
+        /// Extract the full text content from markdown inline elements, 
+        /// handling square brackets and other special characters correctly.
+        /// </summary>
+        /// <param name="inline">The inline container to extract text from</param>
+        /// <returns>The full text content</returns>
+        private static string ExtractFullTextFromInline(ContainerInline? inline)
+        {
+            if (inline == null) return string.Empty;
+            
+            StringBuilder sb = new StringBuilder();
+            ExtractTextRecursive(inline, sb);
+            return sb.ToString().Trim();
+        }
+
+        /// <summary>
+        /// Recursively extract text from inline elements
+        /// </summary>
+        /// <param name="inline">The inline element to process</param>
+        /// <param name="sb">The StringBuilder to append text to</param>
+        private static void ExtractTextRecursive(Inline inline, StringBuilder sb)
+        {
+            switch (inline)
+            {
+                case LiteralInline literal:
+                    sb.Append(literal.Content.ToString());
+                    break;
+                case ContainerInline container:
+                    foreach (var child in container)
+                    {
+                        ExtractTextRecursive(child, sb);
+                    }
+                    break;
+                default:
+                    // For other inline types, try to get their text representation
+                    var text = inline.ToString();
+                    if (!string.IsNullOrEmpty(text))
+                    {
+                        sb.Append(text);
+                    }
+                    break;
+            }
         }
 
         internal static string GetParameterSetName(HeadingBlock parameterSetBlock)
