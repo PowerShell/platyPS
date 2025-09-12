@@ -199,6 +199,11 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 }
             }
 
+            if (parameter.Aliases.Count > 0)
+            {
+                newParameter.Aliases = string.Join(", ", parameter.Aliases);
+            }
+
             return newParameter;
         }
 
@@ -231,6 +236,10 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                     {
                         Name = parameter.Type
                     };
+                    if (parameter.Aliases.Count > 0)
+                    {
+                        newParameter.Aliases = string.Join(", ", parameter.Aliases);
+                    }
                 }
             }
             return newParameter;
