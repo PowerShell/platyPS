@@ -31,6 +31,9 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         [XmlElement("parameterValue", Namespace = Constants.XmlNamespace.Command, Order = 2)]
         public ParameterValue Value { get; set; } = new ParameterValue();
 
+        [XmlElement("type", Namespace = Constants.XmlNamespace.Dev, Order = 3)]
+        public DataType? Type { get; set; }
+
         /// <summary>
         ///     Is the parameter mandatory?
         /// </summary>

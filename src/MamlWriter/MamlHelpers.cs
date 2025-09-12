@@ -86,7 +86,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 foreach (var syntax in commandHelp.Syntax)
                 {
-                    command.Syntax.Add(ConvertSyntax(syntax));
+                    command.Syntax.Add(ConvertSyntax(syntax, commandHelp.Parameters));
                 }
             }
 
@@ -142,7 +142,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             }
         }
 
-        private static SyntaxItem ConvertSyntax(Model.SyntaxItem syntax)
+        private static SyntaxItem ConvertSyntax(Model.SyntaxItem syntax, List<Model.Parameter> parameters)
         {
             var newSyntax = new SyntaxItem();
             var firstSpace = syntax.CommandName.IndexOf(' ');
@@ -155,7 +155,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 newSyntax.CommandName = syntax.CommandName.Substring(0, firstSpace);
             }
             syntax.SortParameters();
-            newSyntax.Parameters.AddRange(syntax.SyntaxParameters.Select(ConvertSyntaxParameter));
+            newSyntax.Parameters.AddRange(syntax.SyntaxParameters.Select(sp => ConvertSyntaxParameter(sp, parameters)));
 
             return newSyntax;
         }
@@ -202,7 +202,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return newParameter;
         }
 
-        private static Parameter ConvertSyntaxParameter(Model.SyntaxParameter syntaxParam)
+        private static Parameter ConvertSyntaxParameter(Model.SyntaxParameter syntaxParam, List<Model.Parameter> parameters)
         {
             var newParameter = new MAML.Parameter()
             {
@@ -215,6 +215,24 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                     IsMandatory = true,
                 },
             };
+            if (syntaxParam.IsSwitchParameter)
+            {
+                newParameter.Type = new DataType()
+                {
+                    Name = "System.Management.Automation.SwitchParameter"
+                };
+            }
+            else
+            {
+                var parameter = parameters.FirstOrDefault(p => string.Equals(p.Name, syntaxParam.ParameterName, StringComparison.Ordinal));
+                if (parameter is not null)
+                {
+                    newParameter.Type = new DataType()
+                    {
+                        Name = parameter.Type
+                    };
+                }
+            }
             return newParameter;
         }
 
