@@ -167,8 +167,14 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return pipelineInput;
         }
 
-        private static ParameterValue GetParameterValue(Model.Parameter parameter)
+        private static ParameterValue? GetParameterValue(Model.Parameter parameter)
         {
+            // dont render <command:parameterValue> element when the parameter type is SwitchParameter
+            if (parameter.Type is "SwitchParameter" or "System.Management.Automation.SwitchParameter")
+            {
+                return null;
+            }
+
             var parameterValue = new ParameterValue();
             if (parameter is not null)
             {
@@ -190,6 +196,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var pSet = parameter.ParameterSets.FirstOrDefault();
             newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
             newParameter.Value = GetParameterValue(parameter);
+            newParameter.Type = new DataType() { Name = parameter.Type };
 
             if (parameter.Description is not null)
             {
@@ -214,11 +221,6 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 Name = syntaxParam.ParameterName,
                 IsMandatory = syntaxParam.IsMandatory,
                 Position = syntaxParam.Position,
-                Value = new MAML.ParameterValue()
-                {
-                    DataType = syntaxParam.ParameterType,
-                    IsMandatory = true,
-                },
             };
             if (syntaxParam.IsSwitchParameter)
             {
@@ -229,6 +231,12 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             }
             else
             {
+                newParameter.Value = new MAML.ParameterValue()
+                {
+                    DataType = syntaxParam.ParameterType,
+                    IsMandatory = true
+                };
+
                 var parameter = parameters.FirstOrDefault(p => string.Equals(p.Name, syntaxParam.ParameterName, StringComparison.Ordinal));
                 if (parameter is not null)
                 {

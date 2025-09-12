@@ -29,7 +29,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         ///     The parameter value information ("command:parameterValue").
         /// </summary>
         [XmlElement("parameterValue", Namespace = Constants.XmlNamespace.Command, Order = 2)]
-        public ParameterValue Value { get; set; } = new ParameterValue();
+        public ParameterValue? Value { get; set; }
 
         [XmlElement("type", Namespace = Constants.XmlNamespace.Dev, Order = 3)]
         public DataType? Type { get; set; }
