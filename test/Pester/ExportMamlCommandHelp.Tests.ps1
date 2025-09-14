@@ -155,5 +155,53 @@ Describe "Export-MamlCommandHelp tests" {
             $parameter.SelectNodes('./command:parameterValueGroup/command:parameterValue', $ns2).'#text' |
                 Should -BeExactly 'Date', 'Time', 'DateTime'
         }
+
+        It "Should have the proper values for '<name>' syntax parameter of Get-Date" -testcases @(
+            @{ name = "Date";  position = "0";     aliases = "LastWriteTime"; parameterValue = "DateTime"; type = "System.DateTime"; },
+            @{ name = "Year";  position = "named"; aliases = "none";          parameterValue = "Int32";    type = "System.Int32"; },
+            @{ name = "AsUTC"; position = "named"; aliases = "none";          parameterValue = $null;      type = "System.Management.Automation.SwitchParameter" }
+        ) {
+            param($name, $position, $aliases, $parameterValue, $type)
+
+            $command = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"})
+            $syntaxParam = $command.syntax.syntaxItem[0].parameter.Where({$_.name -eq $name});
+            $syntaxParam.Count | Should -Be 1;
+            $syntaxParam.position | Should -BeExactly $position
+            $syntaxParam.aliases | Should -BeExactly $aliases
+            if ($null -eq $parameterValue)
+            {
+                $syntaxParam.parameterValue | Should -BeNullOrEmpty
+            }
+            else
+            {
+                $syntaxParam.parameterValue."#text" | Should -BeExactly $parameterValue
+                $syntaxParam.parameterValue.required | Should -BeExactly 'true'
+            }
+            $syntaxParam.type.name | Should -BeExactly $type
+        }
+
+        It "Should have the proper values for '<name>' parameter of Get-Date" -testcases @(
+            @{ name = "Date";  position = "0";     aliases = "LastWriteTime"; parameterValue = "System.DateTime"; type = "System.DateTime"; },
+            @{ name = "Year";  position = "Named"; aliases = "none";          parameterValue = "System.Int32";    type = "System.Int32"; },
+            @{ name = "AsUTC"; position = "Named"; aliases = "none";          parameterValue = $null;             type = "System.Management.Automation.SwitchParameter" }
+        ) {
+            param($name, $position, $aliases, $parameterValue, $type)
+
+            $command = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"})
+            $param = $command.parameters.parameter.Where({$_.name -eq $name});
+            $param.Count | Should -Be 1;
+            $param.position | Should -BeExactly $position
+            $param.aliases | Should -BeExactly $aliases
+            if ($null -eq $parameterValue)
+            {
+                $param.parameterValue | Should -BeNullOrEmpty
+            }
+            else
+            {
+                $param.parameterValue."#text" | Should -BeExactly $parameterValue
+                $param.parameterValue.required | Should -BeExactly 'true'
+            }
+            $param.type.name | Should -BeExactly $type
+        }
     }
 }
