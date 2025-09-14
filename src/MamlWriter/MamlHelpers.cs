@@ -180,9 +180,9 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 parameterValue.DataType = parameter.Type;
                 parameterValue.IsVariableLength = parameter.VariableLength;
-                // We just mark mandatory if one of the parameter sets is mandatory since MAML doesn't
-                // have a way to disambiguate these.
-                parameterValue.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
+                // Should be `true`. This indicates not the parameter is mandatory or not, but the parameter **value** is mandatory or not.
+                // The parameter which parameter value is not required is SwitchParameter, but SwitchParameter does not ouput this element itself.
+                parameterValue.IsMandatory = true;
             }
             return parameterValue;
         }
