@@ -211,6 +211,12 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 newParameter.Aliases = string.Join(", ", parameter.Aliases);
             }
 
+            if (parameter.AcceptedValues.Count > 0)
+            {
+                var acceptedValues = parameter.AcceptedValues.Select(val => new ParameterValue() { DataType = val });
+                newParameter.ParameterValueGroup = acceptedValues.ToList();
+            }
+
             return newParameter;
         }
 
@@ -247,6 +253,11 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                     if (parameter.Aliases.Count > 0)
                     {
                         newParameter.Aliases = string.Join(", ", parameter.Aliases);
+                    }
+                    if (parameter.AcceptedValues.Count > 0)
+                    {
+                        var acceptedValues = parameter.AcceptedValues.Select(val => new ParameterValue() { DataType = val });
+                        newParameter.ParameterValueGroup = acceptedValues.ToList();
                     }
                 }
             }

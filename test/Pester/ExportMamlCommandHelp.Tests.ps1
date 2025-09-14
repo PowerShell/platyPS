@@ -148,5 +148,12 @@ Describe "Export-MamlCommandHelp tests" {
             $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).Parameters.parameter.
                   Where({$_.Name -in @('Date', 'UnixTimeSeconds')}).aliases | Should -Be 'LastWriteTime', 'UnixTime'
         }
+
+        It "Should have the proper parameterValueGroup for 'DisplayHint' parameter of Get-Date" {
+            $parameter = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).
+                               parameters.parameter.Where({$_.Name -eq 'DisplayHint'})
+            $parameter.SelectNodes('./command:parameterValueGroup/command:parameterValue', $ns2).'#text' |
+                Should -BeExactly 'Date', 'Time', 'DateTime'
+        }
     }
 }

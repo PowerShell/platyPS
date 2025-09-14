@@ -26,12 +26,19 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         public List<string> Description { get; set; } = new List<string>();
 
         /// <summary>
+        ///     The parameter value group information ("command:parameterValueGroup").
+        /// </summary>
+        [XmlArray("parameterValueGroup", Namespace = Constants.XmlNamespace.Command, Order = 2)]
+        [XmlArrayItem("parameterValue", Namespace = Constants.XmlNamespace.Command)]
+        public List<ParameterValue>? ParameterValueGroup { get; set; }
+
+        /// <summary>
         ///     The parameter value information ("command:parameterValue").
         /// </summary>
-        [XmlElement("parameterValue", Namespace = Constants.XmlNamespace.Command, Order = 2)]
+        [XmlElement("parameterValue", Namespace = Constants.XmlNamespace.Command, Order = 3)]
         public ParameterValue? Value { get; set; }
 
-        [XmlElement("type", Namespace = Constants.XmlNamespace.Dev, Order = 3)]
+        [XmlElement("type", Namespace = Constants.XmlNamespace.Dev, Order = 4)]
         public DataType? Type { get; set; }
 
         /// <summary>
