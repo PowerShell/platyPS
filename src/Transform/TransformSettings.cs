@@ -17,11 +17,11 @@ namespace Microsoft.PowerShell.PlatyPS
         public Guid? ModuleGuid { get; set; }
         public string? ModuleName { get; set; }
         public string? OnlineVersionUrl { get; set; }
-        public bool? CreateModulePage { get; set; }
-        public bool? DoubleDashList { get; set; }
-        public bool? UseFullTypeName { get; set; }
+        public bool CreateModulePage { get; set; }
+        public bool DoubleDashList { get; set; }
+        public bool UseFullTypeName { get; set; }
         public PSSession? Session { get; set; }
-        public bool? ExcludeDontShow { get; set; }
+        public bool ExcludeDontShow { get; set; }
 
         public TransformSettings()
         {

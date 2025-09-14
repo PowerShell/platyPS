@@ -532,7 +532,10 @@ Write-Host 'Hello World!'
                 $CCC,
                 [System.Nullable`1[System.Int32]]
                 [Parameter(Position=3)]
-                $ddd
+                $ddd,
+                [System.Collections.Generic.Dictionary`2+Enumerator[int, byte[]]]
+                [Parameter(Position=4)]
+                $eee
             )
         }
 
@@ -540,25 +543,33 @@ Write-Host 'Hello World!'
             $expectedParameters = @(
                 "string"
                 "int"
+                "Dictionary``2+Enumerator[int,byte[]]"
                 "SwitchParameter"
             )
-            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
+            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [[-eee] <Dictionary`2+Enumerator[int,byte[]]>] [-WhatIf] [<CommonParameters>]'
+            $expectedParameterTypes = @(
+                "System.String"
+                "System.Int32"
+                "System.Collections.Generic.Dictionary``2+Enumerator[System.Int32,System.Byte[]]"
+                "System.Management.Automation.SwitchParameter"
+            )
 
             $files = New-MarkdownCommandHelp -Command (get-command Get-Alpha) -OutputFolder "$TestDrive/alpha" -Force
             $commandHelp = Import-MarkdownCommandHelp $files
-            $commandHelp.Syntax.SyntaxParameters.ParameterType | Should -Be $expectedParameters
-            $commandHelp.Syntax[0].ToString() | Should -Be $expectedSyntax
+            $commandHelp.Syntax.SyntaxParameters.ParameterType | Should -BeExactly $expectedParameters
+            $commandHelp.Syntax[0].ToString() | Should -BeExactly $expectedSyntax
+            $commandHelp.Parameters.Type | Should -BeExactly $expectedParameterTypes
         }
 
         It 'does not use full type name when specified' {
-            $expectedParameterNames = "CCC","ddd","WhatIf"
-            $expectedParameterTypes = "String","Nullable``1[System.Int32]","SwitchParameter"
-            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [-WhatIf] [<CommonParameters>]'
+            $expectedParameterNames = "CCC","ddd","eee","WhatIf"
+            $expectedParameterTypes = "String","Int32","Dictionary``2+Enumerator[Int32,Byte[]]","SwitchParameter"
+            $expectedSyntax = 'Get-Alpha [[-CCC] <string>] [[-ddd] <int>] [[-eee] <Dictionary`2+Enumerator[int,byte[]]>] [-WhatIf] [<CommonParameters>]'
             $file = New-MarkdownCommandHelp -Command (get-command Get-Alpha) -OutputFolder "$TestDrive/alpha" -Force -AbbreviateParameterTypeName
             $ch = Import-MarkdownCommandHelp $file
-            $ch.Parameters.Name | Should -Be $expectedParameterNames
-            $ch.Parameters.Type | Should -Be $expectedParameterTypes
-            $ch.Syntax[0].ToString() | Should -Be $expectedSyntax
+            $ch.Parameters.Name | Should -BeExactly $expectedParameterNames
+            $ch.Parameters.Type | Should -BeExactly $expectedParameterTypes
+            $ch.Syntax[0].ToString() | Should -BeExactly $expectedSyntax
         }
     }
 

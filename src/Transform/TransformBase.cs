@@ -468,139 +468,125 @@ namespace Microsoft.PowerShell.PlatyPS
             return parameterTypeString;
         }
 
-        private void AddGenericArguments(StringBuilder sb, Type[] genericArguments)
-        {
-            sb.Append($"`{genericArguments.Length}[");
-            for (int i = 0; i < genericArguments.Length; i++)
-            {
-                if (i > 0) { sb.Append(','); }
-
-                sb.Append(GetAbbreviatedType(genericArguments[i]));
-            }
-
-            sb.Append(']');
-        }
-
-        private string GetAbbreviatedType(Type type)
+        /// <summary>
+        /// Build syntax parameter type or parameter type to string.
+        /// </summary>
+        /// <param name="sb">StringBuilder</param>
+        /// <param name="type">The type to be abbreviated</param>
+        /// <param name="abbreviate">
+        /// Try get abbreviated name.
+        /// e.g.) `System.Int32` -> `int`
+        /// </param>
+        /// <param name="dropNamespace">
+        /// Build type descriptor as no namespace.
+        /// </param>
+        /// <param name="fromNested">
+        /// Indicates that the <paramref name="type"/> is the type of the nesting source.
+        /// </param>
+        private static void BuildTypeString(StringBuilder sb, Type? type, bool abbreviate, bool dropNamespace, bool fromNested = false)
         {
             if (type is null)
             {
-                return string.Empty;
+                return;
             }
 
-            string result;
             if (type.IsGenericType && !type.IsGenericTypeDefinition)
             {
-                string genericDefinition = GetAbbreviatedType(type.GetGenericTypeDefinition());
-                // For regular generic types, we find the backtick character, for example:
-                //      System.Collections.Generic.List`1[T] ->
-                //      System.Collections.Generic.List[string]
-                // For nested generic types, we find the left bracket character, for example:
-                //      System.Collections.Generic.Dictionary`2+Enumerator[TKey, TValue] ->
-                //      System.Collections.Generic.Dictionary`2+Enumerator[string,string]
-                int backtickOrLeftBracketIndex = genericDefinition.LastIndexOf(type.IsNested ? '[' : '`');
-                var sb = new StringBuilder(genericDefinition, 0, backtickOrLeftBracketIndex, 512);
-                AddGenericArguments(sb, type.GetGenericArguments());
-                result = sb.ToString();
+                BuildTypeString(sb, type.GetGenericTypeDefinition(), abbreviate, dropNamespace);
+                var genericArgs = type.GetGenericArguments();
+                sb.Append('[');
+                for (var i = 0; i < genericArgs.Length; i++)
+                {
+                    if (i > 0) sb.Append(',');
+                    BuildTypeString(sb, genericArgs[i], abbreviate, dropNamespace);
+                }
+                sb.Append(']');
             }
             else if (type.IsArray)
             {
-                string elementDefinition = GetAbbreviatedType(type.GetElementType());
-                var sb = new StringBuilder(elementDefinition, elementDefinition.Length + 10);
-                sb.Append('[');
-                for (int i = 0; i < type.GetArrayRank() - 1; ++i)
-                {
-                    sb.Append(',');
-                }
-
-                sb.Append(']');
-                result = sb.ToString();
+                BuildTypeString(sb, type.GetElementType(), abbreviate, dropNamespace);
+                sb.Append('[')
+                  .Append(',', type.GetArrayRank() - 1)
+                  .Append(']');
             }
             else
             {
-                if (TransformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviation))
+                if (abbreviate && TransformUtils.TryGetTypeAbbreviation(type.FullName, out string abbreviatedName))
                 {
-                    return abbreviation;
+                    sb.Append(abbreviatedName);
+                    return;
                 }
 
-                if (type == typeof(PSCustomObject))
+                if (!dropNamespace && !string.IsNullOrEmpty(type.Namespace))
                 {
-                    return type.Name;
+                    sb.Append(type.Namespace)
+                      .Append('.');
                 }
 
+                // Indicates whether the "`n" sign at the end of a generic type name can be omitted
+                // e.g.) System.Collections.Generic.Dictionary`2[TKey, TValue]
+                //                                            ^^ Can ommit
+                bool canOmmitGenericTailingSign = true;
                 if (type.IsNested)
                 {
-                    // For nested types, we should return OuterType+InnerType. For example,
-                    //  System.Environment+SpecialFolder ->  Environment+SpecialFolder
-                    string fullName = type.ToString();
-                    result = type.Namespace == null
-                                ? fullName
-                                : fullName.Substring(type.Namespace.Length + 1);
+                    var reflectedType = type.ReflectedType;
+                    // `System.Collections.Generic.Dictionary`2+Enumerator[TKey,TValue]`
+                    //                             ^^^^^^^^^^^^
+                    BuildTypeString(sb, reflectedType, abbreviate, dropNamespace: true, fromNested: true);
+                    sb.Append('+');
+                    // Nested classe cannot omit the mark if the origin class is a generic type
+                    // e.g.)
+                    //   Namespace.ClassA+Nested`1[T]
+                    //                          ^^ Can ommit
+                    //   Namespace.ClassB`1+Nested`1[T1,T2]
+                    //                   ^^       ^^ Cannot ommit
+                    canOmmitGenericTailingSign = !(reflectedType?.IsGenericType ?? false);
+                }
+
+                if (!fromNested && canOmmitGenericTailingSign)
+                {
+                    var backtickPosition = type.Name.LastIndexOf('`');
+                    sb.Append(backtickPosition > 0 ? type.Name.Remove(backtickPosition) : type.Name);
                 }
                 else
                 {
-                    result = type.Name;
+                    sb.Append(type.Name);
                 }
             }
+        }
 
-            return result;
+        private static string GetAbbreviatedType(Type type)
+        {
+            StringBuilder sb = Constants.StringBuilderPool.Get();
+            try
+            {
+                BuildTypeString(sb,
+                                Nullable.GetUnderlyingType(type) ?? type,
+                                abbreviate: true,
+                                dropNamespace: true);
+                return sb.ToString();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
         }
 
         private string GetParameterTypeName(Type type)
         {
-            string typeName = string.Empty;
-
-            if (type.IsGenericType)
+            StringBuilder sb = Constants.StringBuilderPool.Get();
+            try
             {
-                StringBuilder sb = Constants.StringBuilderPool.Get();
-
-                try
-                {
-                    string genericName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
-                        type.GetGenericTypeDefinition().FullName ?? string.Empty :
-                        type.GetGenericTypeDefinition().Name;
-
-                    if (genericName.Contains(Constants.GenericParameterBackTick))
-                    {
-                        // This removes `2 from type name like: System.Collections.Generic.Dictionary`2
-                        sb.Append(genericName.Remove(genericName.IndexOf(Constants.GenericParameterBackTick)));
-                    }
-                    else
-                    {
-                        sb.Append(genericName);
-                    }
-
-                    sb.Append(string.Format(Constants.GenericParameterTypeNameStart, type.GetGenericArguments().Length));
-
-                    List<string> genericParameters = new();
-
-                    foreach (var name in type.GenericTypeArguments)
-                    {
-                        if (name.FullName is not null)
-                        {
-                            genericParameters.Add(name.FullName);
-                        }
-                    }
-
-                    sb.Append(string.Join(",", genericParameters));
-
-                    sb.Append(Constants.GenericParameterTypeNameEnd);
-
-                    typeName = sb.ToString();
-                }
-                finally
-                {
-                    Constants.StringBuilderPool.Return(sb);
-                }
+                BuildTypeString(sb,
+                                Nullable.GetUnderlyingType(type) ?? type,
+                                abbreviate: false,
+                                dropNamespace: !Settings.UseFullTypeName);
+                return sb.ToString();
             }
-            else
+            finally
             {
-                typeName = Settings.UseFullTypeName.HasValue && Settings.UseFullTypeName.Value ?
-                    type.FullName ?? string.Empty :
-                    type.Name;
+                Constants.StringBuilderPool.Return(sb);
             }
-
-            return typeName;
         }
 
         protected Parameter GetParameterInfo(CommandInfo? cmdletInfo, dynamic? helpItem, CommandParameterInfo paramInfo)
