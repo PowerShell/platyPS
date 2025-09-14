@@ -115,6 +115,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     cmdHelp.Parameters.RemoveAll(p => string.Compare(p.Name, MAML.Constants.NoCommonParameter, true) == 0);
                 }
+                cmdHelp.Syntax.ForEach(si => si.HasCmdletBinding = cmdHelp.HasCmdletBinding);
 
                 cmdHelp.Metadata = MetadataUtils.GetCommandHelpBaseMetadata(cmdHelp);
             }
