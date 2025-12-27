@@ -31,6 +31,17 @@ Install the module from [PSGallery][06].
 Install-PSResource -Name Microsoft.PowerShell.PlatyPS
 ```
 
+## Getting Started
+
+Creating help files with `PlatyPS` is a multi-step process:
+
+1. [**Create new**][09] or [**update existing**][10] Markdown help files
+2. [**Edit the Markdown help**][11] to add descriptions and examples
+3. [**Test the Markdown help**][12] to ensure the files render correctly
+4. [**Convert and publish**][13] the help files
+
+For detailed guidance, see the [PlatyPS documentation on Microsoft Learn][08].
+
 ## Layout of this repository
 
 ### Branches
@@ -80,3 +91,9 @@ To build the source code, run the following command in the root of the repositor
 [05]: https://wikipedia.org/wiki/Microsoft_Assistance_Markup_Language
 [06]: https://www.powershellgallery.com/packages/Microsoft.PowerShell.PlatyPS
 [07]: https://www.powershellgallery.com/packages/platyPS
+[08]: https://learn.microsoft.com/powershell/utility-modules/platyps/overview
+[09]: https://learn.microsoft.com/powershell/utility-modules/platyps/step-1-create-new-markdown-help
+[10]: https://learn.microsoft.com/powershell/utility-modules/platyps/step-1-update-markdown-help
+[11]: https://learn.microsoft.com/powershell/utility-modules/platyps/step-2-edit-markdown-help
+[12]: https://learn.microsoft.com/powershell/utility-modules/platyps/step-3-test-markdown-help
+[13]: https://learn.microsoft.com/powershell/utility-modules/platyps/step-4-convert-publish-help
