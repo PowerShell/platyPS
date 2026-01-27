@@ -121,12 +121,19 @@ Describe 'Import-MarkdownCommandHelp Tests' {
         BeforeAll {
             $ch1 = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Compare-CommandHelp.md"
             $ch2 = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Get-ChildItem.md"
+            $ch3 = Import-MarkdownCommandHelp "$PSScriptRoot/assets/Remove-SqlSensitivityClassification.md"
         }
 
         It "Should have the proper input content" {
             $ch1.Inputs.Count | Should -Be 1
             $ch1.Inputs[0].TypeName | Should -BeExactly "System.Management.Automation.HiThere"
             $ch1.Inputs[0].Description | Should -Be ""
+
+            $ch3.Inputs.Count | Should -Be 2
+            $ch3.Inputs[0].TypeName | Should -BeExactly "System.String[]"
+            $ch3.Inputs[0].Description | Should -Be ""
+            $ch3.Inputs[1].TypeName | Should -BeExactly "Microsoft.SqlServer.Management.Smo.Database"
+            $ch3.Inputs[1].Description | Should -Be ""
         }
 
         It "Should have the proper output content" {
