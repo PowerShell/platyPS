@@ -132,7 +132,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         CreateModulePage = WithModulePage,
                         DoubleDashList = false,
-                        ExcludeDontShow = false,
+                        ExcludeDontShow = true,
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion.ToString(),
                         Locale = Locale is null ? CultureInfo.CurrentCulture : new CultureInfo(Locale),
