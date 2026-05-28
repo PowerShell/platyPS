@@ -669,7 +669,7 @@ Write-Host 'Hello World!'
                 )
             }
 
-            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-DontShowParameter') -OutputFolder "$TestDrive/NewMarkDownHelp"
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-DontShowParameter') -OutputFolder "$TestDrive/NewMarkDownHelp" -ExcludeDontShow
             $commandHelp = Import-MarkdownCommandHelp $file
         }
 
