@@ -962,7 +962,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 if (md.GetCurrent() is HeadingBlock inputOutputHeader)
                 {
-                    string inputType = inputOutputHeader?.Inline?.FirstChild?.ToString() ?? string.Empty;
+                    string inputType = string.Join("", inputOutputHeader.Inline ?? []);
                     md.Take();
                     if (md.GetCurrent() is ParagraphBlock pBlock)
                     {
