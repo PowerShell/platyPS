@@ -212,6 +212,10 @@ namespace Microsoft.PowerShell.PlatyPS
                 }
 
                 var paramAttribInfo = GetParameterAtributeInfo(parameterMetadata.Value.Attributes);
+                if (Settings.ExcludeDontShow.GetValueOrDefault() && paramAttribInfo.DontShow)
+                {
+                    continue;
+                }
                 string typeName = GetParameterTypeName(parameterMetadata.Value.ParameterType);
 
                 Parameter param = new(parameterMetadata.Value.Name, typeName);
@@ -365,6 +369,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 // Take the positional parameters first, and order them by position.
                 foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters.Where(p => p.Position != int.MinValue).OrderBy(p => p.Position))
                 {
+                    if (Settings.ExcludeDontShow.GetValueOrDefault() && GetParameterAtributeInfo(paramInfo.Attributes).DontShow)
+                    {
+                        continue;
+                    }
+
                     if (IsNotCommonParameter(paramInfo.Name)) {
                         syn.SyntaxParameters.Add(
                             new SyntaxParameter(
@@ -383,6 +392,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 // now take the named parameters.
                 foreach (CommandParameterInfo paramInfo in parameterSetInfo.Parameters.Where(p => p.Position == int.MinValue))
                 {
+                    if (Settings.ExcludeDontShow.GetValueOrDefault() && GetParameterAtributeInfo(paramInfo.Attributes).DontShow)
+                    {
+                        continue;
+                    }
+
                     if (IsNotCommonParameter(paramInfo.Name)) {
                         var sParm = new SyntaxParameter(
                             paramInfo.Name,

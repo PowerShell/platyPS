@@ -60,13 +60,13 @@ stages:
     parameters:
       jobName: TestPkgWin
       displayName: PowerShell Core on Windows
-      imageName: windows-2019
+      imageName: windows-latest
 
   - template: test.yml
     parameters:
       jobName: TestPkgWinPS
       displayName: Windows PowerShell on Windows
-      imageName: windows-2019
+      imageName: windows-latest
       powershellExecutable: powershell
 
   - template: test.yml
