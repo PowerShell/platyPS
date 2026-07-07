@@ -1001,7 +1001,14 @@ namespace Microsoft.PowerShell.PlatyPS
             
             StringBuilder sb = Constants.StringBuilderPool.Get();
             ExtractTextRecursive(inline, sb);
-            return sb.ToString().Trim();
+            try
+            {
+                return sb.ToString().Trim();
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(sb);
+            }
         }
 
         /// <summary>
