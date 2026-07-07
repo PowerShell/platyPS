@@ -25,6 +25,12 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         ///     Parameter can take its value from a property of the same name on objects in the pipeline.
         /// </summary>
         [XmlEnum("true (ByPropertyName)")]
-        ByPropertyName = 2
+        ByPropertyName = 2,
+
+        /// <summary>
+        ///     Parameter can take its value from the pipeline both by value and by property name.
+        /// </summary>
+        [XmlEnum("true (ByValue, ByPropertyName)")]
+        ByValueAndByPropertyName = ByValue | ByPropertyName
     }
 }
