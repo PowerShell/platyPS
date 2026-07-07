@@ -172,6 +172,11 @@ Describe "Miscellaneous cmdlet tests" {
             $help.name | Should -BeExactly "Get-ChildItem"
         }
 
-
+        It "Should have correct ByValue and ByPropertyName for the Path parameter" {
+            $help = Show-HelpPreview -Path $mamlPath
+            $param = $help.parameters.parameter | Where-Object -Property Name -EQ "Path"
+            $param | Should -Not -BeNullOrEmpty
+            $param.pipelineInput | Should -Be "true (ByValue, ByPropertyName)"
+        }
     }
 }

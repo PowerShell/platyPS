@@ -657,4 +657,30 @@ Write-Host 'Hello World!'
             $file | Should -FileContentMatch 'Runs the command in a mode that only reports what would happen without performing the actions.'
         }
     }
+
+    Context 'DontShow attribute tests' {
+        BeforeAll {
+            function global:Test-DontShowParameter {
+                [CmdletBinding()]
+                param (
+                    [string] $Public,
+                    [Parameter(DontShow)] [string] $Hidden,
+                    [Parameter(DontShow)] [string] $Break
+                )
+            }
+
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-DontShowParameter') -OutputFolder "$TestDrive/NewMarkDownHelp" -ExcludeDontShow
+            $commandHelp = Import-MarkdownCommandHelp $file
+        }
+
+        It 'does not emit hidden parameters in markdown output' {
+            $file | Should -Not -FileContentMatch '### -Hidden'
+            $file | Should -Not -FileContentMatch '### -Break'
+        }
+
+        It 'does not include hidden parameters in the command model' {
+            $commandHelp.Parameters.Name | Should -Be @('Public')
+            $commandHelp.Syntax[0].ToString() | Should -Not -Match 'Hidden|Break'
+        }
+    }
 }

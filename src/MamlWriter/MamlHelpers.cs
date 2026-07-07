@@ -24,7 +24,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         public static FileInfo WriteToFile(HelpItems helpItems, string path, Encoding encoding)
         {
             var outputFile = new FileInfo(path);
-            using(var writer = new StreamWriter(new FileStream(outputFile.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite), encoding))
+            using(var fs = new FileStream(outputFile.FullName, outputFile.Exists ? FileMode.Truncate : FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using(var writer = new StreamWriter(fs, encoding))
             {
                 helpItems.WriteTo(writer);
             }
@@ -162,8 +163,24 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
 
         private static PipelineInputType GetPipelineInputType(Model.Parameter parameter)
         {
+            var pipelineInput = PipelineInputType.None;
 
-            var pipelineInput = new PipelineInputType();
+            bool byValue = parameter.ParameterSets.Any(ps => ps.ValueFromPipeline);
+            bool byPropertyName = parameter.ParameterSets.Any(ps => ps.ValueFromPipelineByPropertyName);
+
+            if (byValue && byPropertyName)
+            {
+                pipelineInput = PipelineInputType.ByValue | PipelineInputType.ByPropertyName;
+            }
+            else if (byValue)
+            {
+                pipelineInput = PipelineInputType.ByValue;
+            }
+            else if (byPropertyName)
+            {
+                pipelineInput = PipelineInputType.ByPropertyName;
+            }
+
             return pipelineInput;
         }
 
@@ -197,6 +214,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
             newParameter.Value = GetParameterValue(parameter);
             newParameter.Type = new DataType() { Name = parameter.Type };
+            newParameter.SupportsPipelineInput = GetPipelineInputType(parameter);
 
             if (parameter.Description is not null)
             {
@@ -319,4 +337,3 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
 
     }
 }
-

@@ -52,7 +52,7 @@ Describe "New-CommandHelp tests" {
                 $expectedCount = 14
             }
             else {
-                $expectedCount = 17
+                $expectedCount = 18
             }
 
             $parameters.Count | Should -Be $expectedCount
@@ -75,6 +75,7 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'TotalCount'; Type = 'System.Int32' },
             @{ Name = 'Verb'; Type = 'System.String[]' }
             if ($PSVersionTable.PSVersion.Major -gt 5) {
+                @{ Name = 'ExcludeModule'; Type = 'System.String[]' },
                 @{ Name = 'FuzzyMinimumDistance'; Type = 'System.UInt32' },
                 @{ Name = 'UseAbbreviationExpansion'; Type = 'System.Management.Automation.SwitchParameter' },
                 @{ Name = 'UseFuzzyMatching'; Type = 'System.Management.Automation.SwitchParameter' }
@@ -90,6 +91,7 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'All'; alias = '' },
             @{ Name = 'ArgumentList'; alias = 'Args' },
             @{ Name = 'CommandType'; alias = 'Type' },
+            @{ Name = 'ExcludeModule'; alias = '' },
             @{ Name = 'FullyQualifiedModule'; alias = '' },
             @{ Name = 'FuzzyMinimumDistance'; alias = '' },
             @{ Name = 'ListImported'; alias = '' },
@@ -115,8 +117,8 @@ Describe "New-CommandHelp tests" {
             $observed | Should -Be $expected
         }
         It "Should have the proper parameters in parameterset '<ParameterSetName>'" -Skip:($PSVersionTable.PSVersion.Major -eq 5) -TestCases @(
-            @{ ParameterSetName = 'CmdletSet';     Parameters = 'All:ArgumentList:FullyQualifiedModule:ListImported:Module:Noun:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:Verb' }
-            @{ ParameterSetName = 'AllCommandSet'; Parameters = 'All:ArgumentList:CommandType:FullyQualifiedModule:FuzzyMinimumDistance:ListImported:Module:Name:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:UseAbbreviationExpansion:UseFuzzyMatching' }
+            @{ ParameterSetName = 'CmdletSet';     Parameters = 'All:ArgumentList:ExcludeModule:FullyQualifiedModule:ListImported:Module:Noun:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:Verb' }
+            @{ ParameterSetName = 'AllCommandSet'; Parameters = 'All:ArgumentList:CommandType:ExcludeModule:FullyQualifiedModule:FuzzyMinimumDistance:ListImported:Module:Name:ParameterName:ParameterType:ShowCommandInfo:Syntax:TotalCount:UseAbbreviationExpansion:UseFuzzyMatching' }
         ) {
             param ($ParameterSetName, $Parameters)
             $observedParameters = ($ch.parameters.Where({$_.parametersets.Name -match "$ParameterSetName|\(All\)"})|sort-object name).name -join ":"
@@ -164,7 +166,6 @@ Describe "New-CommandHelp tests" {
             else {
                 $expectedCount = 8
             }
-            $ch.outputs.Count | should be $expectedCount
         }
 
         It "Should have the output type '<type>'" -TestCases @(

@@ -63,6 +63,9 @@ namespace Microsoft.PowerShell.PlatyPS
         [Parameter]
         public SwitchParameter AbbreviateParameterTypeName { get; set; }
 
+        [Parameter]
+        public SwitchParameter ExcludeDontShow { get; set; }
+
         #endregion
 
         List<CommandInfo> cmdCollection = new();
@@ -132,7 +135,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     {
                         CreateModulePage = WithModulePage,
                         DoubleDashList = false,
-                        ExcludeDontShow = false,
+                        ExcludeDontShow = ExcludeDontShow,
                         FwLink = HelpInfoUri,
                         HelpVersion = HelpVersion.ToString(),
                         Locale = Locale is null ? CultureInfo.CurrentCulture : new CultureInfo(Locale),
