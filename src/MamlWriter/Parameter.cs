@@ -50,7 +50,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         ///     Can the parameter accept its value from the pipeline?
         /// </summary>
         /// <remarks>
-        ///     Either "true (ByValue)", "true (ByPropertyName)", or "false".
+        ///     Either "true (ByValue)", "true (ByPropertyName)", "true (ByValue, ByPropertyName)", or "false".
         /// </remarks>
         [XmlAttribute("pipelineInput")]
         public string PipelineInputString
@@ -58,22 +58,14 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             set { throw new System.NotImplementedException(); }
             get
             {
-                if (SupportsPipelineInput == PipelineInputType.ByValue && SupportsPipelineInput == PipelineInputType.ByPropertyName)
+                return SupportsPipelineInput switch
                 {
-                    return "true (ByValue, ByPropertyName)";
-                }
-                else if (SupportsPipelineInput == PipelineInputType.ByValue)
-                {
-                    return "true (ByValue)";
-                }
-                else if (SupportsPipelineInput == PipelineInputType.ByPropertyName)
-                {
-                    return "true (ByPropertyName)";
-                }
-                else
-                {
-                    return "false";
-                }
+                    PipelineInputType.None => "false",
+                    PipelineInputType.ByValue => "true (ByValue)",
+                    PipelineInputType.ByPropertyName => "true (ByPropertyName)",
+                    PipelineInputType.ByValueAndByPropertyName => "true (ByValue, ByPropertyName)",
+                    _ => "false"
+                };
             }
         }
 
