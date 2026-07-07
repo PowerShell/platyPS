@@ -24,7 +24,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         public static FileInfo WriteToFile(HelpItems helpItems, string path, Encoding encoding)
         {
             var outputFile = new FileInfo(path);
-            using(var writer = new StreamWriter(new FileStream(outputFile.FullName, FileMode.OpenOrCreate, FileAccess.ReadWrite), encoding))
+            using(var fs = new FileStream(outputFile.FullName, outputFile.Exists ? FileMode.Truncate : FileMode.OpenOrCreate, FileAccess.ReadWrite))
+            using(var writer = new StreamWriter(fs, encoding))
             {
                 helpItems.WriteTo(writer);
             }
