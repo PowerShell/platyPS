@@ -63,7 +63,6 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'All'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'ArgumentList'; Type = 'System.Object[]' },
             @{ Name = 'CommandType'; Type = 'System.Management.Automation.CommandTypes' },
-            @{ Name = 'ExcludeModule'; Type = 'System.String[]' },
             @{ Name = 'FullyQualifiedModule'; Type = 'Microsoft.PowerShell.Commands.ModuleSpecification[]' },
             @{ Name = 'ListImported'; Type = 'System.Management.Automation.SwitchParameter' },
             @{ Name = 'Module'; Type = 'System.String[]' },
@@ -76,6 +75,7 @@ Describe "New-CommandHelp tests" {
             @{ Name = 'TotalCount'; Type = 'System.Int32' },
             @{ Name = 'Verb'; Type = 'System.String[]' }
             if ($PSVersionTable.PSVersion.Major -gt 5) {
+                @{ Name = 'ExcludeModule'; Type = 'System.String[]' },
                 @{ Name = 'FuzzyMinimumDistance'; Type = 'System.UInt32' },
                 @{ Name = 'UseAbbreviationExpansion'; Type = 'System.Management.Automation.SwitchParameter' },
                 @{ Name = 'UseFuzzyMatching'; Type = 'System.Management.Automation.SwitchParameter' }
