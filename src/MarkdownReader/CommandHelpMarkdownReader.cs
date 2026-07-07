@@ -999,7 +999,7 @@ namespace Microsoft.PowerShell.PlatyPS
         {
             if (inline == null) return string.Empty;
             
-            StringBuilder sb = new StringBuilder();
+            StringBuilder sb = Constants.StringBuilderPool.Get();
             ExtractTextRecursive(inline, sb);
             return sb.ToString().Trim();
         }
