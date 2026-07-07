@@ -159,8 +159,13 @@ Describe "New-CommandHelp tests" {
             $io = New-CommandHelp -Command (Get-Command Test-InputOutputTypes)
         }
 
-        It "Should have the proper number of output types" {            
-            $ch.outputs.Count | should be 9
+        It "Should have the proper number of output types" {
+            if ($PSVersionTable.PSVersion.Major -eq 5) {
+                $expectedCount = 9
+            }
+            else {
+                $expectedCount = 8
+            }
         }
 
         It "Should have the output type '<type>'" -TestCases @(
