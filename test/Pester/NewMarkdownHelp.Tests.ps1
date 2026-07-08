@@ -738,7 +738,7 @@ Write-Host 'Hello World!'
         }
 
         It 'Invariant Locale parameter' {
-            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-Locale') -OutputFolder "$TestDrive/NewMarkdownHelp" -Force -Locale C
+            $file = New-MarkdownCommandHelp -Command (Get-Command 'Test-Locale') -OutputFolder "$TestDrive/NewMarkdownHelp" -Force -Locale ([System.Globalization.CultureInfo]::InvariantCulture).ToString()
 
             Get-Content -Path $file -First 10 | Where-Object { $_ -match "^Locale" } | Should -Be "Locale: en-US"
         }
