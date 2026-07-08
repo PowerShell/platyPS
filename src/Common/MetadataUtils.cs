@@ -42,14 +42,14 @@ namespace Microsoft.PowerShell.PlatyPS
         /// </summary>
         /// <param name="commandInfo"></param>
         /// <returns></returns>
-        public static OrderedDictionary GetCommandHelpBaseMetadataFromCommandInfo(CommandInfo commandInfo)
+        public static OrderedDictionary GetCommandHelpBaseMetadataFromCommandInfo(CommandInfo commandInfo, CultureInfo locale)
         {
             OrderedDictionary metadata = new()
             {
                 { "document type", "cmdlet" },
                 { "title", commandInfo.Name },
                 { "Module Name", commandInfo.ModuleName },
-                { "Locale", CultureInfo.CurrentCulture.Name == string.Empty ? "en-US" : CultureInfo.CurrentCulture.Name },
+                { "Locale", string.IsNullOrEmpty(locale.Name) ? "en-US" : locale.Name },
                 { "PlatyPS schema version", "2024-05-01" }, // was schema
                 { "HelpUri", GetHelpCodeMethods.GetHelpUri(new PSObject(commandInfo)) }, // was online version
                 { "ms.date", DateTime.Now.ToString("MM/dd/yyyy") },
