@@ -288,6 +288,48 @@ namespace Microsoft.PowerShell.PlatyPS
             }
         }
 
+        /// <summary>
+        /// Reads nodes in &lt;command:inputType&gt; or &lt;command:returnValue&gt;
+        /// and returns <see cref="InputOutput"/> object if possible.
+        /// </summary>
+        /// <param name="subTreeReader">Sub tree instance of <see cref="XmlReader"/>.</param>
+        private static InputOutput? ReadInputOutput(XmlReader subTreeReader)
+        {
+            string? typeName = null;
+            StringBuilder typeDescription = Constants.StringBuilderPool.Get();
+
+            try
+            {
+                while (subTreeReader.Read())
+                {
+                    switch (subTreeReader.Name)
+                    {
+                        // Supports both `<maml:name>` and `<dev:name>`.
+                        // `<dev:name>` is wrong namespace, but used in PlatyPS v1.0.1 
+                        case Constants.MamlNameTag:
+                        case "dev:name":
+                            typeName = subTreeReader.ReadElementContentAsString();
+                            continue;
+                        case Constants.MamlParaTag:
+                            typeDescription.AppendLine(subTreeReader.ReadElementContentAsString().Trim())
+                                           .AppendLine();
+                            continue;
+                    }
+                }
+
+                if (typeName is not null)
+                {
+                    return new InputOutput(typeName, typeDescription.ToString().Trim());
+                }
+
+                return null;
+            }
+            finally
+            {
+                Constants.StringBuilderPool.Return(typeDescription);
+            }
+        }
+
         private List<InputOutput> ReadInput(XmlReader reader)
         {
             List<InputOutput> inputItem = new();
@@ -298,24 +340,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
-                        string? typeName = null;
-                        string? typeDescription = null;
-
-                        if (reader.ReadToFollowing(Constants.MamlNameTag))
+                        var input = ReadInputOutput(reader.ReadSubtree());
+                        if (input is not null)
                         {
-                            typeName = reader.ReadElementContentAsString();
+                            inputItem.Add(input);
                         }
-
-                        if (reader.ReadToFollowing(Constants.MamlParaTag))
-                        {
-                            typeDescription = reader.ReadElementContentAsString();
-                        }
-
-                        if (typeName is not null && typeDescription is not null)
-                        {
-                            inputItem.Add(new InputOutput(typeName, typeDescription));
-                        }
-
                     } while (reader.ReadToNextSibling(Constants.MamlCommandInputTypeTag));
                 }
             }
@@ -333,24 +362,11 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
-                        string? typeName = null;
-                        string? typeDescription = null;
-
-                        if (reader.ReadToFollowing(Constants.MamlNameTag))
+                        var output = ReadInputOutput(reader.ReadSubtree());
+                        if (output is not null)
                         {
-                            typeName = reader.ReadElementContentAsString();
+                            outputItem.Add(output);
                         }
-
-                        if (reader.ReadToFollowing(Constants.MamlParaTag))
-                        {
-                            typeDescription = reader.ReadElementContentAsString();
-                        }
-
-                        if (typeName is not null && typeDescription is not null)
-                        {
-                            outputItem.Add(new InputOutput(typeName, typeDescription));
-                        }
-
                     } while (reader.ReadToNextSibling(Constants.MamlCommandReturnValueTag));
                 }
             }
