@@ -181,7 +181,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 string outputName = outputType.Name;
                 if (outputName.EndsWith("[]"))
                 {
-                    outputName = FixUpTypeName(outputName);
+                    outputName = FixUpTypeName(outputName, preserveArrays: true);
                 }
 
                 if (!outputTypeNames.Contains(outputName))
@@ -811,7 +811,7 @@ namespace Microsoft.PowerShell.PlatyPS
             {
                 foreach (dynamic ioType in typesInfo)
                 {
-                    string typeName = FixUpTypeName(ioType.type.name?.Split()?[0] ?? string.Empty);
+                    string typeName = FixUpTypeName(ioType.type.name?.Split()?[0] ?? string.Empty, preserveArrays: true);
                     if (! string.IsNullOrEmpty(typeName) && string.Compare(typeName, "None", true) != 0)
                     {
                         string description = GetStringFromDescriptionArray(ioType.description)?.Trim() ?? string.Empty;
@@ -828,7 +828,7 @@ namespace Microsoft.PowerShell.PlatyPS
                     // these are really multiple entries, so split them here.
                     if (name.IndexOf("\n") == -1 && string.Compare(name, "None", true) != 0)
                     {
-                        itemList.Add(new InputOutput(FixUpTypeName(name), Constants.FillInDescription));
+                        itemList.Add(new InputOutput(FixUpTypeName(name, preserveArrays: true), Constants.FillInDescription));
                     }
                     else
                     {
@@ -836,14 +836,14 @@ namespace Microsoft.PowerShell.PlatyPS
                         {
                             if (string.Compare(tName, "None", true) != 0)
                             {
-                                itemList.Add(new InputOutput(FixUpTypeName(tName), Constants.FillInDescription));
+                                itemList.Add(new InputOutput(FixUpTypeName(tName, preserveArrays: true), Constants.FillInDescription));
                             }
                         }
                     }
                 }
                 else
                 {
-                    string typeName = FixUpTypeName(ioTypes.type.name.ToString());
+                    string typeName = FixUpTypeName(ioTypes.type.name.ToString(), preserveArrays: true);
                     if (! string.IsNullOrEmpty(typeName) && string.Compare(typeName, "None", true) != 0)
                     {
                         string description = GetStringFromDescriptionArray(ioTypes.description).Trim();
@@ -857,7 +857,8 @@ namespace Microsoft.PowerShell.PlatyPS
 
         // We have to remove carriage returns that might be present from help
         // We also will remove trailing [] because we should generally return singletons
-        private string FixUpTypeName(string typename)
+        // For input/output types, preserve array notation as it's semantically important
+        private string FixUpTypeName(string typename, bool preserveArrays = false)
         {
             // If the type is a generic type, we need to remove the backtick and the number.
             string fixedString = typename.Replace("System.Nullable`1[[", string.Empty).Trim();
@@ -867,7 +868,7 @@ namespace Microsoft.PowerShell.PlatyPS
                 fixedString = fixedString.Substring(0, commaIndex).Trim();
             }
 
-            if (fixedString.EndsWith("[]"))
+            if (!preserveArrays && fixedString.EndsWith("[]"))
             {
                 fixedString = fixedString.Remove(fixedString.Length - 2);
             }
