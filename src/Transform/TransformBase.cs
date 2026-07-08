@@ -385,8 +385,6 @@ namespace Microsoft.PowerShell.PlatyPS
                                 string.Compare(paramInfo.ParameterType.Name, "SwitchParameter", true) == 0)
                         );
                     }
-                    Parameter param = GetParameterInfo(cmdletInfo, helpItem, paramInfo);
-                    syn.AddParameter(param);
                 }
 
                 // now take the named parameters.
@@ -407,8 +405,6 @@ namespace Microsoft.PowerShell.PlatyPS
                             string.Compare(paramInfo.ParameterType.Name, "SwitchParameter", true) == 0);
                         syn.SyntaxParameters.Add(sParm);
                     }
-                    Parameter param = GetParameterInfo(cmdletInfo, helpItem, paramInfo);
-                    syn.AddParameter(param);
                 }
 
                 syntaxItems.Add(syn);
