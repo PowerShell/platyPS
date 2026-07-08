@@ -3,7 +3,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 
@@ -20,27 +19,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
 
         public List<SyntaxParameter> SyntaxParameters = new();
 
-        public List<Parameter> Parameters = new();
-
-        private List<string> _parameterNames = new();
-
-        public ReadOnlyCollection<string> ParameterNames {
-            get => new ReadOnlyCollection<string>(_parameterNames);
-        }
-
-        public ReadOnlyCollection<int> PositionalParameterKeys {
-            get => new ReadOnlyCollection<int>(_positionalParameters.Keys);
-        }
-
-        // Sort parameters by position
-        private SortedList<int, Parameter> _positionalParameters;
-
-        // Sort parameters by if they are Required by name
-        private SortedList<string, Parameter> _requiredParameters;
-
-        // Sort parameters by name
-        private SortedList<string, Parameter> _alphabeticOrderParameters;
-
         public bool IsDefaultParameterSet { get; }
 
         public SyntaxItem(string commandName, string parameterSetName, bool isDefaultParameterSet)
@@ -48,10 +26,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             CommandName = commandName;
             ParameterSetName = parameterSetName;
             IsDefaultParameterSet = isDefaultParameterSet;
-
-            _positionalParameters = new SortedList<int, Parameter>();
-            _requiredParameters = new SortedList<string, Parameter>();
-            _alphabeticOrderParameters = new SortedList<string, Parameter>();
         }
 
         /// <summary>
@@ -65,26 +39,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             IsDefaultParameterSet = syntaxItem.IsDefaultParameterSet;
             SyntaxParameters = new List<SyntaxParameter>(syntaxItem.SyntaxParameters);
             HasCmdletBinding = syntaxItem.HasCmdletBinding;
-            Parameters = new List<Parameter>(syntaxItem.Parameters);
-
-            _positionalParameters = new SortedList<int, Parameter>(syntaxItem._positionalParameters);
-            _requiredParameters = new SortedList<string, Parameter>(syntaxItem._requiredParameters);
-            _alphabeticOrderParameters = new SortedList<string, Parameter>(syntaxItem._alphabeticOrderParameters);
-            _parameterNames = new List<string>(syntaxItem._parameterNames);
-        }
-
-        public void AddParameter(Parameter parameter)
-        {
-            string name = parameter.Name;
-
-            if (Constants.CommonParametersNames.Contains(name))
-            {
-                HasCmdletBinding = true;
-                return;
-            }
-
-            _parameterNames.Add(name);
-            _alphabeticOrderParameters.Add(name, parameter);
         }
 
         /// <summary>
@@ -130,19 +84,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             SyntaxParameters = sortedList;
         }
 
-        public void AddParameter(SyntaxParameter parameter)
-        {
-            string name = parameter.ParameterName;
-
-            if (Constants.CommonParametersNames.Contains(name))
-            {
-                HasCmdletBinding = true;
-                return;
-            }
-
-            _parameterNames.Add(name);
-        }
-
         private string GetFormattedSyntaxParameter(string paramName, string paramTypeName, bool isPositional, bool isRequired)
         {
             bool isSwitchParam = string.Equals(paramTypeName, "SwitchParameter", StringComparison.OrdinalIgnoreCase);
@@ -180,24 +121,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
             else
             {
                 return string.Format(Constants.OptionalParamTemplate, paramName, paramType);
-            }
-        }
-
-        public IEnumerable<Parameter> GetParametersInOrder()
-        {
-            foreach (KeyValuePair<int, Parameter> kv in _positionalParameters)
-            {
-                yield return kv.Value;
-            }
-
-            foreach (KeyValuePair<string, Parameter> kv in _requiredParameters)
-            {
-                yield return kv.Value;
-            }
-
-            foreach (KeyValuePair<string, Parameter> kv in _alphabeticOrderParameters)
-            {
-                yield return kv.Value;
             }
         }
 

@@ -87,7 +87,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 foreach (var syntax in commandHelp.Syntax)
                 {
-                    command.Syntax.Add(ConvertSyntax(syntax));
+                    command.Syntax.Add(ConvertSyntax(syntax, commandHelp.Parameters));
                 }
             }
 
@@ -143,7 +143,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             }
         }
 
-        private static SyntaxItem ConvertSyntax(Model.SyntaxItem syntax)
+        private static SyntaxItem ConvertSyntax(Model.SyntaxItem syntax, List<Model.Parameter> parameters)
         {
             var newSyntax = new SyntaxItem();
             var firstSpace = syntax.CommandName.IndexOf(' ');
@@ -155,10 +155,8 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             {
                 newSyntax.CommandName = syntax.CommandName.Substring(0, firstSpace);
             }
-            foreach(var parameter in syntax.GetParametersInOrder())
-            {
-                newSyntax.Parameters.Add(ConvertParameter(parameter));
-            }
+            syntax.SortParameters();
+            newSyntax.Parameters.AddRange(syntax.SyntaxParameters.Select(sp => ConvertSyntaxParameter(sp, parameters)));
 
             return newSyntax;
         }
@@ -186,16 +184,22 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             return pipelineInput;
         }
 
-        private static ParameterValue GetParameterValue(Model.Parameter parameter)
+        private static ParameterValue? GetParameterValue(Model.Parameter parameter)
         {
+            // dont render <command:parameterValue> element when the parameter type is SwitchParameter
+            if (parameter.Type is "SwitchParameter" or "System.Management.Automation.SwitchParameter")
+            {
+                return null;
+            }
+
             var parameterValue = new ParameterValue();
             if (parameter is not null)
             {
                 parameterValue.DataType = parameter.Type;
                 parameterValue.IsVariableLength = parameter.VariableLength;
-                // We just mark mandatory if one of the parameter sets is mandatory since MAML doesn't
-                // have a way to disambiguate these.
-                parameterValue.IsMandatory = parameter.ParameterSets.Any(x => x.IsRequired);
+                // Should be `true`. This indicates not the parameter is mandatory or not, but the parameter **value** is mandatory or not.
+                // The parameter which parameter value is not required is SwitchParameter, but SwitchParameter does not ouput this element itself.
+                parameterValue.IsMandatory = true;
             }
             return parameterValue;
         }
@@ -209,6 +213,7 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
             var pSet = parameter.ParameterSets.FirstOrDefault();
             newParameter.Position = pSet is null ? Model.Constants.NamedString : pSet.Position;
             newParameter.Value = GetParameterValue(parameter);
+            newParameter.Type = new DataType() { Name = parameter.Type };
             newParameter.SupportsPipelineInput = GetPipelineInputType(parameter);
 
             if (parameter.Description is not null)
@@ -219,6 +224,61 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
                 }
             }
 
+            if (parameter.Aliases.Count > 0)
+            {
+                newParameter.Aliases = string.Join(", ", parameter.Aliases);
+            }
+
+            if (parameter.AcceptedValues.Count > 0)
+            {
+                var acceptedValues = parameter.AcceptedValues.Select(val => new ParameterValue() { DataType = val });
+                newParameter.ParameterValueGroup = acceptedValues.ToList();
+            }
+
+            return newParameter;
+        }
+
+        private static Parameter ConvertSyntaxParameter(Model.SyntaxParameter syntaxParam, List<Model.Parameter> parameters)
+        {
+            var newParameter = new MAML.Parameter()
+            {
+                Name = syntaxParam.ParameterName,
+                IsMandatory = syntaxParam.IsMandatory,
+                Position = syntaxParam.Position,
+            };
+            if (syntaxParam.IsSwitchParameter)
+            {
+                newParameter.Type = new DataType()
+                {
+                    Name = "System.Management.Automation.SwitchParameter"
+                };
+            }
+            else
+            {
+                newParameter.Value = new MAML.ParameterValue()
+                {
+                    DataType = syntaxParam.ParameterType,
+                    IsMandatory = true
+                };
+
+                var parameter = parameters.FirstOrDefault(p => string.Equals(p.Name, syntaxParam.ParameterName, StringComparison.Ordinal));
+                if (parameter is not null)
+                {
+                    newParameter.Type = new DataType()
+                    {
+                        Name = parameter.Type
+                    };
+                    if (parameter.Aliases.Count > 0)
+                    {
+                        newParameter.Aliases = string.Join(", ", parameter.Aliases);
+                    }
+                    if (parameter.AcceptedValues.Count > 0)
+                    {
+                        var acceptedValues = parameter.AcceptedValues.Select(val => new ParameterValue() { DataType = val });
+                        newParameter.ParameterValueGroup = acceptedValues.ToList();
+                    }
+                }
+            }
             return newParameter;
         }
 

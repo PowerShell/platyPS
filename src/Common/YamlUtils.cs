@@ -646,8 +646,6 @@ namespace Microsoft.PowerShell.PlatyPS
                         }
                     }
 
-                    // add the parameter name
-                    si.Parameters.ForEach(p => si.AddParameter(p));
                     syntaxes.Add(si);
                 }
             }
