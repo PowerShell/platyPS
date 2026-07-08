@@ -141,7 +141,7 @@ Describe "Export-MamlCommandHelp tests" {
             $mamlFile = $m | Export-MamlCommandHelp -OutputFolder "$outputDirectory/helpuri" -Force
             $mamlFile | Should -Exist
             $maml = Get-Content -Path $mamlFile -Raw
-            $maml | Should -BeLike '*<command:uri>https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&amp;WT.mc_id=ps-gethelp</command:uri>*'
+            $maml | Should -BeLike '*<maml:uri>https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&amp;WT.mc_id=ps-gethelp</command:uri>*'
         }
 
         It "Should have the proper aliases for Get-Date" {
