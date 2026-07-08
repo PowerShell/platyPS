@@ -70,6 +70,31 @@ Describe "Import-YamlHelp tests" {
                 $syntaxParam.IsMandatory | should -be $IsMandatory
                 $syntaxParam.IsPositional | should -be $IsPositional
                 $syntaxParam.IsSwitchParameter | should -be $IsSwitchParameter
+              }
+        }
+        
+        Context "Inputs/Outputs check" {
+            It "has the proper Inputs for the '<name>' cmdlet" -testcases @(
+                @{ name = 'Add-Member'; expectedValues = 'System.Management.Automation.PSObject' },
+                @{ name = 'Get-PSBreakpoint'; expectedValues = 'System.Int32', 'Microsoft.PowerShell.Commands.BreakpointType' }
+            ) {
+                param ([string]$name, [string[]]$expectedValues)
+
+                $values = $importedCmds.Where({$_.Title -eq $name}).Inputs.Typename
+                $values | Should -BeExactly $expectedValues
+            }
+
+            It "has the proper Outputs for the '<name>' cmdlet" -testcases @(
+                @{ name = 'Add-Member'; expectedValues = 'None', 'System.Object' },
+                @{ name = 'Get-PSBreakpoint'; expectedValues = 'System.Management.Automation.CommandBreakpoint',
+                                                               'System.Management.Automation.LineBreakpoint',
+                                                               'System.Management.Automation.VariableBreakpoint',
+                                                               'System.Management.Automation.Breakpoint' }
+            ) {
+                param ([string]$name, [string[]]$expectedValues)
+
+                $values = $importedCmds.Where({$_.Title -eq $name}).Outputs.Typename
+                $values | Should -BeExactly $expectedValues
             }
         }
     }

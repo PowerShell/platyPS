@@ -272,7 +272,7 @@ function New-HelpCabinetFile {
     )
 
     end {
-        if (! $IsWindows) {
+        if ($PSEdition -eq 'Core' -and ! $IsWindows) {
             throw "'New-HelpCabinetFile' is only supported on Windows."
         }
 
