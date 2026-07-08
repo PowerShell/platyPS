@@ -143,5 +143,65 @@ Describe "Export-MamlCommandHelp tests" {
             $maml = Get-Content -Path $mamlFile -Raw
             $maml | Should -BeLike '*<command:uri>https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&amp;WT.mc_id=ps-gethelp</command:uri>*'
         }
+
+        It "Should have the proper aliases for Get-Date" {
+            $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).Parameters.parameter.
+                  Where({$_.Name -in @('Date', 'UnixTimeSeconds')}).aliases | Should -Be 'LastWriteTime', 'UnixTime'
+        }
+
+        It "Should have the proper parameterValueGroup for 'DisplayHint' parameter of Get-Date" {
+            $parameter = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"}).
+                               parameters.parameter.Where({$_.Name -eq 'DisplayHint'})
+            $parameter.SelectNodes('./command:parameterValueGroup/command:parameterValue', $ns2).'#text' |
+                Should -BeExactly 'Date', 'Time', 'DateTime'
+        }
+
+        It "Should have the proper values for '<name>' syntax parameter of Get-Date" -testcases @(
+            @{ name = "Date";  position = "0";     aliases = "LastWriteTime"; parameterValue = "DateTime"; type = "System.DateTime"; },
+            @{ name = "Year";  position = "named"; aliases = "none";          parameterValue = "Int32";    type = "System.Int32"; },
+            @{ name = "AsUTC"; position = "named"; aliases = "none";          parameterValue = $null;      type = "System.Management.Automation.SwitchParameter" }
+        ) {
+            param($name, $position, $aliases, $parameterValue, $type)
+
+            $command = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"})
+            $syntaxParam = $command.syntax.syntaxItem[0].parameter.Where({$_.name -eq $name});
+            $syntaxParam.Count | Should -Be 1;
+            $syntaxParam.position | Should -BeExactly $position
+            $syntaxParam.aliases | Should -BeExactly $aliases
+            if ($null -eq $parameterValue)
+            {
+                $syntaxParam.parameterValue | Should -BeNullOrEmpty
+            }
+            else
+            {
+                $syntaxParam.parameterValue."#text" | Should -BeExactly $parameterValue
+                $syntaxParam.parameterValue.required | Should -BeExactly 'true'
+            }
+            $syntaxParam.type.name | Should -BeExactly $type
+        }
+
+        It "Should have the proper values for '<name>' parameter of Get-Date" -testcases @(
+            @{ name = "Date";  position = "0";     aliases = "LastWriteTime"; parameterValue = "System.DateTime"; type = "System.DateTime"; },
+            @{ name = "Year";  position = "Named"; aliases = "none";          parameterValue = "System.Int32";    type = "System.Int32"; },
+            @{ name = "AsUTC"; position = "Named"; aliases = "none";          parameterValue = $null;             type = "System.Management.Automation.SwitchParameter" }
+        ) {
+            param($name, $position, $aliases, $parameterValue, $type)
+
+            $command = $xml2.SelectNodes('//command:command', $ns2).Where({$_.details.name -eq "Get-Date"})
+            $param = $command.parameters.parameter.Where({$_.name -eq $name});
+            $param.Count | Should -Be 1;
+            $param.position | Should -BeExactly $position
+            $param.aliases | Should -BeExactly $aliases
+            if ($null -eq $parameterValue)
+            {
+                $param.parameterValue | Should -BeNullOrEmpty
+            }
+            else
+            {
+                $param.parameterValue."#text" | Should -BeExactly $parameterValue
+                $param.parameterValue.required | Should -BeExactly 'true'
+            }
+            $param.type.name | Should -BeExactly $type
+        }
     }
 }

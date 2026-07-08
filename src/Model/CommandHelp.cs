@@ -202,34 +202,6 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal void AddParameter(Parameter parameter)
         {
             Parameters.Add(parameter);
-            foreach(var parameterSet in parameter.ParameterSets)
-            {
-                if (string.Compare(parameterSet.Name, "(All)", StringComparison.OrdinalIgnoreCase) == 0)
-                {
-                    foreach(var syntax in SyntaxDictionary.Values)
-                    {
-                        try
-                        {
-                            syntax.AddParameter(parameter);
-                        }
-                        catch
-                        {
-                            // This is okay, we just don't want to add it to the syntax item if it's already there.
-                        }
-                    }
-                }
-                else if (SyntaxDictionary.TryGetValue(parameterSet.Name, out var syntaxItem))
-                {
-                    try
-                    {
-                        syntaxItem.AddParameter(parameter);
-                    }
-                    catch
-                    {
-                        // This is okay, we just don't want to add it to the syntax item if it's already there.
-                    }
-                }
-            }
         }
 
         public bool TryGetParameter(string name, out Parameter? parameter)
