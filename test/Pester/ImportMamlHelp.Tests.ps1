@@ -1,7 +1,7 @@
 # Copyright (c) Microsoft Corporation.
 # Licensed under the MIT License.
 
-Describe "Import-YamlHelp tests" {
+Describe "Import-MamlHelp tests" {
     Context "Basic tests" {
         BeforeAll {
             $mamlFile = "${PSScriptRoot}/assets/Microsoft.PowerShell.Commands.Utility.dll-Help.xml"
@@ -95,6 +95,14 @@ Describe "Import-YamlHelp tests" {
 
                 $values = $importedCmds.Where({$_.Title -eq $name}).Outputs.Typename
                 $values | Should -BeExactly $expectedValues
+            }
+        }
+
+        Context 'Load legacy' {
+            It 'load <command:uri> in related links' {
+                $mamlFile = "${PSScriptRoot}/assets/legacy-maml/command-uri-in-related-links.xml"
+                $importedCmd = Import-MamlHelp $mamlFile
+                $importedCmd.RelatedLinks[0].Uri | Should -Be "https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&WT.mc_id=ps-gethelp"
             }
         }
     }
