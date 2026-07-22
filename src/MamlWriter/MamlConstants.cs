@@ -39,5 +39,15 @@ namespace Microsoft.PowerShell.PlatyPS.Model
         internal const string MamlLinkTextTag = "maml:linkText";
         internal const string MamlUriTag = "maml:uri";
         internal const string MamlFileExtensionSuffix = "-help.xml";
+        // Legacy compatibility:
+        // Older versions of platyPS (prior to 1.0.2) emitted `<command:url>`
+        // in Export-MamlCommandHelp, and some existing MAML help files still
+        // use `<command:uri>`. PowerShell’s built-in MAML reader accepts both
+        // because it matches only the local-name `uri`.
+        //
+        // Import-MamlHelp must continue to support `<command:uri>` for
+        // compatibility with legacy MAML content. This constant can be removed
+        // once all supported MAML formats use `<maml:uri>` exclusively.
+        internal const string MamlCommandUriTag = "command:uri";
     }
 }

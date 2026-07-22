@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<helpItems xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" schema="maml" xmlns="http://msh">
+  <command:command>
+    <command:details>
+      <command:name>Get-Date</command:name>
+      <maml:description>
+        <maml:para>Gets the current date and time.</maml:para>
+      </maml:description>
+      <command:verb>Get</command:verb>
+      <command:noun>Date</command:noun>
+    </command:details>
+    <maml:description>
+      <maml:para />
+    </maml:description>
+    <command:syntax>
+      <command:syntaxItem>
+        <maml:name>Get-Date</maml:name>
+      </command:syntaxItem>
+    </command:syntax>
+    <command:parameters />
+    <command:inputTypes />
+    <command:returnValues />
+    <maml:alertSet>
+      <maml:alert>
+        <maml:para />
+      </maml:alert>
+    </maml:alertSet>
+    <command:examples />
+    <command:relatedLinks>
+      <maml:navigationLink>
+        <maml:linkText>Online Version</maml:linkText>
+        <command:uri>https://learn.microsoft.com/powershell/module/microsoft.powershell.utility/get-date?view=powershell-7.4&amp;WT.mc_id=ps-gethelp</command:uri>
+      </maml:navigationLink>
+    </command:relatedLinks>
+  </command:command>
+</helpItems>

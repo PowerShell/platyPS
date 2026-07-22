@@ -137,26 +137,34 @@ namespace Microsoft.PowerShell.PlatyPS
                 {
                     do
                     {
+                        var subTree = reader.ReadSubtree();
+
                         string? linkText = null;
                         string? uri = null;
 
-                        if (reader.ReadToFollowing(Constants.MamlLinkTextTag))
+                        while (subTree.Read())
                         {
-                            linkText = reader.ReadElementContentAsString();
-                        }
-
-                        if (reader.ReadToFollowing(Constants.MamlUriTag))
-                        {
-                            uri = reader.ReadElementContentAsString();
+                            switch (subTree.Name)
+                            {
+                                case Constants.MamlLinkTextTag:
+                                    linkText = reader.ReadElementContentAsString();
+                                    continue;
+                                case Constants.MamlUriTag:
+                                case Constants.MamlCommandUriTag:
+                                    // Support `<command:uri>` for legacy MAML compatibility.
+                                    // PowerShell’s built-in MAML reader accepts both `<maml:uri>` and
+                                    // `<command:uri>` (matching only the local-name `uri`), so platyPS
+                                    // must do the same. This branch can be removed once legacy MAML
+                                    // formats are no longer supported.
+                                    uri = reader.ReadElementContentAsString();
+                                    continue;
+                            }
                         }
 
                         if (linkText != null && uri != null)
                         {
                             relatedLinks.Add(new Links(uri, linkText));
                         }
-
-                        reader.ReadEndElement();
-
                     } while (reader.ReadToNextSibling(Constants.MamlNavigationLinkTag));
                 }
             }
