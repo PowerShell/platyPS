@@ -65,12 +65,12 @@ namespace Microsoft.PowerShell.PlatyPS.MAML
         {
             var command = new Command();
             command.Details = ConvertCommandDetails(commandHelp);
+
+            // We don't break up these lines, but provide a single paragraph
+            // to get better formatting.
             if (commandHelp.Description is not null)
             {
-                foreach(string s in commandHelp.Description.Split(new string[] { "\n\n" }, StringSplitOptions.None))
-                {
-                    command.Description.Add(s.Replace("\n"," ").Trim());
-                }
+                command.Description.Add(commandHelp.Description);
             }
 
             // Notes are reconstituted as Alerts in AlertSet
