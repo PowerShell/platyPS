@@ -264,8 +264,6 @@ namespace Microsoft.PowerShell.PlatyPS
             }
             else
             {
-                int exampleCounter = 1;
-
                 var examplesArray = helpItem?.examples?.example;
 
                 if (examplesArray is not null)
@@ -274,7 +272,7 @@ namespace Microsoft.PowerShell.PlatyPS
 
                     foreach (dynamic item in examplesAsCollection)
                     {
-                        string title = item.title.ToString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", string.Empty);
+                        string title = TransformUtils.GetExampleTitle(item.title.ToString());
 
                         Example exp = new(
                             title,
@@ -282,7 +280,6 @@ namespace Microsoft.PowerShell.PlatyPS
                             );
 
                         examples.Add(exp);
-                        exampleCounter++;
                     }
                 }
             }

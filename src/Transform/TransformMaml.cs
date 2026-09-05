@@ -178,17 +178,13 @@ namespace Microsoft.PowerShell.PlatyPS
 
             if (reader.ReadToFollowing(Constants.MamlCommandExamplesTag))
             {
-                int exampleCounter = 1;
-
                 if (reader.ReadToDescendant(Constants.MamlCommandExampleTag))
                 {
                     do
                     {
-                        examples.Add(ReadExample(reader.ReadSubtree(), exampleCounter));
+                        examples.Add(ReadExample(reader.ReadSubtree()));
 
                         reader.ReadEndElement();
-
-                        exampleCounter++;
                     } while (reader.ReadToNextSibling(Constants.MamlCommandExampleTag));
                 }
             }
@@ -196,14 +192,14 @@ namespace Microsoft.PowerShell.PlatyPS
             return examples;
         }
 
-        private Example ReadExample(XmlReader reader, int exampleCounter)
+        private Example ReadExample(XmlReader reader)
         {
             string? title = null;
             string? code = null;
 
             if (reader.ReadToFollowing(Constants.MamlTitleTag))
             {
-                title = reader.ReadElementContentAsString().Trim(' ', '-').Replace($"Example {exampleCounter}: ", string.Empty);
+                title = TransformUtils.GetExampleTitle(reader.ReadElementContentAsString());
             }
 
             if (reader.ReadToFollowing(Constants.MamlDevCodeTag))
