@@ -181,3 +181,78 @@ Export-ModuleMember -Function Get-PlatyPSExampleTitle
         $markdownHelp.Examples[$Index].Remarks | Should -Match 'Get-PlatyPSExampleTitle'
     }
 }
+
+$supportsCommentExampleTitles = $null -ne [System.Management.Automation.Language.CommentHelpInfo].GetProperty('ExampleTitles')
+
+Describe 'Comment-based example titles' {
+    BeforeAll {
+        if ($supportsCommentExampleTitles) {
+            $modulePath = Join-Path -Path $TestDrive -ChildPath 'PlatyPSCommentExamples.psm1'
+            @'
+$ErrorActionPreference = 'Stop'
+function Get-PlatyPSCommentExample {
+    <#
+    .SYNOPSIS
+    Demonstrates mixed titled and untitled examples.
+    .DESCRIPTION
+    Exercises punctuation without changing the example bodies.
+    .EXAMPLE Title ending in -
+    Get-PlatyPSCommentExample
+
+    Preserves the trailing dash.
+    .EXAMPLE Compare Example 2: with Example 3
+    Get-PlatyPSCommentExample
+
+    Preserves the embedded example label.
+    .EXAMPLE
+    Get-PlatyPSCommentExample
+
+    Preserves the untitled example.
+    #>
+    [CmdletBinding()]
+    param()
+}
+function Get-PlatyPSSingleCommentExample {
+    # .SYNOPSIS
+    # Demonstrates a single example using line comments.
+    # .DESCRIPTION
+    # Exercises the single-example shape returned by Get-Help.
+    # .EXAMPLE A single titled example -
+    # Get-PlatyPSSingleCommentExample
+    #
+    # Preserves a title when Get-Help returns a single example.
+    [CmdletBinding()]
+    param()
+}
+Export-ModuleMember -Function Get-PlatyPSCommentExample, Get-PlatyPSSingleCommentExample
+'@ | Set-Content -LiteralPath $modulePath -Encoding utf8
+            $module = Import-Module -Name $modulePath -PassThru
+            $markdownFiles = $module | New-MarkdownCommandHelp -OutputFolder (Join-Path $TestDrive 'markdown')
+            $commentHelp = @(Import-MarkdownCommandHelp -LiteralPath $markdownFiles.FullName)
+        }
+    }
+
+    AfterAll {
+        Get-Module -Name PlatyPSCommentExamples | Remove-Module
+    }
+
+    It 'Should preserve <Name> in generated Markdown' -Skip:(-not $supportsCommentExampleTitles) -TestCases @(
+        @{ Name = 'a trailing dash'; Command = 'Get-PlatyPSCommentExample'; Index = 0; Title = 'Title ending in -' }
+        @{ Name = 'an embedded example label'; Command = 'Get-PlatyPSCommentExample'; Index = 1; Title = 'Compare Example 2: with Example 3' }
+        @{ Name = 'an untitled example'; Command = 'Get-PlatyPSCommentExample'; Index = 2; Title = '' }
+        @{ Name = 'a single line-comment example'; Command = 'Get-PlatyPSSingleCommentExample'; Index = 0; Title = 'A single titled example -' }
+    ) {
+        param($Command, $Index, $Title)
+        $help = $commentHelp | Where-Object -Property Title -EQ $Command
+        $rawTitle = @((Get-Help -Name $Command -Full).examples.example)[$Index].title.ToString().Trim()
+        $borderLength = '-------------------------- '.Length
+        $expectedHeading = $rawTitle.Substring($borderLength, $rawTitle.Length - 2 * $borderLength)
+        $help.Examples[$Index].Title | Should -BeExactly $expectedHeading
+        if ($Title) {
+            $help.Examples[$Index].Title.EndsWith(": $Title", [System.StringComparison]::Ordinal) | Should -Be $true
+        } else {
+            $help.Examples[$Index].Title | Should -Not -Match ': '
+        }
+        $help.Examples[$Index].Remarks | Should -Match $Command
+    }
+}
