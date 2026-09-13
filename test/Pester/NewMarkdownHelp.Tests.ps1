@@ -155,6 +155,18 @@ Describe 'New-MarkdownCommandHelp' {
         It 'generates markdown that excludes CommonParameters from simple functions' {
             ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.md' }).FullName | Should -FileContentMatch -Not '### CommonParameters'
         }
+
+        It 'generates a syntax block that includes [<CommonParameters>] for advanced functions' {
+            $file = ($files | Where-Object -FilterScript { $_.Name -eq 'Get-AdvancedFn.md' }).FullName
+            $syntaxLine = Get-Content $file | Where-Object -FilterScript { $_ -match '^Get-AdvancedFn' }
+            $syntaxLine | Should -Be 'Get-AdvancedFn [<CommonParameters>]'
+        }
+
+        It 'generates a syntax block that excludes [<CommonParameters>] for simple functions' {
+            $file = ($files | Where-Object -FilterScript { $_.Name -eq 'Get-SimpleFn.md' }).FullName
+            $syntaxLine = Get-Content $file | Where-Object -FilterScript { $_ -match '^Get-SimpleFn' }
+            $syntaxLine | Should -Be 'Get-SimpleFn'
+        }
     }
 
     Context 'from command' {
