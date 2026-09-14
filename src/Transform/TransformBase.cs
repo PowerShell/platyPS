@@ -70,6 +70,8 @@ namespace Microsoft.PowerShell.PlatyPS
                 commandInfo is CmdletInfo ||
                 (commandInfo is ExternalScriptInfo extInfo && extInfo.ScriptBlock.Attributes.Contains(new CmdletBindingAttribute()));
 
+            cmdHelp.Syntax.ForEach(si => si.HasCmdletBinding = cmdHelp.HasCmdletBinding);
+
             if (!string.IsNullOrEmpty(cmdHelp.ModuleName))
             {
                 var moduleInfos = PowerShellAPI.GetModuleInfo(cmdHelp.ModuleName, Settings.Session);
