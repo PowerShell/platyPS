@@ -144,5 +144,13 @@ namespace Microsoft.PowerShell.PlatyPS
                 return string.Format(Constants.FillInParameterDescriptionTemplate, paramName);
             }
         }
+
+        internal static string GetExampleTitle(string title)
+        {
+            string trimmedTitle = title.Trim();
+            // Remove only whitespace-separated borders, not dashes or example labels in the title.
+            Match border = Regex.Match(trimmedTitle, @"\A-+\s+(?<title>.*?)\s+-+\z", RegexOptions.Singleline);
+            return border.Success ? border.Groups["title"].Value : trimmedTitle;
+        }
     }
 }
