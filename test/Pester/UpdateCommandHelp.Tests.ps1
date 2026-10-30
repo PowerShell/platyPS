@@ -94,6 +94,37 @@ Describe "Tests for Update-CommandHelp" {
         $ch.Parameters.Where({$_.Name -eq "LiteralPath"}).Description | Should -Not -BeLike "*{{ Fill LiteralPath Description }}*"
     }
 
+    Context "Multi-line parameter descriptions" {
+        BeforeAll {
+            function global:Test-UpdateMultiLineDescription {
+                <#
+                .SYNOPSIS
+                does something
+                .PARAMETER Path
+                The slug of the group to search for, e.g. "group/subgroup".
+                #>
+                [CmdletBinding()]
+                param ([string]$Path)
+            }
+
+            $mlFile = New-MarkdownCommandHelp -Command (Get-Command Test-UpdateMultiLineDescription) -OutputFolder "${TESTDRIVE}/multiline" -Force
+            $mlDescription = (Import-MarkdownCommandHelp -Path $mlFile).Parameters.Where({$_.Name -eq "Path"}).Description
+        }
+
+        It "Should not duplicate a parameter description that spans multiple lines" {
+            $mlDescription | Should -Match "`n"
+            $chUpdate = Update-CommandHelp -Path $mlFile
+            $chUpdate.Parameters.Where({$_.Name -eq "Path"}).Description | Should -BeExactly $mlDescription
+        }
+
+        It "Should not grow the parameter description on repeated Update-MarkdownCommandHelp calls" {
+            Update-MarkdownCommandHelp -Path $mlFile -NoBackup
+            Update-MarkdownCommandHelp -Path $mlFile -NoBackup
+            $updated = Import-MarkdownCommandHelp -Path $mlFile
+            $updated.Parameters.Where({$_.Name -eq "Path"}).Description | Should -BeExactly $mlDescription
+        }
+    }
+
     Context "Parameter attribute updates" {
         BeforeAll {
                 function test-update {

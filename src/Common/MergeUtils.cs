@@ -253,8 +253,10 @@ namespace Microsoft.PowerShell.PlatyPS
                         diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has no description in the help.", DiagnosticSeverity.Warning, "TryGetMergedParameters", -1));
                         description = cmdParam.Description;
                     }
+                    // The markdown reader strips carriage returns, but the description from the command
+                    // may contain them (e.g. Environment.NewLine on Windows), so ignore them when comparing.
                     else if (!string.Equals(cmdParam.Description, templateDescription, StringComparison.OrdinalIgnoreCase)
-                     && !string.Equals(helpParam.Description, cmdParam.Description, StringComparison.OrdinalIgnoreCase))
+                     && !string.Equals(helpParam.Description.Replace("\r", ""), cmdParam.Description.Replace("\r", ""), StringComparison.OrdinalIgnoreCase))
                     {
                         diagnosticMessages.Add(new DiagnosticMessage(DiagnosticMessageSource.Merge, $"Parameter {pName} has the different description in the help and the command. Concatinating.", DiagnosticSeverity.Information, "TryGetMergedParameters", -1));
                         description = string.Join(Environment.NewLine, helpParam.Description, cmdParam.Description);
